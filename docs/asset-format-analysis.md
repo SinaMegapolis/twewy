@@ -2,7 +2,7 @@
 
 This document describes the various asset file formats used in The World Ends with You (Nintendo DS), based on analysis of the game code and community Python scripts from `Ega1232387/TWEWY_DS_pins` and `Ega1232387/TWEWYDS-tools`.
 
-For the reverse-engineering workflow used to derive and document these formats (loader tracing, evidence levels, validation strategy), see `docs/asset-parsing-methodology.md`.
+For the reverse-engineering workflow used to derive and document these formats (loader tracing, evidence levels, validation strategy), see `asset-parsing-methodology.md`.
 
 ## Table of Contents
 1. [PACK Archive Format](#pack-archive-format)

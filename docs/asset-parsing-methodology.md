@@ -240,9 +240,9 @@ Use a repeatable template for each format/family.
 
 ## 9) How this complements existing docs
 
-- `docs/asset-format-analysis.md` is useful as a broad catalog.
-- `docs/inventory-bin-formats.md` is a concrete fixed-record case study.
-- `docs/StaffRoll-analysis.md` shows command-list + pack-driven rendering use.
-- `docs/asset-format-doc-template.md` provides a copy/paste scaffold for new format pages.
+- `asset-format-analysis.md` is useful as a broad catalog.
+- `inventory-bin-formats.md` is a concrete fixed-record case study.
+- `StaffRoll-analysis.md` shows command-list + pack-driven rendering use.
+- `asset-format-doc-template.md` provides a copy/paste scaffold for new format pages.
 
 Use this methodology doc to keep future format docs consistent, evidence-based, and easier to review.

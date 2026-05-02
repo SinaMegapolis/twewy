@@ -7,7 +7,7 @@ This report summarizes current knowledge of TWEWY DS, the decompiled vs undecomp
 ### 1.1 Project scope and constraints
 
 - This repository is a reverse-engineering/decompilation project for Nintendo DS TWEWY and intentionally excludes copyrighted assets. See `README.md`.
-- A legitimate base ROM and setup artifacts are required for a functional build flow. See `README.md` and `docs/CONTRIBUTING.md`.
+-- A legitimate base ROM and setup artifacts are required for a functional build flow. See `README.md` and `CONTRIBUTING.md`.
 
 ### 1.2 Confirmed engine architecture
 
@@ -28,9 +28,9 @@ From current `src/Engine/**`, the runtime is organized into clear subsystems:
 
 ### 1.3 Confirmed data/format knowledge
 
-- PACK archive format (`"pack"` magic `0x6B636170`) and entry-table behavior are documented and reflected by loader code. See `docs/asset-format-analysis.md` and `src/Engine/File/PacMgr.c`.
+-- PACK archive format (`"pack"` magic `0x6B636170`) and entry-table behavior are documented and reflected by loader code. See `asset-format-analysis.md` and `src/Engine/File/PacMgr.c`.
 - Nintendo DS tile/palette conventions (4bpp/8bpp indexed tiles, RGB555 palette expectations) are documented and match usage patterns in engine resource code. See `docs/asset-format-analysis.md`.
-- Save storage format is now well understood (dual-copy primary and backup/friend blocks, signature + checksum validation, staged write state machine). See `docs/savefile-structure.md` and `src/Savefile.c`.
+-- Save storage format is now well understood (dual-copy primary and backup/friend blocks, signature + checksum validation, staged write state machine). See `savefile-structure.md` and `src/Savefile.c`.
 
 ### 1.4 Decompilation status snapshot
 
@@ -51,7 +51,7 @@ This indicates strong progress but still substantial undecoded logic. Incomplete
 - Not yet fully decompiled / still external or assembly-backed:
   - Multiple engine helper functions still named `func_XXXX`
   - Several render/decode paths in OAM/palette/text pipelines
-  - Large portions of overlay/gameplay logic (see `docs/overlays.md`)
+  - Large portions of overlay/gameplay logic (see `overlays.md`)
 
 ## 2. Decompiled and Not Decompiled Engine Analysis
 
