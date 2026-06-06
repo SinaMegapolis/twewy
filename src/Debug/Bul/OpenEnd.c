@@ -41,15 +41,15 @@ void OpenEnd_InitHardware(void) {
     Display_InitMainBG0(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_256x256, GX_BG_COLORS_256, 0, 2, 0, 0x88);
     Display_InitMainBG1(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_256x256, GX_BG_COLORS_256, 2, 4, 0, 0x290);
 
-    g_DisplaySettings.controls[DISPLAY_MAIN].layers = LAYER_BG0 | LAYER_OBJ;
-    g_DisplaySettings.controls[DISPLAY_SUB].bgMode  = GX_BGMODE_0;
+    Display_SetMainLayers(LAYER_BG0 | LAYER_OBJ);
+    g_DisplaySettings.controls[DISPLAY_SUB].bgMode = GX_BGMODE_0;
 
     GXs_SetGraphicsMode(0);
 
     Display_InitSubBG0(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_256x256, GX_BG_COLORS_256, 0, 2, 0, 0x88);
     Display_InitSubBG1(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_256x256, GX_BG_COLORS_256, 2, 4, 0, 0x290);
 
-    g_DisplaySettings.controls[DISPLAY_SUB].layers       = 17;
+    Display_SetSubLayers(LAYER_BG0 | LAYER_OBJ);
     g_DisplaySettings.controls[DISPLAY_MAIN].objTileMode = GX_OBJTILEMODE_1D_128K;
     g_DisplaySettings.controls[DISPLAY_SUB].objTileMode  = GX_OBJTILEMODE_1D_128K;
 
@@ -204,12 +204,12 @@ void OpenEnd_FadeFromBlack(OpenEndState* state) {
 void OpenEnd_ValidateSaveData(OpenEndState* state) {
     if (state->isSaveValid != 0)
         return;
-    s32 saveStatus     = func_02024aa4();
+    s32 saveStatus     = Savefile_ValidateAllSlots();
     state->unk_11A38   = saveStatus;
     state->isSaveValid = 1;
     state->unk_11A40   = 0;
     if (saveStatus == 0) {
-        if ((data_02071cf0.unk_20.unk_1AB6 & 1) != FALSE) {
+        if ((gSaveState.unk_20.unk_1AB6 & 1) != FALSE) {
             state->isThereExistingSaveData = 1;
         }
         return;
@@ -217,7 +217,7 @@ void OpenEnd_ValidateSaveData(OpenEndState* state) {
         state->unk_11A48 = 1;
         return;
     }
-    func_02024d04();
+    Savefile_ResetIOPipeline();
     state->unk_11A40 = 1;
 }
 
@@ -367,14 +367,14 @@ extern void func_ov030_020ae92c();
 void OpenEnd_ContinueGame(OpenEndState* state) {
 
     OverlayTag tag, tag2, tag3, tag4;
-    if (func_020256bc() == 0) {
+    if (Savefile_Load() == 0) {
         if (func_02023010(0x2AB) != 0) {
-            data_02071cf0.unk_20.unk_1AB4 |= 0x10;
+            gSaveState.unk_20.unk_1AB4 |= 0x10;
             MainOvlDisp_ReplaceTop(&tag, &OVERLAY_44_ID, func_ov044_02084a88, 0, 0); //<-- Overlay44 -> Shutdown PP Gain screen
             return;
         }
-        if ((data_02071cf0.unk_20.unk_1AB4 & 0x2) != 0) {
-            data_02071cf0.unk_20.unk_1AB4 &= ~0x2;
+        if ((gSaveState.unk_20.unk_1AB4 & 0x2) != 0) {
+            gSaveState.unk_20.unk_1AB4 &= ~0x2;
             MainOvlDisp_ReplaceTop(&tag2, &OVERLAY_30_ID, func_ov030_020b0fe8, 0, 0); // Load game ?
             return;
         }
@@ -447,7 +447,7 @@ void OpenEnd_Init(OpenEndState* state) {
     Input_Init(&InputStatus, 8, 1, 2);
     TouchInput_Init();
     TouchInput_Update();
-    func_02025b1c();
+    Savefile_InitNewGameDefaults();
     data_02066a58 &= ~0x8; // data_02066a58.bit_3 = 0
     state->dataType  = DatMgr_AllocateSlot();
     state->unk_11A38 = 0;
@@ -504,119 +504,4 @@ void ProcessOverlay_OpenEnd(OpenEndState* state) {
     } else {
         OvlProc_OpenEnd.funcs[stage](state);
     }
-}
-
-void OpenEnd_OnButtonSelect(u32 r0) {
-
-    if (g_OpenEndstate->alreadySelected != 0)
-        return;
-    g_OpenEndstate->selectedOption  = r0;
-    g_OpenEndstate->alreadySelected = 1;
-
-    SndMgr_StartPlayingSE(SEIDX_SE_PAUSE); // SE_pause
-}
-
-BOOL OpenEnd_IsInCircle(s32* coords, s32 x, s32 y) {
-    s32 xx   = (x - coords[0]) * (x - coords[0]);
-    s32 yy   = (y - coords[1]) * (y - coords[1]);
-    s32 dSqr = xx + yy;
-    s32 maxD = coords[2] * coords[2];
-    return dSqr <= maxD;
-}
-
-void OpenEnd_InitBadgeAnim(SpriteAnimation* anim, s16 r1, s16 r2, s16 r3, s16 s1) {
-    *anim         = g_BadgeAnim;
-    anim->binIden = OpenEnd_FileList;
-    anim->unk_1C  = r1;
-    anim->unk_26  = r2;
-    anim->unk_28  = r3;
-    anim->unk_2A  = s1;
-}
-
-typedef struct {
-    /* 0x00 */ Sprite badge;
-    /* 0x40 */ Sprite badgeShadow;
-    /* 0x80 */ u32    badgeIndex;
-} TaskBadge_Data;
-
-s32 OpenEnd_TaskBadge_Init(struct TaskPool* unused_r0, struct Task* r1, void* taskParam) {
-    SpriteAnimation anim;
-    u32*            r2 = (u32*)taskParam;
-
-    TaskBadge_Data* badgeData = r1->data;
-    MI_CpuSet(badgeData, 0, sizeof(TaskBadge_Data));
-
-    u32 badgeIndex        = *r2;
-    badgeData->badgeIndex = badgeIndex;
-    OpenEnd_InitBadgeAnim(&anim, (badgeIndex * 3) + 2, (badgeIndex * 3) + 3, (badgeIndex * 3) + 4, 1);
-
-    Sprite_Load(&badgeData->badgeShadow, &anim);
-
-    anim.unk_2A = 2;
-    Sprite_Load(&badgeData->badge, &anim);
-
-    return 1;
-}
-
-const u32 OpenEnd_TitleScreen_BadgeInfo[][5] = {
-    {0x22, 0x1F, 0x19, 0x00, 0x00},
-    {0xD7, 0x1F, 0x19, 0x01, 0x01}
-};
-
-// Nonmatching
-s32 OpenEnd_TaskBadge_Update(struct TaskPool* unused_r0, struct Task* r1, void* taskParam) {
-    TouchCoord      coords, coords2;
-    TaskBadge_Data* badgeData = r1->data;
-    TouchInput_GetCoord(&coords2);
-
-    coords = coords2;
-
-    if (flag_screenTouched != 0 && TouchInput_IsTouchActive() != FALSE &&
-        OpenEnd_IsInCircle(&OpenEnd_TitleScreen_BadgeInfo[badgeData->badgeIndex][0], coords.x, coords.y) != FALSE)
-    {
-        badgeData->badge.posX = 130;
-        badgeData->badge.posY = 98;
-    } else {
-        badgeData->badge.posX = 128;
-        badgeData->badge.posY = 96;
-    }
-
-    if (flag_screenTouched != 0 && TouchInput_WasTouchReleased() != FALSE) {
-        if (OpenEnd_IsInCircle(&OpenEnd_TitleScreen_BadgeInfo[badgeData->badgeIndex][0], coords.x, coords.y) != FALSE) {
-            OpenEnd_OnButtonSelect(OpenEnd_TitleScreen_BadgeInfo[badgeData->badgeIndex][1]);
-        }
-    }
-    Sprite_Update(&badgeData->badge);
-    Sprite_Update(&badgeData->badgeShadow);
-    return 1;
-}
-
-s32 OpenEnd_TaskBadge_Render(struct TaskPool* unused_r0, struct Task* r1, void* taskParam) {
-    TaskBadge_Data* badgeData = r1->data;
-    Sprite_RenderFrame(&badgeData->badgeShadow);
-    Sprite_RenderFrame(&badgeData->badge);
-    return 1;
-}
-
-s32 OpenEnd_TaskBadge_CleanUp(struct TaskPool* unused_r0, struct Task* r1, void* taskParam) {
-    TaskBadge_Data* badgeData = r1->data;
-    Sprite_Release(&badgeData->badge);
-    Sprite_Release(&badgeData->badgeShadow);
-    return 1;
-}
-
-s32 OpenEnd_TaskBadge_RunTask(struct TaskPool* pool, struct Task* task, void* taskParam, s32 index) {
-    const TaskStages data_ov037_02083b4c = {
-        .initialize = OpenEnd_TaskBadge_Init,
-        .update     = OpenEnd_TaskBadge_Update,
-        .render     = OpenEnd_TaskBadge_Render,
-        .cleanup    = OpenEnd_TaskBadge_CleanUp,
-    };
-    return data_ov037_02083b4c.iter[index](pool, task, taskParam);
-}
-
-s32 OpenEnd_CreateBadgeTask(u32 idx) {
-    static const TaskHandle TaskHandle_OpenEnd_Badge = {"Tsk_OpenEnd_Badge", OpenEnd_TaskBadge_RunTask, 0x84};
-    u32                     badge                    = idx;
-    return EasyTask_CreateTask(g_taskPool, &TaskHandle_OpenEnd_Badge, NULL, 0, 0, &badge);
 }

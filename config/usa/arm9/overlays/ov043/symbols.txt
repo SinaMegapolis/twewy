@@ -17,11 +17,19 @@ ProcessOverlay_TakTest kind:function(arm,size=0x40) addr:0x020826ac
 TakTest_InitSystems kind:function(arm,size=0x338) addr:0x020826ec
 TakTest_VBlank kind:function(arm,size=0xd0) addr:0x02082a24
 TakTest_RegisterVBlank kind:function(arm,size=0x1c) addr:0x02082af4
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Debug/TakTest/TakTest_BG.c
+/////////////////////////////////////////////////////////////
 TakTest_BG_Init kind:function(arm,size=0x1a8) addr:0x02082b10
 TakTest_BG_Update kind:function(arm,size=0x9c) addr:0x02082cb8
 TakTest_BG_Render kind:function(arm,size=0x8) addr:0x02082d54
 TakTest_BG_Destroy kind:function(arm,size=0x58) addr:0x02082d5c
 TakTest_BG_RunTask kind:function(arm,size=0x48) addr:0x02082db4
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Debug/TakTest/TakTest_OBJ.c
+/////////////////////////////////////////////////////////////
 TakTest_OBJ_GetFrameInfo kind:function(arm,size=0x9c) addr:0x02082dfc
 TakTest_OBJ_Load kind:function(arm,size=0x6c) addr:0x02082e98
 TakTest_OBJ_Init kind:function(arm,size=0x18) addr:0x02082f04
@@ -1839,32 +1847,44 @@ func_ov043_020c52a8 kind:function(arm,size=0x34) addr:0x020c52a8
 func_ov043_020c52dc kind:function(arm,size=0x48) addr:0x020c52dc
 func_ov043_020c5324 kind:function(arm,size=0x68) addr:0x020c5324
 func_ov043_020c538c kind:function(arm,size=0x14) addr:0x020c538c
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Menu/Save/Save_BdgU.c
+/////////////////////////////////////////////////////////////
 func_ov043_020c53a0 kind:function(arm,size=0x14c) addr:0x020c53a0
-func_ov043_020c54ec kind:function(arm,size=0xa0) addr:0x020c54ec
-func_ov043_020c558c kind:function(arm,size=0x55c) addr:0x020c558c
-func_ov043_020c5ae8 kind:function(arm,size=0x28) addr:0x020c5ae8
-func_ov043_020c5b10 kind:function(arm,size=0x34) addr:0x020c5b10
-func_ov043_020c5b44 kind:function(arm,size=0x44) addr:0x020c5b44
-func_ov043_020c5b88 kind:function(arm,size=0x34) addr:0x020c5b88
-func_ov043_020c5bbc kind:function(arm,size=0x48) addr:0x020c5bbc
-func_ov043_020c5c04 kind:function(arm,size=0x94) addr:0x020c5c04
+Save_BdgU_GetFrameInfo kind:function(arm,size=0xa0) addr:0x020c54ec
+Save_BdgU_Load kind:function(arm,size=0x55c) addr:0x020c558c
+Save_BdgU_Init kind:function(arm,size=0x28) addr:0x020c5ae8
+Save_BdgU_Update kind:function(arm,size=0x34) addr:0x020c5b10
+Save_BdgU_Render kind:function(arm,size=0x44) addr:0x020c5b44
+Save_BdgU_Destroy kind:function(arm,size=0x34) addr:0x020c5b88
+Save_BdgU_RunTask kind:function(arm,size=0x48) addr:0x020c5bbc
+Save_BdgU_CreateTask kind:function(arm,size=0x94) addr:0x020c5c04
 func_ov043_020c5c98 kind:function(arm,size=0x14) addr:0x020c5c98
-func_ov043_020c5cac kind:function(arm,size=0x9c) addr:0x020c5cac
-func_ov043_020c5d48 kind:function(arm,size=0xf0) addr:0x020c5d48
-func_ov043_020c5e38 kind:function(arm,size=0x20) addr:0x020c5e38
-func_ov043_020c5e58 kind:function(arm,size=0x14) addr:0x020c5e58
-func_ov043_020c5e6c kind:function(arm,size=0x20) addr:0x020c5e6c
-func_ov043_020c5e8c kind:function(arm,size=0x14) addr:0x020c5e8c
-func_ov043_020c5ea0 kind:function(arm,size=0x48) addr:0x020c5ea0
-func_ov043_020c5ee8 kind:function(arm,size=0x38) addr:0x020c5ee8
-func_ov043_020c5f20 kind:function(arm,size=0x9c) addr:0x020c5f20
-func_ov043_020c5fbc kind:function(arm,size=0xa8) addr:0x020c5fbc
-func_ov043_020c6064 kind:function(arm,size=0x20) addr:0x020c6064
-func_ov043_020c6084 kind:function(arm,size=0x74) addr:0x020c6084
-func_ov043_020c60f8 kind:function(arm,size=0x40) addr:0x020c60f8
-func_ov043_020c6138 kind:function(arm,size=0x30) addr:0x020c6138
-func_ov043_020c6168 kind:function(arm,size=0x48) addr:0x020c6168
-func_ov043_020c61b0 kind:function(arm,size=0x34) addr:0x020c61b0
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Menu/Save/Save_SlotCoverU.c
+/////////////////////////////////////////////////////////////
+Save_SlotCoverU_GetFrameInfo kind:function(arm,size=0x9c) addr:0x020c5cac
+Save_SlotCoverU_Load kind:function(arm,size=0xf0) addr:0x020c5d48
+Save_SlotCoverU_Init kind:function(arm,size=0x20) addr:0x020c5e38
+Save_SlotCoverU_Update kind:function(arm,size=0x14) addr:0x020c5e58
+Save_SlotCoverU_Render kind:function(arm,size=0x20) addr:0x020c5e6c
+Save_SlotCoverU_Destroy kind:function(arm,size=0x14) addr:0x020c5e8c
+Save_SlotCoverU_RunTask kind:function(arm,size=0x48) addr:0x020c5ea0
+Save_SlotCoverU_CreateTask kind:function(arm,size=0x38) addr:0x020c5ee8
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Menu/Save/Save_HelpCurU.c
+/////////////////////////////////////////////////////////////
+Save_HelpCurU_GetFrameInfo kind:function(arm,size=0x9c) addr:0x020c5f20
+Save_HelpCurU_Load kind:function(arm,size=0xa8) addr:0x020c5fbc
+Save_HelpCurU_Init kind:function(arm,size=0x20) addr:0x020c6064
+Save_HelpCurU_Update kind:function(arm,size=0x74) addr:0x020c6084
+Save_HelpCurU_Render kind:function(arm,size=0x40) addr:0x020c60f8
+Save_HelpCurU_Destroy kind:function(arm,size=0x30) addr:0x020c6138
+Save_HelpCurU_RunTask kind:function(arm,size=0x48) addr:0x020c6168
+Save_HelpCurU_CreateTask kind:function(arm,size=0x34) addr:0x020c61b0
 
 /////////////////////////////////////////////////////////////
 // src/Debug/Takami/NRep.c
@@ -1926,14 +1946,25 @@ NRepCursor_CreateTask kind:function(arm,size=0x38) addr:0x020c7838
 //////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////
-// src/Debug/Takami/TakTest.c
+// src/Interface/Debug/TakTest/TakTest.c
 /////////////////////////////////////////////////////////////
-OvlProc_TakTest kind:data(any) addr:0x020c7870
-data_ov043_020c787c kind:data(any) addr:0x020c787c
-data_ov043_020c7894 kind:data(any) addr:0x020c7894
+OvlProc_TakTest kind:data(any) addr:0x020c7870 local
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Debug/TakTest/TakTest_BG.c
+/////////////////////////////////////////////////////////////
+data_ov043_020c787c kind:data(any) addr:0x020c787c local
+data_ov043_020c7884 kind:data(any) addr:0x020c7884 local
+data_ov043_020c788c kind:data(any) addr:0x020c788c local
+@1057 kind:data(any) addr:0x020c7894 local
 Tsk_TakTest_BG kind:data(any) addr:0x020c78a4
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Debug/TakTest/TakTest_OBJ.c
+/////////////////////////////////////////////////////////////
 Tsk_TakTest_OBJ kind:data(any) addr:0x020c78b0
-data_ov043_020c78bc kind:data(any) addr:0x020c78bc
+@1048 kind:data(any) addr:0x020c78bc local
+data_ov043_020c78cc kind:data(any) addr:0x020c78cc
 data_ov043_020c78d4 kind:data(any) addr:0x020c78d4
 data_ov043_020c78dc kind:data(any) addr:0x020c78dc
 
@@ -2561,17 +2592,21 @@ data_ov043_020cb2f8 kind:data(any) addr:0x020cb2f8
 data_ov043_020cb308 kind:data(any) addr:0x020cb308
 data_ov043_020cb32c kind:data(any) addr:0x020cb32c
 data_ov043_020cb358 kind:data(any) addr:0x020cb358
-data_ov043_020cb35c kind:data(any) addr:0x020cb35c
+Tsk_Save_bdgU kind:data(any) addr:0x020cb35c
 data_ov043_020cb368 kind:data(any) addr:0x020cb368
 data_ov043_020cb378 kind:data(any) addr:0x020cb378
 data_ov043_020cb390 kind:data(any) addr:0x020cb390
-data_ov043_020cb3bc kind:data(any) addr:0x020cb3bc
+Tsk_Save_slotCoverU kind:data(any) addr:0x020cb3bc
 data_ov043_020cb3c8 kind:data(any) addr:0x020cb3c8
 data_ov043_020cb3d8 kind:data(any) addr:0x020cb3d8
 data_ov043_020cb3f0 kind:data(any) addr:0x020cb3f0
-data_ov043_020cb41c kind:data(any) addr:0x020cb41c
-data_ov043_020cb428 kind:data(any) addr:0x020cb428
-data_ov043_020cb438 kind:data(any) addr:0x020cb438
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Menu/Save/Save_HelpCurU.c
+/////////////////////////////////////////////////////////////
+Tsk_Save_helpCurU kind:data(any) addr:0x020cb41c local
+@1066 kind:data(any) addr:0x020cb428 local
+Save_HelpCurU_Animation kind:data(any) addr:0x020cb438 local
 
 /////////////////////////////////////////////////////////////
 // src/Debug/Takami/NRep.c
@@ -2599,14 +2634,22 @@ data_ov043_020cb540 kind:data(any) addr:0x020cb540
 //////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////
-// src/Debug/Takami/TakTest.c
+// src/Interface/Debug/TakTest/TakTest.c
 /////////////////////////////////////////////////////////////
 data_ov043_020cb580 kind:data(any) addr:0x020cb580
-data_ov043_020cb584 kind:data(any) addr:0x020cb584
-data_ov043_020cb594 kind:data(any) addr:0x020cb594
-data_ov043_020cb5a4 kind:data(any) addr:0x020cb5a4
-data_ov043_020cb5c4 kind:data(any) addr:0x020cb5c4
-data_ov043_020cb5d4 kind:data(any) addr:0x020cb5d4
+@1172 kind:data(any) addr:0x020cb584 local
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Debug/TakTest/TakTest_BG.c
+/////////////////////////////////////////////////////////////
+@1013 kind:data(any) addr:0x020cb594 local
+@1014 kind:data(any) addr:0x020cb5a4 local
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Debug/TakTest/TakTest_OBJ.c
+/////////////////////////////////////////////////////////////
+@989 kind:data(any) addr:0x020cb5c4 local
+data_ov043_020cb5d4 kind:data(any) addr:0x020cb5d4 local
 
 /////////////////////////////////////////////////////////////
 // src/Debug/Takami/MenuTop.c
@@ -2927,7 +2970,11 @@ data_ov043_020cd108 kind:data(any) addr:0x020cd108
 data_ov043_020cd11c kind:data(any) addr:0x020cd11c
 data_ov043_020cd12c kind:data(any) addr:0x020cd12c
 data_ov043_020cd13c kind:data(any) addr:0x020cd13c
-data_ov043_020cd150 kind:data(any) addr:0x020cd150
+
+/////////////////////////////////////////////////////////////
+// src/Interface/Menu/Save/Save_HelpCurU.c
+/////////////////////////////////////////////////////////////
+@981 kind:data(byte[18]) addr:0x020cd150 local
 
 /////////////////////////////////////////////////////////////
 // src/Debug/Takami/NRep.c
