@@ -6,6 +6,7 @@
 #include "Engine/Resources/ResourceMgr.h"
 #include "PrcMaster.h"
 #include "SpriteMgr.h"
+#include "Util/SysFont.h"
 
 #include "common_data.h"
 
@@ -15,8 +16,8 @@ typedef struct {
     /* 0x11584 */ s32              unk_11584;
     /* 0x11588 */ s32              unk_11588;
     /* 0x1158C */ s32              unk_1158C;
-    /* 0x11590 */ MemPool          memPool;
-    /* 0x1159C */ u8               memPoolBuffer[0x30000];
+    /* 0x11590 */ Heap             heap;
+    /* 0x1159C */ u8               heapBuffer[0x30000];
     /* 0x4159C */ TaskPool         taskPool;
     /* 0x4161C */ PrcCtx           unk_4161C;
     /* 0x41804 */ PrcMaster        prcMaster;
@@ -77,7 +78,7 @@ typedef struct {
     /* 0x41FEA */ char             unk_41FEA[0x41FF0 - 0x41FEA];
     /* 0x41FF0 */ s32              unk_41FF0;
     /* 0x41FF4 */ char             unk_41FF4[0x45FF4 - 0x41FF4];
-    /* 0x45FF4 */ UnkOv31Struct    unk_45FF4;
+    /* 0x45FF4 */ SysFont          font;
     /* 0x46070 */ s16              unk_46070;
     /* 0x46072 */ char             unk_46072[0x46074 - 0x46072];
     /* 0x46074 */ u32              unk_46074;

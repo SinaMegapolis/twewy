@@ -11,6 +11,7 @@ src/Engine/Core/System.c:
     .bss        start:0x02066a20 end:0x02066a58
 
 src/Engine/Core/UnknownFlag.c:
+    complete
     categories: Engine
     .bss        start:0x02066a58 end:0x02066a5c
 
@@ -50,10 +51,16 @@ src/Engine/Core/HBlank.c:
 
 src/Engine/Core/Memory.c:
     categories: Engine
-    .text       start:0x0200453c end:0x020049dc
+    complete
+    .text       start:0x0200453c end:0x02004d60
     .rodata     start:0x02059d14 end:0x02059d1c
     .data       start:0x02063744 end:0x02063760
-    .bss        start:0x0206a9a4 end:0x0206a9bc
+    .bss        start:0x0206a9a4 end:0x0206a9e0
+
+src/Engine/Core/Decompress.c:
+    categories: Engine
+    complete
+    .text       start:0x02004d60 end:0x02004e98
 
 src/Engine/IO/Input.c:
     categories: Engine
@@ -83,8 +90,20 @@ src/Engine/Math/Random.c:
     .text       start:0x02006798 end:0x0200683c
     .data       start:0x02063760 end:0x02063764
 
+src/Engine/IO/Str.c:
+    categories: Engine
+    complete
+    .text       start:0x0200683c end:0x020069ac
+    .rodata     start:0x0205a95c end:0x0205ad5c
+    .data       start:0x02063764 end:0x0206377c
+
+src/Engine/Math/Rect.c:
+    categories: Engine
+    .text       start:0x020069ac end:0x02006ad8
+
 src/Engine/IO/TouchInput.c:
     categories: Engine
+    complete
     .text       start:0x02006ad8 end:0x02006f50
     .data       start:0x0206377c end:0x020637c0
 
@@ -102,6 +121,7 @@ src/Engine/File/BinMgr.c:
 
 src/Engine/File/PacMgr.c:
     categories: Engine
+    complete
     .text       start:0x02007a9c end:0x02008054
     .data       start:0x020637e4 end:0x02063808
     .bss        start:0x0206b3bc end:0x0206b3c0
@@ -126,6 +146,7 @@ src/Engine/Resources/BgResMgr.c:
 
 src/Engine/Resources/PaletteMgr.c:
     categories: Engine
+    complete
     .text       start:0x0200a128 end:0x0200c25c
     .rodata     start:0x0205ad64 end:0x0205ad9c
     .bss        start:0x0206b3cc end:0x0206b3d8
@@ -148,8 +169,10 @@ src/Engine/Resources/ScreenMapper.c:
 
 src/Engine/Resources/SpriteMgr.c:
     categories: Engine
+    complete
     .text       start:0x0200d96c end:0x0200edac
     .rodata     start:0x0205adb4 end:0x0205adf8
+    .bss        start:0x0206b408 end:0x0206b41c
 
 src/Engine/EasyTask.c:
     categories: Engine
@@ -326,6 +349,7 @@ src/CellText.c:
     .text       start:0x02025e74 end:0x0202614c
 
 src/EasyFade.c:
+    complete
     .text       start:0x0202614c end:0x02026528
     .rodata     start:0x0205cb10 end:0x0205cb3c
     .data       start:0x02065c94 end:0x02065ca0
@@ -431,6 +455,7 @@ libs/nitro/src/os/reset.c:
 
 libs/nitro/src/mi/cpumem.c:
     categories: Library, NitroSDK
+    complete
     .text       start:0x0203b258 end:0x0203b59c
 
 libs/nitro/src/fs/record.c:
@@ -465,7 +490,7 @@ libs/c/src/ctype.c:
 
 libs/c/src/abort_exit_arm_eabi.c:
     categories: Library, MSL
-    // TODO: complete, needs dsd support for exception table address link-time constants
+    complete
     .text       start:0x02048c14 end:0x02048dac
     .exceptix   start:0x02058f04 end:0x02058f28
     .bss        start:0x02081f30 end:0x02082040

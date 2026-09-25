@@ -92,7 +92,6 @@ DatMgr* DatMgr_Init(DatMgr* mgr, s32 count) {
     return prevMgr;
 }
 
-// Nonmatching: Registers swapped
 Data* DatMgr_LoadRawData(s32 dataType, void* buffer, s32 dataSize, BinIdentifier* iden) {
     DatMgr* datMgr = g_activeDatMgr;
     if (datMgr == NULL) {
@@ -120,27 +119,26 @@ Data* DatMgr_LoadRawData(s32 dataType, void* buffer, s32 dataSize, BinIdentifier
     }
 
     // Allocate new data entry
-    data = DatMgr_AllocateDataEntry(datMgr);
-    DatMgr_ResetDataEntry(datMgr, data);
+    Data* loadedData = DatMgr_AllocateDataEntry(datMgr);
+    DatMgr_ResetDataEntry(datMgr, loadedData);
 
-    data->slotIndex = dataType;
-    data->dataType  = DAT_TYPE_RAW;
-    data->refCount  = 1;
-    data->binIden   = iden;
-    data->buffer    = buffer;
-    data->dataSize  = dataSize;
+    loadedData->slotIndex = dataType;
+    loadedData->dataType  = DAT_TYPE_RAW;
+    loadedData->refCount  = 1;
+    loadedData->binIden   = iden;
+    loadedData->buffer    = buffer;
+    loadedData->dataSize  = dataSize;
 
-    if (data->buffer == NULL) {
-        data->ownsData = TRUE;
+    if (loadedData->buffer == NULL) {
+        loadedData->ownsData = TRUE;
     }
 
-    data->buffer = BinMgr_LoadRawData(data->buffer, NULL, iden, 0, &data->dataSize);
-    DatMgr_InsertDataEntry(datMgr, dataType, data);
+    loadedData->buffer = BinMgr_LoadRawData(loadedData->buffer, NULL, iden, 0, &loadedData->dataSize);
+    DatMgr_InsertDataEntry(datMgr, dataType, loadedData);
 
-    return data;
+    return loadedData;
 }
 
-// Nonmatching: Unexpected stack usage
 Data* DatMgr_LoadRawDataWithOffset(s32 dataType, void* buffer, s32 dataSize, const BinIdentifier* iden, s32 offset) {
     DatMgr* datMgr = g_activeDatMgr;
     if (datMgr == NULL) {
@@ -151,7 +149,7 @@ Data* DatMgr_LoadRawDataWithOffset(s32 dataType, void* buffer, s32 dataSize, con
 
     while (data != NULL) {
         if (buffer == NULL && dataSize == 0 && data->dataType == DAT_TYPE_RAW && data->ownsData == TRUE &&
-            data->binIden == iden && data->offset == offset && data->dataSize == dataSize)
+            data->binIden == iden && (data->offset & 0xFFFFFFFF) == offset && data->dataSize == dataSize)
         {
             break;
         }
@@ -166,28 +164,23 @@ Data* DatMgr_LoadRawDataWithOffset(s32 dataType, void* buffer, s32 dataSize, con
         return data;
     }
 
-    data = DatMgr_AllocateDataEntry(datMgr);
-    DatMgr_ResetDataEntry(datMgr, data);
-
-    data->slotIndex = dataType;
-    data->dataType  = DAT_TYPE_RAW;
-    data->refCount  = 1;
-    data->binIden   = iden;
-    data->offset    = offset;
-    data->buffer    = buffer;
-    data->dataSize  = dataSize;
-
-    if (data->buffer == NULL) {
-        data->ownsData = TRUE;
+    Data* loadedData = DatMgr_AllocateDataEntry(datMgr);
+    DatMgr_ResetDataEntry(datMgr, loadedData);
+    loadedData->slotIndex = dataType;
+    loadedData->dataType  = DAT_TYPE_RAW;
+    loadedData->refCount  = 1;
+    loadedData->binIden   = iden;
+    loadedData->offset    = offset;
+    loadedData->buffer    = buffer;
+    loadedData->dataSize  = dataSize;
+    if (loadedData->buffer == NULL) {
+        loadedData->ownsData = TRUE;
     }
-
-    data->buffer = BinMgr_LoadRawData(data->buffer, NULL, iden, data->offset, &data->dataSize);
-    DatMgr_InsertDataEntry(datMgr, dataType, data);
-
-    return data;
+    loadedData->buffer = BinMgr_LoadRawData(loadedData->buffer, NULL, iden, loadedData->offset, &loadedData->dataSize);
+    DatMgr_InsertDataEntry(datMgr, dataType, loadedData);
+    return loadedData;
 }
 
-// Nonmatching: Registers swapped
 Data* DatMgr_LoadCompressedBin(s32 dataType, void* buffer, s32 dataSize, BinIdentifier* iden) {
     DatMgr* datMgr = g_activeDatMgr;
     if (datMgr == NULL) {
@@ -213,28 +206,27 @@ Data* DatMgr_LoadCompressedBin(s32 dataType, void* buffer, s32 dataSize, BinIden
         return data;
     }
 
-    data = DatMgr_AllocateDataEntry(datMgr);
-    DatMgr_ResetDataEntry(datMgr, data);
+    Data* loadedData = DatMgr_AllocateDataEntry(datMgr);
+    DatMgr_ResetDataEntry(datMgr, loadedData);
 
-    data->slotIndex = dataType;
-    data->dataType  = DAT_TYPE_COMPRESSED;
-    data->refCount  = 1;
+    loadedData->slotIndex = dataType;
+    loadedData->dataType  = DAT_TYPE_COMPRESSED;
+    loadedData->refCount  = 1;
 
-    data->binIden  = iden;
-    data->buffer   = buffer;
-    data->dataSize = dataSize;
+    loadedData->binIden  = iden;
+    loadedData->buffer   = buffer;
+    loadedData->dataSize = dataSize;
 
-    if (data->buffer == NULL) {
-        data->ownsData = TRUE;
+    if (loadedData->buffer == NULL) {
+        loadedData->ownsData = TRUE;
     }
 
-    data->buffer = BinMgr_LoadCompressed(data->buffer, NULL, iden, 0, &data->dataSize);
-    DatMgr_InsertDataEntry(datMgr, dataType, data);
+    loadedData->buffer = BinMgr_LoadCompressed(loadedData->buffer, NULL, iden, 0, &loadedData->dataSize);
+    DatMgr_InsertDataEntry(datMgr, dataType, loadedData);
 
-    return data;
+    return loadedData;
 }
 
-// Nonmatching: Registers swapped
 Data* DatMgr_LoadPackEntry(s32 dataType, void* buffer, s32 dataSize, BinIdentifier* iden, s32 packIndex, BOOL isCompressed) {
     DatMgr* datMgr = g_activeDatMgr;
     if (datMgr == NULL) {
@@ -262,32 +254,34 @@ Data* DatMgr_LoadPackEntry(s32 dataType, void* buffer, s32 dataSize, BinIdentifi
         return data;
     }
 
-    data = DatMgr_AllocateDataEntry(datMgr);
-    DatMgr_ResetDataEntry(datMgr, data);
+    Data* loadedData = DatMgr_AllocateDataEntry(datMgr);
+    DatMgr_ResetDataEntry(datMgr, loadedData);
 
-    data->slotIndex    = dataType;
-    data->dataType     = DAT_TYPE_PACK_ENTRY;
-    data->refCount     = 1;
-    data->isCompressed = isCompressed;
+    loadedData->slotIndex    = dataType;
+    loadedData->dataType     = DAT_TYPE_PACK_ENTRY;
+    loadedData->refCount     = 1;
+    loadedData->isCompressed = isCompressed;
 
-    data->binIden   = iden;
-    data->pack      = PacMgr_LoadPack(iden);
-    data->packIndex = packIndex;
-    data->buffer    = buffer;
-    data->dataSize  = dataSize;
+    loadedData->binIden   = iden;
+    loadedData->pack      = PacMgr_LoadPack(iden);
+    loadedData->packIndex = packIndex;
+    loadedData->buffer    = buffer;
+    loadedData->dataSize  = dataSize;
 
-    if (data->buffer == NULL) {
-        data->ownsData = TRUE;
+    if (loadedData->buffer == NULL) {
+        loadedData->ownsData = TRUE;
     }
 
     if (isCompressed == FALSE) {
-        data->buffer = PacMgr_LoadPackEntryData(data->pack, (Bin*)data->buffer, (u32*)&data->dataSize, packIndex, FALSE);
+        loadedData->buffer = PacMgr_LoadPackEntryData(loadedData->pack, (Bin*)loadedData->buffer, (u32*)&loadedData->dataSize,
+                                                      packIndex, FALSE);
     } else {
-        data->buffer = PacMgr_LoadPackEntryData(data->pack, (Bin*)data->buffer, (u32*)&data->dataSize, packIndex, TRUE);
+        loadedData->buffer =
+            PacMgr_LoadPackEntryData(loadedData->pack, (Bin*)loadedData->buffer, (u32*)&loadedData->dataSize, packIndex, TRUE);
     }
 
-    DatMgr_InsertDataEntry(datMgr, dataType, data);
-    return data;
+    DatMgr_InsertDataEntry(datMgr, dataType, loadedData);
+    return loadedData;
 }
 
 Data* DatMgr_LoadUncompressedBin(s32 dataType, BinIdentifier* iden) {
@@ -367,7 +361,6 @@ Data* DatMgr_LoadResource(s32 dataType, BinIdentifier* iden) {
     return data;
 }
 
-// Nonmatching: Differences inside switch statement
 Data* DatMgr_LoadPackEntryDirect(s32 dataType, BinIdentifier* iden, s32 packIndex, s32 arg3) {
     DatMgr* datMgr = g_activeDatMgr;
     if (datMgr == NULL) {
@@ -390,59 +383,59 @@ Data* DatMgr_LoadPackEntryDirect(s32 dataType, BinIdentifier* iden, s32 packInde
         return data;
     }
 
-    data = DatMgr_AllocateDataEntry(datMgr);
-    DatMgr_ResetDataEntry(datMgr, data);
-
-    data->slotIndex = dataType;
-    data->dataType  = DAT_TYPE_PACK_ENTRY_DIRECT;
-    data->isLoaded  = TRUE;
-    data->refCount  = 1;
-
-    data->binIden   = iden;
-    data->bin       = BinMgr_LoadUncompressed(NULL, iden);
-    data->pack      = PacMgr_LoadPack(iden);
-    data->packIndex = packIndex;
-
+    Data* loadedData = DatMgr_AllocateDataEntry(datMgr);
+    DatMgr_ResetDataEntry(datMgr, loadedData);
+    loadedData->slotIndex = dataType;
+    loadedData->dataType  = DAT_TYPE_PACK_ENTRY_DIRECT;
+    loadedData->isLoaded  = 1;
+    loadedData->refCount  = 1;
+    loadedData->binIden   = iden;
+    loadedData->bin       = BinMgr_LoadUncompressed(NULL, iden);
+    loadedData->pack      = PacMgr_LoadPack(iden);
+    loadedData->packIndex = packIndex;
     switch (arg3) {
         case 0:
-            data->buffer   = (void*)PacMgr_GetPackEntryDataPtr(data->pack, packIndex);
-            data->dataSize = data->pack->entries[packIndex].size;
+            loadedData->buffer   = (void*)(PacMgr_GetPackEntryDataPtr(loadedData->pack, packIndex) & 0xFFFFFFFF);
+            loadedData->dataSize = loadedData->pack->entries[packIndex].size;
             break;
+
         case 1: {
-            s32* ptr  = (s32*)PacMgr_GetPackEntryDataPtr(data->pack, packIndex);
-            u32  size = (*ptr & ~0xFF) >> 8;
-            if (!((u8)*ptr & 0xF0)) {
+            s32*  ptr     = (s32*)PacMgr_GetPackEntryDataPtr(loadedData->pack, packIndex);
+            u32   size    = (((*ptr) & 0xFFFFFFFF) & (~0xFF)) >> 8;
+            char* new_var = ptr;
+            if (!(((u8)(*new_var)) & 0xF0)) {
                 size -= 4;
             }
-            data->dataSize = size;
-
-            void* mem = Mem_AllocHeapTail(&gMainHeap, size);
-            Mem_SetSequence(&gMainHeap, mem, iden->path);
-            data->buffer   = mem;
-            data->ownsData = TRUE;
-            func_02004d60(data->buffer, ptr);
+            loadedData->dataSize = size;
+            new_var              = iden->path;
+            void* mem            = Mem_AllocHeapTail(&gMainHeap, size);
+            Mem_SetSequence(&gMainHeap, mem, new_var);
+            loadedData->buffer   = mem;
+            loadedData->ownsData = 1;
+            func_02004d60(loadedData->buffer, ptr);
             break;
         }
     }
 
-    DatMgr_InsertDataEntry(datMgr, dataType, data);
-    return data;
+    DatMgr_InsertDataEntry(datMgr, dataType, loadedData);
+    return loadedData;
 }
 
-// Nonmatching: Loop structure, early returns?
-static s32 func_02008c10(s32* arg1, s32* arg2) {
-    s32 count = *arg2;
-    s32 i;
+// Nonmatching
+static s32 func_02008c10(Data* data, s32* arg2) {
+    s32* p     = (s32*)data->packIndex;
+    s32  count = *arg2;
+    s32  ret   = 1;
 
-    for (i = 0; i <= count; i++) {
-        if (arg1[i] != arg2[i]) {
-            return 0;
+    for (s32 i = 0; i <= count; i++) {
+        if (arg2[i] != p[i]) {
+            ret = 0;
+            break;
         }
     }
-    return 1;
+    return ret;
 }
 
-// Nonmatching: Registers swapped, couple instructions out of order
 Data* DatMgr_GeneratePackedData(s32 dataType, void* buffer, void* arg2, BinIdentifier* iden, s32 arg4) {
     DatMgr* datMgr = g_activeDatMgr;
     if (datMgr == NULL) {
@@ -453,7 +446,7 @@ Data* DatMgr_GeneratePackedData(s32 dataType, void* buffer, void* arg2, BinIdent
 
     while (data != NULL) {
         if (data->dataType == DAT_TYPE_GENERATED && data->binIden == iden) {
-            if (func_02008c10(data->packIndex, arg4) == 1) {
+            if (func_02008c10(data, (s32*)arg4) == 1) {
                 break;
             }
         }
@@ -468,27 +461,27 @@ Data* DatMgr_GeneratePackedData(s32 dataType, void* buffer, void* arg2, BinIdent
         return data;
     }
 
-    data = DatMgr_AllocateDataEntry(datMgr);
-    DatMgr_ResetDataEntry(datMgr, data);
+    Data* loadedData = DatMgr_AllocateDataEntry(datMgr);
+    DatMgr_ResetDataEntry(datMgr, loadedData);
 
-    data->slotIndex = dataType;
-    data->dataType  = DAT_TYPE_GENERATED;
-    data->refCount  = 1;
+    loadedData->slotIndex = dataType;
+    loadedData->dataType  = DAT_TYPE_GENERATED;
+    loadedData->refCount  = 1;
 
     if (buffer == NULL) {
-        data->ownsData = TRUE;
+        loadedData->ownsData = TRUE;
     }
 
-    data->binIden   = iden;
-    data->pack      = PacMgr_LoadPack(iden);
-    data->packIndex = arg4;
+    loadedData->binIden   = iden;
+    loadedData->pack      = PacMgr_LoadPack(iden);
+    loadedData->packIndex = arg4;
 
-    DatMgr_InsertDataEntry(datMgr, dataType, data);
+    DatMgr_InsertDataEntry(datMgr, dataType, loadedData);
 
-    data->buffer   = PacMgr_GenPack(data->pack, buffer, arg2, (s32*)arg4);
-    data->dataSize = Mem_GetBlockSize(&gMainHeap, data->buffer);
+    loadedData->buffer   = PacMgr_GenPack(loadedData->pack, buffer, arg2, (s32*)arg4);
+    loadedData->dataSize = Mem_GetBlockSize(&gMainHeap, loadedData->buffer);
 
-    return data;
+    return loadedData;
 }
 
 BOOL DatMgr_ReleaseData(Data* data) {

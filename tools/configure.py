@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
+import argparse
 import json
 import os
-from pathlib import Path
-import argparse
-import sys
 import subprocess
+import sys
+from collections.abc import Generator
 from dataclasses import dataclass
-from typing import Any, Generator
+from pathlib import Path
+from typing import Any
 
 import ninja_syntax
 from get_platform import Platform, get_platform
@@ -15,6 +16,7 @@ from get_platform import Platform, get_platform
 # Game Versions
 VERSIONS = [
     "usa",
+    "jp",
 ]
 DEFAULT_VERSION = VERSIONS.index("usa")
 
@@ -51,9 +53,9 @@ args = parser.parse_args()
 
 # Config
 GAME = "twewy"
-DSD_VERSION = "v0.11.0"
-WIBO_VERSION = "1.1.0"
-OBJDIFF_VERSION = "v3.7.1"
+DSD_VERSION = "v0.12.1"
+WIBO_VERSION = "1.2.0"
+OBJDIFF_VERSION = "v3.8.1"
 MWCC_DEFAULT_VERSION = "2.0/sp1p5"
 DECOMP_ME_COMPILER = "mwcc_30_131"
 
@@ -77,6 +79,10 @@ COMMON_CC_FLAGS = (
 
 DEFAULT_CC_FLAGS = " ".join(
     (*COMMON_CC_FLAGS, "-ipa file", "-str noreuse", "-Cpp_exceptions off")
+)
+
+STR_REUSE_CC_FLAGS = " ".join(
+    (*COMMON_CC_FLAGS, "-ipa file", "-str reuse", "-Cpp_exceptions off")
 )
 
 OLD_MWCC_CC_FLAGS = " ".join((*COMMON_CC_FLAGS, "-str noreuse", "-Cpp_exceptions off"))
@@ -114,6 +120,18 @@ COMPILER_CONFIGS: dict[Path, CompilerConfig] = {
     Path("src/Debug/Abe/Mini108.c"): CompilerConfig(
         version="1.2/sp4",
         flags=OLD_MWCC_CC_FLAGS,
+    ),
+    Path("src/Interface/Debug/Field/FieldSelect.c"): CompilerConfig(
+        version=MWCC_DEFAULT_VERSION,
+        flags=STR_REUSE_CC_FLAGS,
+    ),
+    Path("src/Interface/Debug/Field/EventSelect.c"): CompilerConfig(
+        version=MWCC_DEFAULT_VERSION,
+        flags=STR_REUSE_CC_FLAGS,
+    ),
+    Path("src/Interface/Menu/MenuEquip.c"): CompilerConfig(
+        version=MWCC_DEFAULT_VERSION,
+        flags=STR_REUSE_CC_FLAGS,
     ),
     Path("libs/c"): MSL_COMPILER_CONFIG,
     Path("libs/cpp"): MSL_COMPILER_CONFIG,
@@ -417,7 +435,7 @@ def main():
         mwcc_prefix = f"{WINE} " if WINE else ""
         mwcc_cmd = (
             f'{mwcc_prefix}"$compiler" $common_cc_flags {CC_INCLUDES} $cc_flags '
-            "-d $game_version -MD -c $in -o $basedir"
+            "-d $region_define -MD -c $in -o $basedir"
         )
         mwcc_common_implicit: list[str] = []
         if platform.system != "windows":
@@ -682,7 +700,7 @@ def add_mwcc_builds(
             rule="mwcc",
             outputs=str(src_obj_path.with_suffix(".o")),
             variables={
-                "game_version": project.game_version,
+                "region_define": f"REGION_{project.game_version.upper()}",
                 "cc_flags": " ".join(cc_flags),
                 "basedir": os.path.dirname(src_obj_path),
                 "basefile": str(src_obj_path.with_suffix("")),

@@ -4,17 +4,32 @@
     .data       start:0x020fde80 end:0x02109d60 kind:data align:32
     .bss        start:0x02109d60 end:0x0210a220 kind:bss align:32
 
-src/Player/ProgressRewardTable.c:
+src/Field/Events.c:
+    complete
     .text       start:0x02084a2c end:0x020a669c
     .rodata     start:0x020da618 end:0x020da6c8
 
-src/Player/Progress.c:
+src/Field/EventManager.c:
     .text       start:0x020a669c end:0x020aac84
 
-src/Player/ProgressFlags.c:
+src/Field/EventFlags.c:
     .text       start:0x020aeb34 end:0x020aed54
 
-src/Player/UnknownTables.c:
+src/Interface/Debug/Field/FieldSelect.c:
+    .text       start:0x020b04ac end:0x020b1028
+    .rodata     start:0x020dbee0 end:0x020dbef8
+    .data       start:0x02100338 end:0x021008b0
+
+src/Interface/Debug/Field/EventSelect.c:
+    .text       start:0x020b1028 end:0x020b1cd8
+    .rodata     start:0x020dbef8 end:0x020df5a0
+    .data       start:0x021008b0 end:0x02106490
+
+src/Interface/Debug/Field/FieldVBlank.c:
+    .text       start:0x020b1cd8 end:0x020b20dc
+
+src/Field/UnknownTables.c:
+    complete
     .text       start:0x020b891c end:0x020baa64
     .rodata     start:0x020e4e98 end:0x020e4f48
 
@@ -67,3 +82,10 @@ src/Field/Fld_UGFade.c:
     .text       start:0x020c83f4 end:0x020c85a4
     .rodata     start:0x020eca48 end:0x020eca64
     .data       start:0x021085b8 end:0x021085c8
+
+src/Interface/Debug/Field/FieldMessageSelect.c:
+    categories: Field
+    complete
+    .text       start:0x020c9990 end:0x020ca1f4
+    .rodata     start:0x020ecd0c end:0x020ecda8
+    .data       start:0x0210882c end:0x021088ec

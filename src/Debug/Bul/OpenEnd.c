@@ -209,7 +209,7 @@ void OpenEnd_ValidateSaveData(OpenEndState* state) {
     state->isSaveValid = 1;
     state->unk_11A40   = 0;
     if (saveStatus == 0) {
-        if ((gSaveState.unk_20.unk_1AB6 & 1) != FALSE) {
+        if ((gSaveData.unk_1AB6 & 1) != FALSE) {
             state->isThereExistingSaveData = 1;
         }
         return;
@@ -369,12 +369,12 @@ void OpenEnd_ContinueGame(OpenEndState* state) {
     OverlayTag tag, tag2, tag3, tag4;
     if (Savefile_Load() == 0) {
         if (func_02023010(0x2AB) != 0) {
-            gSaveState.unk_20.unk_1AB4 |= 0x10;
+            gSaveData.unk_1AB4 |= 0x10;
             MainOvlDisp_ReplaceTop(&tag, &OVERLAY_44_ID, func_ov044_02084a88, 0, 0); //<-- Overlay44 -> Shutdown PP Gain screen
             return;
         }
-        if ((gSaveState.unk_20.unk_1AB4 & 0x2) != 0) {
-            gSaveState.unk_20.unk_1AB4 &= ~0x2;
+        if ((gSaveData.unk_1AB4 & 0x2) != 0) {
+            gSaveData.unk_1AB4 &= ~0x2;
             MainOvlDisp_ReplaceTop(&tag2, &OVERLAY_30_ID, func_ov030_020b0fe8, 0, 0); // Load game ?
             return;
         }
@@ -451,8 +451,8 @@ void OpenEnd_Init(OpenEndState* state) {
     data_02066a58 &= ~0x8; // data_02066a58.bit_3 = 0
     state->dataType  = DatMgr_AllocateSlot();
     state->unk_11A38 = 0;
-    Mem_InitializeHeap(&state->memPool, &state->unk_1161C, 0x400);
-    EasyTask_InitializePool(&state->taskPool, &state->memPool, 0x10, 0, 0);
+    Mem_InitializeHeap(&state->heap, &state->unk_1161C, 0x400);
+    EasyTask_InitializePool(&state->taskPool, &state->heap, 0x10, 0, 0);
     g_taskPool = &state->taskPool;
     EasyTask_CreateTask(&state->taskPool, &Task_EasyFade, 0, 0, 0, 0);
     OpenEnd_PlayScreenSequence(state);

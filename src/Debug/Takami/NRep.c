@@ -11,6 +11,7 @@
 #include "Engine/Resources/ResourceMgr.h"
 #include "SndMgrSeIdx.h"
 #include "SpriteMgr.h"
+#include "Util/SysFont.h"
 #include "common_data.h"
 #include <nitro/fs/overlay.h>
 #include <nitro/os/cache.h>
@@ -122,9 +123,9 @@ void func_ov043_020c6358(NRepState* state) {
     func_ov043_020c6b40();
     state->unk_11580 = ResourceMgr_ReinitManagers(&state->unk_00000);
     TouchInput_Init();
-    Mem_InitializeHeap(&state->memPool, state->memPoolBuffer, sizeof(state->memPoolBuffer));
+    Mem_InitializeHeap(&state->heap, state->heapBuffer, sizeof(state->heapBuffer));
     FS_LoadOverlay(0, &OVERLAY_31_ID);
-    EasyTask_InitializePool(&state->taskPool, &state->memPool, 0x200, NULL, NULL);
+    EasyTask_InitializePool(&state->taskPool, &state->heap, 0x200, NULL, NULL);
     data_02066aec = 0;
     data_02066eec = 0;
     func_ov043_020c61e4(state);
@@ -602,10 +603,10 @@ typedef struct {
 } NRepTextRes;
 
 typedef struct {
-    /* 0x00 */ NRepTextRes*  unk_00;
-    /* 0x04 */ UnkOv31Struct unk_04;
-    /* 0x80 */ u16           unk_80;
-    /* 0x82 */ u8            pad_82[0x2];
+    /* 0x00 */ NRepTextRes* unk_00;
+    /* 0x04 */ SysFont      font;
+    /* 0x80 */ u16          unk_80;
+    /* 0x82 */ u8           pad_82[0x2];
 } NRepText;
 
 typedef struct {
@@ -620,8 +621,8 @@ static s32 NRepText_Release(TaskPool* pool, Task* task, void* args);
 static s32 NRepText_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 void func_ov043_020c7420(NRepText* text) {
-    func_ov031_0210aa94(&text->unk_04);
-    func_ov031_0210ab34(&text->unk_04, 14);
+    SysFont_Init(&text->font);
+    SysFont_SetColor(&text->font, 14);
 }
 
 void func_ov043_020c7440(NRepText* arg0) {
@@ -658,7 +659,7 @@ s32 NRepText_Render(TaskPool* pool, Task* task, void* args) {
 s32 NRepText_Release(TaskPool* pool, Task* task, void* args) {
     NRepText* text = task->data;
 
-    func_ov031_0210aabc(&text->unk_04);
+    SysFont_Destroy(&text->font);
     return 1;
 }
 
