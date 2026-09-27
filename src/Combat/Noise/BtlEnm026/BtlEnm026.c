@@ -131,34 +131,68 @@ void func_ov015_02127f90(BtlEnm026*);
 
 // MARK: Data
 
-char data_ov015_021282e0[] = "Apl_Hor/Grp_BtlEnm026.bin";
-char data_ov015_021282fc[] = "Apl_Hor/Grp_BtlEnm026a.bin";
-char data_ov015_02128318[] = "Apl_Hor/Grp_BtlEnm026c.bin";
-char data_ov015_02128334[] = "Apl_Hor/Grp_BtlEnm026d.bin";
-char data_ov015_02128350[] = "Apl_Hor/Grp_BtlEnm026e.bin";
-char data_ov015_0212836c[] = "Apl_Hor/Grp_BtlEnm026f.bin";
-char data_ov015_02128388[] = "Apl_Hor/Grp_BtlEnm026g.bin";
-char data_ov015_021283a4[] = "Apl_Hor/Grp_BtlEnm026h.bin";
-char data_ov015_021283c0[] = "Apl_Hor/Grp_BtlEnm026i.bin";
-char data_ov015_021283dc[] = "Apl_Hor/Grp_BtlEnm026b.bin";
-char data_ov015_0212846c[] = "Tsk_BtlEnm026_Icon";
-char data_ov015_02128480[] = "Apl_Hor/Grp_BtlEnm026_Bdg.bin";
-char data_ov015_021284a0[] = "Apl_Hor/Grp_BtlEnm026_Icon.bin";
-char data_ov015_021284c0[] = "Tsk_BtlEnm026_RG";
-char data_ov015_021284d4[] = "Tsk_BtlEnm026_UG";
+// The read-only tables reference the asset/task name strings, and the variant
+// records reference the tables, so everything is forward-declared here. Sizes come
+// from the gap to the next symbol in symbols.txt; they are explicit because MWCC
+// otherwise packs each array at its natural length and the padding bytes differ.
 
-BinIdentifier data_ov015_02128078 = {3, data_ov015_021282e0};
-BinIdentifier data_ov015_02128080 = {3, data_ov015_021282fc};
-BinIdentifier data_ov015_02128088 = {3, data_ov015_021283dc};
-BinIdentifier data_ov015_02128090 = {3, data_ov015_02128318};
-BinIdentifier data_ov015_02128098 = {3, data_ov015_02128334};
-BinIdentifier data_ov015_021280a0 = {3, data_ov015_02128350};
-BinIdentifier data_ov015_021280a8 = {3, data_ov015_0212836c};
-BinIdentifier data_ov015_021280b0 = {3, data_ov015_02128388};
-BinIdentifier data_ov015_021280b8 = {3, data_ov015_021283a4};
-BinIdentifier data_ov015_021280c0 = {3, data_ov015_021283c0};
+// .data string objects.
+extern char data_ov015_021282e0[28];
+extern char data_ov015_021282fc[28];
+extern char data_ov015_02128318[28];
+extern char data_ov015_02128334[4];
+extern char data_ov015_02128338[24];
+extern char data_ov015_02128350[28];
+extern char data_ov015_0212836c[28];
+extern char data_ov015_02128388[28];
+extern char data_ov015_021283a4[28];
+extern char data_ov015_021283c0[28];
+extern char data_ov015_021283dc[20];
+extern char data_ov015_021283f0[8];
+extern char data_ov015_0212846c[20];
+extern char data_ov015_02128480[32];
+extern char data_ov015_021284a0[32];
+extern char data_ov015_021284c0[20];
+extern char data_ov015_021284d4[44];
 
-SpriteAnimEntry data_ov015_021280c8[13] = {
+// .rodata objects referenced by the variant records below.
+extern const BinIdentifier   data_ov015_02128078;
+extern const BinIdentifier   data_ov015_02128080;
+extern const BinIdentifier   data_ov015_02128088;
+extern const BinIdentifier   data_ov015_02128090;
+extern const BinIdentifier   data_ov015_02128098;
+extern const BinIdentifier   data_ov015_021280a0;
+extern const BinIdentifier   data_ov015_021280a8;
+extern const BinIdentifier   data_ov015_021280b0;
+extern const BinIdentifier   data_ov015_021280b8;
+extern const BinIdentifier   data_ov015_021280c0;
+extern const SpriteAnimEntry data_ov015_021280c8[13];
+
+// .rodata, emitted in the original's layout order. The variant records come first
+// here even though they reference the tables declared after them.
+const Enm026Variant data_ov015_02127fd8 = {&data_ov015_02128078, data_ov015_021280c8, 0, 0x0D, 0x40};
+const Enm026Variant data_ov015_02127fe8 = {&data_ov015_02128088, data_ov015_021280c8, 0, 0x0D, 0x44};
+const Enm026Variant data_ov015_02127ff8 = {&data_ov015_021280a0, data_ov015_021280c8, 0, 0x0D, 0x30};
+const Enm026Variant data_ov015_02128008 = {&data_ov015_021280b0, data_ov015_021280c8, 0, 0x0D, 0x42};
+const Enm026Variant data_ov015_02128018 = {&data_ov015_02128090, data_ov015_021280c8, 0, 0x0D, 0x30};
+const Enm026Variant data_ov015_02128028 = {&data_ov015_02128080, data_ov015_021280c8, 0, 0x0D, 0x40};
+const Enm026Variant data_ov015_02128038 = {&data_ov015_021280c0, data_ov015_021280c8, 0, 0x10, 0x44};
+const Enm026Variant data_ov015_02128048 = {&data_ov015_02128098, data_ov015_021280c8, 0, 0x0D, 0x30};
+const Enm026Variant data_ov015_02128058 = {&data_ov015_021280b8, data_ov015_021280c8, 0, 0x0D, 0x46};
+const Enm026Variant data_ov015_02128068 = {&data_ov015_021280a8, data_ov015_021280c8, 0, 0x0D, 0x42};
+
+const BinIdentifier data_ov015_02128078 = {3, data_ov015_021282e0};
+const BinIdentifier data_ov015_02128080 = {3, data_ov015_021282fc};
+const BinIdentifier data_ov015_02128088 = {3, data_ov015_021283dc};
+const BinIdentifier data_ov015_02128090 = {3, data_ov015_02128318};
+const BinIdentifier data_ov015_02128098 = {3, data_ov015_02128334};
+const BinIdentifier data_ov015_021280a0 = {3, data_ov015_02128350};
+const BinIdentifier data_ov015_021280a8 = {3, data_ov015_0212836c};
+const BinIdentifier data_ov015_021280b0 = {3, data_ov015_02128388};
+const BinIdentifier data_ov015_021280b8 = {3, data_ov015_021283a4};
+const BinIdentifier data_ov015_021280c0 = {3, data_ov015_021283c0};
+
+const SpriteAnimEntry data_ov015_021280c8[13] = {
     {0x1, 0x3, 0x2, 0},
     {0x1, 0x3, 0x2, 1},
     {0x4, 0x6, 0x5, 0},
@@ -174,7 +208,7 @@ SpriteAnimEntry data_ov015_021280c8[13] = {
     {0xD, 0xF, 0xE, 2},
 };
 
-Enm026IdPair data_ov015_02128130[13] = {
+const Enm026IdPair data_ov015_02128130[13] = {
     {0x11, 0x00},
     {0x12, 0x04},
     {0x13, 0x01},
@@ -190,7 +224,7 @@ Enm026IdPair data_ov015_02128130[13] = {
     {0x1D, 0x03},
 };
 
-Enm026StateFns data_ov015_02128198[18] = {
+const Enm026StateFns data_ov015_02128198[18] = {
     {               NULL, func_ov015_0212786c},
     {func_ov015_021278b0, func_ov015_021278f8},
     {func_ov015_02127690, func_ov015_021276c4},
@@ -211,7 +245,10 @@ Enm026StateFns data_ov015_02128198[18] = {
     {func_ov015_02127950, func_ov015_02127974},
 };
 
-SpriteAnimEntry data_ov015_02128238[13] = {
+const BinIdentifier data_ov015_02128228 = {3, data_ov015_021284a0};
+const BinIdentifier data_ov015_02128230 = {3, data_ov015_02128480};
+
+const SpriteAnimEntry data_ov015_02128238[13] = {
     {0x1, 0x3, 0x2, 0x0},
     {0x1, 0x3, 0x2, 0x1},
     {0x1, 0x3, 0x2, 0x2},
@@ -227,23 +264,28 @@ SpriteAnimEntry data_ov015_02128238[13] = {
     {0x1, 0x3, 0x2, 0xC},
 };
 
-BinIdentifier data_ov015_02128228 = {3, data_ov015_021284a0};
-BinIdentifier data_ov015_02128230 = {3, data_ov015_02128480};
-
 const TaskHandle Tsk_BtlEnm026_Icon = {data_ov015_0212846c, func_ov015_02126860, 0x134};
 const TaskHandle Tsk_BtlEnm026_RG   = {data_ov015_021284c0, func_ov015_02126f44, 0x1F4};
 const TaskHandle Tsk_BtlEnm026_UG   = {data_ov015_021284d4, func_ov015_021275fc, 0x1F4};
 
-Enm026Variant data_ov015_02127fd8 = {&data_ov015_02128078, data_ov015_021280c8, 0, 0x0D, 0x40};
-Enm026Variant data_ov015_02127fe8 = {&data_ov015_02128088, data_ov015_021280c8, 0, 0x0D, 0x44};
-Enm026Variant data_ov015_02127ff8 = {&data_ov015_021280a0, data_ov015_021280c8, 0, 0x0D, 0x30};
-Enm026Variant data_ov015_02128008 = {&data_ov015_021280b0, data_ov015_021280c8, 0, 0x0D, 0x42};
-Enm026Variant data_ov015_02128018 = {&data_ov015_02128090, data_ov015_021280c8, 0, 0x0D, 0x30};
-Enm026Variant data_ov015_02128028 = {&data_ov015_02128080, data_ov015_021280c8, 0, 0x0D, 0x40};
-Enm026Variant data_ov015_02128038 = {&data_ov015_021280c0, data_ov015_021280c8, 0, 0x10, 0x44};
-Enm026Variant data_ov015_02128048 = {&data_ov015_02128098, data_ov015_021280c8, 0, 0x0D, 0x30};
-Enm026Variant data_ov015_02128058 = {&data_ov015_021280b8, data_ov015_021280c8, 0, 0x0D, 0x46};
-Enm026Variant data_ov015_02128068 = {&data_ov015_021280a8, data_ov015_021280c8, 0, 0x0D, 0x42};
+// .data, in the original's layout order. The pointer tables sit between the
+// "BtlEnm026b" literal and the "Tsk_BtlEnm026_Icon" name.
+char data_ov015_021282e0[28] = "Apl_Hor/Grp_BtlEnm026.bin";
+char data_ov015_021282fc[28] = "Apl_Hor/Grp_BtlEnm026a.bin";
+char data_ov015_02128318[28] = "Apl_Hor/Grp_BtlEnm026c.bin";
+// The original splits this literal into a 4-byte "Apl_" object at 0x02128334 and the
+// 24-byte remainder at 0x02128338. The BinIdentifier still points at 0x02128334, so
+// the runtime path is unchanged.
+char data_ov015_02128334[4]  = "Apl_";
+char data_ov015_02128338[24] = "Hor/Grp_BtlEnm026d.bin";
+char data_ov015_02128350[28] = "Apl_Hor/Grp_BtlEnm026e.bin";
+char data_ov015_0212836c[28] = "Apl_Hor/Grp_BtlEnm026f.bin";
+char data_ov015_02128388[28] = "Apl_Hor/Grp_BtlEnm026g.bin";
+char data_ov015_021283a4[28] = "Apl_Hor/Grp_BtlEnm026h.bin";
+char data_ov015_021283c0[28] = "Apl_Hor/Grp_BtlEnm026i.bin";
+// Likewise split 20 + 8 at 0x021283dc / 0x021283f0.
+char data_ov015_021283dc[20] = "Apl_Hor/Grp_BtlEnm02";
+char data_ov015_021283f0[8]  = "6b.bin";
 
 Enm026Variant* data_ov015_021283f8[11] = {
     &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fd8,
@@ -257,6 +299,12 @@ Enm026Variant* data_ov015_02128424[18] = {
     &data_ov015_02128068, &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02128068, &data_ov015_02128068,
     &data_ov015_02128068, &data_ov015_02127fd8, &data_ov015_02128038,
 };
+
+char data_ov015_0212846c[20] = "Tsk_BtlEnm026_Icon";
+char data_ov015_02128480[32] = "Apl_Hor/Grp_BtlEnm026_Bdg.bin";
+char data_ov015_021284a0[32] = "Apl_Hor/Grp_BtlEnm026_Icon.bin";
+char data_ov015_021284c0[20] = "Tsk_BtlEnm026_RG";
+char data_ov015_021284d4[44] = "Tsk_BtlEnm026_UG";
 
 Enm026State data_ov015_02128500;
 
