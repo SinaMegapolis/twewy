@@ -12,27 +12,30 @@ extern void* func_ov003_020c3c88(void*);
 extern void  func_ov003_020c3efc(void*, void*);
 extern void  func_ov003_020c427c(void*);
 extern void  func_ov003_020c495c(void*);
-extern void  func_ov003_020c4ab4(void*, s32);
-extern s32   func_ov003_020c4e0c(void*);
-extern s16   func_ov003_020843b0(s32, s32);
-extern s16   func_ov003_020843ec(s32, s32, s32);
-extern void  func_ov003_02084634(void*, s32, s32, s32);
-extern void  func_ov003_020880e4(s32, void*, void*);
-extern s32   func_ov003_02082f2c(void*);
-extern void  func_ov003_02084694(void*, s32);
-extern s32   func_ov003_020c3c28(void);
-extern void  func_ov003_020c4628(void*);
-extern void  func_ov003_020c4668(void*);
-extern void  func_ov003_020c4748(void*);
-extern void  func_ov003_020c4cc4(void*, s32);
-extern void  func_ov003_020ccea8(void*, void*);
-extern s32   func_ov003_020c5bfc(void*);
-extern s32   func_ov003_020ccfec(void*);
-extern s32   func_ov003_020c72b4(void*, s32, s32);
-extern s32   func_ov003_020c4830(void*);
-extern s32   func_ov003_02088130(void);
-extern void  func_ov003_0208810c(void*, void*);
-extern void  func_ov003_02084348(s32, s16*, s16*, s32, s32, s32);
+// Returns arg1 != 0, not void: the body is `mov r0, #0x1; bl 02082750; mov r0, #0x1; pop`
+// on one arm and `mov r0, #0x0; ...; pop` on the other.  Both call sites here discard the
+// result, so the old `void` compiled to the same code, but it hid that this is a predicate.
+extern s32  func_ov003_020c4ab4(void*, s32);
+extern s32  func_ov003_020c4e0c(void*);
+extern s16  func_ov003_020843b0(s32, s32);
+extern s16  func_ov003_020843ec(s32, s32, s32);
+extern void func_ov003_02084634(void*, s32, s32, s32);
+extern void func_ov003_020880e4(s32, void*, void*);
+extern s32  func_ov003_02082f2c(void*);
+extern void func_ov003_02084694(void*, s32);
+extern s32  func_ov003_020c3c28(void);
+extern void func_ov003_020c4628(void*);
+extern void func_ov003_020c4668(void*);
+extern void func_ov003_020c4748(void*);
+extern void func_ov003_020c4cc4(void*, s32);
+extern void func_ov003_020ccea8(void*, void*);
+extern s32  func_ov003_020c5bfc(void*);
+extern s32  func_ov003_020ccfec(void*);
+extern s32  func_ov003_020c72b4(void*, s32, s32);
+extern s32  func_ov003_020c4830(void*);
+extern s32  func_ov003_02088130(void);
+extern void func_ov003_0208810c(void*, void*);
+extern void func_ov003_02084348(s32, s16*, s16*, s32, s32, s32);
 
 // The sprite animation setter is referenced by its ov000 linker symbol in the original binary.
 extern void Mini108_VBlank(CombatSprite* cSprite, u16 animTableIndex, s32 arg2);
