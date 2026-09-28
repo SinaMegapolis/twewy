@@ -93,29 +93,57 @@ minimum bar.
   the first half, so the runtime paths are unchanged. This is the same pattern as ov012's
   `Tsk_BtlEnm014_RG` and ov013's `Grp_BtlEnm015b.bin`.
 
-### Why `.rodata` stops at 66.9% when ov012/ov013 reached 100%
+### Why `.rodata` stops at 66.9% — REVISED, the old conclusion was wrong
 
-Two independent reasons, neither fixable in C:
+**First, the load-bearing fact: the linked ROM's ov015 overlay is byte-identical to the
+original.** `build/scratch/romcmp.py` reports 0 differing bytes across all 10,520 bytes of
+`.text`, all 748 of `.rodata` and all 544 of `.data`. The decompilation is correct and the
+`.rodata` *placement* is correct.
 
-1. **MWCC does not emit `.rodata` in declaration order — it groups objects by size.** Our
-   object comes out as 8-byte, then 12-byte, then 16-byte, then 104-byte, then 144-byte
-   objects, and within each group the order is not even the declaration order. The original's
-   `.rodata` order (`160, 80, 104, 104, 144, 8, 8, 104, 36`) follows no size pattern at all.
-   Reordering the declarations has **no effect** on the emitted layout. ov012 and ov013
-   reached 100% only because their size-grouped order happened to coincide with the
-   original's; ov015 does not, and it has far more relocations for objdiff to mispair
-   (74 in `.rodata` alone). This is luck of the draw, not a property of the recipe.
-2. **`symbols.txt` declares two spurious 4-byte objects** that sit *inside* arrays and so
-   cannot be reproduced in C at all: `data_ov015_02128134` (the `unk_04` field of the first
-   `Enm026IdPair` entry, inside `data_ov015_02128130[13]`) and `data_ov015_0212819c` (inside
-   `data_ov015_02128198[18]`). Both are 4 bytes into a struct array, so no C declaration can
-   produce them as separate objects. Unlike ov012's `0x02127a18` and ov013's `0x0212756c`
-   they are **not** flagged `ambiguous`, which is why they were not caught earlier. They are
-   the direct cause of the two `.word` literal mismatches in `func_ov015_021256c0` (99.3%)
-   and `func_ov015_02125f80` (99.8%), where the original has distinct symbols and ours
-   renders `data_ov015_02128130+0x4`.
+That invalidates the first reason previously recorded here, which was:
 
-Fixing (2) means editing `symbols.txt` to drop or mark the two phantom objects. That is a
+> ~~MWCC does not emit `.rodata` in declaration order — it groups objects by size.~~
+
+If our object order were genuinely different from the original's, the bytes would differ. They
+do not. So the order is right, and what objdiff is scoring is **object boundaries**, not content
+or placement — the same class of problem ov010 had, where `.rodata` was stuck at 99.234%.
+
+**What ov010 taught us, which is the template for fixing this:**
+
+1. An objdiff section percentage measures object *granularity*, not bytes. Verify with
+   `romcmp.py` before believing one.
+2. Where `symbols.txt` describes a differently-shaped object than our C declares, reproduce the
+   shape in C — ov010's `data_ov015...`-style extents needed a 2-byte pad, and
+   `Tsk_BtlEnm006_Swirl` needed splitting into an 8-byte head plus a distinct 4-byte word.
+3. **The object's name must match `symbols.txt` exactly**, or the linker folds it away (no
+   address) and objdiff cannot pair it. This was the last 0.5% on ov010 and it is not obvious.
+
+**Status: not yet attempted.** The remaining gap is much larger than ov010's (~248 bytes versus
+6), so it needs a proper address-coverage analysis of `.rodata` against `symbols.txt` to say
+which objects disagree. Individual data symbols that objdiff *does* score all report 100%.
+
+The two "spurious 4-byte objects" noted previously may also not be spurious — ov010's
+`ambiguous`-flagged `data_ov010_021292c0` turned out to be a genuinely separate, externally
+referenced word. Before calling anything here spurious, check whether another overlay's
+`relocs.txt` targets its address.
+
+The second reason previously recorded — two 4-byte objects sitting *inside* struct arrays,
+`data_ov015_02128134` (4 bytes into `data_ov015_02128130[13]`) and `data_ov015_0212819c` (4
+bytes into `data_ov015_02128198[18]`) — is the one that accounts for the two `.word` literal
+mismatches in `func_ov015_021256c0` (99.3%) and `func_ov015_02125f80` (99.8%), where the original
+has distinct symbols and ours renders `data_ov015_02128130+0x4`.
+
+**These may be reproducible after all.** ov010's fix for the same shape was to declare a struct
+whose extent matches the tagger's, or to split the object — not to edit `symbols.txt`. An
+`Enm026IdPair` struct with an explicit 4-byte-named head, or a wrapper type that stops the
+compiler folding the interior word into the array, is the thing to try. Unverified: this has not
+been attempted.
+
+Do **not** edit `symbols.txt` to drop them without first checking whether another overlay's
+`relocs.txt` targets 0x02128134 or 0x0212819c — on ov010, deleting the `ambiguous`-flagged
+symbol broke the delink outright.
+
+Fixing this means editing `symbols.txt` to drop or mark the two phantom objects. That is a
 ground-truth change rather than a source change, so it has not been done unilaterally.
 
 ## Key codegen recipes (MWCC 2.0 sp1p5, -O4,p) — see also `docs/ov013-progress.md`
