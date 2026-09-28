@@ -10,10 +10,12 @@
 #include <nitro/fx.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32   func_ov003_020c37f8(void*);
-extern void  func_ov003_020c3efc(void*, void*);
-extern void  func_ov003_020c427c(void*);
-extern void  func_ov003_020c4ab4(void*, s32);
+extern s32  func_ov003_020c37f8(void*);
+extern void func_ov003_020c3efc(void*, void*);
+extern void func_ov003_020c427c(void*);
+// Returns arg1 != 0, not void.  All five call sites pass a literal 0/1 and discard the
+// result, so the old `void` compiled to the same code, but it hid that this is a predicate.
+extern s32   func_ov003_020c4ab4(void*, s32);
 extern void  func_ov003_020c4628(void*);
 extern void  func_ov003_020c4668(void*);
 extern void  func_ov003_020c4cc4(void*, s32);
