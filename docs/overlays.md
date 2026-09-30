@@ -360,9 +360,46 @@ Contains a graphics testing module for viewing art assets and their relevant inf
 
 ## Overlay 39 - Tin Pin Slammer
 
-**Files:** N/A (Not yet decompiled)
+**Category:** Debug Menu
 
-TODO: Decompile and document
+**Files:**
+[TinPinSlammer.h](../include/Debug/Sugata/TinPinSlammer.h),
+[OtuScene](../src/Debug/Sugata/TinPinSlammer/OtuScene.c)
+
+Jun Sugata's Otosu ("pin throw") minigame, reached from the debug menu's S key.
+It is the largest overlay in the ROM: **561 functions, 92.5 KB of `.text`**.
+
+The whole overlay runs off one large scene object that `MainOvlDisp` allocates
+out of `gDebugHeap` and passes to every entry point in `r0`. Its sub-objects sit
+at very large fixed offsets (`0x11000`, `0x41000`, `0x416A8`, `0x44000`, ...),
+so `TinPinSlammer.h` models the block as one struct with padding between
+members — every field past `0xFFF` is too far for a `ldr` displacement, which is
+why the target re-derives the containing pointer on each access rather than
+hoisting it.
+
+Status: 3 of 561 functions decompiled, all three byte-exact
+(`func_ov039_020824a0`, `func_ov039_02082520`, `func_ov039_020825b0`), covering
+the scene's pin-tray setup and its background-resource create/destroy pair. The
+remaining 558 functions are stubs; the module does not yet link from source.
+
+Useful notes for continuing:
+
+- Drafts come from m2c, which reads the repo's own `build/usa/asm/ov039_4.s`
+  directly — no hand transcription. Use `python tools/m2cdraft.py --range
+  0x02082724:0x020827d0`, which wraps `tools/m2ctx.py` + `m2c.py` and caches the
+  preprocessed context.
+- The pin tray is indexed as a flat `u16` array off the scene pointer at slot
+  `TIN_PIN_SLAMMER_TRAY_SLOT` (0x22026), not through a sub-object pointer;
+  writing it as `((OtuSceneTables*)(scene + 0x44000))->tray[i]` strength-reduces
+  the base into a register and costs ~33% of the match.
+- The equipped-pin array is walked with a bare byte cursor (stride `0xA`, id at
+  `+0x74`), not through `EquippedPin`.
+- `.text` layout is contiguous, so a TU's `delinks.txt` range must be filled
+  completely; use `python .opencode/skills/objdiff-decomp/scripts/ov039_survey.py
+  [--calls]` to see function boundaries and intra-overlay call targets.
+- JP is **not** the same module: `config/jp/arm9/overlays/ov039` has 121
+  functions against the USA overlay's 561, so USA-only code has no JP counterpart
+  and must not be treated as a regression.
 
 ## Overlay 40 - Wireless Communications
 
