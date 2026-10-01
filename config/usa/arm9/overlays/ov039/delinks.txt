@@ -10,6 +10,9 @@ src/Debug/Sugata/TinPinSlammer/OtuScene.c:
 src/Debug/Sugata/TinPinSlammer/OtuSceneEntry.c:
     .text       start:0x02082e98 end:0x020832c0
 
+src/Debug/Sugata/TinPinSlammer/OtuGxInit.c:
+    .text       start:0x020832c0 end:0x02083750
+
 src/Debug/Sugata/TinPinSlammer/OtuVBlank.c:
     .text       start:0x02083750 end:0x02083974
 
