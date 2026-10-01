@@ -662,6 +662,69 @@ s32 func_ov039_0208ee84(OtuPinTask* task); // alive
 s32 func_ov039_0208efb0(OtuPinTask* task, s32 which);
 
 /**
+ * @brief The sprite slot this overlay fills in, 0x14 bytes.
+ *
+ * Not overlay data: `data_0206b408` is a `.bss` object owned by `SpriteMgr` in
+ * the main module, and the overlay writes it directly. That is the overlay
+ * reaching out of itself rather than using a call, and it is the only time in
+ * this overlay that a global's owner is known rather than merely its address.
+ *
+ * Fields stay as offsets. Only +0x00, +0x04, +0x08, +0x0C and +0x10 are reached
+ * by any decompiled function here, and nothing yet pins down what the first four
+ * mean; +0x10 holds a packed depth key rather than a pointer even though it is
+ * read and written as one, which is why it is typed as the key it is.
+ */
+typedef struct {
+    /* 0x00 */ s32   unk_00;
+    /* 0x04 */ s32   unk_04;
+    /* 0x08 */ s32   unk_08; // a byte pointer, but stored as a word
+    /* 0x0C */ void* unk_0C;
+    /* 0x10 */ s32   depthKey;
+} OtuSpriteSlot; // Size: 0x14
+
+extern OtuSpriteSlot* data_0206b408;
+
+/**
+ * @brief A task that can produce a sprite cell.
+ *
+ * Only the four fields the twenty-two cell builders read are named: a signed
+ * index at +0x16 and a table pointer at +0x1C, which together drive the
+ * two-step lookup, plus the coordinate fields at +0x4C and onwards that the
+ * packer is fed from.
+ */
+typedef struct {
+    u8 pad_16[0x100];
+} OtuSpriteTask;
+
+/* Packs a Q12.12 pair into a single sortable depth key (OtuSpriteCell.c). */
+s32 func_ov039_02088400(s32 x, s32 y, s32 axis);
+
+/* The twenty-two sprite-cell builders.  Each is the same body with three
+ * constants varied; see OtuSpriteCell.c for what they are. */
+OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* task, s32 selector);
+
+/**
  * @brief The digit-column array, reached the way the target reaches it.
  *
  * The target forms this address as `scene + 0xEF0` and then `+ 0x41000` -- two

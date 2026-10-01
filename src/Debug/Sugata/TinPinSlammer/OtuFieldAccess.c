@@ -3,8 +3,19 @@
 /**
  * @file OtuFieldAccess.c
  *
- * The overlay's field accessors: short routines that read, write or clear one
- * or two words of a structure and return.
+ * The overlay's small helpers, in two groups that happen to interleave in
+ * address space and so have to share one translation unit:
+ *
+ *   1. the field accessors -- short routines that read, write or clear one or
+ *      two words of a structure and return;
+ *   2. the sprite-cell builders -- twenty-two identical routines that fill in
+ *      one of the base game's sprite slots, plus the depth-key packer they
+ *      share.
+ *
+ * They interleave, which is why they are in one file rather than two: a delinks
+ * entry may claim a `.text` range only once, and a range may not overlap
+ * another, so functions that share a file cannot be split across files by
+ * address band.
  *
  * There are around forty of these and they are not scattered at random. They
  * cluster tightly by which structure they touch, and the clustering is the
@@ -346,4 +357,1140 @@ void func_ov039_02098b78(OtuStageDispatch* dispatch, s32* out) {
 /** Raises the scene's +0x41EE4 flag. */
 void func_ov039_02088688(TinPinSlammer_Scene* scene) {
     *(s32*)((u8*)scene + 0x41000 + 0xEE4) = 1;
+}
+
+/* ==================================================================== */
+/* The sprite-cell builders.  See the section header below.           */
+/* ==================================================================== */
+
+/**
+ * @brief Pack a Q12.12 coordinate pair into one sortable key, 0x02088400.
+ *
+ * `(x << 23) | ((y >> 12) & 0x7FF)`, shifted up by twelve more -- so the
+ * returned word is `(x << 23) + (y << 12)` with the low bits of `y`'s integer
+ * part kept. Comparing two of these compares `x` first and only breaks the tie
+ * on `y`, which is what a painter's-algorithm depth sort needs, and it is why
+ * the result lands in the same slot as a pointer: the cell is a small tagged
+ * union rather than a struct with a depth field.
+ *
+ * Note this is a *quantised* key, not an interleave: eleven bits of `y`'s integer
+ * part and none of its fraction, so two sprites within 1/2048 of each other
+ * vertically compare equal. The callers here are placing whole cells on a grid,
+ * so that is presumably deliberate, but it is a lossy comparison and worth
+ * knowing before trusting the ordering.
+ */
+s32 func_ov039_02088400(s32 x, s32 y, s32 axis) {
+    // The axis argument is passed and then never read: the target loads it
+    // into r2 and uses r2 only as the mask source, so the last instruction is a
+    // plain shift and nothing is added. Callers still supply it -- several pass 3,
+    // one passes 7 -- and it makes no difference to the result.
+    (void)axis;
+
+    return (((x << 0x0B) + ((y >> 0x0C) & 0x7FF)) << 0x0C);
+}
+
+/*
+ * The twenty-two instantiations. Kept as one call each rather than as macros so
+ * that the per-function argument list stays readable and a diff shows which
+ * constant each one actually varies.
+ */
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0xCC);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x124), 0, 3);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x40);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x4C), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x40);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 4);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x84);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0xB0), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x94);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0xB8), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x44);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x60), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x40);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x4C), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x40);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 3);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x40);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x54), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x10C), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(0, 0, 7);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x4C), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0xD0);
+            slot->depthKey = func_ov039_02088400(0, 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(0, 0, 7);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x40);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 3);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x4C), 0, 4);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x1);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x4C), 0, 0);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x40);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 3);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
+// are all correct; what is left is mwcc scheduling the two-step lookup.
+//
+// Three bugs were real and are fixed, so the remaining gap is not one of those:
+//
+//   * the axis argument to func_ov039_02088400 is passed and never read -- the
+//     target loads it into r2 and then uses r2 only as the mask source, so the
+//     last instruction is a plain shift. The packer is now a full MATCH.
+//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
+//     Every store in the target is `str`, and the widths are load-bearing.
+//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
+//     not two nested ones. The target's `ldrne` on the table load is the
+//     short-circuit, which is why +0x18 is tested at all.
+OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            // The two-step lookup: a u16 out of the task's table at one stride,
+            // then a byte pointer built from the u16 at the other. Guarded on the
+            // table pointer and on the index being non-negative.
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = *(u16*)(table + index * 8 + 2);
+                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+            }
+
+            slot->unk_0C   = (void*)((u8*)t + 0x40);
+            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 3);
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
 }
