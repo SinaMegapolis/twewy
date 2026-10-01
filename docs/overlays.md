@@ -383,10 +383,10 @@ Status: 29 of 561 functions decompiled, 18 of them at 100%. `OtuMenuText` is
 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of `.bss`); `OtuVBlank`
 is 100% across all five functions; `OtuSceneEntry` holds the two plain entry
 points, the teardown, its thunk and both stage dispatches at 100%. Partial:
-`OtuGxInit` at 95.9%, both per-frame updates at 90.9% and 95.4%, the clamp
-helper at 94.5%, the place stepper at 91.5%, the scrollbar at 87.1%, the wireless
-teardown at 72.8%, and the two countdown functions at 52.4% and 55.8%. The
-remaining 532 functions are stubs.
+`func_ov039_02083bb0` at 99.97%, `OtuGxInit` at 95.9%, both per-frame updates at
+90.9% and 95.4%, the clamp helper at 94.5%, the place stepper at 92.3%, the
+pin-count row at 83.1%, the countdown at 76.0%, the wireless teardown at 72.8%.
+The remaining 532 functions are stubs.
 
 ### Data ownership
 
@@ -503,6 +503,20 @@ Two naming traps in that function: the sub-engine BG control registers are
 `REG_BGxCNT_SUB` (not `_S`), and the third OAM engine is `DISPLAY_EXTENDED`
 (not `DISPLAY_SUBOBJ`), initialised through `OamMgr_InitEngine`.
 
+### Check emitted sizes, not just match percentages
+
+**`python tools/permsize.py` is the first thing to run on this overlay.** It
+compares each function's real symbol size in the delinked target object against
+the current build. `report.json` is not a substitute: its per-function `size` is
+the *target's* size, and objdiff's fuzzy match tolerates a length difference — so
+a function missing six instructions still scored 87%, and the mismatch was
+invisible until the sizes were read out of the objects directly.
+
+A non-zero delta is the most useful thing to know before reading a diff: every
+instruction after the divergence point is shifted, and the diff view shows far
+more damage than actually exists. Nine functions still differ; the largest is
+`func_ov039_020827d0`, 48 bytes short.
+
 ### Text helpers
 
 `OtuText.c` covers 0x02083974-0x02084020 — seven functions, three at 100%. They
@@ -514,6 +528,14 @@ animation (`func_ov039_02083cbc`) and the pin-count row (`func_ov039_02083ed4`).
 
 Four things worth knowing before writing the rest of this block:
 
+- **This overlay's source does not cache computed addresses.** The target
+  re-derives the row pointer (`ldr [r4,#0]` then `add r1, r4, r0, lsl #4`) at
+  every field access, and re-derives `scene + 0x44000 + menuIndex * 0x34` before
+  every countdown read. Writing a local to hold the pointer is the natural thing
+  to do and costs the multiply-and-add that mwcc then never emits again — that
+  alone was the whole gap on `func_ov039_02083bb0` (87% → 99.97%) and most of it
+  on `func_ov039_02083ed4` and `func_ov039_02083cbc`. Suspect a cached local
+  first when a function here is short.
 - Digit extraction is plain `% 10` and `/ 10` in source. The `smull`/shift
   sequences in the target are just mwcc's expansion, with `0x66666667` in the
   literal pool being its divide-by-ten reciprocal. No asm needed.
@@ -536,6 +558,26 @@ Four things worth knowing before writing the rest of this block:
 its later arms call the five-argument clamp, but only ever push the fourth
 argument. The clamp reads its fifth — the upper bound — from `[sp, #0x10]`, where
 these callers set nothing, so the bound this source passes is a guess.
+
+### Permuting here
+
+decomp-permuter is **not installed on this box** (its documented path is a Linux
+checkout, and there is no ARM assembler for its target object). What exists
+instead, all committed under `tools/`:
+
+| | |
+|---|---|
+| `perm_score.py` | scores a function from both objects' bytes; ~100× faster than `fndiff.py`, which reloads the whole project |
+| `perm_harness.py` | builds a standalone TU with one function kept, so struct layouts and file-local tables match the real build |
+| `perm_run.py` | mutate / compile / score / hill-climb |
+| `permsize.py` | the size comparison above — run this first |
+
+Validated by scoring the known-100% functions at 0/0. Note the substitution
+scores **bytes** and has no notion of semantics, so it is easy to game: every
+apparent improvement it found was a duplicated call, which lines the word stream
+up while making the code wrong. `perm_run.py` now rejects candidates that
+increase the call count; with that guard it reports zero improvements honestly.
+Treat a win from it as a lead to check, not a result to commit.
 
 Useful notes for continuing:
 
