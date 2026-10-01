@@ -1,4 +1,5 @@
 #include "Debug/Sugata/TinPinSlammer.h"
+#include "Engine/Text.h"
 
 /**
  * @file OtuText.c
@@ -131,4 +132,48 @@ void func_ov039_02083af4(s32* value, s32 direction, u32 place) {
     }
 
     *value = scaled * 4096 / 1000;
+}
+
+/**
+ * @brief Draw the result screens' scrollbar.
+ *
+ * Two markers in the same column. The first tracks the value's row: a run of
+ * fill glyphs from the previous row up to the current one, then a head glyph on
+ * the current row. The second tracks the selection, and shows a dot rather than
+ * a head when the selection is off the top of the list.
+ *
+ * Both are drawn into the same text object at x=0, spaced 8 pixels per row
+ * starting one row in. Each marker is only redrawn when its row has actually
+ * moved, which is what the `drawnValue`/`drawnRow` comparisons are for -- the
+ * scene calls this every frame and the result screens are static most of the
+ * time.
+ */
+// Nonmatching: 87.1%. Every call, field access and branch agrees with the
+// target and the size is exact; what remains is register choice (the target
+// holds the table in r4 and re-derives r0 per access, this build keeps r5).
+void func_ov039_02083bb0(TinPinSlammer_Scene* scene) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuTextRow* row   = OTU_TEXT_ROW(table, table->index);
+
+    if (row->row != row->drawnRow) {
+        if (row->drawnRow >= 0) {
+            Text_RenderToScreen(OTU_TEXT(scene), 0, row->drawnRow * 8 + 8, OtuGlyph_ScrollFill);
+        }
+        Text_RenderToScreen(OTU_TEXT(scene), 0, row->row * 8 + 8, OtuGlyph_ScrollHead);
+        row->drawnRow = row->row;
+    }
+
+    // Re-derive rather than reuse the pointer: the target reloads the index
+    // word before each field access.
+    row = OTU_TEXT_ROW(table, table->index);
+    if (row->value == row->drawnValue) {
+        return;
+    }
+
+    if (row->value >= 0) {
+        Text_RenderToScreen(OTU_TEXT(scene), 0, row->row * 8 + 8, OtuGlyph_ScrollHead);
+    } else {
+        Text_RenderToScreen(OTU_TEXT(scene), 0, row->row * 8 + 8, OtuGlyph_ScrollDot);
+    }
+    row->drawnValue = row->value;
 }

@@ -167,6 +167,9 @@ extern OtuSceneSlotState OtuScene_SlotState;
  */
 #define OTU_STAGE(scene) ((OtuStageDispatch*)((u8*)(scene) + TIN_PIN_SLAMMER_STAGE_OFFSET))
 
+/** The scene's text object, where the result screens' rows are drawn. */
+#define OTU_TEXT(scene) ((TextObject*)((u8*)(scene) + 0x416B4))
+
 /**
  * @brief The whole Otosu scene block, as one struct.
  *
@@ -340,6 +343,51 @@ typedef struct {
 
 extern OtuTextBlock OtuScene_WirelessMenu;
 extern OtuTextBlock OtuScene_ResultMenu;
+
+/**
+ * @brief The result screens' scrollbar markers, single characters.
+ *
+ * Drawn by func_ov039_02083bb0: a dot repeated along the track, one for the
+ * head, and a fill for whatever range the value covers.
+ */
+extern const char OtuGlyph_ScrollFill[];
+extern const char OtuGlyph_ScrollDot[];
+extern const char OtuGlyph_ScrollHead[];
+
+/**
+ * @brief One row's state in the stage block's scroll table.
+ *
+ * The stage block (reached as `dispatch->stageBlock`) is an array of these,
+ * 16 bytes each, indexed by a count in the block's first word.  A row tracks
+ * the value being displayed, the last value drawn, and the row's index -- the
+ * two together are what the result screen animates a number into place, and the
+ * comparison of current against last is what tells the scrollbar whether it
+ * needs redrawing.
+ */
+typedef struct {
+    /* 0x00 */ s32 index;      // which row of the table this is
+    /* 0x04 */ s32 value;      // value to display
+    /* 0x08 */ s32 drawnValue; // value already drawn, for change detection
+    /* 0x0C */ s32 row;        // row index, for vertical placement
+    /* 0x10 */ s32 drawnRow;   // row already drawn
+} OtuTextRow;                  // Size: 0x14
+
+/**
+ * The row at `index` in a table reached through the scene's dispatch.
+ *
+ * The target walks the table with a 16-byte stride (`add r0, r4, r0, lsl #4`)
+ * while reading a fifth field at +0x10, so the stride is one word shorter than
+ * the struct.  The indexing is spelled out rather than left to array
+ * subscripting for exactly that reason.
+ */
+#define OTU_TEXT_ROW(block, index) ((OtuTextRow*)((u8*)(block) + (index) * 0x10))
+
+/**
+ * @brief A table of `OtuTextRow`, reachable from the scene's dispatch.
+ *
+ * `func_ov039_02098b70` is a one-instruction accessor for `dispatch->stageBlock`.
+ */
+void* func_ov039_02098b70(OtuStageDispatch* dispatch);
 
 /* Stage-dispatch helpers (see OtuStageDispatch).  These are not decompiled
  * yet, so they are declared with the untyped signature the target uses. */

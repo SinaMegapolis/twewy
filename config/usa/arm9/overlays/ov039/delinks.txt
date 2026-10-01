@@ -17,7 +17,7 @@ src/Debug/Sugata/TinPinSlammer/OtuVBlank.c:
     .text       start:0x02083750 end:0x02083974
 
 src/Debug/Sugata/TinPinSlammer/OtuText.c:
-    .text       start:0x02083974 end:0x02083bb0
+    .text       start:0x02083974 end:0x02083cbc
 
 src/Debug/Sugata/TinPinSlammer/OtuMenuText.c:
     .rodata     start:0x02098e30 end:0x02098e48

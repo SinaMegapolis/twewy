@@ -36,8 +36,21 @@ def parse_region():
     return out
 
 
+# The three single-character glyphs at the head of the string block are the
+# result screens' scrollbar markers, drawn by func_ov039_02083bb0. They are
+# worth naming: the code references them individually by address, and
+# Otu_str_0209a16c says nothing about what they are.
+GLYPH_NAMES = {
+    "data_ov039_0209a16c": "OtuGlyph_ScrollFill",
+    "data_ov039_0209a170": "OtuGlyph_ScrollDot",
+    "data_ov039_0209a174": "OtuGlyph_ScrollHead",
+}
+
+
 def c_identifier(name):
     """data_ov039_0209a188 -> Otu_str_0209a188"""
+    if name in GLYPH_NAMES:
+        return GLYPH_NAMES[name]
     return "Otu_str_" + name.split("_")[-1]
 
 
