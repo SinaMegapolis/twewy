@@ -159,6 +159,34 @@ s32 OtuText_YOverflow = -0x2000;
 s32 OtuText_YTiny = 0x800;
 s32 OtuText_YMid = 0x9800;
 
+/** Singletons the text helpers read alongside the anchor coordinates above. */
+s32 OtuText_Shadow = 0x8000;
+s32 OtuText_LineHeight = 0x148;
+s32 OtuText_TabStop = 0x99A;
+
+/**
+ * @brief The per-row layout table, 37 words of GX 12.4 coordinates.
+ *
+ * Read by the result-screen row builders, which index it to place each of the
+ * three menus' fields.  Values are emitted from the ROM rather than derived.
+ */
+const s32 OtuText_RowLayout[37] = {
+    0x14CD, 0x7AB8, 0x171, 0x948, 0x1614, 0x7548, 0x19A, 0x91F, 0x175C, 0x7000, 0x19A, 0x8CD,
+    0x187B, 0x6AB8, 0x1C3, 0x87B, 0x19C3, 0x6548, 0x1EC, 0x829, 0x1B0A, 0x6000, 0x214, 0x800,
+    0x1C52, 0x5AB8, 0x214, 0x7AE, 0x1D9A, 0x5548, 0x23D, 0x75C, 0x1EB8, 0x5000, 0x266, 0x733,
+    0x2000,
+};
+
+/**
+ * @brief A text block's four coordinate words, swapped by the menu entry point.
+ *
+ * `OtuScene_WirelessMenu` and `OtuScene_ResultMenu` are exchanged at scene setup
+ * depending on which save record is loaded, so both are plain 16-byte objects
+ * assigned through a stack temporary.
+ */
+OtuTextBlock OtuScene_WirelessMenu = {0x5000, 0x4CD, 0x4CD, 0x3000};
+OtuTextBlock OtuScene_ResultMenu = {0x2800, 0x266, 0x4CD, 0x7000};
+
 /**
  * @brief Overlay-global state cleared by every scene entry point.
  */

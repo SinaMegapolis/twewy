@@ -11,5 +11,5 @@ src/Debug/Sugata/TinPinSlammer/OtuSceneEntry.c:
     .text       start:0x02082978 end:0x02082c50
 
 src/Debug/Sugata/TinPinSlammer/OtuMenuText.c:
-    .data       start:0x0209a140 end:0x0209a3dc
+    .data       start:0x0209a140 end:0x0209a49c
     .bss       start:0x0209ad00 end:0x0209ad08

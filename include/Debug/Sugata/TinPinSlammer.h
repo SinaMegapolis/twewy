@@ -101,7 +101,10 @@ typedef struct {
     /* 0x6C0 */ u8  pad_6C0[0x41C];
     /* 0xADC */ s32 unk_ADC;          // "setup incomplete" flag, raised while a stage runs
     /* 0xAE0 */ s32 unk_AE0;          // forces a state transition when set
-    /* 0xAE4 */ u8  pad_AE4[0xC];
+    /* 0xAE4 */ u16 linkStatus;       // bit 6 of SystemStatusFlags, latched at entry
+    /* 0xAE6 */ u8  pad_AE6[2];
+    /* 0xAE8 */ s32 wirelessStatus;   // bit 7 of SystemStatusFlags, latched at entry
+    /* 0xAEC */ u8  pad_AEC[4];
     /* 0xAF0 */ s32 unk_AF0;          // scene mode selector (0 = plain, 1 = alternate)
     /* 0xAF4 */ s32 unk_AF4;
     /* 0xAF8 */ u8  pad_AF8[0x3E8];
@@ -252,6 +255,27 @@ void func_02025b68(void* resource, TinPinSlammer_ResArgs* args);
 void func_02025e30(void* resource);
 void func_ov039_02098a20(void* a, void* b);
 
+/* The two scene-setup variants; 0x02083944 is the wireless one. */
+void func_ov039_02083928(void);
+void func_ov039_02083944(void);
+
+/**
+ * @brief A text block's four coordinate words.
+ *
+ * The wireless menu and results entry points exchange these two objects at
+ * scene setup, so both are plain 16-byte structs assigned through a stack
+ * temporary rather than through pointers.
+ */
+typedef struct {
+    /* 0x0 */ s32 x0;
+    /* 0x4 */ s32 y0;
+    /* 0x8 */ s32 shared;
+    /* 0xC */ s32 x1;
+} OtuTextBlock; // Size: 0x10
+
+extern OtuTextBlock OtuScene_WirelessMenu;
+extern OtuTextBlock OtuScene_ResultMenu;
+
 /* Stage-dispatch helpers (see OtuStageDispatch).  These are not decompiled
  * yet, so they are declared with the untyped signature the target uses. */
 void  func_ov039_02098a60(void* dispatch, void* scene);
@@ -313,11 +337,17 @@ extern const char* const OtuScene_SequenceNames[3];
 #define TIN_PIN_SLAMMER_ENTRY_OFFSET 0x44A64
 
 /**
- * Offset into `gSaveState` of the wireless save record the wireless entry point
- * copies its entry byte from.  Past the end of the modelled `SaveState`, so it
- * is only ever reached as a raw byte offset.
+ * Offset of the wireless save record the wireless entry points read.
+ *
+ * The base is `gSaveData + 0x3000`, not `gSaveState`: the three entry points
+ * index one common record and disagree about which global it hangs off, so the
+ * record is addressed by absolute offset instead.
  */
-#define TIN_PIN_SLAMMER_WIRELESS_RECORD_OFFSET 0x3020
+#define TIN_PIN_SLAMMER_WIRELESS_RECORD_BASE gSaveData
+#define TIN_PIN_SLAMMER_WIRELESS_RECORD_SIZE 0xC00
+
+/** A byte within the wireless save record, addressed from its base. */
+#define OTU_WIRELESS_RECORD(off) ((u8*)&TIN_PIN_SLAMMER_WIRELESS_RECORD_BASE + (TIN_PIN_SLAMMER_WIRELESS_RECORD_SIZE + (off)))
 
 /** The scene's two task pools and its heap, by offset from the scene base. */
 #define OTU_HEAP(scene)        (&(scene)->base.heap)

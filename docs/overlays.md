@@ -364,7 +364,9 @@ Contains a graphics testing module for viewing art assets and their relevant inf
 
 **Files:**
 [TinPinSlammer.h](../include/Debug/Sugata/TinPinSlammer.h),
-[OtuScene](../src/Debug/Sugata/TinPinSlammer/OtuScene.c)
+[OtuScene](../src/Debug/Sugata/TinPinSlammer/OtuScene.c),
+[OtuSceneEntry](../src/Debug/Sugata/TinPinSlammer/OtuSceneEntry.c),
+[OtuMenuText](../src/Debug/Sugata/TinPinSlammer/OtuMenuText.c)
 
 Jun Sugata's Otosu ("pin throw") minigame, reached from the debug menu's S key.
 It is the largest overlay in the ROM: **561 functions, 92.5 KB of `.text`**.
@@ -377,10 +379,44 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 3 of 561 functions decompiled, all three byte-exact
-(`func_ov039_020824a0`, `func_ov039_02082520`, `func_ov039_020825b0`), covering
-the scene's pin-tray setup and its background-resource create/destroy pair. The
-remaining 558 functions are stubs; the module does not yet link from source.
+Status: 8 of 561 functions decompiled. `OtuMenuText` is 100% matched (all 764
+bytes of `.data`), and `OtuSceneEntry` is 100% for its first two entry points
+(`func_ov039_02082978`, `func_ov039_02082ae0`). The remaining 553 functions are
+stubs.
+
+### Data ownership
+
+The overlay's `.data` (0x0209a140-0x0209a49c) and `.bss` (0x0209ad00) are
+reachable only as a single range each, and the split that *looks* natural — one
+group per consuming code block — produces a dsd link-order cycle, because dsd
+sorts TUs by `.text` and the groups' `.data` ranges ascend in the opposite
+order. The resolution is a data-only TU (`OtuMenuText.c`) that claims the whole
+range, with the code TUs claiming `.text` only.
+
+`OtuMenuText.c` is generated, not hand-written: `tools/ov039_strgen.py` emits
+the Shift-JIS menu labels from `build/usa/asm/ov039_4.s`, and
+`tools/ov039_datagen.py` prepends the stage descriptors, companion lists,
+coordinate tables and anchor constants. Declaration order is load-bearing —
+mwcc sorts `.data` objects by size ascending, ties broken by creation order.
+
+### mwcc emission notes
+
+- `ResourceManager` is 0x11580 bytes and sits at `scene+0`, so `prevResMgr`
+  lands at 0x11580. Reaching it as `scene + 0x11000 + 0x580` is two steps, not
+  a distinct sub-object.
+- The heap and its buffer are reached through `scene->base.heap` /
+  `scene->base.heapBuffer`. Spelling them as offset macros instead lets mwcc
+  CSE the address into a callee-saved register, where the target recomputes it
+  at each use — that alone was worth ~7% on `func_ov039_02082978`.
+- The overlay's slot state is one 8-byte object cleared with `str` at +4 and
+  `strb` at +0, not two 4-byte words.
+- `SystemStatusFlags.unk_06`/`unk_07` carry the wireless link and stack state.
+  They are deliberately **not** renamed: ~60 files across the tree read them.
+- The wireless save record is based at `gSaveData + 0x3000`, not `gSaveState`.
+- `func_ov039_02082c50` (the menus/results entry point) is at 66% and resisted
+  14 source variants. Every instruction is semantically right; the whole gap is
+  mwcc placing literal-pool loads one or two instructions later than the target
+  does. It is the natural next thing to attack with the permuter.
 
 Useful notes for continuing:
 
@@ -392,6 +428,12 @@ Useful notes for continuing:
   `TIN_PIN_SLAMMER_TRAY_SLOT` (0x22026), not through a sub-object pointer;
   writing it as `((OtuSceneTables*)(scene + 0x44000))->tray[i]` strength-reduces
   the base into a register and costs ~33% of the match.
+- `python tools/ov039_data_owners.py <lo> <hi>` maps a `.data` range to the
+  functions referencing it. That is what decides whether a range can be claimed
+  by the TU holding its consumers' `.text`.
+- `python tools/ov039_plan.py` prints all 30 task TUs with ranges and function
+  counts; `tools/sizeprobe.py` pins real struct sizes (mwcc rejects `sizeof` in
+  constant expressions).
 - The equipped-pin array is walked with a bare byte cursor (stride `0xA`, id at
   `+0x74`), not through `EquippedPin`.
 - `.text` layout is contiguous, so a TU's `delinks.txt` range must be filled
