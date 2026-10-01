@@ -379,7 +379,7 @@ members ‚Äî every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 187 of 561 functions decompiled, 106 of them at 100%.
+Status: 244 of 561 functions decompiled, 156 of them at 100%.
 `OtuMenuText` is 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of
 `.bss`); `OtuVBlank` is 100% across all five functions; `OtuSceneEntry` holds the
 two plain entry points, the teardown, its thunk and both stage dispatches at
@@ -388,7 +388,7 @@ builders plus the countdown steppers that drive them. Partial:
 `func_ov039_02083bb0` at 99.97%, `OtuGxInit` at 95.9%, both per-frame updates at
 91.0% and 95.4%, the clamp helper at 94.5%, the place stepper at 92.3%, the
 pin-count row at 83.8%, the countdown at 76.0%, the wireless teardown at 72.8%.
-The remaining 374 functions are stubs.
+The remaining 317 functions are stubs.
 
 The four countdown steppers (`02084458`, `020845dc`, `020846c4` and the
 place-stepper they all call) share one unresolved gap, below. Two sit at ~89%
@@ -804,3 +804,73 @@ The main screen for accessing the various debugging modules. Displays options or
 **Files:** N/A (Not yet decompiled)
 
 This particular overlay contains no code or data except for a compiler-generated contructor reference. Any usage of relevance has not yet been discovered. It is possible this overlay was intended for testing purposes, as a template for other overlays, or was simply accidentally included, but these ideas are purely speculative.
+
+
+## ov039: the task inventory
+
+The overlay's simulation is not anonymous after all.
+`extract/usa/arm9_overlays/ov039.bin` still contains 30 `Tsk_OtosuGame_*`
+strings, each the first word of a `TaskHandle` whose function pointer is one of
+the stage dispatchers. That is the complete task list of the pinball game,
+readable straight out of the ROM:
+
+```
+  Tsk_OtosuGame_badge
+  Tsk_OtosuGame_shadow
+  Tsk_OtosuGame_piyo
+  Tsk_OtosuGame_marker
+  Tsk_OtosuGame_meteo
+  Tsk_OtosuGame_hammer
+  Tsk_OtosuGame_needle
+  Tsk_OtosuGame_hand
+  Tsk_OtosuGame_floor
+  Tsk_OtosuGame_obstacle
+  Tsk_OtosuGame_bg
+  Tsk_OtosuGame_ovbg
+  Tsk_OtosuGame_badgeradar
+  Tsk_OtosuGame_badgecount
+  Tsk_OtosuGame_timer
+  Tsk_OtosuGame_specialgauge
+  Tsk_OtosuGame_spark
+  Tsk_OtosuGame_slash
+  Tsk_OtosuGame_track
+  Tsk_OtosuGame_point
+  Tsk_OtosuGame_entry
+  Tsk_OtosuGame_dead
+  Tsk_OtosuGame_gameover
+  Tsk_OtosuGame_wricon
+  Tsk_OtosuGame_meteohahen
+  Tsk_OtosuGame_smoke
+  Tsk_OtosuGame_warp
+  Tsk_OtosuGame_needlehahen
+  Tsk_OtosuGame_hammerhahen
+  Tsk_OtosuGame_wrwait
+```
+
+This is the key to the whole overlay, and it explains the results screen. The
+Shift-JIS strings that led to this overlay in the first place were `ÉêÉcÉbÉb` (badge), `ÉeÉeÉcÉaaÉeÉaÉeÉd` (meteo), `ÉcbÉedÉfcÉeÉb` (needle), `ÉçÉÑÉﬁÉfc` (hammer), `ÂøÖÊÆ∫ÊäÄ` (special move), `Ê∞óÁÜ≤` (stun) -- and here
+they are again as task names. The results screen scores four pin types, and the
+simulation has a task per pin type.
+
+It also settles what the "three sorts of the same object" in the sprite-cell
+builders were. `func_ov039_0208e9d0`, `0208e998` and `0208e984` test a child's
+kind field against 6, 7 and 8, and the three nearest-child queries built on them
+are byte-identical apart from that constant. Four pin tasks -- shadow, piyo,
+marker, meteo -- is the obvious population for "three pin types".
+
+Two details worth keeping:
+
+  * `meteohahen`, `needlehahen` and `hammerhahen` are the debris variants:
+    `hahen` is the kanji for "fragment", so each of those three pins has a second
+    task for its wreckage. That is how the overlay tracks a destroyed pin.
+  * `Tsk_OtosuGame_dead` matches the stun string, and `wricon`, `badgeradar`,
+    `specialgauge` and `badgecount` are HUD rather than simulation.
+
+The band at 0x0208f000-0x02090000 turned out to be four near-identical sprite
+tasks -- shadow, piyo, marker, meteo -- each with load / update / render / destroy
+stages, and the varied literals across them are resource ids and animation frame
+indices rather than anything semantic. `shadow` is the only one that offsets its
+render by 3px *and* drops the OAM priority to 10, which is a cheap drop shadow.
+`piyo` computes `(liveness * 100) / speed` and bands it at 20/40/60/80 into five
+animation frames, so its sprite size is a "how close to scoring" readout. `meteo`
+owns a fan-out of eight children.

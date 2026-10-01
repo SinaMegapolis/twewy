@@ -7,11 +7,6 @@
  * overlay is already inside this file's claim. They are preprocessed into this
  * object, so they need no delinks entry and no configure.py run.
  */
-#include "OtuBand1.c"
-#include "OtuBand2.c"
-#include "OtuBand3.c"
-#include "OtuBand4.c"
-#include "OtuBand5.c"
 
 /**
  * @file OtuFieldAccess.c
@@ -64,7 +59,7 @@
 /* ------------------------------------------------------------------ */
 
 /** Reads the +0x110/+0x114 pair out to a point. */
-// Nonmatching: 60% (64% for 02092730). The target emits four instructions --
+// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
 // load x, load y, store x, store y. mwcc will not produce that from any of the
 // three forms tried here:
 //
@@ -93,7 +88,7 @@ void func_ov039_0208e848(void* task, OtuPoint* in) {
 }
 
 /** Reads the +0x118/+0x11C pair out to a point. */
-// Nonmatching: 60% (64% for 02092730). The target emits four instructions --
+// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
 // load x, load y, store x, store y. mwcc will not produce that from any of the
 // three forms tried here:
 //
@@ -119,7 +114,7 @@ void func_ov039_0208e870(void* task, s32 x, s32 y) {
 }
 
 /** The +0x120/+0x124 pair, copied out. Used by the nearest-child queries. */
-// Nonmatching: 60% (64% for 02092730). The target emits four instructions --
+// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
 // load x, load y, store x, store y. mwcc will not produce that from any of the
 // three forms tried here:
 //
@@ -139,7 +134,7 @@ void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out) {
 }
 
 /** The +0x138/+0x13C pair, copied out -- the fourth such pair on this object. */
-// Nonmatching: 60% (64% for 02092730). The target emits four instructions --
+// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
 // load x, load y, store x, store y. mwcc will not produce that from any of the
 // three forms tried here:
 //
@@ -224,7 +219,7 @@ s16 func_ov039_0208eec4(void* task) {
 /* ------------------------------------------------------------------ */
 
 /** Reads the +0x40/+0x44 pair out to a point. */
-// Nonmatching: 60% (64% for 02092730). The target emits four instructions --
+// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
 // load x, load y, store x, store y. mwcc will not produce that from any of the
 // three forms tried here:
 //
@@ -244,7 +239,7 @@ void func_ov039_02092730(void* task, OtuPoint* out) {
 }
 
 /** Reads the +0x48/+0x4C pair out to a point. */
-// Nonmatching: 60% (64% for 02092730). The target emits four instructions --
+// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
 // load x, load y, store x, store y. mwcc will not produce that from any of the
 // three forms tried here:
 //
@@ -1617,3 +1612,42 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
             return NULL;
     }
 }
+
+/*
+ * The band files, #included at the *bottom* of this file rather than the top.
+ *
+ * That ordering is load-bearing. At the top, every band was compiled before
+ * this file's own 55 definitions, so each one had to forward-declare them --
+ * and band 1's forward declarations, written without sight of the
+ * definitions, guessed signatures that collided (int where the definition
+ * returns void, six arguments where there are four). At the bottom, every
+ * band sees every definition that precedes it, and no forward declarations
+ * are needed.
+ *
+ * The order within the block matters too: band 1 is last because it calls
+ * func_ov039_02097240, which band 5 defines, and func_ov039_02087ba0, which
+ * band 4 declares. A call with no declaration in between is implicitly
+ * `int (...)` and then collides with the real definition.
+ *
+ * See OtuBands.h for why these are includes and not separate translation
+ * units, and for the `-ipa file` cache trap that means an edit to a band file
+ * does not by itself invalidate this object.
+ */
+/* Order matters, and not for the reason it looks.
+ *
+ * OtuBand1.c calls func_ov039_02097240, which band 5 defines, and
+ * func_ov039_02087ba0, which sits outside every band and which band 4
+ * declares. Band 1's own address range is disjoint from all the others, so
+ * including it last costs nothing.
+ *
+ * A call to a function defined later in the same translation unit, with no
+ * declaration in between, is implicitly declared `int (...)` by C and then
+ * collides with the real definition. Not hypothetical: that is exactly what
+ * happened when these were concatenated in address order, and it is why band
+ * 5 was told to declare its shared callees unprototyped.
+ */
+#include "OtuBand1.inc"
+#include "OtuBand2.inc"
+#include "OtuBand3.inc"
+#include "OtuBand4.inc"
+#include "OtuBand5.inc"
