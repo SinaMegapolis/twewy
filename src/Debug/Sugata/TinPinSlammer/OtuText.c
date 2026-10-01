@@ -79,3 +79,56 @@ void func_ov039_02083a20(OtuTextDigits* out, s32 value) {
     out->ones      = '0' + (scaled % 10);
     out->space     = ' ';
 }
+
+/**
+ * @brief Step a Q12.12 value by one decimal place, wrapping at 10000.
+ *
+ * `place` is a small integer selecting the step: 0 is thousands, 1 hundreds,
+ * 2 tens, 3 ones.  Values outside [0, 10000) wrap, and the sign is preserved
+ * across the step so negative scores count down the same way positive ones count
+ * up.  The scale is the usual divide-by-1000 for the Q12.12 to integer
+ * conversion, then back again on the way out.
+ */
+// Nonmatching: 91.5%. The switch on `place`, the wrap at 10000 and the Q12.12
+// scale in and out are all right, and the size matches. The remainder is mwcc
+// normalising the `place` argument as an unsigned remainder (shift, subtract,
+// rotate) where this build takes it as already in range.
+void func_ov039_02083af4(s32* value, s32 direction, u32 place) {
+    s32 step = 1;
+    s32 scaled;
+    s32 negative;
+
+    scaled   = *value * 1000 / 4096;
+    negative = (scaled < 0) ? 1 : 0;
+    if (negative != 0) {
+        scaled = -scaled;
+    }
+
+    switch (place) {
+        case 0:
+            step = 1000;
+            break;
+        case 1:
+            step = 100;
+            break;
+        case 2:
+            step = 10;
+            break;
+        case 3:
+            step = 1;
+            break;
+    }
+
+    scaled += step * direction;
+
+    if (scaled < 0) {
+        scaled = 10000;
+    } else if (scaled >= 10000) {
+        scaled = 0;
+    }
+    if (negative != 0) {
+        scaled = -scaled;
+    }
+
+    *value = scaled * 4096 / 1000;
+}
