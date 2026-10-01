@@ -1,6 +1,53 @@
 #include "Debug/Sugata/TinPinSlammer.h"
+#include "Engine/Core/System.h"
 #include "Engine/EasyTask.h"
 #include "Save.h"
+
+/**
+ * @brief The wireless stage's companion descriptor.
+ *
+ * Three routines the wireless stage sequences through.  The scene's per-frame
+ * update jumps to `OtuScene_WirelessStage` when the wireless link reports one
+ * of the states that need handling.  These live in `.data`, not `.rodata`.
+ */
+OtuSceneStage OtuScene_WirelessStage_Companion = {
+    func_ov039_02087acc,
+    func_ov039_02087b04,
+    func_ov039_02087b74,
+};
+
+OtuSceneStage OtuScene_WirelessStage = {
+    func_ov039_02087ac4,
+    func_ov039_02087ac8,
+    &OtuScene_WirelessStage_Companion,
+    0,
+};
+
+/**
+ * @brief The scene's first stage: the board/pin-logic stage.
+ *
+ * Runs after the shared scene setup, and owns 0x3C bytes of state.
+ */
+OtuSceneStageCompanion OtuScene_FirstStage_Companion = {
+    func_ov039_02086808,
+};
+
+OtuSceneStage OtuScene_FirstStage = {
+    func_ov039_02086728,
+    func_ov039_020867d4,
+    &OtuScene_FirstStage_Companion,
+    0x3C,
+};
+
+/** Debug sequence name given to the scene block by Mem_SetSequence. */
+const char OtuScene_SequenceName[] = "Seq_Otosu()";
+
+/** The overlay's shared slot state, cleared by every scene entry point. */
+OtuSceneSlotState OtuScene_SlotState = {
+    0,
+    {0, 0},
+    0,
+};
 
 /**
  * @file OtuScene.c
@@ -136,6 +183,66 @@ void func_ov039_02082774(TinPinSlammer_Scene* scene) {
     func_ov039_02098af4((u8*)scene + TIN_PIN_SLAMMER_STAGE_OFFSET, scene);
 
     if (func_ov039_02098b44((u8*)scene + TIN_PIN_SLAMMER_STAGE_OFFSET) != 0) {
+        scene->state.unk_ADC = 1;
+    }
+}
+
+// Nonmatching: same mwcc register-allocation gap as func_ov039_02082774 --
+// mwcc hoists the shared 0x41AC4 stage-container literal into a callee-saved
+// register and keeps `scene` in r5, where the target keeps `scene` in r4 and
+// re-loads the literal at each of its nine uses.  Every offset, call order and
+// branch shape is otherwise instruction-for-instruction identical.  Eight
+// sweep variants (stage-address spelled four ways, scene pointer typed or
+// void) all land at 45 differing lines.
+void func_ov039_020827d0(TinPinSlammer_Scene* scene) {
+    func_ov039_02098a60(OTU_STAGE(scene), scene);
+    func_ov039_02098acc(OTU_STAGE(scene), scene);
+
+    if (func_ov039_02098b68(OTU_STAGE(scene)) != &OtuScene_WirelessStage && func_ov039_02098b44(OTU_STAGE(scene)) == 0) {
+        // A switch, not an `||` chain: mwcc folds `x==8 || x==9 || x==10` into
+        // a `(x-8) <= 2` range check, while the target emits all three compares.
+        switch (func_ov040_0209cb78()) {
+            case 8:
+            case 9:
+            case 10: {
+                if (scene->state.unk_EEC != 0) {
+                    func_ov040_0209ed30();
+                    func_ov040_0209ece4();
+                    func_ov040_0209ed20();
+                    func_02047338();
+                    func_ov040_0209d970(0);
+                    func_ov003_0209d434(0, 0);
+                    scene->state.unk_EEC = 0;
+                }
+                scene->state.unk_AE0 = 1;
+                func_ov040_0209d990();
+                func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessStage);
+            } break;
+        }
+
+        if (SystemStatusFlags.reset != 0) {
+            func_ov040_0209d990();
+            func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessStage);
+        }
+    }
+
+    if (scene->state.unk_EE4 != 0) {
+        scene->state.unk_AE0 = 1;
+        func_ov040_0209d990();
+        func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessStage);
+        scene->state.unk_EE4 = 0;
+    }
+
+    if (scene->state.unk_EE8 != 0) {
+        scene->state.unk_AE0 = 1;
+        func_ov040_0209d990();
+        func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessStage);
+        scene->state.unk_EE8 = 0;
+    }
+
+    func_ov039_02098af4(OTU_STAGE(scene), scene);
+
+    if (func_ov039_02098b44(OTU_STAGE(scene)) != 0) {
         scene->state.unk_ADC = 1;
     }
 }

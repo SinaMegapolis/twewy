@@ -139,6 +139,18 @@ typedef struct {
 #define TIN_PIN_SLAMMER_STAGE_OFFSET 0x41AC4
 
 /**
+ * @brief A two-byte slot of global state the scene entry points clear.
+ *
+ * Lives in the overlay's `.bss`; the entry points zero both the 16-bit value
+ * at +0 and the one at +4 before bringing the display up.
+ */
+typedef struct {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ u8  pad_02[2];
+    /* 0x04 */ u16 unk4;
+} OtuSceneSlotState; // Size: 0x8
+
+/**
  * @brief The scene's stage-dispatch container, reached inline.
  *
  * The target re-loads the container's address from the literal pool at every
@@ -197,6 +209,19 @@ void func_ov039_02082724(TinPinSlammer_Scene* scene);
 void func_ov039_0208273c(TinPinSlammer_Scene* scene);
 void func_ov039_02082754(TinPinSlammer_Scene* scene);
 void func_ov039_02082774(TinPinSlammer_Scene* scene);
+void func_ov039_020827d0(TinPinSlammer_Scene* scene);
+
+/* Wireless-stage routines, still undecompiled (see OtuScene_WirelessStage). */
+void func_ov039_02087acc(void);
+void func_ov039_02087b04(void);
+void func_ov039_02087b74(void);
+void func_ov039_02087ac4(void);
+void func_ov039_02087ac8(void);
+
+/* The board/pin-logic stage routines named by OtuScene_FirstStage. */
+void func_ov039_02086808(void);
+void func_ov039_02086728(void);
+void func_ov039_020867d4(void);
 
 /* Shared engine entry points the overlay's scene setup drives. */
 void func_02025b68(void* resource, TinPinSlammer_ResArgs* args);
@@ -205,10 +230,79 @@ void func_ov039_02098a20(void* a, void* b);
 
 /* Stage-dispatch helpers (see OtuStageDispatch).  These are not decompiled
  * yet, so they are declared with the untyped signature the target uses. */
-void func_ov039_02098a60(void* dispatch, void* scene);
-void func_ov039_02098acc(void* dispatch, void* scene);
-void func_ov039_02098af4(void* dispatch, void* scene);
-s32  func_ov039_02098b44(void* dispatch);
+void  func_ov039_02098a60(void* dispatch, void* scene);
+void  func_ov039_02098acc(void* dispatch, void* scene);
+void  func_ov039_02098af4(void* dispatch, void* scene);
+s32   func_ov039_02098b44(void* dispatch);
+void* func_ov039_02098b68(void* dispatch);
+void  func_ov039_02098a40(void* dispatch, void* stage);
+
+/**
+ * @brief One entry in the scene's stage table.
+ *
+ * A stage descriptor: the routine to run, a secondary routine, a pointer to a
+ * companion descriptor, and a size.  `OtuScene_WirelessStage` is the entry the
+ * scene jumps to when the wireless link needs attention.
+ */
+typedef struct {
+    /* 0x00 */ void* run;
+    /* 0x04 */ void* sub;
+    /* 0x08 */ void* companion;
+    /* 0x0C */ u32   size;
+} OtuSceneStage; // Size: 0x10
+
+extern OtuSceneStage OtuScene_WirelessStage;
+
+/**
+ * @brief The stage's companion record, a single routine pointer.
+ *
+ * Unlike `OtuSceneStage` this companion is one word, so it is its own type.
+ */
+typedef struct {
+    /* 0x00 */ void* run;
+} OtuSceneStageCompanion; // Size: 0x4
+
+/** The scene's first stage: board/pin logic, 0x3C bytes of state. */
+extern OtuSceneStage OtuScene_FirstStage;
+
+/** Shared scene objects. */
+extern const char        OtuScene_SequenceName[];
+extern OtuSceneSlotState OtuScene_SlotState;
+
+/** Total size of the scene block MainOvlDisp allocates. */
+#define TIN_PIN_SLAMMER_SCENE_SIZE 0x44A6C
+
+/** Offset of the byte written just before the first stage is entered. */
+#define TIN_PIN_SLAMMER_ENTRY_OFFSET 0x44A64
+
+/** The scene's two task pools and its heap, by offset from the scene base. */
+#define OTU_HEAP(scene)        ((Heap*)((u8*)(scene) + TIN_PIN_SLAMMER_HEAP_OFFSET))
+#define OTU_HEAP_BUFFER(scene) ((void*)((u8*)(scene) + TIN_PIN_SLAMMER_HEAP_OFFSET + 0x18C))
+#define OTU_POOL1(scene)       ((TaskPool*)((u8*)(scene) + TIN_PIN_SLAMMER_POOL1_OFFSET))
+#define OTU_POOL2(scene)       ((TaskPool*)((u8*)(scene) + TIN_PIN_SLAMMER_POOL2_OFFSET))
+
+/** Scene entry points. */
+void func_ov039_02082978(void);
+
+/* Display/VBlank init entry points in this overlay (not yet decompiled). */
+void func_ov039_02083928(void);
+void func_ov039_02083944(void);
+void func_0200d8f0(void);
+
+/* Two zeroed u16s the scene entry points clear. */
+extern u16 data_02066aec;
+extern u16 data_02066eec;
+
+/* Wireless-communication entry points in ov040. */
+s32  func_ov040_0209cb78(void);
+void func_ov040_0209d990(void);
+void func_ov040_0209d970(s32 arg0);
+void func_ov040_0209ece4(void);
+void func_ov040_0209ed20(void);
+void func_ov040_0209ed30(void);
+
+/* Wireless entry point in ov003. */
+void func_ov003_0209d434(s32 a, s32 b);
 
 extern const void* data_0205c9b0;
 
