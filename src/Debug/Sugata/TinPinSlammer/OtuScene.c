@@ -142,13 +142,15 @@ void func_ov039_02082774(TinPinSlammer_Scene* scene) {
     }
 }
 
-// Nonmatching: same mwcc register-allocation gap as func_ov039_02082774 --
-// mwcc hoists the shared 0x41AC4 stage-container literal into a callee-saved
-// register and keeps `scene` in r5, where the target keeps `scene` in r4 and
-// re-loads the literal at each of its nine uses.  Every offset, call order and
-// branch shape is otherwise instruction-for-instruction identical.  Eight
-// sweep variants (stage-address spelled four ways, scene pointer typed or
-// void) all land at 45 differing lines.
+// Nonmatching: 12 bytes short. The target re-loads the shared 0x41AC4
+// stage-container literal at each of its nine uses, where mwcc hoists it into a
+// callee-saved register once and keeps `scene` in r5. Every offset, call order
+// and branch shape is otherwise identical. Eight sweep variants (stage address
+// spelled four ways, scene pointer typed or void) all land at 45 differing
+// lines, and a `volatile` copy of the offset makes it worse (four stack
+// round-trips instead of three register loads, +16 bytes). A permuter pass with
+// a call-count guard found nothing further, so the remaining gap is the hoist
+// itself.
 void func_ov039_020827d0(TinPinSlammer_Scene* scene) {
     func_ov039_02098a60(OTU_STAGE(scene), scene);
     func_ov039_02098acc(OTU_STAGE(scene), scene);

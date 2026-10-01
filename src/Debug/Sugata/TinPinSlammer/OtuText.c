@@ -94,9 +94,11 @@ void func_ov039_02083a20(OtuTextDigits* out, s32 value) {
  * conversion, then back again on the way out.
  */
 // Nonmatching: 91.5%. The switch on `place`, the wrap at 10000 and the Q12.12
-// scale in and out are all right, and the size matches. The remainder is mwcc
-// normalising the `place` argument as an unsigned remainder (shift, subtract,
-// rotate) where this build takes it as already in range.
+// scale in and out are all right, and the size matches. The target reduces
+// `place` modulo 4 as an *unsigned* value -- `rsb r2, r3, r2, lsl #0x1e` is the
+// standard "negate and add 2^32" idiom, and the `0x10624dd3` pool word is
+// mwcc's reciprocal for the following divide by 4. This build takes `place` as
+// already in range and so skips both.
 void func_ov039_02083af4(s32* value, s32 direction, u32 place) {
     s32 step = 1;
     s32 scaled;
@@ -108,7 +110,7 @@ void func_ov039_02083af4(s32* value, s32 direction, u32 place) {
         scaled = -scaled;
     }
 
-    switch (place) {
+    switch (place % 4) {
         case 0:
             step = 1000;
             break;
@@ -151,34 +153,38 @@ void func_ov039_02083af4(s32* value, s32 direction, u32 place) {
  * scene calls this every frame and the result screens are static most of the
  * time.
  */
-// Nonmatching: 87.1%. Every call, field access and branch agrees with the
-// target and the size is exact; what remains is register choice (the target
-// holds the table in r4 and re-derives r0 per access, this build keeps r5).
+// Nonmatching: 99.97% in objdiff, which is its ceiling here -- the residual is
+// three constant-pool `.word` symbol names, not code. Every instruction, field
+// access and branch matches, and the size is exact.
+//
+// The fix that closed this was dropping the cached `row` pointer. The target
+// re-derives it (`ldr [r4,#0]` then `add r1, r4, r0, lsl #4`) at every field
+// access, which is six instructions mwcc will not re-emit once a local has
+// swallowed the pointer. The same applies throughout this overlay: its source
+// does not cache computed addresses.
 void func_ov039_02083bb0(TinPinSlammer_Scene* scene) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuTextRow* row   = OTU_TEXT_ROW(table, table->index);
 
-    if (row->row != row->drawnRow) {
-        if (row->drawnRow >= 0) {
-            Text_RenderToScreen(OTU_TEXT(scene), 0, row->drawnRow * 8 + 8, OtuGlyph_ScrollFill);
+    if (OTU_TEXT_ROW(table, table->index)->row != OTU_TEXT_ROW(table, table->index)->drawnRow) {
+        if (OTU_TEXT_ROW(table, table->index)->drawnRow >= 0) {
+            Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->drawnRow * 8 + 8, OtuGlyph_ScrollFill);
         }
-        Text_RenderToScreen(OTU_TEXT(scene), 0, row->row * 8 + 8, OtuGlyph_ScrollHead);
-        row->drawnRow = row->row;
+        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, OtuGlyph_ScrollHead);
+        OTU_TEXT_ROW(table, table->index)->drawnRow = OTU_TEXT_ROW(table, table->index)->row;
     }
 
     // Re-derive rather than reuse the pointer: the target reloads the index
     // word before each field access.
-    row = OTU_TEXT_ROW(table, table->index);
-    if (row->value == row->drawnValue) {
+    if (OTU_TEXT_ROW(table, table->index)->value == OTU_TEXT_ROW(table, table->index)->drawnValue) {
         return;
     }
 
-    if (row->value >= 0) {
-        Text_RenderToScreen(OTU_TEXT(scene), 0, row->row * 8 + 8, OtuGlyph_ScrollHead);
+    if (OTU_TEXT_ROW(table, table->index)->value >= 0) {
+        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, OtuGlyph_ScrollHead);
     } else {
-        Text_RenderToScreen(OTU_TEXT(scene), 0, row->row * 8 + 8, OtuGlyph_ScrollDot);
+        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, OtuGlyph_ScrollDot);
     }
-    row->drawnValue = row->value;
+    OTU_TEXT_ROW(table, table->index)->drawnValue = OTU_TEXT_ROW(table, table->index)->value;
 }
 
 /**
@@ -193,17 +199,17 @@ void func_ov039_02083bb0(TinPinSlammer_Scene* scene) {
  * itself (`1 - value`, `2 - value`, `5 - value`, `6 - value`), so the field's
  * magnitude rather than a per-case constant drives the arithmetic.
  */
-// Nonmatching: 52.4%. The switch, its nine-way jump table, the bounds check and
-// case 0/1 all match the target exactly, as does the size. The later arms step
-// each column through the same five-argument clamp, but the target's callers
-// only ever push the fourth argument -- the clamp reads its fifth from
-// [sp, #0x10] with nothing set there -- so the upper bound this source passes is
-// a guess. The diff view also misreports low here, because nine near-identical
-// arms slide out of alignment past case 1.
+// Nonmatching: 76.0%. The switch, its nine-way jump table, the bounds check and
+// case 0/1 all match the target exactly, as does the size. Dropping the cached
+// countdown pointer took this from 52.4%: the target re-derives
+// `scene + 0x44000 + menuIndex * 0x34` before every field access, and caching it
+// costs the `mla` mwcc then never repeats. Two things are still open: the later
+// arms pass a fifth argument to the clamp that the target's callers never set
+// (see func_ov039_020839d4), and the diff view under-reports here because nine
+// near-identical arms slide out of alignment past case 1.
 void func_ov039_02083cbc(TinPinSlammer_Scene* scene, s32 step) {
-    OtuTextRow*       table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32               value;
-    OtuMenuCountdown* menu;
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
 
     // Cleared each call, so the countdown restarts if the row changes.
     table->flags = 0;
@@ -218,26 +224,22 @@ void func_ov039_02083cbc(TinPinSlammer_Scene* scene, s32 step) {
             func_ov039_020842bc(scene, 3);
             break;
         case 2:
-            menu            = OTU_COUNTDOWN(scene);
-            menu->thousands = (s16)func_ov039_020839d4(menu->thousands, step, 2 - value, 9, 0);
+            OTU_COUNTDOWN(scene)->thousands = (s16)func_ov039_020839d4(OTU_COUNTDOWN(scene)->thousands, step, 2 - value, 9, 0);
             break;
         case 3:
         case 4:
         case 5:
-            menu           = OTU_COUNTDOWN(scene);
-            menu->hundreds = (s16)func_ov039_020839d4(menu->hundreds, step, 5 - value, 0, 0x3E7);
+            OTU_COUNTDOWN(scene)->hundreds =
+                (s16)func_ov039_020839d4(OTU_COUNTDOWN(scene)->hundreds, step, 5 - value, 0, 0x3E7);
             break;
         case 6:
-            menu       = OTU_COUNTDOWN(scene);
-            menu->tens = (s16)func_ov039_020839d4(menu->tens, step, 6 - value, 0, 6);
+            OTU_COUNTDOWN(scene)->tens = (s16)func_ov039_020839d4(OTU_COUNTDOWN(scene)->tens, step, 6 - value, 0, 6);
             break;
         case 7:
-            menu         = OTU_COUNTDOWN(scene);
-            menu->unk_98 = (s16)func_ov039_020839d4(menu->unk_98, step, 6 - value, 0, 6);
+            OTU_COUNTDOWN(scene)->unk_98 = (s16)func_ov039_020839d4(OTU_COUNTDOWN(scene)->unk_98, step, 6 - value, 0, 6);
             break;
         case 8:
-            menu         = OTU_COUNTDOWN(scene);
-            menu->unk_A8 = (s16)func_ov039_020839d4(menu->unk_A8, step, 6 - value, 0, 6);
+            OTU_COUNTDOWN(scene)->unk_A8 = (s16)func_ov039_020839d4(OTU_COUNTDOWN(scene)->unk_A8, step, 6 - value, 0, 6);
             break;
         default:
             break;
@@ -256,33 +258,34 @@ void func_ov039_02083cbc(TinPinSlammer_Scene* scene, s32 step) {
  * the stage reports its own column hidden (the 0x20 flag) the character at that
  * offset is blanked to a space, so the row keeps its shape with the column empty.
  */
-// Nonmatching: 55.7%. The six digit-group offsets, the digit counts, the blank
+// Nonmatching: 83.0%. The six digit-group offsets, the digit counts, the blank
 // offset table, the terminator position and the render call all match, and the
 // row layout was recovered from the target's own `add r0, sp, #N` sequence --
 // the groups tile sp+0x0..0xE, not the contiguous 2/1/3/1/1/1 widths a naive
-// layout gives. What is left is register allocation: the target pushes 3
-// callee-saved registers and holds the scene, the table and sp in registers,
-// while this build pushes 7. A single row[0x10] array was the closest spelling
-// tried (six separate locals scored lower).
+// layout gives. The size is now exact.
+//
+// Removing the cached countdown and row pointers took this from 55.8%; the
+// target re-derives `0x44000 + menuIndex * 0x34` before every field read, and
+// re-derives the row pointer a second time for the blanking check. What is left
+// is the tail: the target re-derives the row pointer once more after the render
+// call's arguments are set up.
 void func_ov039_02083ed4(TinPinSlammer_Scene* scene) {
-    // One buffer, six digit groups tiled into it at fixed offsets.  Declared as
-    // a single array rather than six locals because the target keeps one base in
-    // sp and offsets into it, and six separate locals cost four extra
-    // callee-saved registers.
-    char              row[0x10];
-    OtuTextRow*       table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuMenuCountdown* menu  = OTU_COUNTDOWN(scene);
-    s32               value = OTU_TEXT_ROW(table, table->index)->value;
+    // One buffer, six digit groups tiled into it at fixed offsets.  Note there
+    // is deliberately no local for the countdown base or the row pointer: the
+    // target re-derives both at every use, and caching either costs the
+    // multiply-and-add that mwcc then never emits again.
+    char        row[0x10];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
 
     func_ov039_02083974(&row[0x0], scene->menuIndex, 2);
-    func_ov039_02083974(&row[0x3], menu->thousands, 1);
-    func_ov039_02083974(&row[0x5], menu->hundreds, 3);
-    func_ov039_02083974(&row[0x9], menu->tens, 1);
-    func_ov039_02083974(&row[0xB], menu->unk_98, 1);
-    func_ov039_02083974(&row[0xD], menu->unk_A8, 1);
+    func_ov039_02083974(&row[0x3], OTU_COUNTDOWN(scene)->thousands, 1);
+    func_ov039_02083974(&row[0x5], OTU_COUNTDOWN(scene)->hundreds, 3);
+    func_ov039_02083974(&row[0x9], OTU_COUNTDOWN(scene)->tens, 1);
+    func_ov039_02083974(&row[0xB], OTU_COUNTDOWN(scene)->unk_98, 1);
+    func_ov039_02083974(&row[0xD], OTU_COUNTDOWN(scene)->unk_A8, 1);
 
-    if (value >= 0 && (table->flags & 0x20)) {
-        row[OtuTextFieldOffset[value]] = ' ';
+    if (OTU_TEXT_ROW(table, table->index)->value >= 0 && (table->flags & 0x20)) {
+        row[OtuTextFieldOffset[OTU_TEXT_ROW(table, table->index)->value]] = ' ';
     }
     row[0xE] = 0;
 
