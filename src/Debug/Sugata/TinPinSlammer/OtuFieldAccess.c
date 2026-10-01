@@ -1646,8 +1646,15 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
  * happened when these were concatenated in address order, and it is why band
  * 5 was told to declare its shared callees unprototyped.
  */
-#include "OtuBand1.inc"
+/* The clang-format off/on pair below is load-bearing. The pre-commit hook runs
+ * clang-format with SortIncludes, which sorts this block back into address order
+ * and silently reintroduces exactly the implicit `int (...)` declarations the note
+ * above warns about. It has already done so once.
+ */
+// clang-format off
 #include "OtuBand2.inc"
 #include "OtuBand3.inc"
 #include "OtuBand4.inc"
 #include "OtuBand5.inc"
+#include "OtuBand1.inc"
+// clang-format on

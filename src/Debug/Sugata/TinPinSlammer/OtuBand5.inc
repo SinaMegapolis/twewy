@@ -6,6 +6,7 @@
 #include "SpriteMgr.h"
 #include <nitro/fx/fx_division.h>
 
+
 /*
  * ============================================================================
  * Band 5: the four pin-sprite tasks.
@@ -270,12 +271,27 @@ typedef struct {
     /* 0x4 */ s32 word1;
 } OtuTaskParams; // Size: 0x8
 
-void func_ov039_0209720c(TaskPool* pool, s32 word0, s32 word1) {
+/* Forward declarations for the two functions below that this file's own
+ * call sites reach first. Without them C infers `int (...)` and the real
+ * definition then reads as a redeclaration. This is band 5 declaring its own
+ * functions, not a dependency on another band.
+ *
+ * They sit here rather than at the top of the file because they name
+ * OtuTaskSprite and OtuTaskParams, which are defined just above: the two
+ * typedefs live in this file rather than the feature header because this is
+ * their only user. */
+s32  func_ov039_0209720c(TaskPool* pool, s32 word0, s32 word1);
+void func_ov039_02097240(OtuTaskSprite* s, OtuTaskParams* param);
+
+/* Returns the task handle. The target's last two instructions are the call
+ * and the epilogue with no `mov r0` between, so r0 already holds the handle
+ * and returning it costs nothing -- and a caller in band 1 assigns it. */
+s32 func_ov039_0209720c(TaskPool* pool, s32 word0, s32 word1) {
     OtuTaskParams params;
 
     params.word0 = word0;
     params.word1 = word1;
-    EasyTask_CreateTask(pool, &data_ov039_02099f04, NULL, 0, NULL, &params);
+    return EasyTask_CreateTask(pool, &data_ov039_02099f04, NULL, 0, NULL, &params);
 }
 
 void func_ov039_0209771c(TaskPool* pool, s32 word0, s32 word1) {
