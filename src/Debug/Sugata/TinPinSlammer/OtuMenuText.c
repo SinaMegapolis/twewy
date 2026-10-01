@@ -21,6 +21,14 @@ const s32 OtuTextFieldOffset[9] = {0, 1, 3, 5, 6, 7, 9, 11, 13};
 const s32 OtuScoreFieldOffset[18] = {0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21, 22};
 
 /**
+ * @brief Character offset of each column in a `d.ddd` row.
+ *
+ * The third of the three row layouts: func_ov039_020844f8 assembles four
+ * fixed-point groups of six bytes, giving sixteen hideable columns.
+ */
+const s32 OtuFixedFieldOffset[16] = {0, 2, 3, 4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 22};
+
+/**
  * @brief The scene's process-stage dispatch tables.
  *
  * These live in `.rodata`, immediately before this TU's `.data` range.

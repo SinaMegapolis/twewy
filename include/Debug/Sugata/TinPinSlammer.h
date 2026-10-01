@@ -351,6 +351,41 @@ typedef struct {
 } OtuTextDigits; // Size: 0x6
 
 /**
+ * @brief The countdown's anchor coordinate block, indexed by menu slot.
+ *
+ * `func_ov039_02084458` and `func_ov039_020844f8` both address this as
+ * `OtuText_Shadow + slot * 0x10`, which is four consecutive `s32` per slot.
+ * The block is contiguous with `OtuText_RowLayout`, which starts three words
+ * later, so the slots overlap the head of that table -- see OtuMenuText.c for
+ * the declaration order, which is what makes the addresses line up.
+ */
+#define OTU_COUNTDOWN_COLUMN(slot) ((s32*)((u8*)&OtuText_Shadow + (slot) * 0x10))
+
+extern s32       OtuText_Shadow;
+extern s32       OtuText_LineHeight;
+extern s32       OtuText_TabStop;
+extern s32       OtuText_XTight;
+extern const s32 OtuText_RowLayout[37];
+
+/* Steps one countdown column by a single decimal place (see OtuText.c). */
+void func_ov039_02083af4(s32* value, s32 direction, u32 place);
+
+/* Formats a Q12.12 value as `d.ddd` into a six-byte group. */
+void func_ov039_02083a20(OtuTextDigits* out, s32 value);
+
+/**
+ * @brief Character offset of each column in a `d.ddd` row.
+ *
+ * The third of the row layouts, for func_ov039_020844f8's four fixed-point
+ * groups: sixteen columns rather than nine or eighteen.
+ */
+extern const s32 OtuFixedFieldOffset[16];
+
+void func_ov039_02084458(TinPinSlammer_Scene* scene, s32 slot, s32 step);
+void func_ov039_020844f8(TinPinSlammer_Scene* scene, s32 slot);
+void func_ov039_020845dc(TinPinSlammer_Scene* scene, s32 step);
+
+/**
  * @brief A text block's four coordinate words.
  *
  * The wireless menu and results entry points exchange these two objects at

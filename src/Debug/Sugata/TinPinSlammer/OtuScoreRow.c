@@ -92,3 +92,124 @@ void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 which) {
 
     Text_RenderToScreen(OTU_TEXT(scene), 0x38, which * 8 + 0x20, row);
 }
+
+/**
+ * @brief Step one of a menu's four countdown columns by a decimal place.
+ *
+ * `value / 4` selects which of the four coordinates in the slot's block is
+ * being animated, and the same quotient is passed on as the decimal place, so
+ * the four columns are the thousands, hundreds, tens and ones of one number.
+ * `step` is +1 or -1, and the divide truncates toward zero in both places --
+ * which is why the target spells it out as a shift-plus-sign-fixup rather than
+ * a shift alone.
+ *
+ * Clears the table's flags afterwards, so the hide-column check in the row
+ * builders re-evaluates from scratch on the next frame.
+ */
+// Nonmatching: 89.2%. The switch, its four-way jump table, the slot base
+// arithmetic, all four column offsets and the trailing flag clear match, and
+// the size is exact. What is left is register allocation plus the divide:
+//
+//   * the target keeps the slot base in r1 and the two arguments in r7/r6;
+//     this build uses r3 and r6/r5. The prologue differs by one saved
+//     register as a result.
+//   * the target divides `value / 4` twice -- a shift-based form for the
+//     switch selector and a rotate-based one for the call's third argument --
+//     while mwcc folds the two into a single division here. Re-deriving the
+//     value from the row does not help: the reload is folded too.
+void func_ov039_02084458(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        base  = OTU_COUNTDOWN_COLUMN(slot);
+    s32*        column;
+    s32         value = OTU_TEXT_ROW(table, table->index)->value;
+
+    // The slot base is formed once, before the switch; only the four-way
+    // selection of a word within it is branched on.  Case 0 assigns the base
+    // to itself rather than falling through, which is what produces the target's
+    // redundant `mov` in that arm.
+    switch (value / 4) {
+        case 0:
+            column = base;
+            break;
+        case 1:
+            column = base + 1;
+            break;
+        case 2:
+            column = base + 2;
+            break;
+        case 3:
+            column = base + 3;
+            break;
+    }
+
+    // Deliberately not reusing the switch's quotient. The target divides again
+    // here, in a different instruction form (a rotate-based correction rather
+    // than a shift-based one), and mwcc folds the two together when the
+    // expression is spelled identically in both places.
+    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Draw one menu's fixed-point row: four `d.ddd` groups.
+ *
+ * The counterpart to func_ov039_020842bc for the rows that show a Q12.12
+ * coordinate rather than a pin count. Four six-byte groups tile the buffer at
+ * 0x0, 0x6, 0xC and 0x12, and the last group's trailing space doubles as the
+ * terminator -- the target overwrites it with a NUL rather than reserving a
+ * separate byte.
+ */
+// Nonmatching: 99.82%, which is its ceiling here -- the residual is two
+// constant-pool `.word` symbol names and nothing else.
+//
+// `row` is declared `char[0x20]` although only 0x18 bytes are used, and the
+// trailing space at 0x17 is written *before* the blanking check and then
+// overwritten with the terminator *after* it. Both are deliberate: the exact
+// buffer size makes mwcc split the frame differently and save r3, and writing
+// the two stores adjacently lets it delete the first as dead.
+void func_ov039_020844f8(TinPinSlammer_Scene* scene, s32 slot) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        src   = OTU_COUNTDOWN_COLUMN(slot);
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], src[0]);
+    row[0x5] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x6], src[1]);
+    row[0xB] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0xC], src[2]);
+    row[0x11] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x12], src[3]);
+    row[0x17] = ' ';
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[OtuFixedFieldOffset[value]] = ' ';
+    }
+    row[0x17] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, slot * 8 + 0x40, row);
+}
+
+/**
+ * @brief Step the shared tight x-coordinate by a decimal place.
+ *
+ * The single-column counterpart to func_ov039_02084458: no slot, no switch, and
+ * the column is the one global rather than a slot-relative block.
+ */
+// Nonmatching: 89.4%. Everything matches -- the two loads, the argument setup,
+// the call and the flag clear -- except the divide. The target truncates
+// `value / 4` with the rotate-based correction (`lsr #31`, `rsb`<<30, `ror`),
+// while this build emits the shift-based one (`asr #1`, `add`>>30, `asr #2`).
+// Both are three instructions and both round toward zero; mwcc simply picks
+// between the two idioms itself, and casting the operand either side of the
+// division (including to the parameter's own `u32`) changes which one it picks
+// without ever producing the target's.
+void func_ov039_020845dc(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+
+    func_ov039_02083af4(&OtuText_XTight, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    table->flags = 0;
+}

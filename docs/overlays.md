@@ -379,14 +379,32 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 30 of 561 functions decompiled, 19 of them at 100%. `OtuMenuText` is
+Status: 33 of 561 functions decompiled, 20 of them at 100%. `OtuMenuText` is
 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of `.bss`); `OtuVBlank`
 is 100% across all five functions; `OtuSceneEntry` holds the two plain entry
-points, the teardown, its thunk and both stage dispatches at 100%. Partial:
-`func_ov039_020842bc` at 99.95%, `func_ov039_02083bb0` at 99.97%, `OtuGxInit` at
+points, the teardown, its thunk and both stage dispatches at 100%. `OtuScoreRow`
+holds the three-digit score row and the `d.ddd` row at 100%, and the countdown
+stepper at 99.2%. Partial: `func_ov039_02083bb0` at 99.97%, `OtuGxInit` at
 95.9%, both per-frame updates at 90.9% and 95.4%, the clamp helper at 94.5%, the
 place stepper at 92.3%, the pin-count row at 83.7%, the countdown at 76.0%, the
-wireless teardown at 72.8%. The remaining 531 functions are stubs.
+wireless teardown at 72.8%. The remaining 528 functions are stubs.
+
+### Two divide idioms
+
+Signed `x / 4` compiles to one of two three-instruction sequences, and mwcc picks
+between them itself:
+
+    lsr  r3, r2, #0x1f            rsb  r2, r3, r2, lsl #0x1e
+    rsb  r2, r3, r2, lsl #0x1e     add  r2, r3, r2, ror #0x1e
+    add  r2, r3, r2, ror #0x1e
+
+Both truncate toward zero and both are three instructions. The target uses the
+rotate form for a value passed to a call and the shift form for a switch selector
+— `func_ov039_02084458` emits both from the same register — while this build
+emits the shift form for either. Casting the operand on either side of the
+division, including to the callee's own parameter type, changes which one mwcc
+picks but never reaches the target's. Worth recording before spending time on
+it: this is a codegen-form gap, not a logic error.
 
 ### Verifying the ROM actually rebuilt
 
