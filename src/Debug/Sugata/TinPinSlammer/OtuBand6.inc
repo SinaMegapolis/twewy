@@ -91,9 +91,12 @@ void func_ov039_02092484(OtuObstacle* self, Sprite* sprite, OtuObstacle_Args* ar
     SpriteAnimation params = data_ov039_0209996c;
     u16 kind = args->params->kind;
 
-    /* Bits 0-1 and 6-15 of the OAM word survive; 2-5 are rebuilt from the
-     * caller's value, which arrives already positioned for bit 6. */
-    *(u16*)&params = (u16)(*(u16*)&params & ~0x3C) | (u16)((u16)args->oamAttrs << 6);
+    /* Bits 0-1 and 6-15 of the OAM word survive; 2-5 are cleared and rebuilt
+     * from the caller's value, which needs a shift of 2 to line up. The target
+     * spells it `lsl #0x1c` then `orr ..., lsr #0x1a`, a net shift of 2 -- and
+     * because it truncates the caller to 16 bits first, only the caller's low
+     * four bits can reach bits 2-5. */
+    *(u16*)&params = (u16)(*(u16*)&params & ~0x3C) | (u16)((u16)args->oamAttrs << 2);
 
     params.posX = (s16)((self->targetX - self->originX) >> 12);
     params.posY = (s16)((self->targetY - self->originY) >> 12);
@@ -135,7 +138,10 @@ s32 func_ov039_02092608(TaskPool* pool, Task* task, void* args) {
         /* Bits 5-6 of the sprite's first word are animationMode; this selects
          * mode 2. */
         *(u32*)&self->sprite = (*(u32*)&self->sprite & ~0x60) | 0x40;
-        Sprite_SetAnimation(&self->sprite, self->sprite.animData, self->sprite.cellTable, 2);
+        /* animFrame is the literal 2 and cellTable comes last. Passing them the
+         * other way round compiles -- the cell table pointer truncates to an
+         * s16 frame without complaint -- and is wrong. */
+        Sprite_SetAnimation(&self->sprite, self->sprite.animData, 2, self->sprite.cellTable);
         self->animPending = 0;
     }
 
