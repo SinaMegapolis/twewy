@@ -379,12 +379,13 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 22 of 561 functions decompiled, 15 of them at 100%. `OtuMenuText` is
+Status: 26 of 561 functions decompiled, 18 of them at 100%. `OtuMenuText` is
 100% matched (860 bytes of `.data`, 24 of `.rodata`, 8 of `.bss`); `OtuVBlank`
 is 100% across all five functions; `OtuSceneEntry` holds the two plain entry
-points, the teardown, its thunk and both stage dispatches at 100%; `OtuGxInit`
-is at 95.9%. Partial: both per-frame updates at 90.9% and 95.4%, the wireless
-teardown at 72.8%. The remaining 539 functions are stubs.
+points, the teardown, its thunk and both stage dispatches at 100%. Partial:
+`OtuGxInit` at 95.9%, both per-frame updates at 90.9% and 95.4%, the clamp
+helper at 94.5%, the place stepper at 91.5%, the wireless teardown at 72.8%. The
+remaining 535 functions are stubs.
 
 ### Data ownership
 
@@ -500,6 +501,25 @@ write fields directly is easy to follow and expensive.
 Two naming traps in that function: the sub-engine BG control registers are
 `REG_BGxCNT_SUB` (not `_S`), and the third OAM engine is `DISPLAY_EXTENDED`
 (not `DISPLAY_SUBOBJ`), initialised through `OamMgr_InitEngine`.
+
+### Text helpers
+
+`OtuText.c` opens the 0x02083974 text-helpers block with the result screens'
+number formatters: decimal digit extraction (`func_ov039_02083974`, 100%),
+`d.ddd` fixed-point formatting (`func_ov039_02083a20`, 100%), a range clamp
+(`func_ov039_020839d4`, 94.5%) and the decimal-place stepper
+(`func_ov039_02083af4`, 91.5%).
+
+Two things worth knowing before writing the rest of this block:
+
+- Digit extraction is plain `% 10` and `/ 10` in source. The `smull`/shift
+  sequences in the target are just mwcc's expansion, with `0x66666667` in the
+  literal pool being its divide-by-ten reciprocal. No asm needed.
+- Where a small integer selects one of several fixed values, the target uses a
+  real `switch` with a jump table — `func_ov039_02083af4` has one at 0x02083b38
+  behind a `cmp r2, #3 ; addls pc, pc, r2, lsl #2` bounds check. An
+  `x == 0 || x == 1 || ...` chain folds to a range check instead, which is the
+  same trap as the scene's 0x41AC4 case.
 
 Useful notes for continuing:
 
