@@ -61,23 +61,22 @@ typedef struct {
 } OtuPick; // Size: 0x8
 
 /** @brief The nearest live child, 0x02087f4c. Filter: still in play. */
-// Nonmatching: 64.7%, four bytes over the target's 280. The logic is settled --
-// every field, the pool count, the self-skip, the minimum scan and the two
-// early returns all match, and the four kind-queries differ from each other
-// exactly as the targets do.
+// Nonmatching: 72.2%, four bytes over the target's 280. The logic is settled --
+// every field, the self-skip, the minimum scan and the two early returns all
+// match, and the four kind-queries differ from each other exactly as the
+// targets do.
 //
-// Two differences remain, both mwcc optimisation-threshold effects rather than
-// anything written differently:
+// The pool count being re-read each iteration rather than hoisted came out of
+// decomp-permuter, which reached it by inlining the load back into the loop
+// condition. It is also plainly visible in the target, and getting it wrong cost
+// eight points (64.7% -> 72.2%), so it is not a permuter artefact.
 //
-//   * the target keeps the loop's scaled address in its computed form
-//     (add table, i lsl #2) while this build strength-reduces it into a
-//     pointer walked by four per iteration;
-//   * the target hoists the two sp-relative bases out of the loop
-//     (add r11, sp, #0x0 / add r4, sp, #0x10, inside the count > 0 guard) and
-//     this build rematerialises sp+0 at the call site instead.
-//
-// Getting the first means suppressing strength reduction, which the source has
-// no way to ask for.
+// decomp-permuter then ran 7500 iterations from that point and never beat the
+// baseline again, so what is left is not reachable by source shuffling: mwcc
+// strength-reduces the loop's scaled address into a walked pointer where the
+// target keeps it computed, and rematerialises sp+0 at the call site where the
+// target hoists both sp-relative bases inside its count > 0 guard. Both are
+// optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_02087f4c(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     // Declaration order here is load-bearing: mwcc hands out stack slots in
@@ -87,20 +86,21 @@ OtuPinTask* func_ov039_02087f4c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     OtuPoint    selfPos;
     OtuPoint    candPos;
     OtuPinTask* result = NULL;
-    s32         count;
-    s32         found = 0;
+    s32         found  = 0;
     s32         i;
 
     // The caller's own position, read once before the scan rather than
     // recomputed inside it.
     func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
 
-    // Read here rather than in the declaration list: the target loads the pool
-    // count after the two calls above, and initialising it at declaration moves
-    // the load ahead of them.
-    count = OTU_CHILD_COUNT(table);
+    // The pool count is re-read from the table on every iteration, not hoisted
+    // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
+    // the loop, beside the increment and the exit compare, so a task that
+    // changes the count mid-scan is observed. Binding it to a local first --
+    // which reads as the obvious thing to do -- compiles the load once and
+    // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
         OtuPinTask* cand;
 
         if (i == which) {
@@ -143,23 +143,22 @@ OtuPinTask* func_ov039_02087f4c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 }
 
 /** @brief The nearest child of kind 6, 0x02088064. */
-// Nonmatching: 64.7%, four bytes over the target's 280. The logic is settled --
-// every field, the pool count, the self-skip, the minimum scan and the two
-// early returns all match, and the four kind-queries differ from each other
-// exactly as the targets do.
+// Nonmatching: 72.2%, four bytes over the target's 280. The logic is settled --
+// every field, the self-skip, the minimum scan and the two early returns all
+// match, and the four kind-queries differ from each other exactly as the
+// targets do.
 //
-// Two differences remain, both mwcc optimisation-threshold effects rather than
-// anything written differently:
+// The pool count being re-read each iteration rather than hoisted came out of
+// decomp-permuter, which reached it by inlining the load back into the loop
+// condition. It is also plainly visible in the target, and getting it wrong cost
+// eight points (64.7% -> 72.2%), so it is not a permuter artefact.
 //
-//   * the target keeps the loop's scaled address in its computed form
-//     (add table, i lsl #2) while this build strength-reduces it into a
-//     pointer walked by four per iteration;
-//   * the target hoists the two sp-relative bases out of the loop
-//     (add r11, sp, #0x0 / add r4, sp, #0x10, inside the count > 0 guard) and
-//     this build rematerialises sp+0 at the call site instead.
-//
-// Getting the first means suppressing strength reduction, which the source has
-// no way to ask for.
+// decomp-permuter then ran 7500 iterations from that point and never beat the
+// baseline again, so what is left is not reachable by source shuffling: mwcc
+// strength-reduces the loop's scaled address into a walked pointer where the
+// target keeps it computed, and rematerialises sp+0 at the call site where the
+// target hoists both sp-relative bases inside its count > 0 guard. Both are
+// optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_02088064(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     // Declaration order here is load-bearing: mwcc hands out stack slots in
@@ -169,20 +168,21 @@ OtuPinTask* func_ov039_02088064(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     OtuPoint    selfPos;
     OtuPoint    candPos;
     OtuPinTask* result = NULL;
-    s32         count;
-    s32         found = 0;
+    s32         found  = 0;
     s32         i;
 
     // The caller's own position, read once before the scan rather than
     // recomputed inside it.
     func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
 
-    // Read here rather than in the declaration list: the target loads the pool
-    // count after the two calls above, and initialising it at declaration moves
-    // the load ahead of them.
-    count = OTU_CHILD_COUNT(table);
+    // The pool count is re-read from the table on every iteration, not hoisted
+    // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
+    // the loop, beside the increment and the exit compare, so a task that
+    // changes the count mid-scan is observed. Binding it to a local first --
+    // which reads as the obvious thing to do -- compiles the load once and
+    // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
         OtuPinTask* cand;
 
         if (i == which) {
@@ -225,23 +225,22 @@ OtuPinTask* func_ov039_02088064(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 }
 
 /** @brief The nearest child of kind 7, 0x0208817c. */
-// Nonmatching: 64.7%, four bytes over the target's 280. The logic is settled --
-// every field, the pool count, the self-skip, the minimum scan and the two
-// early returns all match, and the four kind-queries differ from each other
-// exactly as the targets do.
+// Nonmatching: 72.2%, four bytes over the target's 280. The logic is settled --
+// every field, the self-skip, the minimum scan and the two early returns all
+// match, and the four kind-queries differ from each other exactly as the
+// targets do.
 //
-// Two differences remain, both mwcc optimisation-threshold effects rather than
-// anything written differently:
+// The pool count being re-read each iteration rather than hoisted came out of
+// decomp-permuter, which reached it by inlining the load back into the loop
+// condition. It is also plainly visible in the target, and getting it wrong cost
+// eight points (64.7% -> 72.2%), so it is not a permuter artefact.
 //
-//   * the target keeps the loop's scaled address in its computed form
-//     (add table, i lsl #2) while this build strength-reduces it into a
-//     pointer walked by four per iteration;
-//   * the target hoists the two sp-relative bases out of the loop
-//     (add r11, sp, #0x0 / add r4, sp, #0x10, inside the count > 0 guard) and
-//     this build rematerialises sp+0 at the call site instead.
-//
-// Getting the first means suppressing strength reduction, which the source has
-// no way to ask for.
+// decomp-permuter then ran 7500 iterations from that point and never beat the
+// baseline again, so what is left is not reachable by source shuffling: mwcc
+// strength-reduces the loop's scaled address into a walked pointer where the
+// target keeps it computed, and rematerialises sp+0 at the call site where the
+// target hoists both sp-relative bases inside its count > 0 guard. Both are
+// optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_0208817c(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     // Declaration order here is load-bearing: mwcc hands out stack slots in
@@ -251,20 +250,21 @@ OtuPinTask* func_ov039_0208817c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     OtuPoint    selfPos;
     OtuPoint    candPos;
     OtuPinTask* result = NULL;
-    s32         count;
-    s32         found = 0;
+    s32         found  = 0;
     s32         i;
 
     // The caller's own position, read once before the scan rather than
     // recomputed inside it.
     func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
 
-    // Read here rather than in the declaration list: the target loads the pool
-    // count after the two calls above, and initialising it at declaration moves
-    // the load ahead of them.
-    count = OTU_CHILD_COUNT(table);
+    // The pool count is re-read from the table on every iteration, not hoisted
+    // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
+    // the loop, beside the increment and the exit compare, so a task that
+    // changes the count mid-scan is observed. Binding it to a local first --
+    // which reads as the obvious thing to do -- compiles the load once and
+    // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
         OtuPinTask* cand;
 
         if (i == which) {
@@ -307,23 +307,22 @@ OtuPinTask* func_ov039_0208817c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 }
 
 /** @brief The nearest child of kind 8, 0x02088294. */
-// Nonmatching: 64.7%, four bytes over the target's 280. The logic is settled --
-// every field, the pool count, the self-skip, the minimum scan and the two
-// early returns all match, and the four kind-queries differ from each other
-// exactly as the targets do.
+// Nonmatching: 72.2%, four bytes over the target's 280. The logic is settled --
+// every field, the self-skip, the minimum scan and the two early returns all
+// match, and the four kind-queries differ from each other exactly as the
+// targets do.
 //
-// Two differences remain, both mwcc optimisation-threshold effects rather than
-// anything written differently:
+// The pool count being re-read each iteration rather than hoisted came out of
+// decomp-permuter, which reached it by inlining the load back into the loop
+// condition. It is also plainly visible in the target, and getting it wrong cost
+// eight points (64.7% -> 72.2%), so it is not a permuter artefact.
 //
-//   * the target keeps the loop's scaled address in its computed form
-//     (add table, i lsl #2) while this build strength-reduces it into a
-//     pointer walked by four per iteration;
-//   * the target hoists the two sp-relative bases out of the loop
-//     (add r11, sp, #0x0 / add r4, sp, #0x10, inside the count > 0 guard) and
-//     this build rematerialises sp+0 at the call site instead.
-//
-// Getting the first means suppressing strength reduction, which the source has
-// no way to ask for.
+// decomp-permuter then ran 7500 iterations from that point and never beat the
+// baseline again, so what is left is not reachable by source shuffling: mwcc
+// strength-reduces the loop's scaled address into a walked pointer where the
+// target keeps it computed, and rematerialises sp+0 at the call site where the
+// target hoists both sp-relative bases inside its count > 0 guard. Both are
+// optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_02088294(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     // Declaration order here is load-bearing: mwcc hands out stack slots in
@@ -333,20 +332,21 @@ OtuPinTask* func_ov039_02088294(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     OtuPoint    selfPos;
     OtuPoint    candPos;
     OtuPinTask* result = NULL;
-    s32         count;
-    s32         found = 0;
+    s32         found  = 0;
     s32         i;
 
     // The caller's own position, read once before the scan rather than
     // recomputed inside it.
     func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
 
-    // Read here rather than in the declaration list: the target loads the pool
-    // count after the two calls above, and initialising it at declaration moves
-    // the load ahead of them.
-    count = OTU_CHILD_COUNT(table);
+    // The pool count is re-read from the table on every iteration, not hoisted
+    // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
+    // the loop, beside the increment and the exit compare, so a task that
+    // changes the count mid-scan is observed. Binding it to a local first --
+    // which reads as the obvious thing to do -- compiles the load once and
+    // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
         OtuPinTask* cand;
 
         if (i == which) {
@@ -401,36 +401,41 @@ OtuPinTask* func_ov039_02088294(TaskPool* self, TinPinSlammer_Scene* scene, s32 
  * filter's type differs, and forcing it through would mean either a cast or a
  * second parameter threaded through the helper for the sake of one caller.
  */
-// Nonmatching: 64.7%, four bytes over the target's 280. The logic is settled --
-// every field, the pool count, the self-skip, the minimum scan and the two
-// early returns all match, and the four kind-queries differ from each other
-// exactly as the targets do.
+// Nonmatching: 72.2%, four bytes over the target's 280. The logic is settled --
+// every field, the self-skip, the minimum scan and the two early returns all
+// match, and the four kind-queries differ from each other exactly as the
+// targets do.
 //
-// Two differences remain, both mwcc optimisation-threshold effects rather than
-// anything written differently:
+// The pool count being re-read each iteration rather than hoisted came out of
+// decomp-permuter, which reached it by inlining the load back into the loop
+// condition. It is also plainly visible in the target, and getting it wrong cost
+// eight points (64.7% -> 72.2%), so it is not a permuter artefact.
 //
-//   * the target keeps the loop's scaled address in its computed form
-//     (add table, i lsl #2) while this build strength-reduces it into a
-//     pointer walked by four per iteration;
-//   * the target hoists the two sp-relative bases out of the loop
-//     (add r11, sp, #0x0 / add r4, sp, #0x10, inside the count > 0 guard) and
-//     this build rematerialises sp+0 at the call site instead.
-//
-// Getting the first means suppressing strength reduction, which the source has
-// no way to ask for.
+// decomp-permuter then ran 7500 iterations from that point and never beat the
+// baseline again, so what is left is not reachable by source shuffling: mwcc
+// strength-reduces the loop's scaled address into a walked pointer where the
+// target keeps it computed, and rematerialises sp+0 at the call site where the
+// target hoists both sp-relative bases inside its count > 0 guard. Both are
+// optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_02087e2c(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
     OtuTextRow* table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuPinTask* result = NULL;
     OtuPoint    selfPos;
     OtuPoint    candPos;
     OtuPick     picks[3];
-    s32         count = OTU_CHILD_COUNT(table);
     s32         found = 0;
     s32         i;
 
     func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
 
-    for (i = 0; i < count; i++) {
+    // The pool count is re-read from the table on every iteration, not hoisted
+    // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
+    // the loop, beside the increment and the exit compare, so a task that
+    // changes the count mid-scan is observed. Binding it to a local first --
+    // which reads as the obvious thing to do -- compiles the load once and
+    // costs instructions (72.2% -> 64.7%).
+
+    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
         OtuPinTask* cand;
 
         if (i == which) {
