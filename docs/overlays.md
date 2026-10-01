@@ -379,11 +379,14 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 10 of 561 functions decompiled. `OtuMenuText` is 100% matched (all 764
-bytes of `.data`), and `OtuSceneEntry` holds the two plain entry points at 100%
-(`func_ov039_02082978`, `func_ov039_02082ae0`) plus both per-frame updates at
-90.9% and 95.4% (`func_ov039_02082e98`, `func_ov039_02082ff8`). The remaining 551
-functions are stubs.
+Status: 14 of 561 functions decompiled. `OtuMenuText` is 100% matched (860 bytes
+of `.data`, 24 of `.rodata`, 8 of `.bss`). `OtuSceneEntry` holds the two plain
+entry points at 100% (`func_ov039_02082978`, `func_ov039_02082ae0`), the scene
+teardown and its thunk at 100% (`func_ov039_02083164`, `func_ov039_020831cc`),
+and four partials: both per-frame updates at 90.9% and 95.4%
+(`func_ov039_02082e98`, `func_ov039_02082ff8`), the wireless teardown at 72.8%
+(`func_ov039_020831d8`), and the process-stage dispatch (`func_ov039_02083240`).
+The remaining 547 functions are stubs.
 
 ### Data ownership
 
@@ -423,6 +426,15 @@ mwcc sorts `.data` objects by size ascending, ties broken by creation order.
   `func_ov039_02082ff8`. Seven spellings of the id were tried, plus a `volatile`
   local; all score equal or worse. Note the other update has the same issue at
   `+0x41C` — a `switch` or range test there is the likely original shape.
+- A thunk that must be a pure tail call needs a *declared parameter*, not an
+  explicit argument. `func_ov039_020831cc(scene)` emits a bare `ldr ip, [pc]` +
+  `bx ip`; passing `0` instead costs a `mov r0, #0` and drops 100% to 66%.
+- `tools/sizecheck.py <unit>` lists each function's size against the target's.
+  A function whose instructions are all correct can still report a wall of
+  pool-displacement mismatches because an earlier function in the same TU
+  differs in size, so check the deltas before concluding a gap is register
+  allocation. `tools/moveblock.py` keeps a TU in address order after a batch of
+  edits.
 - `func_ov039_02082c50` latches `SystemStatusFlags.unk_06` and `unk_07` into the
   scene (as `state.linkStatus` / `state.wirelessStatus`) and clears them, so
   they are wireless-*relevant* — but that is all that is known, and **neither
@@ -446,6 +458,29 @@ mwcc sorts `.data` objects by size ascending, ties broken by creation order.
   resisted 14 source variants. Every instruction is semantically right; the whole
   gap is mwcc placing literal-pool loads one or two instructions later than the
   target does. It is the natural next thing to attack with the permuter.
+
+### Scene lifecycle
+
+The scene's whole lifecycle is four functions plus two dispatch tables, all now
+in source:
+
+| Role | Function | |
+|---|---|---|
+| entry (plain) | `func_ov039_02082978` | 100% |
+| entry (wireless) | `func_ov039_02082ae0` | 100% |
+| entry (menus/results) | `func_ov039_02082c50` | not written; 66% when tried |
+| update (plain) | `func_ov039_02082e98` | 90.9% |
+| update (wireless) | `func_ov039_02082ff8` | 95.4% |
+| teardown | `func_ov039_02083164` | 100% |
+| teardown thunk | `func_ov039_020831cc` | 100% |
+| teardown (wireless) | `func_ov039_020831d8` | 72.8% |
+| stage dispatch | `func_ov039_02083240` | 100% |
+
+`OtuScene_PlainHandlers` and `OtuScene_WirelessHandlers` (0x02098e30, 24 bytes of
+`.rodata`) map `MainOvlDisp_GetProcessStage`'s result to a handler, one per scene
+variant. Their element type is an untyped `void (*)()`: the dispatcher passes the
+scene in r0 but the two entry-point slots ignore it, and mwcc rejects a
+function-pointer initialiser for a differently-typed function.
 
 Useful notes for continuing:
 
