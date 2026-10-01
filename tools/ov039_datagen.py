@@ -15,6 +15,27 @@ DST = ROOT / "src/Debug/Sugata/TinPinSlammer/OtuMenuText.c"
 HEADER = '''#include "Debug/Sugata/TinPinSlammer.h"
 
 /**
+ * @brief The scene's process-stage dispatch tables.
+ *
+ * These live in `.rodata`, immediately before this TU's `.data` range.
+ * `MainOvlDisp_GetProcessStage` returns the index; each table maps it to the
+ * routine for the scene at that stage.  Index 1 is the per-frame update and
+ * index 2 the teardown, so each table pairs one scene variant's entry point
+ * with its own update and teardown.
+ */
+const OtuStageHandler OtuScene_PlainHandlers[3] = {
+    func_ov039_02082ae0,
+    func_ov039_02082e98,
+    func_ov039_020831cc,
+};
+
+const OtuStageHandler OtuScene_WirelessHandlers[3] = {
+    func_ov039_02082c50,
+    func_ov039_02082ff8,
+    func_ov039_020831d8,
+};
+
+/**
  * @brief The three debug-sequence names, all the same string.
  *
  * The target holds three copies of the pointer rather than one string and three

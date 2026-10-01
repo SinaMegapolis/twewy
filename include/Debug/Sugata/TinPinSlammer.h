@@ -263,11 +263,42 @@ void func_ov039_02098a20(void* a, void* b);
 void func_ov039_02083928(void);
 void func_ov039_02083944(void);
 
+/* The stage's exit routine, run first by the scene teardown. */
+void func_ov039_02083960(void);
+
+/* The two board-stage tick routines the per-frame updates call. */
+void func_ov039_02082774(TinPinSlammer_Scene* scene);
+void func_ov039_020827d0(TinPinSlammer_Scene* scene);
+
 /* The overlays the two per-frame updates can push once the stage goes mid-setup. */
 void func_ov039_0208690c(void);
 void func_ov039_0208694c(void);
 void func_ov039_0208698c(void);
 void func_ov039_020869cc(void);
+
+/**
+ * @brief The scene's process-stage dispatch tables, in `.rodata`.
+ *
+ * `MainOvlDisp_GetProcessStage` yields the index; each table maps it to the
+ * routine that handles the scene at that stage.  There is one table per scene
+ * variant, and both end in the matching teardown.
+ *
+ * The slots hold bare addresses, so the element type is untyped: the dispatcher
+ * passes the scene in r0, but the two entry-point slots ignore it entirely and
+ * mwcc rejects a function-pointer initialiser for a differently-typed function.
+ */
+typedef void (*OtuStageHandler)();
+
+/* Referenced by the dispatch tables; see the table comments for their roles. */
+void func_ov039_02082ae0(void);
+void func_ov039_02082c50(void);
+void func_ov039_02082e98(TinPinSlammer_Scene* scene);
+void func_ov039_02082ff8(TinPinSlammer_Scene* scene);
+void func_ov039_020831cc(TinPinSlammer_Scene* scene);
+void func_ov039_020831d8(TinPinSlammer_Scene* scene);
+
+extern const OtuStageHandler OtuScene_PlainHandlers[3];
+extern const OtuStageHandler OtuScene_WirelessHandlers[3];
 
 /**
  * @brief A text block's four coordinate words.

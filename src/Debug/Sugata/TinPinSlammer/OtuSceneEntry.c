@@ -85,6 +85,7 @@ void func_ov039_02082e98(TinPinSlammer_Scene* scene) {
  * own latched link status rather than from the save record, because the record
  * has already been consumed by the time this runs.
  */
+
 // Nonmatching: 95.4%. Both functions' sizes and instruction sequences match the
 // target exactly. The remainder is one word: the target loads the overlay id
 // from a literal-pool word where mwcc folds it into `mov r1, #2`, which shifts
@@ -218,4 +219,70 @@ void func_ov039_02082ae0(void) {
     func_ov039_020824a0((u16*)scene);
     func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessBoard);
     MainOvlDisp_NextProcessStage();
+}
+
+/**
+ * @brief The scene's teardown.
+ *
+ * Runs the stage's exit routine, tears down both task pools, returns the
+ * resource managers, releases the two data slots, and frees the scene block
+ * back to the debug heap.
+ */
+void func_ov039_02083164(TinPinSlammer_Scene* scene) {
+    func_ov039_02083960();
+    func_ov039_02082754(scene);
+    EasyTask_DestroyPool(OTU_POOL1(scene));
+    EasyTask_DestroyPool(OTU_POOL2(scene));
+    ResourceMgr_ReinitManagers(NULL);
+    DatMgr_ClearSlot(scene->base.spareDataType);
+    DatMgr_ClearSlot(scene->base.dataType);
+    Mem_Free(&gDebugHeap, scene);
+}
+
+/**
+ * @brief The scene's teardown thunk, reached by the dispatcher by address only.
+ *
+ * A bare `bx` of the real teardown's address -- no prologue and no argument
+ * setup, so the dispatcher must already have the scene in r0.
+ */
+void func_ov039_020831cc(TinPinSlammer_Scene* scene) {
+    func_ov039_02083164(scene);
+}
+
+/**
+ * @brief The wireless scene's teardown, restoring the latched status bits.
+ *
+ * Same teardown, but it first writes the bits the entry point consumed back
+ * into `SystemStatusFlags` -- bits 6 and 7, from `state.linkStatus` and
+ * `state.wirelessStatus` -- so the wireless stack sees them again on the way
+ * out.  The entry point cleared them; this puts them back.
+ */
+// Nonmatching: 72.8%. The bit writes and the teardown call are all correct;
+// the target has no prologue and ends in a tail call (`bx ip`) where this build
+// pushes {r3, lr} and uses `bl`. mwcc needs one more scratch register for the
+// two read-modify-writes than the target does. Six spellings of the bitfield
+// assignment and a locals-first variant were tried; all are equal or worse.
+void func_ov039_020831d8(TinPinSlammer_Scene* scene) {
+    SystemStatusFlags.unk_06 = scene->state.linkStatus != 0;
+    SystemStatusFlags.unk_07 = scene->state.wirelessStatus != 0;
+
+    func_ov039_02083164(scene);
+}
+
+/**
+ * @brief Process-stage dispatch for the plain scene's render callback.
+ *
+ * `MainOvlDisp_GetProcessStage` returns 0x7FFFFFFF when no stage is active, in
+ * which case the scene is torn down; otherwise the stage table at
+ * 0x02098e30 is indexed by stage.
+ */
+void func_ov039_02083240(TinPinSlammer_Scene* scene) {
+    s32 stage = MainOvlDisp_GetProcessStage();
+
+    if (stage == 0x7FFFFFFF) {
+        func_ov039_020831cc(scene);
+        return;
+    }
+
+    OtuScene_PlainHandlers[stage](scene); // NOLINT: untyped by design
 }
