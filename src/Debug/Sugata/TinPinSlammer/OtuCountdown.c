@@ -23,6 +23,7 @@
  */
 
 #include "Debug/Sugata/TinPinSlammer.h"
+#include "Engine/Core/System.h"
 #include "Engine/Text.h"
 
 /* ----------------------------------------------------------------
@@ -349,6 +350,548 @@ void func_ov039_02086174(TinPinSlammer_Scene* scene) {
         default:
             return;
     }
+}
+
+/* ==================================================================== */
+/* The board/pin-logic stage: the results screen's per-frame handler.     */
+/* ==================================================================== */
+
+/*
+ * func_ov039_02086808 is the largest function in this overlay -- 1197
+ * instructions -- and almost all of it is mechanical. It switches on a
+ * system-wide state byte and, within each state, on which result menu is
+ * showing and then on which row of that menu is current. The row tables below
+ * are what the switch bodies are; nothing here is a computed index.
+ *
+ * The eight states, from the dispatch:
+ *
+ *   0x40  step every row's number *up*, and while a row has no value yet walk
+ *         its row index *down* to 20, i.e. the countdown runs backwards
+ *   0x80  the same with the signs flipped: numbers down, row index up to 21
+ *   0x20  a hold timer. Ticks `drawnValue` down and, once a row has no value,
+ *         gives it that row's target. This is the state that walks the rows
+ *   0x10  the same timer counting the other way, clamping back to 0 once a row
+ *         has reached its target. This is the state that rewinds
+ *   0x1   start the menu: zero the current row, or hand over to the stage
+ *         dispatch once menu 0 row 0 is reached
+ *   0x2   reset the current row, or hand back to the dispatch
+ *   0x100 next menu, wrapping 2 -> 0, and redraw
+ *   0x200 previous menu, wrapping 0 -> 2, and redraw
+ *
+ * Every arm then falls through to a common tail: draw the scrollbar, redraw
+ * the current row, and bump `block->flags`, which is a frame counter rather
+ * than the column-blanking flag the same field name carries elsewhere.
+ */
+// Nonmatching: 51% -- the switch structure, the case order, the dispatch compares
+// and every constant agree; the residue is common-subexpression elimination.
+//
+// The target re-derives `block + block->index * 0x10` and re-loads the row index
+// at each of its ~90 use sites, so its arms run about 150 bytes larger than mine.
+// Writing both expressions out at every site is worth 3 points (48.5% -> 51.4%),
+// which identifies the cause without closing it: mwcc folds them back together.
+// The prologue is also one register out ({r3,r4,r5} against {r4,r5,r6}), which
+// shifts every instruction after it.
+//
+// Same class as 02086174 and 02087dc0, on a function five times the size, so the
+// cost of leaving it is correspondingly larger.
+void func_ov039_02086808(TinPinSlammer_Scene* scene) {
+    OtuTextRow* block = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuTextRow* row;
+    s32         menu;
+    s32         step;
+
+    switch (SysControl.buttonState.pressedButtons) {
+        case 0x40:
+            row = OTU_TEXT_ROW(block, block->index);
+
+            if (OTU_TEXT_ROW(block, block->index)->value < 0) {
+                // No value yet: walk the row index so the next row to fill is
+                // the one that comes next in this menu's countdown.
+                switch (block->index) {
+                    case 0:
+                        OTU_TEXT_ROW(block, block->index)->row--;
+                        if (OTU_TEXT_ROW(block, block->index)->row < 0) {
+                            OTU_TEXT_ROW(block, block->index)->row = 0x14;
+                        }
+                        break;
+                    case 1:
+                        OTU_TEXT_ROW(block, block->index)->row--;
+                        if (OTU_TEXT_ROW(block, block->index)->row < 0) {
+                            OTU_TEXT_ROW(block, block->index)->row = 0x3;
+                        }
+                        break;
+                    case 2:
+                        OTU_TEXT_ROW(block, block->index)->row--;
+                        if (OTU_TEXT_ROW(block, block->index)->row < 0) {
+                            OTU_TEXT_ROW(block, block->index)->row = 0x7;
+                        }
+                        break;
+                }
+            } else {
+                // The row has a value, so step its number in `sign`'s direction.
+                switch (block->index) {
+                    case 0:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                            case 1:
+                                func_ov039_02083cbc(scene, 1);
+                                break;
+                            case 2:
+                                func_ov039_02084020(scene, 1);
+                                break;
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 6:
+                                func_ov039_020841a0(scene, OTU_TEXT_ROW(block, block->index)->row - 3, 1);
+                                break;
+                            case 7:
+                            case 8:
+                            case 9:
+                            case 10:
+                            case 11:
+                            case 12:
+                            case 13:
+                            case 14:
+                            case 15:
+                            case 16:
+                                func_ov039_02084458(scene, OTU_TEXT_ROW(block, block->index)->row - 7, 1);
+                                break;
+                            case 17:
+                                func_ov039_020845dc(scene, 1);
+                                break;
+                            case 18:
+                                func_ov039_020846c4(scene, 1);
+                                break;
+                            case 19:
+                                func_ov039_020847ec(scene, 1);
+                                break;
+                            case 20:
+                                func_ov039_02084944(scene, 1);
+                                break;
+                        }
+                        break;
+                    case 1:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                            case 0:
+                                func_ov039_02084a3c(scene, 1);
+                                break;
+                            case 1:
+                                func_ov039_02084b94(scene, 1);
+                                break;
+                            case 2:
+                                func_ov039_02084d20(scene, 1);
+                                break;
+                            case 3:
+                                func_ov039_02084e1c(scene, 1);
+                                break;
+                        }
+                        break;
+                    case 2:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                            case 0:
+                                func_ov039_02085124(scene, 1);
+                                func_ov039_02085388(scene, block->trayCount);
+                                func_ov039_020855e0(scene, block->trayCount);
+                                func_ov039_02085770(scene, block->trayCount);
+                                func_ov039_020858e4(scene, block->trayCount);
+                                func_ov039_02085b30(scene, block->trayCount);
+                                func_ov039_02085e54(scene, block->trayCount);
+                                func_ov039_02086060(scene, block->trayCount);
+                                break;
+                            case 1:
+                                func_ov039_020852c0(scene, block->trayCount, 1);
+                                break;
+                            case 2:
+                                func_ov039_0208554c(scene, block->trayCount, 1);
+                                break;
+                            case 3:
+                                func_ov039_020856c8(scene, block->trayCount, 1);
+                                break;
+                            case 4:
+                                func_ov039_02085818(scene, block->trayCount, 1);
+                                break;
+                            case 5:
+                                func_ov039_02085a64(scene, block->trayCount, 1);
+                                break;
+                            case 6:
+                                func_ov039_02085cb0(scene, block->trayCount, 1);
+                                break;
+                            case 7:
+                                func_ov039_02085fb4(scene, block->trayCount, 1);
+                                break;
+                        }
+                        break;
+                }
+            }
+            break;
+
+        case 0x80:
+            row = OTU_TEXT_ROW(block, block->index);
+
+            if (OTU_TEXT_ROW(block, block->index)->value < 0) {
+                // No value yet: walk the row index so the next row to fill is
+                // the one that comes next in this menu's countdown.
+                switch (block->index) {
+                    case 0:
+                        OTU_TEXT_ROW(block, block->index)->row--;
+                        if (OTU_TEXT_ROW(block, block->index)->row >= 21) {
+                            OTU_TEXT_ROW(block, block->index)->row = 0;
+                        }
+                        break;
+                    case 1:
+                        OTU_TEXT_ROW(block, block->index)->row--;
+                        if (OTU_TEXT_ROW(block, block->index)->row >= 4) {
+                            OTU_TEXT_ROW(block, block->index)->row = 0;
+                        }
+                        break;
+                    case 2:
+                        OTU_TEXT_ROW(block, block->index)->row--;
+                        if (OTU_TEXT_ROW(block, block->index)->row >= 8) {
+                            OTU_TEXT_ROW(block, block->index)->row = 0;
+                        }
+                        break;
+                }
+            } else {
+                // The row has a value, so step its number in `sign`'s direction.
+                switch (block->index) {
+                    case 0:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                            case 1:
+                                func_ov039_02083cbc(scene, -1);
+                                break;
+                            case 2:
+                                func_ov039_02084020(scene, -1);
+                                break;
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 6:
+                                func_ov039_020841a0(scene, OTU_TEXT_ROW(block, block->index)->row - 3, -1);
+                                break;
+                            case 7:
+                            case 8:
+                            case 9:
+                            case 10:
+                            case 11:
+                            case 12:
+                            case 13:
+                            case 14:
+                            case 15:
+                            case 16:
+                                func_ov039_02084458(scene, OTU_TEXT_ROW(block, block->index)->row - 7, -1);
+                                break;
+                            case 17:
+                                func_ov039_020845dc(scene, -1);
+                                break;
+                            case 18:
+                                func_ov039_020846c4(scene, -1);
+                                break;
+                            case 19:
+                                func_ov039_020847ec(scene, -1);
+                                break;
+                            case 20:
+                                func_ov039_02084944(scene, -1);
+                                break;
+                        }
+                        break;
+                    case 1:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                            case 0:
+                                func_ov039_02084a3c(scene, -1);
+                                break;
+                            case 1:
+                                func_ov039_02084b94(scene, -1);
+                                break;
+                            case 2:
+                                func_ov039_02084d20(scene, -1);
+                                break;
+                            case 3:
+                                func_ov039_02084e1c(scene, -1);
+                                break;
+                        }
+                        break;
+                    case 2:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                            case 0:
+                                func_ov039_02085124(scene, -1);
+                                func_ov039_02085388(scene, block->trayCount);
+                                func_ov039_020855e0(scene, block->trayCount);
+                                func_ov039_02085770(scene, block->trayCount);
+                                func_ov039_020858e4(scene, block->trayCount);
+                                func_ov039_02085b30(scene, block->trayCount);
+                                func_ov039_02085e54(scene, block->trayCount);
+                                func_ov039_02086060(scene, block->trayCount);
+                                break;
+                            case 1:
+                                func_ov039_020852c0(scene, block->trayCount, -1);
+                                break;
+                            case 2:
+                                func_ov039_0208554c(scene, block->trayCount, -1);
+                                break;
+                            case 3:
+                                func_ov039_020856c8(scene, block->trayCount, -1);
+                                break;
+                            case 4:
+                                func_ov039_02085818(scene, block->trayCount, -1);
+                                break;
+                            case 5:
+                                func_ov039_02085a64(scene, block->trayCount, -1);
+                                break;
+                            case 6:
+                                func_ov039_02085cb0(scene, block->trayCount, -1);
+                                break;
+                            case 7:
+                                func_ov039_02085fb4(scene, block->trayCount, -1);
+                                break;
+                        }
+                        break;
+                }
+            }
+            break;
+
+        case 0x20:
+            row = OTU_TEXT_ROW(block, block->index);
+
+            if (OTU_TEXT_ROW(block, block->index)->value >= 0) {
+                // Ticking down, and giving a row that has no value its target.
+                // The inner clamp cannot fire: the guard above already
+                // excluded a negative value. It is in the original and it is
+                // kept, because dropping it is a mismatch.
+                switch (block->index) {
+                    case 0:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                        }
+                        break;
+                    case 1:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                        }
+                        break;
+                    case 2:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                        }
+                        break;
+                }
+            }
+            break;
+
+        case 0x10:
+            row = OTU_TEXT_ROW(block, block->index);
+
+            if (OTU_TEXT_ROW(block, block->index)->value >= 0) {
+                // Ticking up, and clearing a row that has reached its target.
+                switch (block->index) {
+                    case 0:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                        }
+                        break;
+                    case 1:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                        }
+                        break;
+                    case 2:
+                        step = OTU_TEXT_ROW(block, block->index)->row;
+                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                            default:
+                                break;
+                        }
+                        break;
+                }
+            }
+            break;
+
+        case 0x1:
+            // Start the menu. The very first row of the very first menu hands
+            // over to the stage dispatch instead, which is how the sequence
+            // leaves this screen.
+            row = OTU_TEXT_ROW(block, block->index);
+
+            if (OTU_TEXT_ROW(block, block->index)->value < 0) {
+                if (block->index == 0 && OTU_TEXT_ROW(block, block->index)->row == 0) {
+                    func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessBoard);
+                } else {
+                    OTU_TEXT_ROW(block, block->index)->value = 0;
+                }
+            }
+            break;
+
+        case 0x2:
+            // Reset the current row, or hand back to the dispatch if it was
+            // already clear.
+            row = OTU_TEXT_ROW(block, block->index);
+
+            if (OTU_TEXT_ROW(block, block->index)->value >= 0) {
+                OTU_TEXT_ROW(block, block->index)->value = -1;
+            } else {
+                func_ov039_02098a40(OTU_STAGE(scene), NULL);
+            }
+            break;
+
+        case 0x200:
+            // Step to the previous menu and force a full redraw of it.
+            block->index -= 1;
+
+            if (block->index < 0) {
+                block->index = 2;
+            }
+
+            block->flags                                  = 0;
+            row                                           = OTU_TEXT_ROW(block, block->index);
+            OTU_TEXT_ROW(block, block->index)->drawnValue = -2;
+            OTU_TEXT_ROW(block, block->index)->drawnRow   = -2;
+            func_ov039_02086174(scene);
+            break;
+
+        case 0x100:
+            // Step to the next menu and force a full redraw of it.
+            block->index += 1;
+
+            if (block->index >= 3) {
+                block->index = 0;
+            }
+
+            block->flags                                  = 0;
+            row                                           = OTU_TEXT_ROW(block, block->index);
+            OTU_TEXT_ROW(block, block->index)->drawnValue = -2;
+            OTU_TEXT_ROW(block, block->index)->drawnRow   = -2;
+            func_ov039_02086174(scene);
+            break;
+
+        default:
+            break;
+    }
+
+    func_ov039_02083bb0(scene);
+
+    menu = block->index;
+    step = OTU_TEXT_ROW(block, menu)->row;
+
+    switch (menu) {
+        case 0:
+            switch (OTU_TEXT_ROW(block, block->index)->row) {
+                default:
+                    break;
+                case 1:
+                    func_ov039_02083ed4(scene);
+                    break;
+                case 2:
+                    func_ov039_020840c0(scene);
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    func_ov039_020842bc(scene, OTU_TEXT_ROW(block, block->index)->row - 3);
+                    break;
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                    func_ov039_020844f8(scene, OTU_TEXT_ROW(block, block->index)->row - 7);
+                    break;
+                case 17:
+                    func_ov039_0208462c(scene);
+                    break;
+                case 18:
+                    func_ov039_02084738(scene);
+                    break;
+                case 19:
+                    func_ov039_02084874(scene);
+                    break;
+                case 20:
+                    func_ov039_020849a4(scene);
+                    break;
+            }
+            break;
+        case 1:
+            switch (OTU_TEXT_ROW(block, block->index)->row) {
+                default:
+                    break;
+                case 0:
+                    func_ov039_02084ac4(scene);
+                    break;
+                case 1:
+                    func_ov039_02084c34(scene);
+                    break;
+                case 2:
+                    func_ov039_02084d80(scene);
+                    break;
+                case 3:
+                    func_ov039_02084f08(scene);
+                    break;
+            }
+            break;
+        case 2:
+            switch (OTU_TEXT_ROW(block, block->index)->row) {
+                default:
+                    break;
+                case 0:
+                    func_ov039_020851bc(scene);
+                    break;
+                case 1:
+                    func_ov039_02085388(scene, block->trayCount);
+                    break;
+                case 2:
+                    func_ov039_020855e0(scene, block->trayCount);
+                    break;
+                case 3:
+                    func_ov039_02085770(scene, block->trayCount);
+                    break;
+                case 4:
+                    func_ov039_020858e4(scene, block->trayCount);
+                    break;
+                case 5:
+                    func_ov039_02085b30(scene, block->trayCount);
+                    break;
+                case 6:
+                    func_ov039_02085e54(scene, block->trayCount);
+                    break;
+                case 7:
+                    func_ov039_02086060(scene, block->trayCount);
+                    break;
+            }
+            break;
+    }
+
+    block->flags++;
 }
 
 void func_ov039_02087dc0(TinPinSlammer_Scene* scene, void* data) {
