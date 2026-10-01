@@ -206,7 +206,7 @@ void func_ov039_02083cbc(TinPinSlammer_Scene* scene, s32 step) {
     OtuMenuCountdown* menu;
 
     // Cleared each call, so the countdown restarts if the row changes.
-    ((s32*)table)[0x34 / 4] = 0;
+    table->flags = 0;
 
     value = OTU_TEXT_ROW(table, table->index)->value;
     switch (value) {
@@ -242,4 +242,49 @@ void func_ov039_02083cbc(TinPinSlammer_Scene* scene, s32 step) {
         default:
             break;
     }
+}
+
+/**
+ * @brief Draw the pin-count row.
+ *
+ * Assembles six digit groups into one string on the stack -- the pin count, then
+ * each of the five countdown columns -- and hands the whole thing to the text
+ * renderer as a single row.  Building it in a buffer rather than calling the
+ * renderer six times is what keeps the row on one line.
+ *
+ * `OtuTextFieldOffset` gives the character each countdown column starts at. When
+ * the stage reports its own column hidden (the 0x20 flag) the character at that
+ * offset is blanked to a space, so the row keeps its shape with the column empty.
+ */
+// Nonmatching: 55.7%. The six digit-group offsets, the digit counts, the blank
+// offset table, the terminator position and the render call all match, and the
+// row layout was recovered from the target's own `add r0, sp, #N` sequence --
+// the groups tile sp+0x0..0xE, not the contiguous 2/1/3/1/1/1 widths a naive
+// layout gives. What is left is register allocation: the target pushes 3
+// callee-saved registers and holds the scene, the table and sp in registers,
+// while this build pushes 7. A single row[0x10] array was the closest spelling
+// tried (six separate locals scored lower).
+void func_ov039_02083ed4(TinPinSlammer_Scene* scene) {
+    // One buffer, six digit groups tiled into it at fixed offsets.  Declared as
+    // a single array rather than six locals because the target keeps one base in
+    // sp and offsets into it, and six separate locals cost four extra
+    // callee-saved registers.
+    char              row[0x10];
+    OtuTextRow*       table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuMenuCountdown* menu  = OTU_COUNTDOWN(scene);
+    s32               value = OTU_TEXT_ROW(table, table->index)->value;
+
+    func_ov039_02083974(&row[0x0], scene->menuIndex, 2);
+    func_ov039_02083974(&row[0x3], menu->thousands, 1);
+    func_ov039_02083974(&row[0x5], menu->hundreds, 3);
+    func_ov039_02083974(&row[0x9], menu->tens, 1);
+    func_ov039_02083974(&row[0xB], menu->unk_98, 1);
+    func_ov039_02083974(&row[0xD], menu->unk_A8, 1);
+
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[OtuTextFieldOffset[value]] = ' ';
+    }
+    row[0xE] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x10, row);
 }

@@ -15,6 +15,15 @@ DST = ROOT / "src/Debug/Sugata/TinPinSlammer/OtuMenuText.c"
 HEADER = '''#include "Debug/Sugata/TinPinSlammer.h"
 
 /**
+ * @brief Character offset of each countdown column in the pin-count row.
+ *
+ * func_ov039_02083ed4 assembles six digit groups into one buffer and indexes
+ * this by the row's current value to find which character that column owns, so
+ * it can blank the column without disturbing the rest of the row.
+ */
+const u8 OtuTextFieldOffset[7] = {0, 1, 3, 5, 6, 7, 9};
+
+/**
  * @brief The scene's process-stage dispatch tables.
  *
  * These live in `.rodata`, immediately before this TU's `.data` range.

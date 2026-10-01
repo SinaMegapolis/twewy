@@ -318,6 +318,15 @@ extern const OtuStageHandler OtuScene_PlainHandlers[3];
 extern const OtuStageHandler OtuScene_WirelessHandlers[3];
 
 /**
+ * @brief Character offset of each countdown column in the pin-count row.
+ *
+ * Indexed by the row's current value to find which character of the assembled
+ * buffer a column owns, so func_ov039_02083ed4 can blank one column without
+ * disturbing the rest of the row.
+ */
+extern const u8 OtuTextFieldOffset[7];
+
+/**
  * @brief A six-byte scratch buffer the result rows are formatted into.
  *
  * Four digits with a decimal point wedged at index 1, then a space terminator,
@@ -375,7 +384,9 @@ typedef struct {
     /* 0x08 */ s32 drawnValue; // value already drawn, for change detection
     /* 0x0C */ s32 row;        // row index, for vertical placement
     /* 0x10 */ s32 drawnRow;   // row already drawn
-} OtuTextRow;                  // Size: 0x14
+    /* 0x14 */ u8  pad_14[0x20];
+    /* 0x34 */ s32 flags;      // 0x20 hides this column in the pin-count row
+} OtuTextRow;                  // Size: 0x38
 
 /**
  * The row at `index` in a table reached through the scene's dispatch.
