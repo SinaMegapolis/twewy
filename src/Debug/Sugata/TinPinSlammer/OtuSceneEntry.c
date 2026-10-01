@@ -11,6 +11,109 @@
 #include "Save.h"
 
 /**
+ * @brief The menus/results entry point -- the third scene variant.
+ *
+ * The longest of the three entry points and the only one that branches. Where
+ * `func_ov039_02082978` and `func_ov039_02082ae0` differ only in which setup
+ * routine and which stage descriptor they finish with, this one also picks
+ * between the menu stage and the result stage from the save record, and swaps
+ * the two text-block templates to match.
+ *
+ * Structurally it is the same opening as the other two -- allocate the scene,
+ * set the sequence name, build the heap, take two save slots, clear the slot
+ * state, reinit the resource managers, start both task pools -- and then a tail
+ * the others do not have:
+ *
+ *   * it latches the two `SystemStatusFlags` bits into the scene (the inverse of
+ *     what `func_ov039_020831d8` does at teardown), and
+ *   * it exchanges `OtuScene_WirelessMenu` and `OtuScene_ResultMenu` through a
+ *     stack temporary when the record says the menus are already swapped.
+ *
+ * The swap is four `ldm`/`stm` pairs rather than a loop or a struct copy: mwcc
+ * emits a 16-byte aggregate assignment as register-pair moves, and the temporary
+ * has to be a real local for that to happen.
+ */
+// Nonmatching: 79.8%, and 16 bytes short of the target's 584.
+//
+// The logic is settled and every pool word pairs one-for-one with the target's:
+// the sequence-name index is 1 (the target reads `[base, #4]`), the record
+// fields are at +0x40A/+0x40B/+0x40C, and the copy source really is
+// `gSaveData + 0x3EC` (reached as two adds, hence OTU_WIRELESS_RECORD_SPLIT).
+// The three stage descriptors, both text-block globals and both save-slot clears
+// are all correct.
+//
+// Two things remain, both attempts at which made it *worse* and were reverted:
+//
+//   * the 16 missing bytes. The target loads each task-pool address from the
+//     literal pool and then adds the scene base -- `ldr r0, [pc, #x]` followed
+//     by `add r0, r4, r0` -- for both pools. Written inline this build folds
+//     each into one `add r0, r4, #0x41598`. Routing them through locals was
+//     tried and mwcc folded those too (568 -> 564, i.e. it got worse). Two
+//     literal-pool words the target does not have (`0x41598`, `0x41618`) are
+//     therefore missing from this build, which is most of the gap.
+//   * register allocation for the `SystemStatusFlags` latch and the record
+//     pointer: the target keeps the record in r12 and the latch result in r5,
+//     this build uses r5 and r2.
+//
+// The `ldmia`/`stmia` swap of the two text blocks does match, which is the part
+// most likely to have been wrong.
+void func_ov039_02082c50(void) {
+    const char*          sequenceName = *((const char* const*)OtuScene_SequenceNames + 1);
+    TinPinSlammer_Scene* scene        = Mem_AllocHeapTail(&gDebugHeap, TIN_PIN_SLAMMER_SCENE_SIZE);
+    u8*                  record       = OTU_WIRELESS_RECORD(0x3020, 0);
+    OtuTextBlock         swap;
+
+    Mem_SetSequence(&gDebugHeap, scene, sequenceName);
+
+    MainOvlDisp_SetCbArg(scene);
+    Mem_InitializeHeap(OTU_HEAP(scene), OTU_HEAP_BUFFER(scene), 0x30000);
+
+    scene->base.spareDataType = DatMgr_AllocateSlot();
+    scene->base.dataType      = DatMgr_AllocateSlot();
+
+    OtuScene_SlotState.count = 0;
+    OtuScene_SlotState.flag  = 0;
+    scene->state.unk_EE4     = 0;
+    scene->state.unk_EE8     = 0;
+    scene->state.unk_EEC     = 0;
+
+    func_ov039_02083944();
+    scene->base.prevResMgr = ResourceMgr_ReinitManagers(&scene->base.resMgr);
+    EasyTask_InitializePool(OTU_POOL1(scene), OTU_HEAP(scene), 8, NULL, NULL);
+    EasyTask_InitializePool(OTU_POOL2(scene), OTU_HEAP(scene), 0x180, NULL, NULL);
+    func_0200d8f0();
+
+    data_02066aec                            = 0;
+    data_02066eec                            = 0;
+    g_DisplaySettings.controls[0].brightness = 0x10;
+    g_DisplaySettings.controls[1].brightness = 0x10;
+
+    func_ov039_020825e8(scene);
+    func_ov039_0208273c(scene);
+
+    scene->state.linkStatus     = SystemStatusFlags.unk_06;
+    scene->state.wirelessStatus = SystemStatusFlags.unk_07 != 0;
+
+    func_ov039_020824a0((u16*)scene);
+
+    scene->pad_44A68[0]  = record[0x40C];
+    scene->state.unk_EE0 = record[0x40B];
+
+    swap                  = OtuScene_WirelessMenu;
+    OtuScene_WirelessMenu = OtuScene_ResultMenu;
+    OtuScene_ResultMenu   = swap;
+
+    if (record[0x40A] == 0) {
+        func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_MenuStage);
+    } else {
+        MI_CpuCopyU8(OTU_WIRELESS_RECORD_SPLIT(0x3EC), (u8*)scene + 0x41ED8, 6);
+        func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_ResultStage);
+    }
+
+    MainOvlDisp_NextProcessStage();
+}
+
+/**
  * @file OtuSceneEntry.c
  * @brief Scene entry points for Tin Pin Slammer (ov039).
  *

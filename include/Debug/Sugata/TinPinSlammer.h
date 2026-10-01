@@ -220,6 +220,9 @@ void func_ov039_02082520(TinPinSlammer_Scene* scene);
 void func_ov039_020825b0(TinPinSlammer_Scene* scene);
 void func_ov039_02082724(TinPinSlammer_Scene* scene);
 void func_ov039_0208273c(TinPinSlammer_Scene* scene);
+/* Loads the scene's resources, fills the pin tray and starts the fade task.
+ * Called by both entry points that build a results screen. */
+void func_ov039_020825e8(TinPinSlammer_Scene* scene);
 void func_ov039_02082754(TinPinSlammer_Scene* scene);
 void func_ov039_02082774(TinPinSlammer_Scene* scene);
 void func_ov039_020827d0(TinPinSlammer_Scene* scene);
@@ -631,6 +634,16 @@ extern const char* const OtuScene_SequenceNames[3];
  * offset is passed in rather than baked into a single macro.
  */
 #define OTU_WIRELESS_RECORD(base, off) ((u8*)&gSaveData + (base) + (off))
+
+/**
+ * A save-record field addressed as `base + off`, where the target splits the
+ * displacement across two adds rather than folding it into one constant.
+ *
+ * func_ov039_02082c50 reaches its 6-byte copy source this way, as
+ * `gSaveData + 0x3EC` then `+ 0x3000`. Written as a single folded offset it
+ * compiles to one `add` and the function comes out 16 bytes short.
+ */
+#define OTU_WIRELESS_RECORD_SPLIT(off) ((u8*)&gSaveData + (off) + 0x3000)
 
 /** The scene's two task pools and its heap, by offset from the scene base. */
 #define OTU_HEAP(scene)        (&(scene)->base.heap)
