@@ -757,26 +757,37 @@ void func_ov039_0208554c(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
  * is against 0x8000 rather than the column's own range, which is a saturating
  * test rather than the family's wrapping one: at or above 0x8000 becomes zero.
  */
-// Nonmatching: 28.6%. The delegation to func_ov039_02083af4 is right but the counter type is
-// wrong: the target loads it with ldrsh (signed) and this build treats it as a
-// plain s16 pointer, so the clamp and the store disagree. Also reads the +6
-// field twice where the target reloads the row value instead.
+// Nonmatching: 67.1%. Was 28.6% on a real modelling error rather than a codegen
+// gap: the target does not pass the halfword's address to func_ov039_02083af4,
+// it spills the value, passes the address of the spill, and reloads it
+// afterwards. That is also why the value clamped below is the helper's output
+// and not the pre-step one. Fixed; what remains is the two-step address form.
 void func_ov039_020856c8(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
-    OtuTextRow*     table   = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuDigitColumn* column  = OTU_DIGIT_COLUMN(scene, slot);
-    s16*            counter = (s16*)column;
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
+    s16*            counter;
+    s32             temp;
 
     // value / 4 picks the place *and* which halfword: +6 when the quotient is
     // zero, +0 otherwise, folded into one branch by the target.
+    counter = (s16*)column;
     if (OTU_TEXT_ROW(table, table->index)->value / 4 == 0) {
         counter = &column->unk_06;
     }
 
-    func_ov039_02083af4(counter, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+    // Through a stack temporary, not the field itself. The target loads the
+    // halfword with ldrsh, spills it, hands the stepper the *address of the
+    // spill*, then reloads it and stores it back -- which is also why the
+    // clamped value is the helper's output and not the pre-step one. Passing
+    // `counter` directly is semantically the same and compiles quite differently.
+    temp = *counter;
+    func_ov039_02083af4(&temp, step, OTU_TEXT_ROW(table, table->index)->value / 4);
 
-    if (*counter >= 0x8000) {
-        *counter = 0;
+    if (temp >= 0x8000) {
+        temp = 0;
     }
+
+    *counter = temp;
 
     table->flags = 0;
 }
@@ -1125,36 +1136,115 @@ void func_ov039_02085b30(TinPinSlammer_Scene* scene, s32 slot) {
  * second stepper that happens to sit among the row builders and to delegate the
  * arithmetic.
  */
-// Nonmatching: 30.2%. Wrong shape: this delegates to the place stepper *and* then adds the
-// weighted step itself, which double-counts. The target loads the counter,
-// calls the stepper, reads the counter back and only clamps -- there is no
-// second add. Needs a rewrite, not a tweak.
+// Nonmatching: 79.7%. The first draft was simply wrong -- it called the place
+// stepper and then added the weighted step as well, which double-counted.
+// Rewritten off the target as one 12-way switch on the row value, whose cases
+// pick a halfword and fall through into one of three shared bodies, which took
+// it from 30% to 78%. What is left is register allocation plus the two paired
+// jump tables: the target emits one switch to choose the counter and a second,
+// identical one to choose the body, and this build shares the first.
+//
+// The four counters live at +0x10, +0x12, +0x14 and +0x16, selected four cases
+// at a time. The bodies are not interchangeable, which is why this cannot be
+// written as a loop over the four:
+//
+//   * +0x10 and +0x12 delegate to func_ov039_02083af4 with place = value / 4;
+//   * +0x14 does the place arithmetic itself, with place = (value - 8) / 3;
+//   * +0x16 adds the raw step and clamps to [1, 9] -- a range of one to nine,
+//     not zero to nine, so this one counts a column rather than a digit.
+//
+// Note the second clamp. Every other stepper in the family wraps to zero at the
+// top of its range; this one wraps to *one*. So +0x16 is a 1-based column index
+// that is being animated, not a digit being counted.
 void func_ov039_02085cb0(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
-    OtuTextRow*     table   = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuDigitColumn* column  = OTU_DIGIT_COLUMN_STRIDED(scene, slot);
-    s32*            counter = (s32*)&column->unk_06;
-    s32             place;
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
+    s16*            counter;
+    s32             value = OTU_TEXT_ROW(table, table->index)->value;
 
-    func_ov039_02083af4(counter, step, OTU_TEXT_ROW(table, table->index)->value / 3);
-
-    switch (OTU_TEXT_ROW(table, table->index)->value / 3) {
+    // Four counters, four cases each. Written as one switch with the cases
+    // falling through, because that is what produces the target's paired
+    // jump tables -- one choosing the counter, one choosing the body.
+    switch (value) {
         case 0:
-            place = 100;
-            break;
         case 1:
-            place = 10;
-            break;
         case 2:
-            place = 1;
+        case 3:
+            counter = &column->unk_10;
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            counter = &column->unk_12;
+            break;
+        case 8:
+        case 9:
+        case 10:
+            counter = &column->unk_14;
+            break;
+        case 11:
+            counter = &column->unk_16;
             break;
     }
 
-    *counter += place * step;
+    switch (value) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7: {
+            // Through a stack temporary, as in 020856c8: the target spills the
+            // halfword, hands the stepper the address of the spill, and reloads
+            // and stores back afterwards.
+            s32 temp = *counter;
 
-    if (*counter < 0) {
-        *counter = 999;
-    } else if (*counter >= 1000) {
-        *counter = 0;
+            func_ov039_02083af4(&temp, step, value / 4);
+
+            *counter = temp;
+            break;
+        }
+        case 8:
+        case 9:
+        case 10: {
+            // Three places, weighted, wrapping at 999 -- the same shape as
+            // func_ov039_02085818 but with the quotient biased by the case.
+            s32 place;
+
+            switch ((value - 8) / 3) {
+                case 0:
+                    place = 100;
+                    break;
+                case 1:
+                    place = 10;
+                    break;
+                case 2:
+                    place = 1;
+                    break;
+            }
+
+            *counter += place * step;
+
+            if (*counter < 0) {
+                *counter = 999;
+            } else if (*counter >= 1000) {
+                *counter = 0;
+            }
+            break;
+        }
+        case 11:
+            // The 1-based column: raw step, no weighting, wraps within [1, 9].
+            *counter += step;
+
+            if (*counter < 1) {
+                *counter = 9;
+            } else if (*counter >= 10) {
+                *counter = 1;
+            }
+            break;
     }
 
     table->flags = 0;
