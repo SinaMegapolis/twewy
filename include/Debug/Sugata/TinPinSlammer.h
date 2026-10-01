@@ -263,8 +263,10 @@ void func_ov039_02098a20(void* a, void* b);
 void func_ov039_02083928(void);
 void func_ov039_02083944(void);
 
-/* The two overlays func_ov039_02082e98 can push once the stage goes mid-setup. */
+/* The overlays the two per-frame updates can push once the stage goes mid-setup. */
+void func_ov039_0208690c(void);
 void func_ov039_0208694c(void);
+void func_ov039_0208698c(void);
 void func_ov039_020869cc(void);
 
 /**
@@ -340,6 +342,12 @@ extern const char* const OtuScene_SequenceNames[3];
 
 /** Total size of the scene block MainOvlDisp allocates. */
 #define TIN_PIN_SLAMMER_SCENE_SIZE 0x44A6C
+
+/**
+ * Id of the overlay the per-frame updates push when the stage goes mid-setup.
+ * 2 is the debug-menu overlay these callbacks live in.
+ */
+#define OTU_OVERLAY_ID 2
 
 /** Offset of the byte written just before the first stage is entered. */
 #define TIN_PIN_SLAMMER_ENTRY_OFFSET 0x44A64

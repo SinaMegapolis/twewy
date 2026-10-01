@@ -61,9 +61,64 @@ void func_ov039_02082e98(TinPinSlammer_Scene* scene) {
         // 0x1F is the record's "finished" marker; anything else means the
         // wireless game is still in progress and the menu overlay is wanted.
         if (*OTU_WIRELESS_RECORD(0x1000, 0x41C) != 0x1F) {
-            MainOvlDisp_ReplaceTop(&menuTag, 2, func_ov039_0208694c, NULL, 0);
+            MainOvlDisp_ReplaceTop(&menuTag, OTU_OVERLAY_ID, func_ov039_0208694c, NULL, 0);
         } else {
-            MainOvlDisp_ReplaceTop(&resultTag, 2, func_ov039_020869cc, NULL, 0);
+            MainOvlDisp_ReplaceTop(&resultTag, OTU_OVERLAY_ID, func_ov039_020869cc, NULL, 0);
+        }
+    }
+
+    OamMgr_Swap3DBuffers();
+    OamMgr_FlushCommands(&g_OamMgr[0]);
+    OamMgr_FlushCommands(&g_OamMgr[1]);
+    PaletteMgr_Flush(g_PaletteManagers[0], NULL);
+    PaletteMgr_Flush(g_PaletteManagers[1], NULL);
+    PaletteMgr_Flush(g_PaletteManagers[2], NULL);
+    func_0200d90c();
+}
+
+/**
+ * @brief The wireless scene's per-frame update.
+ *
+ * The twin of func_ov039_02082e98, with two differences. It does no per-frame
+ * work while the overlay's slot state says a wireless game is in progress --
+ * only the task updates run -- and it picks its exit overlay from the scene's
+ * own latched link status rather than from the save record, because the record
+ * has already been consumed by the time this runs.
+ */
+// Nonmatching: 95.4%. Both functions' sizes and instruction sequences match the
+// target exactly. The remainder is one word: the target loads the overlay id
+// from a literal-pool word where mwcc folds it into `mov r1, #2`, which shifts
+// every later pool displacement. Seven spellings of the id and a volatile local
+// were tried; all are equal or worse.
+void func_ov039_02082ff8(TinPinSlammer_Scene* scene) {
+    OverlayTag linkTag;
+    OverlayTag resultTag;
+
+    TouchInput_Update();
+    OamMgr_Reset3DState();
+    OamMgr_Reset(&g_OamMgr[0], 0, 0);
+    OamMgr_Reset(&g_OamMgr[1], 0, 0);
+    OamMgr_SetAffineCount(&g_OamMgr[2], 0);
+    OamMgr_ResetCommandQueues(&g_OamMgr[0]);
+    OamMgr_ResetCommandQueues(&g_OamMgr[1]);
+
+    if (OtuScene_SlotState.count == 0) {
+        EasyTask_ProcessPendingTasks(OTU_POOL1(scene));
+        if (scene->state.unk_698 != 0) {
+            EasyTask_ProcessPendingTasks(OTU_POOL2(scene));
+        }
+
+        func_ov039_020827d0(scene);
+    }
+
+    EasyTask_UpdateActiveTasks(OTU_POOL1(scene));
+    EasyTask_UpdateActiveTasks(OTU_POOL2(scene));
+
+    if (scene->state.unk_ADC != 0) {
+        if (scene->state.unk_AE0 == 0) {
+            MainOvlDisp_ReplaceTop(&linkTag, OTU_OVERLAY_ID, func_ov039_0208690c, NULL, 0);
+        } else {
+            MainOvlDisp_ReplaceTop(&resultTag, OTU_OVERLAY_ID, func_ov039_0208698c, NULL, 0);
         }
     }
 
