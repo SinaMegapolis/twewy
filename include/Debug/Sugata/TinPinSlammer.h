@@ -310,6 +310,21 @@ extern const OtuStageHandler OtuScene_PlainHandlers[3];
 extern const OtuStageHandler OtuScene_WirelessHandlers[3];
 
 /**
+ * @brief A six-byte scratch buffer the result rows are formatted into.
+ *
+ * Four digits with a decimal point wedged at index 1, then a space terminator,
+ * so the renderer can treat it as a NUL-free fixed-width string.
+ */
+typedef struct {
+    /* 0x0 */ char thousands;
+    /* 0x1 */ char point;
+    /* 0x2 */ char hundreds;
+    /* 0x3 */ char tens;
+    /* 0x4 */ char ones;
+    /* 0x5 */ char space;
+} OtuTextDigits; // Size: 0x6
+
+/**
  * @brief A text block's four coordinate words.
  *
  * The wireless menu and results entry points exchange these two objects at
