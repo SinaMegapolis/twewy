@@ -263,6 +263,10 @@ void func_ov039_02098a20(void* a, void* b);
 void func_ov039_02083928(void);
 void func_ov039_02083944(void);
 
+/* The two overlays func_ov039_02082e98 can push once the stage goes mid-setup. */
+void func_ov039_0208694c(void);
+void func_ov039_020869cc(void);
+
 /**
  * @brief A text block's four coordinate words.
  *
@@ -341,17 +345,15 @@ extern const char* const OtuScene_SequenceNames[3];
 #define TIN_PIN_SLAMMER_ENTRY_OFFSET 0x44A64
 
 /**
- * Offset of the wireless save record the wireless entry points read.
+ * The wireless save record the overlay's entry points read.
  *
- * The base is `gSaveData + 0x3000`, not `gSaveState`: the three entry points
- * index one common record and disagree about which global it hangs off, so the
- * record is addressed by absolute offset instead.
+ * It is not `gSaveState`: the three entry points index one common record but
+ * disagree about which global it hangs off, so it is addressed by absolute
+ * offset from `gSaveData`.  The two bases differ per call site — the menus and
+ * results entry point uses +0x3000, the per-frame update uses +0x1000 — so the
+ * offset is passed in rather than baked into a single macro.
  */
-#define TIN_PIN_SLAMMER_WIRELESS_RECORD_BASE gSaveData
-#define TIN_PIN_SLAMMER_WIRELESS_RECORD_SIZE 0xC00
-
-/** A byte within the wireless save record, addressed from its base. */
-#define OTU_WIRELESS_RECORD(off) ((u8*)&TIN_PIN_SLAMMER_WIRELESS_RECORD_BASE + (TIN_PIN_SLAMMER_WIRELESS_RECORD_SIZE + (off)))
+#define OTU_WIRELESS_RECORD(base, off) ((u8*)&gSaveData + (base) + (off))
 
 /** The scene's two task pools and its heap, by offset from the scene base. */
 #define OTU_HEAP(scene)        (&(scene)->base.heap)
