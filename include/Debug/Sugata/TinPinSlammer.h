@@ -228,16 +228,13 @@ void func_ov039_02082774(TinPinSlammer_Scene* scene);
 void func_ov039_020827d0(TinPinSlammer_Scene* scene);
 
 /* Wireless-stage routines, still undecompiled (see OtuScene_WirelessStage). */
-void func_ov039_02087acc(void);
-void func_ov039_02087b04(void);
-void func_ov039_02087b74(void);
+void func_ov039_02087b04(TinPinSlammer_Scene* scene);
 void func_ov039_02087ac4(void);
 void func_ov039_02087ac8(void);
 
 /* The board/pin-logic stage routines named by OtuScene_FirstStage. */
-void func_ov039_02086808(void);
-void func_ov039_02086728(void);
-void func_ov039_020867d4(void);
+void func_ov039_02086728(TinPinSlammer_Scene* scene);
+void func_ov039_020867d4(TinPinSlammer_Scene* scene);
 
 /* The stage routines named by OtuScene_WirelessBoard, OtuScene_MenuStage and
  * OtuScene_ResultStage.  These live in the board/pin-logic and result-screen
@@ -359,6 +356,7 @@ extern const s32 data_ov039_020990b4[18]; /* six three-digit slots            */
  * gap at each space position is what keeps a blanked column from eating its
  * neighbour's separator. */
 extern const s32 data_ov039_02098e48[2];  /* one two-digit group (020855e0)      */
+extern const s32 data_ov039_02098e50[3];  /* the pin-count row's three columns  */
 extern const s32 data_ov039_02098e5c[3];  /* three digits          (020851bc)     */
 extern const s32 data_ov039_02098e78[4];  /* one d.ddd group       (02085770)     */
 extern const s32 data_ov039_02098ea8[6];  /* two three-digit groups (020858e4)   */
@@ -589,6 +587,26 @@ typedef struct {
     /* 0x18 */ s16 unk_18;
     u8             pad_1A[0x02];
 } OtuDigitColumn; // Size: 0x1C
+
+/* The countdown sequencer, OtuCountdown.c.
+ *
+ * Declared here rather than with the other scene entry points because
+ * `OtuTextRow` is not typedef'd until further down, and mwcc reads an unknown
+ * `T*` as `int` -- which then collides with the definition.
+ *
+ * They take the scene but they are not Task stages: there is no TaskHandle here
+ * and nothing in this band is created through EasyTask_CreateTask. See the note
+ * at the bottom of OtuCountdown.c.
+ */
+void func_ov039_02086060(TinPinSlammer_Scene* scene, s32 slot);
+void func_ov039_02086174(TinPinSlammer_Scene* scene);
+void func_ov039_02086728(TinPinSlammer_Scene* scene);
+void func_ov039_020867d4(TinPinSlammer_Scene* scene);
+void func_ov039_02086808(TinPinSlammer_Scene* scene);
+void func_ov039_02087acc(TinPinSlammer_Scene* scene);
+void func_ov039_02087b74(TinPinSlammer_Scene* scene);
+void func_ov039_02087c8c(TinPinSlammer_Scene* scene, s32 menu);
+void func_ov039_02087dc0(TinPinSlammer_Scene* scene, void* data);
 
 /**
  * @brief A two-word point, copied out of a task and compared against another.
