@@ -134,7 +134,10 @@ def main():
     work.mkdir(parents=True)
 
     src = ROOT / f"{unit}.c"
-    text = src.read_text(encoding="shift_jis")
+    # latin1 rather than shift_jis: a decode failure on a stray byte in a comment
+    # should not stop the harness being built, and the bytes round-trip either
+    # way since they are never re-encoded.
+    text = src.read_text(encoding="latin1")
 
     span = find_function(text, func)
     if span is None:
@@ -144,7 +147,7 @@ def main():
     stripped = strip_other_functions(text, func)
     span2 = find_function(stripped, func)
     base = stripped[:span2[0]] + fn_text + stripped[span2[1]:]
-    (work / "base.c").write_text(base, encoding="shift_jis")
+    (work / "base.c").write_text(base, encoding="latin1")
 
     tgt = ROOT / "build/usa/delinks" / f"{unit}.o"
     if not tgt.exists():

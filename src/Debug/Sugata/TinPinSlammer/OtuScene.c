@@ -152,10 +152,16 @@ void func_ov039_02082774(TinPinSlammer_Scene* scene) {
 // a call-count guard found nothing further, so the remaining gap is the hoist
 // itself.
 void func_ov039_020827d0(TinPinSlammer_Scene* scene) {
-    func_ov039_02098a60(OTU_STAGE(scene), scene);
-    func_ov039_02098acc(OTU_STAGE(scene), scene);
+    // decomp-permuter's finding: cache the scene as a byte pointer and add
+    // the stage offset to that, so mwcc keeps one base in a register instead
+    // of re-deriving a typed pointer at each of the nine uses below.
+    u8* base = (u8*)scene;
+    func_ov039_02098a60(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), scene);
+    func_ov039_02098acc(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), scene);
 
-    if (func_ov039_02098b68(OTU_STAGE(scene)) != &OtuScene_WirelessStage && func_ov039_02098b44(OTU_STAGE(scene)) == 0) {
+    if (func_ov039_02098b68(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET))) != &OtuScene_WirelessStage &&
+        func_ov039_02098b44(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET))) == 0)
+    {
         // A switch, not an `||` chain: mwcc folds `x==8 || x==9 || x==10` into
         // a `(x-8) <= 2` range check, while the target emits all three compares.
         switch (func_ov040_0209cb78()) {
@@ -173,33 +179,33 @@ void func_ov039_020827d0(TinPinSlammer_Scene* scene) {
                 }
                 scene->state.unk_AE0 = 1;
                 func_ov040_0209d990();
-                func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessStage);
+                func_ov039_02098a40(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), &OtuScene_WirelessStage);
             } break;
         }
 
         if (SystemStatusFlags.reset != 0) {
             func_ov040_0209d990();
-            func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessStage);
+            func_ov039_02098a40(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), &OtuScene_WirelessStage);
         }
     }
 
     if (scene->state.unk_EE4 != 0) {
         scene->state.unk_AE0 = 1;
         func_ov040_0209d990();
-        func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessStage);
+        func_ov039_02098a40(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), &OtuScene_WirelessStage);
         scene->state.unk_EE4 = 0;
     }
 
     if (scene->state.unk_EE8 != 0) {
         scene->state.unk_AE0 = 1;
         func_ov040_0209d990();
-        func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessStage);
+        func_ov039_02098a40(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), &OtuScene_WirelessStage);
         scene->state.unk_EE8 = 0;
     }
 
-    func_ov039_02098af4(OTU_STAGE(scene), scene);
+    func_ov039_02098af4(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), scene);
 
-    if (func_ov039_02098b44(OTU_STAGE(scene)) != 0) {
+    if (func_ov039_02098b44(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET))) != 0) {
         scene->state.unk_ADC = 1;
     }
 }
