@@ -354,6 +354,19 @@ extern const s32 data_ov039_02098ff4[16]; /* four d.ddd groups                */
 extern const s32 data_ov039_02099074[16]; /* four d.ddd groups, later instance */
 extern const s32 data_ov039_020990b4[18]; /* six three-digit slots            */
 
+/* The countdown rows' column-blanking tables, one per row width.  Same shape as
+ * the nine above: entry N is the character position to blank for row N, and the
+ * gap at each space position is what keeps a blanked column from eating its
+ * neighbour's separator. */
+extern const s32 data_ov039_02098e48[2];  /* one two-digit group (020855e0)      */
+extern const s32 data_ov039_02098e5c[3];  /* three digits          (020851bc)     */
+extern const s32 data_ov039_02098e78[4];  /* one d.ddd group       (02085770)     */
+extern const s32 data_ov039_02098ea8[6];  /* two three-digit groups (020858e4)   */
+extern const s32 data_ov039_02098ec0[6];  /* two three-digit groups (02085b30)   */
+extern const s32 data_ov039_02098ed8[8];  /* four two-digit groups  (02085388)   */
+extern const s32 data_ov039_02098f3c[10]; /* two five-digit groups  (02084f08)   */
+extern const s32 data_ov039_02098f94[12]; /* six mixed groups       (02085e54)   */
+
 /** @} */
 
 void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 which);
@@ -402,12 +415,19 @@ extern s32       OtuText_YOverflow;
 extern const s32 OtuText_RowLayout[37];
 
 /*
- * Three anchor constants the row builders reach that sit in a `.data` range
- * this TU does not source, so they keep the build's own names for the same
- * reason as the offset tables above. Values: 0x3000, -0x4000, 0x6000.
+ * Anchor constants and counters the steppers and row builders reach that sit in
+ * a `.data` range this TU does not source, so they keep the build's own names
+ * for the same reason as the offset tables above.
+ *
+ * Values: 0x3000, -0x4000, 0x6000 for the three anchors; the two counters at
+ * 0x0209a390 and 0x0209a394 hold 10 and 1000 and are stepped by
+ * func_ov039_02084e1c (one of the two, chosen by a parity test) and formatted
+ * as a five-digit pair by func_ov039_02084f08.
  */
 extern s32 data_ov039_0209a388;
 extern s32 data_ov039_0209a38c;
+extern s32 data_ov039_0209a390;
+extern s32 data_ov039_0209a394;
 extern s32 data_ov039_0209a398;
 
 /* Steps one countdown column by a single decimal place (see OtuText.c). */
@@ -415,14 +435,6 @@ void func_ov039_02083af4(s32* value, s32 direction, u32 place);
 
 /* Formats a Q12.12 value as `d.ddd` into a six-byte group. */
 void func_ov039_02083a20(OtuTextDigits* out, s32 value);
-
-/**
- * @brief Character offset of each column in a `d.ddd` row.
- *
- * The third of the row layouts, for func_ov039_020844f8's four fixed-point
- * groups: sixteen columns rather than nine or eighteen.
- */
-extern const s32 OtuFixedFieldOffset[16];
 
 void func_ov039_02084458(TinPinSlammer_Scene* scene, s32 slot, s32 step);
 void func_ov039_020844f8(TinPinSlammer_Scene* scene, s32 slot);
@@ -443,8 +455,24 @@ void func_ov039_02084c34(TinPinSlammer_Scene* scene);
 void func_ov039_02084d20(TinPinSlammer_Scene* scene, s32 step);
 void func_ov039_02084d80(TinPinSlammer_Scene* scene);
 
-/** Character offset table for the single-value row drawn by 0208462c. */
-extern const s32 OtuTightFieldOffset[4];
+/* The countdown steppers and row builders (OtuScoreRow.c). */
+void func_ov039_02084e1c(TinPinSlammer_Scene* scene, s32 step);
+void func_ov039_02084f08(TinPinSlammer_Scene* scene);
+void func_ov039_02085124(TinPinSlammer_Scene* scene, s32 step);
+void func_ov039_020851bc(TinPinSlammer_Scene* scene);
+void func_ov039_020852c0(TinPinSlammer_Scene* scene, s32 slot, s32 step);
+void func_ov039_02085388(TinPinSlammer_Scene* scene, s32 slot);
+void func_ov039_0208554c(TinPinSlammer_Scene* scene, s32 slot, s32 step);
+void func_ov039_020855e0(TinPinSlammer_Scene* scene, s32 slot);
+void func_ov039_020856c8(TinPinSlammer_Scene* scene, s32 slot, s32 step);
+void func_ov039_02085770(TinPinSlammer_Scene* scene, s32 slot);
+void func_ov039_02085818(TinPinSlammer_Scene* scene, s32 slot, s32 step);
+void func_ov039_020858e4(TinPinSlammer_Scene* scene, s32 slot);
+void func_ov039_02085a64(TinPinSlammer_Scene* scene, s32 slot, s32 step);
+void func_ov039_02085b30(TinPinSlammer_Scene* scene, s32 slot);
+void func_ov039_02085cb0(TinPinSlammer_Scene* scene, s32 slot, s32 step);
+void func_ov039_02085e54(TinPinSlammer_Scene* scene, s32 slot);
+void func_ov039_02085fb4(TinPinSlammer_Scene* scene, s32 slot, s32 step);
 
 /**
  * @brief A text block's four coordinate words.
@@ -491,7 +519,33 @@ typedef struct {
     /* 0x10 */ s32 drawnRow;   // row already drawn
     /* 0x14 */ u8  pad_14[0x20];
     /* 0x34 */ s32 flags;      // 0x20 hides this column in the pin-count row
-} OtuTextRow;                  // Size: 0x38
+    /* 0x38 */ s32 trayCount;  // saturating tray-slot counter, see below
+} OtuTextRow;                  // Size: 0x3C
+
+/*
+ * A note on what this struct conflates, since it is load-bearing.
+ *
+ * Two different objects share one type here. The *base* pointer owns a pair of
+ * fields at +0x34 and +0x38, and is read directly as `table->flags` and
+ * `table->trayCount`. The *elements* are a separate 16-byte-stride array reached
+ * through OTU_TEXT_ROW, and only their first five words are known.
+ *
+ * So `OtuTextRow` is not really "one row". It is the union of the two views, and
+ * the 16-byte stride in OTU_TEXT_ROW is what keeps them from colliding -- which
+ * is why the stride is spelled out as a literal instead of `sizeof`.
+ *
+ * Splitting this into two structs would be tidier but would change every
+ * `table->` access in the matched row builders, so it stays as one type until
+ * there is a reason to touch the 26 functions that already match.
+ *
+ * `trayCount` is what func_ov039_02085124 steps: the row's `value / 3` selects a
+ * multiplier of 100, 10 or 1 -- hundreds, tens, ones -- and `mult * step` is
+ * added in. The result is clamped into [0, 0x130] by two separate tests: a
+ * negative result becomes the 0x130 sentinel, and anything at or above 0x131
+ * is reset to 0. 0x130 is the same "empty tray slot" value func_ov039_020824a0
+ * fills the tray with and func_ov039_020842bc renders as 0, so this is the
+ * result screen counting pins into a slot, not a display value.
+ */
 
 /**
  * The row at `index` in a table reached through the scene's dispatch.
@@ -502,6 +556,59 @@ typedef struct {
  * subscripting for exactly that reason.
  */
 #define OTU_TEXT_ROW(block, index) ((OtuTextRow*)((u8*)(block) + (index) * 0x10))
+
+/**
+ * @brief One menu's digit columns, 0x1C bytes each.
+ *
+ * The steppers in OtuScoreRow.c index these with a 0x1C stride off scene+0xEF0
+ * (reached as two adds, so keep the split -- see OTU_DIGIT_COLUMN). Each holds a
+ * handful of independent saturating counters at fixed offsets, stepped one
+ * decimal place at a time by the row's `value / N`:
+ *
+ *   +0x00  u8   single digit, modulus 10   (0208554c)
+ *   +0x04  u8   two digits, modulus 100    (020852c0)
+ *   +0x06  s16  stepped through the place stepper (020856c8)
+ *   +0x08  s16  up to 999, two places      (02085818)
+ *   +0x0C  s16  up to 999, two places      (02085a64)
+ *   +0x18  s16  up to 999, three places    (02085fb4)
+ *
+ * Only the offsets actually read by a decompiled function are named; the rest is
+ * padding because the stride, not the layout, is what matters to codegen.
+ */
+typedef struct {
+    u8             pad_00[0x06];
+    s16            unk_06;
+    s16            unk_08;
+    u16            unk_0A;
+    s16            unk_0C;
+    u16            unk_0E;
+    /* 0x10 */ s16 unk_10;
+    /* 0x12 */ s16 unk_12;
+    /* 0x14 */ u16 unk_14;
+    /* 0x16 */ u16 unk_16;
+    /* 0x18 */ s16 unk_18;
+    u8             pad_1A[0x02];
+} OtuDigitColumn; // Size: 0x1C
+
+/**
+ * @brief The digit-column array, reached the way the target reaches it.
+ *
+ * The target forms this address as `scene + 0xEF0` and then `+ 0x41000` -- two
+ * separate adds, not one folded displacement. Writing `scene + 0x41EF0` compiles
+ * to a single `add` and loses an instruction, so the constant is split the same
+ * way here.
+ */
+#define OTU_DIGIT_COLUMN(scene, slot) ((OtuDigitColumn*)((u8*)(scene) + 0xEF0 + 0x41000 + (slot) * 0x1C))
+
+/**
+ * @brief The same array, reached with the stride multiply done first.
+ *
+ * Three of the functions (020855e0, 02085770, 02085cb0, 02085e54) form the
+ * address as `scene + slot * 0x1C` and *then* add 0x41000, where the rest add
+ * 0x41000 before the multiply. mwcc preserves that ordering, so the two forms
+ * need separate macros even though they name the same bytes.
+ */
+#define OTU_DIGIT_COLUMN_STRIDED(scene, slot) ((OtuDigitColumn*)((u8*)(scene) + (slot) * 0x1C + 0x41000))
 
 /**
  * @brief A table of `OtuTextRow`, reachable from the scene's dispatch.

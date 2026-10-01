@@ -524,3 +524,722 @@ void func_ov039_02084d20(TinPinSlammer_Scene* scene, s32 step) {
 
     table->flags = 0;
 }
+
+// ---------------------------------------------------------------------------
+// The countdown steppers, 0x02084e1c onwards.
+//
+// These seventeen functions are one family: eight steppers that advance a
+// digit column by one decimal place, eight row builders that format the same
+// columns as text, and the pair at the front (02084e1c / 02084f08) which work on
+// two globals rather than the scene.
+//
+// Every stepper follows the same template:
+//   1. reach the row table and read the active row's `value`;
+//   2. divide that by a small constant to pick which digit place is animating
+//      (2, 3, 4 or 5 -- one function per column width);
+//   3. multiply the step by 1, 10 or 100 to get the place's weight;
+//   4. add that into the column's counter and clamp it to the column's range;
+//   5. clear the table's flags so the row builders redraw.
+//
+// The clamp is always the same shape -- "below the floor becomes the ceiling,
+// at or above the ceiling becomes zero" -- which reads like a deliberate
+// wrap-around rather than a saturate: a counter driven past its range lands on
+// the opposite end rather than sticking. The row builders then format the
+// result. Whether that is intentional in the original or an artefact of how the
+// clamp was written cannot be told from the code alone.
+// ---------------------------------------------------------------------------
+
+/**
+ * @brief Step the five-digit score counter, 0x02084e1c.
+ *
+ * The widest of the family: five places (10000 down to 1), so `value / 5` picks
+ * the place and there are five jump-table cases rather than a comparison chain.
+ *
+ * The two counters are file-scope globals rather than scene fields, and which
+ * one is stepped depends on `value / 2` -- an even value steps the big one, an
+ * odd one the small. That is the same parity test the two-entry selection in
+ * the row builder (02084f08) reads back.
+ */
+// Nonmatching: 64.5%. Five-way jump table present and the two globals are right, but the
+// target picks its counter by a 5-way switch on value / 5 *after* the parity
+// test, and reaches the 10000 weight from the pool; this build folds the two
+// divisions differently and materialises the constant. Divide-form gap.
+void func_ov039_02084e1c(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        counter;
+    s32         place;
+
+    // Two separate globals, chosen by the parity of value / 2.
+    if (OTU_TEXT_ROW(table, table->index)->value / 2 == 0) {
+        counter = &data_ov039_0209a394;
+    } else {
+        counter = &data_ov039_0209a390;
+    }
+
+    // Five places, so this is a jump table. The `case 0` arm loads its weight
+    // from the pool rather than materialising it, which is the same trick
+    // 02084f08 uses and is why 0x2710 needs a pool word here.
+    switch (OTU_TEXT_ROW(table, table->index)->value / 5) {
+        case 0:
+            place = 0x2710;
+            break;
+        case 1:
+            place = 0x3E8;
+            break;
+        case 2:
+            place = 0x64;
+            break;
+        case 3:
+            place = 0xA;
+            break;
+        case 4:
+            place = 1;
+            break;
+    }
+
+    *counter += place * step;
+
+    // Clamp to [0, 99999], wrapping rather than sticking.
+    if (*counter >= 100000) {
+        *counter = 0;
+    } else if (*counter < 0) {
+        *counter = 99999;
+    }
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Step the tray counter, 0x02085124.
+ *
+ * The one member of the family that steps the table's own `trayCount` field
+ * rather than a scene digit column, and the only one whose range is the pin
+ * sentinel 0x130 rather than a round number.
+ *
+ * Three places (100, 10, 1) selected by `value / 3`, compared rather than
+ * jump-tabled. The clamp wraps at 0x130/0x131: below zero becomes 0x130, at or
+ * above 0x131 becomes zero. 0x130 is the same "no pin here" value
+ * func_ov039_020824a0 fills the tray with.
+ */
+// Nonmatching: 79.2%. Structure, pool words and the 0x130 sentinel clamp are all correct.
+// The three-way branch shape differs: the target branches out to a block for
+// == 0 and a second for == 1 with == 2 as the falling-through conditional,
+// which mwcc will not produce from the switch as written. Known three-way gap.
+void func_ov039_02085124(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         place;
+
+    switch (OTU_TEXT_ROW(table, table->index)->value / 3) {
+        case 0:
+            place = 100;
+            break;
+        case 1:
+            place = 10;
+            break;
+        case 2:
+            place = 1;
+            break;
+    }
+
+    table->trayCount += place * step;
+
+    if (table->trayCount < 0) {
+        table->trayCount = 0x130;
+    } else if (table->trayCount >= 0x131) {
+        table->trayCount = 0;
+    }
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Step one of four two-digit columns, 0x020852c0.
+ *
+ * Four columns within a single digit block, selected by `value / 4` as a
+ * jump-table case; two places (10 and 1) by `value / 2`. The counter is a
+ * `u8` and wraps at 100.
+ */
+// Nonmatching: 62.0%. The four-way jump table and the wrap-at-100 clamp are right. The
+// target forms the column address with mla before the switch and selects the
+// byte with a separate add per case; this build hoists the multiply into the
+// pointer and the divide-form differs.
+void func_ov039_020852c0(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
+    OtuTextRow*     table   = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column  = OTU_DIGIT_COLUMN(scene, slot);
+    u8*             counter = (u8*)column;
+    s32             place;
+
+    // Four columns one byte apart, so the pointer is the base plus a case value.
+    switch (OTU_TEXT_ROW(table, table->index)->value / 4) {
+        case 0:
+            counter = (u8*)column;
+            break;
+        case 1:
+            counter = (u8*)column + 1;
+            break;
+        case 2:
+            counter = (u8*)column + 2;
+            break;
+        case 3:
+            counter = (u8*)column + 3;
+            break;
+    }
+
+    // Two places by a separate division of the same value.
+    if (OTU_TEXT_ROW(table, table->index)->value / 2 == 0) {
+        place = 10;
+    } else {
+        place = 1;
+    }
+
+    *counter += place * step;
+
+    if (*counter < 0) {
+        *counter = 99;
+    } else if (*counter >= 100) {
+        *counter = 0;
+    }
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Step a single digit, 0x0208554c.
+ *
+ * The narrowest column: one `u8`, one decimal place. `value / 2` picks the
+ * place's weight (10 or 1) and nothing else, and the counter wraps at 10 --
+ * below zero becomes 9, at or above 10 becomes zero.
+ *
+ * The column itself is the base of the digit block; unlike 020852c0 there is no
+ * per-column offset, because there is only one column.
+ */
+// Nonmatching: 49.0%. The column and the +4 offset are right. Two problems: the counter is
+// stepped through a u8* and the target keeps it as a byte address on the
+// column struct, and the target computes value / 2 twice in two different
+// instruction forms where this build folds it to one.
+void func_ov039_0208554c(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
+    OtuTextRow*     table   = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column  = OTU_DIGIT_COLUMN(scene, slot);
+    u8*             counter = (u8*)column;
+    s32             place;
+
+    // Which byte, then which weight: one test of value / 2, which the target
+    // folds into a single branch -- the counter pointer and the weight move
+    // together.
+    if (OTU_TEXT_ROW(table, table->index)->value / 2 == 0) {
+        place   = 10;
+        counter = (u8*)column + 4;
+    } else {
+        place = 1;
+    }
+
+    *counter += place * step;
+
+    if (*counter < 0) {
+        *counter = 9;
+    } else if (*counter >= 10) {
+        *counter = 0;
+    }
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Step a column through the shared place stepper, 0x020856c8.
+ *
+ * The one member of the family that delegates rather than doing the arithmetic
+ * itself: it hands the column's current value, the step and the place index to
+ * func_ov039_02083af4, the same helper the countdown column steppers use.
+ *
+ * `value / 4` picks the place, and the pre-step value is read back *after* the
+ * call and re-clamped -- the target reloads it rather than keeping it in a
+ * register, so the value written is whatever the helper left behind. The clamp
+ * is against 0x8000 rather than the column's own range, which is a saturating
+ * test rather than the family's wrapping one: at or above 0x8000 becomes zero.
+ */
+// Nonmatching: 28.6%. The delegation to func_ov039_02083af4 is right but the counter type is
+// wrong: the target loads it with ldrsh (signed) and this build treats it as a
+// plain s16 pointer, so the clamp and the store disagree. Also reads the +6
+// field twice where the target reloads the row value instead.
+void func_ov039_020856c8(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
+    OtuTextRow*     table   = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column  = OTU_DIGIT_COLUMN(scene, slot);
+    s16*            counter = (s16*)column;
+
+    // value / 4 picks the place *and* which halfword: +6 when the quotient is
+    // zero, +0 otherwise, folded into one branch by the target.
+    if (OTU_TEXT_ROW(table, table->index)->value / 4 == 0) {
+        counter = &column->unk_06;
+    }
+
+    func_ov039_02083af4(counter, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    if (*counter >= 0x8000) {
+        *counter = 0;
+    }
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Step a two-place column at +0x08, 0x02085818.
+ *
+ * Three places (100, 10, 1) by `value / 3`, but *two* candidate fields: an
+ * earlier division of the same value by 2 picks between +0x08 and +0x0A, so the
+ * column holds two independent three-place counters and the parity selects
+ * which one animates. Range is 0..999.
+ */
+// Nonmatching: 52.5%. Correct fields, parity test and 0..999 wrap clamp. The target forms
+// the column address before dereferencing the row and does the two divisions
+// in separate instruction forms; both are folded here.
+void func_ov039_02085818(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
+    s32*            counter;
+    s32             place;
+
+    // The parity of value / 2 picks which of the two counters.
+    if (OTU_TEXT_ROW(table, table->index)->value / 2 == 0) {
+        counter = &column->unk_08;
+    } else {
+        counter = &column->unk_0A;
+    }
+
+    switch (OTU_TEXT_ROW(table, table->index)->value / 3) {
+        case 0:
+            place = 100;
+            break;
+        case 1:
+            place = 10;
+            break;
+        case 2:
+            place = 1;
+            break;
+    }
+
+    *counter += place * step;
+
+    if (*counter < 0) {
+        *counter = 999;
+    } else if (*counter >= 1000) {
+        *counter = 0;
+    }
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Step a two-place column at +0x0C, 0x02085a64.
+ *
+ * The same shape as 02085818 one field pair along: two counters selected by the
+ * parity of `value / 2`, three places by `value / 3`, range 0..999.
+ */
+// Nonmatching: 52.5%. Same shape and same gaps as 02085818, one field pair along.
+void func_ov039_02085a64(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
+    s32*            counter;
+    s32             place;
+
+    if (OTU_TEXT_ROW(table, table->index)->value / 2 == 0) {
+        counter = &column->unk_0C;
+    } else {
+        counter = &column->unk_0E;
+    }
+
+    switch (OTU_TEXT_ROW(table, table->index)->value / 3) {
+        case 0:
+            place = 100;
+            break;
+        case 1:
+            place = 10;
+            break;
+        case 2:
+            place = 1;
+            break;
+    }
+
+    *counter += place * step;
+
+    if (*counter < 0) {
+        *counter = 999;
+    } else if (*counter >= 1000) {
+        *counter = 0;
+    }
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Step a three-place column at +0x18, 0x02085fb4.
+ *
+ * One counter only -- no parity selection, so `value / 3` is the sole divisor --
+ * three places by `value / 3`, range 0..999. The column is reached through the
+ * same 0x1C stride as the others.
+ */
+// Nonmatching: 73.6%. Correct field, place weights and wrap clamp; the column address is
+// reached with the stride multiply last here and first in the others.
+void func_ov039_02085fb4(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
+    s32             place;
+
+    switch (OTU_TEXT_ROW(table, table->index)->value / 3) {
+        case 0:
+            place = 100;
+            break;
+        case 1:
+            place = 10;
+            break;
+        case 2:
+            place = 1;
+            break;
+    }
+
+    column->unk_18 += place * step;
+
+    if (column->unk_18 < 0) {
+        column->unk_18 = 999;
+    } else if (column->unk_18 >= 1000) {
+        column->unk_18 = 0;
+    }
+
+    table->flags = 0;
+}
+
+// ---------------------------------------------------------------------------
+// The row builders.
+//
+// Each one formats the counters a stepper above advances, as fixed-width digit
+// groups separated by spaces, then hands the row to Text_RenderToScreen at a
+// fixed y. The x is always 0x38; only the y differs, and it runs in a fixed
+// order down the screen: 0x08 tray count, 0x10 four pairs, 0x18 single pair,
+// 0x20 five-digit pair, 0x20 d.ddd, 0x28 three-digit pair, 0x30 the same again,
+// 0x38 the six-group fixed-point row.
+//
+// All of them share the tail: if the active row's value is non-negative and the
+// table's flags have 0x20 set, the column named by a layout table is blanked,
+// then the trailing space is overwritten with a NUL and the row is rendered.
+// ---------------------------------------------------------------------------
+
+/**
+ * @brief The tray count as three digits, 0x020851bc.
+ *
+ * The one row builder that reads the table's own `trayCount` rather than a digit
+ * column, and the only one that renders the counter with a +1 bias -- so a tray
+ * holding the 0x130 "no pin" sentinel displays as 0.
+ */
+// Nonmatching: 96.5%. Register allocation only -- the target keeps the table in r0 across
+// the digit extraction and mine reloads it. Frame and pool words match.
+void func_ov039_020851bc(TinPinSlammer_Scene* scene) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    char        row[0x20];
+    s32         value = table->trayCount + 1;
+
+    row[3] = ' ';
+
+    row[0] = '0' + (value / 100) % 10;
+    row[1] = '0' + (value / 10) % 10;
+    row[2] = '0' + value % 10;
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098e5c[value]] = ' ';
+    }
+    row[3] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x8, row);
+}
+
+/**
+ * @brief Four two-digit groups, 0x02085388.
+ *
+ * The widest row in the set: four counters one byte apart in a single digit
+ * column, each rendered as two digits and each followed by a space, for twelve
+ * characters. It is the display counterpart of func_ov039_020852c0, which steps
+ * one of those four bytes.
+ */
+// Nonmatching: 42.4%. Off-declared frame and table are right; the body differs. The target
+// interleaves the four groups -- it starts group 1, writes its space, then does
+// group 2, its space, and so on -- whereas the loop here batches each pair of
+// digits before its separator. Unrolling is the obvious next attempt.
+void func_ov039_02085388(TinPinSlammer_Scene* scene, s32 slot) {
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
+    char            row[0x20];
+    s32             i;
+    s32             value;
+
+    for (i = 0; i < 4; i++) {
+        value = ((u8*)column)[i] + 1;
+
+        row[i * 3 + 0] = '0' + (value / 10) % 10;
+        row[i * 3 + 1] = '0' + value % 10;
+        row[i * 3 + 2] = ' ';
+    }
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098ed8[value]] = ' ';
+    }
+    row[11] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x10, row);
+}
+
+/**
+ * @brief One two-digit group, 0x020855e0.
+ *
+ * The display counterpart of func_ov039_0208554c: the single `u8` at the
+ * column's +4, rendered as two digits with the same +1 bias.
+ *
+ * Note the address arithmetic runs the other way round from the steppers: the
+ * stride multiply happens first and the +0x41000 after, so this one is spelled
+ * with OTU_DIGIT_COLUMN_STRIDED rather than OTU_DIGIT_COLUMN.
+ */
+// Nonmatching: 96.7%. Register allocation only; frame and pool words match.
+void func_ov039_020855e0(TinPinSlammer_Scene* scene, s32 slot) {
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN_STRIDED(scene, slot);
+    char            row[0x20];
+    s32             value = column->pad_00[4] + 1;
+
+    row[2] = ' ';
+
+    row[0] = '0' + (value / 10) % 10;
+    row[1] = '0' + value % 10;
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098e48[value]] = ' ';
+    }
+    row[2] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x18, row);
+}
+
+/**
+ * @brief One Q12.12 value as `d.ddd`, 0x02085770.
+ *
+ * Delegates the formatting to func_ov039_02083a20 -- the same helper
+ * func_ov039_020844f8 uses -- and reads the column's +6 halfword. Six bytes of
+ * output, so the trailing space lands at index 5.
+ */
+void func_ov039_02085770(TinPinSlammer_Scene* scene, s32 slot) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    // Deliberately over-declared: only six bytes are written, but the target's
+    // stack frame is 0x20 and sizing this to 6 shrinks the frame to 8 bytes.
+    char row[0x20];
+    s32  value;
+
+    func_ov039_02083a20((OtuTextDigits*)row, *(s16*)((u8*)scene + 0x41EF6 + slot * 0x1C));
+
+    row[5] = ' ';
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098e78[value]] = ' ';
+    }
+    row[5] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x20, row);
+}
+
+/**
+ * @brief Two three-digit groups, 0x020858e4.
+ *
+ * The display counterpart of func_ov039_02085818: both of that function's
+ * counters (+0x08 and +0x0A) rendered side by side, three digits each, with a
+ * space after the first.
+ */
+// Nonmatching: 89.7%. Register allocation only -- same shape as 02085b30, and the pool
+// words and frame match.
+void func_ov039_020858e4(TinPinSlammer_Scene* scene, s32 slot) {
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
+    char            row[0x20];
+    s32             value;
+
+    row[3] = ' ';
+
+    value  = column->unk_08;
+    row[0] = '0' + (value / 100) % 10;
+    row[1] = '0' + (value / 10) % 10;
+    row[2] = '0' + value % 10;
+
+    value  = column->unk_0A;
+    row[4] = '0' + (value / 100) % 10;
+    row[5] = '0' + (value / 10) % 10;
+    row[6] = '0' + value % 10;
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098ea8[value]] = ' ';
+    }
+    row[7] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x28, row);
+}
+
+/**
+ * @brief Two three-digit groups, again, 0x02085b30.
+ *
+ * The display counterpart of func_ov039_02085a64: the +0x0C and +0x0E counters,
+ * formatted exactly as 020858e4 formats the +0x08 and +0x0A pair.
+ */
+// Nonmatching: 89.7%. Register allocation only; same as 020858e4.
+void func_ov039_02085b30(TinPinSlammer_Scene* scene, s32 slot) {
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
+    char            row[0x20];
+    s32             value;
+
+    row[3] = ' ';
+
+    value  = column->unk_0C;
+    row[0] = '0' + (value / 100) % 10;
+    row[1] = '0' + (value / 10) % 10;
+    row[2] = '0' + value % 10;
+
+    value  = column->unk_0E;
+    row[4] = '0' + (value / 100) % 10;
+    row[5] = '0' + (value / 10) % 10;
+    row[6] = '0' + value % 10;
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098ec0[value]] = ' ';
+    }
+    row[7] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x30, row);
+}
+
+/**
+ * @brief A stepped Q12.12 column, read back and blanked, 0x02085cb0.
+ *
+ * The odd one out among the row builders: it calls the place stepper
+ * func_ov039_02083af4 rather than a formatter, so it advances a column rather
+ * than displaying one, and then clamps the result to 0..999 the same way
+ * func_ov039_02085818 does. With no Text_RenderToScreen call it is really a
+ * second stepper that happens to sit among the row builders and to delegate the
+ * arithmetic.
+ */
+// Nonmatching: 30.2%. Wrong shape: this delegates to the place stepper *and* then adds the
+// weighted step itself, which double-counts. The target loads the counter,
+// calls the stepper, reads the counter back and only clamps -- there is no
+// second add. Needs a rewrite, not a tweak.
+void func_ov039_02085cb0(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
+    OtuTextRow*     table   = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column  = OTU_DIGIT_COLUMN_STRIDED(scene, slot);
+    s32*            counter = (s32*)&column->unk_06;
+    s32             place;
+
+    func_ov039_02083af4(counter, step, OTU_TEXT_ROW(table, table->index)->value / 3);
+
+    switch (OTU_TEXT_ROW(table, table->index)->value / 3) {
+        case 0:
+            place = 100;
+            break;
+        case 1:
+            place = 10;
+            break;
+        case 2:
+            place = 1;
+            break;
+    }
+
+    *counter += place * step;
+
+    if (*counter < 0) {
+        *counter = 999;
+    } else if (*counter >= 1000) {
+        *counter = 0;
+    }
+
+    table->flags = 0;
+}
+
+/**
+ * @brief The six-group fixed-point row, 0x02085e54.
+ *
+ * The longest row in the set: two Q12.12 values through func_ov039_02083a20 and
+ * four plain three-digit counters, laid out as six space-separated groups --
+ * twenty-four characters, the widest thing the result screen draws. The
+ * digit-column base is reached with the strided form, as in 02085770.
+ */
+// Nonmatching: 62.4%. The six-group layout is right but the fourth group is a guess: the
+// target loads two halfwords at +0x14 and +0x16 and the two d.ddd groups come
+// from +0x10 and +0x12, which this build has, but the ordering of the second
+// d.ddd call and the trailing group is not established.
+void func_ov039_02085e54(TinPinSlammer_Scene* scene, s32 slot) {
+    OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN_STRIDED(scene, slot);
+    char            row[0x20];
+    s32             value;
+
+    func_ov039_02083a20((OtuTextDigits*)(row + 0x00), column->unk_10);
+    func_ov039_02083a20((OtuTextDigits*)(row + 0x06), column->unk_12);
+    row[12] = ' ';
+
+    value   = column->unk_14;
+    row[13] = '0' + (value / 100) % 10;
+    row[14] = '0' + (value / 10) % 10;
+    row[15] = '0' + value % 10;
+    row[16] = ' ';
+
+    value   = column->unk_16;
+    row[17] = '0' + (value / 100) % 10;
+    row[18] = '0' + (value / 10) % 10;
+    row[19] = '0' + value % 10;
+    row[20] = ' ';
+
+    func_ov039_02083a20((OtuTextDigits*)(row + 0x15), 0);
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098f94[value]] = ' ';
+    }
+    row[23] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x38, row);
+}
+
+/**
+ * @brief The two five-digit counters, 0x02084f08.
+ *
+ * The display counterpart of func_ov039_02084e1c: the two file-scope counters
+ * that function steps, rendered as two five-digit groups separated by a space --
+ * twelve characters. No +1 bias here, unlike the tray row.
+ */
+// Nonmatching: full MATCH.
+void func_ov039_02084f08(TinPinSlammer_Scene* scene) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    char        row[0x20];
+    s32         value;
+
+    row[5]  = ' ';
+    row[11] = ' ';
+
+    value  = data_ov039_0209a394;
+    row[0] = '0' + (value / 10000) % 10;
+    row[1] = '0' + (value / 1000) % 10;
+    row[2] = '0' + (value / 100) % 10;
+    row[3] = '0' + (value / 10) % 10;
+    row[4] = '0' + value % 10;
+
+    value   = data_ov039_0209a390;
+    row[6]  = '0' + (value / 10000) % 10;
+    row[7]  = '0' + (value / 1000) % 10;
+    row[8]  = '0' + (value / 100) % 10;
+    row[9]  = '0' + (value / 10) % 10;
+    row[10] = '0' + value % 10;
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098f3c[value]] = ' ';
+    }
+    row[11] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x20, row);
+}
