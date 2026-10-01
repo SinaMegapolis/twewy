@@ -4,52 +4,6 @@
 #include "Save.h"
 
 /**
- * @brief The wireless stage's companion descriptor.
- *
- * Three routines the wireless stage sequences through.  The scene's per-frame
- * update jumps to `OtuScene_WirelessStage` when the wireless link reports one
- * of the states that need handling.  These live in `.data`, not `.rodata`.
- */
-OtuSceneStage OtuScene_WirelessStage_Companion = {
-    func_ov039_02087acc,
-    func_ov039_02087b04,
-    func_ov039_02087b74,
-};
-
-OtuSceneStage OtuScene_WirelessStage = {
-    func_ov039_02087ac4,
-    func_ov039_02087ac8,
-    &OtuScene_WirelessStage_Companion,
-    0,
-};
-
-/**
- * @brief The scene's first stage: the board/pin-logic stage.
- *
- * Runs after the shared scene setup, and owns 0x3C bytes of state.
- */
-OtuSceneStageCompanion OtuScene_FirstStage_Companion = {
-    func_ov039_02086808,
-};
-
-OtuSceneStage OtuScene_FirstStage = {
-    func_ov039_02086728,
-    func_ov039_020867d4,
-    &OtuScene_FirstStage_Companion,
-    0x3C,
-};
-
-/** Debug sequence name given to the scene block by Mem_SetSequence. */
-const char OtuScene_SequenceName[] = "Seq_Otosu()";
-
-/** The overlay's shared slot state, cleared by every scene entry point. */
-OtuSceneSlotState OtuScene_SlotState = {
-    0,
-    {0, 0},
-    0,
-};
-
-/**
  * @file OtuScene.c
  * @brief Top-level scene state setup for Tin Pin Slammer (ov039).
  *

@@ -75,15 +75,14 @@ typedef struct {
  * is left as padding so the pool offsets below stay correct.
  */
 typedef struct {
-    /* 0x000 */ u8               pad_000[0x580];
-    /* 0x580 */ ResourceManager* prevResMgr;
-    /* 0x584 */ s32              spareDataType;
-    /* 0x588 */ s32              dataType;
-    /* 0x58C */ u8               pad_58C[4];
-    /* 0x590 */ Heap             heap; // 0x0C bytes
-    /* 0x59C */ u8               heapBuffer[0x10000];
-    /* 0x1009C */ u8             pad_1009C[0x2F764];
-} TinPinSlammer_Base; // Size: 0x30000
+    /* 0x00000 */ ResourceManager  resMgr; // 0x11580 bytes
+    /* 0x11580 */ ResourceManager* prevResMgr;
+    /* 0x11584 */ s32              spareDataType;
+    /* 0x11588 */ s32              dataType;
+    /* 0x1158C */ Heap             heap; // 0x0C bytes
+    /* 0x11598 */ u8               heapBuffer[0x10000];
+    /* 0x21598 */ u8               pad_21598[0x1FA68];
+} TinPinSlammer_Base; // Size: 0x41000
 
 /**
  * @brief Per-game state block based at scene + 0x41000.
@@ -139,16 +138,18 @@ typedef struct {
 #define TIN_PIN_SLAMMER_STAGE_OFFSET 0x41AC4
 
 /**
- * @brief A two-byte slot of global state the scene entry points clear.
+ * @brief Two words of overlay-global state the scene entry points clear.
  *
- * Lives in the overlay's `.bss`; the entry points zero both the 16-bit value
- * at +0 and the one at +4 before bringing the display up.
+ * The entry points address this with a single base register and clear the
+ * second word with a 32-bit store and the first with an 8-bit store, so the
+ * first is a `u8` with three bytes of padding after it.
  */
 typedef struct {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ u8  pad_02[2];
-    /* 0x04 */ u16 unk4;
+    /* 0x0 */ u8  flag;
+    /* 0x1 */ u8  pad_01[3];
+    /* 0x4 */ s32 count;
 } OtuSceneSlotState; // Size: 0x8
+extern OtuSceneSlotState OtuScene_SlotState;
 
 /**
  * @brief The scene's stage-dispatch container, reached inline.
@@ -169,7 +170,7 @@ typedef struct {
  * than hoisting it, exactly as the target does.
  */
 typedef struct {
-    /* 0x00000 */ u8                  pad_000[0x41000];
+    /* 0x00000 */ TinPinSlammer_Base  base; // 0x40000 bytes
     /* 0x41000 */ TinPinSlammer_State state;
     /* 0x41EF0 */ u8                  pad_41EF0[0xBD4];
     /* 0x44AC4 */ OtuStageDispatch    stage;
@@ -266,8 +267,14 @@ typedef struct {
 extern OtuSceneStage OtuScene_FirstStage;
 
 /** Shared scene objects. */
-extern const char        OtuScene_SequenceName[];
-extern OtuSceneSlotState OtuScene_SlotState;
+/**
+ * @brief The overlay's three debug-sequence names, all "Seq_Otosu()".
+ *
+ * The scene entry points index this table rather than using the string
+ * directly, and the three variants pick different slots (the wireless entry
+ * uses index 2).
+ */
+extern const char* const OtuScene_SequenceNames[3];
 
 /** Total size of the scene block MainOvlDisp allocates. */
 #define TIN_PIN_SLAMMER_SCENE_SIZE 0x44A6C
@@ -276,8 +283,8 @@ extern OtuSceneSlotState OtuScene_SlotState;
 #define TIN_PIN_SLAMMER_ENTRY_OFFSET 0x44A64
 
 /** The scene's two task pools and its heap, by offset from the scene base. */
-#define OTU_HEAP(scene)        ((Heap*)((u8*)(scene) + TIN_PIN_SLAMMER_HEAP_OFFSET))
-#define OTU_HEAP_BUFFER(scene) ((void*)((u8*)(scene) + TIN_PIN_SLAMMER_HEAP_OFFSET + 0x18C))
+#define OTU_HEAP(scene)        (&(scene)->base.heap)
+#define OTU_HEAP_BUFFER(scene) ((void*)&(scene)->base.heapBuffer)
 #define OTU_POOL1(scene)       ((TaskPool*)((u8*)(scene) + TIN_PIN_SLAMMER_POOL1_OFFSET))
 #define OTU_POOL2(scene)       ((TaskPool*)((u8*)(scene) + TIN_PIN_SLAMMER_POOL2_OFFSET))
 
