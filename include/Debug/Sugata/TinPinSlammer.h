@@ -318,13 +318,22 @@ extern const OtuStageHandler OtuScene_PlainHandlers[3];
 extern const OtuStageHandler OtuScene_WirelessHandlers[3];
 
 /**
- * @brief Character offset of each countdown column in the pin-count row.
+ * @brief Character offset of each countdown column in a result-screen row.
  *
  * Indexed by the row's current value to find which character of the assembled
- * buffer a column owns, so func_ov039_02083ed4 can blank one column without
- * disturbing the rest of the row.
+ * buffer a column owns, so a column can be blanked without disturbing the rest
+ * of the row.  Word entries -- both users load with `ldr [base, index, lsl #2]`.
+ *
+ * Two tables, one per row layout: `OtuTextFieldOffset` for the six-group
+ * pin-count row (func_ov039_02083ed4, nine columns) and `OtuScoreFieldOffset`
+ * for the six-slot three-digit rows (func_ov039_020842bc, eighteen columns).
  */
-extern const u8 OtuTextFieldOffset[7];
+extern const s32 OtuTextFieldOffset[9];
+
+/** The eighteen-column equivalent of `OtuTextFieldOffset`, for the score rows. */
+extern const s32 OtuScoreFieldOffset[18];
+
+void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 which);
 
 /**
  * @brief A six-byte scratch buffer the result rows are formatted into.
@@ -465,6 +474,30 @@ typedef struct {
  * is rebuilt on every access in the target.
  */
 #define OTU_COUNTDOWN(scene) ((OtuMenuCountdown*)((u8*)(scene) + 0x44000 + (scene)->menuIndex * 0x34))
+
+/**
+ * @brief The pin-tray counts, six `u16` slots at scene + 0x4404C.
+ *
+ * `func_ov039_020842bc` reads six consecutive halfwords from here and renders
+ * each as a zero-padded three-digit field.  The block is 0xE bytes per slot and
+ * the index is multiplied in rather than folded, so the target's case 0 arm
+ * computes `base + which * 7` even though `which` is 0 on that path.
+ *
+ * Slot value 0x130 is the sentinel for "empty", and is displayed as 000 rather
+ * than 305.
+ */
+#define OTU_PIN_TRAY(scene, slot) ((u16*)((u8*)(scene) + 0x4404C + (slot) * 0xE))
+
+/**
+ * @brief The score row for menu slot `slot`, six `u16` at scene + 0x4408A.
+ *
+ * Three menus are shown side by side and each gets its own row, so the block is
+ * indexed by `slot` (0..2).  Note the `menuIndex` multiply happens *after* the
+ * 0x8A displacement in the target -- the countdown base is `scene + 0x4408A`
+ * and the menu stride is added to that -- so the two are not one flat offset.
+ * Same rendering and same 0x130 sentinel as `OTU_PIN_TRAY`.
+ */
+#define OTU_SCORE_ROW(scene, slot) ((u16*)((u8*)(scene) + 0x4408A + (scene)->menuIndex * 0x34 + (slot) * 0x10))
 
 /** The stage the wireless-board entry point enters; 0x2D0 bytes of state. */
 extern OtuSceneStage OtuScene_WirelessBoard;

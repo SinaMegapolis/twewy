@@ -6,8 +6,19 @@
  * func_ov039_02083ed4 assembles six digit groups into one buffer and indexes
  * this by the row's current value to find which character that column owns, so
  * it can blank the column without disturbing the rest of the row.
+ *
+ * Nine word entries, not bytes: both users load with `ldr [base, index, lsl #2]`,
+ * so a `u8` table would change the emitted instruction as well as the data.
  */
-const u8 OtuTextFieldOffset[7] = {0, 1, 3, 5, 6, 7, 9};
+const s32 OtuTextFieldOffset[9] = {0, 1, 3, 5, 6, 7, 9, 11, 13};
+
+/**
+ * @brief The eighteen-column offset table for the three-digit score rows.
+ *
+ * Same role as `OtuTextFieldOffset`, but for func_ov039_020842bc's wider rows,
+ * which have eighteen hideable columns rather than nine.
+ */
+const s32 OtuScoreFieldOffset[18] = {0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21, 22};
 
 /**
  * @brief The scene's process-stage dispatch tables.

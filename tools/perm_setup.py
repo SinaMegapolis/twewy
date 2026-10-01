@@ -30,7 +30,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from perm_harness import find_function, strip_other_functions  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-AS = r"C:\msys64\mingw64\bin\arm-none-eabi-as.exe"
+
+# Resolved from PATH, with a Windows fallback. This script also runs inside WSL
+# (the permuter needs a Linux environment), where the msys64 path does not
+# exist -- hardcoding it made every batch run after the first function fail.
+AS = shutil.which("arm-none-eabi-as") or r"C:\msys64\mingw64\bin\arm-none-eabi-as.exe"
 
 UNITS = {
     "OtuScene": "src/Debug/Sugata/TinPinSlammer/OtuScene",

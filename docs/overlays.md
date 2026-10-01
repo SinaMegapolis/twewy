@@ -379,14 +379,42 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 29 of 561 functions decompiled, 18 of them at 100%. `OtuMenuText` is
+Status: 30 of 561 functions decompiled, 19 of them at 100%. `OtuMenuText` is
 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of `.bss`); `OtuVBlank`
 is 100% across all five functions; `OtuSceneEntry` holds the two plain entry
 points, the teardown, its thunk and both stage dispatches at 100%. Partial:
-`func_ov039_02083bb0` at 99.97%, `OtuGxInit` at 95.9%, both per-frame updates at
-90.9% and 95.4%, the clamp helper at 94.5%, the place stepper at 92.3%, the
-pin-count row at 83.1%, the countdown at 76.0%, the wireless teardown at 72.8%.
-The remaining 532 functions are stubs.
+`func_ov039_020842bc` at 99.95%, `func_ov039_02083bb0` at 99.97%, `OtuGxInit` at
+95.9%, both per-frame updates at 90.9% and 95.4%, the clamp helper at 94.5%, the
+place stepper at 92.3%, the pin-count row at 83.7%, the countdown at 76.0%, the
+wireless teardown at 72.8%. The remaining 531 functions are stubs.
+
+### Verifying the ROM actually rebuilt
+
+**`ninja` reporting `twewy_usa.nds: OK` does not mean the ROM was rebuilt.**
+
+The `delink` edge in `build.ninja` lists only config files and `dsd.exe` as
+inputs — the compiled `build/usa/src/**/*.o` objects are *not* among them. So
+after editing a source file, ninja rebuilds the object, considers the delinked
+objects up to date, skips the delink, and goes straight to the sha1 step. The
+sha1 then passes, because it is hashing the ROM from the previous link.
+
+This was found the hard way: writing a sentinel value into a table inside the
+claimed `.rodata` range left the ROM byte-identical, and the sentinel appeared
+nowhere in `build/usa/build/arm9_ov039.bin`. The object had been rebuilt; it had
+simply never been relinked.
+
+`tools/verify_rom.py [module]` deletes the module's delinked objects, runs
+ninja, checks the sha1, and then asserts the ROM is newer than the objects it
+was built from — that last check is what distinguishes "rebuilt and correct"
+from "never rebuilt". Use it instead of bare `ninja`.
+
+A related quirk: a claimed `.rodata` range is not fully sourced from the claiming
+TU. dsd places the TU's objects that match target symbols and fills the rest of
+the range from the original overlay, so `OtuMenuText.c`'s two stage-dispatch
+tables land at 0x02098e30/0x02098e3c while everything after them in that range
+comes from the extracted overlay. Object *values* there are therefore not
+load-bearing — but the C *type* still is, because it decides whether a use emits
+`ldr` or `ldrb`.
 
 ### Data ownership
 
