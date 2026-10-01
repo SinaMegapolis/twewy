@@ -224,6 +224,29 @@ void func_ov039_02086808(void);
 void func_ov039_02086728(void);
 void func_ov039_020867d4(void);
 
+/* The stage routines named by OtuScene_WirelessBoard, OtuScene_MenuStage and
+ * OtuScene_ResultStage.  These live in the board/pin-logic and result-screen
+ * blocks, which are not decompiled yet. */
+void func_ov039_02089780(void);
+void func_ov039_020897d0(void);
+void func_ov039_020897dc(void);
+void func_ov039_020898a8(void);
+void func_ov039_02089918(void);
+void func_ov039_02089ec0(void);
+void func_ov039_02089f30(void);
+void func_ov039_02089950(void);
+void func_ov039_02089a80(void);
+void func_ov039_02089d3c(void);
+void func_ov039_02089d6c(void);
+void func_ov039_02089e0c(void);
+void func_ov039_02089e78(void);
+void func_ov039_02089f68(void);
+void func_ov039_0208a098(void);
+void func_ov039_0208a324(void);
+void func_ov039_0208a354(void);
+void func_ov039_0208a3f4(void);
+void func_ov039_0208a454(void);
+
 /* Shared engine entry points the overlay's scene setup drives. */
 void func_02025b68(void* resource, TinPinSlammer_ResArgs* args);
 void func_02025e30(void* resource);
@@ -266,6 +289,13 @@ typedef struct {
 /** The scene's first stage: board/pin logic, 0x3C bytes of state. */
 extern OtuSceneStage OtuScene_FirstStage;
 
+/** The stage the wireless-board entry point enters; 0x2D0 bytes of state. */
+extern OtuSceneStage OtuScene_WirelessBoard;
+
+/** The result-screen menu and results stages, both 0x2D0 bytes of state. */
+extern OtuSceneStage OtuScene_MenuStage;
+extern OtuSceneStage OtuScene_ResultStage;
+
 /** Shared scene objects. */
 /**
  * @brief The overlay's three debug-sequence names, all "Seq_Otosu()".
@@ -281,6 +311,13 @@ extern const char* const OtuScene_SequenceNames[3];
 
 /** Offset of the byte written just before the first stage is entered. */
 #define TIN_PIN_SLAMMER_ENTRY_OFFSET 0x44A64
+
+/**
+ * Offset into `gSaveState` of the wireless save record the wireless entry point
+ * copies its entry byte from.  Past the end of the modelled `SaveState`, so it
+ * is only ever reached as a raw byte offset.
+ */
+#define TIN_PIN_SLAMMER_WIRELESS_RECORD_OFFSET 0x3020
 
 /** The scene's two task pools and its heap, by offset from the scene base. */
 #define OTU_HEAP(scene)        (&(scene)->base.heap)

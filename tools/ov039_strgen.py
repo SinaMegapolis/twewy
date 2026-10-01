@@ -16,6 +16,8 @@ import sys
 
 ASM = "build/usa/asm/ov039_4.s"
 LO, HI = 0x0209A14C, 0x0209A2E0
+# The strings are the only part of the .data range that tools/ov039_strgen.py
+# generates; tools/ov039_datagen.py prepends the rest.
 
 
 def parse_region():

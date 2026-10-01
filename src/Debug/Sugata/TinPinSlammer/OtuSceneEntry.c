@@ -4,6 +4,7 @@
 #include "Engine/Core/System.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Resources/ResourceMgr.h"
+#include "Save.h"
 
 /**
  * @file OtuSceneEntry.c
@@ -17,10 +18,9 @@
  */
 
 /**
- * @brief Scene entry point for the plain wireless board.
+ * @brief Scene entry point for the plain board.
  *
- * Selects the plain layout (func_ov039_02082724) and installs the main-display
- * VBlank pair.
+ * Selects the plain layout (func_ov039_02082724) and enters OtuScene_FirstStage.
  */
 void func_ov039_02082978(void) {
     const char*          sequenceName = *((const char* const*)OtuScene_SequenceNames + 2);
@@ -57,5 +57,51 @@ void func_ov039_02082978(void) {
 
     func_ov039_020824a0((u16*)scene);
     func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_FirstStage);
+    MainOvlDisp_NextProcessStage();
+}
+
+/**
+ * @brief Scene entry point for the wireless board.
+ *
+ * Same bring-up as the plain board, but it seeds the entry byte from the
+ * wireless save record instead of clearing it, and enters
+ * `OtuScene_WirelessBoard` -- the stage that draws the link-state rows.
+ */
+void func_ov039_02082ae0(void) {
+    const char*          sequenceName = *((const char* const*)OtuScene_SequenceNames + 0);
+    TinPinSlammer_Scene* scene        = Mem_AllocHeapTail(&gDebugHeap, TIN_PIN_SLAMMER_SCENE_SIZE);
+
+    Mem_SetSequence(&gDebugHeap, scene, sequenceName);
+
+    MainOvlDisp_SetCbArg(scene);
+    Mem_InitializeHeap(OTU_HEAP(scene), OTU_HEAP_BUFFER(scene), 0x30000);
+
+    scene->base.spareDataType = DatMgr_AllocateSlot();
+    scene->base.dataType      = DatMgr_AllocateSlot();
+
+    OtuScene_SlotState.count = 0;
+    OtuScene_SlotState.flag  = 0;
+    scene->state.unk_EE4     = 0;
+    scene->state.unk_EE8     = 0;
+    scene->state.unk_EEC     = 0;
+
+    func_ov039_02083928();
+    scene->base.prevResMgr = ResourceMgr_ReinitManagers(&scene->base.resMgr);
+    EasyTask_InitializePool(OTU_POOL1(scene), OTU_HEAP(scene), 8, NULL, NULL);
+    EasyTask_InitializePool(OTU_POOL2(scene), OTU_HEAP(scene), 0x180, NULL, NULL);
+    func_0200d8f0();
+
+    data_02066aec                            = 0;
+    data_02066eec                            = 0;
+    g_DisplaySettings.controls[0].brightness = 0x10;
+    g_DisplaySettings.controls[1].brightness = 0x10;
+
+    func_ov039_020825e8(scene);
+    func_ov039_02082724(scene);
+
+    *(u8*)((u8*)scene + TIN_PIN_SLAMMER_ENTRY_OFFSET) = *((u8*)&gSaveState + TIN_PIN_SLAMMER_WIRELESS_RECORD_OFFSET + 0x41C);
+
+    func_ov039_020824a0((u16*)scene);
+    func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessBoard);
     MainOvlDisp_NextProcessStage();
 }
