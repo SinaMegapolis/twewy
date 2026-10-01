@@ -26,3 +26,6 @@ src/Debug/Sugata/TinPinSlammer/OtuMenuText.c:
 
 src/Debug/Sugata/TinPinSlammer/OtuScoreRow.c:
     .text       start:0x020842bc end:0x02086060
+
+src/Debug/Sugata/TinPinSlammer/OtuTaskPick.c:
+    .text       start:0x02087e2c end:0x020883ac

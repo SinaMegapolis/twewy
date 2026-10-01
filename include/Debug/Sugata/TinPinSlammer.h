@@ -591,6 +591,77 @@ typedef struct {
 } OtuDigitColumn; // Size: 0x1C
 
 /**
+ * @brief A two-word point, copied out of a task and compared against another.
+ *
+ * func_ov039_0208e6e0 copies a task's +0x120/+0x124 pair into one of these, and
+ * func_ov039_02098ca8 takes two of them and returns a score.
+ */
+typedef struct {
+    s32 x;
+    s32 y;
+} OtuPoint; // Size: 0x8
+
+/**
+ * @brief A child task in the scene's pin pool.
+ *
+ * The overlay keeps a pool of these under the stage task, and the five queries
+ * in OtuTaskPick.c each walk the pool asking every child for its position and
+ * returning the nearest one that passes their own filter.
+ *
+ * The three filters that test `kind` are the same function body with a different
+ * constant (6, 7, 8), which is why three of the five queries are byte-identical
+ * apart from one `cmp`. That is the overlay's clearest evidence yet that 6, 7
+ * and 8 are three sorts of the same thing -- most likely the three pin types
+ * the results screen scores separately.
+ *
+ * `pinID` points at a tray slot's value and 0x130 there means "no pin", which
+ * is the same sentinel func_ov039_020824a0 fills the tray with; func_ov039_0208efb0
+ * rejects those. Only fields the queries or their filters read are named.
+ */
+typedef struct {
+    /* 0x0E4 */ s32  unk_E4;
+    /* 0x0F8 */ s32  kind; // 6, 7 or 8 -- which sort of pin this is
+    /* 0x120 */ s32  x;
+    /* 0x124 */ s32  y;
+    /* 0x148 */ s32  alive; // non-zero while the pin is still in play
+    /* 0x16C */ u16* pinID; // a tray slot's value; 0x130 means "no pin"
+    u8               pad_170[0x04];
+} OtuPinTask;               // Size: 0x174
+
+/**
+ * The child task ids the stage keeps at +0x17C, one word per pool slot.
+ *
+ * Indexing is by a plain word stride and the count lives separately at +0x140,
+ * so both are reached through these rather than as struct members -- OtuTextRow
+ * is a conflated type already and widening it would disturb the matched row
+ * builders.
+ */
+#define OTU_CHILD_COUNT(table) (*(s32*)((u8*)(table) + 0x140))
+
+/**
+ * The child task id at pool slot `i`.
+ *
+ * Spelled as `(table + i * 4) + 0x17C` rather than `table + (0x17C + i * 4)` on
+ * purpose. The second form folds into a single computed displacement and costs
+ * an add; the target keeps the scaled add and the fixed +0x17C load separate, so
+ * the association here is load-bearing.
+ */
+#define OTU_CHILD_ID(table, i) (*(s32*)((u8*)(table) + (i) * 4 + 0x17C))
+
+/* Copies a task's +0x120/+0x124 pair into `out` (OtuTaskPick.c). */
+void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out);
+
+/* Returns a score for the pair of points, via the overlay's vector unit. */
+s32 func_ov039_02098ca8(OtuPoint* a, OtuPoint* b);
+
+/* The five child filters: true when the child is a candidate worth scoring. */
+s32 func_ov039_0208e984(OtuPinTask* task); // kind == 8
+s32 func_ov039_0208e998(OtuPinTask* task); // kind == 7
+s32 func_ov039_0208e9d0(OtuPinTask* task); // kind == 6
+s32 func_ov039_0208ee84(OtuPinTask* task); // alive
+s32 func_ov039_0208efb0(OtuPinTask* task, s32 which);
+
+/**
  * @brief The digit-column array, reached the way the target reaches it.
  *
  * The target forms this address as `scene + 0xEF0` and then `+ 0x41000` -- two

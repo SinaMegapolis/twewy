@@ -659,10 +659,12 @@ void func_ov039_02085124(TinPinSlammer_Scene* scene, s32 step) {
  * jump-table case; two places (10 and 1) by `value / 2`. The counter is a
  * `u8` and wraps at 100.
  */
-// Nonmatching: 62.0%. The four-way jump table and the wrap-at-100 clamp are right. The
-// target forms the column address with mla before the switch and selects the
-// byte with a separate add per case; this build hoists the multiply into the
-// pointer and the divide-form differs.
+// Nonmatching: 62.0%. The four-way jump table and the wrap-at-100 clamp are
+// right. The switch has to stay a switch: selecting the byte with
+// `column + value / 4` instead is semantically identical, compiles with no jump
+// table at all, and costs 21 points (62.0% -> 41.4%). So the target really does
+// branch four ways here rather than computing an offset. What is left is the
+// divide-form difference the rest of the steppers also have.
 void func_ov039_020852c0(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
     OtuTextRow*     table   = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuDigitColumn* column  = OTU_DIGIT_COLUMN(scene, slot);
@@ -670,6 +672,11 @@ void func_ov039_020852c0(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
     s32             place;
 
     // Four columns one byte apart, so the pointer is the base plus a case value.
+    //
+    // The switch has to stay a switch. Selecting the byte with
+    // `column + value / 4` instead is semantically identical and compiles to
+    // no jump table at all, which costs 21 points (62.0% -> 41.4%): the target
+    // really does branch four ways here rather than computing an offset.
     switch (OTU_TEXT_ROW(table, table->index)->value / 4) {
         case 0:
             counter = (u8*)column;
@@ -970,24 +977,41 @@ void func_ov039_020851bc(TinPinSlammer_Scene* scene) {
  * characters. It is the display counterpart of func_ov039_020852c0, which steps
  * one of those four bytes.
  */
-// Nonmatching: 42.4%. Off-declared frame and table are right; the body differs. The target
-// interleaves the four groups -- it starts group 1, writes its space, then does
-// group 2, its space, and so on -- whereas the loop here batches each pair of
-// digits before its separator. Unrolling is the obvious next attempt.
+// Nonmatching: 96.3%. Was 42.4% written as a loop, which cannot produce the
+// target at all: the target emits no index arithmetic, reading the four
+// counters as four separate byte loads at column+0..3 and filling the row with
+// eight stores. Writing the four groups out is what fixed it, not a tweak to
+// the loop. What is left is register allocation.
 void func_ov039_02085388(TinPinSlammer_Scene* scene, s32 slot) {
     OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
     char            row[0x20];
-    s32             i;
     s32             value;
 
-    for (i = 0; i < 4; i++) {
-        value = ((u8*)column)[i] + 1;
+    // Written out rather than looped. The target emits the four groups in an
+    // interleaved order -- each group's two digits, then its space, then
+    // straight on to the next group -- with no index arithmetic, so a loop
+    // cannot produce it: the four counters are read as four separate byte
+    // loads at column+0 through column+3 and the row is filled by eight stores.
+    value  = ((u8*)column)[0] + 1;
+    row[0] = '0' + (value / 10) % 10;
+    row[1] = '0' + value % 10;
+    row[2] = ' ';
 
-        row[i * 3 + 0] = '0' + (value / 10) % 10;
-        row[i * 3 + 1] = '0' + value % 10;
-        row[i * 3 + 2] = ' ';
-    }
+    value  = ((u8*)column)[1] + 1;
+    row[3] = '0' + (value / 10) % 10;
+    row[4] = '0' + value % 10;
+    row[5] = ' ';
+
+    value  = ((u8*)column)[2] + 1;
+    row[6] = '0' + (value / 10) % 10;
+    row[7] = '0' + value % 10;
+    row[8] = ' ';
+
+    value   = ((u8*)column)[3] + 1;
+    row[9]  = '0' + (value / 10) % 10;
+    row[10] = '0' + value % 10;
+    row[11] = ' ';
 
     value = OTU_TEXT_ROW(table, table->index)->value;
     if (value >= 0 && (table->flags & 0x20)) {
