@@ -421,10 +421,15 @@ s32 func_ov039_02088400(s32 x, s32 y, s32 axis) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -471,10 +476,15 @@ OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -521,10 +531,15 @@ OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -571,10 +586,15 @@ OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -621,10 +641,15 @@ OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -671,10 +696,15 @@ OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -721,10 +751,15 @@ OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -771,10 +806,15 @@ OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -821,10 +861,15 @@ OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -871,10 +916,15 @@ OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -921,10 +971,15 @@ OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -971,10 +1026,15 @@ OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1021,10 +1081,15 @@ OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1071,10 +1136,15 @@ OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1121,10 +1191,15 @@ OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1171,10 +1246,15 @@ OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1221,10 +1301,15 @@ OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1271,10 +1356,15 @@ OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1321,10 +1411,15 @@ OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1371,10 +1466,15 @@ OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1421,10 +1521,15 @@ OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;
@@ -1471,10 +1576,15 @@ OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* t, s32 sel) {
 //   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
 //     not two nested ones. The target's `ldrne` on the table load is the
 //     short-circuit, which is why +0x18 is tested at all.
-OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 sel) {
+/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
+ * only r2. Kept as a named parameter so the selector stays in the third
+ * argument slot, which is where the target reads it. */
+OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
     OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
 
-    switch (sel) {
+    (void)arg;
+
+    switch (mode) {
         case 1:
             slot->unk_00 = 1;
             return slot;

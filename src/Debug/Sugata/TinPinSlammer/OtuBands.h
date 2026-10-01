@@ -27,4 +27,29 @@
  *   OtuBand3.c   0x02095000 - 0x02096000
  *   OtuBand4.c   0x02096000 - 0x02097000
  *   OtuBand5.c   0x02097000 - 0x02098000
+ *
+ * A WARNING THAT WILL COST YOU AN HOUR IF YOU SKIP IT
+ * --------------------------------------------------
+ * mwcc is invoked with `-ipa file`, and its incremental cache is keyed on the
+ * *including* file's mtime. Editing a band file therefore does NOT invalidate
+ * the cache: ninja rebuilds OtuFieldAccess.o, mwcc hands back the cached
+ * preprocessed result, and the object comes out with the band file's previous
+ * contents. No error, no warning -- just an object silently missing whatever you
+ * just wrote.
+ *
+ * It does not show up in the ROM either. The sha1 still passes and
+ * `verify_rom.py` still reports `link confirmed`, because the ROM really was
+ * rebuilt -- from a stale object.
+ *
+ * The only symptom is objdiff reporting `fuzzy_match_percent: null` for
+ * functions you can plainly see in your own source.
+ *
+ * So, after editing a band file:
+ *
+ *     rm build/usa/src/Debug/Sugata/TinPinSlammer/OtuFieldAccess.o
+ *     ninja build/usa/src/Debug/Sugata/TinPinSlammer/OtuFieldAccess.o
+ *
+ * or touch OtuFieldAccess.c so its mtime moves. `python tools/ov039_docstatus.py`
+ * reports the matched total; if a function you just wrote is not in it, this is
+ * why.
  */

@@ -38,7 +38,17 @@ def run(cmd, **kw):
 def main():
     module = sys.argv[1] if len(sys.argv) > 1 else "ov039"
 
-    stale = glob.glob(str(DELINKS / f"*{module}*.o"))
+    # Force the whole delink, not just the overlay-level objects.
+    #
+    # The old glob was `DELINKS / f"*{module}*.o"` -- non-recursive, so it only
+    # matched the handful of overlay-level objects directly under delinks/ (7 for
+    # ov039) and left all ~800 per-translation-unit objects untouched, e.g.
+    # delinks/src/Debug/Sugata/TinPinSlammer/OtuFieldAccess.o. Those are exactly
+    # the ones ninja treats as current, so the delink was skipped and the sha1
+    # hashed a stale ROM. That is the very failure this script exists to catch,
+    # and the "ROM is newer than the objects" check could not see it because the
+    # stale objects did not change either.
+    stale = glob.glob(str(DELINKS / "**" / "*.o"), recursive=True)
     for p in stale:
         os.remove(p)
     print(f"invalidated {len(stale)} delinked object(s) for {module}")

@@ -701,28 +701,28 @@ s32 func_ov039_02088400(s32 x, s32 y, s32 axis);
 
 /* The twenty-two sprite-cell builders.  Each is the same body with three
  * constants varied; see OtuSpriteCell.c for what they are. */
-OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* task, s32 selector);
-OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* task, s32 selector);
+OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* task, s32 arg, s32 mode);
+OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* task, s32 arg, s32 mode);
 
 /**
  * @brief The digit-column array, reached the way the target reaches it.
