@@ -22,11 +22,22 @@
  *
  * The bands are disjoint address ranges. Keep it that way.
  *
- *   OtuBand1.c   0x0208f000 - 0x02090000
- *   OtuBand2.c   0x02093000 - 0x02094000
- *   OtuBand3.c   0x02095000 - 0x02096000
- *   OtuBand4.c   0x02096000 - 0x02097000
- *   OtuBand5.c   0x02097000 - 0x02098000
+ *   OtuBand1.inc  0x0208f000 - 0x02090000
+ *   OtuBand2.inc  0x02093000 - 0x02094000
+ *   OtuBand3.inc  0x02095000 - 0x02096000
+ *   OtuBand4.inc  0x02096000 - 0x02097000
+ *   OtuBand5.inc  0x02097000 - 0x02098000
+ *   OtuBand6.inc  0x02092484 - 0x020926f0  (Tsk_OtosuGame_obstacle)
+ *
+ * Band 6 is the one band that is a whole task rather than a slice of a call
+ * graph: it carries its own state struct, TaskHandle reference and stage
+ * dispatcher, and calls nothing the other bands define. That is why it can sit
+ * anywhere in the include order -- it is placed before band 1 only because band
+ * 1 is the one include with a hard ordering requirement.
+ *
+ * The .inc extension is load-bearing: `configure.py` walks `src/` and compiles
+ * every `.c` it finds, so a band named `.c` gets compiled twice and collides
+ * with itself.
  *
  * A WARNING THAT WILL COST YOU AN HOUR IF YOU SKIP IT
  * --------------------------------------------------
