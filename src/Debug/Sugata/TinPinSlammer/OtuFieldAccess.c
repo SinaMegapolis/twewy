@@ -1,5 +1,18 @@
 #include "Debug/Sugata/TinPinSlammer.h"
 
+/*
+ * The band files. See OtuBands.h for why they are #included rather than being
+ * separate translation units -- briefly, a delinks entry may claim a `.text`
+ * range only once, ranges may not overlap, and every remaining function in this
+ * overlay is already inside this file's claim. They are preprocessed into this
+ * object, so they need no delinks entry and no configure.py run.
+ */
+#include "OtuBand1.c"
+#include "OtuBand2.c"
+#include "OtuBand3.c"
+#include "OtuBand4.c"
+#include "OtuBand5.c"
+
 /**
  * @file OtuFieldAccess.c
  *
