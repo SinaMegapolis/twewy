@@ -379,13 +379,14 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 26 of 561 functions decompiled, 18 of them at 100%. `OtuMenuText` is
-100% matched (860 bytes of `.data`, 24 of `.rodata`, 8 of `.bss`); `OtuVBlank`
+Status: 29 of 561 functions decompiled, 18 of them at 100%. `OtuMenuText` is
+100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of `.bss`); `OtuVBlank`
 is 100% across all five functions; `OtuSceneEntry` holds the two plain entry
 points, the teardown, its thunk and both stage dispatches at 100%. Partial:
 `OtuGxInit` at 95.9%, both per-frame updates at 90.9% and 95.4%, the clamp
-helper at 94.5%, the place stepper at 91.5%, the wireless teardown at 72.8%. The
-remaining 535 functions are stubs.
+helper at 94.5%, the place stepper at 91.5%, the scrollbar at 87.1%, the wireless
+teardown at 72.8%, and the two countdown functions at 52.4% and 55.8%. The
+remaining 532 functions are stubs.
 
 ### Data ownership
 
@@ -504,22 +505,37 @@ Two naming traps in that function: the sub-engine BG control registers are
 
 ### Text helpers
 
-`OtuText.c` opens the 0x02083974 text-helpers block with the result screens'
-number formatters: decimal digit extraction (`func_ov039_02083974`, 100%),
-`d.ddd` fixed-point formatting (`func_ov039_02083a20`, 100%), a range clamp
-(`func_ov039_020839d4`, 94.5%) and the decimal-place stepper
-(`func_ov039_02083af4`, 91.5%).
+`OtuText.c` covers 0x02083974-0x02084020 — seven functions, three at 100%. They
+are the result screens' number formatting: digit extraction
+(`func_ov039_02083974`), `d.ddd` fixed-point output (`func_ov039_02083a20`), a
+range clamp (`func_ov039_020839d4`), the decimal-place stepper
+(`func_ov039_02083af4`), the scrollbar (`func_ov039_02083bb0`), the countdown
+animation (`func_ov039_02083cbc`) and the pin-count row (`func_ov039_02083ed4`).
 
-Two things worth knowing before writing the rest of this block:
+Four things worth knowing before writing the rest of this block:
 
 - Digit extraction is plain `% 10` and `/ 10` in source. The `smull`/shift
   sequences in the target are just mwcc's expansion, with `0x66666667` in the
   literal pool being its divide-by-ten reciprocal. No asm needed.
 - Where a small integer selects one of several fixed values, the target uses a
   real `switch` with a jump table — `func_ov039_02083af4` has one at 0x02083b38
-  behind a `cmp r2, #3 ; addls pc, pc, r2, lsl #2` bounds check. An
-  `x == 0 || x == 1 || ...` chain folds to a range check instead, which is the
-  same trap as the scene's 0x41AC4 case.
+  and `func_ov039_02083cbc` a nine-way one at 0x02083cf4, both behind an
+  `addls pc, pc, rX, lsl #2` bounds check. An `x == 0 || x == 1 || ...` chain
+  folds to a range check instead, the same trap as the scene's 0x41AC4 case.
+- **Stack-buffer layouts must be read out of the disassembly, not derived from
+  the field widths.** `func_ov039_02083ed4`'s six digit groups are 2, 1, 3, 1, 1,
+  1 chars wide, which tiles 0x0..0xC — but the target places them at 0x0, 0x3,
+  0x5, 0x9, 0xB, 0xD with the terminator at 0xE. The `add r0, sp, #N` sequence
+  is the only reliable source.
+- The row table is walked at a **16-byte stride** (`add r0, r4, r0, lsl #4`) by
+  a struct that is 0x38 wide, and reaches fields past the stride. Array
+  subscripting makes mwcc derive the stride from `sizeof`, so the indexing goes
+  through `OTU_TEXT_ROW` instead.
+
+`func_ov039_02083cbc` has an open question worth resolving before trusting it:
+its later arms call the five-argument clamp, but only ever push the fourth
+argument. The clamp reads its fifth — the upper bound — from `[sp, #0x10]`, where
+these callers set nothing, so the bound this source passes is a guess.
 
 Useful notes for continuing:
 
