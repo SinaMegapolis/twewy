@@ -379,10 +379,11 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 8 of 561 functions decompiled. `OtuMenuText` is 100% matched (all 764
-bytes of `.data`), and `OtuSceneEntry` is 100% for its first two entry points
-(`func_ov039_02082978`, `func_ov039_02082ae0`). The remaining 553 functions are
-stubs.
+Status: 10 of 561 functions decompiled. `OtuMenuText` is 100% matched (all 764
+bytes of `.data`), and `OtuSceneEntry` holds the two plain entry points at 100%
+(`func_ov039_02082978`, `func_ov039_02082ae0`) plus both per-frame updates at
+90.9% and 95.4% (`func_ov039_02082e98`, `func_ov039_02082ff8`). The remaining 551
+functions are stubs.
 
 ### Data ownership
 
@@ -410,6 +411,18 @@ mwcc sorts `.data` objects by size ascending, ties broken by creation order.
   at each use — that alone was worth ~7% on `func_ov039_02082978`.
 - The overlay's slot state is one 8-byte object cleared with `str` at +4 and
   `strb` at +0, not two 4-byte words.
+- The two per-frame updates (`0x02082e98` plain, `0x02082ff8` wireless) are
+  near-twins with identical OAM/palette prologues and identical sizes (352 and
+  364). They differ only in the task work — the wireless one skips it while
+  `OtuScene_SlotState.count` is set — and in where the exit overlay is chosen
+  from: the save record for the plain one, the scene's own latched status for
+  the wireless one.
+- Both updates pass the overlay id as a literal `2`, but the target loads it
+  from a literal-pool word where mwcc folds it to `mov r1, #2`. That one word
+  shifts every later pool displacement and is the entire remaining diff in
+  `func_ov039_02082ff8`. Seven spellings of the id were tried, plus a `volatile`
+  local; all score equal or worse. Note the other update has the same issue at
+  `+0x41C` — a `switch` or range test there is the likely original shape.
 - `func_ov039_02082c50` latches `SystemStatusFlags.unk_06` and `unk_07` into the
   scene (as `state.linkStatus` / `state.wirelessStatus`) and clears them, so
   they are wireless-*relevant* — but that is all that is known, and **neither
@@ -429,10 +442,10 @@ mwcc sorts `.data` objects by size ascending, ties broken by creation order.
   names (`linkStatus`/`wirelessStatus`) describe the *overlay's* use of them and
   make no claim about the flags themselves.
 - The wireless save record is based at `gSaveData + 0x3000`, not `gSaveState`.
-- `func_ov039_02082c50` (the menus/results entry point) is at 66% and resisted
-  14 source variants. Every instruction is semantically right; the whole gap is
-  mwcc placing literal-pool loads one or two instructions later than the target
-  does. It is the natural next thing to attack with the permuter.
+- `func_ov039_02082c50` (the menus/results entry point) reached only 66% and
+  resisted 14 source variants. Every instruction is semantically right; the whole
+  gap is mwcc placing literal-pool loads one or two instructions later than the
+  target does. It is the natural next thing to attack with the permuter.
 
 Useful notes for continuing:
 
