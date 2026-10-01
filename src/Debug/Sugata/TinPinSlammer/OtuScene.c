@@ -1,4 +1,5 @@
 #include "Debug/Sugata/TinPinSlammer.h"
+#include "Engine/EasyTask.h"
 #include "Save.h"
 
 /**
@@ -90,4 +91,51 @@ void func_ov039_020825b0(TinPinSlammer_Scene* scene) {
 
     func_02025e30((u8*)scene + TIN_PIN_SLAMMER_RES_OFFSET);
     scene->state.unk_6A4 = 0;
+}
+
+/**
+ * @brief Selects the plain-Otosu board layout.
+ *
+ * Sets the scene's board-mode selector and its companion layout id.  Called
+ * when the player picks the standard pin-throwing board.
+ *
+ * @param scene Scene object.
+ */
+void func_ov039_02082724(TinPinSlammer_Scene* scene) {
+    scene->state.unk_AF0 = 0;
+    scene->state.unk_EE0 = 4;
+}
+
+/**
+ * @brief Selects the alternate-Otosu board layout.
+ *
+ * The counterpart to func_ov039_02082724: same two fields, opposite values.
+ *
+ * @param scene Scene object.
+ */
+void func_ov039_0208273c(TinPinSlammer_Scene* scene) {
+    scene->state.unk_AF0 = 1;
+    scene->state.unk_EE0 = 0;
+}
+
+/**
+ * @brief Tears down the fade task the scene created on entry.
+ *
+ * @param scene Scene object.
+ */
+void func_ov039_02082754(TinPinSlammer_Scene* scene) {
+    EasyTask_DeleteTask((TaskPool*)((u8*)scene + TIN_PIN_SLAMMER_POOL1_OFFSET), scene->state.unk_69C);
+}
+
+// Nonmatching: mwcc hoists the shared stage-container address into a
+// callee-saved register; the target re-loads the 0x41AC4 literal at each of
+// the four uses and keeps `scene` in r4 instead.
+void func_ov039_02082774(TinPinSlammer_Scene* scene) {
+    func_ov039_02098a60((u8*)scene + TIN_PIN_SLAMMER_STAGE_OFFSET, scene);
+    func_ov039_02098acc((u8*)scene + TIN_PIN_SLAMMER_STAGE_OFFSET, scene);
+    func_ov039_02098af4((u8*)scene + TIN_PIN_SLAMMER_STAGE_OFFSET, scene);
+
+    if (func_ov039_02098b44((u8*)scene + TIN_PIN_SLAMMER_STAGE_OFFSET) != 0) {
+        scene->state.unk_ADC = 1;
+    }
 }

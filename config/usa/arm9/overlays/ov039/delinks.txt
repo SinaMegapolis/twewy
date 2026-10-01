@@ -5,4 +5,4 @@
     .bss        start:0x0209ad00 end:0x0209b140 kind:bss align:32
 
 src/Debug/Sugata/TinPinSlammer/OtuScene.c:
-    .text       start:0x020824a0 end:0x020825e8
+    .text       start:0x020824a0 end:0x020827d0
