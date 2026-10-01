@@ -168,7 +168,7 @@ void func_ov039_02082978(void) {
     func_ov039_020825e8(scene);
     func_ov039_02082724(scene);
 
-    *(s32*)((u8*)scene + TIN_PIN_SLAMMER_ENTRY_OFFSET) = 0;
+    scene->menuIndex = 0;
 
     func_ov039_020824a0((u16*)scene);
     func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_FirstStage);
@@ -214,7 +214,7 @@ void func_ov039_02082ae0(void) {
     func_ov039_020825e8(scene);
     func_ov039_02082724(scene);
 
-    *(u8*)((u8*)scene + TIN_PIN_SLAMMER_ENTRY_OFFSET) = *OTU_WIRELESS_RECORD(0x3000, 0x41C);
+    scene->menuIndex = *OTU_WIRELESS_RECORD(0x3000, 0x41C);
 
     func_ov039_020824a0((u16*)scene);
     func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessBoard);

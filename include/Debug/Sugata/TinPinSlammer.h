@@ -182,7 +182,9 @@ extern OtuSceneSlotState OtuScene_SlotState;
 typedef struct {
     /* 0x00000 */ TinPinSlammer_Base  base; // 0x40000 bytes
     /* 0x41000 */ TinPinSlammer_State state;
-    /* 0x41EF0 */ u8                  pad_41EF0[0xBD4];
+    /* 0x41EF0 */ u8                  pad_41EF0[0x2B74];
+    /* 0x44A64 */ s32                 menuIndex; // which result menu is showing
+    /* 0x44A68 */ u8                  pad_44A68[0x5C];
     /* 0x44AC4 */ OtuStageDispatch    stage;
 } TinPinSlammer_Scene;
 // NOTE: the stage container sits at scene + 0x41AC4, which is *inside* the
@@ -281,6 +283,9 @@ void func_ov039_020885cc(void);
 /* The two board-stage tick routines the per-frame updates call. */
 void func_ov039_02082774(TinPinSlammer_Scene* scene);
 void func_ov039_020827d0(TinPinSlammer_Scene* scene);
+
+/* Redraws one of the result screen's three menus. */
+void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 menu);
 
 /* The overlays the two per-frame updates can push once the stage goes mid-setup. */
 void func_ov039_0208690c(void);
@@ -425,6 +430,30 @@ typedef struct {
 
 /** The scene's first stage: board/pin logic, 0x3C bytes of state. */
 extern OtuSceneStage OtuScene_FirstStage;
+
+/**
+ * @brief One menu's countdown block, at scene + 0x44000 + index * 0x34.
+ *
+ * The result screens show three menus side by side; each has its own copy of the
+ * score columns, and the countdown animation walks them one decimal place per
+ * frame.  The index at +0xA64 of the scene's 0x44000 block selects which menu is
+ * being animated.
+ */
+typedef struct {
+    /* 0x84 */ s16 thousands; // the digit column being counted
+    /* 0x86 */ s16 hundreds;
+    /* 0x88 */ s16 tens;
+    /* 0x98 */ s16 unk_98;
+    /* 0xA8 */ s16 unk_A8;
+} OtuMenuCountdown; // Size: 0x34
+
+/**
+ * The countdown block for the menu the scene is currently animating.
+ *
+ * The index is read from the scene rather than passed in, which is why the base
+ * is rebuilt on every access in the target.
+ */
+#define OTU_COUNTDOWN(scene) ((OtuMenuCountdown*)((u8*)(scene) + 0x44000 + (scene)->menuIndex * 0x34))
 
 /** The stage the wireless-board entry point enters; 0x2D0 bytes of state. */
 extern OtuSceneStage OtuScene_WirelessBoard;

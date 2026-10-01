@@ -38,6 +38,9 @@ void func_ov039_02083974(char* buf, s32 value, s32 count) {
  *
  * Positions a field `offset` digits wide starting `digits` places in.  Returns
  * `lo` when the result falls under the low bound, and `hi` when it overruns.
+ *
+ * `hi` is the fifth argument and so travels on the stack; the target reads it
+ * back from `[sp, #0x10]` after the loop rather than keeping it in a register.
  */
 s32 func_ov039_020839d4(s32 base, s32 offset, s32 digits, s32 lo, s32 hi) {
     s32 scale = 1;
@@ -176,4 +179,67 @@ void func_ov039_02083bb0(TinPinSlammer_Scene* scene) {
         Text_RenderToScreen(OTU_TEXT(scene), 0, row->row * 8 + 8, OtuGlyph_ScrollDot);
     }
     row->drawnValue = row->value;
+}
+
+/**
+ * @brief Advance the menu countdown one decimal place.
+ *
+ * The result screens count their score columns down one place per frame rather
+ * than snapping to the final value. `step` is +1 or -1, and the row's `value`
+ * says which column is currently counting -- cases 0 and 1 move the whole
+ * header, 2 through 8 move one column each, and anything past 8 does nothing.
+ *
+ * Each column is stepped by a different power of ten, taken from the case number
+ * itself (`1 - value`, `2 - value`, `5 - value`, `6 - value`), so the field's
+ * magnitude rather than a per-case constant drives the arithmetic.
+ */
+// Nonmatching: 52.4%. The switch, its nine-way jump table, the bounds check and
+// case 0/1 all match the target exactly, as does the size. The later arms step
+// each column through the same five-argument clamp, but the target's callers
+// only ever push the fourth argument -- the clamp reads its fifth from
+// [sp, #0x10] with nothing set there -- so the upper bound this source passes is
+// a guess. The diff view also misreports low here, because nine near-identical
+// arms slide out of alignment past case 1.
+void func_ov039_02083cbc(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow*       table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32               value;
+    OtuMenuCountdown* menu;
+
+    // Cleared each call, so the countdown restarts if the row changes.
+    ((s32*)table)[0x34 / 4] = 0;
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    switch (value) {
+        case 0:
+        case 1:
+            scene->menuIndex = func_ov039_020839d4(scene->menuIndex, step, 1 - value, 0, 0x2B);
+            func_ov039_020842bc(scene, 1);
+            func_ov039_020842bc(scene, 2);
+            func_ov039_020842bc(scene, 3);
+            break;
+        case 2:
+            menu            = OTU_COUNTDOWN(scene);
+            menu->thousands = (s16)func_ov039_020839d4(menu->thousands, step, 2 - value, 9, 0);
+            break;
+        case 3:
+        case 4:
+        case 5:
+            menu           = OTU_COUNTDOWN(scene);
+            menu->hundreds = (s16)func_ov039_020839d4(menu->hundreds, step, 5 - value, 0, 0x3E7);
+            break;
+        case 6:
+            menu       = OTU_COUNTDOWN(scene);
+            menu->tens = (s16)func_ov039_020839d4(menu->tens, step, 6 - value, 0, 6);
+            break;
+        case 7:
+            menu         = OTU_COUNTDOWN(scene);
+            menu->unk_98 = (s16)func_ov039_020839d4(menu->unk_98, step, 6 - value, 0, 6);
+            break;
+        case 8:
+            menu         = OTU_COUNTDOWN(scene);
+            menu->unk_A8 = (s16)func_ov039_020839d4(menu->unk_A8, step, 6 - value, 0, 6);
+            break;
+        default:
+            break;
+    }
 }
