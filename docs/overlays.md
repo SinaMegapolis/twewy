@@ -410,8 +410,24 @@ mwcc sorts `.data` objects by size ascending, ties broken by creation order.
   at each use — that alone was worth ~7% on `func_ov039_02082978`.
 - The overlay's slot state is one 8-byte object cleared with `str` at +4 and
   `strb` at +0, not two 4-byte words.
-- `SystemStatusFlags.unk_06`/`unk_07` carry the wireless link and stack state.
-  They are deliberately **not** renamed: ~60 files across the tree read them.
+- `func_ov039_02082c50` latches `SystemStatusFlags.unk_06` and `unk_07` into the
+  scene (as `state.linkStatus` / `state.wirelessStatus`) and clears them, so
+  they are wireless-*relevant* — but that is all that is known, and **neither
+  bit is a wireless flag**:
+  - `unk_07` is set by `Savefile_InitNewGameDefaults` beside `unk_05`, and
+    `main.c` runs its main loop `while (reset == FALSE || unk_07 == FALSE)`. It
+    is a save/boot "new game initialised" flag.
+  - `unk_06` is a tri-state power/hinge mode. `main.c:173` branches three ways on
+    it: 1 gates `Input_IsSystemHingeClosed()` lid handling, any other non-zero
+    value polls two peripheral slots. `Tusin.c` sets it when the wireless stack
+    is *busy*, so reading it as "link established" inverts its meaning.
+
+  Genuine names need the JP overlay (not buildable here — see below) or the
+  hardware docs. They are deliberately left as `unk_NN`; a confident-sounding
+  guess here would be worse than the placeholder, since both bits are read from
+  power-management and save code far from this overlay. The scene-state field
+  names (`linkStatus`/`wirelessStatus`) describe the *overlay's* use of them and
+  make no claim about the flags themselves.
 - The wireless save record is based at `gSaveData + 0x3000`, not `gSaveState`.
 - `func_ov039_02082c50` (the menus/results entry point) is at 66% and resisted
   14 source variants. Every instruction is semantically right; the whole gap is

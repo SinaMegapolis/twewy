@@ -101,9 +101,13 @@ typedef struct {
     /* 0x6C0 */ u8  pad_6C0[0x41C];
     /* 0xADC */ s32 unk_ADC;          // "setup incomplete" flag, raised while a stage runs
     /* 0xAE0 */ s32 unk_AE0;          // forces a state transition when set
-    /* 0xAE4 */ u16 linkStatus;       // bit 6 of SystemStatusFlags, latched at entry
+    /* 0xAE4 */ u16 linkStatus;       // SystemStatusFlags.unk_06, latched at entry
     /* 0xAE6 */ u8  pad_AE6[2];
-    /* 0xAE8 */ s32 wirelessStatus;   // bit 7 of SystemStatusFlags, latched at entry
+    /* 0xAE8 */ s32 wirelessStatus;   // SystemStatusFlags.unk_07, latched at entry
+                                      // NB: the two SystemStatusFlags bits are named unk_06/unk_07 on purpose.
+                                      // unk_07 is a save/boot flag and unk_06 a tri-state power/hinge mode --
+                                      // neither is a wireless flag, they are merely consumed by the wireless
+                                      // screens. See docs/overlays.md for the evidence.
     /* 0xAEC */ u8  pad_AEC[4];
     /* 0xAF0 */ s32 unk_AF0;          // scene mode selector (0 = plain, 1 = alternate)
     /* 0xAF4 */ s32 unk_AF4;
