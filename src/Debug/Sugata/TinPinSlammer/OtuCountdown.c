@@ -491,19 +491,22 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                 // the one that comes next in this menu's countdown.
                 switch (block->index) {
                     case 0:
-                        row->row--;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C) -= 1;
+                        row = OTU_TEXT_ROW(block, block->index);
                         if (row->row < 0) {
                             row->row = 0x14;
                         }
                         break;
                     case 1:
-                        row->row--;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C) -= 1;
+                        row = OTU_TEXT_ROW(block, block->index);
                         if (row->row < 0) {
                             row->row = 0x3;
                         }
                         break;
                     case 2:
-                        row->row--;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C) -= 1;
+                        row = OTU_TEXT_ROW(block, block->index);
                         if (row->row < 0) {
                             row->row = 0x7;
                         }
@@ -624,21 +627,24 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                 // the one that comes next in this menu's countdown.
                 switch (block->index) {
                     case 0:
-                        row->row--;
-                        if (row->row >= 21) {
-                            row->row = 0;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C) -= 1;
+                        row = OTU_TEXT_ROW(block, block->index);
+                        if (row->row < 0) {
+                            row->row = 21;
                         }
                         break;
                     case 1:
-                        row->row--;
-                        if (row->row >= 4) {
-                            row->row = 0;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C) -= 1;
+                        row = OTU_TEXT_ROW(block, block->index);
+                        if (row->row < 0) {
+                            row->row = 4;
                         }
                         break;
                     case 2:
-                        row->row--;
-                        if (row->row >= 8) {
-                            row->row = 0;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C) -= 1;
+                        row = OTU_TEXT_ROW(block, block->index);
+                        if (row->row < 0) {
+                            row->row = 8;
                         }
                         break;
                 }
@@ -765,14 +771,16 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                                 break;
                             case 1:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 9) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 9;
                                 }
                                 break;
                             case 2:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 16) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 16;
                                 }
                                 break;
                             case 3:
@@ -780,8 +788,9 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                             case 5:
                             case 6:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 18) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 18;
                                 }
                                 break;
                             case 7:
@@ -795,32 +804,37 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                             case 15:
                             case 16:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 16) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 16;
                                 }
                                 break;
                             case 17:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 4) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 4;
                                 }
                                 break;
                             case 18:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 8) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 8;
                                 }
                                 break;
                             case 19:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 12) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 12;
                                 }
                                 break;
                             case 20:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 4) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 4;
                                 }
                                 break;
                         }
@@ -832,26 +846,30 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                                 break;
                             case 0:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 12) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 12;
                                 }
                                 break;
                             case 1:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 16) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 16;
                                 }
                                 break;
                             case 2:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 4) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 4;
                                 }
                                 break;
                             case 3:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 10) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 10;
                                 }
                                 break;
                         }
@@ -863,45 +881,52 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                                 break;
                             case 0:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 3) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 3;
                                 }
                                 break;
                             case 1:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 8) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 8;
                                 }
                                 break;
                             case 2:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 2) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 2;
                                 }
                                 break;
                             case 3:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 4) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 4;
                                 }
                                 break;
                             case 4:
                             case 5:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 6) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 6;
                                 }
                                 break;
                             case 6:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 12) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 12;
                                 }
                                 break;
                             case 7:
                                 OTU_TEXT_FIELD(block, block->index, 0x04) -= 1;
-                                if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 3) {
-                                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
+                                row = OTU_TEXT_ROW(block, block->index);
+                                if (row->value < 0) {
+                                    row->value = 3;
                                 }
                                 break;
                         }
