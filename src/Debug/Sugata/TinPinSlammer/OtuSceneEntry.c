@@ -286,3 +286,20 @@ void func_ov039_02083240(TinPinSlammer_Scene* scene) {
 
     OtuScene_PlainHandlers[stage](scene); // NOLINT: untyped by design
 }
+
+/**
+ * @brief Process-stage dispatch for the wireless scene.
+ *
+ * The wireless twin of func_ov039_02083240: same shape, indexing the wireless
+ * handler table and reaching the wireless teardown on the no-stage path.
+ */
+void func_ov039_02083280(TinPinSlammer_Scene* scene) {
+    s32 stage = MainOvlDisp_GetProcessStage();
+
+    if (stage == 0x7FFFFFFF) {
+        func_ov039_020831d8(scene);
+        return;
+    }
+
+    OtuScene_WirelessHandlers[stage](scene); // NOLINT: untyped by design
+}

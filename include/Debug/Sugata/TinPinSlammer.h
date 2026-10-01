@@ -266,6 +266,15 @@ void func_ov039_02083944(void);
 /* The stage's exit routine, run first by the scene teardown. */
 void func_ov039_02083960(void);
 
+/* The two VBlank handlers, and the GX bring-up they share. */
+void func_ov039_020832c0(void);
+void func_ov039_02083750(void);
+void func_ov039_02083838(void);
+
+/* The wireless stack routines the wireless VBlank handler runs first. */
+void func_ov039_02088454(void);
+void func_ov039_020885cc(void);
+
 /* The two board-stage tick routines the per-frame updates call. */
 void func_ov039_02082774(TinPinSlammer_Scene* scene);
 void func_ov039_020827d0(TinPinSlammer_Scene* scene);
@@ -422,7 +431,5 @@ void func_ov040_0209ed30(void);
 
 /* Wireless entry point in ov003. */
 void func_ov003_0209d434(s32 a, s32 b);
-
-extern const void* data_0205c9b0;
 
 #endif // TIN_PIN_SLAMMER_H

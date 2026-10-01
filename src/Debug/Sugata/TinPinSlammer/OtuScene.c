@@ -2,6 +2,7 @@
 #include "Engine/Core/System.h"
 #include "Engine/EasyTask.h"
 #include "Save.h"
+#include "common_data.h"
 
 /**
  * @file OtuScene.c
