@@ -352,6 +352,23 @@ void func_ov039_02086174(TinPinSlammer_Scene* scene) {
     }
 }
 
+/**
+ * A row's field, addressed the way the target addresses it: the fixed field
+ * offset is added to the block first, and the row index is then applied as a
+ * scaled index on the load.
+ *
+ * Spelled `(block + offset) + index * 0x10` rather than going through
+ * OTU_TEXT_ROW, because those two are the same address but not the same code.
+ * The target hoists the field offset into a register and lets the scaled index
+ * ride on the load, three instructions per site; going through the row pointer
+ * has to materialise the pointer and add, and costs four. On
+ * func_ov039_02086808 that is the entire 567-instruction deficit.
+ *
+ * Same trap as OTU_CHILD_ID, one function over: a base pointer plus a large
+ * fixed offset plus a scaled index wants the offset folded in first.
+ */
+#define OTU_TEXT_FIELD(block, index, offset) (*(s32*)((u8*)(block) + (offset) + (index) * 0x10))
+
 /* ==================================================================== */
 /* The board/pin-logic stage: the results screen's per-frame handler.     */
 /* ==================================================================== */
@@ -404,26 +421,26 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
         case 0x40:
             row = OTU_TEXT_ROW(block, block->index);
 
-            if (OTU_TEXT_ROW(block, block->index)->value < 0) {
+            if (OTU_TEXT_FIELD(block, block->index, 0x04) < 0) {
                 // No value yet: walk the row index so the next row to fill is
                 // the one that comes next in this menu's countdown.
                 switch (block->index) {
                     case 0:
-                        OTU_TEXT_ROW(block, block->index)->row--;
-                        if (OTU_TEXT_ROW(block, block->index)->row < 0) {
-                            OTU_TEXT_ROW(block, block->index)->row = 0x14;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C)--;
+                        if (OTU_TEXT_FIELD(block, block->index, 0x0C) < 0) {
+                            OTU_TEXT_FIELD(block, block->index, 0x0C) = 0x14;
                         }
                         break;
                     case 1:
-                        OTU_TEXT_ROW(block, block->index)->row--;
-                        if (OTU_TEXT_ROW(block, block->index)->row < 0) {
-                            OTU_TEXT_ROW(block, block->index)->row = 0x3;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C)--;
+                        if (OTU_TEXT_FIELD(block, block->index, 0x0C) < 0) {
+                            OTU_TEXT_FIELD(block, block->index, 0x0C) = 0x3;
                         }
                         break;
                     case 2:
-                        OTU_TEXT_ROW(block, block->index)->row--;
-                        if (OTU_TEXT_ROW(block, block->index)->row < 0) {
-                            OTU_TEXT_ROW(block, block->index)->row = 0x7;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C)--;
+                        if (OTU_TEXT_FIELD(block, block->index, 0x0C) < 0) {
+                            OTU_TEXT_FIELD(block, block->index, 0x0C) = 0x7;
                         }
                         break;
                 }
@@ -431,8 +448,8 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                 // The row has a value, so step its number in `sign`'s direction.
                 switch (block->index) {
                     case 0:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                             case 1:
@@ -445,7 +462,7 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                             case 4:
                             case 5:
                             case 6:
-                                func_ov039_020841a0(scene, OTU_TEXT_ROW(block, block->index)->row - 3, 1);
+                                func_ov039_020841a0(scene, OTU_TEXT_FIELD(block, block->index, 0x0C) - 3, 1);
                                 break;
                             case 7:
                             case 8:
@@ -457,7 +474,7 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                             case 14:
                             case 15:
                             case 16:
-                                func_ov039_02084458(scene, OTU_TEXT_ROW(block, block->index)->row - 7, 1);
+                                func_ov039_02084458(scene, OTU_TEXT_FIELD(block, block->index, 0x0C) - 7, 1);
                                 break;
                             case 17:
                                 func_ov039_020845dc(scene, 1);
@@ -474,8 +491,8 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                         }
                         break;
                     case 1:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                             case 0:
@@ -493,8 +510,8 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                         }
                         break;
                     case 2:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                             case 0:
@@ -537,26 +554,26 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
         case 0x80:
             row = OTU_TEXT_ROW(block, block->index);
 
-            if (OTU_TEXT_ROW(block, block->index)->value < 0) {
+            if (OTU_TEXT_FIELD(block, block->index, 0x04) < 0) {
                 // No value yet: walk the row index so the next row to fill is
                 // the one that comes next in this menu's countdown.
                 switch (block->index) {
                     case 0:
-                        OTU_TEXT_ROW(block, block->index)->row--;
-                        if (OTU_TEXT_ROW(block, block->index)->row >= 21) {
-                            OTU_TEXT_ROW(block, block->index)->row = 0;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C)--;
+                        if (OTU_TEXT_FIELD(block, block->index, 0x0C) >= 21) {
+                            OTU_TEXT_FIELD(block, block->index, 0x0C) = 0;
                         }
                         break;
                     case 1:
-                        OTU_TEXT_ROW(block, block->index)->row--;
-                        if (OTU_TEXT_ROW(block, block->index)->row >= 4) {
-                            OTU_TEXT_ROW(block, block->index)->row = 0;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C)--;
+                        if (OTU_TEXT_FIELD(block, block->index, 0x0C) >= 4) {
+                            OTU_TEXT_FIELD(block, block->index, 0x0C) = 0;
                         }
                         break;
                     case 2:
-                        OTU_TEXT_ROW(block, block->index)->row--;
-                        if (OTU_TEXT_ROW(block, block->index)->row >= 8) {
-                            OTU_TEXT_ROW(block, block->index)->row = 0;
+                        OTU_TEXT_FIELD(block, block->index, 0x0C)--;
+                        if (OTU_TEXT_FIELD(block, block->index, 0x0C) >= 8) {
+                            OTU_TEXT_FIELD(block, block->index, 0x0C) = 0;
                         }
                         break;
                 }
@@ -564,8 +581,8 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                 // The row has a value, so step its number in `sign`'s direction.
                 switch (block->index) {
                     case 0:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                             case 1:
@@ -578,7 +595,7 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                             case 4:
                             case 5:
                             case 6:
-                                func_ov039_020841a0(scene, OTU_TEXT_ROW(block, block->index)->row - 3, -1);
+                                func_ov039_020841a0(scene, OTU_TEXT_FIELD(block, block->index, 0x0C) - 3, -1);
                                 break;
                             case 7:
                             case 8:
@@ -590,7 +607,7 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                             case 14:
                             case 15:
                             case 16:
-                                func_ov039_02084458(scene, OTU_TEXT_ROW(block, block->index)->row - 7, -1);
+                                func_ov039_02084458(scene, OTU_TEXT_FIELD(block, block->index, 0x0C) - 7, -1);
                                 break;
                             case 17:
                                 func_ov039_020845dc(scene, -1);
@@ -607,8 +624,8 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                         }
                         break;
                     case 1:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                             case 0:
@@ -626,8 +643,8 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                         }
                         break;
                     case 2:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                             case 0:
@@ -670,29 +687,29 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
         case 0x20:
             row = OTU_TEXT_ROW(block, block->index);
 
-            if (OTU_TEXT_ROW(block, block->index)->value >= 0) {
+            if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 0) {
                 // Ticking down, and giving a row that has no value its target.
                 // The inner clamp cannot fire: the guard above already
                 // excluded a negative value. It is in the original and it is
                 // kept, because dropping it is a mismatch.
                 switch (block->index) {
                     case 0:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                         }
                         break;
                     case 1:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                         }
                         break;
                     case 2:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                         }
@@ -704,26 +721,26 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
         case 0x10:
             row = OTU_TEXT_ROW(block, block->index);
 
-            if (OTU_TEXT_ROW(block, block->index)->value >= 0) {
+            if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 0) {
                 // Ticking up, and clearing a row that has reached its target.
                 switch (block->index) {
                     case 0:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                         }
                         break;
                     case 1:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                         }
                         break;
                     case 2:
-                        step = OTU_TEXT_ROW(block, block->index)->row;
-                        switch (OTU_TEXT_ROW(block, block->index)->row) {
+                        step = OTU_TEXT_FIELD(block, block->index, 0x0C);
+                        switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                             default:
                                 break;
                         }
@@ -738,11 +755,11 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
             // leaves this screen.
             row = OTU_TEXT_ROW(block, block->index);
 
-            if (OTU_TEXT_ROW(block, block->index)->value < 0) {
-                if (block->index == 0 && OTU_TEXT_ROW(block, block->index)->row == 0) {
+            if (OTU_TEXT_FIELD(block, block->index, 0x04) < 0) {
+                if (block->index == 0 && OTU_TEXT_FIELD(block, block->index, 0x0C) == 0) {
                     func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessBoard);
                 } else {
-                    OTU_TEXT_ROW(block, block->index)->value = 0;
+                    OTU_TEXT_FIELD(block, block->index, 0x04) = 0;
                 }
             }
             break;
@@ -752,8 +769,8 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
             // already clear.
             row = OTU_TEXT_ROW(block, block->index);
 
-            if (OTU_TEXT_ROW(block, block->index)->value >= 0) {
-                OTU_TEXT_ROW(block, block->index)->value = -1;
+            if (OTU_TEXT_FIELD(block, block->index, 0x04) >= 0) {
+                OTU_TEXT_FIELD(block, block->index, 0x04) = -1;
             } else {
                 func_ov039_02098a40(OTU_STAGE(scene), NULL);
             }
@@ -767,10 +784,10 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                 block->index = 2;
             }
 
-            block->flags                                  = 0;
-            row                                           = OTU_TEXT_ROW(block, block->index);
-            OTU_TEXT_ROW(block, block->index)->drawnValue = -2;
-            OTU_TEXT_ROW(block, block->index)->drawnRow   = -2;
+            block->flags                              = 0;
+            row                                       = OTU_TEXT_ROW(block, block->index);
+            OTU_TEXT_FIELD(block, block->index, 0x08) = -2;
+            OTU_TEXT_FIELD(block, block->index, 0x10) = -2;
             func_ov039_02086174(scene);
             break;
 
@@ -782,10 +799,10 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                 block->index = 0;
             }
 
-            block->flags                                  = 0;
-            row                                           = OTU_TEXT_ROW(block, block->index);
-            OTU_TEXT_ROW(block, block->index)->drawnValue = -2;
-            OTU_TEXT_ROW(block, block->index)->drawnRow   = -2;
+            block->flags                              = 0;
+            row                                       = OTU_TEXT_ROW(block, block->index);
+            OTU_TEXT_FIELD(block, block->index, 0x08) = -2;
+            OTU_TEXT_FIELD(block, block->index, 0x10) = -2;
             func_ov039_02086174(scene);
             break;
 
@@ -796,11 +813,11 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
     func_ov039_02083bb0(scene);
 
     menu = block->index;
-    step = OTU_TEXT_ROW(block, menu)->row;
+    step = OTU_TEXT_FIELD(block, menu, 0x0C);
 
     switch (menu) {
         case 0:
-            switch (OTU_TEXT_ROW(block, block->index)->row) {
+            switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                 default:
                     break;
                 case 1:
@@ -813,7 +830,7 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                 case 4:
                 case 5:
                 case 6:
-                    func_ov039_020842bc(scene, OTU_TEXT_ROW(block, block->index)->row - 3);
+                    func_ov039_020842bc(scene, OTU_TEXT_FIELD(block, block->index, 0x0C) - 3);
                     break;
                 case 7:
                 case 8:
@@ -825,7 +842,7 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
                 case 14:
                 case 15:
                 case 16:
-                    func_ov039_020844f8(scene, OTU_TEXT_ROW(block, block->index)->row - 7);
+                    func_ov039_020844f8(scene, OTU_TEXT_FIELD(block, block->index, 0x0C) - 7);
                     break;
                 case 17:
                     func_ov039_0208462c(scene);
@@ -842,7 +859,7 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
             }
             break;
         case 1:
-            switch (OTU_TEXT_ROW(block, block->index)->row) {
+            switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                 default:
                     break;
                 case 0:
@@ -860,7 +877,7 @@ void func_ov039_02086808(TinPinSlammer_Scene* scene) {
             }
             break;
         case 2:
-            switch (OTU_TEXT_ROW(block, block->index)->row) {
+            switch (OTU_TEXT_FIELD(block, block->index, 0x0C)) {
                 default:
                     break;
                 case 0:
