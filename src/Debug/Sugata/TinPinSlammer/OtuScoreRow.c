@@ -86,7 +86,7 @@ void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 which) {
 
     value = OTU_TEXT_ROW(table, table->index)->value;
     if (value >= 0 && (table->flags & 0x20)) {
-        row[OtuScoreFieldOffset[value]] = ' ';
+        row[data_ov039_020990b4[value]] = ' ';
     }
     row[0x18] = 0;
 
@@ -185,7 +185,7 @@ void func_ov039_020844f8(TinPinSlammer_Scene* scene, s32 slot) {
 
     value = OTU_TEXT_ROW(table, table->index)->value;
     if (value >= 0 && (table->flags & 0x20)) {
-        row[OtuFixedFieldOffset[value]] = ' ';
+        row[data_ov039_02099074[value]] = ' ';
     }
     row[0x17] = 0;
 
@@ -245,7 +245,7 @@ void func_ov039_0208462c(TinPinSlammer_Scene* scene) {
 
     value = OTU_TEXT_ROW(table, table->index)->value;
     if (value >= 0 && (table->flags & 0x20)) {
-        row[OtuTightFieldOffset[value]] = ' ';
+        row[data_ov039_02098e88[value]] = ' ';
     }
     row[0x5] = 0;
 
@@ -278,9 +278,246 @@ void func_ov039_020846c4(TinPinSlammer_Scene* scene, s32 step) {
     s32         value = OTU_TEXT_ROW(table, table->index)->value;
 
     if (value / 4 == 0) {
-        column = &OtuText_YLow;
-    } else if (value / 4 == 1) {
         column = &OtuText_YOverflow;
+    } else if (value / 4 == 1) {
+        column = &data_ov039_0209a38c;
+    }
+
+    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    table->flags = 0;
+}
+
+// Nonmatching: 99.89%, which is its ceiling -- one constant-pool `.word` symbol
+// name. Note the deliberate absence of a trailing space store: the target emits
+// only the NUL terminator after the last group, and writing the space as well
+// costs a register (93.0%).
+void func_ov039_02084738(TinPinSlammer_Scene* scene) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], data_ov039_0209a38c);
+    row[0x5] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x6], OtuText_YOverflow);
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098ef8[value]] = ' ';
+    }
+    row[0xB] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x98, row);
+}
+
+// Nonmatching: 99.71%, ceiling -- one pool symbol name. No trailing space
+// store, as above.
+void func_ov039_02084874(TinPinSlammer_Scene* scene) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], OtuText_YUnderflow);
+    row[0x5] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x6], OtuText_XWide);
+    row[0xB] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0xC], OtuText_YTiny);
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098fc4[value]] = ' ';
+    }
+    row[0x11] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0xA0, row);
+}
+
+// Nonmatching: 100% -- objdiff reports MATCH.
+void func_ov039_020849a4(TinPinSlammer_Scene* scene) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], data_ov039_0209a388);
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098e98[value]] = ' ';
+    }
+    row[0x5] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0xA8, row);
+}
+
+// Nonmatching: 99.71%, ceiling -- one pool symbol name.
+void func_ov039_02084ac4(TinPinSlammer_Scene* scene) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], OtuText_YFar);
+    row[0x5] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x6], OtuText_YMid);
+    row[0xB] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0xC], OtuText_YTight);
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098f64[value]] = ' ';
+    }
+    row[0x11] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x8, row);
+}
+
+// Nonmatching: 99.66%, ceiling -- pool symbol names.
+void func_ov039_02084c34(TinPinSlammer_Scene* scene) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], OtuText_XFar);
+    row[0x5] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x6], OtuText_XMid);
+    row[0xB] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0xC], OtuText_YSmall);
+    row[0x11] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x12], OtuText_XNear);
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098ff4[value]] = ' ';
+    }
+    row[0x17] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x10, row);
+}
+
+// Nonmatching: 100% -- objdiff reports MATCH. This one *does* write the
+// trailing space before the terminator, unlike func_ov039_02084738 two
+// functions above; the two shapes are not interchangeable.
+void func_ov039_02084d80(TinPinSlammer_Scene* scene) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], data_ov039_0209a398);
+    row[0x5] = ' ';
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02098e68[value]] = ' ';
+    }
+    row[0x5] = 0;
+    row[0x5] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x18, row);
+}
+
+/*
+ * The steppers. All four below share a shape and differ only in which
+ * coordinates they reach and how they select between them.
+ */
+
+// Nonmatching: 74.9%. The three tests, all three coordinate addresses, the call
+// and the flag clear are right and the size matches. Two gaps: the divide form
+// as everywhere in this family, and mwcc emitting the three == tests as a
+// flat chain of conditional loads where the target branches to a block for
+// == 0 and to a second for == 1. Reordering the arms to put the fall-through
+// case last gets closest but never reaches the target's shape.
+void func_ov039_020847ec(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        column;
+    s32         value = OTU_TEXT_ROW(table, table->index)->value;
+
+    // Ordered so the `== 0` test is the branch that jumps to a block of its own,
+    // the `== 1` test the one that jumps past it, and `== 2` the conditional
+    // load that falls through. That is the shape the target emits; a flat
+    // if/else-if chain of the same tests produces a different one.
+    if (value / 4 == 2) {
+        column = &OtuText_YTiny;
+    } else if (value / 4 == 1) {
+        column = &OtuText_XWide;
+    } else if (value / 4 == 0) {
+        column = &OtuText_YUnderflow;
+    }
+
+    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    table->flags = 0;
+}
+
+// Nonmatching: 84.3%. The bare ldreq with no lse arm is the load-bearing
+// detail: defaulting the column to a fixed address instead adds a movne the
+// target does not have (72.5%). What remains is the divide form and one
+// register-allocation difference.
+void func_ov039_02084944(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        column;
+
+    // No `else`: the target emits a bare `ldreq` and leaves the column
+    // uninitialised when the quotient is non-zero, so this must not default it
+    // to a fixed address either -- doing so costs a `movne` the target lacks.
+    if (OTU_TEXT_ROW(table, table->index)->value / 4 == 0) {
+        column = &data_ov039_0209a388;
+    }
+
+    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    table->flags = 0;
+}
+
+// Nonmatching: 74.9%, same shape and same two gaps as func_ov039_020847ec.
+void func_ov039_02084a3c(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        column;
+    s32         value = OTU_TEXT_ROW(table, table->index)->value;
+
+    if (value / 4 == 2) {
+        column = &OtuText_YTight;
+    } else if (value / 4 == 1) {
+        column = &OtuText_YMid;
+    } else if (value / 4 == 0) {
+        column = &OtuText_YFar;
+    }
+
+    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    table->flags = 0;
+}
+
+// Nonmatching: 90.0%. The four-way switch, its jump table, all four coordinates,
+// the call and the flag clear match and the size is exact; only the divide form
+// and a register choice differ.
+void func_ov039_02084b94(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        column;
+    s32         value = OTU_TEXT_ROW(table, table->index)->value;
+
+    switch (value / 4) {
+        case 0:
+            column = &OtuText_XFar;
+            break;
+        case 1:
+            column = &OtuText_XMid;
+            break;
+        case 2:
+            column = &OtuText_YSmall;
+            break;
+        case 3:
+            column = &OtuText_XNear;
+            break;
+    }
+
+    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    table->flags = 0;
+}
+
+// Nonmatching: 84.3%, same shape and same gaps as func_ov039_02084944.
+void func_ov039_02084d20(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        column;
+
+    if (OTU_TEXT_ROW(table, table->index)->value / 4 == 0) {
+        column = &data_ov039_0209a398;
     }
 
     func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);

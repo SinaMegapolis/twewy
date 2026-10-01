@@ -318,20 +318,40 @@ extern const OtuStageHandler OtuScene_PlainHandlers[3];
 extern const OtuStageHandler OtuScene_WirelessHandlers[3];
 
 /**
- * @brief Character offset of each countdown column in a result-screen row.
+ * @brief Character offset of each hideable column in a result-screen row.
  *
  * Indexed by the row's current value to find which character of the assembled
  * buffer a column owns, so a column can be blanked without disturbing the rest
- * of the row.  Word entries -- both users load with `ldr [base, index, lsl #2]`.
+ * of the row.  Word entries -- every user loads with
+ * `ldr [base, index, lsl #2]`.
  *
- * Two tables, one per row layout: `OtuTextFieldOffset` for the six-group
- * pin-count row (func_ov039_02083ed4, nine columns) and `OtuScoreFieldOffset`
- * for the six-slot three-digit rows (func_ov039_020842bc, eighteen columns).
+ * There is one table per row layout, seven in all, differing only in width. The
+ * `d.ddd` family is four, eight, twelve and sixteen entries wide for one
+ * through four groups; the pin-count row needs nine and the three-digit score
+ * rows eighteen.
+ *
+ * These are referenced by the build's own symbol names rather than by names
+ * invented here. Declaring an array and letting dsd place it does not work: the
+ * `.rodata` claim is largely gap-filled from the original overlay, so a
+ * declared array lands at an address of the linker choosing, not the one the
+ * target uses. The bytes were right anyway -- it was the pool word that was
+ * wrong. Naming them as the build does puts the pool word back, which is what
+ * takes the three-digit row from 99.95% to 100%.
+ *
+ * Values are recoverable with `tools/ov039_table.py <address>`.
  */
-extern const s32 OtuTextFieldOffset[9];
+extern const s32 data_ov039_02098f18[9];  /* pin-count row, six digit groups  */
+extern const s32 data_ov039_02098e68[4];  /* one d.ddd group                  */
+extern const s32 data_ov039_02098e88[4];  /* one d.ddd group, later instance  */
+extern const s32 data_ov039_02098e98[4];  /* one d.ddd group, later still     */
+extern const s32 data_ov039_02098ef8[8];  /* two d.ddd groups                 */
+extern const s32 data_ov039_02098f64[12]; /* three d.ddd groups               */
+extern const s32 data_ov039_02098fc4[12]; /* three d.ddd groups, later        */
+extern const s32 data_ov039_02098ff4[16]; /* four d.ddd groups                */
+extern const s32 data_ov039_02099074[16]; /* four d.ddd groups, later instance */
+extern const s32 data_ov039_020990b4[18]; /* six three-digit slots            */
 
-/** The eighteen-column equivalent of `OtuTextFieldOffset`, for the score rows. */
-extern const s32 OtuScoreFieldOffset[18];
+/** @} */
 
 void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 which);
 
@@ -364,11 +384,28 @@ typedef struct {
 extern s32       OtuText_Shadow;
 extern s32       OtuText_LineHeight;
 extern s32       OtuText_TabStop;
+extern s32       OtuText_XFar;
+extern s32       OtuText_XNear;
+extern s32       OtuText_XWide;
+extern s32       OtuText_XMid;
+extern s32       OtuText_YSmall;
+extern s32       OtuText_YFar;
+extern s32       OtuText_YTiny;
+extern s32       OtuText_YMid;
 extern s32       OtuText_XTight;
+extern s32       OtuText_YTight;
 extern s32       OtuText_YUnderflow;
-extern s32       OtuText_YLow;
 extern s32       OtuText_YOverflow;
 extern const s32 OtuText_RowLayout[37];
+
+/*
+ * Three anchor constants the row builders reach that sit in a `.data` range
+ * this TU does not source, so they keep the build's own names for the same
+ * reason as the offset tables above. Values: 0x3000, -0x4000, 0x6000.
+ */
+extern s32 data_ov039_0209a388;
+extern s32 data_ov039_0209a38c;
+extern s32 data_ov039_0209a398;
 
 /* Steps one countdown column by a single decimal place (see OtuText.c). */
 void func_ov039_02083af4(s32* value, s32 direction, u32 place);
@@ -389,6 +426,19 @@ void func_ov039_020844f8(TinPinSlammer_Scene* scene, s32 slot);
 void func_ov039_020845dc(TinPinSlammer_Scene* scene, s32 step);
 void func_ov039_0208462c(TinPinSlammer_Scene* scene);
 void func_ov039_020846c4(TinPinSlammer_Scene* scene, s32 step);
+
+/* The d.ddd rows and their steppers (OtuRows.c). */
+void func_ov039_02084738(TinPinSlammer_Scene* scene);
+void func_ov039_020847ec(TinPinSlammer_Scene* scene, s32 step);
+void func_ov039_02084874(TinPinSlammer_Scene* scene);
+void func_ov039_02084944(TinPinSlammer_Scene* scene, s32 step);
+void func_ov039_020849a4(TinPinSlammer_Scene* scene);
+void func_ov039_02084a3c(TinPinSlammer_Scene* scene, s32 step);
+void func_ov039_02084ac4(TinPinSlammer_Scene* scene);
+void func_ov039_02084b94(TinPinSlammer_Scene* scene, s32 step);
+void func_ov039_02084c34(TinPinSlammer_Scene* scene);
+void func_ov039_02084d20(TinPinSlammer_Scene* scene, s32 step);
+void func_ov039_02084d80(TinPinSlammer_Scene* scene);
 
 /** Character offset table for the single-value row drawn by 0208462c. */
 extern const s32 OtuTightFieldOffset[4];

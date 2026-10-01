@@ -285,7 +285,7 @@ void func_ov039_02083ed4(TinPinSlammer_Scene* scene) {
     func_ov039_02083974(&row[0xD], OTU_COUNTDOWN(scene)->unk_A8, 1);
 
     if (OTU_TEXT_ROW(table, table->index)->value >= 0 && (table->flags & 0x20)) {
-        row[OtuTextFieldOffset[OTU_TEXT_ROW(table, table->index)->value]] = ' ';
+        row[data_ov039_02098f18[OTU_TEXT_ROW(table, table->index)->value]] = ' ';
     }
     row[0xE] = 0;
 

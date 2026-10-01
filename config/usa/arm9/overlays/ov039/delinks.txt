@@ -25,4 +25,4 @@ src/Debug/Sugata/TinPinSlammer/OtuMenuText.c:
     .bss       start:0x0209ad00 end:0x0209ad08
 
 src/Debug/Sugata/TinPinSlammer/OtuScoreRow.c:
-    .text       start:0x020842bc end:0x02084738
+    .text       start:0x020842bc end:0x02084e1c

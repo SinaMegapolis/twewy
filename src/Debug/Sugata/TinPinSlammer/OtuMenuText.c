@@ -1,42 +1,6 @@
 #include "Debug/Sugata/TinPinSlammer.h"
 
 /**
- * @brief Character offset of each countdown column in the pin-count row.
- *
- * func_ov039_02083ed4 assembles six digit groups into one buffer and indexes
- * this by the row's current value to find which character that column owns, so
- * it can blank the column without disturbing the rest of the row.
- *
- * Nine word entries, not bytes: both users load with `ldr [base, index, lsl #2]`,
- * so a `u8` table would change the emitted instruction as well as the data.
- */
-const s32 OtuTextFieldOffset[9] = {0, 1, 3, 5, 6, 7, 9, 11, 13};
-
-/**
- * @brief The eighteen-column offset table for the three-digit score rows.
- *
- * Same role as `OtuTextFieldOffset`, but for func_ov039_020842bc's wider rows,
- * which have eighteen hideable columns rather than nine.
- */
-const s32 OtuScoreFieldOffset[18] = {0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21, 22};
-
-/**
- * @brief Character offset of each column in a `d.ddd` row.
- *
- * The third of the three row layouts: func_ov039_020844f8 assembles four
- * fixed-point groups of six bytes, giving sixteen hideable columns.
- */
-const s32 OtuFixedFieldOffset[16] = {0, 2, 3, 4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 22};
-
-/**
- * @brief Character offset table for the single-value row drawn by 0208462c.
- *
- * The narrowest of the four layouts: one `d.ddd` group, so four hideable
- * columns rather than 9, 16 or 18.
- */
-const s32 OtuTightFieldOffset[4] = {0, 2, 3, 4};
-
-/**
  * @brief The scene's process-stage dispatch tables.
  *
  * These live in `.rodata`, immediately before this TU's `.data` range.
@@ -190,7 +154,6 @@ s32 OtuText_YSmall     = 0x400;
 s32 OtuText_YFar       = 0x3000;
 s32 OtuText_YTight     = 0x133;
 s32 OtuText_YUnderflow = -0x2000;
-s32 OtuText_YLow       = -0x4000;
 s32 OtuText_YOverflow  = -0x2000;
 s32 OtuText_YTiny      = 0x800;
 s32 OtuText_YMid       = 0x9800;

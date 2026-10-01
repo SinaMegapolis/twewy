@@ -27,3 +27,5 @@ update*
 permwork/
 permtmp/
 ctx.c
+debug_source.c
+debug_compiled_object.o
