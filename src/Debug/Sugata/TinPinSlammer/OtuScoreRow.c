@@ -209,7 +209,81 @@ void func_ov039_020844f8(TinPinSlammer_Scene* scene, s32 slot) {
 void func_ov039_020845dc(TinPinSlammer_Scene* scene, s32 step) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
 
+    // The row pointer is cached in a local here, against this overlay's usual
+    // habit of re-deriving it. Found by decomp-permuter, and it is what tips
+    // mwcc onto the rotate-based divide the target uses for a call argument.
+    // No cached row pointer here, unlike the rest of the overlay: decomp-permuter
+    // found that caching one improves its own byte score (615 -> 425) but not
+    // objdiff's, and its remaining suggestion -- dividing the value as unsigned
+    // -- reaches 89.35% by replacing the target's three-instruction signed
+    // divide with a single `lsr #2`. Neither beats the plain form, so this
+    // stays as the straightforward version.
     func_ov039_02083af4(&OtuText_XTight, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Draw the single `d.ddd` value row.
+ *
+ * The narrowest row in the set: one fixed-point group at the shared tight x
+ * coordinate, positioned well down the screen at y=0x90. Same blanking rule as
+ * the others -- the stage names a column and sets the 0x20 flag, and that
+ * character is blanked.
+ */
+// Nonmatching: 99.74%, which is its ceiling here -- two constant-pool `.word`
+// symbol names and nothing else. Note there is deliberately no explicit space
+// store after the group: the target relies on func_ov039_02083a20's own
+// trailing space and writes only the NUL terminator, and adding a redundant
+// `row[5] = ' '` costs a register (91.6% -> 99.7%).
+void func_ov039_0208462c(TinPinSlammer_Scene* scene) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], OtuText_XTight);
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[OtuTightFieldOffset[value]] = ' ';
+    }
+    row[0x5] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x90, row);
+}
+
+/**
+ * @brief Step one of two shared y-coordinates by a decimal place.
+ *
+ * `value / 4` picks between them: zero steps the underflow coordinate, one the
+ * overflow coordinate, anything above leaves both alone. Both live in the same
+ * anchor block as `OtuText_XTight`, which is what func_ov039_020845dc steps
+ * unconditionally.
+ *
+ * The select is `== 0` / `== 1` rather than a switch, so there is no jump
+ * table -- unlike func_ov039_02084458's four-way one.
+ */
+// Nonmatching: 76.0%. The divide, both comparisons, the two coordinate
+// addresses, the call and the flag clear are all right, and the size matches.
+// Two gaps, both the same as the other steppers plus one new:
+//
+//   * the divide for the call argument, as everywhere else in this family;
+//   * mwcc if-converts the `== 1` test into a conditional load hoisted above
+//     the `beq`, where the target keeps the two branches separate and loads
+//     the default inside the `== 0` arm. Hoisting the quotient into a local, or
+//     reordering the tests, does not change it.
+void func_ov039_020846c4(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        column;
+    s32         value = OTU_TEXT_ROW(table, table->index)->value;
+
+    if (value / 4 == 0) {
+        column = &OtuText_YLow;
+    } else if (value / 4 == 1) {
+        column = &OtuText_YOverflow;
+    }
+
+    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);
 
     table->flags = 0;
 }

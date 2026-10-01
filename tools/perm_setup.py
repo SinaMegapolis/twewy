@@ -42,6 +42,7 @@ UNITS = {
     "OtuText": "src/Debug/Sugata/TinPinSlammer/OtuText",
     "OtuVBlank": "src/Debug/Sugata/TinPinSlammer/OtuVBlank",
     "OtuGxInit": "src/Debug/Sugata/TinPinSlammer/OtuGxInit",
+    "OtuScoreRow": "src/Debug/Sugata/TinPinSlammer/OtuScoreRow",
 }
 
 

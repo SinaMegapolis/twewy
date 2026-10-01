@@ -365,6 +365,9 @@ extern s32       OtuText_Shadow;
 extern s32       OtuText_LineHeight;
 extern s32       OtuText_TabStop;
 extern s32       OtuText_XTight;
+extern s32       OtuText_YUnderflow;
+extern s32       OtuText_YLow;
+extern s32       OtuText_YOverflow;
 extern const s32 OtuText_RowLayout[37];
 
 /* Steps one countdown column by a single decimal place (see OtuText.c). */
@@ -384,6 +387,11 @@ extern const s32 OtuFixedFieldOffset[16];
 void func_ov039_02084458(TinPinSlammer_Scene* scene, s32 slot, s32 step);
 void func_ov039_020844f8(TinPinSlammer_Scene* scene, s32 slot);
 void func_ov039_020845dc(TinPinSlammer_Scene* scene, s32 step);
+void func_ov039_0208462c(TinPinSlammer_Scene* scene);
+void func_ov039_020846c4(TinPinSlammer_Scene* scene, s32 step);
+
+/** Character offset table for the single-value row drawn by 0208462c. */
+extern const s32 OtuTightFieldOffset[4];
 
 /**
  * @brief A text block's four coordinate words.

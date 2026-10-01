@@ -32,12 +32,18 @@ def main():
         sys.exit(f"{func} not found in {asm_path}")
     lines = m.group(1).split("\n")
     lines[0] = lines[0].split(" ; ")[0]
-    # The disassembly annotates relocated branches with a trailing comment
-    # (`bl foo ; bar`), which arm-none-eabi-as parses as part of the operand.
-    body = "\n".join(
-        re.sub(r"\s*;.*$", "", ln) if re.match(r"^\s*[a-z]", ln) else ln
-        for ln in lines
-    )
+    # The disassembly annotates with trailing `;` comments in two places, and
+    # arm-none-eabi-as parses both as part of the operand rather than as
+    # comments: on instructions (`bl foo ; bar`) and on label lines
+    # (`.L_x: ; jump table`).
+    def strip(ln):
+        if re.match(r"^\s*(\.\w+:)\s*;", ln):
+            return re.match(r"^\s*\.\w+:", ln).group(0)
+        if re.match(r"^\s*[a-z]", ln):
+            return re.sub(r"\s*;.*$", "", ln)
+        return ln
+
+    body = "\n".join(strip(ln) for ln in lines)
 
     # Symbols this function defines: labels, and pool entries of the form
     # `.L_x: .word some_sym`.

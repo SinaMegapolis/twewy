@@ -379,15 +379,36 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 33 of 561 functions decompiled, 20 of them at 100%. `OtuMenuText` is
+Status: 35 of 561 functions decompiled, 21 of them at 100%. `OtuMenuText` is
 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of `.bss`); `OtuVBlank`
 is 100% across all five functions; `OtuSceneEntry` holds the two plain entry
 points, the teardown, its thunk and both stage dispatches at 100%. `OtuScoreRow`
-holds the three-digit score row and the `d.ddd` row at 100%, and the countdown
-stepper at 99.2%. Partial: `func_ov039_02083bb0` at 99.97%, `OtuGxInit` at
-95.9%, both per-frame updates at 90.9% and 95.4%, the clamp helper at 94.5%, the
-place stepper at 92.3%, the pin-count row at 83.7%, the countdown at 76.0%, the
-wireless teardown at 72.8%. The remaining 528 functions are stubs.
+holds three of the result screen's row builders at 100% (`020842bc`, `020844f8`,
+`0208462c`). Partial: `func_ov039_02083bb0` at 99.97%, `OtuGxInit` at 95.9%, both
+per-frame updates at 91.0% and 95.4%, the clamp helper at 94.5%, the place
+stepper at 92.3%, the pin-count row at 83.8%, the countdown at 76.0%, the
+wireless teardown at 72.8%. The remaining 526 functions are stubs.
+
+The four countdown steppers (`02084458`, `020845dc`, `020846c4` and the
+place-stepper they all call) share one unresolved gap, below. Two sit at ~89%
+and one at 76%; decomp-permuter was run over the first two and could not push
+either past 90%, so they are left as they are rather than contorted further.
+
+### Four row layouts
+
+The result screens turn out to have four separate offset tables, not one shared
+by all of them:
+
+| table | entries | used by | row shape |
+| --- | --- | --- | --- |
+| `OtuTextFieldOffset` | 9 | `02083ed4` | six digit groups, two characters each |
+| `OtuScoreFieldOffset` | 18 | `020842bc` | six three-digit slots |
+| `OtuFixedFieldOffset` | 16 | `020844f8` | four `d.ddd` groups |
+| `OtuTightFieldOffset` | 4 | `0208462c` | one `d.ddd` group |
+
+All four are word-indexed with `ldr [base, index, lsl #2]`. Declaring any of them
+as `u8` compiles to `ldrb` and costs a match percentage, which is how the first
+one was wrong for a while.
 
 ### Two divide idioms
 
@@ -403,8 +424,16 @@ rotate form for a value passed to a call and the shift form for a switch selecto
 — `func_ov039_02084458` emits both from the same register — while this build
 emits the shift form for either. Casting the operand on either side of the
 division, including to the callee's own parameter type, changes which one mwcc
-picks but never reaches the target's. Worth recording before spending time on
-it: this is a codegen-form gap, not a logic error.
+picks but never reaches the target's.
+
+decomp-permuter was run over `02084458` and `020845dc` for this. Neither its
+"wins" are real: on `02084458` the best candidate (580 → 530) replaced
+`table->flags = 0` with `table->flags = value; table->flags = table->flags * 0`,
+a dead store the byte-level scorer rewards and mwcc folds away; on `020845dc` the
+best candidate (615 → 425) cached the row pointer and divided unsigned, which
+reaches 89.35% only by replacing the target's three-instruction divide with a
+single `lsr #2`. Its byte score and objdiff's match percentage disagree often
+enough here that candidates have to be checked by hand before being applied.
 
 ### Verifying the ROM actually rebuilt
 

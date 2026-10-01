@@ -29,6 +29,14 @@ const s32 OtuScoreFieldOffset[18] = {0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16,
 const s32 OtuFixedFieldOffset[16] = {0, 2, 3, 4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 22};
 
 /**
+ * @brief Character offset table for the single-value row drawn by 0208462c.
+ *
+ * The narrowest of the four layouts: one `d.ddd` group, so four hideable
+ * columns rather than 9, 16 or 18.
+ */
+const s32 OtuTightFieldOffset[4] = {0, 2, 3, 4};
+
+/**
  * @brief The scene's process-stage dispatch tables.
  *
  * These live in `.rodata`, immediately before this TU's `.data` range.
@@ -182,6 +190,7 @@ s32 OtuText_YSmall     = 0x400;
 s32 OtuText_YFar       = 0x3000;
 s32 OtuText_YTight     = 0x133;
 s32 OtuText_YUnderflow = -0x2000;
+s32 OtuText_YLow       = -0x4000;
 s32 OtuText_YOverflow  = -0x2000;
 s32 OtuText_YTiny      = 0x800;
 s32 OtuText_YMid       = 0x9800;
