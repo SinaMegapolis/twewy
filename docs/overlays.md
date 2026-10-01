@@ -379,14 +379,12 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 14 of 561 functions decompiled. `OtuMenuText` is 100% matched (860 bytes
-of `.data`, 24 of `.rodata`, 8 of `.bss`). `OtuSceneEntry` holds the two plain
-entry points at 100% (`func_ov039_02082978`, `func_ov039_02082ae0`), the scene
-teardown and its thunk at 100% (`func_ov039_02083164`, `func_ov039_020831cc`),
-and four partials: both per-frame updates at 90.9% and 95.4%
-(`func_ov039_02082e98`, `func_ov039_02082ff8`), the wireless teardown at 72.8%
-(`func_ov039_020831d8`), and the process-stage dispatch (`func_ov039_02083240`).
-The remaining 547 functions are stubs.
+Status: 22 of 561 functions decompiled, 15 of them at 100%. `OtuMenuText` is
+100% matched (860 bytes of `.data`, 24 of `.rodata`, 8 of `.bss`); `OtuVBlank`
+is 100% across all five functions; `OtuSceneEntry` holds the two plain entry
+points, the teardown, its thunk and both stage dispatches at 100%; `OtuGxInit`
+is at 95.9%. Partial: both per-frame updates at 90.9% and 95.4%, the wireless
+teardown at 72.8%. The remaining 539 functions are stubs.
 
 ### Data ownership
 
@@ -481,6 +479,27 @@ in source:
 variant. Their element type is an untyped `void (*)()`: the dispatcher passes the
 scene in r0 but the two entry-point slots ignore it, and mwcc rejects a
 function-pointer initialiser for a differently-typed function.
+
+### Display setup
+
+`OtuGxInit.c` holds `func_ov039_020832c0` (95.9%), the 1168-byte straight-line
+GX/display bring-up; `OtuVBlank.c` holds both per-variant VBlank handlers and
+the three setup wrappers, all at 100%. Between them these close out the
+0x02082e98-0x02083974 block.
+
+**Check `Display.h` before hand-writing display setup.** It already provides
+`Display_InitMainBG0..3` and `Display_InitSubBG0..3`, each of which writes a BG
+layer's six settings fields and then pokes that layer's BG control register with
+a `regMask` argument — exactly the field-then-poke pattern the target uses.
+Writing the eight layers out by hand scored 77.5% on `func_ov039_020832c0`;
+switching to the helpers took it to 95.9%. `Display_GetBGnSettings`,
+`Display_SetMainLayers` and `Display_SetSubLayers` cover the rest. The helpers
+are not discoverable from the overlay's own function names, so the instinct to
+write fields directly is easy to follow and expensive.
+
+Two naming traps in that function: the sub-engine BG control registers are
+`REG_BGxCNT_SUB` (not `_S`), and the third OAM engine is `DISPLAY_EXTENDED`
+(not `DISPLAY_SUBOBJ`), initialised through `OamMgr_InitEngine`.
 
 Useful notes for continuing:
 
