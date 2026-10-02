@@ -28,6 +28,12 @@
  *   OtuBand4.inc  0x02096000 - 0x02097000
  *   OtuBand5.inc  0x02097000 - 0x02098000
  *   OtuBand6.inc  0x02092484 - 0x020926f0  (Tsk_OtosuGame_obstacle)
+ *   OtuBand8.inc  0x02098394               (the simulation tasks' child spawner)
+ *
+ * The numbering is not the address order: band 7 is reserved for
+ * Tsk_OtosuGame_hammer at 0x020904a8-0x02090e9c, which is scoped but not yet
+ * written, and band 8 went in first because the hammer task's CreateTask calls
+ * into it and so cannot link until it exists.
  *
  * Band 6 is the one band that is a whole task rather than a slice of a call
  * graph: it carries its own state struct, TaskHandle reference and stage

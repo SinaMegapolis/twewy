@@ -1660,5 +1660,6 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // only has to come before band 1, which is the one include with a hard ordering
 // requirement.
 #include "OtuBand6.inc"
+#include "OtuBand8.inc"
 #include "OtuBand1.inc"
 // clang-format on
