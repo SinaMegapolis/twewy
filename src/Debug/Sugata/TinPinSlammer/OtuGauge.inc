@@ -97,10 +97,10 @@ extern SpriteAnimation data_ov039_02099c38;
 
 extern const BinIdentifier data_ov039_0209a0fc;
 
-/** @brief One cell's single-digit position: two signed halfwords. */
+/** @brief One cell's single-digit position: two halfwords. */
 typedef struct {
-    /* 0x00 */ s16 x;
-    /* 0x02 */ s16 y;
+    /* 0x00 */ u16 x;
+    /* 0x02 */ u16 y;
 } OtuGaugePos; // Size: 0x4
 
 /**
@@ -111,10 +111,10 @@ typedef struct {
  * addresses entry `index` and then offsets by `which * 4` to pick a half of it.
  */
 typedef struct {
-    /* 0x00 */ s16 lowX;  // units digit
-    /* 0x02 */ s16 lowY;
-    /* 0x04 */ s16 highX; // tens digit, five pixels left of lowX
-    /* 0x06 */ s16 highY;
+    /* 0x00 */ u16 lowX;  // units digit
+    /* 0x02 */ u16 lowY;
+    /* 0x04 */ u16 highX; // tens digit, five pixels left of lowX
+    /* 0x06 */ u16 highY;
 } OtuGaugeDigits; // Size: 0x8
 
 /*
@@ -383,8 +383,8 @@ void func_ov039_02094418(OtuGauge* self, Sprite* sprite, s32 index, s32 which) {
 
     anim.owner     = self;
     anim.dataType  = (u16)self->dataType;
-    anim.posX      = ((s16*)&data_ov039_0209a790[index])[which * 2];
-    anim.posY      = ((s16*)&data_ov039_0209a790[index])[which * 2 + 1];
+    anim.posX      = ((u16*)&data_ov039_0209a790[index])[which * 2];
+    anim.posY      = ((u16*)&data_ov039_0209a790[index])[which * 2 + 1];
     anim.animIndex = index + 1;
 
     _Sprite_Load(sprite, &anim);
