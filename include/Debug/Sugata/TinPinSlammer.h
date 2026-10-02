@@ -637,15 +637,32 @@ typedef struct {
  * is the same sentinel func_ov039_020824a0 fills the tray with; func_ov039_0208efb0
  * rejects those. Only fields the queries or their filters read are named.
  */
+/**
+ * @brief One pin, 0x174 bytes -- the trimmed view of the same object band 12
+ *        models in full as OtuBadger.
+ *
+ *  The offsets in the comments are load-bearing. This type used to carry no
+ *  padding at all, so C laid its fields out at 0x0, 0x4, 0x8 ... and every
+ *  access compiled to a displacement four times too small: `task->kind` became
+ *  `ldr r0, [r0, #4]` instead of `ldr r1, [r0, #0xf8]`. Nothing noticed for as
+ *  long as the type was only ever used as an opaque pointer -- the seven
+ *  accessors at 0x0208e6cc..0x0208e87c that read through it were all sitting at
+ *  60%, and four of this band's seven predicates at 57.8%.
+ */
 typedef struct {
+    u8               pad_000[0xE4];
     /* 0x0E4 */ s32  unk_E4;
+    u8               pad_0E8[0x10];
     /* 0x0F8 */ s32  kind; // 6, 7 or 8 -- which sort of pin this is
+    u8               pad_0FC[0x24];
     /* 0x120 */ s32  x;
     /* 0x124 */ s32  y;
+    u8               pad_128[0x20];
     /* 0x148 */ s32  alive; // non-zero while the pin is still in play
+    u8               pad_14C[0x20];
     /* 0x16C */ u16* pinID; // a tray slot's value; 0x130 means "no pin"
     u8               pad_170[0x04];
-} OtuPinTask;               // Size: 0x174
+} OtuPinTask;               // Size: 0x174               // Size: 0x174
 
 /**
  * The child task ids the stage keeps at +0x17C, one word per pool slot.
