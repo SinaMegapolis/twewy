@@ -176,3 +176,228 @@ u16 func_ov039_020901e0(OtuCursor6* c) {
 
     return c->table[c->index].value;
 }
+/* ============================================================================
+ * Tsk_OtosuGame_hammer -- the task itself, 0x020904a8 - 0x02090e1c.
+ *
+ * Identity read from the ROM rather than inferred: the handle at 0x0209942c
+ * carries the name string at 0x0209a594, which is "Tsk_OtosuGame_hammer", a
+ * taskFunc of 0x02090dd4 (func_ov039_02090dd4, below) and a dataSize of 0x138.
+ * The stage table at 0x02099448 holds, in order, initialize 0x020904a8, update
+ * 0x0209054c, render 0x02090cec, cleanup 0x02090d90. That is the same four-word
+ * layout as every other task in the overlay, and it is why func_ov039_02090dd4
+ * can be a plain dispatcher.
+ *
+ * Two Sprites are embedded rather than pointed at -- Sprite_Update,
+ * Sprite_RenderFrame and Sprite_Release are all handed `self + 4` and
+ * `self + 0x44` directly -- so the state block begins four bytes into the task's
+ * data. Positions are 12-bit fixed point measured against `baseX`/`baseY`, the
+ * same convention as band 6's obstacle, which makes this the third task in the
+ * overlay to use it.
+ * ==========================================================================*/
+
+extern const TaskStages data_ov039_02099448;
+extern const TaskHandle data_ov039_0209942c;
+
+/** Band 8's child spawner. Declared here because band 7 comes first in the
+ *  include order, and left undeclared it would be picked up as implicit `int`. */
+s32 func_ov039_02098394(TaskPool* pool, s32 arg1, s32 arg2);
+
+/** The hammer's per-task state. Two sprites, then the numbers Update drives. */
+typedef struct {
+    /* 0x000 */ s32 unk_00; // four bytes ahead of the first sprite
+    /* 0x004 */ Sprite spriteA;
+    /* 0x044 */ Sprite spriteB;
+    /* 0x084 */ s32 spriteAngleA; // both angles are the live angle plus 0x4000
+    /* 0x088 */ s32 spriteScaleA; // unity at spawn
+    /* 0x08C */ s32 spriteScaleB; // unity at spawn
+    /* 0x090 */ s16 unk_90;
+    /* 0x092 */ s16 unk_92;
+    /* 0x094 */ s32 spriteAngleB;
+    /* 0x098 */ s32 spinScaleA;
+    /* 0x09C */ s32 spinScaleB;
+    /* 0x0A0 */ s16 unk_A0;
+    /* 0x0A2 */ s16 unk_A2;
+    /* 0x0A4 */ s32 baseX; // the fixed-point targets below are relative to this
+    /* 0x0A8 */ s32 baseY;
+    /* 0x0AC */ s32 targetX;   // <<12, sprite A
+    /* 0x0B0 */ s32 targetY;
+    /* 0x0B4 */ s32 targetXB;  // <<12, sprite B
+    /* 0x0B8 */ s32 targetYB;
+    /* 0x0BC */ s32 originX;
+    /* 0x0C0 */ s32 originY;
+    /* 0x0C4 */ s32 zOffset; // added into sprite B's Y target only
+    /* 0x0C8 */ s32 parentHandle;
+    /* 0x0CC */ s32 live;      // outer gate: parent resolved and still valid
+    /* 0x0D0 */ s32 showA;
+    /* 0x0D4 */ s32 showB;
+    /* 0x0D8 */ s32 scale;
+    /* 0x0DC */ s32 angle0;
+    /* 0x0E0 */ s32 angle;
+    /* 0x0E4 */ s32 halfLen;
+    /* 0x0E8 */ s32 state;
+    /* 0x0EC */ s32 framesLeft;
+    /* 0x0F0 */ s32 rate0;
+    /* 0x0F4 */ s32 scale0;
+    /* 0x0F8 */ s32 totalFrames;
+    /* 0x0FC */ s32 angleBase;
+    /* 0x100 */ OtuCursor6 cursorScale;
+    /* 0x10C */ OtuCursor6 cursorSpin;
+    /* 0x118 */ OtuCursor6 cursorTrail;
+    /* 0x124 */ s32 reportTimer;
+    /* 0x128 */ s32 children[4];
+} OtuHammer; // Size: 0x138
+
+/** The two words the task is created with, and which Init reads back.
+ *
+ *  This is EasyTask_CreateTask's sixth argument and nothing more: the target's
+ *  `str r5, [sp, #8] / str r4, [sp, #0xc]` is this pair being built, and the
+ *  `stm sp, {r2, ip}` beside it is the fifth and sixth *stack* arguments being
+ *  written -- NULL and `&params`. There is no outer struct; what looked like one
+ *  in the m2c draft is just those two stack slots.
+ */
+typedef struct {
+    /* 0x00 */ s32 arg1; // the kind, read by the two sprite loaders
+    /* 0x04 */ s32 arg2; // the parent handle, stored at +0xC8
+} OtuHammer_Params; // Size: 0x8
+
+
+/**
+ * The task's initializer: zeroes the state, remembers the parent, and loads the
+ * two sprites.
+ *
+ * `arg0` is stored at +0x00, four bytes ahead of sprite A, and nothing in this
+ * band reads it -- it is the spawn-time argument the renderer never needs.
+ *
+ * The two sprite loaders are not decompiled and are not referenced anywhere else
+ * in the overlay, so they are left as externs: dsd resolves them against the
+ * original overlay rather than failing the link, which is how the rest of this
+ * band's still-absent callees work too.
+ */
+extern void func_ov039_02090390(OtuHammer* self, Sprite* sprite, OtuHammer_Params* params);
+extern void func_ov039_0209041c(OtuHammer* self, Sprite* sprite, OtuHammer_Params* params);
+
+s32 func_ov039_020904a8(s32 arg0, Task* task, OtuHammer_Params* params) {
+    OtuHammer* self = (OtuHammer*)task->data;
+
+    self->unk_00 = arg0;
+
+    self->live = 0;
+    self->parentHandle = params->arg2;
+
+    self->baseX = 0;
+    self->baseY = 0;
+    self->targetX = 0;
+    self->targetY = 0;
+    self->targetXB = 0;
+    self->targetYB = 0;
+    self->originX = 0;
+    self->originY = 0;
+
+    self->rate0 = 0;
+    self->scale0 = 0;
+    self->totalFrames = 0;
+    self->angleBase = 0;
+
+    self->spriteAngleA = 0;
+    self->spriteScaleA = 0x1000;
+    self->spriteScaleB = 0x1000;
+    self->unk_90 = 0;
+    self->unk_92 = 0;
+    self->spriteAngleB = 0;
+    self->spinScaleA = 0x1000;
+    self->spinScaleB = 0x1000;
+    self->unk_A0 = 0;
+    self->unk_A2 = 0;
+
+    self->state = 0;
+    func_ov039_02090390(self, &self->spriteA, params);
+    func_ov039_0209041c(self, &self->spriteB, params);
+    return 1;
+}
+
+/**
+ * Draws the hammer's two sprites, if it is still live.
+ *
+ * Positions are recomputed from the fixed-point targets here rather than in
+ * Update, because both targets can be rewritten between frames -- sprite B's Y
+ * by `zOffset`, sprite A's by nothing -- and a sprite left standing at a stale
+ * position for even one frame reads visibly. This is the third task in the
+ * overlay to do it this way.
+ */
+s32 func_ov039_02090cec(TaskPool* pool, Task* task, void* args) {
+    OtuHammer* self = (OtuHammer*)task->data;
+
+    if (self->live != 0) {
+        if (self->showA != 0) {
+            self->spriteA.posX = (s16)((self->targetX - self->baseX) >> 12);
+            self->spriteA.posY = (s16)(((self->targetY + self->zOffset) - self->baseY) >> 12);
+            Sprite_RenderFrame(&self->spriteA);
+        }
+        if (self->showB != 0) {
+            self->spriteB.posX = (s16)((self->targetXB - self->baseX) >> 12);
+            self->spriteB.posY = (s16)(((self->targetYB + self->zOffset) - self->baseY) >> 12);
+            Sprite_RenderFrame(&self->spriteB);
+        }
+    }
+    return 1;
+}
+
+/**
+ * Releases both sprites and deletes the four children.
+ *
+ * Sprite B goes first, which is the reverse of the order they were created in.
+ * The children are deleted in a plain counted loop over `children[4]`; the task
+ * does not wait on them, it hands them to EasyTask_DeleteTask and moves on.
+ */
+s32 func_ov039_02090d90(TaskPool* pool, Task* task, void* args) {
+    OtuHammer* self = (OtuHammer*)task->data;
+    s32 i;
+
+    Sprite_Release(&self->spriteB);
+    Sprite_Release(&self->spriteA);
+
+    for (i = 0; i < 4; i++) {
+        EasyTask_DeleteTask(pool, self->children[i]);
+    }
+    return 1;
+}
+
+/**
+ * The stage dispatcher, and the handle's own taskFunc.
+ *
+ * The four callbacks are copied from the stage table in the overlay's own data
+ * onto the stack and then indexed by `stage`, so this is a plain indirect call
+ * through a four-word copy rather than a switch.
+ */
+s32 func_ov039_02090dd4(TaskPool* pool, Task* task, void* args, s32 stage) {
+    TaskStages stages = data_ov039_02099448;
+
+    return stages.iter[stage](pool, task, args);
+}
+
+
+/**
+ * Creates the hammer task and four children under it.
+ *
+ * Returns the parent's handle. The four child handles go into the fresh
+ * parent's own data rather than being returned, so this returns one task and
+ * leaves four behind it.
+ */
+u32 func_ov039_02090e1c(TaskPool* pool, s32 arg1, s32 arg2) {
+    OtuHammer_Params params;
+    u32 handle;
+    OtuHammer* self;
+    s32 i;
+
+    params.arg1 = arg1;
+    params.arg2 = arg2;
+
+    handle = EasyTask_CreateTask(pool, &data_ov039_0209942c, NULL, 0, NULL, &params);
+
+    self = (OtuHammer*)EasyTask_GetTaskData(pool, handle);
+
+    for (i = 0; i < 4; i++) {
+        self->children[i] = func_ov039_02098394(pool, arg1, arg2);
+    }
+    return handle;
+}
