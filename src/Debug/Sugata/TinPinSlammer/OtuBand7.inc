@@ -684,3 +684,73 @@ u32 func_ov039_02090e1c(TaskPool* pool, s32 arg1, s32 arg2) {
     }
     return handle;
 }
+
+
+/* ============================================================================
+ * The transform helper at 0x02090e9c.
+ *
+ * Nothing in this band calls it -- it is reached from somewhere outside the
+ * hammer's own stage table -- but it takes the hammer's state struct, so it
+ * belongs here. Read from the target:
+ *
+ *   - it refuses to do anything unless `state` is 4, the one state in which the
+ *     hammer is drawn as a stretched bar rather than a sprite pair;
+ *   - it writes *two* points, each {x, y, 0x10000}, and returns 2. The 0x10000 is
+ *     Q16.16 one, so this is a pair of 2D vertices with a pinned w -- an oriented
+ *     segment, not three corners as the earlier note guessed;
+ *   - each point is the pin's origin, pushed out along `angle` by `scale` in
+ *     Q12.12, then displaced by 16 in the perpendicular direction -- one point
+ *     each way, so the pair is the bar's two ends.
+ * ==========================================================================*/
+
+/** One vertex of the bar: two fixed-point coordinates and a pinned w. */
+typedef struct {
+    /* 0x00 */ s32 x;
+    /* 0x04 */ s32 y;
+    /* 0x08 */ s32 w; // 0x10000, Q16.16 one
+} OtuBarVertex; // Size: 0xC
+
+/** The bar: its two ends. */
+typedef struct {
+    /* 0x00 */ OtuBarVertex v[2];
+} OtuBar; // Size: 0x18
+
+/**
+ * Nonmatching, 65.9%.
+ *
+ * The structure and the arithmetic are right -- the target's `umull` plus the two
+ * `mla`s for the -16 products come out of `(s64)v * -16 + 0x800` unchanged, and
+ * every store lands on the right offset. What is left is register allocation and
+ * scheduling: the `stmib` that merges the y and w stores, and roughly forty
+ * instructions that differ only in which callee-saved register they landed in.
+ *
+ * A shared local for the 0x10000 was tried and is byte-identical, so the merge is
+ * the scheduler's choice rather than anything the source asks for.
+ */
+s32 func_ov039_02090e9c(OtuHammer* self, OtuBar* out) {
+    s16 cosT;
+    s16 sinT;
+    s32 index;
+
+    if (self->state != 4) {
+        return 0;
+    }
+
+    index = OTU_ANGLE_INDEX(self->angle);
+    cosT = *(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2);
+    sinT = *(s16*)((u8*)&data_0205e4e0 + index * 2);
+
+    out->v[0].x = self->originX + ((s32)(((s64)self->scale * cosT + 0x800) >> 12)) -
+                   ((s32)(((s64)sinT * 16 + 0x800) >> 12));
+    out->v[0].y = self->originY + ((s32)(((s64)self->scale * sinT + 0x800) >> 12)) +
+                   ((s32)(((s64)cosT * 16 + 0x800) >> 12));
+    out->v[0].w = 0x10000;
+
+    out->v[1].x = self->originX + ((s32)(((s64)self->scale * cosT + 0x800) >> 12)) -
+                   ((s32)(((s64)sinT * -16 + 0x800) >> 12));
+    out->v[1].y = self->originY + ((s32)(((s64)self->scale * sinT + 0x800) >> 12)) +
+                   ((s32)(((s64)cosT * -16 + 0x800) >> 12));
+    out->v[1].w = 0x10000;
+
+    return 2;
+}
