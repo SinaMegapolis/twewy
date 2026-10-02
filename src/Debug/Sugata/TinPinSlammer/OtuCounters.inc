@@ -849,7 +849,7 @@ void func_ov039_02093ee4(OtuCountdownData* data, Sprite* sprite, s32 index) {
 // digit loop -- is instruction-for-instruction identical.
 s32 func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg) {
     OtuCounterData* data    = (OtuCounterData*)self->data;
-    u16*            visible = (u16*)((u8*)data + 0x100 + 0x94);
+    u16*            visible = (u16*)((u8*)data + 0x100);
     s32             i;
 
     if (data->resolved != 0) {
@@ -862,7 +862,7 @@ s32 func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg) {
         Sprite_RenderFrame(&data->spriteB);
 
         for (i = 0; i < 4; i++) {
-            if (*visible & (1 << i)) {
+            if (visible[0x4A] & (1 << i)) {
                 Sprite_Update(&data->digits[i]);
                 Sprite_RenderFrame(&data->digits[i]);
             }
