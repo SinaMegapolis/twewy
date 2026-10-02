@@ -136,20 +136,34 @@ void func_ov039_02096548(TaskPool* pool, s32 arg1, s32 arg2) {
     EasyTask_CreateTask(pool, &data_ov039_02099dd4, NULL, 0, NULL, sp8);
 }
 
-/** Creates the task whose handle is data_ov039_02099e1c. */
-void func_ov039_02096b18(TaskPool* pool, s32 arg1) {
+/** Creates the task whose handle is data_ov039_02099e1c.
+ *
+ * Typed as returning the handle rather than void: a caller elsewhere in this
+ * overlay stores the result into a child-handle field. It costs nothing
+ * here -- the body has no `mov r0` of its own in either spelling, so the
+ * handle already comes back in r0 and both compile to the same
+ * instructions. Same finding as func_ov039_02098394 in band 8.
+ */
+s32 func_ov039_02096b18(TaskPool* pool, s32 arg1) {
     s32 sp8;
 
     sp8 = arg1;
-    EasyTask_CreateTask(pool, &data_ov039_02099e1c, NULL, 0, NULL, &sp8);
+    return EasyTask_CreateTask(pool, &data_ov039_02099e1c, NULL, 0, NULL, &sp8);
 }
 
-/** Creates the task whose handle is data_ov039_02099ebc. */
-void func_ov039_02096e4c(TaskPool* pool, s32 arg1) {
+/** Creates the task whose handle is data_ov039_02099ebc.
+ *
+ * Typed as returning the handle rather than void: a caller elsewhere in this
+ * overlay stores the result into a child-handle field. It costs nothing
+ * here -- the body has no `mov r0` of its own in either spelling, so the
+ * handle already comes back in r0 and both compile to the same
+ * instructions. Same finding as func_ov039_02098394 in band 8.
+ */
+s32 func_ov039_02096e4c(TaskPool* pool, s32 arg1) {
     s32 sp8;
 
     sp8 = arg1;
-    EasyTask_CreateTask(pool, &data_ov039_02099ebc, NULL, 0, NULL, &sp8);
+    return EasyTask_CreateTask(pool, &data_ov039_02099ebc, NULL, 0, NULL, &sp8);
 }
 
 /* ==================================================================== */

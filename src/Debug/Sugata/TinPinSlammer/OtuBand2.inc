@@ -284,15 +284,21 @@ s32 func_ov039_02093460(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * `EasyTask_CreateTask` as its `param`; the init stage 02092f88 reads them back
  * out of there. Priority is 0 and the parent is NULL, so the caller supplies
  * the pool and nothing else.
+ *
+ * Typed as returning the handle rather than void: a caller elsewhere in this
+ * overlay stores the result into a child-handle field. It costs nothing
+ * here -- the body has no `mov r0` of its own in either spelling, so the
+ * handle already comes back in r0 and both compile to the same
+ * instructions. Same finding as func_ov039_02098394 in band 8.
  */
-void func_ov039_020934a8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3) {
+s32 func_ov039_020934a8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3) {
     s32 args[3];
 
     args[0] = arg1;
     args[1] = arg2;
     args[2] = arg3;
 
-    EasyTask_CreateTask(pool, &data_ov039_020999b4, NULL, 0, NULL, args);
+    return EasyTask_CreateTask(pool, &data_ov039_020999b4, NULL, 0, NULL, args);
 }
 
 /**
