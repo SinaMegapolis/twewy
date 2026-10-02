@@ -103,9 +103,7 @@ extern s32 func_ov040_0209cb5c(void);
 /* Elsewhere in the overlay: the point-copy helper 02096404 calls that the
  * shared header does not declare (func_ov039_0208e6e0 is already there), and
  * the text-cell pair the two switch bodies below use. */
-void func_ov039_0208e85c(void* task, OtuPoint* out);
 void func_ov039_02087ba0(void* out, void* table, s32 count, void* cell);
-void func_ov039_02087bf8(void* cursor, void* cell);
 
 /* ==================================================================== */
 /* Task-create wrappers.                                               */

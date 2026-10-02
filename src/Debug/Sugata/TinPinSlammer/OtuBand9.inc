@@ -307,13 +307,11 @@ void func_ov040_0209cb98(void* packet, s32 which);
 s32 func_02047e84(u16 bits);
 
 /* --- Defined in OtuVecOps.c, which a band include cannot see -------------- */
-void func_ov039_02098bd4(s32 angle, OtuPoint* a, OtuPoint* out);
 
 /* --- Defined in OtuBand1.inc, which is included *after* this file --------- */
 
 /** out = a scaled vector offset, and the overlay's shared "apply a sprite
  *  action" helper (declared unprototyped there). */
-void func_ov039_02087d04(s32 mode, void* dst, void* src);
 s32  func_ov039_0208f00c(void* task); // the tray slot holds a real pin
 void func_ov039_0208f024(void* task); // retract one child's sprites
 s32  func_ov039_0208f0b0(void* task); // the tray slot is empty (0x130)

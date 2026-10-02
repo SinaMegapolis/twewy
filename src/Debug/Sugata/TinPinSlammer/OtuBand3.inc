@@ -48,12 +48,9 @@
 /* The +0x110/+0x114, +0x118/+0x11C and +0x120/+0x124 pair copy-outs. */
 void func_ov039_0208e85c(void* task, OtuPoint* out);
 void func_ov039_0208e87c(void* task, OtuPoint* out);
-void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out);
 
 /* The overlay's vector unit's four helpers, 0x02098b8c - 0x02098d10. */
 void func_ov039_02098b8c(OtuPoint* a, OtuPoint* b, OtuPoint* out);
-void func_ov039_02098bb0(OtuPoint* a, OtuPoint* b, OtuPoint* out);
-void func_ov039_02098c00(s32 angle, OtuPoint* a, OtuPoint* b, OtuPoint* out);
 s32  func_ov039_02098d10(OtuPoint* v);
 
 /* The pin task's own three queries, 0x0208eed0 - 0x0208ef38. */

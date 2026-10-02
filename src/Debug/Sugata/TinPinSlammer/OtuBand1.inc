@@ -63,7 +63,6 @@ extern const s32 data_ov039_0209a54c[9];
  * definition. */
 void func_ov039_02096270(void* task);
 void func_ov039_02095ddc(void* task);
-void func_ov039_0208e85c(void* task, OtuPoint* out);
 s32  func_ov039_0208e6f4(void* task);
 s32  func_ov039_0208ee98(void* task);
 
@@ -72,9 +71,6 @@ s32  func_ov039_0208e8c4(void* task);
 s32  func_ov039_0208e950(void* task);
 s32  func_ov039_0208a490(void* task, s32 arg2);
 
-void func_ov039_02087ba0(void* out, void* table, s32 count, void* cell);
-void func_ov039_02087bf8(void* out, void* in);
-void func_ov039_02087d04(s32 mode, void* dst, void* src);
 
 /* ==================================================================== */
 /* The band-level helpers: 0208f00c - 0208f104.                        */

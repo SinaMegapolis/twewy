@@ -169,7 +169,6 @@ extern s32 data_ov039_0209a328;
  * header -- the header does not carry it, and without a declaration mwcc infers
  * `int (...)` from the call below and then rejects the definition.
  */
-void func_ov039_0208e85c(void* task, OtuPoint* out);
 
 /**
  * @brief The overlay's Q12.12 point blend, 0x02098c00.
@@ -177,7 +176,6 @@ void func_ov039_0208e85c(void* task, OtuPoint* out);
  * `out = base + (offset * scale) >> 12`, componentwise. Declared without a
  * prototype so that this file cannot disagree with whoever defines it.
  */
-void func_ov039_02098c00();
 
 /** @brief The base game's 32-bit signed divide. Also unprototyped. */
 s32 _s32_div_f();

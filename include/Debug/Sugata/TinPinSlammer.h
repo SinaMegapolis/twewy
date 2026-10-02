@@ -282,8 +282,6 @@ void func_ov039_02088454(void);
 void func_ov039_020885cc(void);
 
 /* The two board-stage tick routines the per-frame updates call. */
-void func_ov039_02082774(TinPinSlammer_Scene* scene);
-void func_ov039_020827d0(TinPinSlammer_Scene* scene);
 
 /* Redraws one of the result screen's three menus. */
 void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 menu);
@@ -367,8 +365,6 @@ extern const s32 data_ov039_02098f3c[10]; /* two five-digit groups  (02084f08)  
 extern const s32 data_ov039_02098f94[12]; /* six mixed groups       (02085e54)   */
 
 /** @} */
-
-void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 which);
 
 /**
  * @brief A six-byte scratch buffer the result rows are formatted into.
@@ -601,8 +597,6 @@ typedef struct {
  */
 void func_ov039_02086060(TinPinSlammer_Scene* scene, s32 slot);
 void func_ov039_02086174(TinPinSlammer_Scene* scene);
-void func_ov039_02086728(TinPinSlammer_Scene* scene);
-void func_ov039_020867d4(TinPinSlammer_Scene* scene);
 void func_ov039_02086808(TinPinSlammer_Scene* scene);
 void func_ov039_02087acc(TinPinSlammer_Scene* scene);
 void func_ov039_02087b74(TinPinSlammer_Scene* scene);
@@ -932,8 +926,6 @@ extern const char* const OtuScene_SequenceNames[3];
 void func_ov039_02082978(void);
 
 /* Display/VBlank init entry points in this overlay (not yet decompiled). */
-void func_ov039_02083928(void);
-void func_ov039_02083944(void);
 void func_0200d8f0(void);
 
 /* Two zeroed u16s the scene entry points clear. */

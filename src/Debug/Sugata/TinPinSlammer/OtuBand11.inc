@@ -279,7 +279,6 @@ typedef struct {
  */
 
 /** The shared vector unit's normalise helper. */
-void func_ov039_02098d3c(OtuPoint* src, OtuPoint* dest);
 
 /*
  * func_ov039_02098b78 is really a point copy (`out = *(OtuPoint*)src`) but

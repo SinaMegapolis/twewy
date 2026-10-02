@@ -274,7 +274,6 @@ typedef struct {
    earlier code above. Without this each such call becomes an implicit
    `int (...)` and the definition below is then a redeclaration of it. */
 /* ------------------------------------------------------------------ */
-extern s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* arg4, void* arg5, void* arg6, void* arg7, s32 arg8, void* arg9);
 /* Callees outside this batch. These must sit above every use: with no
    prototype a call becomes an implicit `int (...)`, and a prototype
    below the call is then a redeclaration of it. Declaring them at the
@@ -288,7 +287,6 @@ extern const TaskHandle data_ov039_0209926c;
 extern const BinIdentifier data_ov039_0209a0b4[5];
 extern const OtuPinScale data_ov039_0209a3e4[];
 extern const OtuPinScale data_ov039_0209a3e8[];
-extern s32 data_ov039_0209a324;
 extern void func_ov039_0208c9cc(OtuBadger* self);
 extern void func_ov039_0208ca1c(OtuBadger* self);
 extern void func_ov039_0208cb64(OtuBadger* self);

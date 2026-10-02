@@ -218,7 +218,6 @@ extern u8 data_ov039_02099268[4];
  */
 
 /** `data_ov039_0209af20 + index * 6`; nothing else. */
-void* func_ov039_02088440(s32 index);
 
 /** Number of children in a child list (`dispatch->stageBlock` + 0x144). */
 s32 func_ov039_020883ac(TinPinSlammer_Scene* scene);
@@ -242,7 +241,6 @@ void func_ov039_02088f18(TinPinSlammer_Scene* scene);
 void func_ov039_020894cc(TinPinSlammer_Scene* scene);
 
 /** Creates the second child task; returns its handle. */
-s32 func_ov039_020989f0(TaskPool* pool, s32 arg);
 
 /* OtuVecOps.c's three helpers, declared here because nothing inside this
  * translation unit already declares them and an implicit `int (...)` would lose
@@ -251,7 +249,6 @@ s32 func_ov039_020989f0(TaskPool* pool, s32 arg);
  * 3 declares it `s32` and OtuVecOps.c defines it `void`, and this band needs the
  * value, so band 3's declaration is the one that has to win in the include
  * order. That inconsistency is pre-existing. */
-void func_ov039_02098bd4(s32 angle, OtuPoint* a, OtuPoint* out);
 s32  func_ov039_02098c40(OtuPoint* a, OtuPoint* b);
 void func_ov039_02098d3c(OtuPoint* src, OtuPoint* dest);
 
