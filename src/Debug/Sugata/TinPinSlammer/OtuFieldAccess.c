@@ -1651,6 +1651,28 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
  * and silently reintroduces exactly the implicit `int (...)` declarations the note
  * above warns about. It has already done so once.
  */
+// ============================================================================
+// The include order below is load-bearing.
+//
+// OtuFieldAccess.c is one translation unit built from the fifteen .inc files
+// listed here, and each of them calls functions that files further down define.
+// Under -lang=c99 a call with no declaration ahead of it becomes an implicit
+// `int (...)`; the explicit declaration then turns up later and the compiler
+// reports it as a redeclaration, with the real error surfacing dozens of lines
+// away inside an unrelated function.
+//
+// Nothing in C enforces that, so the order is only a convention -- and getting
+// it wrong does not fail where the mistake is. It surfaced as 138 compile
+// errors from one drafted batch and 67 from another.
+//
+//     python tools/check_band_order.py
+//
+// walks the translation unit in this order and fails if any symbol is used
+// before it is declared. It currently reports none.
+//
+// When adding a file, put it where its dependencies allow, and run the check.
+// ============================================================================
+
 // clang-format off
 #include "OtuCounters.inc"
 #include "OtuEntryTasks.inc"
