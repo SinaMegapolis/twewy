@@ -537,7 +537,7 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
 
                             half = self->halfLen;
                             len3 = (s32)(((s64)func_ov039_0209003c(&self->cursorScale) * half + 0x800) >> 12);
-                            self->lenValue = (s16)len3;
+                            self->lenValue = len3;
                             self->scale = len3 * 0x10;
                             index = OTU_ANGLE_INDEX(self->angle);
                             headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
@@ -550,10 +550,10 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                         if (steppedB != 0) {
                             s32 len4;
 
-                            len4 = self->scale + func_ov039_0209011c(&self->cursorSpin);
                             index = OTU_ANGLE_INDEX(self->angle);
-                            headX = (s32)(((s64)len4 * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
+                            len4 = self->scale + func_ov039_0209011c(&self->cursorSpin);
                             self->spinValue = func_ov039_020900f4(&self->cursorSpin);
+                            headX = (s32)(((s64)len4 * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
                             headY = (s32)(((s64)len4 * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
                             self->targetX = self->originX + headX;
                             self->targetY = self->originY + headY;
