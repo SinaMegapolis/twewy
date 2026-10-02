@@ -347,7 +347,7 @@ s32 func_ov039_02088400(s32 x, s32 y, s32 axis) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -371,8 +371,8 @@ OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0xCC);
@@ -402,7 +402,7 @@ OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -426,8 +426,8 @@ OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x40);
@@ -457,7 +457,7 @@ OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -481,8 +481,8 @@ OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -512,7 +512,7 @@ OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -536,8 +536,8 @@ OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x40);
@@ -567,7 +567,7 @@ OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -591,8 +591,8 @@ OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x84);
@@ -622,7 +622,7 @@ OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -646,8 +646,8 @@ OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x94);
@@ -677,7 +677,7 @@ OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -701,8 +701,8 @@ OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x44);
@@ -732,7 +732,7 @@ OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -756,8 +756,8 @@ OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x40);
@@ -787,7 +787,7 @@ OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -811,8 +811,8 @@ OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -842,7 +842,7 @@ OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -866,8 +866,8 @@ OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x40);
@@ -897,7 +897,7 @@ OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -921,8 +921,8 @@ OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x40);
@@ -952,7 +952,7 @@ OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -976,8 +976,8 @@ OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -1007,7 +1007,7 @@ OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1031,8 +1031,8 @@ OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -1062,7 +1062,7 @@ OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1086,8 +1086,8 @@ OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -1117,7 +1117,7 @@ OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1141,8 +1141,8 @@ OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -1172,7 +1172,7 @@ OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1196,8 +1196,8 @@ OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0xD0);
@@ -1227,7 +1227,7 @@ OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1251,8 +1251,8 @@ OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -1282,7 +1282,7 @@ OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1306,8 +1306,8 @@ OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x40);
@@ -1337,7 +1337,7 @@ OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1361,8 +1361,8 @@ OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -1392,7 +1392,7 @@ OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1416,8 +1416,8 @@ OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x1);
@@ -1447,7 +1447,7 @@ OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1471,8 +1471,8 @@ OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x40);
@@ -1502,7 +1502,7 @@ OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* t, s32 arg, s32 mode) {
  * only r2. Kept as a named parameter so the selector stays in the third
  * argument slot, which is where the target reads it. */
 OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)data_0206b408;
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
 
     (void)arg;
 
@@ -1526,8 +1526,8 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
             if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
                 (index = *(s16*)((u8*)t + 0x16)) >= 0)
             {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
 
             slot->unk_0C   = (void*)((u8*)t + 0x40);

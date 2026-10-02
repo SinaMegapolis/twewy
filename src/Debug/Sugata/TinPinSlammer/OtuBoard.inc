@@ -367,13 +367,18 @@ void func_ov039_02088698(void* packet, TinPinSlammer_Scene* scene) {
         return;
     }
 
-    // Counted down rather than up: the target's loop is `mov lr, #0xC` then
-    // `subs lr, lr, #1 / bne`, with no compare against the bound at the top.
-    i = 0xC;
-    do {
-        i--;
-        stage->rxRecord[i] = *(OtuWireRecord*)((u8*)packet + i * 0x10);
-    } while (i != 0);
+    // Walks both pointers forward with a down-counter: the target's loop is a
+    // post-increment `ldmia`/`stmia` pair and `subs lr, lr, #1 / bne`, with no
+    // compare against the bound at the top.
+    {
+        OtuWireRecord* src = (OtuWireRecord*)packet;
+        OtuWireRecord* dst = stage->rxRecord;
+
+        i = 0xC;
+        do {
+            *dst++ = *src++;
+        } while (--i);
+    }
 
     stage->gotPacket = 1;
     func_ov040_0209cb98(packet, 1);
