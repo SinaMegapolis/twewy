@@ -581,7 +581,7 @@ typedef struct {
     /* 0x12 */ s16 unk_12;
     /* 0x14 */ u16 unk_14;
     /* 0x16 */ u16 unk_16;
-    /* 0x18 */ s16 unk_18;
+    /* 0x18 */ u16 unk_18;
     u8             pad_1A[0x02];
 } OtuDigitColumn; // Size: 0x1C
 

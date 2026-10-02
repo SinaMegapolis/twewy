@@ -779,7 +779,7 @@ void func_ov039_020939b0(OtuCounterData* data, Sprite* sprite) {
 // order.
 void func_ov039_02093a30(OtuCounterData* data, Sprite* sprite, s32 index) {
     SpriteAnimation anim = data_ov039_02099b24;
-    u16             lut[4];
+    s16             lut[4];
 
     lut[0] = data_ov039_02099aa8[0];
     lut[1] = data_ov039_02099aa8[1];
@@ -788,7 +788,7 @@ void func_ov039_02093a30(OtuCounterData* data, Sprite* sprite, s32 index) {
 
     anim.owner     = data;
     anim.dataType  = data->unk_000;
-    anim.animIndex = (s16)lut[index];
+    anim.animIndex = lut[index];
 
     if (index < 3) {
         anim.posX = anim.posX + (2 - index) * 6;
