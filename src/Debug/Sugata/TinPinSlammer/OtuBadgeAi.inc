@@ -313,16 +313,18 @@ s32 func_ov039_0208c92c(OtuBadgeState* self) {
  */
 void func_ov039_0208c9cc(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
-    s32 (*fn)(OtuBadgeState*) = (s32 (*)(OtuBadgeState*))data_ov039_0209a4b0;
+    s32 (**fn)(OtuBadgeState*);
     s32 i;
 
     if (self->unk_148 > 0) {
         return;
     }
 
-    if (self->board != NULL) {
+    if (self->unk_128 != 0) {
         return;
     }
+
+    fn = (s32 (**)(OtuBadgeState*))data_ov039_0209a4b0;
 
     for (i = 1; i < 0x11; i++) {
         if (fn[i](self) != 0) {
@@ -412,7 +414,7 @@ void func_ov039_0208cb64(OtuBadge* arg) {
         return;
     }
 
-    if (self->board != NULL) {
+    if (self->home != NULL) {
         if ((self->contactFlags & 0x82) == 0) {
             return;
         }
