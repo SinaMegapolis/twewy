@@ -59,23 +59,12 @@
 /* ------------------------------------------------------------------ */
 
 /** Reads the +0x110/+0x114 pair out to a point. */
-// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
-// load x, load y, store x, store y. mwcc will not produce that from any of the
-// three forms tried here:
-//
-//   reading straight into out->x / out->y   60%  right, but it stores the first
-//                                                 word between the two loads;
-//   two scalar locals                       68%  mwcc merges the stores into
-//                                                 `stmia r1, {r0, r2}` and
-//                                                 reverses the load order;
-//   one named OtuPoint local                68%  same stmia.
-//
-// The plain form is kept because it is the only one that is genuinely two
-// separate stores, so the gap is mwcc's scheduling rather than a misread of
-// the source. Nothing about the overlay is in doubt here.
+// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
+// interleave the first store between the two loads, and a named local makes
+// it merge them into `stmia`; the struct assignment is the target's four
+// instructions (ldr, ldr, str, str) exactly.
 void func_ov039_0208e85c(void* task, OtuPoint* out) {
-    out->x = *(s32*)((u8*)task + 0x110);
-    out->y = *(s32*)((u8*)task + 0x114);
+    *out = *(OtuPoint*)((u8*)task + 0x110);
 }
 
 /** Writes the +0x110/+0x114 pair from a point. */
@@ -84,23 +73,12 @@ void func_ov039_0208e848(void* task, OtuPoint* in) {
 }
 
 /** Reads the +0x118/+0x11C pair out to a point. */
-// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
-// load x, load y, store x, store y. mwcc will not produce that from any of the
-// three forms tried here:
-//
-//   reading straight into out->x / out->y   60%  right, but it stores the first
-//                                                 word between the two loads;
-//   two scalar locals                       68%  mwcc merges the stores into
-//                                                 `stmia r1, {r0, r2}` and
-//                                                 reverses the load order;
-//   one named OtuPoint local                68%  same stmia.
-//
-// The plain form is kept because it is the only one that is genuinely two
-// separate stores, so the gap is mwcc's scheduling rather than a misread of
-// the source. Nothing about the overlay is in doubt here.
+// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
+// interleave the first store between the two loads, and a named local makes
+// it merge them into `stmia`; the struct assignment is the target's four
+// instructions (ldr, ldr, str, str) exactly.
 void func_ov039_0208e87c(void* task, OtuPoint* out) {
-    out->x = *(s32*)((u8*)task + 0x118);
-    out->y = *(s32*)((u8*)task + 0x11C);
+    *out = *(OtuPoint*)((u8*)task + 0x118);
 }
 
 /** Writes the +0x118/+0x11C pair from two values. */
@@ -110,43 +88,21 @@ void func_ov039_0208e870(void* task, s32 x, s32 y) {
 }
 
 /** The +0x120/+0x124 pair, copied out. Used by the nearest-child queries. */
-// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
-// load x, load y, store x, store y. mwcc will not produce that from any of the
-// three forms tried here:
-//
-//   reading straight into out->x / out->y   60%  right, but it stores the first
-//                                                 word between the two loads;
-//   two scalar locals                       68%  mwcc merges the stores into
-//                                                 `stmia r1, {r0, r2}` and
-//                                                 reverses the load order;
-//   one named OtuPoint local                68%  same stmia.
-//
-// The plain form is kept because it is the only one that is genuinely two
-// separate stores, so the gap is mwcc's scheduling rather than a misread of
-// the source. Nothing about the overlay is in doubt here.
+// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
+// interleave the first store between the two loads, and a named local makes
+// it merge them into `stmia`; the struct assignment is the target's four
+// instructions (ldr, ldr, str, str) exactly.
 void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out) {
-    out->x = *(s32*)((u8*)task + 0x120);
-    out->y = *(s32*)((u8*)task + 0x124);
+    *out = *(OtuPoint*)((u8*)task + 0x120);
 }
 
 /** The +0x138/+0x13C pair, copied out -- the fourth such pair on this object. */
-// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
-// load x, load y, store x, store y. mwcc will not produce that from any of the
-// three forms tried here:
-//
-//   reading straight into out->x / out->y   60%  right, but it stores the first
-//                                                 word between the two loads;
-//   two scalar locals                       68%  mwcc merges the stores into
-//                                                 `stmia r1, {r0, r2}` and
-//                                                 reverses the load order;
-//   one named OtuPoint local                68%  same stmia.
-//
-// The plain form is kept because it is the only one that is genuinely two
-// separate stores, so the gap is mwcc's scheduling rather than a misread of
-// the source. Nothing about the overlay is in doubt here.
+// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
+// interleave the first store between the two loads, and a named local makes
+// it merge them into `stmia`; the struct assignment is the target's four
+// instructions (ldr, ldr, str, str) exactly.
 void func_ov039_0208e6cc(void* task, OtuPoint* out) {
-    out->x = *(s32*)((u8*)task + 0x138);
-    out->y = *(s32*)((u8*)task + 0x13C);
+    *out = *(OtuPoint*)((u8*)task + 0x138);
 }
 
 /** A single word at +0x128. */
@@ -214,44 +170,23 @@ s16 func_ov039_0208eec4(void* task) {
 /* A second, smaller object: 0x40 - 0x54.                              */
 /* ------------------------------------------------------------------ */
 
-/** Reads the +0x40/+0x44 pair out to a point. */
-// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
-// load x, load y, store x, store y. mwcc will not produce that from any of the
-// three forms tried here:
-//
-//   reading straight into out->x / out->y   60%  right, but it stores the first
-//                                                 word between the two loads;
-//   two scalar locals                       68%  mwcc merges the stores into
-//                                                 `stmia r1, {r0, r2}` and
-//                                                 reverses the load order;
-//   one named OtuPoint local                68%  same stmia.
-//
-// The plain form is kept because it is the only one that is genuinely two
-// separate stores, so the gap is mwcc's scheduling rather than a misread of
-// the source. Nothing about the overlay is in doubt here.
-void func_ov039_02092730(void* task, OtuPoint* out) {
-    out->x = *(s32*)((u8*)task + 0x40);
-    out->y = *(s32*)((u8*)task + 0x44);
+/** Writes the +0x40/+0x44 pair from a point -- the target loads from the point
+ *  and stores into the task, so this is a setter despite its twin below. */
+// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
+// interleave the first store between the two loads, and a named local makes
+// it merge them into `stmia`; the struct assignment is the target's four
+// instructions (ldr, ldr, str, str) exactly.
+void func_ov039_02092730(void* task, OtuPoint* in) {
+    *(OtuPoint*)((u8*)task + 0x40) = *in;
 }
 
 /** Reads the +0x48/+0x4C pair out to a point. */
-// Nonmatching: 60% (54% for 02092730, which has a narrower column). The target emits four instructions --
-// load x, load y, store x, store y. mwcc will not produce that from any of the
-// three forms tried here:
-//
-//   reading straight into out->x / out->y   60%  right, but it stores the first
-//                                                 word between the two loads;
-//   two scalar locals                       68%  mwcc merges the stores into
-//                                                 `stmia r1, {r0, r2}` and
-//                                                 reverses the load order;
-//   one named OtuPoint local                68%  same stmia.
-//
-// The plain form is kept because it is the only one that is genuinely two
-// separate stores, so the gap is mwcc's scheduling rather than a misread of
-// the source. Nothing about the overlay is in doubt here.
+// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
+// interleave the first store between the two loads, and a named local makes
+// it merge them into `stmia`; the struct assignment is the target's four
+// instructions (ldr, ldr, str, str) exactly.
 void func_ov039_02092744(void* task, OtuPoint* out) {
-    out->x = *(s32*)((u8*)task + 0x48);
-    out->y = *(s32*)((u8*)task + 0x4C);
+    *out = *(OtuPoint*)((u8*)task + 0x48);
 }
 
 /** A single word at +0x50. */
