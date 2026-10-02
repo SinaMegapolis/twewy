@@ -1066,11 +1066,11 @@ void func_ov039_0208be30(OtuBadgeState* self, OtuPoint* dir) {
 
     // A zero vector has no direction to normalise, and normalising it would
     // hand back whatever the divide unit happens to leave in the register.
-    if (step.x == 0 && step.y == 0) {
+    if (step.x != 0 || step.y != 0) {
+        func_ov039_02098d3c(&step, &step);
+    } else {
         step.x = 0x1000;
         step.y = 0;
-    } else {
-        func_ov039_02098d3c(&step, &step);
     }
 
     func_ov039_0208a6f8((OtuPinLogic*)self, &step, 0x1000);

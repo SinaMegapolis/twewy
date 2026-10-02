@@ -936,11 +936,11 @@ void func_ov039_0208e058(OtuPoint* posA, OtuPoint* velA, OtuPoint* posB, OtuPoin
 
     func_ov039_02098bb0(posA, posB, out);
 
-    if (out->x == 0 && out->y == 0) {
+    if (out->x != 0 || out->y != 0) {
+        func_ov039_02098d3c(out, out);
+    } else {
         out->x = 0x1000;
         out->y = 0;
-    } else {
-        func_ov039_02098d3c(out, out);
     }
 
     dot = func_ov039_02098c40(&dir, out);
@@ -1169,11 +1169,11 @@ s32 func_ov039_0208e504(void* a, void* obstacle) {
 
     func_ov039_02098bb0(OTU_PIN_POS(self), &other, &dir);
 
-    if (dir.x == 0 && dir.y == 0) {
+    if (dir.x != 0 || dir.y != 0) {
+        func_ov039_02098d3c(&dir, &dir);
+    } else {
         dir.x = 0x1000;
         dir.y = 0;
-    } else {
-        func_ov039_02098d3c(&dir, &dir);
     }
 
     // Note the argument order: `other` is the base here, not `dir`, so this
@@ -1182,11 +1182,11 @@ s32 func_ov039_0208e504(void* a, void* obstacle) {
 
     func_ov039_02098bb0(&other, OTU_PIN_POS(self), &dir);
 
-    if (dir.x == 0 && dir.y == 0) {
+    if (dir.x != 0 || dir.y != 0) {
+        func_ov039_02098d3c(&dir, &dir);
+    } else {
         dir.x = 0x1000;
         dir.y = 0;
-    } else {
-        func_ov039_02098d3c(&dir, &dir);
     }
 
     len = func_ov039_02098c40(OTU_PIN_VEL(self), &dir);
