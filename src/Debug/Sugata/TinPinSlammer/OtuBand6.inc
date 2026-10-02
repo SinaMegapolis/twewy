@@ -80,6 +80,13 @@ extern const s16 data_ov039_0209992a[3]; // -> params.packIndex
  *  rows currently hold the same {4, 5, 6}, so kind does not yet change colour. */
 extern const s16 data_ov039_02099958[3][3]; // -> params.unk_20
 
+/** The per-kind 16.16 scale factors, {0x20000, 0x18000, 0x10000}. Init copies
+ *  these to the stack and indexes the copy. */
+typedef struct {
+    s32 v[3];
+} OtuObstacle_Scales;
+extern const OtuObstacle_Scales data_ov039_0209993c;
+
 /**
  * Fill a SpriteAnimation for this obstacle from the shared template.
  *
@@ -95,19 +102,24 @@ void func_ov039_02092484(OtuObstacle* self, Sprite* sprite, OtuObstacle_Args* ar
      * from the caller's value, which needs a shift of 2 to line up. The target
      * spells it `lsl #0x1c` then `orr ..., lsr #0x1a`, a net shift of 2 -- and
      * because it truncates the caller to 16 bits first, only the caller's low
-     * four bits can reach bits 2-5. */
+     * four bits can reach bits 2-5.
+     *
+     * Written as one expression on purpose. The target reads the word out of the
+     * stack frame as the first instruction after the template copy and stores it
+     * back twenty-odd instructions later; splitting the read into a named local
+     * to try to schedule it there produced byte-identical code, and 720
+     * permutations of the statement order could not reproduce it either. mwcc
+     * hoists the `args->params` and `args->oamAttrs` loads above the stack read
+     * regardless of how the source is written. */
     *(u16*)&params = (u16)(*(u16*)&params & ~0x3C) | (u16)((u16)args->oamAttrs << 2);
-
-    params.posX = (s16)((self->targetX - self->originX) >> 12);
-    params.posY = (s16)((self->targetY - self->originY) >> 12);
-
     params.owner = self;
     params.packIndex = data_ov039_0209992a[kind];
-    params.unk_1C = data_ov039_0209991e[kind];
     params.unk_20 = data_ov039_02099958[kind][args->slot];
     params.unk_26 = data_ov039_02099918[kind];
+    params.unk_1C = data_ov039_0209991e[kind];
     params.unk_28 = data_ov039_02099924[kind];
-
+    params.posX = (s16)((self->targetX - self->originX) >> 12);
+    params.posY = (s16)((self->targetY - self->originY) >> 12);
     _Sprite_Load(sprite, &params);
 }
 
@@ -115,15 +127,21 @@ void func_ov039_02092484(OtuObstacle* self, Sprite* sprite, OtuObstacle_Args* ar
 s32 func_ov039_0209258c(TaskPool* pool, Task* task, void* args) {
     OtuObstacle* self = (OtuObstacle*)task->data;
     OtuObstacle_Args* a = (OtuObstacle_Args*)args;
-    /* 16.16 scale per kind. Copied to the stack and indexed rather than read in
-     * place, which is how the target reaches it. */
-    s32 scales[3] = {0x20000, 0x18000, 0x10000};
+    /* The 16.16 scale per kind, copied from the overlay's data rather than spelled
+     * out here: the target's literal pool names data_ov039_0209993c for this load,
+     * where a brace-initialised local would name a compiler-generated template
+     * instead. Same ldm/stm copy either way, different literal.
+     *
+     * A struct wrapper, not an array: `s32 x[3] = someArray;` is an illegal
+     * initialisation, but copying one struct from another is exactly the
+     * 12-byte ldm/stm the target performs. */
+    OtuObstacle_Scales scales = data_ov039_0209993c;
 
     self->originX = 0;
     self->originY = 0;
     self->targetX = (s32)a->params->targetX << 12;
     self->targetY = (s32)a->params->targetY << 12;
-    self->scale = scales[a->params->kind];
+    self->scale = scales.v[a->params->kind];
     self->animPending = 0;
 
     func_ov039_02092484(self, &self->sprite, a);
