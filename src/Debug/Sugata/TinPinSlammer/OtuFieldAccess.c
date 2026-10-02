@@ -1673,4 +1673,8 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // band 1 is the one include with a hard ordering requirement.
 #include "OtuBand9.inc"
 #include "OtuBand1.inc"
+// Batch B2: the wireless-board stage block, 0x02089950-0x0208acc0.
+// Placed AFTER band 1: it calls band-defined functions with no local
+// forward declarations, so it must follow every band whose functions it uses.
+#include "OtuBand10.inc"
 // clang-format on
