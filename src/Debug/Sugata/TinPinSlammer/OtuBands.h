@@ -28,12 +28,25 @@
  *   OtuBand4.inc  0x02096000 - 0x02097000
  *   OtuBand5.inc  0x02097000 - 0x02098000
  *   OtuBand6.inc  0x02092484 - 0x020926f0  (Tsk_OtosuGame_obstacle)
+ *   OtuBand7.inc  0x0209003c - 0x02090e9c  (the cursor family, then
+ *                                             Tsk_OtosuGame_hammer)
  *   OtuBand8.inc  0x02098394               (the simulation tasks' child spawner)
  *
- * The numbering is not the address order: band 7 is reserved for
- * Tsk_OtosuGame_hammer at 0x020904a8-0x02090e9c, which is scoped but not yet
- * written, and band 8 went in first because the hammer task's CreateTask calls
- * into it and so cannot link until it exists.
+ * The numbering is not the address order: band 8 went in before band 7 because
+ * the hammer task's CreateTask calls into it, and band 7 in turn opens with the
+ * cursor family at 0x0209003c because its Init and Update call all eight of
+ * those. Nothing else in band 7 links until they exist.
+ *
+ * Band 7 is the second band that is a whole task rather than a slice of a call
+ * graph. Like band 6 it carries its own state struct, TaskHandle reference and
+ * stage dispatcher, and for the same reason it sits before band 1 in the include
+ * order and nowhere else.
+ *
+ * Undefined callees are not a blocker. Band 7 still calls 0x02090390,
+ * 0x0209041c, 0x0208e998 and 0x0208e9ac, none of which are in the build, and it
+ * links anyway: dsd resolves an undefined symbol against the original overlay
+ * instead of failing. An earlier note here claimed the band could not link
+ * without its four "missing" callees; that was wrong about the mechanism.
  *
  * Band 6 is the one band that is a whole task rather than a slice of a call
  * graph: it carries its own state struct, TaskHandle reference and stage
