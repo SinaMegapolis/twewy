@@ -1669,5 +1669,8 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // requirement.
 // band 1 is the one include with a hard ordering requirement.
 #include "OtuBand13.inc"
+// Band 9: a drafted batch, contiguous run, included here only because
+// band 1 is the one include with a hard ordering requirement.
+#include "OtuBand9.inc"
 #include "OtuBand1.inc"
 // clang-format on

@@ -238,26 +238,27 @@ void func_ov039_020867d4(TinPinSlammer_Scene* scene);
 
 /* The stage routines named by OtuScene_WirelessBoard, OtuScene_MenuStage and
  * OtuScene_ResultStage.  These live in the board/pin-logic and result-screen
- * blocks, which are not decompiled yet. */
-void func_ov039_02089780(void);
-void func_ov039_020897d0(void);
-void func_ov039_020897dc(void);
-void func_ov039_020898a8(void);
-void func_ov039_02089918(void);
-void func_ov039_02089ec0(void);
-void func_ov039_02089f30(void);
-void func_ov039_02089950(void);
-void func_ov039_02089a80(void);
-void func_ov039_02089d3c(void);
-void func_ov039_02089d6c(void);
-void func_ov039_02089e0c(void);
-void func_ov039_02089e78(void);
-void func_ov039_02089f68(void);
-void func_ov039_0208a098(void);
-void func_ov039_0208a324(void);
-void func_ov039_0208a354(void);
-void func_ov039_0208a3f4(void);
-void func_ov039_0208a454(void);
+ * blocks. Those that take a scene pointer are drafted now and declared with
+ * it; the rest are still absent and keep the (void) placeholder. */
+void func_ov039_02089780(TinPinSlammer_Scene* scene);
+void func_ov039_020897d0(TinPinSlammer_Scene* scene);
+void func_ov039_020897dc(TinPinSlammer_Scene* scene);
+void func_ov039_020898a8(TinPinSlammer_Scene* scene);
+void func_ov039_02089918(TinPinSlammer_Scene* scene);
+void func_ov039_02089ec0(TinPinSlammer_Scene* scene);
+void func_ov039_02089f30(TinPinSlammer_Scene* scene);
+void func_ov039_02089950(TinPinSlammer_Scene* scene);
+void func_ov039_02089a80(TinPinSlammer_Scene* scene);
+void func_ov039_02089d3c(TinPinSlammer_Scene* scene);
+void func_ov039_02089d6c(TinPinSlammer_Scene* scene);
+void func_ov039_02089e0c(TinPinSlammer_Scene* scene);
+void func_ov039_02089e78(TinPinSlammer_Scene* scene);
+void func_ov039_02089f68(TinPinSlammer_Scene* scene);
+void func_ov039_0208a098(TinPinSlammer_Scene* scene);
+void func_ov039_0208a324(TinPinSlammer_Scene* scene);
+void func_ov039_0208a354(TinPinSlammer_Scene* scene);
+void func_ov039_0208a3f4(TinPinSlammer_Scene* scene);
+void func_ov039_0208a454(TinPinSlammer_Scene* scene);
 
 /* Shared engine entry points the overlay's scene setup drives. */
 void func_02025b68(void* resource, TinPinSlammer_ResArgs* args);
