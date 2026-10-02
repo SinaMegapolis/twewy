@@ -573,9 +573,9 @@ typedef struct {
 typedef struct {
     u8             pad_00[0x06];
     s16            unk_06;
-    s16            unk_08;
+    u16            unk_08;
     u16            unk_0A;
-    s16            unk_0C;
+    u16            unk_0C;
     u16            unk_0E;
     /* 0x10 */ s16 unk_10;
     /* 0x12 */ s16 unk_12;
