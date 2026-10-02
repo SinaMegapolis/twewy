@@ -167,9 +167,9 @@ void func_ov039_02083bb0(TinPinSlammer_Scene* scene) {
 
     if (OTU_TEXT_ROW(table, table->index)->row != OTU_TEXT_ROW(table, table->index)->drawnRow) {
         if (OTU_TEXT_ROW(table, table->index)->drawnRow >= 0) {
-            Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->drawnRow * 8 + 8, OtuGlyph_ScrollFill);
+            Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->drawnRow * 8 + 8, data_ov039_0209a16c);
         }
-        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, OtuGlyph_ScrollHead);
+        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, data_ov039_0209a170);
         OTU_TEXT_ROW(table, table->index)->drawnRow = OTU_TEXT_ROW(table, table->index)->row;
     }
 
@@ -180,9 +180,9 @@ void func_ov039_02083bb0(TinPinSlammer_Scene* scene) {
     }
 
     if (OTU_TEXT_ROW(table, table->index)->value >= 0) {
-        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, OtuGlyph_ScrollHead);
+        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, data_ov039_0209a174);
     } else {
-        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, OtuGlyph_ScrollDot);
+        Text_RenderToScreen(OTU_TEXT(scene), 0, OTU_TEXT_ROW(table, table->index)->row * 8 + 8, data_ov039_0209a170);
     }
     OTU_TEXT_ROW(table, table->index)->drawnValue = OTU_TEXT_ROW(table, table->index)->value;
 }

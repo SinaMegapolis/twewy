@@ -492,9 +492,9 @@ extern OtuTextBlock OtuScene_ResultMenu;
  * Drawn by func_ov039_02083bb0: a dot repeated along the track, one for the
  * head, and a fill for whatever range the value covers.
  */
-extern const char OtuGlyph_ScrollFill[];
-extern const char OtuGlyph_ScrollDot[];
-extern const char OtuGlyph_ScrollHead[];
+extern const char data_ov039_0209a16c[];
+extern const char data_ov039_0209a170[];
+extern const char data_ov039_0209a174[];
 
 /**
  * @brief One row's state in the stage block's scroll table.

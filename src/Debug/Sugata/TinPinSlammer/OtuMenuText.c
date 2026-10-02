@@ -209,14 +209,14 @@ OtuSceneSlotState OtuScene_SlotState;
 /* Otu_str_0209a14c: 12 bytes at data_ov039_0209a14c */
 const char Otu_str_0209a14c[12] = {83, 101, 113, 95, 79, 116, 111, 115, 117, 40, 41, 0};
 
-/* OtuGlyph_ScrollFill: 4 bytes at data_ov039_0209a16c */
-const char OtuGlyph_ScrollFill[4] = {32, 0, 0, 0};
+/* data_ov039_0209a16c: 4 bytes at data_ov039_0209a16c */
+const char data_ov039_0209a16c[4] = {32, 0, 0, 0};
 
-/* OtuGlyph_ScrollDot: 4 bytes at data_ov039_0209a170 */
-const char OtuGlyph_ScrollDot[4] = {42, 0, 0, 0};
+/* data_ov039_0209a170: 4 bytes at data_ov039_0209a170 */
+const char data_ov039_0209a170[4] = {42, 0, 0, 0};
 
-/* OtuGlyph_ScrollHead: 4 bytes at data_ov039_0209a174 */
-const char OtuGlyph_ScrollHead[4] = {62, 0, 0, 0};
+/* data_ov039_0209a174: 4 bytes at data_ov039_0209a174 */
+const char data_ov039_0209a174[4] = {62, 0, 0, 0};
 
 /* Otu_str_0209a178: 16 bytes at data_ov039_0209a178 */
 const char Otu_str_0209a178[16] = {83, 73, 78, 71, 76, 69, 32, 77, 69, 78, 85, 32, 49, 0, 0, 0};
