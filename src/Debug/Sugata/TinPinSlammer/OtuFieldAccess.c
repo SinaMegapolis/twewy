@@ -1660,6 +1660,9 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // only has to come before band 1, which is the one include with a hard ordering
 // requirement.
 #include "OtuBand6.inc"
+// Band 7 is the hammer task's cursor family. It calls nothing, so like band 6 it
+// only has to precede band 1.
+#include "OtuBand7.inc"
 #include "OtuBand8.inc"
 #include "OtuBand1.inc"
 // clang-format on
