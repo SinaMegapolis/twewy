@@ -117,7 +117,14 @@ s32 func_ov039_02098ca8(OtuPoint* a, OtuPoint* b) {
     return (SQRT_RESULT + 1) >> 1;
 }
 
-/** Vec_Magnitude over a 2D point: the third component is always zero. */
+/** Vec_Magnitude over a 2D point: the third component is always zero.
+ *
+ * 66.8%, and the remaining gap is that the target loads both words in one
+ * `ldmia` where this does two scalar `ldr`s in a different order. Writing the
+ * copy as a struct assignment through the shared prefix was the obvious way to
+ * ask for the block load and scored *worse* (57.2%), so whatever produces it is
+ * not this. Left as the better of the two rather than guessed at further.
+ */
 void func_ov039_02098d10(OtuPoint* v) {
     Vec u;
 
@@ -128,7 +135,7 @@ void func_ov039_02098d10(OtuPoint* v) {
     Vec_Magnitude(&u);
 }
 
-/** Vec_Normalize over a 2D point, likewise zero in z. */
+/** Vec_Normalize over a 2D point, likewise zero in z. Same 66.8%, same cause. */
 void func_ov039_02098d3c(OtuPoint* src, OtuPoint* dest) {
     Vec u;
     Vec out;
