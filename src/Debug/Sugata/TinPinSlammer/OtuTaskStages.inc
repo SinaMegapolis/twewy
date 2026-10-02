@@ -572,7 +572,7 @@ SpriteFrameInfo* func_ov039_02096c58(Sprite* sprite, s32 arg, s32 mode) {
             info->sortKey    = -1;
 
             if (*(void**)((u8*)sprite + 0x18) != NULL && (table = *(u8**)((u8*)sprite + 0x1C)) != NULL &&
-                *(s8*)((u8*)sprite + 0x16) >= 0)
+                *(s16*)((u8*)sprite + 0x16) >= 0)
             {
                 // Both the index and the table pointer are re-read rather than
                 // cached: the target loads +0x16 and +0x1C again for the second
@@ -580,10 +580,10 @@ SpriteFrameInfo* func_ov039_02096c58(Sprite* sprite, s32 arg, s32 mode) {
                 // instruction and shifts the whole register allocation.
                 // `(index * 4 + 1) * 2`, not `index * 8 + 2`, for the same
                 // reason -- the unsimplified form is what emits lsl/add/lsl.
-                info->pieceCount = *(u16*)(table + (*(s8*)((u8*)sprite + 0x16) * 4 + 1) * 2);
+                info->pieceCount = *(u16*)(table + (*(s16*)((u8*)sprite + 0x16) * 4 + 1) * 2);
                 info->cellPieces =
                     (struct OamCellPiece*)(*(u8**)((u8*)sprite + 0x1C) +
-                                           *(u16*)(*(u8**)((u8*)sprite + 0x1C) + *(s8*)((u8*)sprite + 0x16) * 8) * 2);
+                                           *(u16*)(*(u8**)((u8*)sprite + 0x1C) + *(s16*)((u8*)sprite + 0x16) * 8) * 2);
             }
 
             info->sortKey = 3;
