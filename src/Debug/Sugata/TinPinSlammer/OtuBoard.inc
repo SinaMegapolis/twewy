@@ -1,3 +1,5 @@
+#include "Save.h"
+
 /* ============================================================================
  * Batch B1 -- 0x02088698 - 0x02089918, 22 functions, 4792 bytes.
  *
@@ -94,7 +96,7 @@ extern u8 data_02071cf0[];
  *  Written by 020897dc and read by whoever runs the results stage. Offsets split
  *  the same way as the score table: pool word `data_02071cf0 + 0x2420`, then
  *  +0xB4. */
-#define OTU_BOARD_RESULT (*(u16*)((u8*)data_02071cf0 + 0x24D4))
+#define OTU_BOARD_RESULT (*(u16*)((u8*)&gSaveData + 0x24B4))
 
 /** The scene's heap, formed the way four functions in this band form it.
  *

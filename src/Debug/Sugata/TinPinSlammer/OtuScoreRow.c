@@ -1035,14 +1035,13 @@ void func_ov039_02085388(TinPinSlammer_Scene* scene, s32 slot) {
 // Nonmatching: 96.7%. Register allocation only; frame and pool words match.
 void func_ov039_020855e0(TinPinSlammer_Scene* scene, s32 slot) {
     OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuDigitColumn* column = OTU_DIGIT_COLUMN_STRIDED(scene, slot);
+    OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
     char            row[0x20];
     s32             value = column->pad_00[4] + 1;
 
-    row[2] = ' ';
-
     row[0] = '0' + (value / 10) % 10;
     row[1] = '0' + value % 10;
+    row[2] = ' ';
 
     value = OTU_TEXT_ROW(table, table->index)->value;
     if (value >= 0 && (table->flags & 0x20)) {
