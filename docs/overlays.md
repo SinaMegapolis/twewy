@@ -874,3 +874,125 @@ render by 3px *and* drops the OAM priority to 10, which is a cheap drop shadow.
 `piyo` computes `(liveness * 100) / speed` and bands it at 20/40/60/80 into five
 animation frames, so its sprite size is a "how close to scoring" readout. `meteo`
 owns a fan-out of eight children.
+
+### Traps in this overlay, and what each one cost
+
+These are all ways of being *wrong without finding out*. None of them produced an
+error, a warning, or a failed build; each one had to be caught by looking at
+something other than the pass/fail signal.
+
+**Trap 1: a rename plus `git checkout` loses work silently.** Band 1's 41
+functions were absent from the branch for an entire session while being reported
+as integrated. The mechanism: a script ran `git checkout -- OtuBand1.c` to undo a
+bad edit, by which point the file had been renamed to `OtuBand1.inc`, so git
+restored the 122-byte stub from the index and discarded 58 function definitions.
+`git checkout -- <path>` on a renamed-then-modified file throws away uncommitted
+work without a word. It survived because every total reported was arithmetically
+correct -- the 41 functions scored `None` and were never in the count. **Checking
+totals cannot detect a missing file; checking that a specific function you expect
+to be present is present can.** It was caught only by going to use band 1 as a
+template and finding it 122 bytes. Recovered from commit `850e6eb`.
+
+**Trap 2: clang-format's `SortIncludes` reverts deliberate include order.** The
+band includes must run 2,3,4,5,1 -- band 1 calls functions bands 2-5 define, so
+with it first those call sites get an implicit `int (...)` and collide with the
+real definitions. The pre-commit hook sorts the block back into address order
+every time, silently reintroducing exactly that. The block is now wrapped in
+`// clang-format off` / `on`, and the comment above it says the pair is
+load-bearing. It has already fired once.
+
+**Trap 3: mwcc's `-ipa file` cache is keyed on the *including* file's mtime.**
+Editing a band `.inc` does not invalidate it, so ninja rebuilds, mwcc hands back
+the cached preprocessed result, and the object comes out with the previous
+contents. The ROM still verifies -- it really was rebuilt, from a stale object --
+and the only symptom is objdiff reporting `null` for functions you can plainly
+see. Touch `OtuFieldAccess.c` after editing a band file.
+
+**Trap 4: the same score can mean "correct" or "wrong".** The OAM shift in band
+6's `Load` was wrong (`<< 6` where the target does `<< 2`) and fixed to exactly
+the same 21.530304, because the number of differing instructions was unchanged
+either way. The percentage was never going to find it; it was found by reading
+the emitted shift amounts out of the object. A metric that cannot distinguish
+right from wrong is not evidence.
+
+**Trap 5: decomp-permuter's baseline is not this source.** Its best run scored
+20465 against a base of 24815, -17.6%, from one transformation repeated at every
+clamp site. Applied to the real source it changed the match by exactly nothing:
+mwcc inlined the helper to the same code. Its seed is a self-contained rewrite
+with padded placeholder structs, no locals and expanded macros, so it registers
+differently. Its wins are facts about *its* baseline. The transferable result is
+that statement reordering cannot fix a register-allocation residual -- 2400
+seconds across 7 jobs produced one idea worth 0%.
+
+### Reading the overlay's data
+
+The overlay's load address is **0x020824a0**, from `delinks.txt`. At 0x02090000
+the TaskHandle at 0x02099930 decodes as `mov r0, r0` and looks like code, which is
+how a first attempt at reading it produced garbage. At the right base its first
+word points at a `Tsk_*` string and its third word is the state size -- the two
+facts a Task TU needs before anything else is written.
+
+### Tsk_OtosuGame_obstacle (band 6)
+
+Seven functions at 0x02092484-0x020926f0, the overlay's one textbook Task: a
+stage table at 0x02099948 holds the four callbacks in order and the handle's
+`taskFunc` is the dispatcher, so the shape is the target's own rather than a
+guess. The state block is **0x58** and **begins with a `Sprite`** --
+`Sprite_Update`, `Sprite_RenderFrame` and `Sprite_Release` are all handed
+`task->data` unchanged. The sprite is stationary: `Render` only recomputes
+position from a 12-bit fixed-point target (`unk_48`/`unk_4C`, set `<<12` in Init,
+measured against `unk_40`/`unk_44` and written back into the sprite every frame),
+and `Update` spends a single frame swapping the animation to mode 2. Per-kind
+data is a 16.16 scale; all three palette rows are the same `{4,5,6}`, so `kind`
+currently changes nothing visible except size.
+
+The sprite template at 0x0209996c is the whole key to `Load`: all five fields it
+patches already hold their kind-0 values, so it is literally the index-0 case
+that the table lookups re-derive. That confirmed the field mapping independently
+of the disassembly. And the odd `mla r4, r6, r4, r8` with an immediate of 6 is
+not a byte stride -- 0x02099958 decodes as three identical `{4,5,6}` records,
+palette slots, and the second index selects within the record.
+
+`Load` stores to exactly nine stack offsets (0x0, 0x4, 0x6, 0x10, 0x1a, 0x1c,
+0x20, 0x26, 0x28) and the C writes exactly those nine fields, so nothing is
+missing from it. Whatever it costs is ordering.
+
+### 0x02086808: re-derive the row, and the clamp polarity
+
+This is the results screen's per-frame input handler, and two things about it are
+worth generalising.
+
+**The target recomputes `row` inside every clamp arm** rather than reusing the
+one the case computed at the top. The decrement goes through the offset-first
+macro (`add r2, r4, #0x4; ldr r1, [r2, r0, lsl #4]`) while the compare and reset
+go through a freshly derived row (`ldr r0, [r4, #0]; add r1, r4, r0, lsl #4`), so
+`block->index` is reloaded mid-arm. Both spellings denote the same address, which
+is exactly what makes it a statement-shape question rather than an addressing
+one -- and it is worth a great deal: 84.8% to 91.4%.
+
+**The clamp polarity was inverted, and the match score hid it.** Tabulating all
+46 clamp arms gives two families and nothing else: `add 1` with `if (>= N) = 0`
+(23 arms, counting up to a ceiling) and `sub 1` with `if (< 0) = V` (23 arms,
+counting down to a floor). 22 arms were written `sub 1` with `if (>= N) = 0`, a
+pairing that exists in neither family -- the N is the *reset value* and the
+condition is `< 0`. The compare and the store matched, so the function scored well
+while walking away from the ceiling instead of into it. This is the strongest
+argument in the overlay for tabulating the target's repeated shapes rather than
+reading diffs: a systematic table finds a class of bug that a percentage cannot
+name.
+
+Two methods that earned their keep here, both cheap:
+
+- **Normalise both diff columns** by replacing register names before re-diffing.
+  That splits "wrong" from "renamed" -- at 91% the split was 36% renames, 64%
+  structural -- and it showed the total was misleading about where to work.
+- **Weight by region.** 270 of 424 differing rows sat in a single switch case.
+  The total is a number to react to; the distribution is a place to work.
+
+### A negative result
+
+All six orderings of `0x02086808`'s local declarations score identically, so the
+prologue's vestigial register -- the target pushes `r3` and never uses it, this
+pushes `r6` -- is not reachable by reordering declarations. It is mwcc's
+allocator, and roughly a third of what remains in that function is that. Worth
+recording so it is not tried a third time.
