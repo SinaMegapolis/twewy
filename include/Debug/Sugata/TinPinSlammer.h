@@ -976,4 +976,18 @@ s32  func_ov039_02098c70(OtuPoint* a, OtuPoint* b);      // cross product's z
 s32  func_ov039_02098d10(OtuPoint* v);                   // Vec_Magnitude over 2D
 void func_ov039_02098d3c(OtuPoint* src, OtuPoint* dest); // Vec_Normalize over 2D
 
+/* ============================================================================
+ * The obstacle accessors, from band 3's range and never yet written here.
+ * Batch B4's OtuBadger calls all three, and with no prototype anywhere above
+ * them each call became an implicit `int (...)`.
+ *
+ * Only func_ov039_02092758's result is used, and it is read straight out of r0,
+ * so the return type here does not have to be right to generate the right code
+ * at the call site.
+ * =========================================================================*/
+
+void func_ov039_02092744(void* obstacle, OtuPoint* out); // read the position
+s32  func_ov039_02092758(void* obstacle);                // read the radius
+void func_ov039_02092760(void* obstacle);                // apply/refresh
+
 #endif                                                   // TIN_PIN_SLAMMER_H

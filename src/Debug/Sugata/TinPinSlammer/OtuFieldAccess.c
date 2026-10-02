@@ -1680,4 +1680,7 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // Batch B3: the badge/pin state machine. Last, because band 10 defines
 // OtuPinLogic and OtuCellGrid and band 11 has to name both of them.
 #include "OtuBand11.inc"
+// Batch B4: OtuBadger, the pin tray. Last: it calls band 10's OtuPinLogic
+// and band 11's OtuBadgeState, both of which are declared in those bands.
+#include "OtuBand12.inc"
 // clang-format on

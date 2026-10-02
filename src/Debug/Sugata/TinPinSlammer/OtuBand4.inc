@@ -120,20 +120,20 @@ void func_ov039_02087bf8(void* cursor, void* cell);
  */
 
 /** Creates the task whose handle is data_ov039_02099d8c. */
-void func_ov039_02096124(TaskPool* pool, s32 arg1) {
+s32  func_ov039_02096124(TaskPool* pool, s32 arg1) {
     s32 sp8;
 
     sp8 = arg1;
-    EasyTask_CreateTask(pool, &data_ov039_02099d8c, NULL, 0, NULL, &sp8);
+    return EasyTask_CreateTask(pool, &data_ov039_02099d8c, NULL, 0, NULL, &sp8);
 }
 
 /** Creates the task whose handle is data_ov039_02099dd4. Two arguments. */
-void func_ov039_02096548(TaskPool* pool, s32 arg1, s32 arg2) {
+s32  func_ov039_02096548(TaskPool* pool, s32 arg1, s32 arg2) {
     s32 sp8[2];
 
     sp8[0] = arg1;
     sp8[1] = arg2;
-    EasyTask_CreateTask(pool, &data_ov039_02099dd4, NULL, 0, NULL, sp8);
+    return EasyTask_CreateTask(pool, &data_ov039_02099dd4, NULL, 0, NULL, sp8);
 }
 
 /** Creates the task whose handle is data_ov039_02099e1c.

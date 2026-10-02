@@ -551,7 +551,7 @@ s32 func_ov039_020937f4(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * the visible difference between the two `sub sp, sp, #imm` frame sizes
  * (0x1C against 0x14) and is how the two create wrappers tell themselves apart.
  */
-void func_ov039_0209383c(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+s32  func_ov039_0209383c(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     s32 args[5];
 
     args[0] = arg1;
@@ -560,7 +560,7 @@ void func_ov039_0209383c(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
     args[3] = arg4;
     args[4] = arg5;
 
-    EasyTask_CreateTask(pool, &data_ov039_02099a60, NULL, 0, NULL, args);
+    return EasyTask_CreateTask(pool, &data_ov039_02099a60, NULL, 0, NULL, args);
 }
 
 /* ==================================================================== */
@@ -652,7 +652,7 @@ s32 func_ov039_02093c90(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * the radar task's five. All three create wrappers are the same body; the
  * argument count and the `TaskHandle` are the only differences.
  */
-void func_ov039_02093cd8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+s32  func_ov039_02093cd8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 args[4];
 
     args[0] = arg1;
@@ -660,7 +660,7 @@ void func_ov039_02093cd8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     args[2] = arg3;
     args[3] = arg4;
 
-    EasyTask_CreateTask(pool, &data_ov039_02099ab0, NULL, 0, NULL, args);
+    return EasyTask_CreateTask(pool, &data_ov039_02099ab0, NULL, 0, NULL, args);
 }
 
 /* ==================================================================== */
