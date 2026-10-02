@@ -1182,7 +1182,7 @@ void func_ov039_02085b30(TinPinSlammer_Scene* scene, s32 slot) {
 void func_ov039_02085cb0(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
     OtuTextRow*     table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuDigitColumn* column = OTU_DIGIT_COLUMN(scene, slot);
-    s16*            counter;
+    u16*            counter;
     s32             value = OTU_TEXT_ROW(table, table->index)->value;
 
     // Four counters, four cases each. Written as one switch with the cases
@@ -1222,8 +1222,9 @@ void func_ov039_02085cb0(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
         case 7: {
             // Through a stack temporary, as in 020856c8: the target spills the
             // halfword, hands the stepper the address of the spill, and reloads
-            // and stores back afterwards.
-            s32 temp = *counter;
+            // and stores back afterwards. This one reads it *signed* -- the two
+            // later bodies read the same pointer `ldrh`.
+            s32 temp = *(s16*)counter;
 
             func_ov039_02083af4(&temp, step, value / 4);
 
