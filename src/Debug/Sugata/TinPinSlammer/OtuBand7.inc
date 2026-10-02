@@ -360,11 +360,13 @@ extern OtuFrame6 data_ov039_02099438;
  * stops the hammer rather than letting it fly off on a stale target.
  */
 s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
+    OtuPinTask* pin;
     OtuHammer* self = (OtuHammer*)task->data;
-    OtuPinTask* pin = (OtuPinTask*)EasyTask_GetTaskData(pool, self->parentHandle);
+
+    pin = (OtuPinTask*)EasyTask_GetTaskData(pool, self->parentHandle);
     s32 stepped;
     s32 steppedB;
-    s16 angle;
+    u16 angle;
     s32 index;
     s32 headX;
     s32 headY;
@@ -392,8 +394,8 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
             func_ov039_0209005c(&self->cursorSpin, &data_ov039_020994b4, 6);
             self->angle0 = func_ov039_0208e9ac(pin);
             self->angle = self->angle0;
-            self->spriteRotB = (s16)(self->angle + 0x4000);
-            self->spriteRotA = (s16)(self->angle + 0x4000);
+            self->spriteRotB = (u16)(self->angle + 0x4000);
+            self->spriteRotA = (u16)(self->angle + 0x4000);
             self->scale = 0;
             self->state = (u32)(self->state + 1);
             func_ov039_02087d04(0x338, (OtuPoint*)&self->targetX, (OtuPoint*)&self->baseX);
@@ -402,11 +404,14 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
         case 2: {
             s32 len;
 
-            stepped = func_ov039_0209008c(&self->cursorScale);
+            stepped = func_ov039_0208ffd8((OtuCursor*)&self->cursorScale);
             if (stepped != 0) {
-                len = (s32)(((s64)func_ov039_0209003c(&self->cursorScale) * self->rate0 + 0x800) >> 12);
+                s32 rate;
+
+                rate = self->rate0;
+                len = (s32)(((s64)func_ov039_0209003c(&self->cursorScale) * rate + 0x800) >> 12);
+                self->lenValue = len;
                 self->scale = len * 0x10;
-                self->lenValue = (s16)len;
                 index = OTU_ANGLE_INDEX(self->angle);
                 headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
                 headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
@@ -420,12 +425,12 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
 
                 index = OTU_ANGLE_INDEX(self->angle);
                 len2 = self->scale + func_ov039_0209011c(&self->cursorSpin);
+                headX = (s32)(((s64)len2 * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
+                headY = (s32)(((s64)len2 * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
                 self->spinValue = func_ov039_020900f4(&self->cursorSpin);
                 if (self->spinValue > 0) {
                     self->showA = 1;
                 }
-                headX = (s32)(((s64)len2 * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
-                headY = (s32)(((s64)len2 * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
                 self->targetX = self->originX + headX;
                 self->targetY = self->originY + headY;
             }
@@ -440,13 +445,13 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
 
         case 3: {
             if (func_ov039_02090178(&self->cursorTrail) != 0) {
-                angle = (s16)(self->angle0 + func_ov039_020901e0(&self->cursorTrail));
+                angle = (u16)(self->angle0 + func_ov039_020901e0(&self->cursorTrail));
                 index = OTU_ANGLE_INDEX(angle);
                 self->angle = angle;
-                self->spriteRotB = (s16)(angle + 0x4000);
-                self->spriteRotA = (s16)(angle + 0x4000);
                 headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
                 headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
+                self->spriteRotB = (u16)(angle + 0x4000);
+                self->spriteRotA = (u16)(angle + 0x4000);
                 self->targetX = self->originX + headX;
                 self->targetY = self->originY + headY;
                 self->targetXB = self->originX + ((headX + (headX >> 31)) >> 1);
@@ -456,7 +461,7 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                 self->state = (u32)(self->state + 1);
                 /* fallthrough */
             case 4:
-                angle = (s16)(self->framesLeft - 1);
+                angle = (u16)(self->framesLeft - 1);
                 self->framesLeft = angle;
 
                 if (angle > 0) {
@@ -465,13 +470,13 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                     s32 index2;
 
                     len = self->lenValue + ((self->scale0 * 4) - self->lenValue) / angle;
-                    self->lenValue = (s16)len;
+                    self->lenValue = len;
                     self->scale = len * 0x10;
                     spin = self->angle0 - (((self->angleBase << 0x10) * (self->totalFrames - self->framesLeft)) / self->totalFrames);
                     index2 = OTU_ANGLE_INDEX(spin);
                     self->angle = spin;
-                    self->spriteRotB = (s16)(spin + 0x4000);
-                    self->spriteRotA = (s16)(spin + 0x4000);
+                    self->spriteRotB = (u16)(spin + 0x4000);
+                    self->spriteRotA = (u16)(spin + 0x4000);
                     headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index2 + 1) * 2)) + 0x800) >> 12);
                     headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index2 * 2)) + 0x800) >> 12);
                     self->targetX = self->originX + headX;
@@ -494,11 +499,11 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                     if (func_ov039_02090178(&self->cursorTrail) != 0) {
                         s32 index3;
 
-                        angle = (s16)(self->angle0 + func_ov039_020901e0(&self->cursorTrail));
+                        angle = (u16)(self->angle0 + func_ov039_020901e0(&self->cursorTrail));
                         index3 = OTU_ANGLE_INDEX(angle);
                         self->angle = angle;
-                        self->spriteRotB = (s16)(angle + 0x4000);
-                        self->spriteRotA = (s16)(angle + 0x4000);
+                        self->spriteRotB = (u16)(angle + 0x4000);
+                        self->spriteRotA = (u16)(angle + 0x4000);
                         headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index3 + 1) * 2)) + 0x800) >> 12);
                         headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index3 * 2)) + 0x800) >> 12);
                         self->targetX = self->originX + headX;
@@ -518,11 +523,13 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                     case 6:
                         stepped = func_ov039_0208ffd8((OtuCursor*)&self->cursorScale);
                         if (stepped != 0) {
+                            s32 half;
                             s32 len3;
 
-                            len3 = (s32)(((s64)func_ov039_0209003c(&self->cursorScale) * self->halfLen + 0x800) >> 12);
-                            self->scale = len3 * 0x10;
+                            half = self->halfLen;
+                            len3 = (s32)(((s64)func_ov039_0209003c(&self->cursorScale) * half + 0x800) >> 12);
                             self->lenValue = (s16)len3;
+                            self->scale = len3 * 0x10;
                             index = OTU_ANGLE_INDEX(self->angle);
                             headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
                             headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
@@ -536,8 +543,8 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
 
                             len4 = self->scale + func_ov039_0209011c(&self->cursorSpin);
                             index = OTU_ANGLE_INDEX(self->angle);
-                            self->spinValue = func_ov039_020900f4(&self->cursorSpin);
                             headX = (s32)(((s64)len4 * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
+                            self->spinValue = func_ov039_020900f4(&self->cursorSpin);
                             headY = (s32)(((s64)len4 * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
                             self->targetX = self->originX + headX;
                             self->targetY = self->originY + headY;
