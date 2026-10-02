@@ -952,4 +952,28 @@ typedef struct {
     /* 0x06 */ s16  count;
     /* 0x08 */ s16  framesLeft;
 } OtuCursor; // Size: 0xA
-#endif       // TIN_PIN_SLAMMER_H
+/* ============================================================================
+ * OtuVecOps.c's vector helpers.
+ *
+ * Those functions live in their own translation unit, so a band that calls one
+ * cannot see it unless it is declared here. Only func_ov039_02098ca8 had a
+ * declaration, and the bands were each carrying private copies of the others --
+ * which is how four functions in one batch ended up calling an implicit
+ * `int (...)` and being rejected for the pointer arguments.
+ *
+ * All the arithmetic is Q12.12 and all of them take OtuPoint*, which is defined
+ * above, so this block only needs the prototypes.
+ *
+ * func_ov039_02098d7c and func_ov039_02098dbc are NOT here: their parameter
+ * types live inside OtuVecOps.c. Nothing outside that file calls them yet.
+ * ==========================================================================*/
+
+void func_ov039_02098bb0(OtuPoint* a, OtuPoint* b, OtuPoint* out);
+void func_ov039_02098bd4(s32 angle, OtuPoint* a, OtuPoint* out);
+void func_ov039_02098c00(s32 angle, OtuPoint* a, OtuPoint* b, OtuPoint* out);
+s32  func_ov039_02098c40(OtuPoint* a, OtuPoint* b);      // dot product
+s32  func_ov039_02098c70(OtuPoint* a, OtuPoint* b);      // cross product's z
+s32  func_ov039_02098d10(OtuPoint* v);                   // Vec_Magnitude over 2D
+void func_ov039_02098d3c(OtuPoint* src, OtuPoint* dest); // Vec_Normalize over 2D
+
+#endif                                                   // TIN_PIN_SLAMMER_H

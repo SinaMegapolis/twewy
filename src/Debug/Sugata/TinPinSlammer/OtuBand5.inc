@@ -294,12 +294,12 @@ s32 func_ov039_0209720c(TaskPool* pool, s32 word0, s32 word1) {
     return EasyTask_CreateTask(pool, &data_ov039_02099f04, NULL, 0, NULL, &params);
 }
 
-void func_ov039_0209771c(TaskPool* pool, s32 word0, s32 word1) {
+s32 func_ov039_0209771c(TaskPool* pool, s32 word0, s32 word1) {
     OtuTaskParams params;
 
     params.word0 = word0;
     params.word1 = word1;
-    EasyTask_CreateTask(pool, &data_ov039_02099f4c, NULL, 0, NULL, &params);
+    return EasyTask_CreateTask(pool, &data_ov039_02099f4c, NULL, 0, NULL, &params);
 }
 
 void func_ov039_02097a70(TaskPool* pool, s32 word0, s32 word1) {

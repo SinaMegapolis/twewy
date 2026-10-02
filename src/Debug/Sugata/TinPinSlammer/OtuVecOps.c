@@ -125,14 +125,14 @@ s32 func_ov039_02098ca8(OtuPoint* a, OtuPoint* b) {
  * ask for the block load and scored *worse* (57.2%), so whatever produces it is
  * not this. Left as the better of the two rather than guessed at further.
  */
-void func_ov039_02098d10(OtuPoint* v) {
+s32 func_ov039_02098d10(OtuPoint* v) {
     Vec u;
 
     u.x = v->x;
     u.y = v->y;
     u.z = 0;
 
-    Vec_Magnitude(&u);
+    return Vec_Magnitude(&u);
 }
 
 /** Vec_Normalize over a 2D point, likewise zero in z. Same 66.8%, same cause. */
