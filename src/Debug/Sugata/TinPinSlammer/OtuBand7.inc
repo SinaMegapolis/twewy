@@ -207,14 +207,14 @@ typedef struct {
     /* 0x000 */ s32 unk_00; // four bytes ahead of the first sprite
     /* 0x004 */ Sprite spriteA;
     /* 0x044 */ Sprite spriteB;
-    /* 0x084 */ s32 spriteAngleA; // both angles are the live angle plus 0x4000
-    /* 0x088 */ s32 spriteScaleA; // unity at spawn
-    /* 0x08C */ s32 spriteScaleB; // unity at spawn
+    /* 0x084 */ s32 spriteRotA; // the live angle plus 0x4000
+    /* 0x088 */ s32 spinValue;  // cursor B's value; > 0 reveals sprite A
+    /* 0x08C */ s32 unk_8C;
     /* 0x090 */ s16 unk_90;
     /* 0x092 */ s16 unk_92;
-    /* 0x094 */ s32 spriteAngleB;
-    /* 0x098 */ s32 spinScaleA;
-    /* 0x09C */ s32 spinScaleB;
+    /* 0x094 */ s32 spriteRotB; // the same angle plus 0x4000, again
+    /* 0x098 */ s32 unk_98;
+    /* 0x09C */ s32 lenValue; // the current length: the scale before the <<4
     /* 0x0A0 */ s16 unk_A0;
     /* 0x0A2 */ s16 unk_A2;
     /* 0x0A4 */ s32 baseX; // the fixed-point targets below are relative to this
@@ -298,20 +298,275 @@ s32 func_ov039_020904a8(s32 arg0, Task* task, OtuHammer_Params* params) {
     self->totalFrames = 0;
     self->angleBase = 0;
 
-    self->spriteAngleA = 0;
-    self->spriteScaleA = 0x1000;
-    self->spriteScaleB = 0x1000;
+    self->spriteRotA = 0;
+    self->spinValue = 0x1000;
+    self->unk_8C = 0x1000;
     self->unk_90 = 0;
     self->unk_92 = 0;
-    self->spriteAngleB = 0;
-    self->spinScaleA = 0x1000;
-    self->spinScaleB = 0x1000;
+    self->spriteRotB = 0;
+    self->unk_98 = 0x1000;
+    self->lenValue = 0x1000;
     self->unk_A0 = 0;
     self->unk_A2 = 0;
 
     self->state = 0;
     func_ov039_02090390(self, &self->spriteA, params);
     func_ov039_0209041c(self, &self->spriteB, params);
+    return 1;
+}
+
+/** Band 8's child spawner, re-declared for the other hammer entry point. */
+
+/** Band 1's two stride-four cursor helpers, plus the four things Update calls
+ *  that live in bands this one cannot see ahead of. All declared here because
+ *  band 7 comes first in the include order, and an undeclared call in C99 is an
+ *  implicit `int` that later collides with the real definition. */
+void func_ov039_0208ffac(OtuCursor* c, s32* table, s16 count);
+s32 func_ov039_0208ffd8(OtuCursor* c);
+void func_ov039_02087d04(s32 mode, void* dst, void* src);
+void func_ov039_0208f048(void* task, s32 arg1, s32 arg2);
+s32 func_ov039_0208e9ac(void* task);
+
+/* The five animation tables the state machine walks, in the overlay's data. */
+extern OtuFrame6 data_ov039_02099494;
+extern OtuFrame6 data_ov039_020994b4;
+extern OtuFrame6 data_ov039_02099476;
+extern OtuFrame6 data_ov039_020994d8;
+extern OtuFrame6 data_ov039_02099458;
+extern OtuFrame6 data_ov039_02099438;
+
+/** Splits a fixed-point value into a screen offset. */
+#define OTU_ANGLE_INDEX(a) (((s32)((a) >> 4)) * 2)
+
+/**
+ * @brief The hammer's state machine: seven states, no breaks between them.
+ *
+ * `state` runs 0..6 and the cases *fall through* rather than ending. That is the
+ * whole design: a state that has finished its work for this frame increments
+ * `state` and then runs the next one in the same frame, so a fast transition
+ * costs no extra frames. The only exits are state 0 (dead) and the pair of
+ * "both cursors exhausted" checks, which fall into the setup for the next stage.
+ *
+ * Nothing here is inlined by the compiler -- the build passes `-inline noauto` --
+ * so the trigonometry appears four times, once per state that turns an angle and
+ * a scale into the two target positions. It is written out four times to match.
+ *
+ * Each state owns a pair of OtuCursor6 walks over a fixed table, plus one over
+ * the angle. State 2 grows the head out and fades the tail in; state 4 collapses
+ * the whole thing linearly; state 6 does it again at a new length.
+ *
+ * The `live` flag is the pin task's own validity, re-read every frame, and it
+ * gates both the sprite updates and the render. A pin that goes invalid mid-flight
+ * stops the hammer rather than letting it fly off on a stale target.
+ */
+s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
+    OtuHammer* self = (OtuHammer*)task->data;
+    OtuPinTask* pin = (OtuPinTask*)EasyTask_GetTaskData(pool, self->parentHandle);
+    s32 stepped;
+    s32 steppedB;
+    s16 angle;
+    s32 index;
+    s32 headX;
+    s32 headY;
+
+    if (pin != NULL) {
+        self->live = func_ov039_0208e998(pin);
+
+        if (self->live == 0) {
+            self->state = 0;
+        } else {
+            func_ov039_0208e85c(pin, (OtuPoint*)&self->baseX);
+            func_ov039_0208e6e0(pin, (OtuPoint*)&self->originX);
+            self->zOffset = func_ov039_0208e6f4(pin);
+        }
+
+        switch (self->state) {
+        case 0:
+            self->live = 0;
+            break;
+
+        case 1:
+            self->showA = 0;
+            self->showB = 1;
+            func_ov039_0208ffac((OtuCursor*)&self->cursorScale, (s32*)&data_ov039_02099494, 8);
+            func_ov039_0209005c(&self->cursorSpin, &data_ov039_020994b4, 6);
+            self->angle0 = func_ov039_0208e9ac(pin);
+            self->angle = self->angle0;
+            self->spriteRotB = (s16)(self->angle + 0x4000);
+            self->spriteRotA = (s16)(self->angle + 0x4000);
+            self->scale = 0;
+            self->state = (u32)(self->state + 1);
+            func_ov039_02087d04(0x338, (OtuPoint*)&self->targetX, (OtuPoint*)&self->baseX);
+            /* fallthrough */
+
+        case 2: {
+            s32 len;
+
+            stepped = func_ov039_0209008c(&self->cursorScale);
+            if (stepped != 0) {
+                len = (s32)(((s64)func_ov039_0209003c(&self->cursorScale) * self->rate0 + 0x800) >> 12);
+                self->scale = len * 0x10;
+                self->lenValue = (s16)len;
+                index = OTU_ANGLE_INDEX(self->angle);
+                headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
+                headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
+                self->targetXB = self->originX + ((headX + (headX >> 31)) >> 1);
+                self->targetYB = self->originY + ((headY + (headY >> 31)) >> 1);
+            }
+
+            steppedB = func_ov039_0209008c(&self->cursorSpin);
+            if (steppedB != 0) {
+                s32 len2;
+
+                index = OTU_ANGLE_INDEX(self->angle);
+                len2 = self->scale + func_ov039_0209011c(&self->cursorSpin);
+                self->spinValue = func_ov039_020900f4(&self->cursorSpin);
+                if (self->spinValue > 0) {
+                    self->showA = 1;
+                }
+                headX = (s32)(((s64)len2 * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
+                headY = (s32)(((s64)len2 * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
+                self->targetX = self->originX + headX;
+                self->targetY = self->originY + headY;
+            }
+
+            if ((stepped == 0) && (steppedB == 0)) {
+                func_ov039_02090148(&self->cursorTrail, &data_ov039_02099476, 5);
+                self->state = (u32)(self->state + 1);
+                func_ov039_02087d04(0x339, (OtuPoint*)&self->targetX, (OtuPoint*)&self->baseX);
+            }
+            /* fallthrough */
+        }
+
+        case 3: {
+            if (func_ov039_02090178(&self->cursorTrail) != 0) {
+                angle = (s16)(self->angle0 + func_ov039_020901e0(&self->cursorTrail));
+                index = OTU_ANGLE_INDEX(angle);
+                self->angle = angle;
+                self->spriteRotB = (s16)(angle + 0x4000);
+                self->spriteRotA = (s16)(angle + 0x4000);
+                headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
+                headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
+                self->targetX = self->originX + headX;
+                self->targetY = self->originY + headY;
+                self->targetXB = self->originX + ((headX + (headX >> 31)) >> 1);
+                self->targetYB = self->originY + ((headY + (headY >> 31)) >> 1);
+            } else {
+                self->framesLeft = self->totalFrames;
+                self->state = (u32)(self->state + 1);
+                /* fallthrough */
+            case 4:
+                angle = (s16)(self->framesLeft - 1);
+                self->framesLeft = angle;
+
+                if (angle > 0) {
+                    s32 len;
+                    s32 spin;
+                    s32 index2;
+
+                    len = self->lenValue + ((self->scale0 * 4) - self->lenValue) / angle;
+                    self->lenValue = (s16)len;
+                    self->scale = len * 0x10;
+                    spin = self->angle0 - (((self->angleBase << 0x10) * (self->totalFrames - self->framesLeft)) / self->totalFrames);
+                    index2 = OTU_ANGLE_INDEX(spin);
+                    self->angle = spin;
+                    self->spriteRotB = (s16)(spin + 0x4000);
+                    self->spriteRotA = (s16)(spin + 0x4000);
+                    headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index2 + 1) * 2)) + 0x800) >> 12);
+                    headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index2 * 2)) + 0x800) >> 12);
+                    self->targetX = self->originX + headX;
+                    self->targetY = self->originY + headY;
+                    self->targetXB = self->originX + ((headX + (headX >> 31)) >> 1);
+                    self->targetYB = self->originY + ((headY + (headY >> 31)) >> 1);
+
+                    self->reportTimer = self->reportTimer - 1;
+                    if (self->reportTimer <= 0) {
+                        func_ov039_0208f048(EasyTask_GetTaskData(pool, self->parentHandle),
+                                            (OtuPoint*)&self->targetX, (u16)self->angle);
+                        self->reportTimer = 4;
+                    }
+                } else {
+                    self->angle0 = self->angle;
+                    func_ov039_02090148(&self->cursorTrail, &data_ov039_020994d8, 7);
+                    self->state = (u32)(self->state + 1);
+                    /* fallthrough */
+                case 5:
+                    if (func_ov039_02090178(&self->cursorTrail) != 0) {
+                        s32 index3;
+
+                        angle = (s16)(self->angle0 + func_ov039_020901e0(&self->cursorTrail));
+                        index3 = OTU_ANGLE_INDEX(angle);
+                        self->angle = angle;
+                        self->spriteRotB = (s16)(angle + 0x4000);
+                        self->spriteRotA = (s16)(angle + 0x4000);
+                        headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index3 + 1) * 2)) + 0x800) >> 12);
+                        headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index3 * 2)) + 0x800) >> 12);
+                        self->targetX = self->originX + headX;
+                        self->targetY = self->originY + headY;
+                        self->targetXB = self->originX + ((headX + (headX >> 31)) >> 1);
+                        self->targetYB = self->originY + ((headY + (headY >> 31)) >> 1);
+                    } else {
+                        s32 len;
+
+                        len = self->lenValue;
+                        self->halfLen = (s32)((s32)(len + ((u32)(len >> 1) >> 0x1E)) >> 2);
+                        func_ov039_0209005c(&self->cursorSpin, &data_ov039_02099458, 5);
+                        func_ov039_0208ffac((OtuCursor*)&self->cursorScale, (s32*)&data_ov039_02099438, 4);
+                        self->state = (u32)(self->state + 1);
+                        func_ov039_02087d04(0x33A, (OtuPoint*)&self->targetX, (OtuPoint*)&self->baseX);
+                        /* fallthrough */
+                    case 6:
+                        stepped = func_ov039_0208ffd8((OtuCursor*)&self->cursorScale);
+                        if (stepped != 0) {
+                            s32 len3;
+
+                            len3 = (s32)(((s64)func_ov039_0209003c(&self->cursorScale) * self->halfLen + 0x800) >> 12);
+                            self->scale = len3 * 0x10;
+                            self->lenValue = (s16)len3;
+                            index = OTU_ANGLE_INDEX(self->angle);
+                            headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
+                            headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
+                            self->targetXB = self->originX + ((headX + (headX >> 31)) >> 1);
+                            self->targetYB = self->originY + ((headY + (headY >> 31)) >> 1);
+                        }
+
+                        steppedB = func_ov039_0209008c(&self->cursorSpin);
+                        if (steppedB != 0) {
+                            s32 len4;
+
+                            len4 = self->scale + func_ov039_0209011c(&self->cursorSpin);
+                            index = OTU_ANGLE_INDEX(self->angle);
+                            self->spinValue = func_ov039_020900f4(&self->cursorSpin);
+                            headX = (s32)(((s64)len4 * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
+                            headY = (s32)(((s64)len4 * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
+                            self->targetX = self->originX + headX;
+                            self->targetY = self->originY + headY;
+                        }
+
+                        if ((stepped == 0) && (steppedB == 0)) {
+                            self->state = 0U;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+        default:
+            break;
+        }
+
+        if (self->live != 0) {
+            if (self->showA != 0) {
+                Sprite_Update(&self->spriteA);
+            }
+            if (self->showB != 0) {
+                Sprite_Update(&self->spriteB);
+            }
+        }
+    } else {
+        self->live = 0;
+    }
     return 1;
 }
 

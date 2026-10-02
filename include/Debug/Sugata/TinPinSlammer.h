@@ -933,4 +933,22 @@ void func_ov040_0209ed30(void);
 /* Wireless entry point in ov003. */
 void func_ov003_0209d434(s32 a, s32 b);
 
-#endif // TIN_PIN_SLAMMER_H
+/* A cursor over a table of s32s, walked four bytes at a time.
+ *
+ * Declared here rather than in a band: bands 1 and 7 both drive these cursors, band
+ * 7 comes first in the include order, and neither should have to own it.
+ */
+/**
+ * @brief A cursor over a table of s32s, 12 bytes.
+ *
+ * Not part of the pin tasks: this walks an indexed list one entry per call,
+ * spending `remaining` frames on each. func_ov039_0208ffac starts it at entry 0
+ * and func_ov039_0208ffd8 advances it.
+ */
+typedef struct {
+    /* 0x00 */ s32* table;
+    /* 0x04 */ s16  index;
+    /* 0x06 */ s16  count;
+    /* 0x08 */ s16  framesLeft;
+} OtuCursor; // Size: 0xA
+#endif       // TIN_PIN_SLAMMER_H

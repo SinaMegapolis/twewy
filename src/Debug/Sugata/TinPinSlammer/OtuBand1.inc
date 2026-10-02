@@ -851,19 +851,10 @@ void func_ov039_0208fee0(OtuShadowTask* self, OtuPinRecord* out) {
     out->y     = y;
 }
 
-/**
- * @brief A cursor over a table of s32s, 12 bytes.
- *
- * Not part of the pin tasks: this walks an indexed list one entry per call,
- * spending `remaining` frames on each. func_ov039_0208ffac starts it at entry 0
- * and func_ov039_0208ffd8 advances it.
- */
-typedef struct {
-    /* 0x00 */ s32* table;
-    /* 0x04 */ s16  index;
-    /* 0x06 */ s16  count;
-    /* 0x08 */ s16  framesLeft;
-} OtuCursor; // Size: 0xA
+/* OtuCursor, func_ov039_0208ffac and func_ov039_0208ffd8 are declared in
+ * include/Debug/Sugata/TinPinSlammer.h rather than here: the hammer task in band
+ * 7 drives these same two functions over its own cursor, and band 7 comes first
+ * in the include order. Both bands are callers, so neither should own it. */
 
 /**
  * Starts a cursor at entry zero and primes it with the first entry's value plus
