@@ -1686,4 +1686,7 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // Band 14: OtuBadger's field accessors. After band 12, which declares the
 // type they all read and write.
 #include "OtuBand14.inc"
+// Batch: the badge AI and update. After band 14, which it calls and whose
+// OtuBadgeState field names it shares with band 11.
+#include "OtuBand15.inc"
 // clang-format on
