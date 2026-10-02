@@ -1664,5 +1664,10 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // only has to precede band 1.
 #include "OtuBand7.inc"
 #include "OtuBand8.inc"
+// Band 13: Tsk_OtosuGame_specialgaugauge, drafted as a contiguous batch.
+// Included here only because band 1 is the one include with a hard ordering
+// requirement.
+// band 1 is the one include with a hard ordering requirement.
+#include "OtuBand13.inc"
 #include "OtuBand1.inc"
 // clang-format on
