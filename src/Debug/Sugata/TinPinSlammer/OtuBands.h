@@ -22,15 +22,15 @@
  *
  * The bands are disjoint address ranges. Keep it that way.
  *
- *   OtuBand1.inc  0x0208f000 - 0x02090000
- *   OtuBand2.inc  0x02093000 - 0x02094000
- *   OtuBand3.inc  0x02095000 - 0x02096000
- *   OtuBand4.inc  0x02096000 - 0x02097000
- *   OtuBand5.inc  0x02097000 - 0x02098000
- *   OtuBand6.inc  0x02092484 - 0x020926f0  (Tsk_OtosuGame_obstacle)
- *   OtuBand7.inc  0x0209003c - 0x02090e9c  (the cursor family, then
+ *   OtuPinSprites.inc  0x0208f000 - 0x02090000
+ *   OtuCounters.inc  0x02093000 - 0x02094000
+ *   OtuEntryTasks.inc  0x02095000 - 0x02096000
+ *   OtuTaskStages.inc  0x02096000 - 0x02097000
+ *   OtuSpriteTasks.inc  0x02097000 - 0x02098000
+ *   OtuObstacles.inc  0x02092484 - 0x020926f0  (Tsk_OtosuGame_obstacle)
+ *   OtuMeters.inc  0x0209003c - 0x02090e9c  (the cursor family, then
  *                                             Tsk_OtosuGame_hammer)
- *   OtuBand8.inc  0x02098394               (the simulation tasks' child spawner)
+ *   OtuHammerSpawn.inc  0x02098394               (the simulation tasks' child spawner)
  *
  * The numbering is not the address order: band 8 went in before band 7 because
  * the hammer task's CreateTask calls into it, and band 7 in turn opens with the

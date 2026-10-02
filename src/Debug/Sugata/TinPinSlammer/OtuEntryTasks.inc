@@ -8,7 +8,7 @@
 #include <nitro/fx/fx_atan.h>
 
 /**
- * @file OtuBand3.c
+ * @file OtuEntryTasks.c
  *
  * 0x020950b8 - 0x02095fe4: the four sprite tasks the board stage spawns.
  *

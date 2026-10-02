@@ -1635,7 +1635,7 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
  */
 /* Order matters, and not for the reason it looks.
  *
- * OtuBand1.c calls func_ov039_02097240, which band 5 defines, and
+ * OtuPinSprites.c calls func_ov039_02097240, which band 5 defines, and
  * func_ov039_02087ba0, which sits outside every band and which band 4
  * declares. Band 1's own address range is disjoint from all the others, so
  * including it last costs nothing.
@@ -1652,41 +1652,41 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
  * above warns about. It has already done so once.
  */
 // clang-format off
-#include "OtuBand2.inc"
-#include "OtuBand3.inc"
-#include "OtuBand4.inc"
-#include "OtuBand5.inc"
+#include "OtuCounters.inc"
+#include "OtuEntryTasks.inc"
+#include "OtuTaskStages.inc"
+#include "OtuSpriteTasks.inc"
 // Band 6 is self-contained -- it calls nothing the other bands define -- so it
 // only has to come before band 1, which is the one include with a hard ordering
 // requirement.
-#include "OtuBand6.inc"
+#include "OtuObstacles.inc"
 // Band 7 is the hammer task's cursor family. It calls nothing, so like band 6 it
 // only has to precede band 1.
-#include "OtuBand7.inc"
-#include "OtuBand8.inc"
+#include "OtuMeters.inc"
+#include "OtuHammerSpawn.inc"
 // Band 13: Tsk_OtosuGame_specialgaugauge, drafted as a contiguous batch.
 // Included here only because band 1 is the one include with a hard ordering
 // requirement.
 // band 1 is the one include with a hard ordering requirement.
-#include "OtuBand13.inc"
+#include "OtuGauge.inc"
 // Band 9: a drafted batch, contiguous run, included here only because
 // band 1 is the one include with a hard ordering requirement.
-#include "OtuBand9.inc"
-#include "OtuBand1.inc"
+#include "OtuBoard.inc"
+#include "OtuPinSprites.inc"
 // Batch B2: the wireless-board stage block, 0x02089950-0x0208acc0.
 // Placed AFTER band 1: it calls band-defined functions with no local
 // forward declarations, so it must follow every band whose functions it uses.
-#include "OtuBand10.inc"
+#include "OtuPinLogic.inc"
 // Batch B3: the badge/pin state machine. Last, because band 10 defines
 // OtuPinLogic and OtuCellGrid and band 11 has to name both of them.
-#include "OtuBand11.inc"
+#include "OtuBadgeState.inc"
 // Batch B4: OtuBadger, the pin tray. Last: it calls band 10's OtuPinLogic
 // and band 11's OtuBadgeState, both of which are declared in those bands.
-#include "OtuBand12.inc"
+#include "OtuPinTray.inc"
 // Band 14: OtuBadger's field accessors. After band 12, which declares the
 // type they all read and write.
-#include "OtuBand14.inc"
+#include "OtuPinAccessors.inc"
 // Batch: the badge AI and update. After band 14, which it calls and whose
 // OtuBadgeState field names it shares with band 11.
-#include "OtuBand15.inc"
+#include "OtuBadgeAi.inc"
 // clang-format on

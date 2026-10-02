@@ -9,21 +9,21 @@
  * WHERE THIS FILE GOES
  * --------------------
  * It is a band include for OtuFieldAccess.c and MUST be included after
- * OtuBand7.inc and before OtuBand8.inc / OtuBand1.inc. Two hard reasons:
+ * OtuMeters.inc and before OtuHammerSpawn.inc / OtuPinSprites.inc. Two hard reasons:
  *
- *   - OtuBand1.inc is last because it calls into bands 4 and 5. Six callees
+ *   - OtuPinSprites.inc is last because it calls into bands 4 and 5. Six callees
  *     here (0208f00c, 0208f024, 0208f0b0, 0208f0c8, 0208f104, 02087d04) are
  *     defined there, so they have to be forward-declared below -- which is
  *     exactly what a band before band 1 has to do.
- *   - 020934a8 (OtuBand2.inc), 02096b18 and 02096e4c (OtuBand4.inc) are
+ *   - 020934a8 (OtuCounters.inc), 02096b18 and 02096e4c (OtuTaskStages.inc) are
  *     *defined* with a `void` return type but the target returns the new task's
  *     handle in r0, and this batch stores that handle. See below.
  *
  * RETURN TYPES THE ORCHESTRATOR MUST FIX (three, all mechanical)
  * ------------------------------------------------------------
- *   OtuBand2.inc:288  void func_ov039_020934a8(...)  ->  s32
- *   OtuBand4.inc:140  void func_ov039_02096b18(...)  ->  s32
- *   OtuBand4.inc:148  void func_ov039_02096e4c(...)  ->  s32
+ *   OtuCounters.inc:288  void func_ov039_020934a8(...)  ->  s32
+ *   OtuTaskStages.inc:140  void func_ov039_02096b18(...)  ->  s32
+ *   OtuTaskStages.inc:148  void func_ov039_02096e4c(...)  ->  s32
  *
  * All three bodies are already correct (`EasyTask_CreateTask(...)` as the last
  * statement), so changing the declared return type is codegen-neutral for the
@@ -308,7 +308,7 @@ s32 func_02047e84(u16 bits);
 
 /* --- Defined in OtuVecOps.c, which a band include cannot see -------------- */
 
-/* --- Defined in OtuBand1.inc, which is included *after* this file --------- */
+/* --- Defined in OtuPinSprites.inc, which is included *after* this file --------- */
 
 /** out = a scaled vector offset, and the overlay's shared "apply a sprite
  *  action" helper (declared unprototyped there). */
@@ -811,7 +811,7 @@ void func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at) {
  * expression, which is what the target's two `bne`/`beq` pairs are.
  *
  * The effect id is 0x33D when either pin is alive and 0x32F when neither is --
- * the same pair of constants OtuBand7's hammer uses for its states.
+ * the same pair of constants OtuMeters's hammer uses for its states.
  */
 void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuPinTask* a, OtuPinTask* b) {
     OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -1117,7 +1117,7 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
     }
 
     // Still in play. Only re-point the animated palette once the palette task
-    // says its first pass is done -- the note in OtuBand2.inc records that this
+    // says its first pass is done -- the note in OtuCounters.inc records that this
     // routine refuses to re-point twice.
     notYet = func_ov039_0209420c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->fxTask));
 

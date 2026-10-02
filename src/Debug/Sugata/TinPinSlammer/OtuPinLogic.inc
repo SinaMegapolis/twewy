@@ -99,7 +99,7 @@
  *     time this band lands. They are not repeated here: a redeclaration would
  *     not help, since the conflict is with the header, not with a local copy.
  *
- *   * OtuBand1.inc line 73 declares `s32 func_ov039_0208a490(void*, s32);` and
+ *   * OtuPinSprites.inc line 73 declares `s32 func_ov039_0208a490(void*, s32);` and
  *     calls it discarding the result. The definition below matches that
  *     prototype exactly -- including the untyped first parameter, which the
  *     target's `ldr r0, [r5, #8]` does not pin down any better -- so nothing has
@@ -108,8 +108,8 @@
  * Include order: this band uses `func_ov039_02098bb0`, `func_ov039_02098c00`
  * and `func_ov039_02098d10` as band 3 declares them (and `func_ov039_02098d10`
  * as the *s32* band 3 declares, not as the `void` OtuVecOps.c defines it), so
- * it has to come after OtuBand3.inc. Anything before OtuBand1.inc works; the
- * natural slot is next to OtuBand13.inc.
+ * it has to come after OtuEntryTasks.inc. Anything before OtuPinSprites.inc works; the
+ * natural slot is next to OtuGauge.inc.
  */
 
 /* ------------------------------------------------------------------ */
@@ -1105,7 +1105,7 @@ void func_ov039_0208a454(TinPinSlammer_Scene* scene) {
  * expression mwcc strength-reduces it into a walked pointer instead.
  *
  * The parameter and return types are `void*` and `s32` because that is what
- * OtuBand1.inc's placeholder declaration says, and the two must agree exactly or
+ * OtuPinSprites.inc's placeholder declaration says, and the two must agree exactly or
  * mwcc rejects the pair. `s32` is a fiction: the target never materialises a
  * return value, so there is deliberately no `return` statement. The cast to
  * `OtuPinLogic` is the one place the declared type is looser than the truth.

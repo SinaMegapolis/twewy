@@ -82,7 +82,7 @@
  *
  * WHERE THIS FILE HAS TO BE INCLUDED
  * ----------------------------------
- * Last, after OtuBand1.inc. It calls 0x0208f40c / 0x0208f770 / 0x0208fa5c /
+ * Last, after OtuPinSprites.inc. It calls 0x0208f40c / 0x0208f770 / 0x0208fa5c /
  * 0x0208fe60 (band 1), 0x0209383c / 0x02093cd8 / 0x02093d18 (band 2),
  * 0x02095750 / 0x02095ca0 (band 3), 0x02096124 / 0x02096548 / 0x02096154
  * (band 4), 0x0209771c / 0x02097a70 (band 5) and 0x02090e1c (band 7) with no

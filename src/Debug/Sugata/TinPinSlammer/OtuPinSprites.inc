@@ -7,7 +7,7 @@
 #include "common_data.h"
 
 /**
- * @file OtuBand1.c
+ * @file OtuPinSprites.c
  *
  * Band 1 of the overlay: 0x0208f000 - 0x02090000.
  *
@@ -54,7 +54,7 @@ extern const s32 data_ov039_0209a54c[9];
 /* Sibling accessors this band calls.                                  */
 /*                                                                      */
 /* The five defined in OtuFieldAccess.c are declared with the same     */
-/* `void*` first parameter they are defined with, because OtuBand1.c  */
+/* `void*` first parameter they are defined with, because OtuPinSprites.c  */
 /* is #included into that file and mwcc rejects a mismatched redeclaration. */
 /* ------------------------------------------------------------------ */
 
