@@ -630,7 +630,7 @@ void func_ov039_02088c50(TinPinSlammer_Scene* scene) {
     stage->effectCount = stage->params.effectMax;
     stage->helperCursor = 0;
     RNG_SetSeed(0);
-    g_DisplaySettings.controls[DISPLAY_MAIN].layers = 0x13;
+    Display_SetMainLayers(0x13);
 }
 
 /* ============================================================================

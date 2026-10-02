@@ -1381,8 +1381,8 @@ void func_ov039_02086728(TinPinSlammer_Scene* scene) {
     OtuTextRow*       block = (OtuTextRow*)head;
     s32               i;
 
-    g_DisplaySettings.controls[0].layers = 0;
-    g_DisplaySettings.controls[1].layers = 0x11;
+    Display_SetMainLayers(0);
+    Display_SetSubLayers(0x11);
 
     g_DisplaySettings.engineState[1].blendMode   = 0;
     g_DisplaySettings.engineState[1].blendLayer0 = 0;
