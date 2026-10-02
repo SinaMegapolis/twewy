@@ -318,7 +318,7 @@ s32 func_02047e84(u16 arg0);
  * the block, so they stay out of the struct rather than being named twice.
  */
 typedef struct {
-    /* 0x000 */ s32 unk_00;    // cleared by the cleanup case
+    /* 0x000 */ s32 unk_00;    // the board stage's dispatch selector, 0..8
     /* 0x004 */ u16 unk_04;    // handshake flag; the two board variants set it either way
     /* 0x006 */ u16 unk_06;    // two bytes of wireless state, pushed as a pair
     /* 0x008 */ s32 state;     // 0..8, the selector both update routines switch on
@@ -554,7 +554,7 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
     s32                i;
     u16                mask;
 
-    switch (stage->state) {
+    switch (stage->unk_00) {
         case 0:
             func_ov039_02087c8c(scene, 1);
             return;
@@ -900,7 +900,7 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
     OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
     s32                i;
 
-    switch (stage->state) {
+    switch (stage->unk_00) {
         case 0:
             func_ov039_02087c8c(scene, 1);
             return;
