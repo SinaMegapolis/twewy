@@ -1677,4 +1677,7 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // Placed AFTER band 1: it calls band-defined functions with no local
 // forward declarations, so it must follow every band whose functions it uses.
 #include "OtuBand10.inc"
+// Batch B3: the badge/pin state machine. Last, because band 10 defines
+// OtuPinLogic and OtuCellGrid and band 11 has to name both of them.
+#include "OtuBand11.inc"
 // clang-format on
