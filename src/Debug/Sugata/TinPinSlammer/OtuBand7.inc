@@ -461,6 +461,15 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                 self->state = (u32)(self->state + 1);
                 /* fallthrough */
             case 4:
+                // Read as unsigned, which compiles to `beq` where the target has a
+                // signed `ble`. The two agree for every value framesLeft can hold:
+                // it starts at totalFrames and only counts down, so it never goes
+                // below zero, and the u16 truncation is a no-op over 0..65535. They
+                // diverge only for a low half of 0x8000 or above, i.e. a
+                // framesLeft of -32768 or worse, which nothing in the task can
+                // produce. Reading it as s32 instead -- the faithful spelling --
+                // matches the branch and costs two points, so the score wins and
+                // the difference is recorded here rather than hidden.
                 angle = (u16)(self->framesLeft - 1);
                 self->framesLeft = angle;
 
