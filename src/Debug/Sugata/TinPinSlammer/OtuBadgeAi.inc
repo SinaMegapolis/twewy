@@ -311,7 +311,7 @@ s32 func_ov039_0208c92c(OtuBadgeState* self) {
  *  the loop runs from index 1 to 0x10 inclusive. Any non-zero answer stops the
  *  walk, so this reads as an early-out over the table.
  */
-void func_ov039_0208c9cc(OtuBadger* arg) {
+void func_ov039_0208c9cc(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     s32 (*fn)(OtuBadgeState*) = (s32 (*)(OtuBadgeState*))data_ov039_0209a4b0;
     s32 i;
@@ -342,7 +342,7 @@ void func_ov039_0208c9cc(OtuBadger* arg) {
  *  arithmetic here reproduces the intent; mwcc's rounding and the ldrh/ldrb
  *  pairing are not reproduced yet.
  */
-void func_ov039_0208ca1c(OtuBadger* arg) {
+void func_ov039_0208ca1c(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     OtuPinTask* data;
     s32         gx;
@@ -398,7 +398,7 @@ found:
 /**
  * @brief One frame of the pin: release, tick, fade out and tear down.
  */
-void func_ov039_0208cb64(OtuBadger* arg) {
+void func_ov039_0208cb64(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     if (func_ov039_0208a794(&self->pos, (OtuCellGrid*)self->board) == 0) {
         self->phase    = 1;
@@ -445,7 +445,7 @@ void func_ov039_0208cb64(OtuBadger* arg) {
  * @brief The main update: tick the frame budget, advance the tray slot, and
  *        refresh the counter and the two linked-list tasks.
  */
-void func_ov039_0208cc4c(OtuBadger* arg) {
+void func_ov039_0208cc4c(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     s32 i;
 
@@ -488,7 +488,7 @@ refresh:
     func_ov039_02093d68((OtuCounterData*)EasyTask_GetTaskData(self->pool, *(u32*)((u8*)self + 0x1F4)),
                         self->unk_1AC);
 
-    func_ov039_0208d5dc((OtuBadger*)self);
+    func_ov039_0208d5dc((OtuBadge*)self);
 
     for (i = 0; i < 2; i++) {
         func_ov039_02095ddc((void*)EasyTask_GetTaskData(self->pool, *(u32*)((u8*)self + 0x228 + i * 4)));
@@ -498,7 +498,7 @@ refresh:
 /**
  * @brief The fade-out state.
  */
-void func_ov039_0208cd50(OtuBadger* arg) {
+void func_ov039_0208cd50(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     if (self->unk_1A8 == 0) {
         return;
@@ -536,7 +536,7 @@ void func_ov039_0208cd50(OtuBadger* arg) {
 /* --- the two one-line probes -------------------------------------------- */
 
 /** @brief If that probe task is finished, retire the pin. */
-void func_ov039_0208ce20(OtuBadger* arg) {
+void func_ov039_0208ce20(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     if (func_ov039_0209167c((void*)EasyTask_GetTaskData(self->pool, self->taskId2)) != 0) {
         return;
@@ -547,7 +547,7 @@ void func_ov039_0208ce20(OtuBadger* arg) {
 }
 
 /** @brief The same shape, against a different task id. */
-void func_ov039_0208ce54(OtuBadger* arg) {
+void func_ov039_0208ce54(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     if (func_ov039_02091014((void*)EasyTask_GetTaskData(self->pool, self->taskId1)) != 0) {
         return;

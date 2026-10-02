@@ -1,5 +1,5 @@
 /* ============================================================================
- * Band 14 -- the rest of OtuBadger's field accessors.
+ * Band 14 -- the rest of OtuBadge's field accessors.
  *
  * The seven remaining functions in the run that follows band 12, from 0x0208e890
  * to 0x0208e9e4. The seven below them -- 0208e6cc, _6e0, _6f4, _848, _85c, _870
@@ -17,8 +17,8 @@
  *   void*        what band 1 and band 7 happen to pass around.
  *
  * OtuPinTask has no field for +0x0DC or +0x0FC, so those two read through
- * OtuBadger, which band 12 declares and which models the whole 0x25C bytes.
- * Every offset OtuPinTask does model agrees with OtuBadger, so the cast is
+ * OtuBadge, which band 12 declares and which models the whole 0x25C bytes.
+ * Every offset OtuPinTask does model agrees with OtuBadge, so the cast is
  * always safe.
  *
  * Offsets: +0x0DC unk_0DC, +0x0F8 kind, +0x0FC subKind, +0x138 dir.
@@ -33,7 +33,7 @@
  *  case value rather than a chain of equality tests.
  */
 s32 func_ov039_0208e890(void* task) {
-    OtuBadger* self = (OtuBadger*)task;
+    OtuBadge* self = (OtuBadge*)task;
 
     switch (self->kind) {
         case 0:
@@ -58,7 +58,7 @@ s32 func_ov039_0208e890(void* task) {
  *  switch -- the subkind is never read unless the kind already matched.
  */
 s32 func_ov039_0208e950(void* task) {
-    OtuBadger* self = (OtuBadger*)task;
+    OtuBadge* self = (OtuBadge*)task;
     s32        r    = 0;
 
     if (self->kind == 8) {
@@ -131,7 +131,7 @@ s32 func_ov039_0208e998(OtuPinTask* task) {
  *  and uses the value.
  */
 s32 func_ov039_0208e9ac(void* task) {
-    OtuBadger* self = (OtuBadger*)task;
+    OtuBadge* self = (OtuBadge*)task;
     u16        a;
     s32        x = -self->dir.x;
     s32        y = -self->dir.y;

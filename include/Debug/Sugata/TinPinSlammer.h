@@ -633,7 +633,11 @@ typedef struct {
  */
 /**
  * @brief One pin, 0x174 bytes -- the trimmed view of the same object band 12
- *        models in full as OtuBadger.
+ *        models in full as OtuBadge, and band B3 as OtuBadgeState.
+ *
+ *  All three are views of one 0x25C task, "Tsk_OtosuGame_badge". This one is
+ *  the narrow prefix the pool queries need; see OtuBadge's own comment for the
+ *  handle that ties them together.
  *
  *  The offsets in the comments are load-bearing. This type used to carry no
  *  padding at all, so C laid its fields out at 0x0, 0x4, 0x8 ... and every
@@ -656,7 +660,7 @@ typedef struct {
     u8               pad_14C[0x20];
     /* 0x16C */ u16* pinID; // a tray slot's value; 0x130 means "no pin"
     u8               pad_170[0x04];
-} OtuPinTask;               // Size: 0x174               // Size: 0x174
+} OtuPinTask;               // Size: 0x174
 
 /**
  * The child task ids the stage keeps at +0x17C, one word per pool slot.
@@ -987,7 +991,7 @@ void func_ov039_02098d3c(OtuPoint* src, OtuPoint* dest); // Vec_Normalize over 2
 
 /* ============================================================================
  * The obstacle accessors, from band 3's range and never yet written here.
- * Batch B4's OtuBadger calls all three, and with no prototype anywhere above
+ * Batch B4's OtuBadge calls all three, and with no prototype anywhere above
  * them each call became an implicit `int (...)`.
  *
  * Only func_ov039_02092758's result is used, and it is read straight out of r0,

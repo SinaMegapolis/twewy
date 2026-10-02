@@ -1,12 +1,12 @@
 /* ============================================================================
- * BATCH B4 -- the "badger" pin task's own support routines,
+ * BATCH B4 -- the "badge" task's own support routines,
  * 0x0208d3bc - 0x0208e504 (18 functions, 4880 bytes).
  *
  * WHAT THIS BATCH IS
  * -----------------
  * These are not a slice of somebody else's call graph -- they are one whole
  * task's body. The TaskHandle at 0x0209926c names it, and the name string at
- * 0x0209a49c is "Tsk_OtosuGame_badger": {name, taskFunc = 0x0208dc68,
+ * 0x0209a49c is "Tsk_OtosuGame_badge": {name, taskFunc = 0x0208dc68,
  * dataSize = 0x25C}. The stage table at 0x02099278 is
  *
  *     0x0208d6dc  init
@@ -21,6 +21,14 @@
  * push, 0x0208dcb0 its spawner, and the tail of the band
  * (0x0208df2c .. 0x0208e504) is the pair-versus-pair collision code that the
  * pin task runs against itself.
+ *
+ * The same task is modelled twice more in this translation unit: the header's
+ * `OtuPinTask` is the narrow 0x174 prefix of it that the pool queries use, and
+ * band B3's `OtuBadgeState` is the badge AI's own full view of the same 0x25C
+ * bytes under different field names. All three describe one object. There is
+ * no "badger" task -- that was a misreading of the handle's
+ * "Tsk_OtosuGame_badge", confirmed against the ROM's task strings, none of
+ * which contains "badger" except `Tsk_OtosuGame_badgeradar`.
  *
  * STRUCTURAL FINDINGS
  * -------------------
@@ -95,11 +103,11 @@
 /* Data the band reads.                                               */
 /* ------------------------------------------------------------------ */
 
-/** The badger task's three SpriteAnimation templates, 0x2C bytes each. */
+/** The badge task's three SpriteAnimation templates, 0x2C bytes each. */
 
 /** The four stage slots, indexed by the stage argument of 0x0208dc68. */
 
-/** The task's handle: name "Tsk_OtosuGame_badger", taskFunc 0x0208dc68, 0x25C. */
+/** The task's handle: name "Tsk_OtosuGame_badge", taskFunc 0x0208dc68, 0x25C. */
 
 /*
  * The bin identifiers the first sprite loader patches in. Both pool words sit
@@ -140,7 +148,7 @@ typedef struct {
 #define OTU_MUL_Q12(a, b) ((s32)((((s64)(a) * (s64)(b)) + 0x800) >> 12))
 
 /**
- * @brief "Tsk_OtosuGame_badger": one pin, 0x25C bytes.
+ * @brief "Tsk_OtosuGame_badge": the badge task, 0x25C bytes.
  *
  * This is the same object the header models as `OtuPinTask`, which stops at
  * 0x174; that type exists for the five nearest-child queries and only needs
@@ -148,10 +156,14 @@ typedef struct {
  * 0x174 agrees with it -- `kind`, `x`, `y`, `alive`, `pinID` -- and this type
  * continues past it.
  *
+ * It is also the same object band B3 models as `OtuBadgeState`, seen from the
+ * AI's side and under its own field names. The two do not share every name, so
+ * they are kept apart rather than merged; the handle above ties them together.
+ *
  * Positions and velocities are Q12.12, the overlay's usual scale, and three
  * Sprites are embedded rather than pointed at (see the header note).
  */
-typedef struct OtuBadger {
+typedef struct OtuBadge {
     /* 0x000 */ s32          unk_000;   // the spawn argument, unused here
     /* 0x004 */ s32          dataType;  // copied into SpriteAnimation.dataType
     /* 0x008 */ TaskPool*    pool;      // saved by the init stage
@@ -207,7 +219,7 @@ typedef struct OtuBadger {
     /* 0x1A4 */ s32          unk_1A4;   // raised to 1 by the init stage
     /* 0x1A8 */ s32          hasLabel;  // gates two of the children
     /* 0x1AC */ s32          unk_1AC;
-    /* 0x1B0 */ struct OtuBadger* partner; // the pin this one last touched
+    /* 0x1B0 */ struct OtuBadge* partner; // the pin this one last touched
     /* 0x1B4 */ s32          unk_1B4;
     /* 0x1B8 */ s32          unk_1B8;   // counts down, then re-raises unk_1B4
     /* 0x1BC */ s32          unk_1BC;
@@ -231,7 +243,7 @@ typedef struct OtuBadger {
     /* 0x234 */ s32          child9;
     /* 0x238 */ s32          groupIds[8];
     /* 0x258 */ s32          child10;
-} OtuBadger; // Size: 0x25C
+} OtuBadge; // Size: 0x25C
 
 /** The row of the tray table this pin's tray slot names.
  *
@@ -265,7 +277,7 @@ typedef struct {
     /* 0x18 */ u16*  pinID;
     /* 0x1C */ s32   unk_1C; // -> self + 0x1A8
     /* 0x20 */ s32   unk_20; // -> self + 0x174
-} OtuBadger_InitArgs; // Size: 0x24
+} OtuBadge_InitArgs; // Size: 0x24
 
 /* ------------------------------------------------------------------ */
 
@@ -287,15 +299,15 @@ extern const TaskHandle data_ov039_0209926c;
 extern const BinIdentifier data_ov039_0209a0b4[5];
 extern const OtuPinScale data_ov039_0209a3e4[];
 extern const OtuPinScale data_ov039_0209a3e8[];
-extern void func_ov039_0208c9cc(OtuBadger* self);
-extern void func_ov039_0208ca1c(OtuBadger* self);
-extern void func_ov039_0208cb64(OtuBadger* self);
-extern void func_ov039_0208cc4c(OtuBadger* self);
-extern void func_ov039_0208cd50(OtuBadger* self);
-extern void func_ov039_0208ce20(OtuBadger* self);
-extern void func_ov039_0208ce54(OtuBadger* self);
-extern void func_ov039_0208ce88(OtuBadger* self);
-extern void func_ov039_0208d210(OtuBadger* self);
+extern void func_ov039_0208c9cc(OtuBadge* self);
+extern void func_ov039_0208ca1c(OtuBadge* self);
+extern void func_ov039_0208cb64(OtuBadge* self);
+extern void func_ov039_0208cc4c(OtuBadge* self);
+extern void func_ov039_0208cd50(OtuBadge* self);
+extern void func_ov039_0208ce20(OtuBadge* self);
+extern void func_ov039_0208ce54(OtuBadge* self);
+extern void func_ov039_0208ce88(OtuBadge* self);
+extern void func_ov039_0208d210(OtuBadge* self);
 extern s32 func_ov039_020915a8(TaskPool* pool, s32 dataType, s32 childId);
 extern s32 func_ov039_02091b00(TaskPool* pool, s32 dataType, s32 childId);
 
@@ -311,7 +323,7 @@ extern s32 func_ov039_02091b00(TaskPool* pool, s32 dataType, s32 childId);
  *  defaulted. 0x130 at the tray slot means "no pin" and selects the second
  *  bin with a fixed pack index of 0xB.
  */
-void func_ov039_0208d3bc(OtuBadger* self, Sprite* sprite) {
+void func_ov039_0208d3bc(OtuBadge* self, Sprite* sprite) {
     SpriteAnimation anim = data_ov039_02099288;
 
     anim.owner    = self;
@@ -339,7 +351,7 @@ void func_ov039_0208d3bc(OtuBadger* self, Sprite* sprite) {
 }
 
 /** Loads sprite B. The same loader with the second template and no patch-up. */
-void func_ov039_0208d4cc(OtuBadger* self, Sprite* sprite) {
+void func_ov039_0208d4cc(OtuBadge* self, Sprite* sprite) {
     SpriteAnimation anim = data_ov039_020992b4;
 
     anim.owner    = self;
@@ -355,7 +367,7 @@ void func_ov039_0208d4cc(OtuBadger* self, Sprite* sprite) {
  *  The third template differs from the second only in its packIndex (1 against
  *  6) and its animIndex (5 against 1), neither of which the loader touches --
  *  the three really are one function instantiated three times. */
-void func_ov039_0208d554(OtuBadger* self, Sprite* sprite) {
+void func_ov039_0208d554(OtuBadge* self, Sprite* sprite) {
     SpriteAnimation anim = data_ov039_020992e0;
 
     anim.owner    = self;
@@ -382,7 +394,7 @@ void func_ov039_0208d554(OtuBadger* self, Sprite* sprite) {
  *  fields through it. Written flat here; the base is a register-allocation
  *  choice the source does not get to make.
  */
-void func_ov039_0208d5dc(OtuBadger* self) {
+void func_ov039_0208d5dc(OtuBadge* self) {
     self->unk_0F4 = 0;
     self->unk_104 = 1;
     self->unk_108 = 0;
@@ -438,8 +450,8 @@ void func_ov039_0208d5dc(OtuBadger* self) {
  *  `unk_0EC` is the one field read out of the variant pointer: `*(u16*)(unk_0E8 + 4)`
  *  when there is one, zero otherwise -- the `ldrhne`/`strhne`/`strheq` shape.
  */
-s32 func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadger_InitArgs* args) {
-    OtuBadger* self = (OtuBadger*)task->data;
+s32 func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadge_InitArgs* args) {
+    OtuBadge* self = (OtuBadge*)task->data;
     u8*        cell;
 
     self->dataType = args->unk_00;
@@ -494,7 +506,7 @@ s32 func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadger_InitArgs* args) {
  *  pc, r0, lsl #2`) with nine out-of-line bodies, one per kind, all named.
  */
 s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
-    OtuBadger* self = (OtuBadger*)task->data;
+    OtuBadge* self = (OtuBadge*)task->data;
 
     if (self->unk_0E8 != NULL) {
         func_ov039_0208ac98((OtuInputLatch*)self);
@@ -612,7 +624,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
  *  stored fields are `Sprite.posX`/`Sprite.posY` (a Sprite's +0x0C/+0x0E),
  *  which is what fixes the sprite bases at +0x0C/+0x4C/+0x8C.
  */
-void func_ov039_0208d9ec(OtuBadger* self) {
+void func_ov039_0208d9ec(OtuBadge* self) {
     if (self->unk_1D0 > 0) {
         self->spriteC.posX = (self->x - self->anchorX) >> 12;
         self->spriteC.posY = ((self->y + self->unk_128) - self->anchorY) >> 12;
@@ -635,7 +647,7 @@ void func_ov039_0208d9ec(OtuBadger* self) {
  *  8 only for three of its sub-kinds. +0x168 bit 1 suppresses all of it.
  */
 s32 func_ov039_0208da74(TaskPool* pool, Task* task, void* args) {
-    OtuBadger* self = (OtuBadger*)task->data;
+    OtuBadge* self = (OtuBadge*)task->data;
 
     if (self->unk_0DC == 0) {
         if (self->hasLabel != 0) {
@@ -688,7 +700,7 @@ s32 func_ov039_0208da74(TaskPool* pool, Task* task, void* args) {
  *  the pair group and child9 -- so the order is exact, not simply reversed.
  */
 s32 func_ov039_0208db44(TaskPool* pool, Task* task, void* args) {
-    OtuBadger* self = (OtuBadger*)task->data;
+    OtuBadge* self = (OtuBadge*)task->data;
     s32       i;
 
     EasyTask_DeleteTask(pool, self->child10);
@@ -740,7 +752,7 @@ s32 func_ov039_0208dc68(TaskPool* pool, Task* task, void* args, s32 stage) {
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Creates a badger and its eleven children, in a fixed order.
+ * @brief Creates a badge and its eleven children, in a fixed order.
  *
  *  Every spawner is handed the *new* task's id, not the parent's, so the
  *  children know which pin they belong to; that is why `id` is passed
@@ -768,8 +780,8 @@ s32 func_ov039_0208dc68(TaskPool* pool, Task* task, void* args, s32 stage) {
  * local variable" errors inside this body. */
 s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* arg4,
                        void* arg5, void* arg6, void* arg7, s32 arg8, void* arg9) {
-    OtuBadger_InitArgs args;
-    OtuBadger*         self;
+    OtuBadge_InitArgs args;
+    OtuBadge*         self;
     s32                id;
     s32                i;
 
@@ -784,7 +796,7 @@ s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* ar
     args.unk_20    = arg9;
 
     id   = EasyTask_CreateTask(pool, &data_ov039_0209926c, NULL, 0, NULL, &args);
-    self = (OtuBadger*)EasyTask_GetTaskData(pool, id);
+    self = (OtuBadge*)EasyTask_GetTaskData(pool, id);
 
     self->child0 = func_ov039_0208f40c(pool, arg1, id);
     self->child1 = func_ov039_0208f770(pool, arg1, id);
@@ -885,7 +897,7 @@ s32 func_ov039_0208df2c(OtuPoint* posA, OtuPoint* velA, s32 reachA, OtuPoint* po
  *  flags actually encode, which is the only reading consistent with zero
  *  loads. See the note in the header.
  */
-void func_ov039_0208dff0(OtuPoint* dir, s32 speed, s32 scaleA, s32 scaleB, OtuBadger* other) {
+void func_ov039_0208dff0(OtuPoint* dir, s32 speed, s32 scaleA, s32 scaleB, OtuBadge* other) {
     s32 mag = OTU_MUL_Q12(speed, scaleA);
 
     func_ov039_02098c00(OTU_MUL_Q12(mag, scaleB), dir, &other->vel, &other->vel);
@@ -954,7 +966,7 @@ void func_ov039_0208e058(OtuPoint* posA, OtuPoint* velA, OtuPoint* posB, OtuPoin
  *  (`data_ov039_0209a388`) while a settled pin gets 0x1000, i.e. 3.0 against
  *  1.0.
  */
-void func_ov039_0208e130(OtuBadger* self, OtuBadger* other) {
+void func_ov039_0208e130(OtuBadge* self, OtuBadge* other) {
     OtuPoint dir;
     s32     score;
     s32     scale;
@@ -992,8 +1004,8 @@ void func_ov039_0208e130(OtuBadger* self, OtuBadger* other) {
  * unit and so governs. Taking the real struct types here collides with it
  * and cascades into "expression syntax error" through the whole body. */
 s32 func_ov039_0208e28c(void* a, void* b) {
-    OtuBadger* self  = (OtuBadger*)a;
-    OtuBadger* other = (OtuBadger*)b;
+    OtuBadge* self  = (OtuBadge*)a;
+    OtuBadge* other = (OtuBadge*)b;
 
     if (self->flags > 0) {
         return 0;
@@ -1041,8 +1053,8 @@ s32 func_ov039_0208e28c(void* a, void* b) {
  * unit and so governs. Taking the real struct types here collides with it
  * and cascades into "expression syntax error" through the whole body. */
 s32 func_ov039_0208e37c(void* a, void* b) {
-    OtuBadger* self  = (OtuBadger*)a;
-    OtuBadger* other = (OtuBadger*)b;
+    OtuBadge* self  = (OtuBadge*)a;
+    OtuBadge* other = (OtuBadge*)b;
 
     OtuPoint dir;
     s32     dist;
@@ -1130,7 +1142,7 @@ s32 func_ov039_0208e37c(void* a, void* b) {
  * unit and so governs. Taking the real struct types here collides with it
  * and cascades into "expression syntax error" through the whole body. */
 s32 func_ov039_0208e504(void* a, void* obstacle) {
-    OtuBadger* self = (OtuBadger*)a;
+    OtuBadge* self = (OtuBadge*)a;
 
     OtuPoint other;
     OtuPoint dir;

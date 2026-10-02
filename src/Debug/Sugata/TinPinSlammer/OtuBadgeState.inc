@@ -195,6 +195,11 @@ typedef struct {
 /**
  * @brief "Tsk_OtosuGame_badge", 0x25C bytes of state.
  *
+ * The same object is modelled twice more in this translation unit:
+ * OtuPinTray.inc as `OtuBadge` (the task's own view) and the header as the
+ * 0x174 prefix `OtuPinTask` (the view the pool queries use). The three share
+ * the handle at 0x0209926c; they are not three tasks.
+ *
  * Every offset below is fixed by at least one load or store in this band, and
  * the padding is sized so each field lands on the displacement the target uses.
  * The six point-shaped regions are `OtuPoint` because the overlay's vector

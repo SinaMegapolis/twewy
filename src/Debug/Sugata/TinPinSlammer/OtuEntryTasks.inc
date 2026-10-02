@@ -17,13 +17,13 @@
  * by a `TaskStages` array of four pointers, and each `TaskStages` array lists
  * exactly four functions in this band or immediately around it:
  *
- *   0x02099cac  "Tsk_Otosu_slash"  0x70 bytes, entry 02095420
+ *   0x02099cac  "Tsk_OtosuGame_slash"  0x70 bytes, entry 02095420
  *       init 02095144  update 02095194  render 020953c4  destroy 0209540c
- *   0x02099cf4  "Tsk_Otosu_track"  0x70 bytes, entry 02095708
+ *   0x02099cf4  "Tsk_OtosuGame_track"  0x70 bytes, entry 02095708
  *       init 020955f4  update 02095638  render 020956a4  destroy 020956f0
- *   0x02099d44  "Tsk_Otosu_point"  0x174 bytes, entry 02095c58
+ *   0x02099d44  "Tsk_OtosuGame_point"  0x174 bytes, entry 02095c58
  *       init 02095a18  update 02095a78  render 02095b6c  destroy 02095c2c
- *   0x02099d8c  "Tsk_Otosu_entry"  0xC8 bytes, entry 020960dc
+ *   0x02099d8c  "Tsk_OtosuGame_entry"  0xC8 bytes, entry 020960dc
  *       init 02095f18  update 02095f58  render 02095fe4  destroy 020960bc
  *
  * So the four `*_RunTask`-shaped routines are the task entries, and each is
@@ -33,7 +33,7 @@
  * shared loader shape, with its own `.rodata` `SpriteAnimation` template.
  *
  * The `data_*` names below are the build's own, and the two that are named
- * rather than numeric (`Tsk_Otosu_*` and `Seq_Otosu`) are read off the strings
+ * rather than numeric (`Tsk_OtosuGame_*` and `Seq_Otosu`) are read off the strings
  * at 0x0209a7e0 onward.
  */
 
@@ -112,7 +112,7 @@ extern s32 data_0205e4e0[];
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief One of the four slots in "Tsk_Otosu_point", 0x14 bytes.
+ * @brief One of the four slots in "Tsk_OtosuGame_point", 0x14 bytes.
  *
  * A 0x40-stride array of these at +0x120, one per sprite. `live` gates the
  * whole slot; `delay` counts the sprite's own animation down; `offsetX` and
@@ -128,7 +128,7 @@ typedef struct {
 } OtuPointSlot; // Size: 0x14
 
 /**
- * @brief "Tsk_Otosu_slash", 0x70 bytes.
+ * @brief "Tsk_OtosuGame_slash", 0x70 bytes.
  *
  * One `Sprite` at the base. +0x48/+0x4C is the pair the loader subtracts, and
  * +0x58/+0x5C the pair it subtracts *it* from -- so the sprite is drawn at the
@@ -153,7 +153,7 @@ typedef struct {
 } OtuSlashTask; // Size: 0x70
 
 /**
- * @brief "Tsk_Otosu_track", 0x70 bytes.
+ * @brief "Tsk_OtosuGame_track", 0x70 bytes.
  *
  * Same size as the slash task but the `Sprite` sits at +0x08 rather than at
  * +0, and the subtracted pair is +0x50 against +0x48. The render therefore
@@ -178,7 +178,7 @@ typedef struct {
 } OtuTrackTask; // Size: 0x70
 
 /**
- * @brief "Tsk_Otosu_point", 0x174 bytes.
+ * @brief "Tsk_OtosuGame_point", 0x174 bytes.
  *
  * Four `Sprite`s at 0x40 stride from +0x00 and four `OtuPointSlot`s at +0x120.
  * The anchor pair at +0x100/+0x104 is where the tracked pin is and the one at
@@ -218,7 +218,7 @@ typedef struct {
 } OtuEntryAnim; // Size: 0x10
 
 /**
- * @brief "Tsk_Otosu_entry", 0xC8 bytes.
+ * @brief "Tsk_OtosuGame_entry", 0xC8 bytes.
  *
  * Two `Sprite`s at +0x00 and +0x40, each with a 0x10-byte limit block and a
  * 0x0C-byte running block behind it, so the second sprite's animation state
@@ -261,7 +261,7 @@ typedef struct {
 } OtuTaskArgs1;
 
 /* ------------------------------------------------------------------ */
-/* "Tsk_Otosu_slash"                                                   */
+/* "Tsk_OtosuGame_slash"                                                   */
 /* ------------------------------------------------------------------ */
 
 /** Releases the one sprite the slash task owns, and keeps running. */
@@ -358,7 +358,7 @@ s32 func_ov039_020953c4(TaskPool* pool, Task* task, void* args) {
 }
 
 /* ------------------------------------------------------------------ */
-/* "Tsk_Otosu_track"                                                   */
+/* "Tsk_OtosuGame_track"                                                   */
 /* ------------------------------------------------------------------ */
 
 /** Releases the track task's sprite, which sits at +0x08. */
@@ -458,7 +458,7 @@ s32 func_ov039_020956a4(TaskPool* pool, Task* task, void* args) {
 }
 
 /* ------------------------------------------------------------------ */
-/* "Tsk_Otosu_point"                                                   */
+/* "Tsk_OtosuGame_point"                                                   */
 /* ------------------------------------------------------------------ */
 
 /** Releases all four of the point task's sprites, and keeps running. */
@@ -885,7 +885,7 @@ void func_ov039_02095788(OtuTrackTask* self, OtuPointSlot* slot, s32 angle, s32 
 }
 
 /* ------------------------------------------------------------------ */
-/* "Tsk_Otosu_entry"                                                   */
+/* "Tsk_OtosuGame_entry"                                                   */
 /* ------------------------------------------------------------------ */
 
 /**

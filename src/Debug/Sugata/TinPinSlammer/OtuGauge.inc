@@ -1,5 +1,5 @@
 /* ============================================================================
- * Band B5 -- Tsk_OtosuGame_specialgaugauge, 0x02094214 - 0x02094ae8.
+ * Band B5 -- Tsk_OtosuGame_specialgauge, 0x02094214 - 0x02094ae8.
  *
  * Claim range: .text 0x02094214 .. 0x02094ae8 (11 functions, 2260 bytes,
  * 0x02094214 .. 0x02094ab4). It sits in the gap between band 2
@@ -12,7 +12,7 @@
  * WHAT THE TASK IS
  * ----------------
  * The overlay's data at 0x02099b98 is a `TaskHandle` naming the string at
- * 0x0209a7b0 -- "Tsk_OtosuGame_specialgaugauge" -- with a taskFunc of
+ * 0x0209a7b0 -- "Tsk_OtosuGame_specialgauge" -- with a taskFunc of
  * 0x02094a6c (this band's dispatcher) and a dataSize of 0x4B4, and the
  * `TaskStages` immediately after it lists this band's four stages in the
  * usual order:
@@ -185,7 +185,7 @@ typedef struct {
 } OtuGaugePair; // Size: 0x80
 
 /**
- * @brief "Tsk_OtosuGame_specialgaugauge", 0x4B4 bytes.
+ * @brief "Tsk_OtosuGame_specialgauge", 0x4B4 bytes.
  *
  * The size is the target's, not an estimate: the `TaskHandle` at 0x02099b98
  * carries it as its third word.

@@ -1686,7 +1686,7 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // only has to precede band 1.
 #include "OtuMeters.inc"
 #include "OtuHammerSpawn.inc"
-// Band 13: Tsk_OtosuGame_specialgaugauge, drafted as a contiguous batch.
+// Band 13: Tsk_OtosuGame_specialgauge, drafted as a contiguous batch.
 // Included here only because band 1 is the one include with a hard ordering
 // requirement.
 // band 1 is the one include with a hard ordering requirement.
@@ -1702,10 +1702,10 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // Batch B3: the badge/pin state machine. Last, because band 10 defines
 // OtuPinLogic and OtuCellGrid and band 11 has to name both of them.
 #include "OtuBadgeState.inc"
-// Batch B4: OtuBadger, the pin tray. Last: it calls band 10's OtuPinLogic
+// Batch B4: OtuBadge, the pin tray. Last: it calls band 10's OtuPinLogic
 // and band 11's OtuBadgeState, both of which are declared in those bands.
 #include "OtuPinTray.inc"
-// Band 14: OtuBadger's field accessors. After band 12, which declares the
+// Band 14: OtuBadge's field accessors. After band 12, which declares the
 // type they all read and write.
 #include "OtuPinAccessors.inc"
 // Batch: the badge AI and update. After band 14, which it calls and whose
