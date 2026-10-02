@@ -80,11 +80,7 @@ void func_ov039_0208e85c(void* task, OtuPoint* out) {
 
 /** Writes the +0x110/+0x114 pair from a point. */
 void func_ov039_0208e848(void* task, OtuPoint* in) {
-    s32 x = in->x;
-    s32 y = in->y;
-
-    *(s32*)((u8*)task + 0x110) = x;
-    *(s32*)((u8*)task + 0x114) = y;
+    *(OtuPoint*)((u8*)task + 0x110) = *in;
 }
 
 /** Reads the +0x118/+0x11C pair out to a point. */
@@ -270,11 +266,7 @@ void func_ov039_02092760(void* task) {
 
 /** Writes the +0x50/+0x54 pair from a point -- the pair's setter. */
 void func_ov039_02094e88(void* task, OtuPoint* in) {
-    s32 x = in->x;
-    s32 y = in->y;
-
-    *(s32*)((u8*)task + 0x50) = x;
-    *(s32*)((u8*)task + 0x54) = y;
+    *(OtuPoint*)((u8*)task + 0x50) = *in;
 }
 
 /** A single word at +0x54, read as s32 by a different caller. */
