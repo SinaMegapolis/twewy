@@ -450,6 +450,14 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                 self->angle = angle;
                 headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index + 1) * 2)) + 0x800) >> 12);
                 headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index * 2)) + 0x800) >> 12);
+                // The two rotation writes deliberately sit *after* the trigonometry
+                // here, and deliberately sit before it in state 4. That is not a
+                // typo and it is not arbitrary: all four placements were measured,
+                // and this one is worth a point over the alternative. Note that the
+                // target's `add r, r, #0x4000` appears between the two multiplies in
+                // every state, which is the scheduler hoisting the arithmetic -- not
+                // a statement position. Putting the writes there to match it costs
+                // four and a half points.
                 self->spriteRotB = (u16)(angle + 0x4000);
                 self->spriteRotA = (u16)(angle + 0x4000);
                 self->targetX = self->originX + headX;
@@ -484,6 +492,9 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                     spin = self->angle0 - (((self->angleBase << 0x10) * (self->totalFrames - self->framesLeft)) / self->totalFrames);
                     index2 = OTU_ANGLE_INDEX(spin);
                     self->angle = spin;
+                    // The mirror image of state 3: here the rotation writes come
+                    // before the trigonometry, which is the placement that measures best.
+                    // Same two stores, opposite position, for a fifth of a point.
                     self->spriteRotB = (u16)(spin + 0x4000);
                     self->spriteRotA = (u16)(spin + 0x4000);
                     headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index2 + 1) * 2)) + 0x800) >> 12);
@@ -511,10 +522,11 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
                         angle = (u16)(self->angle0 + func_ov039_020901e0(&self->cursorTrail));
                         index3 = OTU_ANGLE_INDEX(angle);
                         self->angle = angle;
-                        self->spriteRotB = (u16)(angle + 0x4000);
-                        self->spriteRotA = (u16)(angle + 0x4000);
                         headX = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + (index3 + 1) * 2)) + 0x800) >> 12);
                         headY = (s32)(((s64)self->scale * (*(s16*)((u8*)&data_0205e4e0 + index3 * 2)) + 0x800) >> 12);
+                        // After the trigonometry, like state 3 and unlike state 4.
+                        self->spriteRotB = (u16)(angle + 0x4000);
+                        self->spriteRotA = (u16)(angle + 0x4000);
                         self->targetX = self->originX + headX;
                         self->targetY = self->originY + headY;
                         self->targetXB = self->originX + ((headX + (headX >> 31)) >> 1);
