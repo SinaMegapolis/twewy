@@ -289,8 +289,9 @@ void func_ov039_02098b78(OtuStageDispatch* dispatch, s32* out) {
     out[1] = *(s32*)((u8*)dispatch + 0x04);
 }
 
-/** Raises the scene's +0x41EE4 flag. */
-void func_ov039_02088688(TinPinSlammer_Scene* scene) {
+/** Raises the scene's +0x41EE4 flag. Registered as a callback, so the scene
+ *  arrives in the second argument slot -- the target's base is r1. */
+void func_ov039_02088688(s32 unused, TinPinSlammer_Scene* scene) {
     *(s32*)((u8*)scene + 0x41000 + 0xEE4) = 1;
 }
 

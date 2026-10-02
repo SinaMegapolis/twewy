@@ -1343,10 +1343,10 @@ void func_ov039_02086060(TinPinSlammer_Scene* scene, s32 slot) {
     char        row[0x20];
     s32         column;
 
-    row[2] = '0' + value % 10;
-    row[3] = ' ';
     row[0] = '0' + (value / 100) % 10;
     row[1] = '0' + (value / 10) % 10;
+    row[2] = '0' + value % 10;
+    row[3] = ' ';
 
     column = OTU_TEXT_ROW(block, block->index)->value;
 
