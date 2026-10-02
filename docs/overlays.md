@@ -996,3 +996,52 @@ prologue's vestigial register -- the target pushes `r3` and never uses it, this
 pushes `r6` -- is not reachable by reordering declarations. It is mwcc's
 allocator, and roughly a third of what remains in that function is that. Worth
 recording so it is not tried a third time.
+### There is an unclaimed gap, and it explains a latent hole
+
+`OtuFieldAccess.c` claims `.text` to `0x02098b8c`; the overlay's `.text` ends at
+`0x02098e24`. Between them, `0x02098b8c`-`0x02098e24`, **664 bytes and 11
+functions, are claimed by no translation unit at all**:
+
+    0x02098b8c  0x02098bb0  0x02098bd4  0x02098c00  0x02098c40
+    0x02098c70  0x02098ca8  0x02098d10  0x02098d3c  0x02098d7c  0x02098dbc
+
+This corrects an earlier conclusion recorded above -- that no new translation
+unit can be created in this overlay and that all remaining work must go inside
+an existing claim as a band `.inc`. That was true of every *function* examined
+and was over-generalised to the address space. A new TU can claim this range.
+
+It also explains a live hole. `func_ov039_02098bb0` (a vector subtract) and
+`func_ov039_02098c00` (a Q12.12 scaled vector add) sit in that gap, and:
+
+- band 3 declares both (lines 55-56, with `OtuPoint*`) and band 5 declares
+  `02098c00` unprototyped (line 180), so four call sites in bands 3 and 5 invoke
+  them -- but **nothing defines them**, because no TU owns those addresses;
+- so objdiff reports them "not present on target" rather than as a bad match,
+  and they can never score;
+- and defining them inside `OtuFieldAccess.c` is wrong, since that TU's claim
+  ends below them.
+
+The fix is a new TU owning the gap, not another band `.inc`.
+
+### Trap 6: a report says "absent" and you believe it
+
+`func_ov039_02098bb0` and `func_ov039_02098c00` were reported absent by a lookup
+into `build/usa/report.json`, and actng on that produced a duplicate definition
+that failed the build with `redeclared`. They were already declared and called
+from bands 3 and 5. **The report is generated output and can be stale or omit
+units; grep the source.** This is the same mistake as Trap 1 in a different
+costume -- an inferred absence rather than a checked one -- and it is now the
+second time in this overlay that trusting a generated artifact over the source
+has cost time.
+
+### Trap 7: `m2cdraft.py` cannot preprocess a TU that #includes the band files
+
+`--ctx-from` copies the given file into a temp path under %TEMP% and runs gcc on
+the copy, so `#include "OtuBand2.inc"` resolves against %TEMP%, where the band
+files are not. Preprocessing dies before m2c runs, regardless of where the
+context file lives -- staging the `.inc` files alongside does not help, because
+they are not carried across. Workaround: stage a copy of the TU with the band
+include *lines* stripped. Safe for m2c: the types come from the feature header
+and the bands hold function bodies, which m2c does not consume. Strip the
+include lines only -- the word `OtuBand` also appears in the comment above them
+explaining the include order, and that must survive.
