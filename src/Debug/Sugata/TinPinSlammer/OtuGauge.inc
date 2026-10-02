@@ -350,16 +350,17 @@ void func_ov039_0209432c(OtuGauge* self, Sprite* sprite) {
  *
  * The template at 0x02099c0c is byte-identical to the one 0x0209432c uses, so
  * this body is 0x0209432c's plus one argument -- the cell index, whose `+ 1`
- * becomes the template's `animIndex`. Zero is therefore not a valid animation
- * for either walk's sprites, which is the same convention band 3's point task
- * uses on its own digit table.
+ * becomes the template's `packIndex`, selecting one of the eight walk packs.
+ * It is deliberately not the animation: `animIndex` at +0x2A keeps the
+ * template's own value. Zero is therefore not a valid pack index, the same
+ * convention band 3's point task uses on its own digit table.
  */
 void func_ov039_0209439c(OtuGauge* self, Sprite* sprite, s32 index) {
     SpriteAnimation anim = data_ov039_02099c0c;
 
     anim.owner     = self;
     anim.dataType  = (u16)self->dataType;
-    anim.animIndex = index + 1;
+    anim.packIndex = index + 1;
 
     _Sprite_Load(sprite, &anim);
 }

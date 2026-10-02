@@ -330,7 +330,7 @@ typedef struct {
     /* 0x150 */ u8  pad_150[0x20];
     /* 0x170 */ s32 unk_170;    // written from data_ov039_0209a360[slotIndex]
     /* 0x174 */ s32 timer;      // 0x258 on entry, counted down every frame
-    /* 0x178 */ u8  pad_178[0x24C];
+    /* 0x178 */ u8  pad_178[0x14C];
     /* 0x2C4 */ s32 tickTask;   // handle resolved through pool 1 by the tick stages
     /* 0x2C8 */ s32 initTask;   // handle deleted by the cleanup
     /* 0x2CC */ s32 fadeTask;   // handle deleted by stage 8

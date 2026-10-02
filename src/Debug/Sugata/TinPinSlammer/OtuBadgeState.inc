@@ -375,8 +375,8 @@ void func_ov039_0208acc0(OtuBadgeState* self) {
  * direction of nothing.
  */
 void func_ov039_0208ad2c(OtuPoint* vel, s32 shortfall) {
-    OtuPoint zero;
     OtuPoint norm;
+    OtuPoint zero;
     s32      len = func_ov039_02098d10(vel);
     s32      scale;
 

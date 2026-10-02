@@ -171,6 +171,7 @@ typedef struct {
     /* 0x01 */ u8 variant;   // handed to the obstacle factory as `slot`
     /* 0x02 */ u8 pad_02[2];
     /* 0x04 */ u8 effectMax; // copied to stage->effectCount by 02088c50
+    u8            pad_05[0x0B];
 } OtuBoardParams; // Size: 0x10
 
 /** One of the countdown block's three 0x10-byte groups.
@@ -787,7 +788,7 @@ void func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at) {
     s32 i;
 
     for (i = 0; i < 0x10; i++) {
-        func_ov039_02094e9c(EasyTask_GetTaskData(OTU_POOL2(scene), OTU_HELPER_ID(stage, stage->helperCursor + i)),
+        func_ov039_02094e9c(EasyTask_GetTaskData(OTU_POOL2(scene), OTU_HELPER_ID(stage, i + stage->helperCursor)),
                             at);
     }
 
