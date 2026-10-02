@@ -37,4 +37,4 @@ src/Debug/Sugata/TinPinSlammer/OtuFieldAccess.c:
     .text       start:0x02088400 end:0x02098b8c
 
 src/Debug/Sugata/TinPinSlammer/OtuVecOps.c:
-    .text       start:0x02098bb0 end:0x02098c40
+    .text       start:0x02098bb0 end:0x02098ca8

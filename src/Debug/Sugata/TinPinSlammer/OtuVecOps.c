@@ -47,3 +47,23 @@ void func_ov039_02098c00(s32 angle, OtuPoint* a, OtuPoint* b, OtuPoint* out) {
     out->x = b->x + (s32)(((s64)angle * a->x) >> 12);
     out->y = b->y + (s32)(((s64)angle * a->y) >> 12);
 }
+
+/** The dot product, at the same scale. Returns a scalar, not a point.
+ *
+ * 64-bit products again, with a +0x800 rounding constant before the shift -- the
+ * target rounds to nearest rather than truncating, and dropping that term is a
+ * one-bit-per-call difference that a match will not forgive.
+ */
+s32 func_ov039_02098c40(OtuPoint* a, OtuPoint* b) {
+    return (s32)(((s64)a->x * b->x + (s64)a->y * b->y + 0x800) >> 12);
+}
+
+/** The 2D cross product's z component, same scale and rounding.
+ *
+ * The second product is written `b->x * a->y` rather than `a->y * b->x`. Same
+ * arithmetic, and the difference is the load order: the target reads a.x, b.y,
+ * b.x, a.y, which only comes out of the operands in that order.
+ */
+s32 func_ov039_02098c70(OtuPoint* a, OtuPoint* b) {
+    return (s32)(((s64)a->x * b->y - (s64)b->x * a->y + 0x800) >> 12);
+}
