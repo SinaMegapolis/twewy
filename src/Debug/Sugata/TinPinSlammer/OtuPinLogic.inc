@@ -267,7 +267,7 @@ void func_ov040_0209cb9c(void);
 void func_ov040_0209cb08(void* state, s32 arg1);
 void func_ov040_0209cabc(void* state, s32 arg1);
 void func_ov040_0209c158(void);
-void func_ov040_0209ba04(void (*cb)(TinPinSlammer_Scene*, s32, const void*, s32),
+void func_ov040_0209ba04(void (*cb)(void*, TinPinSlammer_Scene*),
                          void* scene, void* buf, s32 arg3);
 void func_ov040_0209d0a8(s32 arg0, s32 arg1, s32 arg2);
 void func_ov040_0209d290(s32 arg0, void* arg1);
@@ -318,7 +318,7 @@ s32 func_02047e84(u16 arg0);
  * the block, so they stay out of the struct rather than being named twice.
  */
 typedef struct {
-    /* 0x000 */ u8  pad_000[4];
+    /* 0x000 */ s32 unk_00;    // cleared by the cleanup case
     /* 0x004 */ u16 unk_04;    // handshake flag; the two board variants set it either way
     /* 0x006 */ u16 unk_06;    // two bytes of wireless state, pushed as a pair
     /* 0x008 */ s32 state;     // 0..8, the selector both update routines switch on
@@ -351,8 +351,9 @@ typedef struct {
  * every `func_ov039_02087d04` call in the overlay takes.
  */
 typedef struct {
-    /* 0x000 */ TaskPool* pool;  // the pool every handle below is resolved through
-    /* 0x004 */ u8      pad_004[0x10C];
+    /* 0x000 */ u8      pad_000[8];
+    /* 0x008 */ TaskPool* pool;  // the pool every handle below is resolved through
+    /* 0x00C */ u8      pad_00C[0x104];
     /* 0x110 */ OtuPoint anchor;  // the `src` of func_ov039_02087d04
     /* 0x118 */ u8      pad_118[8];
     /* 0x120 */ OtuPoint pos;     // the `dst` of func_ov039_02087d04
@@ -445,7 +446,7 @@ typedef struct {
 #define OTU_TRAY(scene) ((u8*)(scene) + 0x4C + 0x44000)
 
 /** The wireless save record, reached the way 02082c50 reaches it. */
-#define OTU_BOARD_RECORD OTU_WIRELESS_RECORD(0x3020, 0)
+#define OTU_BOARD_RECORD OTU_WIRELESS_RECORD(0x3000, 0)
 
 /** One Q12.12 multiply, rounded to nearest. */
 static inline s32 OtuQ12Mul(s32 a, s32 b) {
@@ -823,8 +824,10 @@ void func_ov039_02089f30(TinPinSlammer_Scene* scene) {
  * +0x08 set -- which 0x02088698 raises once a packet has landed -- it instead
  * pushes the block's +0x06 as two bytes of state and sends at index 5.
  *
- * `OTU_BOARD_RECORD` is the same `gSaveData + 0x3020` base 0x02082c50 uses, and
- * the `+ 0x40A` displacement is the same field `func_ov039_02082c50` reads.
+ * `OTU_BOARD_RECORD` is the `gSaveData + 0x3000` base and the `+ 0x40A`
+ * displacement is the byte the target reads; the handle it feeds is
+ * 0x02088698, the packet receive callback, not the 4-argument player the
+ * neighbouring stage hands to 0x0209ec5c.
  */
 void func_ov039_02089f68(TinPinSlammer_Scene* scene) {
     OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -842,7 +845,7 @@ void func_ov039_02089f68(TinPinSlammer_Scene* scene) {
                 func_ov040_0209caac(0x400548);
                 func_ov040_0209d848(3);
                 stage->unk_06 = OTU_BOARD_RECORD[0x40A];
-                func_ov040_0209ba04(func_ov039_02087cac, scene, (u8*)scene + 0x41ED8, 0);
+                func_ov040_0209ba04(func_ov039_02088698, scene, (u8*)scene + 0x41ED8, 0);
                 return;
             }
 
@@ -859,7 +862,7 @@ void func_ov039_02089f68(TinPinSlammer_Scene* scene) {
             return;
 
         case 5:
-            stage->state = 0;
+            stage->unk_00 = 0;
             func_ov039_02098a50(OTU_STAGE(scene));
             return;
 
