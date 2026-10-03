@@ -65,6 +65,12 @@ void func_ov039_020983c8(void* data, OtuPoint* pt, void* table, s32 index);
 extern s32 data_ov039_0209a300;
 extern s32 data_ov039_0209a304;
 extern s32 data_ov039_0209a310;
+
+/* The four more func_ov039_02094e9c randomises its launch between. */
+extern s32 data_ov039_0209a2fc;
+extern s32 data_ov039_0209a30c;
+extern s32 data_ov039_0209a314;
+extern s32 data_ov039_0209a328;
 extern const SpriteAnimation data_ov039_020995c0;
 extern const SpriteAnimation data_ov039_02099578;
 extern const SpriteAnimation data_ov039_02099c80;
@@ -1843,4 +1849,64 @@ s32 func_ov039_02094ca8(void* pool, void* task) {
     Sprite_Update((Sprite*)sprite);
     *(s32*)(sprite + 0x78) = 1;
     return 1;
+}
+
+/**
+ * @brief Randomises the sprite's launch vector and picks a starting animation.
+ *
+ * The two velocity components are drawn from opposite ends of their ranges:
+ * +0x6C starts at `data_ov039_0209a314` and is pushed *up* by a random span,
+ * +0x70 starts at the negation of `data_ov039_0209a2fc` and is pushed *down*.
+ * The magnitude at +0x7C/+0x80 is then that second component scaled by 3 and
+ * taken as an absolute value -- spelled as the three-way ternary `abs` is a
+ * macro for, which is why `FX_Divide` is called three times in the target
+ * rather than once and reused.
+ */
+// Nonmatching: 85.5%, all of it scheduling and register choice at the top of
+// the body. The target loads both `at` components before either is stored (x in
+// r2, y in r1); this source stores x before it loads y. Hoisting the two reads
+// into named locals is the obvious fix and scores *worse* (84%), because it
+// also moves the pool-constant loads. Everything from the `data_ov039_0209a314`
+// store down agrees instruction for instruction, including the three
+// `FX_Divide` calls.
+void func_ov039_02094e9c(void* task, OtuPoint* at) {
+    u8* sprite = (u8*)task;
+    s32 cell;
+    s32 mag;
+
+    *(s32*)(sprite + 0x74) = 1;
+    *(s32*)(sprite + 0x44) = 0x2000;
+    *(s32*)(sprite + 0x48) = 0x2000;
+    *(s32*)(sprite + 0x58) = at->x;
+    *(s32*)(sprite + 0x5C) = at->y;
+    *(s32*)(sprite + 0x60) = 0;
+
+    *(s32*)(sprite + 0x6C) = data_ov039_0209a314;
+    *(s32*)(sprite + 0x6C) =
+        *(s32*)(sprite + 0x6C) + RNG_Next(data_ov039_0209a328 - data_ov039_0209a314);
+
+    *(s32*)(sprite + 0x70) = -data_ov039_0209a2fc;
+    *(s32*)(sprite + 0x70) =
+        *(s32*)(sprite + 0x70) - RNG_Next(data_ov039_0209a30c - data_ov039_0209a2fc);
+
+#define OTU_SPRING_MAG                                                     \
+    ((FX_Divide(*(s32*)(sprite + 0x70), data_ov039_0209a310) * 3) >> 12)
+    /* `abs` as the macro it is: the argument is evaluated once for the test and
+     * once per arm, so the three-way form is load-bearing. The `< 0` polarity
+     * is too -- the target lays the negating arm out inline and branches to the
+     * plain one (`bpl`), and the `>= 0` spelling inverts that. */
+    mag = OTU_SPRING_MAG < 0 ? -OTU_SPRING_MAG : OTU_SPRING_MAG;
+#undef OTU_SPRING_MAG
+
+    *(s32*)(sprite + 0x7C) = mag;
+    *(s32*)(sprite + 0x80) = mag;
+
+    /* The sin/cos table is s32[] but holds pairs of s16, so each half has to be
+     * fetched through a s16* at a doubled byte offset. */
+    cell = RNG_Next(0x10000) >> 4;
+    *(s32*)(sprite + 0x64) = *(s16*)((u8*)&data_0205e4e0 + (cell * 2 + 1) * 2);
+    *(s32*)(sprite + 0x68) = *(s16*)((u8*)&data_0205e4e0 + (cell * 2) * 2);
+
+    Sprite_ChangeAnimation((Sprite*)sprite, *(s32*)(sprite + 0x18),
+                           *(s32*)(sprite + 0x1C), (s16)(RNG_Next(3) + 1));
 }
