@@ -19,6 +19,7 @@
 #include "Engine/Core/System.h"
 #include "Engine/Math/Random.h"
 #include "Engine/IO/TouchInput.h"
+#include "SpriteMgr.h"
 
 extern u8  data_ov039_0209ad00;
 extern s32 data_ov039_0209ad04;
@@ -267,6 +268,90 @@ clear:
         data_ov039_0209ad08[i] = 0;
     }
     data_ov039_0209ad04 = 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* The badge-task state predicates, 0x02091014 - 0x0209167c.           */
+/* ------------------------------------------------------------------ */
+
+/** True while the badge task has an active phase at +0xE8. */
+s32 func_ov039_02091014(void* task) {
+    return *(s32*)((u8*)task + 0xE8) != 0;
+}
+
+/**
+ * @brief Seeds the badge task's cursors and enters the active phase.
+ *
+ * Four cursors: +0xF0, +0xF4 and +0xF8 take the three words, +0xFC takes the
+ * fourth as a u16 (the target reads it with `ldrh` from the stack argument),
+ * and both the +0x124 sub-phase and the +0xE8 phase are raised to 1.
+ */
+void func_ov039_02091028(void* task, s32 a, s32 b, s32 c, u16 d) {
+    u8* self = (u8*)task;
+
+    *(s32*)(self + 0xF0) = a;
+    *(s32*)(self + 0xF4) = b;
+    *(s32*)(self + 0xF8) = c;
+    *(s32*)(self + 0xFC) = d;
+    *(s32*)(self + 0x124) = 1;
+    *(s32*)(self + 0xE8)  = 1;
+}
+
+/** Clears the +0xEC cursor once the +0xE8 phase has reached 4. */
+void func_ov039_0209104c(void* task) {
+    if (*(s32*)((u8*)task + 0xE8) == 4) {
+        *(s32*)((u8*)task + 0xEC) = 0;
+    }
+}
+
+/**
+ * @brief The +0xE0 field, zero-extended to sixteen bits.
+ *
+ * The target loads a whole word and masks it with `lsl #0x10 / lsr #0x10`, so
+ * the field is not a halfword in the source -- the read is a word cast down.
+ */
+u16 func_ov039_02091060(void* task) {
+    return (u16)*(s32*)((u8*)task + 0xE0);
+}
+
+/**
+ * @brief Latch the +0x7C value into +0x78 while the +0x80 phase is 3.
+ *
+ * A conditional load-and-store pair rather than a branch, so it stays a plain
+ * `if` with the two statements in that order.
+ */
+void func_ov039_02091668(void* task) {
+    u8* self = (u8*)task;
+
+    if (*(s32*)(self + 0x80) == 3) {
+        *(s32*)(self + 0x78) = *(s32*)(self + 0x7C);
+    }
+}
+
+/** True while the +0x80 phase is non-zero. */
+s32 func_ov039_0209167c(void* task) {
+    return *(s32*)((u8*)task + 0x80) != 0;
+}
+
+/** Raises bit 1 of the +0x18 flags when `event` is non-zero. */
+void func_ov039_020923b4(void* task, s32 event) {
+    if (event != 0) {
+        *(s32*)((u8*)task + 0x18) |= 2;
+    }
+}
+
+/** Releases the sprite at task+0x18 and reports success. */
+s32 func_ov039_02094dfc(void* pool, void* task) {
+    (void)pool;
+    Sprite_Release(*(Sprite**)((u8*)task + 0x18));
+    return 1;
+}
+
+/** Releases the sprite at task+0x18 and reports success. */
+s32 func_ov039_02098338(void* pool, void* task) {
+    (void)pool;
+    Sprite_Release(*(Sprite**)((u8*)task + 0x18));
+    return 1;
 }
 
 /**

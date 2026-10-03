@@ -307,7 +307,7 @@ s32 func_ov039_0208a624(OtuPoint* a, OtuPoint* b, OtuPoint* out);
 s32 func_ov039_0208a530(OtuPoint* a, OtuPoint* b, OtuPoint* out);
 
 /** The arc task's per-frame stepper, driven from phase 7. */
-void func_ov039_02091028(void* task, s32 x, s32 y, s32 z, s32 w);
+void func_ov039_02091028(void* task, s32 x, s32 y, s32 z, u16 w);
 
 /** The overlay's nearest-child queries, by pin kind. */
 OtuPinTask* func_ov039_02087f4c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which);
