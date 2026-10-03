@@ -61,6 +61,10 @@ void func_ov039_0209276c(void* self, s32 value);
 /* The per-child step func_ov039_02091070 runs four times. */
 void func_ov039_020983c8(void* data, OtuPoint* pt, void* table, s32 index);
 
+/* The two more func_ov039_0208e9f8 dispatches to, alongside +0x1628. */
+s32  func_ov039_02090e9c(OtuHammer* self, OtuBar* out);
+void func_ov039_0208fee0(OtuShadowTask* self, OtuPinRecord* out);
+
 /* The three Q12.12 constants func_ov039_02094ca8 damps with. */
 extern s32 data_ov039_0209a300;
 extern s32 data_ov039_0209a304;
@@ -2060,4 +2064,124 @@ s32 func_ov039_02092a78(void* pool, void* task) {
             break;
     }
     return 1;
+}
+
+/**
+ * @brief Runs the pin's current phase handler and reports whether it claimed.
+ *
+ * The three cases are the three phase handlers at +0xF8: 6 takes the read from
+ * `func_ov039_02091628`, 7 the one from `func_ov039_02090e9c`, and 8 the
+ * completion from `func_ov039_0208fee0` -- all three writing the same
+ * three-word record at +0x184 and stashing their result in +0x180. Cases 6 and
+ * 7 set the return value only when the handler reports a positive count;
+ * case 8 claims unconditionally but only when +0xFC is 5 and +0x100 is 0x27.
+ */
+// Nonmatching: 97.4%, three instructions. The target branches past the body
+// twice (`bne`/`bne`) for the +0xFC/+0x100 pair; this source has mwcc
+// if-convert the pair into a conditional load (`ldreq r1, [r5, #0x100]`) and a
+// single `cmpeq`. Three spellings were tried -- a positive `&&`, nested `if`s,
+// a negated `||`, and two sequential guards each with its own `break` -- and
+// all four compile to the same folded form. mwcc is choosing conditional
+// execution over branching here and there is no source shape that changes that.
+s32 func_ov039_0208e9f8(TaskPool* pool, void* task) {
+    u8* self = (u8*)task;
+    s32 claimed = 0;
+    s32 ret;
+
+    switch (*(s32*)(self + 0xF8)) {
+        case 6:
+            ret = func_ov039_02091628(
+                EasyTask_GetTaskData(pool, *(s32*)(self + 0x1E8)),
+                (OtuPoint3*)(self + 0x184));
+            *(s32*)(self + 0x180) = ret;
+            if (ret > 0) {
+                claimed = 1;
+            }
+            break;
+
+        case 7:
+            ret = func_ov039_02090e9c(
+                EasyTask_GetTaskData(pool, *(s32*)(self + 0x1E4)),
+                (OtuBar*)(self + 0x184));
+            *(s32*)(self + 0x180) = ret;
+            if (ret > 0) {
+                claimed = 1;
+            }
+            break;
+
+        case 8:
+            /* Two sequential guards with their own `break`, not one combined
+             * condition: `&&`, nested `if`s and a negated `||` all fold the
+             * pair into `ldreq`/`cmpeq`, where the target branches past the
+             * body twice. */
+            if (*(s32*)(self + 0xFC) != 5) {
+                break;
+            }
+            if (*(s32*)(self + 0x100) != 0x27) {
+                break;
+            }
+
+            claimed = 1;
+            func_ov039_0208fee0(
+                EasyTask_GetTaskData(pool, *(s32*)(self + 0x1E0)),
+                (OtuPinRecord*)(self + 0x184));
+            *(s32*)(self + 0x180) = claimed;
+            break;
+
+        default:
+            break;
+    }
+    return claimed;
+}
+
+/**
+ * @brief The +0x8f7b4 member of the sprite-slot selector family.
+ *
+ * Same `&data_0206b408` pointer, same three flat short-circuit tests and same
+ * two-step u16 lookup as `func_ov039_0209352c`. What separates it is the tail:
+ * `depthKey` is derived from the +0x24 object's +0x4C word, masked to 0x7FF and
+ * shifted back up by 12 with a +1 bias -- a Q12.12 value rounded up to the next
+ * whole step. That tail runs whether or not the lookup succeeded, which is why
+ * it sits outside the guard.
+ */
+// Nonmatching: 84.3%, and it carries two of the family's known gaps at once.
+// `table` lands in lr here rather than r12, which forces a `stmdb`/`ldmia`
+// prologue the target does not have and shifts the index into r0; and the
+// lookup keeps +0x16/+0x1C in registers across the `slot->unk_04` store where
+// the target reloads both, the same thing that holds func_ov039_02098538 and
+// func_ov039_0209352c at 88.7%. Swapping the `obj`/`slot` declarations was
+// worth 10% (74.4% -> 84.3%) because it moved `slot` onto r3 and `obj` onto r1;
+// swapping `index`/`table` does nothing.
+OtuSpriteSlot* func_ov039_0208f7b4(OtuSpriteTask* t, s32 arg, s32 sel) {
+    u8*            obj  = *(u8**)((u8*)t + 0x24);
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            u8* table;
+            s32 index;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            if (*(s32*)((u8*)t + 0x18) != 0 &&
+                (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0) {
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
+            }
+
+            slot->depthKey = (((*(s32*)(obj + 0x4C) >> 12) & 0x7FF) + 1) << 12;
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
 }
