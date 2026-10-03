@@ -71,6 +71,14 @@ extern s32 data_ov039_0209a2fc;
 extern s32 data_ov039_0209a30c;
 extern s32 data_ov039_0209a314;
 extern s32 data_ov039_0209a328;
+
+/** The 4-word template func_ov039_020983c8 copies onto the sprite block. */
+typedef struct {
+    /* 0x00 */ s32 w0;
+    /* 0x04 */ s32 w1;
+    /* 0x08 */ s32 w2;
+    /* 0x0C */ s32 w3;
+} OtuWord4; // Size: 0x10
 extern const SpriteAnimation data_ov039_020995c0;
 extern const SpriteAnimation data_ov039_02099578;
 extern const SpriteAnimation data_ov039_02099c80;
@@ -1909,4 +1917,147 @@ void func_ov039_02094e9c(void* task, OtuPoint* at) {
 
     Sprite_ChangeAnimation((Sprite*)sprite, *(s32*)(sprite + 0x18),
                            *(s32*)(sprite + 0x1C), (s16)(RNG_Next(3) + 1));
+}
+
+/**
+ * @brief `func_ov039_02094e9c`'s child variant: same launch, plus a template
+ *        copy and a different animation pick.
+ *
+ * Three differences from the parent. A 4-word template is copied onto the
+ * sprite block at +0x40 where the parent writes two fixed 0x2000 halves; the
+ * magnitude lands at +0x84/+0x88 rather than +0x7C/+0x80; and the animation
+ * index is `index == 0 ? 2 : 1` rather than a fresh `RNG_Next(3) + 1`. The
+ * +0x74 word is a s16 and is `RNG_Next(0x800) + 0x800`.
+ */
+// Nonmatching: 85.4%. Two differences left. The target keeps `at`'s halves as
+// two separate `ldr`s (x in r2, y in r1); this source merges them into
+// `ldmia lr, {r1, r2}`, which also swaps which half lands in which register.
+// Reading them straight into the stores instead interleaves the writes and
+// scores 84.3%, and hoisting them into locals is what got this to 85.4% -- the
+// merge is a load-pair decision made against this frame's register pressure and
+// there is no source shape here that stops it. Everything from the +0x6C store
+// down agrees instruction for instruction.
+void func_ov039_020983c8(void* task, OtuPoint* at, void* table, s32 index) {
+    u8* sprite = (u8*)task;
+    s32 ax;
+    s32 ay;
+    s32 cell;
+    s32 mag;
+
+    *(s32*)(sprite + 0x7C) = 1;
+    *(OtuWord4*)(sprite + 0x40) = *(OtuWord4*)table;
+
+    /* Both halves are read before either is written: the target keeps x in r2
+     * and y in r1 across the pair of stores. */
+    ax = at->x;
+    ay = at->y;
+
+    *(s32*)(sprite + 0x58) = ax;
+    *(s32*)(sprite + 0x5C) = ay;
+    *(s32*)(sprite + 0x60) = 0;
+
+    *(s32*)(sprite + 0x6C) = data_ov039_0209a314;
+    *(s32*)(sprite + 0x6C) =
+        *(s32*)(sprite + 0x6C) + RNG_Next(data_ov039_0209a328 - data_ov039_0209a314);
+
+    *(s32*)(sprite + 0x70) = -data_ov039_0209a2fc;
+    *(s32*)(sprite + 0x70) =
+        *(s32*)(sprite + 0x70) - RNG_Next(data_ov039_0209a30c - data_ov039_0209a2fc);
+
+#define OTU_SPRING_MAG                                                     \
+    ((FX_Divide(*(s32*)(sprite + 0x70), data_ov039_0209a310) * 3) >> 12)
+    mag = OTU_SPRING_MAG < 0 ? -OTU_SPRING_MAG : OTU_SPRING_MAG;
+#undef OTU_SPRING_MAG
+
+    *(s32*)(sprite + 0x84) = mag;
+    *(s32*)(sprite + 0x88) = mag;
+
+    cell = RNG_Next(0x10000) >> 4;
+    *(s32*)(sprite + 0x64) = *(s16*)((u8*)&data_0205e4e0 + (cell * 2 + 1) * 2);
+    *(s32*)(sprite + 0x68) = *(s16*)((u8*)&data_0205e4e0 + (cell * 2) * 2);
+
+    *(s16*)(sprite + 0x74) = RNG_Next(0x800) + 0x800;
+
+    Sprite_ChangeAnimation((Sprite*)sprite, *(s32*)(sprite + 0x18),
+                           *(s32*)(sprite + 0x1C),
+                           (s16)(index == 0 ? 2 : 1));
+}
+
+/**
+ * @brief Advances up to four counters and raises a flag when each wraps.
+ *
+ * The selector byte at +0x0C picks which half runs: case 1 advances the +0x94
+ * pair against the +0x84/+0x8C limits and flags +0x58, case 2 does that *and*
+ * the +0x90 pair against +0x80/+0x88 with a smaller step flagging +0x30. Each
+ * counter is compared against its limit and, on reaching it, taken modulo it --
+ * `_s32_div_f` leaves the remainder in r1, which is what is stored back.
+ */
+s32 func_ov039_02092a78(void* pool, void* task) {
+    u8* self = *(u8**)((u8*)task + 0x18);
+    s32 limit;
+    s32 v;
+
+    (void)pool;
+
+    if (*(s32*)(self + 0x08) == 0) {
+        return 1;
+    }
+
+    switch (*(u8*)*(s32*)(self + 0x0C)) {
+        case 1:
+            v = *(s32*)(self + 0x94) + 0x19A;
+            *(s32*)(self + 0x94) = v;
+            limit = *(s32*)(self + 0x84);
+            if (v >= limit) {
+                *(s32*)(self + 0x94) %= limit;
+                *(s32*)(self + 0x58) |= 2;
+            }
+
+            v = *(s32*)(self + 0x9C) + 0x19A;
+            *(s32*)(self + 0x9C) = v;
+            limit = *(s32*)(self + 0x8C);
+            if (v >= limit) {
+                *(s32*)(self + 0x9C) %= limit;
+                *(s32*)(self + 0x58) |= 2;
+            }
+            break;
+
+        case 2:
+            v = *(s32*)(self + 0x90) + 0x333;
+            *(s32*)(self + 0x90) = v;
+            limit = *(s32*)(self + 0x80);
+            if (v >= limit) {
+                *(s32*)(self + 0x90) %= limit;
+                *(s32*)(self + 0x30) |= 2;
+            }
+
+            v = *(s32*)(self + 0x98) + 0x333;
+            *(s32*)(self + 0x98) = v;
+            limit = *(s32*)(self + 0x88);
+            if (v >= limit) {
+                *(s32*)(self + 0x98) %= limit;
+                *(s32*)(self + 0x30) |= 2;
+            }
+
+            v = *(s32*)(self + 0x94) + 0x19A;
+            *(s32*)(self + 0x94) = v;
+            limit = *(s32*)(self + 0x84);
+            if (v >= limit) {
+                *(s32*)(self + 0x94) %= limit;
+                *(s32*)(self + 0x58) |= 2;
+            }
+
+            v = *(s32*)(self + 0x9C) + 0x19A;
+            *(s32*)(self + 0x9C) = v;
+            limit = *(s32*)(self + 0x8C);
+            if (v >= limit) {
+                *(s32*)(self + 0x9C) %= limit;
+                *(s32*)(self + 0x58) |= 2;
+            }
+            break;
+
+        default:
+            break;
+    }
+    return 1;
 }
