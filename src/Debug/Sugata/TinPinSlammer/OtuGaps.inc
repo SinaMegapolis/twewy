@@ -354,6 +354,117 @@ s32 func_ov039_02098338(void* pool, void* task) {
     return 1;
 }
 
+/* ------------------------------------------------------------------ */
+/* The pin-child steering helpers, 0x0208e6fc and 0x0208e8c4.         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief The velocity a pin child should steer with, written to `out`.
+ *
+ * Only kind 8 enters the switch; kind 1 and everything past the two cases fall
+ * through to the plain "point at the child's own +0x120/+0x124, rebased by the
+ * board origin" answer, which is also the whole body for every other kind.
+ *
+ *   sub-kind 2  steers around a point offset from the pin by (0x80000, 0x60000);
+ *               when that offset is at least 0x400 long the vector is
+ *               normalised and the angle re-aimed at the pin's +0x118 face.
+ *   sub-kind 3  scales the same offset by 0x1000 / (+0x100 << 12) first.
+ *
+ * The stack point is passed as both the source and the destination of
+ * `func_ov039_02098bb0`; that aliasing is what the target does.
+ */
+// Nonmatching: 73%, and the whole gap is one scheduling choice. The target
+// loads the +0x124 word before the +0x120 one and only then subtracts both;
+// this source reads them in address order. Writing the two reads in either
+// order, as an initialiser, or through named temporaries all move the score but
+// none reproduces the target's pair, so this is mwcc's scheduler and not the
+// source shape. Every instruction otherwise agrees.
+void func_ov039_0208e6fc(void* task, OtuPoint* out) {
+    u8* self = (u8*)task;
+
+    if (*(s32*)(self + 0xF8) == 8) {
+        switch (*(s32*)(self + 0xFC)) {
+            case 2: {
+                OtuPoint scratch = { *(s32*)(self + 0x120) - 0x80000,
+                                     *(s32*)(self + 0x124) - 0x60000 };
+
+                func_ov039_02098bb0(&scratch, (OtuPoint*)(self + 0x118), &scratch);
+
+                if (func_ov039_02098d10(&scratch) >= 0x400) {
+                    func_ov039_02098d3c(&scratch, &scratch);
+                    func_ov039_02098c00(0x400, &scratch, (OtuPoint*)(self + 0x118), out);
+                    return;
+                }
+
+                out->x = *(s32*)(self + 0x120) - 0x80000;
+                out->y = *(s32*)(self + 0x124) - 0x60000;
+                return;
+            }
+
+            case 3: {
+                OtuPoint scratch;
+                s32      scale = FX_Divide(0x1000, *(s32*)(self + 0x100) << 12);
+
+                scratch.x = *(s32*)(self + 0x120) - 0x80000;
+                scratch.y = *(s32*)(self + 0x124) - 0x60000;
+                func_ov039_02098bb0(&scratch, (OtuPoint*)(self + 0x118), &scratch);
+                func_ov039_02098c00(scale, &scratch, (OtuPoint*)(self + 0x118), out);
+                return;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    out->x = *(s32*)(self + 0x120) - 0x80000;
+    out->y = *(s32*)(self + 0x124) - 0x60000;
+}
+
+/**
+ * @brief The pin child's aim scale, 0x1000 when nothing applies.
+ *
+ * Kind 8, sub-kind 1: while the +0x100 cursor is under 10 this is the cursor
+ * over 10, on a 0x1000 scale.
+ *
+ * Kind 8, sub-kind 4: the cursor at +0x100 against half the cell's size word,
+ * counted down from 0x1000.
+ */
+s32 func_ov039_0208e8c4(void* task) {
+    u8* self    = (u8*)task;
+    s32 scale   = 0x1000;
+
+    if (*(s32*)(self + 0xF8) == 8) {
+        switch (*(s32*)(self + 0xFC)) {
+            case 1: {
+                s32 cursor = *(s32*)(self + 0x100);
+
+                if (cursor < 0xA) {
+                    scale = FX_Divide(cursor << 12, 0xA000);
+                }
+                break;
+            }
+
+            case 4: {
+                u16 index = *(u16*)*(s32*)(self + 0x16C);
+                s32 base  = *(s32*)(self + 0x170);
+                u32 size  = *(u16*)((u8*)(base + index * 0x1C) + 0xE);
+
+                if (*(s32*)(self + 0x100) < (s32)(size >> 1)) {
+                    scale = 0x1000 - FX_Divide(*(s32*)(self + 0x100) << 12,
+                                               (s32)(size >> 1) << 12);
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    return scale;
+}
+
 /**
  * @brief The wireless board's per-pad step: advance this child's phase when the
  *        pad has been tapped.
