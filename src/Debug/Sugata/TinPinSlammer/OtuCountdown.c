@@ -1506,7 +1506,7 @@ void func_ov039_02087d04(s32 se, OtuPoint* from, OtuPoint* to) {
  * The Task TU shape in this repo -- two local structs, a TaskHandle, four
  * lifecycle callbacks, a RunTask dispatching through a local `TaskStages`, and a
  * CreateTask calling EasyTask_CreateTask once -- describes the overlay's
- * *simulation* tasks: the pin sprite tasks in OtuPinSprites.inc, the sprite tasks in
+ * *simulation* tasks: the pin sprite tasks in OtuPinSprites, the sprite tasks in
  * bands 4 and 5.
  *
  * This band has none of that. There is no TaskHandle, so nothing is created

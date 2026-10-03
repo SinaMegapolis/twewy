@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
-"""Check that ov039's include order still holds.
+"""Check that OtuFieldAccess.c's source order still holds.
 
-OtuFieldAccess.c is one translation unit built from fifteen .inc files, and the
-order they are included in is load-bearing: a file that calls a function
-defined further down the include list needs that function's declaration to come
-first. Nothing in C enforces that, and getting it wrong does not fail at the
-point of the mistake -- it fails much later as a wall of `redeclared` and
-`illegal access to local variable` errors. That has happened twice, at 138
-errors and 67.
+OtuFieldAccess.c is one translation unit that carries the whole overlay region's
+function groups, in the order their dependencies require: a file that calls a
+function defined further down needs that function's declaration to come first.
+Nothing in C enforces that, and getting it wrong does not fail at the point of
+the mistake -- it fails much later as a wall of `redeclared` and `illegal access
+to local variable` errors. That has happened twice, at 138 errors and 67.
+
+(These groups used to be fifteen .inc files `#include`d at the bottom of the
+file; they are now inlined directly, which is why this tool no longer follows an
+`#include` list.)
 
 So: this walks the translation unit in the order the compiler sees it and
 reports any symbol whose first use precedes its first declaration or definition.
 Zero is the pass condition.
 
     python tools/check_band_order.py
-
-Deliberately narrow. Other .c files beside OtuFieldAccess.c are separate
-translation units with their own header include, so comparing them against this
-one would be meaningless.
 """
 import glob
 import os
@@ -56,12 +55,10 @@ def blank_comments(t):
 
 
 def sources():
-    text = open(FIELD, encoding='latin-1').read()
-    order = re.findall(r'#include "(Otu\w+\.inc)"', text)
+    # The old `#include "Otu*.inc"` bands are inlined now; there is only the
+    # header and the single translation unit to walk.
     yield 'TinPinSlammer.h', HEADER
     yield 'OtuFieldAccess.c', FIELD
-    for inc in order:
-        yield inc, os.path.join(BAND_DIR, inc)
 
 
 def main():
@@ -94,10 +91,10 @@ def main():
     print('OtuFieldAccess TU: %d symbols used, %d declared or defined'
           % (len(first_use), len(declared_at)))
     if not late:
-        print('include order OK: every call has a declaration ahead of it')
+        print('source order OK: every call has a declaration ahead of it')
         return 0
 
-    print('\n%d symbol(s) used before they are declared. The include order in'
+    print('\n%d symbol(s) used before they are declared. The source order in'
           % len(late))
     print('OtuFieldAccess.c is wrong, or a declaration has been removed:\n')
     for n in late:

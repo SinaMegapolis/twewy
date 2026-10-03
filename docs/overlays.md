@@ -897,6 +897,14 @@ owns a fan-out of eight children.
 
 ### Traps in this overlay, and what each one cost
 
+> Note added after the fact: the `.inc` "band files" referenced throughout this
+> section have since been inlined into `OtuFieldAccess.c`, which is now the
+> overlay's one catch-all translation unit (dsd gives a source file a single
+> contiguous `.text` claim, and the bands interleave, so no per-band TU was
+> possible). The traps are kept as a record of what the layout cost. In
+> particular, Trap 3's `-ipa file` stale-cache hazard no longer applies: an edit
+> to `OtuFieldAccess.c` invalidates its own object normally.
+
 These are all ways of being *wrong without finding out*. None of them produced an
 error, a warning, or a failed build; each one had to be caught by looking at
 something other than the pass/fail signal.
