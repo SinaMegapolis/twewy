@@ -13,13 +13,6 @@
  *  here. The score is what 020893fc compares to find the round's leader. */
 #define OTU_BOARD_SLOT_SCORE(i) (*(u16*)((u8*)data_02071cf0 + 0x3434 + (i) * 2))
 
-/** The board's result code, a `u16` at data_02071cf0 + 0x24D4 -- 6 or 7.
- *
- *  Written by 020897dc and read by whoever runs the results stage. Offsets split
- *  the same way as the score table: pool word `data_02071cf0 + 0x2420`, then
- *  +0xB4. */
-#define OTU_BOARD_RESULT (*(u16*)((u8*)&gSaveData + 0x24B4))
-
 /** The scene's heap, formed the way four functions in this band form it.
  *
  *  `scene + 0x18C + 0x11400` = scene + 0x1158C = `&scene->base.heap`. The two
@@ -907,7 +900,7 @@ void func_ov039_020897d0(TinPinSlammer_Scene* scene) {
  * really does: `EasyTask_GetTaskData` is called and its result is overwritten by
  * the next load. Reproduced rather than tidied.
  *
- * The result code written to OTU_BOARD_RESULT is 6 for outcome 1 and 7 for
+ * The result code written to `gSaveData.unk_24B4` is 6 for outcome 1 and 7 for
  * anything else -- two constants, chosen by a `cmp #1` with the bodies identical
  * apart from them, so this is an `if`/`else` and not a table.
  */
@@ -924,10 +917,10 @@ void func_ov039_020897dc(TinPinSlammer_Scene* scene) {
             EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, func_ov039_02088418(scene->state.unk_AF0)));
 
             if (stage->outcome == 1) {
-                OTU_BOARD_RESULT = 6;
+                gSaveData.unk_24B4 = 6;
                 func_ov039_02098a40(OTU_STAGE(scene), NULL);
             } else {
-                OTU_BOARD_RESULT = 7;
+                gSaveData.unk_24B4 = 7;
                 func_ov039_02098a40(OTU_STAGE(scene), NULL);
             }
         }
