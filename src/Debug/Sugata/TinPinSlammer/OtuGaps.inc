@@ -25,6 +25,10 @@ extern u8  data_ov039_0209ad00;
 extern s32 data_ov039_0209ad04;
 extern s32 data_ov039_0209ad08[4];
 
+/* The task handles the result-screen spawners hand to EasyTask_CreateTask. */
+extern const TaskHandle data_ov039_0209a06c;
+extern const TaskHandle data_ov039_02099c64;
+
 /* ------------------------------------------------------------------ */
 /* The pin task's own queries, 0x0208ee84 - 0x0208efb0.                */
 /* ------------------------------------------------------------------ */
@@ -463,6 +467,228 @@ s32 func_ov039_0208e8c4(void* task) {
     }
 
     return scale;
+}
+
+/* ------------------------------------------------------------------ */
+/* The result-screen task lifecycle callbacks and small shims.         */
+/* ------------------------------------------------------------------ */
+
+/** The three one-word predicates reduced to `return 1`. */
+s32 func_ov039_020921f4(void) {
+    return 1;
+}
+
+s32 func_ov039_02092bf0(void) {
+    return 1;
+}
+
+s32 func_ov039_02096d98(void) {
+    return 1;
+}
+
+/** Releases the sprite at task+0x18 and reports success. */
+s32 func_ov039_02091aa4(void* pool, void* task) {
+    (void)pool;
+    Sprite_Release(*(Sprite**)((u8*)task + 0x18));
+    return 1;
+}
+
+/** out = a + b, component-wise. */
+void func_ov039_02098b8c(OtuPoint* a, OtuPoint* b, OtuPoint* out) {
+    out->x = a->x + b->x;
+    out->y = a->y + b->y;
+}
+
+/** True when +0x0C is clear and +0x10 is set. */
+s32 func_ov039_02098b44(void* task) {
+    if (*(s32*)((u8*)task + 0x0C) == 0 && *(s32*)((u8*)task + 0x10) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+/** A four-entry handler table copied to the stack before one is called. */
+extern const TaskStages data_ov039_02099c70;
+
+/**
+ * @brief Runs the stage handler at `index` from the table.
+ *
+ * The table is copied onto the stack first (the `ldm`/`stm` pair) and only then
+ * indexed, which is why it is a struct copy rather than four assigns: mwcc
+ * emits the copy for the whole struct and a plain `ldr` of the selected entry.
+ */
+void func_ov039_02094188(void* a, void* b, void* c, s32 index) {
+    TaskStages table = data_ov039_02099b5c;
+
+    table.iter[index](a, b, c);
+}
+
+void func_ov039_02094e10(void* a, void* b, void* c, s32 index) {
+    TaskStages table = data_ov039_02099c70;
+
+    table.iter[index](a, b, c);
+}
+
+/**
+ * @brief Calls the +0x04 handler's slot at +0x08 through the object at +0x08.
+ *
+ * `scene` is passed straight through as the handler's only argument.
+ */
+void func_ov039_02098acc(void* task, void* scene) {
+    u8* self = (u8*)task;
+    u8* obj  = *(u8**)(self + 0x04);
+    void (**table)(void*);
+
+    if (obj == NULL) {
+        return;
+    }
+
+    table = *(void (***)(void*))(obj + 0x08);
+    table[*(s32*)(self + 0x08)](scene);
+}
+
+/** Spawns the one-word argument task table data_ov039_0209a06c. */
+s32 func_ov039_020989f0(TaskPool* pool, s32 arg) {
+    s32 args = arg;
+
+    return EasyTask_CreateTask(pool, &data_ov039_0209a06c, NULL, 0, NULL, &args);
+}
+
+/** Spawns the task table data_ov039_02099c64 with one word of args. */
+s32 func_ov039_02094e58(TaskPool* pool, s32 arg) {
+    s32 args = arg;
+
+    return EasyTask_CreateTask(pool, &data_ov039_02099c64, NULL, 0, NULL, &args);
+}
+
+/** Spawns the task table data_ov039_02099b50 with two words of args. */
+s32 func_ov039_020941d0(TaskPool* pool, s32 a, s32 b) {
+    s32 args[2];
+
+    args[0] = a;
+    args[1] = b;
+    return EasyTask_CreateTask(pool, &data_ov039_02099b50, NULL, 0, NULL, args);
+}
+
+/** A 0x28-strided flag slot: only its first word is touched. */
+typedef struct {
+    /* 0x00 */ s32 flags;
+    /* 0x04 */ u8  pad_04[0x24];
+} OtuFlagSlot;
+
+/** Raises bit 1 in two +0x28-strided flag words from +0x30 on. */
+void func_ov039_02092e04(void* task, s32 enable) {
+    s32          i;
+    OtuFlagSlot* p;
+
+    if (enable == 0) {
+        return;
+    }
+
+    p = (OtuFlagSlot*)((u8*)task + 0x30);
+    for (i = 0; i < 2; i++) {
+        p->flags |= 2;
+        p++;
+    }
+}
+
+/** Releases the three sprites at sprite+4, 0x40 apart. */
+s32 func_ov039_02094158(void* pool, void* task) {
+    s32    i;
+    Sprite* p = (Sprite*)((u8*)*(void**)((u8*)task + 0x18) + 4);
+
+    (void)pool;
+
+    for (i = 0; i < 3; i++) {
+        Sprite_Release(p);
+        p = (Sprite*)((u8*)p + 0x40);
+    }
+    return 1;
+}
+
+/** Renders the three sprites at sprite+4, 0x40 apart, when +0xC8 is set. */
+s32 func_ov039_0209411c(void* pool, void* task) {
+    u8*     sprite = *(u8**)((u8*)task + 0x18);
+    s32     i;
+    Sprite* p;
+
+    (void)pool;
+
+    if (*(s32*)(sprite + 0xC8) != 0) {
+        p = (Sprite*)(sprite + 4);
+        for (i = 0; i < 3; i++) {
+            Sprite_RenderFrame(p);
+            p = (Sprite*)((u8*)p + 0x40);
+        }
+    }
+    return 1;
+}
+
+/** Steps and renders the sprite block at task+0x18 when +0x78 is set. */
+s32 func_ov039_02094dac(void* pool, void* task) {
+    Sprite* sprite = *(Sprite**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    if (*(s32*)((u8*)sprite + 0x78) != 0) {
+        *(s16*)((u8*)sprite + 0x0C) =
+            (s16)((*(s32*)((u8*)sprite + 0x58) - *(s32*)((u8*)sprite + 0x50)) >> 12);
+        *(s16*)((u8*)sprite + 0x0E) =
+            (s16)((*(s32*)((u8*)sprite + 0x60) +
+                   (*(s32*)((u8*)sprite + 0x5C) - *(s32*)((u8*)sprite + 0x54))) >>
+                  12);
+        Sprite_RenderFrame(sprite);
+    }
+    return 1;
+}
+
+/** The three-word point-and-scale record `func_ov039_02091628` fills in. */
+typedef struct {
+    /* 0x00 */ s32 x;
+    /* 0x04 */ s32 y;
+    /* 0x08 */ s32 scale;
+} OtuPoint3;
+
+/**
+ * @brief Reads the +0x5C/+0x60 pair into a point when the +0x80 phase is 3.
+ *
+ * Returns 0 otherwise, leaving the point untouched.
+ */
+s32 func_ov039_02091628(void* task, OtuPoint3* out) {
+    u8* self = (u8*)task;
+    s32 y;
+    s32 x;
+
+    if (*(s32*)(self + 0x80) != 3) {
+        return 0;
+    }
+
+    y = *(s32*)(self + 0x60);
+    x = *(s32*)(self + 0x5C);
+
+    out->x     = x;
+    out->y     = y;
+    out->scale = 0x20000;
+    return 1;
+}
+
+/** The child-task group stepped by `func_ov039_02091690`. */
+typedef struct {
+    /* 0x00 */ TaskPool*     pool;
+    /* 0x04 */ u8            pad_04[0x58];
+    /* 0x5C */ OtuTaskParams params;
+    /* 0x64 */ u8            pad_64[0x20];
+    /* 0x84 */ s32           ids[8];
+} OtuChildGroup;
+
+/** Advances the eight child tasks named by +0x84. */
+void func_ov039_02091690(OtuChildGroup* self) {
+    s32 i;
+
+    for (i = 0; i < 8; i++) {
+        func_ov039_02097e9c(EasyTask_GetTaskData(self->pool, self->ids[i]),
+                            &self->params);
+    }
 }
 
 /**
