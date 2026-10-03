@@ -12,15 +12,11 @@
 /* ------------------------------------------------------------------ */
 
 /*
- * The pin tray, reached as `scene + 0x4C + 0x44000` -- two adds.
- *
- * The target never folds the pair into one displacement, and 0x4404C is not
- * encodable as an ARM immediate, so mwcc has to split it somehow. Writing it
- * split is what keeps it splitting the same way; the same reasoning is recorded
- * for OTU_DIGIT_COLUMN in the shared header. Note this is *not*
+ * The pin tray, at `scene + 0x4404C`. (Folded to one constant; verified
+ * neutral relative to the old two-add spelling.) Note this is *not*
  * `OTU_PIN_TRAY(scene, slot)`, whose slot multiply folds the 0x44000 away.
  */
-#define OTU_TRAY(scene) ((u8*)(scene) + 0x4C + 0x44000)
+#define OTU_TRAY(scene) ((u8*)(scene) + 0x4404C)
 
 /** The wireless save record, reached the way 02082c50 reaches it. */
 #define OTU_BOARD_RECORD OTU_WIRELESS_RECORD(0x3000, 0)

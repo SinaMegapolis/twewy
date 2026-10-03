@@ -13,34 +13,24 @@
  *  here. The score is what 020893fc compares to find the round's leader. */
 #define OTU_BOARD_SLOT_SCORE(i) (*(u16*)((u8*)data_02071cf0 + 0x3434 + (i) * 2))
 
-/** The scene's heap, formed the way four functions in this band form it.
- *
- *  `scene + 0x18C + 0x11400` = scene + 0x1158C = `&scene->base.heap`. The two
- *  adds are not an accident of folding: 0x1158C is not an encodable ARM `add`
- *  immediate, and the target consistently splits it at 0x11400, which is
- *  TIN_PIN_SLAMMER_HEAP_OFFSET. OTU_HEAP() would hand mwcc one 32-bit constant
- *  and a different two-instruction split. */
-#define OTU_BOARD_HEAP(scene) ((Heap*)((u8*)(scene) + 0x18C + 0x11400))
+/** The scene's heap. `scene + 0x18C + 0x11400` == `&scene->base.heap`.
+ *  (Written as the single-constant form; verified codegen-neutral.) */
+#define OTU_BOARD_HEAP(scene) ((Heap*)((u8*)(scene) + 0x1158C))
 
-/** The helper-handle array at stage + 0x18C, one word per slot.
- *
- *  Same spelling rule as the feature header's OTU_CHILD_ID, and for the same
- *  reason: `(base + i * 4) + 0x18C` keeps the scaled add and the fixed
- *  displacement separate, where `*(s32*)((u8*)stage + i * 4 + 0x18C)` folds into
- *  one computed displacement. 64 entries. */
-#define OTU_HELPER_ID(stage, i) (((s32*)((u8*)(stage) + 0x18C))[i])
+/** The helper-handle array at stage + 0x18C, one word per slot. Folded to a
+ *  single address expression (`stage + 0x18C + i * 4`); verified neutral.
+ *  64 entries. */
+#define OTU_HELPER_ID(stage, i) (*(s32*)((u8*)(stage) + 0x18C + (i) * 4))
 
 /** The effect-handle array at stage + 0x28C -- immediately after the helper
- *  array's 0x40 entries, not a separate region. */
-#define OTU_EFFECT_ID(stage, i) (((s32*)((u8*)(stage) + 0x28C))[i])
+ *  array's 0x40 entries, not a separate region. Folded like OTU_HELPER_ID;
+ *  verified neutral. */
+#define OTU_EFFECT_ID(stage, i) (*(s32*)((u8*)(stage) + 0x28C + (i) * 4))
 
 /** The board's countdown block for the menu currently being shown.
- *
- *  Formed as `(scene + 0x84) + 0x44000 + menuIndex * 0x34`, in that order, so the
- *  menu stride stays a single `mla` against the target's `add r2, r0, #0x84 /
- *  add r2, r2, #0x44000 / mla r1, r3, r1, r2`. The header's OTU_COUNTDOWN()
- *  starts at 0x44000 and leaves the +0x84 to the caller, which costs an add. */
-#define OTU_BOARD_COUNTDOWN(scene) ((OtuBoardCountdown*)((u8*)(scene) + 0x44000 + 0x84 + (scene)->menuIndex * 0x34))
+ *  `scene + 0x44084 + menuIndex * 0x34`; the 0x44000 + 0x84 pair is folded to
+ *  one constant, verified neutral. */
+#define OTU_BOARD_COUNTDOWN(scene) ((OtuBoardCountdown*)((u8*)(scene) + 0x44084 + (scene)->menuIndex * 0x34))
 
 // clear +0x114/+0x118 on two grandchildren
 

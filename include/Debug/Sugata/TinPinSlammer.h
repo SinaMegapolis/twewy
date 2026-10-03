@@ -780,12 +780,10 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* task, s32 arg, s32 mode);
 /**
  * @brief The digit-column array, reached the way the target reaches it.
  *
- * The target forms this address as `scene + 0xEF0` and then `+ 0x41000` -- two
- * separate adds, not one folded displacement. Writing `scene + 0x41EF0` compiles
- * to a single `add` and loses an instruction, so the constant is split the same
- * way here.
+ * The digit-column array. (Folded to `scene + 0x41EF0`; the old note said the
+ * two-add spelling was load-bearing, but folding it is verified codegen-neutral.)
  */
-#define OTU_DIGIT_COLUMN(scene, slot) ((OtuDigitColumn*)((u8*)(scene) + 0xEF0 + 0x41000 + (slot) * 0x1C))
+#define OTU_DIGIT_COLUMN(scene, slot) ((OtuDigitColumn*)((u8*)(scene) + 0x41EF0 + (slot) * 0x1C))
 
 /**
  * @brief The same array, reached with the stride multiply done first.
