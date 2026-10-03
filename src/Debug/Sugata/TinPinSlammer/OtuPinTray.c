@@ -815,25 +815,27 @@ s32 func_ov039_0208e37c(void* a, void* b) {
 
     dist = func_ov039_02098ca8(OTU_PIN_POS(self), OTU_PIN_POS(other));
 
-    if (dist > 0x18000) {
-        return 0;
+    // The success path is the `if` body, not a fall-through after an early
+    // `return 0;`: the target branches to a shared epilogue, and an early
+    // return here makes mwcc predicate the exit instead. (objdiff 100%.)
+    if (dist <= 0x18000) {
+        gap = 0x18000 - dist;
+
+        func_ov039_02098bb0(OTU_PIN_POS(self), OTU_PIN_POS(other), &dir);
+
+        if (dir.x == 0 && dir.y == 0) {
+            dir.x = 0x1000;
+            dir.y = 0;
+        } else {
+            func_ov039_02098d3c(&dir, &dir);
+        }
+
+        func_ov039_02098c00(gap / 2, &dir, OTU_PIN_POS(self), OTU_PIN_POS(self));
+        func_ov039_02098c00((-gap) / 2, &dir, OTU_PIN_POS(other), OTU_PIN_POS(other));
+
+        return 1;
     }
-
-    gap = 0x18000 - dist;
-
-    func_ov039_02098bb0(OTU_PIN_POS(self), OTU_PIN_POS(other), &dir);
-
-    if (dir.x == 0 && dir.y == 0) {
-        dir.x = 0x1000;
-        dir.y = 0;
-    } else {
-        func_ov039_02098d3c(&dir, &dir);
-    }
-
-    func_ov039_02098c00(gap / 2, &dir, OTU_PIN_POS(self), OTU_PIN_POS(self));
-    func_ov039_02098c00((-gap) / 2, &dir, OTU_PIN_POS(other), OTU_PIN_POS(other));
-
-    return 1;
+    return 0;
 }
 
 /**
