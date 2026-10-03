@@ -379,7 +379,7 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 455 of 561 functions decompiled, 298 of them at 100%.
+Status: 533 of 561 functions decompiled, 369 of them at 100%.
 `OtuMenuText` is 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of
 `.bss`); `OtuVBlank` is 100% across all five functions; `OtuSceneEntry` holds the
 two plain entry points, the teardown, its thunk and both stage dispatches at
@@ -388,7 +388,7 @@ builders plus the countdown steppers that drive them. Partial:
 `func_ov039_02083bb0` at 99.97%, `OtuGxInit` at 95.9%, both per-frame updates at
 91.0% and 95.4%, the clamp helper at 94.5%, the place stepper at 92.3%, the
 pin-count row at 83.8%, the countdown at 76.0%, the wireless teardown at 72.8%.
-The remaining 106 functions are stubs.
+The remaining 28 functions are stubs.
 
 The four countdown steppers (`02084458`, `020845dc`, `020846c4` and the
 place-stepper they all call) share one unresolved gap, below. Two sit at ~89%
