@@ -24,4 +24,8 @@ build.ninja
 update*
 /compile_commands.json
 /nonmatchings
+permwork/
+permtmp/
 ctx.c
+debug_source.c
+debug_compiled_object.o
