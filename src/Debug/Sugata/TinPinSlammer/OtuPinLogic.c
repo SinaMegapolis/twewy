@@ -12,17 +12,6 @@
 /* ------------------------------------------------------------------ */
 
 /*
- * The rotating child index, split as `task + 0x100 + 0xA0`.
- *
- * The target forms the address with an `add` and a `+0xA0` displacement rather
- * than one folded `ldrsh [task, #0x1A0]`, and that is a valid alternative
- * encoding this build does not produce. OtuFieldAccess.c records the same thing
- * for the four halfwords at `task + 0x100 + 0x78..0x7E`, which is why the split
- * is spelled out here rather than left to a field access.
- */
-#define OTU_PIN_SLOT(task) (*(s16*)((u8*)(task) + 0x100 + 0xA0))
-
-/*
  * The pin tray, reached as `scene + 0x4C + 0x44000` -- two adds.
  *
  * The target never folds the pair into one displacement, and 0x4404C is not
@@ -689,7 +678,7 @@ void func_ov039_0208a454(TinPinSlammer_Scene* scene) {
  *     just wrote, not a pre-store clamp -- the field really is written twice on
  *     an overflowing credit;
  *   * the round-robin is a post-increment with a separate `>= 2` reset, which
- *     is why `OTU_PIN_SLOT` is read three times rather than kept in a local.
+ *     is why `self->slot` is read three times rather than kept in a local.
  *
  * The two children are the words at +0x228 and +0x22C, indexed with the
  * `((s32*)((u8*)task + 0x228))[i]` subscript form -- the same one
@@ -715,11 +704,11 @@ s32 func_ov039_0208a490(void* task, s32 value) {
     }
 
     func_ov039_02093d68(EasyTask_GetTaskData(self->pool, self->counterId), self->total);
-    func_ov039_02095cd4(EasyTask_GetTaskData(self->pool, ((s32*)((u8*)self + 0x228))[OTU_PIN_SLOT(self)]), value);
+    func_ov039_02095cd4(EasyTask_GetTaskData(self->pool, ((s32*)((u8*)self + 0x228))[self->slot]), value);
 
-    OTU_PIN_SLOT(self) = OTU_PIN_SLOT(self) + 1;
-    if (OTU_PIN_SLOT(self) >= 2) {
-        OTU_PIN_SLOT(self) = 0;
+    self->slot = self->slot + 1;
+    if (self->slot >= 2) {
+        self->slot = 0;
     }
 
     func_ov039_02087d04(0x340, &self->pos, &self->anchor);
