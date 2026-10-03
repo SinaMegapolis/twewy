@@ -43,6 +43,22 @@ UNITS = {
     "OtuVBlank": "src/Debug/Sugata/TinPinSlammer/OtuVBlank",
     "OtuGxInit": "src/Debug/Sugata/TinPinSlammer/OtuGxInit",
     "OtuScoreRow": "src/Debug/Sugata/TinPinSlammer/OtuScoreRow",
+    "OtuFieldAccess": "src/Debug/Sugata/TinPinSlammer/OtuFieldAccess",
+    "OtuBoard": "src/Debug/Sugata/TinPinSlammer/OtuBoard",
+    "OtuPinLogic": "src/Debug/Sugata/TinPinSlammer/OtuPinLogic",
+    "OtuBadgeState": "src/Debug/Sugata/TinPinSlammer/OtuBadgeState",
+    "OtuBadgeAi": "src/Debug/Sugata/TinPinSlammer/OtuBadgeAi",
+    "OtuPinTray": "src/Debug/Sugata/TinPinSlammer/OtuPinTray",
+    "OtuPinAccessors": "src/Debug/Sugata/TinPinSlammer/OtuPinAccessors",
+    "OtuPinSprites": "src/Debug/Sugata/TinPinSlammer/OtuPinSprites",
+    "OtuMeters": "src/Debug/Sugata/TinPinSlammer/OtuMeters",
+    "OtuObstacles": "src/Debug/Sugata/TinPinSlammer/OtuObstacles",
+    "OtuCounters": "src/Debug/Sugata/TinPinSlammer/OtuCounters",
+    "OtuGauge": "src/Debug/Sugata/TinPinSlammer/OtuGauge",
+    "OtuEntryTasks": "src/Debug/Sugata/TinPinSlammer/OtuEntryTasks",
+    "OtuTaskStages": "src/Debug/Sugata/TinPinSlammer/OtuTaskStages",
+    "OtuSpriteTasks": "src/Debug/Sugata/TinPinSlammer/OtuSpriteTasks",
+    "OtuHammerSpawn": "src/Debug/Sugata/TinPinSlammer/OtuHammerSpawn",
 }
 
 
