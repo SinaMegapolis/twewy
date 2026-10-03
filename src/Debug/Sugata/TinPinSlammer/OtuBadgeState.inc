@@ -93,12 +93,10 @@ extern s32 data_ov039_0209a324;
 extern s32 data_ov039_0209a308;
 
 /*
- * The movement-rate table, four words: the per-frame rate a badge accumulates
- * for tile type 0, for type 4, for type 3, and the override used when
- * something other than the board is steering. Indexed by the tile-type switch
- * in 0x0208af6c, never by a loop counter.
+ * The movement-rate table, four words, is declared as
+ * `data_ov039_0209a39c[4]` in TinPinSlammer.h -- func_ov039_02084020 and
+ * func_ov039_020840c0 reach the same four words from OtuScoreRow.c.
  */
-extern s32 data_ov039_0209a39c[4];
 
 /**
  * @brief One badge kind's speed record: a 16-byte-stride Q12.12 multiplier.

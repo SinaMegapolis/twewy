@@ -12,6 +12,175 @@
  */
 
 /**
+ * @brief Step one of the four shared countdown anchors by a decimal place.
+ *
+ * The single-group counterpart to func_ov039_02084458: there is no slot block
+ * to index, so `value / 4` picks between four separate anchor objects rather
+ * than four words one block apart.  `step` is +1 or -1.
+ *
+ * `value` packs both halves of the address: the quotient picks which of the
+ * four anchors is being animated and the remainder is the decimal place within
+ * it, so the call below passes `value % 4` and func_ov039_02083af4's own
+ * `place % 4` is redundant for values that came from here.
+ */
+void func_ov039_02084020(TinPinSlammer_Scene* scene, s32 step) {
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        anchor;
+    s32         value = OTU_TEXT_ROW(table, table->index)->value;
+
+    switch (value / 4) {
+        case 0:
+            anchor = &data_ov039_0209a39c[0];
+            break;
+        case 1:
+            anchor = &data_ov039_0209a3a0;
+            break;
+        case 2:
+            anchor = &data_ov039_0209a3a4;
+            break;
+        case 3:
+            anchor = &data_ov039_0209a3a8;
+            break;
+    }
+
+    // The remainder, not the quotient: the target's rotate-based sequence
+    // (`lsr #31`, `rsb ... lsl #0x1e`, `add ... ror #0x1e`) is mwcc's expansion
+    // of `% 4` for an unknown sign, and it only appears when this is spelled as
+    // a modulus rather than as a second division.
+    func_ov039_02083af4(anchor, step, OTU_TEXT_ROW(table, table->index)->value % 4);
+
+    table->flags = 0;
+}
+
+/**
+ * @brief Draw the four-anchor row: one `d.ddd` group per anchor.
+ *
+ * The same body as func_ov039_020844f8 with the shared countdown block replaced
+ * by the four standalone anchors above -- which is why it sits at y = 0x18,
+ * the first of the result screen's fixed-point rows.
+ */
+void func_ov039_020840c0(TinPinSlammer_Scene* scene) {
+    char        row[0x20];
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32*        src   = &data_ov039_0209a39c[0];
+    s32         value;
+
+    func_ov039_02083a20((OtuTextDigits*)&row[0x0], src[0]);
+    row[0x5] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x6], src[1]);
+    row[0xB] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0xC], src[2]);
+    row[0x11] = ' ';
+    func_ov039_02083a20((OtuTextDigits*)&row[0x12], src[3]);
+    // No store for the fourth separator: func_ov039_02083a20's own trailing
+    // space lands on 0x17, and the target relies on that rather than writing it
+    // a second time the way func_ov039_020844f8 does.
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+    if (value >= 0 && (table->flags & 0x20)) {
+        row[data_ov039_02099034[value]] = ' ';
+    }
+    row[0x17] = 0;
+
+    Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x18, row);
+}
+
+/**
+ * @brief Step one of the pin-tray / score-row slots by a decimal place.
+ *
+ * The stepper for the rows func_ov039_020842bc draws.  `which` selects the row
+ * the same way that draw call does -- 0 is the pin tray, 1 through 3 the three
+ * menus' score rows -- and `value / 3` is both the slot within that row and the
+ * digit within the slot, so `value % 3` picks the place (100, 10 or 1) to move
+ * it by.
+ *
+ * The sentinel handling is the same as the draw: 0x130 reads as an empty slot,
+ * and the written-back count wraps just below it -- below zero becomes 0x131,
+ * 0x132 and above becomes zero, and a slot that lands on zero becomes the
+ * 0x130 sentinel rather than the digit 0.
+ */
+// Nonmatching: 88.0%. The `which` switch and its four-way jump table, both
+// address computations, the row read, the sentinel handling, the three-way
+// place branch (out-of-line block for == 0, a second for == 1, a conditional
+// move for == 2), both clamps and the trailing flag clear all match.
+//
+// The gap is the divide. The target divides `value` by 3 twice -- once for the
+// slot index and once for the remainder -- and mwcc folds the two into a single
+// `smull` here, so the byte offset lands in a different register, the second
+// divide and its two helpers are missing, and the offset is recomputed at the
+// store instead of being carried. There is no spelling that avoids this: every
+// arrangement of `value / 3` and `value % 3` -- one expression, two locals, or
+// split across a branch -- compiles to one divide and one multiply-by-3
+// subtract. (`value % 3` on its own does match; see func_ov039_02085124.) So
+// this is a codegen limit rather than a spelling.
+void func_ov039_020841a0(TinPinSlammer_Scene* scene, s32 which, s32 step) {
+    u16*        row;
+    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32         value;
+    s32         place;
+    s32         v;
+
+    // Same source selection, and the same missing `default`, as the row draw.
+    switch (which) {
+        case 0:
+            row = OTU_PIN_TRAY(scene, which);
+            break;
+        case 1:
+        case 2:
+        case 3:
+            row = OTU_SCORE_ROW(scene, which - 1);
+            break;
+    }
+
+    value = OTU_TEXT_ROW(table, table->index)->value;
+
+    // The target keeps the quotient's byte offset in a register from here to the
+    // store, and divides a second time for the remainder, so the slot index is a
+    // local of its own rather than a third spelling of `value / 3`.
+    {
+        s32 slot = value / 3;
+
+        v = row[slot];
+
+        if (v == 0x130) {
+            v = 0;
+        } else {
+            v = v + 1;
+        }
+
+        // Three places by `value % 3`, and a switch rather than a compare chain
+        // because that is the shape the target has: the == 0 and == 1 arms each
+        // branch out to their own block and == 2 is the conditional-move arm.
+        switch (value % 3) {
+            case 0:
+                place = 100;
+                break;
+            case 1:
+                place = 10;
+                break;
+            case 2:
+                place = 1;
+                break;
+        }
+
+        v = v + place * step;
+
+        if (v < 0) {
+            v = 0x131;
+        } else {
+            if (v >= 0x132) {
+                v = 0;
+            }
+            v = (v == 0) ? 0x130 : v - 1;
+        }
+
+        row[slot] = v;
+    }
+
+    table->flags = 0;
+}
+
+/**
  * @brief Draw one three-digit-per-slot number row.
  *
  * `which` selects the row: 0 is the pin tray, 1 through 3 are the three menus'
@@ -97,26 +266,20 @@ void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 which) {
  * @brief Step one of a menu's four countdown columns by a decimal place.
  *
  * `value / 4` selects which of the four coordinates in the slot's block is
- * being animated, and the same quotient is passed on as the decimal place, so
- * the four columns are the thousands, hundreds, tens and ones of one number.
- * `step` is +1 or -1, and the divide truncates toward zero in both places --
- * which is why the target spells it out as a shift-plus-sign-fixup rather than
- * a shift alone.
+ * being animated, so the four columns are the thousands, hundreds, tens and
+ * ones of one number, and `value % 4` is the place within it that
+ * func_ov039_02083af4 is told to move.  `step` is +1 or -1, and both the divide
+ * and the modulus truncate toward zero -- which is why the target spells the
+ * divide out as a shift-plus-sign-fixup and the modulus as a rotate.
  *
  * Clears the table's flags afterwards, so the hide-column check in the row
  * builders re-evaluates from scratch on the next frame.
  */
-// Nonmatching: 89.2%. The switch, its four-way jump table, the slot base
-// arithmetic, all four column offsets and the trailing flag clear match, and
-// the size is exact. What is left is register allocation plus the divide:
-//
-//   * the target keeps the slot base in r1 and the two arguments in r7/r6;
-//     this build uses r3 and r6/r5. The prologue differs by one saved
-//     register as a result.
-//   * the target divides `value / 4` twice -- a shift-based form for the
-//     switch selector and a rotate-based one for the call's third argument --
-//     while mwcc folds the two into a single division here. Re-deriving the
-//     value from the row does not help: the reload is folded too.
+// Nonmatching: 99.88%, which is its ceiling here -- the residual is one
+// constant-pool `.word` symbol name and nothing else, the same one that keeps
+// func_ov039_020844f8 at 99.91%. The target's countdown base is an unnamed
+// delinker symbol, `data_ov039_0209a3dc`; this build reaches the same address
+// through the named `OtuText_Shadow`, which is what OTU_COUNTDOWN_COLUMN spells.
 void func_ov039_02084458(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     s32*        base  = OTU_COUNTDOWN_COLUMN(slot);
@@ -142,11 +305,10 @@ void func_ov039_02084458(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
             break;
     }
 
-    // Deliberately not reusing the switch's quotient. The target divides again
-    // here, in a different instruction form (a rotate-based correction rather
-    // than a shift-based one), and mwcc folds the two together when the
-    // expression is spelled identically in both places.
-    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value / 4);
+    // The remainder, not the quotient -- see func_ov039_02084020, which is this
+    // function for the shared anchors and matches once the modulus is spelled
+    // as a modulus.
+    func_ov039_02083af4(column, step, OTU_TEXT_ROW(table, table->index)->value % 4);
 
     table->flags = 0;
 }
@@ -616,20 +778,26 @@ void func_ov039_02084e1c(TinPinSlammer_Scene* scene, s32 step) {
  * rather than a scene digit column, and the only one whose range is the pin
  * sentinel 0x130 rather than a round number.
  *
- * Three places (100, 10, 1) selected by `value / 3`, compared rather than
+ * Three places (100, 10, 1) selected by `value % 3`, compared rather than
  * jump-tabled. The clamp wraps at 0x130/0x131: below zero becomes 0x130, at or
  * above 0x131 becomes zero. 0x130 is the same "no pin here" value
  * func_ov039_020824a0 fills the tray with.
  */
-// Nonmatching: 79.2%. Structure, pool words and the 0x130 sentinel clamp are all correct.
-// The three-way branch shape differs: the target branches out to a block for
-// == 0 and a second for == 1 with == 2 as the falling-through conditional,
-// which mwcc will not produce from the switch as written. Known three-way gap.
 void func_ov039_02085124(TinPinSlammer_Scene* scene, s32 step) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     s32         place;
+    s32         count;
 
-    switch (OTU_TEXT_ROW(table, table->index)->value / 3) {
+    // Read once, before the place switch, and clamp in a local: spelling this
+    // as `trayCount +=` and comparing the field twice is what forces the
+    // reloads, and reading it after the switch sinks the load past the target's.
+    count = table->trayCount;
+
+    // The remainder, not the quotient. func_ov039_020841a0 reads the same field
+    // for both -- the quotient as the slot index and this as the digit within
+    // it -- and its target divides twice; here only the modulus is needed, so
+    // mwcc's `smull`/multiply/subtract expansion is the whole of it.
+    switch (OTU_TEXT_ROW(table, table->index)->value % 3) {
         case 0:
             place = 100;
             break;
@@ -641,13 +809,14 @@ void func_ov039_02085124(TinPinSlammer_Scene* scene, s32 step) {
             break;
     }
 
-    table->trayCount += place * step;
+    count = count + place * step;
 
-    if (table->trayCount < 0) {
-        table->trayCount = 0x130;
-    } else if (table->trayCount >= 0x131) {
-        table->trayCount = 0;
+    if (count < 0) {
+        count = 0x130;
+    } else if (count >= 0x131) {
+        count = 0;
     }
+    table->trayCount = count;
 
     table->flags = 0;
 }

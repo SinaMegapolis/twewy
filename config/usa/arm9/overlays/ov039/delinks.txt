@@ -8,7 +8,7 @@ src/Debug/Sugata/TinPinSlammer/OtuScene.c:
     .text       start:0x020824a0 end:0x02082978
 
 src/Debug/Sugata/TinPinSlammer/OtuSceneEntry.c:
-    .text       start:0x02082c50 end:0x020832c0
+    .text       start:0x02082978 end:0x020832c0
 
 src/Debug/Sugata/TinPinSlammer/OtuGxInit.c:
     .text       start:0x020832c0 end:0x02083750
@@ -25,7 +25,7 @@ src/Debug/Sugata/TinPinSlammer/OtuMenuText.c:
     .bss       start:0x0209ad00 end:0x0209ad08
 
 src/Debug/Sugata/TinPinSlammer/OtuScoreRow.c:
-    .text       start:0x020842bc end:0x02086060
+    .text       start:0x02084020 end:0x02086060
 
 src/Debug/Sugata/TinPinSlammer/OtuCountdown.c:
     .text       start:0x02086060 end:0x02087e2c
@@ -34,7 +34,7 @@ src/Debug/Sugata/TinPinSlammer/OtuTaskPick.c:
     .text       start:0x02087e2c end:0x020883ac
 
 src/Debug/Sugata/TinPinSlammer/OtuFieldAccess.c:
-    .text       start:0x02088400 end:0x02098b8c
+    .text       start:0x020883ac end:0x02098bb0
 
 src/Debug/Sugata/TinPinSlammer/OtuVecOps.c:
     .text       start:0x02098bb0 end:0x02098e24

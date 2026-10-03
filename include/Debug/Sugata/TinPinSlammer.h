@@ -348,6 +348,8 @@ extern const s32 data_ov039_02098f64[12]; /* three d.ddd groups               */
 extern const s32 data_ov039_02098fc4[12]; /* three d.ddd groups, later        */
 extern const s32 data_ov039_02098ff4[16]; /* four d.ddd groups                */
 extern const s32 data_ov039_02099074[16]; /* four d.ddd groups, later instance */
+/* Same twelve entries again, 0x40 bytes lower, used by 020840c0's row. */
+extern const s32 data_ov039_02099034[12];
 extern const s32 data_ov039_020990b4[18]; /* six three-digit slots            */
 
 /* The countdown rows' column-blanking tables, one per row width.  Same shape as
@@ -424,6 +426,23 @@ extern s32 data_ov039_0209a38c;
 extern s32 data_ov039_0209a390;
 extern s32 data_ov039_0209a394;
 extern s32 data_ov039_0209a398;
+
+/*
+ * The badge movement-rate table and the countdown row built from it, at
+ * 0x0209a39c-0x0209a3ab.  Values 0x1800, 0xb33, 0x3000 and 0x4cd: the per-frame
+ * rate a badge accumulates for tile type 0, for type 4, for type 3, and the
+ * override used when something other than the board is steering.  Indexed by the
+ * tile-type switch in 0x0208af6c, never by a loop counter.
+ *
+ * func_ov039_020840c0 walks the run as one four-word group, while
+ * func_ov039_02084020 picks between the four words as separate anchor objects,
+ * so the three trailing words get their own names -- the ones the delinker gave
+ * each word of the array -- alongside the array itself.
+ */
+extern s32 data_ov039_0209a39c[4];
+extern s32 data_ov039_0209a3a0;
+extern s32 data_ov039_0209a3a4;
+extern s32 data_ov039_0209a3a8;
 
 /* Steps one countdown column by a single decimal place (see OtuText.c). */
 void func_ov039_02083af4(s32* value, s32 direction, u32 place);

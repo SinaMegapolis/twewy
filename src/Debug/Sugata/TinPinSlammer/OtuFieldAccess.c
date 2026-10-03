@@ -55,6 +55,22 @@
  */
 
 /* ------------------------------------------------------------------ */
+/* The stage block's child list.                                       */
+/* ------------------------------------------------------------------ */
+
+/** Number of children in the child list (`stageBlock` + 0x144). */
+s32 func_ov039_020883ac(TinPinSlammer_Scene* scene) {
+    return *(s32*)((u8*)func_ov039_02098b70(OTU_STAGE(scene)) + 0x144);
+}
+
+/** The `index`th child's task data, resolved out of the second task pool. */
+void* func_ov039_020883c8(TinPinSlammer_Scene* scene, s32 index) {
+    u8* block = (u8*)func_ov039_02098b70(OTU_STAGE(scene));
+
+    return EasyTask_GetTaskData(OTU_POOL2(scene), *(u32*)((u8*)block + index * 4 + 0x28C));
+}
+
+/* ------------------------------------------------------------------ */
 /* The stage task's 0x110 - 0x1B4 block.                              */
 /* ------------------------------------------------------------------ */
 

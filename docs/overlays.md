@@ -379,21 +379,24 @@ members â€” every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 553 of 561 functions decompiled, 378 of them at 100%.
+Status: 561 of 561 functions decompiled, 387 of them at 100%.
+No function is a stub any more; the overlay is fully covered, and the remaining
+174 are partial matches.
 `OtuMenuText` is 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of
 `.bss`); `OtuVBlank` is 100% across all five functions; `OtuSceneEntry` holds the
 two plain entry points, the teardown, its thunk and both stage dispatches at
 100%. `OtuScoreRow` is now the overlay's largest unit and holds eleven row
-builders plus the countdown steppers that drive them. Partial:
-`func_ov039_02083bb0` at 99.97%, `OtuGxInit` at 95.9%, both per-frame updates at
-91.0% and 95.4%, the clamp helper at 94.5%, the place stepper at 92.3%, the
-pin-count row at 83.8%, the countdown at 76.0%, the wireless teardown at 72.8%.
-The remaining 8 functions are stubs.
+builders plus the countdown steppers that drive them. Notable partials: `OtuGxInit`
+at 95.9%, `OtuScoreRow`'s clamp helper at 96.5%, both per-frame updates at 91.6%
+and 75.2%, the place stepper at 92.3%, the two `switch`-shaped steppers at 90.5%
+and 88.7%, the three-way stepper at 76.3%, the wireless teardown at 72.8%, and
+`OtuVecOps` at 66.8%â€“81.9%.
 
-The four countdown steppers (`02084458`, `020845dc`, `020846c4` and the
-place-stepper they all call) share one unresolved gap, below. Two sit at ~89%
-and one at 76%; decomp-permuter was run over the first two and could not push
-either past 90%, so they are left as they are rather than contorted further.
+The countdown steppers `02084458` and `02084b94` are at 100% and `020845dc` is at
+88.7%; `020845dc` and `020846c4` (76.3%) were both run through decomp-permuter and
+could not be pushed past ~89%, so they are left as they are rather than
+contorted further. What did move them was finding out what the two divide idioms
+below actually are â€” `02084458` went from 89.3% to a full match on that alone.
 
 ### Row layouts, and why the tables keep the build's names
 
@@ -457,28 +460,45 @@ seven points of match.
 
 ### Two divide idioms
 
-Signed `x / 4` compiles to one of two three-instruction sequences, and mwcc picks
-between them itself:
+Signed division by 4 and remainder by 4 compile to *different* three-instruction
+sequences, and this is the single most productive thing found in the overlay:
 
-    lsr  r3, r2, #0x1f            rsb  r2, r3, r2, lsl #0x1e
-    rsb  r2, r3, r2, lsl #0x1e     add  r2, r3, r2, ror #0x1e
-    add  r2, r3, r2, ror #0x1e
+    / 4                        % 4
+    mov  r0, r1, asr #0x1      mov  r3, r1, lsr #0x1f
+    add  r0, r1, r0, lsr #0x1e rsb  r2, r3, r1, lsl #0x1e
+    mov  r0, r0, asr #0x2      add  r2, r3, r2, ror #0x1e
 
 Both truncate toward zero and both are three instructions. The target uses the
-rotate form for a value passed to a call and the shift form for a switch selector
-â€” `func_ov039_02084458` emits both from the same register â€” while this build
-emits the shift form for either. Casting the operand on either side of the
-division, including to the callee's own parameter type, changes which one mwcc
-picks but never reaches the target's.
+rotate form for a value passed to a call and the shift form for a switch selector,
+which reads exactly like one function dividing the same quantity twice. It is
+not: the countdown value packs both halves of an address, `value / 4` picks which
+of four anchors is being animated and `value % 4` is the decimal place within it,
+and `func_ov039_02083af4`'s `place` parameter is then reduced by 4 again.
 
-decomp-permuter was run over `02084458` and `020845dc` for this. Neither its
-"wins" are real: on `02084458` the best candidate (580 â†’ 530) replaced
-`table->flags = 0` with `table->flags = value; table->flags = table->flags * 0`,
-a dead store the byte-level scorer rewards and mwcc folds away; on `020845dc` the
-best candidate (615 â†’ 425) cached the row pointer and divided unsigned, which
-reaches 89.35% only by replacing the target's three-instruction divide with a
-single `lsr #2`. Its byte score and objdiff's match percentage disagree often
-enough here that candidates have to be checked by hand before being applied.
+Spelling that as a second division makes mwcc fold the two into one and the
+function loses twelve bytes. Spelling it as a modulus makes the rotate sequence
+appear and the match goes to 100% â€” `02084020` from 90.5%, `02084458` from 89.3%,
+and `02085124` from 79.2% once its selector became `value % 3` instead of
+`value / 3` and its counter was read into a local before the switch rather than
+re-read for each comparison.
+
+The `smull` forms behave the same way: `% 3` is `smull`, an `add â€¦, lsr #31`, a
+multiply by 3 and a subtract, so the same three functions emit a divide and a
+multiply where the target emits a divide and a *second* divide. There is no
+spelling that gets both â€” every arrangement of `value / 3` and `value % 3`, as
+one expression, as two locals or split across a branch, compiles to a single
+divide â€” so `020841a0` is left at 88.0% as a genuine codegen limit.
+
+decomp-permuter was originally run over `02084458` and `020845dc` to chase the
+rotate form as a register-allocation puzzle. Neither "win" was real: on
+`02084458` the best candidate (580 â†’ 530) replaced `table->flags = 0` with
+`table->flags = value; table->flags = table->flags * 0`, a dead store the
+byte-level scorer rewards and mwcc folds away; on `020845dc` the best candidate
+(615 â†’ 425) cached the row pointer and divided unsigned, which reaches 89.35% only
+by replacing the target's three-instruction divide with a single `lsr #2`. Its
+byte score and objdiff's match percentage disagree often enough here that
+candidates have to be checked by hand before being applied. The real fix was
+semantic, and was sitting in the disassembly the whole time.
 
 ### Verifying the ROM actually rebuilt
 
@@ -848,7 +868,7 @@ readable straight out of the ROM:
 ```
 
 This is the key to the whole overlay, and it explains the results screen. The
-Shift-JIS strings that led to this overlay in the first place were `ƒƒcƒbƒb` (badge), `ƒeƒeƒcƒaaƒeƒaƒeƒd` (meteo), `ƒcbƒedƒfcƒeƒb` (needle), `ƒƒ„ƒŞƒfc` (hammer), `å¿…æ®ºæŠ€` (special move), `æ°—ç†²` (stun) -- and here
+Shift-JIS strings that led to this overlay in the first place were `ï¿½ï¿½ï¿½cï¿½bï¿½b` (badge), `ï¿½eï¿½eï¿½cï¿½aaï¿½eï¿½aï¿½eï¿½d` (meteo), `ï¿½cbï¿½edï¿½fcï¿½eï¿½b` (needle), `ï¿½ï¿½ï¿½ï¿½ï¿½Şƒfc` (hammer), `å¿…æ®ºæŠ€` (special move), `æ°—ç†²` (stun) -- and here
 they are again as task names. The results screen scores four pin types, and the
 simulation has a task per pin type.
 
@@ -1021,7 +1041,11 @@ It also explains a live hole. `func_ov039_02098bb0` (a vector subtract) and
 - and defining them inside `OtuFieldAccess.c` is wrong, since that TU's claim
   ends below them.
 
-The fix is a new TU owning the gap, not another band `.inc`.
+The fix is a new TU owning the gap, not another band `.inc`. **Done:**
+`OtuVecOps.c` claims `0x02098bb0`-`0x02098e24` and holds the ten functions that
+and the one function *below* that start, `func_ov039_02098b8c`, is the last entry
+in `OtuGaps.inc` inside `OtuFieldAccess.c`, whose claim now ends at `0x02098bb0`
+so the two abut. That address was itself unclaimed until Trap 8 below.
 
 ### Trap 6: a report says "absent" and you believe it
 
@@ -1045,3 +1069,38 @@ include *lines* stripped. Safe for m2c: the types come from the feature header
 and the bands hold function bodies, which m2c does not consume. Strip the
 include lines only -- the word `OtuBand` also appears in the comment above them
 explaining the include order, and that must survive.
+
+### Trap 8: a unit named `_dsd_gap@ov039_N` is a placement failure, not a codegen failure
+
+Eight functions -- `02082978`, `02082ae0`, `02084020`, `020840c0`, `020841a0`,
+`020883ac`, `020883c8`, `02098b8c` -- sat in objdiff's report under synthetic
+units called `_dsd_gap@ov039_1` through `_dsd_gap@ov039_4`, scoring `0`. Three of
+them had real, complete, matching bodies in the tree the whole time.
+
+`0%` is what objdiff reports when a function is on the target but the build has
+nothing to compare it against in that unit, and `_dsd_gap@` is dsd's name for a
+range of the delinked overlay that **no translation unit claimed**. dsd fills an
+unclaimed range from the original overlay blob and attributes the resulting
+symbols to a synthetic unit, so the functions are visible in the report and in
+`extract/usa/arm9_overlays/ov039.bin`, and are simply not compared against
+anything.
+
+`fndiff.py <unit> <fn>` names the unit, so `fndiff OtuScoreRow func_ov039_02084020`
+says the unit does not exist while the report says 0% -- two different symptoms of
+one cause. The fix is four edits to `config/usa/arm9/overlays/ov039/delinks.txt`,
+extending three `.text` claims so they cover the addresses:
+
+    OtuSceneEntry.c   .text start:0x02082978 end:0x020832c0
+    OtuScoreRow.c     .text start:0x02084020 end:0x02086060
+    OtuFieldAccess.c  .text start:0x020883ac end:0x02098bb0
+
+Ranges are half-open and abut, so the neighbouring `OtuTaskPick.c` / `OtuVecOps.c`
+bounds did not move. Editing `delinks.txt` makes ninja re-run `configure` on its own
+(`build.ninja:2416`), which is why this needs no separate configure step.
+
+Two of the eight turned out to be already written and already correct
+(`02082978`, `02082ae0`, `02098b8c`): the delink alone scored them 100%. The other
+five needed writing, which is where the `% 4` discovery in "Two divide idioms"
+above came from. Nothing in the source had been wrong; the whole 561-function
+count was reachable without writing a line of C, and would have read 553/561
+forever if the report had not been read by unit name.
