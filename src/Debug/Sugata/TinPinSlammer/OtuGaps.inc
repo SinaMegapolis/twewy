@@ -40,16 +40,25 @@ extern const TaskStages data_ov039_020999a4;
 extern const TaskStages data_ov039_0209a030;
 extern const TaskStages data_ov039_0209a078;
 
-/* The two reset-time helpers the parameter initialisers hand the block to. */
-void func_ov039_02091788(void* self, void* params);
-void func_ov039_02094bac(void* self, void* params);
-
-/* The two more the +0x68/+0x78 family re-derives the block through. */
-void func_ov039_020911dc(void* self, void* params);
-void func_ov039_020980b8(void* self, void* params);
+/*
+ * The four sprite-load helpers the parameter initialisers hand the block to.
+ * All of them are the OtuTaskStages.inc loader shape and all of them take the
+ * caller's `args` straight through in r2 -- which is why the callers never
+ * reload it, and why the constant-zero register in the callers moves off r2.
+ */
+void func_ov039_02091788(void* self, void* sprite, s32* args);
+void func_ov039_02094bac(void* self, void* sprite, s32* args);
+void func_ov039_020911dc(void* self, void* sprite, s32* args);
+void func_ov039_020980b8(void* self, void* sprite, s32* args);
 
 extern const TaskHandle     data_ov039_0209955c;
 extern const SpriteAnimation data_ov039_0209a088;
+extern const SpriteAnimation data_ov039_020995c0;
+extern const SpriteAnimation data_ov039_02099578;
+extern const SpriteAnimation data_ov039_02099c80;
+extern const SpriteAnimation data_ov039_0209a040;
+extern const SpriteAnimation data_ov039_02099504;
+extern const SpriteAnimation data_ov039_02099530;
 
 /* ------------------------------------------------------------------ */
 /* The pin task's own queries, 0x0208ee84 - 0x0208efb0.                */
@@ -967,19 +976,12 @@ s32 func_ov039_020914d0(void* pool, void* task) {
  * the one at +0x68, and +0x40 comes last. Written in the target's order because
  * nothing about the sequence is recoverable from the field names.
  */
-// Nonmatching: 97.6%, and the whole gap is one register. The target keeps the
-// materialised 0 in r3 and the 0x2000 in r1; this source gets 0 in r2 and leaves
-// r3 unused. The zero is live across the 0x2000 materialisation (it is stored
-// both before and after it), so the two constants do need separate registers --
-// but which of r1/r3 each takes is a coin flip of mwcc's allocator. Named
-// locals for either constant are constant-folded away and move nothing, and
-// 11 declaration orders scored identically. Every other instruction agrees.
-s32 func_ov039_02091814(void* pool, void* task, void* arg) {
+s32 func_ov039_02091814(void* pool, void* task, s32* args) {
     u8* sprite = *(u8**)((u8*)task + 0x18);
 
     (void)pool;
 
-    *(s32*)(sprite + 0x68) = *(s32*)((u8*)arg + 0x4);
+    *(s32*)(sprite + 0x68) = args[1];
     *(s32*)(sprite + 0x50) = 0;
     *(s32*)(sprite + 0x54) = 0;
     *(s32*)(sprite + 0x58) = 0;
@@ -992,16 +994,12 @@ s32 func_ov039_02091814(void* pool, void* task, void* arg) {
     *(s32*)(sprite + 0x6C) = 0;
     *(s32*)(sprite + 0x70) = 0;
 
-    func_ov039_02091788(sprite, sprite);
+    func_ov039_02091788(sprite, sprite, args);
     return 1;
 }
 
-// Nonmatching: 97.0%, the same one-register gap as func_ov039_02091814 and
-// almost certainly the same cause: 0 in r2 where the target has r3. The target
-// reads only r0 and r1, so the parameter count cannot be the lever, and adding
-// an unused third parameter changed nothing at all.
 /** The same reset against the sibling helper, over a longer zero run. */
-s32 func_ov039_02094c50(void* pool, void* task) {
+s32 func_ov039_02094c50(void* pool, void* task, s32* args) {
     u8* sprite = *(u8**)((u8*)task + 0x18);
 
     (void)pool;
@@ -1021,7 +1019,7 @@ s32 func_ov039_02094c50(void* pool, void* task) {
     *(s16*)(sprite + 0x4C) = 0;
     *(s16*)(sprite + 0x4E) = 0;
 
-    func_ov039_02094bac(sprite, sprite);
+    func_ov039_02094bac(sprite, sprite, args);
     return 1;
 }
 
@@ -1091,12 +1089,12 @@ void func_ov039_02098af4(void* task, void* arg) {
  * block's word 0 is the heap it will later allocate out of. The zero and
  * 0x1000 runs are written in the target's order rather than by address.
  */
-s32 func_ov039_02091268(TaskPool* pool, void* task, void* arg) {
+s32 func_ov039_02091268(TaskPool* pool, void* task, s32* args) {
     u8* block = *(u8**)((u8*)task + 0x18);
 
     *(TaskPool**)(block + 0x00) = pool;
     *(s32*)(block + 0x6C) = 0;
-    *(s32*)(block + 0x68) = *(s32*)((u8*)arg + 0x4);
+    *(s32*)(block + 0x68) = args[1];
     *(s32*)(block + 0x54) = 0;
     *(s32*)(block + 0x58) = 0;
     *(s32*)(block + 0x5C) = 0;
@@ -1109,24 +1107,19 @@ s32 func_ov039_02091268(TaskPool* pool, void* task, void* arg) {
     *(s16*)(block + 0x52) = 0;
     *(s32*)(block + 0x80) = 0;
 
-    func_ov039_020911dc(block, block + 4);
+    func_ov039_020911dc(block, block + 4, args);
     return 1;
 }
 
-// Nonmatching: 96.9%, the same one-register class as func_ov039_02091814 and
-// func_ov039_02094c50. The target puts the value read from arg+4 in r3 and the
-// materialised 0 in ip; this source keeps the value in r2 -- recycling the arg
-// register -- and the zero in r3. Giving the value a named local makes it worse
-// (80%), not better. Everything else agrees.
 /** The same reset against the +0x80b8 helper, over a longer zero run. */
-s32 func_ov039_02098144(TaskPool* pool, void* task, void* arg) {
+s32 func_ov039_02098144(TaskPool* pool, void* task, s32* args) {
     u8* block = *(u8**)((u8*)task + 0x18);
 
     (void)pool;
 
     *(s32*)(block + 0x7C) = 0;
     *(s32*)(block + 0x80) = 0;
-    *(s32*)(block + 0x78) = *(s32*)((u8*)arg + 0x4);
+    *(s32*)(block + 0x78) = args[1];
     *(s32*)(block + 0x50) = 0;
     *(s32*)(block + 0x54) = 0;
     *(s32*)(block + 0x58) = 0;
@@ -1140,7 +1133,7 @@ s32 func_ov039_02098144(TaskPool* pool, void* task, void* arg) {
     *(s16*)(block + 0x4C) = 0;
     *(s16*)(block + 0x4E) = 0;
 
-    func_ov039_020980b8(block, block);
+    func_ov039_020980b8(block, block, args);
     return 1;
 }
 
@@ -1254,4 +1247,84 @@ s32 func_ov039_020915a8(TaskPool* pool, s32 word0, s32 word1) {
         group->ids[i] = func_ov039_02097e68(pool, word0, word1);
     }
     return handle;
+}
+
+/**
+ * The two loaders that share `func_ov039_020985e0`'s shape and are re-run by the
+ * parameter resets above. Both take the caller's `args` in the third slot and
+ * read the dataType out of its first word.
+ */
+
+/** Loads the sprite for the task whose anim template is data_ov039_020995c0. */
+void func_ov039_02091788(void* self, void* sprite, s32* args) {
+    SpriteAnimation anim = data_ov039_020995c0;
+
+    anim.owner    = self;
+    anim.dataType = (u16) * (s32*)args;
+    anim.posX     = *(s32*)((u8*)self + 0x58) >> 12;
+    anim.posY     = *(s32*)((u8*)self + 0x5C) >> 12;
+    _Sprite_Load((Sprite*)sprite, &anim);
+}
+
+/** Loads the sprite for the task whose anim template is data_ov039_02099578. */
+void func_ov039_020911dc(void* self, void* sprite, s32* args) {
+    SpriteAnimation anim = data_ov039_02099578;
+
+    anim.owner    = self;
+    anim.dataType = (u16) * (s32*)args;
+    anim.posX     = *(s32*)((u8*)self + 0x5C) >> 12;
+    anim.posY     = *(s32*)((u8*)self + 0x60) >> 12;
+    _Sprite_Load((Sprite*)sprite, &anim);
+}
+
+/** Loads the sprite for the task whose anim template is data_ov039_0209a040. */
+void func_ov039_020980b8(void* self, void* sprite, s32* args) {
+    SpriteAnimation anim = data_ov039_0209a040;
+
+    anim.owner    = self;
+    anim.dataType = (u16) * (s32*)args;
+    anim.posX     = *(s32*)((u8*)self + 0x58) >> 12;
+    anim.posY     = *(s32*)((u8*)self + 0x5C) >> 12;
+    _Sprite_Load((Sprite*)sprite, &anim);
+}
+
+/**
+ * Loads the sprite for the task whose anim template is data_ov039_02099c80.
+ *
+ * The only member of the family whose position is a difference rather than a
+ * raw value: x is `+0x58 - +0x50` and y adds a third term at +0x60, the same
+ * pair `func_ov039_02094dac` writes into the sprite's posX/posY.
+ */
+void func_ov039_02094bac(void* self, void* sprite, s32* args) {
+    SpriteAnimation anim = data_ov039_02099c80;
+
+    anim.owner    = self;
+    anim.dataType = (u16) * (s32*)args;
+    anim.posX = (s32)((*(s32*)((u8*)self + 0x58) - *(s32*)((u8*)self + 0x50)) >> 12);
+    anim.posY = (s32)((*(s32*)((u8*)self + 0x60) +
+                       (*(s32*)((u8*)self + 0x5C) - *(s32*)((u8*)self + 0x54))) >>
+                      12);
+    _Sprite_Load((Sprite*)sprite, &anim);
+}
+
+/** Loads the sprite for the task whose anim template is data_ov039_02099504. */
+void func_ov039_02090390(OtuHammer* self, Sprite* sprite, OtuHammer_Params* params) {
+    SpriteAnimation anim = data_ov039_02099504;
+
+    anim.owner    = self;
+    anim.dataType = (u16) * (s32*)params;
+    anim.posX     = *(s32*)((u8*)self + 0xAC) >> 12;
+    anim.posY     = *(s32*)((u8*)self + 0xB0) >> 12;
+    _Sprite_Load(sprite, &anim);
+}
+
+/** Loads the sprite for the task whose anim template is data_ov039_02099530. */
+void func_ov039_0209041c(OtuHammer* self, Sprite* sprite, OtuHammer_Params* params) {
+    SpriteAnimation anim = data_ov039_02099530;
+
+    anim.owner    = self;
+    anim.dataType = (u16) * (s32*)params;
+    anim.posX     = *(s32*)((u8*)self + 0xB4) >> 12;
+    anim.posY     = *(s32*)((u8*)self + 0xB8) >> 12;
+    _Sprite_Load(sprite, &anim);
 }
