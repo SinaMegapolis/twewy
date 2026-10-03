@@ -34,7 +34,52 @@ src/Debug/Sugata/TinPinSlammer/OtuTaskPick.c:
     .text       start:0x02087e2c end:0x020883ac
 
 src/Debug/Sugata/TinPinSlammer/OtuFieldAccess.c:
-    .text       start:0x020883ac end:0x02098bb0
+    .text       start:0x020883ac end:0x02088698
+
+src/Debug/Sugata/TinPinSlammer/OtuBoard.c:
+    .text       start:0x02088698 end:0x02089950
+
+src/Debug/Sugata/TinPinSlammer/OtuPinLogic.c:
+    .text       start:0x02089950 end:0x0208acc0
+
+src/Debug/Sugata/TinPinSlammer/OtuBadgeState.c:
+    .text       start:0x0208acc0 end:0x0208c4ec
+
+src/Debug/Sugata/TinPinSlammer/OtuBadgeAi.c:
+    .text       start:0x0208c4ec end:0x0208d3bc
+
+src/Debug/Sugata/TinPinSlammer/OtuPinTray.c:
+    .text       start:0x0208d3bc end:0x0208e890
+
+src/Debug/Sugata/TinPinSlammer/OtuPinAccessors.c:
+    .text       start:0x0208e890 end:0x0208f00c
+
+src/Debug/Sugata/TinPinSlammer/OtuPinSprites.c:
+    .text       start:0x0208f00c end:0x0209003c
+
+src/Debug/Sugata/TinPinSlammer/OtuMeters.c:
+    .text       start:0x0209003c end:0x02092484
+
+src/Debug/Sugata/TinPinSlammer/OtuObstacles.c:
+    .text       start:0x02092484 end:0x020933c0
+
+src/Debug/Sugata/TinPinSlammer/OtuCounters.c:
+    .text       start:0x020933c0 end:0x02094214
+
+src/Debug/Sugata/TinPinSlammer/OtuGauge.c:
+    .text       start:0x02094214 end:0x020950b8
+
+src/Debug/Sugata/TinPinSlammer/OtuEntryTasks.c:
+    .text       start:0x020950b8 end:0x020960bc
+
+src/Debug/Sugata/TinPinSlammer/OtuTaskStages.c:
+    .text       start:0x020960bc end:0x0209702c
+
+src/Debug/Sugata/TinPinSlammer/OtuSpriteTasks.c:
+    .text       start:0x0209702c end:0x02098394
+
+src/Debug/Sugata/TinPinSlammer/OtuHammerSpawn.c:
+    .text       start:0x02098394 end:0x02098bb0
 
 src/Debug/Sugata/TinPinSlammer/OtuVecOps.c:
     .text       start:0x02098bb0 end:0x02098e24
