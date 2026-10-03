@@ -2494,3 +2494,1298 @@ s32 func_ov039_020981a4(TaskPool* pool, void* task) {
     }
     return 1;
 }
+
+/* ------------------------------------------------------------------ */
+/* The five-phase swing task, 0x02091868.                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief The swing task's phase machine: wind-up, swing, recover.
+ *
+ * The sprite block (task+0x18) carries its own small state block: +0x6C is the
+ * "step this frame" flag, +0x70 the phase, +0x74 a 4-frame hold count and
+ * +0x48 the swing angle. Phase 1 seeds the swing from the pin's +0x138
+ * position and falls straight through into phase 2, which is the swing
+ * itself: it copies the pin's position pair, aims by 0x38000 and slews
+ * +0x48 from 0x2000 toward zero over the four frames of +0x74. Phases 3 and 4
+ * walk the angle back and the completion checks are gated on the owner's bit
+ * 10 (the "swing enabled" bit), read as `(word << 0x15) >> 0x1F`.
+ */
+s32 func_ov039_02091868(TaskPool* pool, void* task) {
+    u8*   sprite = *(u8**)((u8*)task + 0x18);
+    void* pin;
+
+    pin = EasyTask_GetTaskData(pool, *(s32*)(sprite + 0x68));
+
+    if (pin != NULL) {
+        switch (*(s32*)(sprite + 0x70)) {
+            case 0:
+                *(s32*)(sprite + 0x6C) = 0;
+                break;
+
+            case 1:
+                *(s32*)(sprite + 0x6C) = 1;
+                func_ov039_0208e6cc(pin, (OtuPoint*)(sprite + 0x60));
+                func_ov039_02098bd4(-0x1000, (OtuPoint*)(sprite + 0x60),
+                                    (OtuPoint*)(sprite + 0x60));
+                *(s32*)(sprite + 0x40) =
+                    (u16)(FX_Atan2Idx(*(s32*)(sprite + 0x64),
+                                      *(s32*)(sprite + 0x60)) +
+                          0xC000);
+                *(s32*)(sprite + 0x48) = 0;
+                *(s32*)(sprite + 0x70) = 2;
+                *(s32*)(sprite + 0x74) = 4;
+                Sprite_SetAnimation((Sprite*)sprite, *(s16**)(sprite + 0x18), 1,
+                                    *(SpriteCell**)(sprite + 0x1C));
+                /* fall through */
+            case 2:
+                func_ov039_0208e85c(pin, (OtuPoint*)(sprite + 0x50));
+                func_ov039_0208e6e0(pin, (OtuPoint*)(sprite + 0x58));
+                func_ov039_02098c00(0x38000, (OtuPoint*)(sprite + 0x60),
+                                    (OtuPoint*)(sprite + 0x58),
+                                    (OtuPoint*)(sprite + 0x58));
+                if (*(s32*)(sprite + 0x74) > 0) {
+                    *(s32*)(sprite + 0x48) =
+                        *(s32*)(sprite + 0x48) +
+                        (0x2000 - *(s32*)(sprite + 0x48)) / *(s32*)(sprite + 0x74);
+                    *(s32*)(sprite + 0x74) = *(s32*)(sprite + 0x74) - 1;
+                }
+
+                if (((u32)(*(s32*)sprite << 0x15)) >> 0x1F == 1) {
+                    *(s32*)(sprite + 0x70) = 3;
+                    Sprite_ChangeAnimation((Sprite*)sprite, *(s32*)(sprite + 0x18),
+                                           2, *(SpriteCell**)(sprite + 0x1C));
+                }
+                break;
+
+            case 3:
+                func_ov039_0208e85c(pin, (OtuPoint*)(sprite + 0x50));
+
+                if (((u32)(*(s32*)sprite << 0x15)) >> 0x1F == 1) {
+                    *(s32*)(sprite + 0x70) = 4;
+                    *(s32*)(sprite + 0x74) = 4;
+                    Sprite_ChangeAnimation(
+                        (Sprite*)sprite, *(s32*)(sprite + 0x18), 3,
+                        *(SpriteCell**)(sprite + 0x1C));
+                }
+                break;
+
+            case 4:
+                func_ov039_0208e85c(pin, (OtuPoint*)(sprite + 0x50));
+
+                if (*(s32*)(sprite + 0x74) > 0) {
+                    *(s32*)(sprite + 0x48) =
+                        *(s32*)(sprite + 0x48) +
+                        -*(s32*)(sprite + 0x48) / *(s32*)(sprite + 0x74);
+                    *(s32*)(sprite + 0x74) = *(s32*)(sprite + 0x74) - 1;
+                } else {
+                    *(s32*)(sprite + 0x70) = 0;
+                    *(s32*)(sprite + 0x6C) = 0;
+                }
+                break;
+        }
+    } else {
+        *(s32*)(sprite + 0x6C) = 0;
+    }
+
+    if (*(s32*)(sprite + 0x6C) != 0) {
+        Sprite_Update((Sprite*)sprite);
+    }
+    return 1;
+}
+
+/**
+ * @brief The hammer-charge task's phase machine: raise, hold, swing.
+ *
+ * Sprite state block: +0x6C the step flag, +0x80 the phase, +0x78 a running
+ * frame count and +0x7C a sub-count. Phase 0 clears the flag; phase 1 sets the
+ * charge mode 0x334 and the wind-up is phase 2, which ramps +0x48 from 0x99A
+ * toward 0x1000 over the +0x70 frames -- both +0x48 and its +0x4C copy keep
+ * the ramp value. On frame zero it raises the sprite's +4 bit-6 bit and enters
+ * the hold, phase 3, which counts +0x7C down and re-arms the charge (mode
+ * 0x336) once its own counter lands. Phase 4 runs the same ramp back against
+ * 0x99A. Phase 2 re-arms at frame zero and phase 3 counts +0x7C down before
+ * running the same ramp back in phase 4, which zeroes the phase on landing.
+ * While their frame count is still positive, phases 2 and 3 break out of the
+ * switch; the fall-throughs (1 to 2, then on to 3 and 4) only happen on the
+ * counts that reach zero.
+ */
+s32 func_ov039_020912c8(TaskPool* pool, void* task) {
+    u8*   sprite = *(u8**)((u8*)task + 0x18);
+    void* pin;
+
+    pin = EasyTask_GetTaskData(pool, *(s32*)(sprite + 0x68));
+
+    if (pin != NULL) {
+        s32 alive = func_ov039_0208e9d0(pin);
+
+        *(s32*)(sprite + 0x6C) = alive;
+        if (alive == 0) {
+            *(s32*)(sprite + 0x80) = 0;
+        } else {
+            func_ov039_0208e85c(pin, (OtuPoint*)(sprite + 0x54));
+            func_ov039_0208e6e0(pin, (OtuPoint*)(sprite + 0x5C));
+            *(s32*)(sprite + 0x64) = func_ov039_0208e6f4(pin);
+        }
+
+        switch (*(s32*)(sprite + 0x80)) {
+            case 0:
+                *(s32*)(sprite + 0x6C) = 0;
+                break;
+
+            case 1:
+                *(s32*)(sprite + 0x4C) = 0x99A;
+                *(s32*)(sprite + 0x48) = 0x99A;
+                Sprite_ChangeAnimation((Sprite*)(sprite + 4),
+                                       *(s32*)(sprite + 0x1C), 0xE,
+                                       *(SpriteCell**)(sprite + 0x20));
+                *(s32*)(sprite + 0x78) = *(s32*)(sprite + 0x70);
+                *(s32*)(sprite + 0x80) = 2;
+                /* fall through */
+            case 2:
+                *(s32*)(sprite + 0x48) = *(s32*)(sprite + 0x48) +
+                    (0x1000 - *(s32*)(sprite + 0x48)) / *(s32*)(sprite + 0x78);
+                *(s32*)(sprite + 0x4C) = *(s32*)(sprite + 0x48);
+
+                *(s32*)(sprite + 0x78) = *(s32*)(sprite + 0x78) - 1;
+
+                if (*(s32*)(sprite + 0x78) > 0) {
+                    break;
+                }
+
+                *(s32*)(sprite + 4) = (*(s32*)(sprite + 4) & ~0x60) | 0x40;
+                Sprite_ChangeAnimation((Sprite*)(sprite + 4),
+                                       *(s32*)(sprite + 0x1C), 0xF,
+                                       *(SpriteCell**)(sprite + 0x20));
+                func_ov039_02087d04(0x334, (OtuPoint*)(sprite + 0x5C),
+                                    (OtuPoint*)(sprite + 0x54));
+                *(s32*)(sprite + 0x78) = *(s32*)(sprite + 0x74);
+                *(s32*)(sprite + 0x7C) = 0x1E;
+                *(s32*)(sprite + 0x80) = 3;
+                /* fall through */
+            case 3:
+                if (*(s32*)(sprite + 0x7C) > 0) {
+                    *(s32*)(sprite + 0x7C) = *(s32*)(sprite + 0x7C) - 1;
+                }
+                *(s32*)(sprite + 0x78) = *(s32*)(sprite + 0x78) - 1;
+
+                if (*(s32*)(sprite + 0x78) > 0) {
+                    break;
+                }
+
+                *(s32*)(sprite + 4) = (*(s32*)(sprite + 4) & ~0x60) | 0x40;
+                Sprite_ChangeAnimation((Sprite*)(sprite + 4),
+                                       *(s32*)(sprite + 0x1C), 2,
+                                       *(SpriteCell**)(sprite + 0x20));
+                func_ov039_02087d04(0x336, (OtuPoint*)(sprite + 0x5C),
+                                    (OtuPoint*)(sprite + 0x54));
+                *(s32*)(sprite + 0x78) = 0xE;
+                *(s32*)(sprite + 0x80) = 4;
+                /* fall through */
+            case 4:
+                *(s32*)(sprite + 0x48) = *(s32*)(sprite + 0x48) +
+                    (0x99A - *(s32*)(sprite + 0x48)) / *(s32*)(sprite + 0x78);
+                *(s32*)(sprite + 0x4C) = *(s32*)(sprite + 0x48);
+
+                *(s32*)(sprite + 0x78) = *(s32*)(sprite + 0x78) - 1;
+
+                if (*(s32*)(sprite + 0x78) <= 0) {
+                    *(s32*)(sprite + 0x80) = 0;
+                }
+                break;
+        }
+
+        if (*(s32*)(sprite + 0x6C) != 0) {
+            Sprite_Update((Sprite*)(sprite + 4));
+        }
+    } else {
+        *(s32*)(sprite + 0x6C) = 0;
+    }
+    return 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* The board-shape background loader, 0x02098650.                      */
+/* ------------------------------------------------------------------ */
+
+/** The 0x27-sized bin the loader pulls, plus its three sub-objects. */
+extern const BinIdentifier data_ov039_0209a0e4;
+
+/**
+ * @brief Loads the board's background data and allocates both displays from
+ *        it.
+ *
+ * The result screen's background setup: sets the step flag at +0x44 and the
+ * uncopied `dataType` word at +0, raises both displays' BG1 layer mask
+ * (`0x1F | 0x12`), marks `bgAffines[1].unk_14` when the layer's bgMode is one
+ * of the five scaled modes and clears both displays' +1 offsets, then loads
+ * `0209a0e4`'s bin and walks its pointer table: the buffer's +8/+0x10/+0x18
+ * words hold relative offsets from the buffer's +0x20 to the palette, char
+ * and screen sources. Each source is allocated once per display (palette
+ * first, then char and screen from `bgSettings[1]`, palette flush in between),
+ * the sprite is reloaded and both displays fade to black.
+ */
+s32 func_ov039_02098650(TaskPool* pool, void* task, s32* args) {
+    DisplayEngineState* state;
+    u8*                 sprite = *(u8**)((u8*)task + 0x18);
+    Data*               data;
+
+    *(s32*)(sprite + 0x44) = 1;
+    *(s32*)sprite          = *(s32*)args;
+
+    g_DisplaySettings.controls[0].layers = 0x1F;
+    g_DisplaySettings.controls[0].layers |= 0x12;
+    state = &g_DisplaySettings.engineState[0];
+    switch (state->bgSettings[1].bgMode) {
+        case DISPLAY_BGMODE_AFFINE:
+        case DISPLAY_BGMODE_PLTT:
+        case DISPLAY_BGMODE_BMP256:
+        case DISPLAY_BGMODE_BMPDIRECT:
+        case DISPLAY_BGMODE_BMPLARGE:
+            state->bgAffines[1].unk_14 = 1;
+            break;
+
+        default:
+            break;
+    }
+    state->bgOffsets[1].hOffset = 0;
+    state->bgOffsets[1].vOffset = 0;
+
+    g_DisplaySettings.controls[1].layers = 0x1F;
+    g_DisplaySettings.controls[1].layers |= 0x12;
+    state = &g_DisplaySettings.engineState[1];
+    switch (state->bgSettings[1].bgMode) {
+        case DISPLAY_BGMODE_AFFINE:
+        case DISPLAY_BGMODE_PLTT:
+        case DISPLAY_BGMODE_BMP256:
+        case DISPLAY_BGMODE_BMPDIRECT:
+        case DISPLAY_BGMODE_BMPLARGE:
+            state->bgAffines[1].unk_14 = 1;
+            break;
+
+        default:
+            break;
+    }
+    state->bgOffsets[1].hOffset = 0;
+    state->bgOffsets[1].vOffset = 0;
+
+    data = DatMgr_LoadRawData(*(s32*)args, NULL, 0, &data_ov039_0209a0e4);
+    *(s32*)(sprite + 0x48) = (s32)data;
+
+    {
+        void* pal;
+        void* chr;
+        void* scr;
+
+        if (data == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            pal      = base + *(u32*)(base + 8);
+        }
+        if (data == NULL) {
+            chr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            chr      = base + *(u32*)(base + 0x10);
+        }
+        if (data == NULL) {
+            scr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            scr      = base + *(u32*)(base + 0x18);
+        }
+
+        *(PaletteResource**)(sprite + 0x4C) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[0], pal, 0, 0, 1);
+        {
+            u32 size = (u32)((*(u32*)chr & ~0xFF) >> 8);
+
+            if ((*(u8*)chr & 0xF0) == 0) {
+                size -= 4;
+            }
+            *(BgResource**)(sprite + 0x50) = BgResMgr_AllocChar32(
+                g_BgResourceManagers[0], chr,
+                g_DisplaySettings.engineState[0].bgSettings[1].charBase, 0,
+                size);
+        }
+        *(BgResource**)(sprite + 0x54) = BgResMgr_AllocScreen(
+            g_BgResourceManagers[0], scr,
+            g_DisplaySettings.engineState[0].bgSettings[1].screenBase,
+            (u32)g_DisplaySettings.engineState[0].bgSettings[1].screenSizeText);
+        PaletteMgr_Flush(g_PaletteManagers[0],
+                         *(PaletteResource**)(sprite + 0x4C));
+
+        *(PaletteResource**)(sprite + 0x58) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[1], pal, 0, 0, 1);
+        {
+            u32 size = (u32)((*(u32*)chr & ~0xFF) >> 8);
+
+            if ((*(u8*)chr & 0xF0) == 0) {
+                size -= 4;
+            }
+            *(BgResource**)(sprite + 0x5C) = BgResMgr_AllocChar32(
+                g_BgResourceManagers[1], chr,
+                g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0,
+                size);
+        }
+        *(BgResource**)(sprite + 0x60) = BgResMgr_AllocScreen(
+            g_BgResourceManagers[1], scr,
+            g_DisplaySettings.engineState[1].bgSettings[1].screenBase,
+            (u32)g_DisplaySettings.engineState[1].bgSettings[1]
+                       .screenSizeText);
+        PaletteMgr_Flush(g_PaletteManagers[1],
+                         *(PaletteResource**)(sprite + 0x58));
+    }
+
+    func_ov039_020985e0(sprite, sprite + 4);
+    EasyFade_FadeMainDisplay(2, 0, 0x1000);
+    EasyFade_FadeSubDisplay(2, 0, 0x1000);
+    return 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* The 7-phase badge intro sequence, 0x0208ce88.                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief The badge's seven-phase intro, one state machine step per call.
+ *
+ * The badge block's +0xF4 flag pair and +0xFC phase counter drive it:
+ *
+ *   0 seeds a 0x14-frame hold and the +0x128 offset, fires
+ *     `func_ov039_0208fefc` and sfx mode 0x331;
+ *   1 winds +0x128 down by 0xA000 per frame and, when the hold lands, reloads
+ *     the frame count from the badge's cell table at +0xC;
+ *   2 is the free-move probe -- either wireless (+0xE8 set: adds the +2/+3
+ *     byte pair as a Q12.12 point scaled) or local (nearest pin via
+ *     `func_ov039_02087e2c`, then a 0x1E000-range test against 0x1800), and
+ *     below both, steps the +0x100 counter and the +0xF0 bit-2 check;
+ *   3 fires `func_ov039_0208ff30` and re-seeds from cell +0xE, mode 0x332;
+ *   4 damps +0x128 to zero, fires `func_ov039_0208ff68`, then spawns 8 task
+ *     sprites via `func_ov039_02097750` on a Q12.12 rotation step, mode 0x341
+ *     and a 0x28-frame hold;
+ *   5 drains the hold, and case 6 raises the +0xF8 "done" flag.
+ *
+ * Cell counts are u16 at +0x16C-indexed * 0x1C rows of the +0x170 table.
+ */
+// Nonmatching: 92.4%, and every row it does flag reduces to one fact: the
+// target keeps `self` in r9 for the whole function and starts the case-4
+// loop's constants at r6 (0xCD) / r5 (0x14) / r4 (0x2000), while this build
+// puts `self` in r8 and hands the three constants r5/r4/r9. Because of that
+// rename over 100 near-identical rows differ. Four things were real and are
+// fixed: the +0x238 group slots must be read as a typed `groupIds[8]` (flat
+// `self + 0x238 + i*4` strength-reduced into a walking pointer); the case-4
+// selector's step must be spelled `i * 0x10000` inside the loop, not an
+// accumulator outside -- an accumulator walking +0x10000 made mwcc split a
+// parallel `step >> 2` IV and walk it by 0x4000, which the target does not
+// have; case 2's point pair must be assigned x before y (mwcc stores x to the
+// lower stack word first); and case 2's wireless +0xE8 pointer must be a named
+// local, or mwcc loads it twice instead of once. The `aim` pair's own stack
+// slots prologue/epilogue, every branch target and every store now agree.
+void func_ov039_0208ce88(OtuBadge* task) {
+    u8* self = (u8*)task;
+
+    switch (*(s32*)(self + 0xFC)) {
+        default:
+            break;
+
+        case 0:
+            *(s32*)(self + 0x100) = 0x14;
+            *(s32*)(self + 0xFC)  = *(s32*)(self + 0xFC) + 1;
+            *(s32*)(self + 0x128) = 0;
+            func_ov039_0208fefc(
+                EasyTask_GetTaskData(*(void**)(self + 8), *(s32*)(self + 0x1E0)),
+                0x14);
+            func_ov039_02087d04(0x331, (OtuPoint*)(self + 0x120),
+                                (OtuPoint*)(self + 0x110));
+            return;
+
+        case 1:
+            *(s32*)(self + 0x128) = *(s32*)(self + 0x128) - 0xA000;
+            *(s32*)(self + 0x100) = *(s32*)(self + 0x100) - 1;
+            if (*(s32*)(self + 0x100) > 0) {
+                return;
+            }
+            *(s32*)(self + 0x100) =
+                *(u16*)(*(u8**)(self + 0x170) +
+                        (u32)*(u16*)*(s32*)(self + 0x16C) * 0x1C + 0xC);
+            *(s32*)(self + 0xFC) = *(s32*)(self + 0xFC) + 1;
+            return;
+
+        case 2: {
+            OtuPoint aim;
+            OtuPoint dir;
+
+            if (*(s32*)(self + 0xE8) != NULL) {
+                if (*(u16*)(self + 0xF0) & 1) {
+                    u8* source = *(u8**)(self + 0xE8);
+
+                    aim.x = *(u8*)(source + 2) << 0xC;
+                    aim.y = *(u8*)(source + 3) << 0xC;
+                    func_ov039_02098b8c((OtuPoint*)(self + 0x118), &aim, &aim);
+                    if (func_ov039_0208a988(
+                            &aim, *(OtuCellGrid**)(self + 0xE4),
+                            *(TinPinSlammer_Scene**)(self + 0)) != 0)
+                    {
+                        *(s32*)(self + 0x120) = aim.x;
+                        *(s32*)(self + 0x124) = aim.y;
+                    }
+                }
+            } else {
+                OtuPinTask* cand = func_ov039_02087e2c(
+                    *(TaskPool**)(self + 8), *(TinPinSlammer_Scene**)(self + 0),
+                    *(s32*)(self + 0xE0));
+
+                if (cand != NULL) {
+                    func_ov039_02098bb0((OtuPoint*)((u8*)cand + 0x120),
+                                        (OtuPoint*)(self + 0x120), &dir);
+                    if (func_ov039_02098d10(&dir) < 0x1E000) {
+                        *(s32*)(self + 0x100) = 1;
+                    } else {
+                        func_ov039_02098d3c(&dir, &dir);
+                        func_ov039_02098c00(0x1800, &dir,
+                                            (OtuPoint*)(self + 0x120), &dir);
+                        if (func_ov039_0208a988(
+                                &dir, *(OtuCellGrid**)(self + 0xE4),
+                                *(TinPinSlammer_Scene**)(self + 0)) != 0)
+                        {
+                            *(s32*)(self + 0x120) = dir.x;
+                            *(s32*)(self + 0x124) = dir.y;
+                        }
+                    }
+                }
+            }
+
+            *(s32*)(self + 0x100) = *(s32*)(self + 0x100) - 1;
+            if (*(s32*)(self + 0x100) > 0 && !(*(u16*)(self + 0xF0) & 4)) {
+                return;
+            }
+            *(s32*)(self + 0x100) = 0xA;
+            *(s32*)(self + 0xFC)  = *(s32*)(self + 0xFC) + 1;
+            return;
+        }
+
+        case 3:
+            *(s32*)(self + 0x100) = *(s32*)(self + 0x100) - 1;
+            if (*(s32*)(self + 0x100) > 0) {
+                return;
+            }
+            func_ov039_0208ff30(
+                EasyTask_GetTaskData(*(void**)(self + 8),
+                                     *(s32*)(self + 0x1E0)));
+            *(s32*)(self + 0x100) =
+                *(u16*)(*(u8**)(self + 0x170) +
+                        (u32)*(u16*)*(s32*)(self + 0x16C) * 0x1C + 0xE);
+            *(s32*)(self + 0xFC) = *(s32*)(self + 0xFC) + 1;
+            func_ov039_02087d04(0x332, (OtuPoint*)(self + 0x120),
+                                (OtuPoint*)(self + 0x110));
+            return;
+
+        case 4: {
+            s32 i = 0;
+
+            *(s32*)(self + 0x128) = *(s32*)(self + 0x128) +
+                -*(s32*)(self + 0x128) / *(s32*)(self + 0x100);
+            *(s32*)(self + 0x100) = *(s32*)(self + 0x100) - 1;
+            if (*(s32*)(self + 0x100) > 0) {
+                return;
+            }
+            func_ov039_0208ff68(
+                EasyTask_GetTaskData(*(void**)(self + 8),
+                                     *(s32*)(self + 0x1E0)));
+
+            do {
+                s32 step = i * 0x10000;
+
+                func_ov039_02097750(
+                    EasyTask_GetTaskData(*(void**)(self + 8),
+                                         ((OtuBadge*)task)->groupIds[i]),
+                    (OtuTaskParams*)(self + 0x120),
+                    (u32)((step + ((u32)(step >> 2) >> 0x1D)) << 0xD) >> 0x10,
+                    0x2000, 0xCD, 0x14);
+                i = i + 1;
+            } while (i < 8);
+
+            func_ov039_02087d04(0x341, (OtuPoint*)(self + 0x120),
+                                (OtuPoint*)(self + 0x110));
+            *(s32*)(self + 0x100) = 0x28;
+            *(s32*)(self + 0xFC)  = *(s32*)(self + 0xFC) + 1;
+            return;
+        }
+
+        case 5:
+            *(s32*)(self + 0x100) = *(s32*)(self + 0x100) - 1;
+            if (*(s32*)(self + 0x100) > 0) {
+                return;
+            }
+            *(s32*)(self + 0xFC) = *(s32*)(self + 0xFC) + 1;
+            return;
+
+        case 6:
+            *(s32*)(self + 0xF8) = 1;
+            *(s32*)(self + 0xF4) = 0;
+            return;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* The badge clash wind-up, 0x0208eaa0.                                */
+/* ------------------------------------------------------------------ */
+
+/** The Q12 scale word and the 0x10-stride per-speed factor table. */
+// extern s32 data_ov039_0209a398;   (already declared in TinPinSlammer.h)
+// extern OtuSpeedEntry data_ov039_0209a3dc[];  (declared in OtuPinLogic.inc)
+
+/**
+ * @brief Resolves whatever the badge found to clash against and starts the
+ *        strike.
+ *
+ * Gate: +0x128 clear and +0x168 not positive, and the badge's mock mode
+ * (+0xF8) one of 1/6/7 or, for mode 8, only while the +0xFC phase is 0 (or
+ * past the range). Then for every 0xC-stride entry in the caller's object:
+ * the candidate must be within the entry's +0x18C rank plus 0xC000, and the
+ * clash sequence runs:
+ *
+ *   mode 6  fires the latch (mode 0x337), re-raises the 0x130-"no pin" shadow
+ *           reset, resolves the contact with d3c (or a unit vector if the
+ *           points coincide),
+ *   mode 7  drops the +0x4000 phase byte of the active cursor, leaves
+ *           `func_ov039_0209104c` to hold it, then starts a directional smoke
+ *           pass from the sin/cos table (mode 0x33B) and steps its children
+ *           while the badge's kind is still 6,
+ *   mode 8  drops the airborne child task, mode 0x333, the contact again, and
+ *           the tail that only mode 8 spares.
+ * The tail (shared by 6/7/8): the badge's wind-up counter at +0x148 and kind
+ * reset (mode 1) with `func_ov039_0208f7a4`, the position delta saved into
+ * +0x138/+0x13C, and the two-way "clash partner" handoff at +0x1B0.
+ */
+// Nonmatching: 89.9%. Three scheduling shape differences left:
+//   * the contact block. Target's contact block schedule mixes the y-diff
+//     loads before the x-diff stores, laid out: load +0x124 pair, +0x120 self
+//     copy, y-sub, +0x120 pair, x-sub, then store +0x12C before +0x130. This
+//     source compiles straightforwardly in address order. Reversing the two
+//     assignments in C scores worse (89.0).
+//   * the tail's pool words. Target reads `data_ov039_0209a398` before the
+//     +0x16C/+0x170 cell chain, so its literal pool lists a398 ahead of
+//     a3dc; this source's factor-read runs first, giving the reversed pool
+//     order. The inline-scale spelling (no scale local) supposedly matched
+//     m2c's, but scored 85.9 -- the smull operand order flipped too.
+//   * the `i = 0` init lands after the walk-inits here, before them in the
+//     target (one `mov r7` row).
+// The contact's `!= 0 || != 0` negation (swapped d3c arms) was worth +9% on
+// its own and matched subsequently. Everything else -- all three mode bodies,
+// the wind-down, the 64-bit smull/adc scale and every branch target -- agrees.
+void func_ov039_0208eaa0(void* self_, void* task) {
+    u8* other = (u8*)self_;
+    u8* self  = (u8*)task;
+
+    if (*(s32*)(self + 0x128) != 0) {
+        return;
+    }
+    if (*(s32*)(self + 0x168) > 0) {
+        return;
+    }
+
+    switch (*(s32*)(self + 0xF8)) {
+        /* m2c's label order: default first (it joins the big block), then the
+         * modes that share the body, then mode 8's phase gate, then the
+         * modes that return. */
+        default:
+        case 1:
+        case 6:
+        case 7:
+            break;
+
+        case 8:
+            switch (*(s32*)(self + 0xFC)) {
+                default:
+                case 0:
+                    break;
+
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    return;
+            }
+            break;
+
+        case 0:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 9:
+            return;
+    }
+
+    if (*(s32*)(other + 0x180) <= 0) {
+        return;
+    }
+    {
+        s32 i          = 0;
+        u8* mask       = other;
+        u8* entry      = other + 0x184;
+
+        do {
+            s32 limit = *(s32*)(mask + 0x18C) + 0xC000;
+
+            if (func_ov039_02098ca8((OtuPoint*)(self + 0x120),
+                                    (OtuPoint*)entry) >= limit)
+            {
+                goto next;
+            }
+
+            switch (*(s32*)(other + 0xF8)) {
+                case 6: {
+                    func_ov039_02091668(EasyTask_GetTaskData(
+                        *(void**)(other + 8), *(s32*)(other + 0x1E8)));
+                    func_ov039_02087d04(0x337, (OtuPoint*)(other + 0x120),
+                                        (OtuPoint*)(other + 0x110));
+
+                    if (*(s32*)(self + 0x148) <= 0) {
+                        if (*(u16*)*(s32*)(self + 0x16C) < 0x130) {
+                            func_ov039_0208a490(self_, 1);
+                        }
+                    }
+
+                    *(s32*)(self + 0x12C) =
+                        *(s32*)(self + 0x120) - *(s32*)(other + 0x120);
+                    *(s32*)(self + 0x130) =
+                        *(s32*)(self + 0x124) - *(s32*)(other + 0x124);
+
+                    if (*(s32*)(self + 0x12C) != 0 ||
+                        *(s32*)(self + 0x130) != 0)
+                    {
+                        func_ov039_02098d3c((OtuPoint*)(self + 0x12C),
+                                            (OtuPoint*)(self + 0x12C));
+                    } else {
+                        *(s32*)(self + 0x12C) = 0x1000;
+                        *(s32*)(self + 0x130) = 0;
+                    }
+                    break;
+                }
+
+                case 7: {
+                    void* cand = EasyTask_GetTaskData(*(void**)(other + 8),
+                                                      *(s32*)(other + 0x1E4));
+                    u16  cursor = (u16)(func_ov039_02091060(cand) - 0x4000);
+                    s32  pair   = (cursor >> 4) * 2;
+
+                    func_ov039_0209104c(cand);
+
+                    *(s32*)(self + 0x12C) = ((s16*)data_0205e4e0)[pair + 1];
+                    *(s32*)(self + 0x130) = ((s16*)data_0205e4e0)[pair];
+
+                    if (*(s32*)(self + 0xF8) == 6) {
+                        func_ov039_02091690(EasyTask_GetTaskData(
+                            *(void**)(self + 8), *(s32*)(self + 0x1E8)));
+                    }
+                    func_ov039_02087d04(0x33B, (OtuPoint*)(other + 0x120),
+                                        (OtuPoint*)(other + 0x110));
+
+                    if (*(s32*)(self + 0x148) <= 0) {
+                        if (*(u16*)*(s32*)(self + 0x16C) < 0x130) {
+                            func_ov039_0208a490(self_, 1);
+                        }
+                    }
+                    break;
+                }
+
+                case 8: {
+                    if (*(s32*)(self + 0xF8) == 7) {
+                        func_ov039_02091070(EasyTask_GetTaskData(
+                            *(void**)(self + 8), *(s32*)(self + 0x1E4)));
+                    }
+                    func_ov039_02087d04(0x333, (OtuPoint*)(other + 0x120),
+                                        (OtuPoint*)(other + 0x110));
+
+                    if (*(s32*)(self + 0x148) <= 0) {
+                        if (*(u16*)*(s32*)(self + 0x16C) < 0x130) {
+                            func_ov039_0208a490(self_, 1);
+                        }
+                    }
+
+                    *(s32*)(self + 0x12C) =
+                        *(s32*)(self + 0x120) - *(s32*)(other + 0x120);
+                    *(s32*)(self + 0x130) =
+                        *(s32*)(self + 0x124) - *(s32*)(other + 0x124);
+
+                    if (*(s32*)(self + 0x12C) != 0 ||
+                        *(s32*)(self + 0x130) != 0)
+                    {
+                        func_ov039_02098d3c((OtuPoint*)(self + 0x12C),
+                                            (OtuPoint*)(self + 0x12C));
+                    } else {
+                        *(s32*)(self + 0x12C) = 0x1000;
+                        *(s32*)(self + 0x130) = 0;
+                    }
+                    break;
+                }
+
+                default:
+                    break;
+            }
+
+            if (*(s32*)(self + 0x148) <= 0) {
+                *(s32*)(self + 0x148) =
+                    *(u16*)(*(u8**)(self + 0x170) +
+                            (u32)*(u16*)*(s32*)(self + 0x16C) * 0x1C + 0x18);
+                *(s32*)(self + 0xF8) = 1;
+                *(s32*)(self + 0xF4) = 0;
+                func_ov039_0208f7a4(
+                    EasyTask_GetTaskData(*(void**)(self + 8),
+                                         *(s32*)(self + 0x1D8)),
+                    *(s32*)(self + 0x148));
+            }
+            {
+                OtuPoint  start;
+                OtuPoint* base   = (OtuPoint*)(self + 0x12C);
+                s32       factor = *(s32*)(
+                    (u8*)&data_ov039_0209a3dc +
+                    *(u8*)(*(u8**)(self + 0x170) +
+                           (u32)*(u16*)*(s32*)(self + 0x16C) * 0x1C + 4) * 0x10 + 8);
+                s32       scale;
+
+                start.x = 0;
+                scale   = (s32)(((s64)data_ov039_0209a398 * factor + 0x800) >> 0xC);
+                start.y = 0;
+
+                *(s32*)(self + 0x138) = *(s32*)(self + 0x12C);
+                *(s32*)(self + 0x13C) = *(s32*)(self + 0x130);
+
+                func_ov039_02098c00(scale, base, &start, base);
+                *(s32*)(other + 0x1B0) = (s32)task;
+                *(s32*)(self + 0x1B0)  = (s32)self_;
+            }
+
+        next:
+            mask += 0xC;
+            entry += 0xC;
+            i = i + 1;
+        } while (i < *(s32*)(other + 0x180));
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* The wrestling-banner board loader, 0x02092f88.                      */
+/* ------------------------------------------------------------------ */
+
+/** The board's bin id and the 0x12-wide frame-slot table. */
+extern const BinIdentifier data_ov039_0209a0f4;
+extern const void*         data_ov039_020999d0;
+
+/**
+ * @brief The wrestling board's background loader, one slot per layer.
+ *
+ * Reaches the sprite block at task+0x18, stamps the two words the caller
+ * passes in +0/+4, marks the sub engine's BG0-3 layers on and sets up the
+ * blend block (mode 1 over layers 3 and 0x3E, coefficients 0xA/6). Then four
+ * identical resource slots, each reading its palette/char/screen sources out
+ * of the Data buffer's relative offsets (+8/+0x10/+0x18, +0x20/+0x30/+0x38,
+ * +0x40/+0x48, +0x50/+0x70/+0x78), allocating palette/char against
+ * `engineState[1].bgSettings[N]` (the screen draw against
+ * `bgSettings[2]`'s +2 and 0x3F0), and flushing. Layer 1's palette source is
+ * the frame cursor at +0x840 loaded through `func_ov039_02098d7c` against
+ * `data_ov039_020999d0` with 0x12 slots. In the middle: the 0x3F0 scratch
+ * fill, `func_ov039_02092e30`'s mask build and the +0x3C word.
+ */
+s32 func_ov039_02092f88(TaskPool* pool, void* task, s32* args) {
+    u8*   sprite = *(u8**)((u8*)task + 0x18);
+    Data* data;
+    u8*   pal;
+    u8*   chr;
+    u8*   scr;
+
+    *(s32*)(sprite + 0x0) = *(s32*)((u8*)args + 4);
+    *(s32*)(sprite + 0x4) = *(s32*)((u8*)args + 8);
+
+    g_DisplaySettings.controls[1].layers |= 0xF;
+    g_DisplaySettings.engineState[1].blendMode   = 1;
+    g_DisplaySettings.engineState[1].blendLayer0 = 3;
+    g_DisplaySettings.engineState[1].blendLayer1 = 0x3E;
+    g_DisplaySettings.engineState[1].blendCoeff0 = 0xA;
+    g_DisplaySettings.engineState[1].blendCoeff1 = 6;
+
+    data = DatMgr_LoadRawData(*(s32*)args, NULL, 0, &data_ov039_0209a0f4);
+    *(s32*)(sprite + 0x8) = (s32)data;
+
+    {
+        if (data == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            pal      = base + *(u32*)(base + 8);
+        }
+        if (data == NULL) {
+            chr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            chr      = base + *(u32*)(base + 0x10);
+        }
+        if (data == NULL) {
+            scr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            scr      = base + *(u32*)(base + 0x18);
+        }
+
+        *(PaletteResource**)(sprite + 0xC) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[1], pal, 0, 0, 1);
+        {
+            u32 size = (u32)((*(u32*)chr & ~0xFF) >> 8);
+
+            if ((*(u8*)chr & 0xF0) == 0) {
+                size -= 4;
+            }
+            *(BgResource**)(sprite + 0x1C) = BgResMgr_AllocChar32(
+                g_BgResourceManagers[1], chr,
+                g_DisplaySettings.engineState[1].bgSettings[0].charBase, 0,
+                size);
+        }
+        *(BgResource**)(sprite + 0x2C) = BgResMgr_AllocScreen(
+            g_BgResourceManagers[1], scr,
+            g_DisplaySettings.engineState[1].bgSettings[0].screenBase,
+            (u32)g_DisplaySettings.engineState[1].bgSettings[0]
+                       .screenSizeText);
+        PaletteMgr_Flush(g_PaletteManagers[1],
+                         *(PaletteResource**)(sprite + 0xC));
+
+        data = *(Data**)(sprite + 0x8);
+        if (data == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            pal      = base + *(u32*)(base + 0x20);
+        }
+        if (data == NULL) {
+            chr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            chr      = base + *(u32*)(base + 0x30);
+        }
+        if (data == NULL) {
+            scr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            scr      = base + *(u32*)(base + 0x38);
+        }
+
+        *(PaletteResource**)(sprite + 0x10) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[1],
+            func_ov039_02098d7c(sprite + 0x840, (s32)pal,
+                                &data_ov039_020999d0, 0x12),
+            0, 1, 1);
+        {
+            u32 size = (u32)((*(u32*)chr & ~0xFF) >> 8);
+
+            if ((*(u8*)chr & 0xF0) == 0) {
+                size -= 4;
+            }
+            *(BgResource**)(sprite + 0x20) = BgResMgr_AllocChar32(
+                g_BgResourceManagers[1], chr,
+                g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0,
+                size);
+        }
+        *(BgResource**)(sprite + 0x30) = BgResMgr_AllocScreen(
+            g_BgResourceManagers[1], scr,
+            g_DisplaySettings.engineState[1].bgSettings[1].screenBase,
+            (u32)g_DisplaySettings.engineState[1].bgSettings[1]
+                       .screenSizeText);
+        PaletteMgr_Flush(g_PaletteManagers[1],
+                         *(PaletteResource**)(sprite + 0x10));
+
+        data = *(Data**)(sprite + 0x8);
+        if (data == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            pal      = base + *(u32*)(base + 0x40);
+        }
+        if (data == NULL) {
+            chr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            chr      = base + *(u32*)(base + 0x48);
+        }
+
+        MI_CpuFillU16(0x3F0, sprite + 0x3C, 0x804);
+        func_ov039_02092e30(sprite);
+        *(s32*)(sprite + 0x3C) = 0x80400;
+
+        *(PaletteResource**)(sprite + 0x14) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[1], pal, 0, 2, 1);
+        {
+            u32 size = (u32)((*(u32*)chr & ~0xFF) >> 8);
+
+            if ((*(u8*)chr & 0xF0) == 0) {
+                size -= 4;
+            }
+            *(BgResource**)(sprite + 0x24) = BgResMgr_AllocChar32(
+                g_BgResourceManagers[1], chr,
+                g_DisplaySettings.engineState[1].bgSettings[2].charBase,
+                0x3F0, size);
+        }
+        *(BgResource**)(sprite + 0x34) = BgResMgr_AllocScreen(
+            g_BgResourceManagers[1], (void*)(sprite + 0x3C),
+            g_DisplaySettings.engineState[1].bgSettings[2].screenBase,
+            (u32)g_DisplaySettings.engineState[1].bgSettings[2]
+                       .screenSizeText);
+        PaletteMgr_Flush(g_PaletteManagers[1],
+                         *(PaletteResource**)(sprite + 0x14));
+
+        data = *(Data**)(sprite + 0x8);
+        if (data == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            pal      = base + *(u32*)(base + 0x50);
+        }
+        if (data == NULL) {
+            chr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            chr      = base + *(u32*)(base + 0x70);
+        }
+        if (data == NULL) {
+            scr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            scr      = base + *(u32*)(base + 0x78);
+        }
+
+        *(PaletteResource**)(sprite + 0x18) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[1], pal, 0, 3, 1);
+        {
+            u32 size = (u32)((*(u32*)chr & ~0xFF) >> 8);
+
+            if ((*(u8*)chr & 0xF0) == 0) {
+                size -= 4;
+            }
+            *(BgResource**)(sprite + 0x28) = BgResMgr_AllocChar32(
+                g_BgResourceManagers[1], chr,
+                g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0,
+                size);
+        }
+        *(BgResource**)(sprite + 0x38) = BgResMgr_AllocScreen(
+            g_BgResourceManagers[1], scr,
+            g_DisplaySettings.engineState[1].bgSettings[3].screenBase,
+            (u32)g_DisplaySettings.engineState[1].bgSettings[3]
+                       .screenSizeText);
+        PaletteMgr_Flush(g_PaletteManagers[1],
+                         *(PaletteResource**)(sprite + 0x18));
+    }
+    return 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* The wrestling-board switchboard block, 0x02091b98.                  */
+/* ------------------------------------------------------------------ */
+
+/** The 0x40-byte table slicer copied to the bottom-half of the grid. */
+extern s32                data_ov039_020995f8[];
+extern s32                data_ov039_02099604[];
+extern s32                data_ov039_0209968c[];
+extern s32                data_ov039_02099620[];
+extern s32                data_ov039_02099630[];
+extern s32                data_ov039_0209964c[];
+extern s32                data_ov039_0209966c[];
+extern s32                data_ov039_020996b0[];
+extern const BinIdentifier data_ov039_0209a0bc[4];
+extern u8*                 data_ov039_0209a5d8[3];
+
+/** The whole-word block shapes the loader's three stack tables copy out to. */
+typedef struct {
+    s32 w0;
+    s32 w1;
+    s32 w2;
+} OtuWord3; // Size: 0xC
+
+typedef struct {
+    s32 w0;
+    s32 w1;
+    s32 w2;
+    s32 w3;
+    s32 w4;
+    s32 w5;
+    s32 w6;
+    s32 w7;
+    s32 w8;
+} OtuWord9; // Size: 0x24
+
+/**
+ * @brief The wrestling board's block-loader: picks a sheet from the args
+ *        block, allocates everything it needs and stamps the mixed-grid.
+ *
+ * The sprite block at task+0x18 gets: +0/+4 the sheet index and the heap, +8
+ * the "loading" flag and +C the sheet description pointer. Then: three
+ * literal tables are snapped to the stack whose layout picks a row by
+ * sheet.cellType and sheet.faceId (a 3x3 u32 matrix plus a flat u32 table);
+ * the relative refs +8/+0x10/+0x18 are loaded and allocated via palette and
+ * BgResMgr_AllocChar32 against `bgSettings[1].charBase`, palette-flushed.
+ * Then five frame cursors (0x54/0x64, 0x68/0x78, 0x7C/0x8C, 0x90/0xA0,
+ * 0xA4/0xB4) are allocated against `data_ov039_0209964c` (8 slots),
+ * `02099620` (4), `0209966c` (8), `020996b0` (0x19) and `02099630` (7),
+ * each from a Data-buffer offset (0x10/0x18/0x20/0x28/0x30), each flushed.
+ * The final +0x48 AllocChar32 comes from the +0x38-offset ref against
+ * `bgSettings[1].charBase` at offset 0x300.
+ *
+ * The grid is `sheet.width + 7 / 8` by `sheet.height + 7 / 8`, backed by two
+ * heaps -- a tile-pool buffer (0x800 bytes per cell) and a pointer table --
+ * MI_CpuSet zeroed, and the pages are linked so rows[i][j] = tilePool +
+ * (i + j) * 0x800. Then the layout walk stamps every tile pair
+ * through `func_ov039_02091b40`, and the whole thing hands the pointer
+ * table and the tile pool to `func_0200d1d8`.
+ */
+// Nonmatching: 81.7%. The body, constants and every branch agree; the residual
+// gap is register naming and two extra stack words. What was spent here:
+//   * the three literal-table copies must be struct assignments spelled with
+//     whole-block casts (`*(OtuWord3*)sheetTable = *(OtuWord3*)...`),
+//     not loops or word chains -- only the struct form emits the target's
+//     ldm/stm pairs;
+//   * the sheet kind must be re-read as a byte expression everywhere it is
+//     used (`*(u8*)sheet0`), never held in a named u8 local -- a named local
+//     forced an extra stack slot, a `str [sp+0xc]` spill the target does not
+//     have, and shifted the whole frame (+2 words) and every pool offset;
+//   * `sheet[2]` likewise is re-read per loop iteration (this build forgot
+//     that once and dropped 3%);
+//   * `sheet[1]` is a fresh leaf byte too -- naming it cost a register;
+//   * the two cell-grid [8]-accumulator sizes are `(w+7+(correction)) >> 3`
+//     spelled exactly as m2c's -- matches.
+// The pointers currently land r5/r9/r6 where the target has r5/r7/r8, so
+// every sprite+* memory row reads r6 where the target reads r7. Permuter and
+// eight spelling sweeps found nothing further.
+s32 func_ov039_02091b98(TaskPool* pool, OtuBadge* task, s32* args) {
+    u8*    sprite = *(u8**)((u8*)task + 0x18);
+    Data*  data;
+    Data*  data2;
+    u8*    pal;
+    u8*    chr;
+    u8*    scr;
+    s32    sheetTable[3];
+    s32    styleTable[9];
+    s32    miscTable[3];
+    u8*    sheet0;
+    Heap*  heap;
+    s32    row;
+    s32    row2;
+    s32    cellsWide;
+    s32    cellsHigh;
+    s32    i;
+    s32    j;
+    s32    run;
+    u8     wide;
+    s32    col;
+
+    *(s32*)(sprite + 0x8) = 1;
+    *(s32*)(sprite + 0x0) = *(s32*)args;
+    *(s32*)(sprite + 0x4) = *(s32*)((u8*)args + 4);
+    *(s32*)(sprite + 0xC) = *(s32*)((u8*)args + 8);
+
+    *(OtuWord3*)sheetTable = *(OtuWord3*)data_ov039_020995f8;
+    *(OtuWord9*)styleTable = *(OtuWord9*)data_ov039_0209968c;
+    *(OtuWord3*)miscTable  = *(OtuWord3*)data_ov039_02099604;
+
+    sheet0 = *(u8**)((u8*)args + 8);
+    heap   = *(Heap**)(sprite + 4);
+
+    data = DatMgr_LoadRawData(
+        *(s32*)args, NULL, 0,
+        &data_ov039_0209a0b4[sheetTable[*(u8*)sheet0]]);
+    *(s32*)(sprite + 0x44) = (s32)data;
+
+    row2 = miscTable[*(u8*)sheet0];
+
+    row = styleTable[(u32)*(u8*)sheet0 * 3 + sheet0[1]];
+    wide = sheet0[2];
+
+    {
+        if (data == NULL || row <= 0) {
+            chr = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            chr      = base + *(u32*)(base + (u32)row * 8);
+        }
+        if (data == NULL || row2 <= 0) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data->buffer + 0x20;
+            pal      = base + *(u32*)(base + (u32)row2 * 8);
+        }
+
+        *(PaletteResource**)(sprite + 0x4C) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[0], pal, 0, 0, 5);
+        {
+            u32 size = (u32)((*(u32*)chr & ~0xFF) >> 8);
+
+            if ((*(u8*)chr & 0xF0) == 0) {
+                size -= 4;
+            }
+            *(BgResource**)(sprite + 0x50) = BgResMgr_AllocChar32(
+                g_BgResourceManagers[0], chr,
+                g_DisplaySettings.engineState[0].bgSettings[1].charBase, 0,
+                size);
+        }
+        PaletteMgr_Flush(g_PaletteManagers[0],
+                         *(PaletteResource**)(sprite + 0x4C));
+    }
+
+    data2 = DatMgr_LoadRawData(*(s32*)args, NULL, 0, data_ov039_0209a0bc);
+    *(s32*)(sprite + 0x40) = (s32)data2;
+
+    {
+        if (data2 == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data2->buffer + 0x20;
+            pal      = base + *(u32*)(base + 0x10);
+        }
+        *(PaletteResource**)(sprite + 0x64) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[0],
+            func_ov039_02098d7c(sprite + 0x54, (s32)pal,
+                                data_ov039_0209964c, 8),
+            0, 6, 1);
+        PaletteMgr_Flush(g_PaletteManagers[0],
+                         *(PaletteResource**)(sprite + 0x64));
+    }
+
+    {
+        if (data2 == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data2->buffer + 0x20;
+            pal      = base + *(u32*)(base + 0x18);
+        }
+        *(PaletteResource**)(sprite + 0x78) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[0],
+            func_ov039_02098d7c(sprite + 0x68, (s32)pal,
+                                data_ov039_02099620, 4),
+            0, 7, 1);
+        PaletteMgr_Flush(g_PaletteManagers[0],
+                         *(PaletteResource**)(sprite + 0x78));
+    }
+
+    {
+        if (data2 == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data2->buffer + 0x20;
+            pal      = base + *(u32*)(base + 0x20);
+        }
+        *(PaletteResource**)(sprite + 0x8C) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[0],
+            func_ov039_02098d7c(sprite + 0x7C, (s32)pal,
+                                data_ov039_0209966c, 8),
+            0, 8, 1);
+        PaletteMgr_Flush(g_PaletteManagers[0],
+                         *(PaletteResource**)(sprite + 0x8C));
+    }
+
+    {
+        if (data2 == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data2->buffer + 0x20;
+            pal      = base + *(u32*)(base + 0x28);
+        }
+        *(PaletteResource**)(sprite + 0xA0) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[0],
+            func_ov039_02098d7c(sprite + 0x90, (s32)pal,
+                                data_ov039_020996b0, 0x19),
+            0, 9, 1);
+        PaletteMgr_Flush(g_PaletteManagers[0],
+                         *(PaletteResource**)(sprite + 0xA0));
+    }
+
+    {
+        if (data2 == NULL) {
+            pal = NULL;
+        } else {
+            u8* base = (u8*)data2->buffer + 0x20;
+            pal      = base + *(u32*)(base + 0x30);
+        }
+        *(PaletteResource**)(sprite + 0xB4) = PaletteMgr_AllocPalette(
+            g_PaletteManagers[0],
+            func_ov039_02098d7c(sprite + 0xA4, (s32)pal,
+                                data_ov039_02099630, 7),
+            0, 0xA, 1);
+        PaletteMgr_Flush(g_PaletteManagers[0],
+                         *(PaletteResource**)(sprite + 0xB4));
+    }
+
+    {
+        if (data2 == NULL) {
+            chr = NULL;
+        } else {
+            u8* base = (u8*)data2->buffer + 0x20;
+            chr      = base + *(u32*)(base + 0x38);
+        }
+        {
+            u32 size = (u32)((*(u32*)chr & ~0xFF) >> 8);
+
+            if ((*(u8*)chr & 0xF0) == 0) {
+                size -= 4;
+            }
+            *(BgResource**)(sprite + 0x48) = BgResMgr_AllocChar32(
+                g_BgResourceManagers[0], chr,
+                g_DisplaySettings.engineState[0].bgSettings[1].charBase,
+                0x300, size);
+        }
+    }
+
+    cellsWide = (wide + 7 + ((u32)((wide + 7) >> 2) >> 0x1D)) >> 3;
+    cellsHigh = (sheet0[3] + 7 + ((u32)((sheet0[3] + 7) >> 2) >> 0x1D)) >> 3;
+
+    *(s32*)(sprite + 0x3C) = (s32)Mem_AllocHeapTail(
+        heap, cellsHigh * (cellsWide << 0xB));
+    *(s32*)(sprite + 0x38) = (s32)Mem_AllocHeapTail(
+        heap, cellsHigh * (cellsWide * 4));
+    MI_CpuSet(*(void**)(sprite + 0x3C), 0,
+              Mem_GetBlockSize(heap, *(void**)(sprite + 0x3C)));
+
+    if (cellsHigh > 0) {
+        i   = 0;
+        run = 0;
+        do {
+            j = 0;
+            if (cellsWide > 0) {
+                do {
+                    *(u32*)((u8*)*(s32*)(sprite + 0x38) + (s32)(run + j) * 4) =
+                        (u32)((u8*)*(s32*)(sprite + 0x3C) + (j + run) * 0x800);
+                    j = j + 1;
+                } while (j < cellsWide);
+            }
+            i   = i + 1;
+            run = run + cellsWide;
+        } while (i < cellsHigh);
+    }
+
+    if (sheet0[3] > 0) {
+        col = 0;
+        do {
+            if (sheet0[2] > 0) {
+                j = 0;
+                do {
+                    u8* cellBase = *(u8**)(sheet0 + 0x10) +
+                                   (col * sheet0[2] + j) * 2;
+                    u8   cellByte = cellBase[1];
+                    u16  tileVal  = *(u16*)(data_ov039_0209a5d8[*(u8*)sheet0] +
+                                            cellByte * 2);
+
+                    func_ov039_02091b40(
+                        tileVal,
+                        (u16*)(*(u32*)((u8*)*(s32*)(sprite + 0x38) +
+                                       ((j / 8) * cellsWide + (col / 8)) * 4) +
+                               ((j % 8) * 4 + (col % 8) * 128) * 2));
+                    j = j + 1;
+                } while (j < (s32)sheet0[2]);
+            }
+            col = col + 1;
+        } while (col < (s32)sheet0[3]);
+    }
+
+    func_0200d1d8(sprite + 0x10, 0, 1, 0, *(s32*)(sprite + 0x38), cellsWide,
+                  cellsHigh);
+    return 1;
+}

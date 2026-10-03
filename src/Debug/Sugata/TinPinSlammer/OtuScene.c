@@ -1,8 +1,13 @@
 #include "Debug/Sugata/TinPinSlammer.h"
+#include "EasyFade.h"
 #include "Engine/Core/System.h"
 #include "Engine/EasyTask.h"
 #include "Save.h"
 #include "common_data.h"
+
+extern const BinIdentifier data_ov039_0209a10c;
+extern const BinIdentifier data_ov039_0209a11c;
+extern const BinIdentifier data_ov039_0209a124;
 
 /**
  * @file OtuScene.c
@@ -93,6 +98,47 @@ void func_ov039_020825b0(TinPinSlammer_Scene* scene) {
 
     func_02025e30((u8*)scene + TIN_PIN_SLAMMER_RES_OFFSET);
     scene->state.unk_6A4 = 0;
+}
+
+/**
+ * @brief Loads the three board data files and resets the scene for a fresh
+ *        game.
+ *
+ * Loads "BeBadge_Parm.bin" (0x215C bytes) into the block that ends right at
+ * the pin tray, "BeBadge_Single.bin" (0x8F0) and the badge AI script (0xEE),
+ * releasing each `Data` handle immediately because the loads copy into the
+ * scene buffer outright.  Fills the four 7-wide pin trays with the empty-pin
+ * sentinel 0x130, starts the fade task from pool 1, and seeds the result
+ * screen's stage container and its `unk_1148C` cursor.
+ *
+ * @param scene Scene object.
+ */
+void func_ov039_020825e8(TinPinSlammer_Scene* scene) {
+    s32 j;
+    s32 i;
+
+    scene->state.unk_ADC = 0;
+    scene->state.unk_AE0 = 0;
+    scene->state.unk_AF4 = 1;
+    scene->state.unk_698 = 1;
+
+    DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, (u8*)scene + 0x41EF0, 0x215C, &data_ov039_0209a10c, 0));
+    DatMgr_ReleaseData(
+        DatMgr_LoadRawDataWithOffset(1, (u8*)scene + 0x84 + TIN_PIN_SLAMMER_TABLE_OFFSET, 0x8F0, &data_ov039_0209a11c, 0));
+    DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, (u8*)scene + 0x44974, 0xEE, &data_ov039_0209a124, 0));
+
+    u8* row = (u8*)scene;
+
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 7; j++) {
+            ((u16*)(row + TIN_PIN_SLAMMER_TABLE_OFFSET + 0x4C))[j] = 0x130;
+        }
+        row += 0xE;
+    }
+
+    scene->state.unk_69C = EasyTask_CreateTask(OTU_POOL1(scene), &Task_EasyFade, NULL, 0, NULL, NULL);
+    EasyFade_FadeBothDisplays(2, 0x10, 0x1000);
+    func_ov039_02098a20(OTU_STAGE(scene), (u8*)scene + TIN_PIN_SLAMMER_HEAP_OFFSET + 0x18C);
 }
 
 /**
