@@ -111,7 +111,7 @@ void func_ov039_0208f0f0(void* task, s32 value) {
  *
  * The loop reads the child id as `add r1, r5, r4, lsl #2` then `ldr r1, [r1,
  * #0x228]`, i.e. the index is scaled into a *base* and the field is a fixed
- * displacement off it -- the same shape as OTU_CHILD_ID.
+ * displacement off it -- the same pattern as accessing child handle arrays.
  *
  * Reaching that shape needs the subscript form below. Every variant written as
  * `*(s32*)((u8*)task + i * 4 + 0x228)` makes mwcc strength-reduce the loop into

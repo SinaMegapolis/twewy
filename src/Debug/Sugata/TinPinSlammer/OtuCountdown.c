@@ -216,7 +216,7 @@ void func_ov039_020867d4(TinPinSlammer_Scene* scene) {
 // multiset and every load offset agree; mwcc strength-reduces `i * 4` into a
 // second induction variable, which costs it two extra callee-saved registers
 // (r3 and r9) and an extra add per iteration. Tried three spellings of the index
-// -- the OTU_CHILD_ID macro as written here, a separate `u8* entry` statement, and
+// -- the child handle access at offset +0x17C (childIds[i]), a separate `u8* entry` statement, and
 // `(i << 2)` -- and all three produce the identical object, so this is mwcc's
 // choice rather than the source's. The target's `add r0, r4, r5, lsl #2` keeps
 // the scaled index implicit instead.
@@ -364,8 +364,8 @@ void func_ov039_02086174(TinPinSlammer_Scene* scene) {
  * has to materialise the pointer and add, and costs four. On
  * func_ov039_02086808 that is the entire 567-instruction deficit.
  *
- * Same trap as OTU_CHILD_ID, one function over: a base pointer plus a large
- * fixed offset plus a scaled index wants the offset folded in first.
+ * Same trap as accessing child handles by offset, one function over: a base
+ * pointer plus a large fixed offset plus a scaled index wants the offset folded in first.
  */
 #define OTU_TEXT_FIELD(block, index, offset) (*(s32*)((u8*)(block) + (offset) + (index) * 0x10))
 
@@ -1259,6 +1259,10 @@ void func_ov039_02087dc0(TinPinSlammer_Scene* scene, void* data) {
     OtuTextRow* block = func_ov039_02098b70(OTU_STAGE(scene));
     s32         i;
 
+    /* The child count/IDs are accessed via macros here (raw offsets) because the
+     * countdown stage block's full layout isn't exposed as a shared struct type
+     * without pulling in conflicting local types. The offsets match the common
+     * stage layout. */
     for (i = 0; i < OTU_CHILD_COUNT(block); i++) {
         void* child = EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(block, i));
 

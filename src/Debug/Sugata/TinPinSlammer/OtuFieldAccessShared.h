@@ -1549,7 +1549,7 @@ typedef struct {
     /* 0x00C */ OtuWireRecord      rxRecord[12]; // 0xC0 bytes, filled wholesale by 02088698
     /* 0x0CC */ u16                active;       // raised by both entry points at 02089780/898a8
     /* 0x0CE */ u8                 pad_0CE[0x72];
-    /* 0x140 */ s32                childCount;   // the pin children; OTU_CHILD_COUNT's field
+    /* 0x140 */ s32                childCount;   // number of pin children
     /* 0x144 */ s32                effectCount;
     /* 0x148 */ s32                helperCursor; // 0..0x40, round-robin base for 02089064
     /* 0x14C */ s32                stageIndex;   // indexes all eight data tables above
@@ -1561,7 +1561,7 @@ typedef struct {
     /* 0x170 */ s32                countdownAux; // the block's second digit column, or a table entry
     /* 0x174 */ s32                timer;        // set to 0x258 by 020898a8, read nowhere here
     /* 0x178 */ s32                outcome;      // 020893fc's verdict: 1, 2 or 3
-    /* 0x17C */ s32                childIds[4];  // OTU_CHILD_ID's array
+    /* 0x17C */ s32                childIds[4];  // child task handles
     /* 0x18C */ s32                helperIds[0x40];
     /* 0x28C */ s32                effectIds[8];
     /* 0x2AC */ s32                pinTask;
@@ -2115,9 +2115,9 @@ s32 func_02047e84(u16 arg0);
  *
  * The three words at 0x2C4, 0x2C8 and 0x2CC are task handles: 0x2C8
  * and 0x2CC are deleted by the cleanup and by stage 8 respectively, and 0x2C4 is
- * resolved through pool 1 by both tick routines. The child-handle arrays at
- * +0x17C and +0x28C are reached through `OTU_CHILD_ID`, which is a macro taking
- * the block, so they stay out of the struct rather than being named twice.
+ * resolved through pool 1 by both tick routines. The child-handle arrays are at
+ * +0x17C and +0x28C in the stage block layout; they are accessed by offset rather
+ * than as named fields in this struct definition.
  */
 typedef struct {
     /* 0x000 */ s32 unk_00;     // the board stage's dispatch selector, 0..8
@@ -2125,7 +2125,7 @@ typedef struct {
     /* 0x006 */ u16 unk_06;     // two bytes of wireless state, pushed as a pair
     /* 0x008 */ s32 state;      // 0..8, the selector both update routines switch on
     /* 0x00C */ u8  pad_00C[0x134];
-    /* 0x140 */ s32 childCount; // latched from state.unk_EE0; what OTU_CHILD_COUNT reads
+    /* 0x140 */ s32 childCount; // latched from state.unk_EE0; number of pin children
     /* 0x144 */ s32 subCount;   // func_ov039_020883ac's answer: a *different* count
     /* 0x148 */ u8  pad_148[4];
     /* 0x14C */ s32 slotIndex;  // written from the 0x44000 block's +0xA68

@@ -561,14 +561,6 @@ typedef struct {
  * result screen counting pins into a slot, not a display value.
  */
 
-/**
- * The row at `index` in a table reached through the scene's dispatch.
- *
- * The target walks the table with a 16-byte stride (`add r0, r4, r0, lsl #4`)
- * while reading a fifth field at +0x10, so the stride is one word shorter than
- * the struct.  The indexing is spelled out rather than left to array
- * subscripting for exactly that reason.
- */
 #define OTU_TEXT_ROW(block, index) ((OtuTextRow*)((u8*)(block) + (index) * 0x10))
 
 /**
