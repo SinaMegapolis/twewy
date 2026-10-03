@@ -43,8 +43,8 @@ void func_ov039_02083974(char* buf, s32 value, s32 count) {
  * back from `[sp, #0x10]` after the loop rather than keeping it in a register.
  */
 s32 func_ov039_020839d4(s32 base, s32 offset, s32 digits, s32 lo, s32 hi) {
-    s32 scale = 1;
     s32 i;
+    s32 scale = 1;
 
     for (i = 0; i < digits; i++) {
         scale *= 10;

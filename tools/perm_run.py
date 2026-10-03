@@ -228,6 +228,44 @@ def mut_dup_stmt(fn, rng):
     return _rebuild(stmts[:i + 1] + [s] + stmts[i + 1:], "")
 
 
+
+DECL_LINE = re.compile(
+    r"^\s*(?:s|u|)?"  # signed/unsigned prefix or none
+    r"(?:s32|u32|s16|u16|s8|u8|char|void|BOOL|Vec|Sprite|Otu\w+|Task\w*|Task|"
+    r"Data|display|int)\b[^;=]*;\s*$"
+)
+
+
+def mut_reorder_decls(fn, rng):
+    """Swap two adjacent local declaration lines.
+
+    mwcc picks the register for two locals from their declaration order, so a
+    pure r6<->r7 or r0<->r2 swap is often this and nothing else.
+    """
+    lines = fn.split("\n")
+    idx = [i for i, l in enumerate(lines) if DECL_LINE.match(l)]
+    pairs = [(i, i + 1) for i in range(len(lines) - 1) if i in idx and (i + 1) in idx]
+    if not pairs:
+        return None
+    i, j = rng.choice(pairs)
+    lines[i], lines[j] = lines[j], lines[i]
+    return "\n".join(lines)
+
+
+def mut_signedness(fn, rng):
+    """Flip a local or cast between signed and unsigned 16-bit."""
+    lines = fn.split("\n")
+    cand = [i for i, l in enumerate(lines) if re.search(r"\bs16\b|\bu16\b|\(s16\)|\(u16\)", l)]
+    if not cand:
+        return None
+    i = rng.choice(cand)
+    l = lines[i]
+    if "s16" in l:
+        lines[i] = l.replace("s16", "u16")
+    else:
+        lines[i] = l.replace("u16", "s16")
+    return "\n".join(lines)
+
 MUTATIONS = [
     (mut_inline_ptr, 6.0),
     (mut_reorder_stmts, 3.0),
@@ -236,6 +274,8 @@ MUTATIONS = [
     (mut_commutative, 1.5),
     (mut_cast, 1.5),
     (mut_dup_stmt, 0.5),
+    (mut_reorder_decls, 4.0),
+    (mut_signedness, 1.5),
 ]
 
 
@@ -273,7 +313,7 @@ def main():
     mode, workname = sys.argv[1], sys.argv[2]
     work = Path(workname)
     func = work.name
-    orig = (work / "base.c").read_text(encoding="shift_jis")
+    orig = (work / "base.c").read_text(encoding="latin-1")
 
     if mode == "score":
         s, m, err = score(work, func, verbose=True)
@@ -296,7 +336,7 @@ def main():
 
     best_src = orig
     base_calls = call_count(orig)
-    (work / "best.c").write_text(best_src, encoding="shift_jis")
+    (work / "best.c").write_text(best_src, encoding="latin-1")
     tried = kept = rejected = 0
     for it in range(iters):
         cand = mutate(best_src, rng)
@@ -306,20 +346,20 @@ def main():
         if call_count(cand) > base_calls:
             rejected += 1
             continue
-        (work / "base.c").write_text(cand, encoding="shift_jis")
+        (work / "base.c").write_text(cand, encoding="latin-1")
         s, m, err = score(work, func)
         tried += 1
         if err or s is None or s >= best_s:
             continue
         best_s, best_m, best_src = s, m, cand
-        (work / "best.c").write_text(best_src, encoding="shift_jis")
+        (work / "best.c").write_text(best_src, encoding="latin-1")
         kept += 1
         print(f"  iter {it:4d}: strict {s} masked {m}  (kept)", flush=True)
         if s == 0:
             break
 
     # Leave the best candidate in place so a follow-up score is reproducible.
-    (work / "base.c").write_text(best_src, encoding="shift_jis")
+    (work / "base.c").write_text(best_src, encoding="latin-1")
     score(work, func)
     print(f"done: {tried} tried, {rejected} rejected as call-count increases, "
           f"{kept} improvements, best strict={best_s} masked={best_m}")
