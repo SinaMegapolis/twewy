@@ -56,7 +56,12 @@ extern const SpriteAnimation data_ov039_0209a088;
 extern s32*                  data_ov039_0209a620[];
 
 /* The child-tile setup helper func_ov039_020929ec drives. */
-void func_ov039_0209276c(void* self, s32 value);
+void func_ov039_0209276c(void* self, s32 paramsAddr);
+
+/* The 7- and 4-argument cell set-up pair func_ov039_0209276c drives. */
+void func_0200d898(void* buf, void* src, s32 w, s32 h);
+void func_0200d1d8(void* obj, s32 a, s32 b, s32 c, void* buf, s32 w, s32 h);
+void func_0200d858(void* obj, s32 a, s32 b, s32 c);
 
 /* The per-child step func_ov039_02091070 runs four times. */
 void func_ov039_020983c8(void* data, OtuPoint* pt, void* table, s32 index);
@@ -1860,6 +1865,163 @@ s32 func_ov039_02094ca8(void* pool, void* task) {
         }
     }
     return 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* The +0x276c resource-allocation setup.                              */
+/* ------------------------------------------------------------------ */
+
+/** The 0x28-byte per-slot object func_ov039_0209276c drives. */
+typedef struct {
+    /* 0x00 */ u8 pad[0x28];
+} OtuResSlot; // Size: 0x28
+
+/** The per-slot parameter block func_ov039_0209276c reads. */
+typedef struct {
+    /* 0x00 */ s32 slot;
+    /* 0x04 */ s32 width;
+    /* 0x08 */ s32 height;
+    /* 0x0C */ s32 fileId;
+    /* 0x10 */ s32 group;
+    /* 0x14 */ s32 layers;
+    /* 0x18 */ s32 priority;
+    /* 0x1C */ s32 idx[2];
+    /* 0x24 */ s32 pad_24;
+    /* 0x28 */ s32 idx1;
+    /* 0x2C */ s32 idx2;
+    /* 0x30 */ s32 palStart;
+    /* 0x34 */ s32 palCount;
+} OtuResParams; // Size: 0x38
+
+/** The block func_ov039_0209276c loads and allocates into. */
+typedef struct {
+    /* 0x00 */ s32               dataType;
+    /* 0x04 */ Heap*             heap;
+    /* 0x08 */ u8                pad_08[0x04];
+    /* 0x0C */ u8*               selector;
+    /* 0x10 */ Data*             data[2];
+    /* 0x18 */ PaletteResource*  palettes[2];
+    /* 0x20 */ BgResource*       chars[2];
+    /* 0x28 */ OtuResSlot        slots[2];
+    /* 0x78 */ void*             buffers[2];
+    /* 0x80 */ s32               widths[2];
+    /* 0x88 */ s32               heights[2];
+} OtuResGroup; // Size: 0x90
+
+/*
+ * A relative-offset lookup: the record's +0x08 word is a base, the table at
+ * `base + 0x20` is 8 bytes a row, and each row's first word is a signed offset
+ * from `base + 0x20` itself. Spelled through a macro because it is used three
+ * times and `-inline noauto` would turn a shared helper into a `bl` -- the
+ * target has the four instructions three times over.
+ *
+ * The `NULL`/non-positive case is the `then`, not the `else`: the target lays
+ * that one out inline as the fall-through and branches to the body, so the
+ * natural `if (rec && idx > 0) { body } else { NULL }` arm order inverts it.
+ */
+#define Otu_RES_REF(out, rec, idx)                                         \
+    do {                                                                   \
+        if ((rec) == NULL || (idx) <= 0) {                                 \
+            (out) = NULL;                                                  \
+        } else {                                                           \
+            u8* _base = *(u8**)((u8*)(rec) + 0x08);                        \
+            u8* _tbl  = _base + 0x20;                                      \
+            (out)     = _tbl + *(s32*)(_tbl + (idx) * 8);                   \
+        }                                                                  \
+    } while (0)
+
+/**
+ * @brief Loads a slot's raw data, then allocates its palette, chars and buffer.
+ *
+ * The +0x00 word is the `DatMgr_LoadRawData` dataType, not a pool pointer. The
+ * three relative references are the palette source, the char source and the
+ * cell source in that order; the char source's first word is split into a
+ * 24-bit size and a nibble flag, and the size drops by 4 when that nibble is
+ * clear.
+ */
+// Nonmatching: 86.7%, and the rest is register naming and scheduling rather
+// than anything structural. Three things were real and are fixed:
+//
+//   * `PaletteMgr_AllocPalette`'s `start` is `s16`, so the prototype makes mwcc
+//     narrow `palStart` with a `lsl #0x10` the target does not have. The call
+//     goes through `PaletteMgr_AllocPaletteNoProto`, which is what that macro
+//     in PaletteMgr.h is for.
+//   * The record has to be stored into the block and read back out, not kept in
+//     a local -- the target reloads `rec` after `self->data[slot] = rec` and the
+//     store is what forces it.
+//   * The first index is hoisted out of the macro. Its load is independent of
+//     the `rec == NULL` test and the target has it above the branch; leaving it
+//     inside puts the branch first.
+//
+// What is left is `selector` in r1 vs r0 and `slot` in r0 vs r2 in the first
+// block, plus `mov r3, #0` for the `offset` argument landing elsewhere.
+void func_ov039_0209276c(void* selfArg, s32 paramsAddr) {
+    OtuResGroup*  self   = (OtuResGroup*)selfArg;
+    OtuResParams* params = (OtuResParams*)paramsAddr;
+    Data*         rec;
+    u8*           ref0;
+    u8*           ref1;
+    u8*           ref2;
+    s32           size;
+
+    /* Written as a store-then-reload rather than kept in a local: the target
+     * re-reads the record out of the block after storing it, and the store is
+     * what forces that. */
+    self->data[params->slot] =
+        DatMgr_LoadRawData(self->dataType, NULL, 0,
+                           (BinIdentifier*)&data_ov039_0209a0b4[params->fileId]);
+    rec = self->data[params->slot];
+
+    /* The first index is hoisted: its load is independent of the `rec == NULL`
+     * test and the target has it above the branch, where leaving it inside the
+     * macro puts the branch first. */
+    {
+        s32 idxA = params->idx[*(u8*)(self->selector + 1)];
+
+        Otu_RES_REF(ref0, rec, idxA);
+    }
+    Otu_RES_REF(ref1, rec, params->idx1);
+    Otu_RES_REF(ref2, rec, params->idx2);
+
+    /* `PaletteMgr_AllocPaletteNoProto` because `palStart` is a 32-bit value
+     * going into a `s16` parameter: the prototype makes mwcc narrow it with a
+     * `lsl #0x10` the target does not have. */
+    self->palettes[params->slot] =
+        PaletteMgr_AllocPaletteNoProto(g_PaletteManagers[0], ref0, 0,
+                                       params->palStart, params->palCount);
+
+    size = (s32)((*(u32*)ref1) >> 8);
+    if ((*(u8*)ref1 & 0xF0) == 0) {
+        size -= 4;
+    }
+
+    self->chars[params->slot] = BgResMgr_AllocChar32(
+        g_BgResourceManagers[0], ref1,
+        g_DisplaySettings.engineState[0].bgSettings[params->group].charBase, 0,
+        size);
+
+    PaletteMgr_Flush(g_PaletteManagers[0], self->palettes[params->slot]);
+
+    self->buffers[params->slot] =
+        Mem_AllocHeapTail(self->heap, params->height * (params->width * 4));
+
+    func_0200d898(self->buffers[params->slot], ref2 + 4, params->width,
+                  params->height);
+
+    func_0200d1d8(&self->slots[params->slot], 0, params->group, 0,
+                  self->buffers[params->slot], params->width, params->height);
+
+    func_0200d858(&self->slots[params->slot], 1, 1, 0);
+
+    self->widths[params->slot]  = params->width << 20;
+    self->heights[params->slot] = params->height << 20;
+
+    if (params->layers >= 0) {
+        g_DisplaySettings.controls[0].layers |= params->layers;
+    }
+
+    g_DisplaySettings.engineState[0].bgSettings[params->group].priority =
+        params->priority;
 }
 
 /**
