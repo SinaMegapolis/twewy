@@ -2257,3 +2257,79 @@ void func_ov039_02092e30(void* task) {
         }
     }
 }
+
+/**
+ * @brief The +0x81a4 sibling of `func_ov039_02094ca8`'s spring step.
+ *
+ * Same integral, same damping, same bounce -- but the countdown is at +0x88
+ * against a +0x84 divisor, the magnitude is written to +0x44/+0x48, and the
+ * step runs only when the +0x78 task's data resolves *and* +0x7C is set. The
+ * +0x40 word is a u16 accumulator advanced by the u16 at +0x74 and narrowed
+ * after the add, then stored back into the 32-bit slot.
+ */
+s32 func_ov039_020981a4(TaskPool* pool, void* task) {
+    u8*   sprite = *(u8**)((u8*)task + 0x18);
+    void* data   = EasyTask_GetTaskData(pool, *(s32*)(sprite + 0x78));
+    s32   count;
+    s32   scale;
+    s32   v;
+
+    /* One `return 1` at the end rather than one per exit: the target shares a
+     * single epilogue across the three ways out. The first guard is also
+     * negated -- `data != NULL` with the clear as its `else` -- because that is
+     * what makes mwcc branch *to* the clear block and lay the main body out as
+     * the fall-through, which is the target's shape. */
+    if (data != NULL) {
+        if (*(s32*)(sprite + 0x7C) != 0) {
+            func_ov039_0208e85c(data, (OtuPoint*)(sprite + 0x50));
+
+            count = *(s32*)(sprite + 0x88) - 1;
+            *(s32*)(sprite + 0x88) = count;
+
+            if (count <= 0) {
+                *(s32*)(sprite + 0x7C) = 0;
+                *(s32*)(sprite + 0x80) = 0;
+            } else {
+                scale = (count << 13) / *(s32*)(sprite + 0x84);
+                *(s32*)(sprite + 0x48) = scale;
+                *(s32*)(sprite + 0x44) = scale;
+
+                *(s32*)(sprite + 0x40) =
+                    (u16)(*(s32*)(sprite + 0x40) + *(u16*)(sprite + 0x74));
+
+                v = *(s32*)(sprite + 0x6C) - data_ov039_0209a304;
+                *(s32*)(sprite + 0x6C) = v;
+                if (v < 0) {
+                    *(s32*)(sprite + 0x6C) = 0;
+                }
+
+                *(s32*)(sprite + 0x70) =
+                    *(s32*)(sprite + 0x70) + data_ov039_0209a310;
+
+                func_ov039_02098c00(*(s32*)(sprite + 0x6C),
+                                    (OtuPoint*)(sprite + 0x64),
+                                    (OtuPoint*)(sprite + 0x58),
+                                    (OtuPoint*)(sprite + 0x58));
+
+                v = *(s32*)(sprite + 0x60) + *(s32*)(sprite + 0x70);
+                *(s32*)(sprite + 0x60) = v;
+                if (v > 0) {
+                    *(s32*)(sprite + 0x60) = 0;
+                    if (*(s32*)(sprite + 0x70) > 0) {
+                        *(s32*)(sprite + 0x70) =
+                            (s32)(((s64)*(s32*)(sprite + 0x70) *
+                                   -data_ov039_0209a300 + 0x800) >>
+                                  12);
+                    }
+                }
+
+                Sprite_Update((Sprite*)sprite);
+                *(s32*)(sprite + 0x80) = 1;
+            }
+        }
+    } else {
+        *(s32*)(sprite + 0x7C) = 0;
+        *(s32*)(sprite + 0x80) = 0;
+    }
+    return 1;
+}
