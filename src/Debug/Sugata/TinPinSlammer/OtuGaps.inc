@@ -60,6 +60,11 @@ void func_ov039_0209276c(void* self, s32 value);
 
 /* The per-child step func_ov039_02091070 runs four times. */
 void func_ov039_020983c8(void* data, OtuPoint* pt, void* table, s32 index);
+
+/* The three Q12.12 constants func_ov039_02094ca8 damps with. */
+extern s32 data_ov039_0209a300;
+extern s32 data_ov039_0209a304;
+extern s32 data_ov039_0209a310;
 extern const SpriteAnimation data_ov039_020995c0;
 extern const SpriteAnimation data_ov039_02099578;
 extern const SpriteAnimation data_ov039_02099c80;
@@ -1437,6 +1442,118 @@ s32 func_ov039_02092154(void* pool, void* task) {
     return 1;
 }
 
+/**
+ * @brief The full resource teardown: two buffers, two chars, six palettes, two
+ *        data handles.
+ *
+ * The six palette releases are the same 0x14-strided slot run
+ * `func_ov039_02092154` installs, read back off the block in the order the
+ * install wrote them.
+ */
+s32 func_ov039_020921fc(void* pool, void* task) {
+    u8* block = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    func_0200d954(0, 1);
+
+    Mem_Free(*(Heap**)(block + 0x04), *(void**)(block + 0x38));
+    Mem_Free(*(Heap**)(block + 0x04), *(void**)(block + 0x3C));
+
+    BgResMgr_ReleaseChar(g_BgResourceManagers[0], *(BgResource**)(block + 0x50));
+    BgResMgr_ReleaseChar(g_BgResourceManagers[0], *(BgResource**)(block + 0x48));
+
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0], *(PaletteResource**)(block + 0x4C));
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0], *(PaletteResource**)(block + 0x64));
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0], *(PaletteResource**)(block + 0x78));
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0], *(PaletteResource**)(block + 0x8C));
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0], *(PaletteResource**)(block + 0xA0));
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0], *(PaletteResource**)(block + 0xB4));
+
+    DatMgr_ReleaseData(*(Data**)(block + 0x44));
+    DatMgr_ReleaseData(*(Data**)(block + 0x40));
+    return 1;
+}
+
+/** The block `func_ov039_02092d0c` drives two display groups out of. */
+typedef struct {
+    /* 0x00 */ u8  pad_00[0x08];
+    /* 0x08 */ s32 guard;
+    /* 0x0C */ u8  pad_0C[0x1C];
+    /* 0x28 */ s32 a1;
+    /* 0x2C */ s32 b1;
+    /* 0x30 */ u8  pad_30[0x20];
+    /* 0x50 */ s32 a2;
+    /* 0x54 */ s32 b2;
+    /* 0x58 */ u8  pad_58[0x38];
+    /* 0x90 */ s32 u1;
+    /* 0x94 */ s32 u2;
+    /* 0x98 */ s32 v1;
+    /* 0x9C */ s32 v2;
+} OtuBoardPair; // Size: 0xA0
+
+/**
+ * @brief Runs `func_ov039_02092348`'s stage step twice, over two field sets.
+ *
+ * Both halves are the same operation on `g_DisplaySettings.engineState`: pick
+ * the group by a 0x220-strided index, switch on the `bgSettings[b].bgMode`
+ * first word, raise `bgAffines[b].unk_14` for cases 1-5, and write the position
+ * pair into `bgOffsets[b]` -- except that here the pair is an offset added to
+ * the incoming x/y rather than a replacement. Spelled out twice rather than
+ * factored, because `-inline noauto` would turn a shared helper into a `bl`.
+ */
+// Nonmatching: 98.5%, and the gap is the same one func_ov039_02092348 has: the
+// engine-state index and the `g_DisplaySettings.engineState` base swap r4/r5
+// between the two sides. See that marker for the shapes already tried.
+void func_ov039_02092d0c(void* task, s32 x, s32 y) {
+    OtuBoardPair*       self = (OtuBoardPair*)task;
+    DisplayEngineState* group;
+    s32                 b;
+    s32                 px;
+    s32                 py;
+
+    if (self->guard == 0) {
+        return;
+    }
+
+    b     = self->b1;
+    px    = x + self->u1;
+    py    = y + self->v1;
+    group = &g_DisplaySettings.engineState[self->a1];
+    switch (group->bgSettings[b].bgMode) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            group->bgAffines[b].unk_14 = 1;
+            break;
+
+        default:
+            break;
+    }
+    group->bgOffsets[b].hOffset = px;
+    group->bgOffsets[b].vOffset = py;
+
+    b     = self->b2;
+    px    = x + self->u2;
+    py    = y + self->v2;
+    group = &g_DisplaySettings.engineState[self->a2];
+    switch (group->bgSettings[b].bgMode) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            group->bgAffines[b].unk_14 = 1;
+            break;
+
+        default:
+            break;
+    }
+    group->bgOffsets[b].hOffset = px;
+    group->bgOffsets[b].vOffset = py;
+}
 /** The block `func_ov039_020929ec` stores its params into and then sets up. */
 typedef struct {
     /* 0x00 */ s32 word0;
@@ -1595,4 +1712,135 @@ void func_ov039_02091070(OtuArcGroup* self) {
 
         func_ov039_020983c8(data, &pt, table, i);
     }
+}
+
+/**
+ * @brief Counts down a one-shot, then integrates the badge's velocity.
+ *
+ * While +0x100 is positive it is a one-shot timer: the countdown reaches zero
+ * exactly once and fires the board commit at +0x120 against the +0x110 origin,
+ * then every later call returns immediately. Once it is spent the function
+ * becomes the per-frame integrator -- the same accel step
+ * `func_ov039_0208af6c` takes, but pinned to `data_ov039_0209a39c[3]` rather
+ * than to the tile under the badge.
+ */
+// Nonmatching: 97.5%, one register apart. The target keeps the `slots` pointer
+// in r12 across the `data_ov039_0209a39c[3]` load and puts the rate in r1 and
+// the speed in r2; this source recycles r12 for the rate and puts the speed in
+// r1. Giving the speed a named local makes it worse (97.2%), so the allocation
+// is not reachable from the declaration shape.
+void func_ov039_0208d210(OtuBadge* task) {
+    u8* self = (u8*)task;
+    s32 count;
+    s32 rate;
+    s32 v;
+
+    count = *(s32*)(self + 0x100);
+    if (count > 0) {
+        --count;
+        *(s32*)(self + 0x100) = count;
+        if (count != 0) {
+            return;
+        }
+
+        func_ov039_02089064(*(TinPinSlammer_Scene**)(self + 0x00),
+                            (OtuPoint*)(self + 0x120));
+        func_ov039_02087d04(0x34E, (OtuPoint*)(self + 0x120),
+                            (OtuPoint*)(self + 0x110));
+        return;
+    }
+
+    *(s32*)(self + 0x134) = *(s32*)(self + 0x134) + data_ov039_0209a318;
+
+    /* The cell record is reached through a u16 index whose home is itself a
+     * pointer at +0x16C, and the record is 0x1C bytes at +0x170. */
+    {
+        u16 index      = *(u16*)*(s32*)(self + 0x16C);
+        u8* slots      = *(u8**)(self + 0x170);
+        u8  speedIndex = *(u8*)(slots + index * 0x1C + 4);
+
+        rate = data_ov039_0209a39c[3];
+        rate = (s32)(((s64)data_ov039_0209a3e0[speedIndex].speed * rate + 0x800) >>
+                     12);
+    }
+
+    func_ov039_0208ad2c((OtuPoint*)(self + 0x12C), rate);
+    func_ov039_02098b8c((OtuPoint*)(self + 0x120), (OtuPoint*)(self + 0x12C),
+                        (OtuPoint*)(self + 0x120));
+
+    v = *(s32*)(self + 0x128) + *(s32*)(self + 0x134);
+    *(s32*)(self + 0x128) = v;
+    if (v > 0) {
+        *(s32*)(self + 0x128) = 0;
+        *(s32*)(self + 0xF8)  = 1;
+        *(s32*)(self + 0xF4)  = 0;
+    }
+}
+
+/**
+ * @brief The spring step: a scaled value, then a damped velocity and a bounce.
+ *
+ * +0x80 is a countdown. While it runs, +0x44 and +0x48 are both set to
+ * `(count << 13) / +0x7C`, the +0x6C axis is stepped down by
+ * `data_ov039_0209a304` and clamped at zero, +0x70 is stepped up by
+ * `data_ov039_0209a310`, and `func_ov039_02098c00` integrates the pair at
+ * +0x64 into +0x58. The +0x60 accumulator is then moved by +0x70 and, when it
+ * overshoots, is clamped and its velocity damped by `-data_ov039_0209a300`.
+ */
+// Nonmatching: 93.5%, and the gap is the two exits. The target branches both
+// the +0x74 guard and the `count <= 0` path to one shared epilogue; this source
+// has mwcc if-convert them into inline `mov r0, #1` / `ldmia` pairs. Collapsing
+// the three `return 1`s into one tail with an if/else was the obvious fix and
+// is wrong -- it scores 87.5%, because the else half then moves the stores off
+// the target's fall-through path.
+s32 func_ov039_02094ca8(void* pool, void* task) {
+    u8* sprite = *(u8**)((u8*)task + 0x18);
+    s32 count;
+    s32 scale;
+    s32 v;
+
+    (void)pool;
+
+    if (*(s32*)(sprite + 0x74) == 0) {
+        return 1;
+    }
+
+    count = *(s32*)(sprite + 0x80) - 1;
+    *(s32*)(sprite + 0x80) = count;
+    if (count <= 0) {
+        *(s32*)(sprite + 0x74) = 0;
+        *(s32*)(sprite + 0x78) = 0;
+        return 1;
+    }
+
+    scale = (count << 13) / *(s32*)(sprite + 0x7C);
+    *(s32*)(sprite + 0x48) = scale;
+    *(s32*)(sprite + 0x44) = scale;
+
+    v = *(s32*)(sprite + 0x6C) - data_ov039_0209a304;
+    *(s32*)(sprite + 0x6C) = v;
+    if (v < 0) {
+        *(s32*)(sprite + 0x6C) = 0;
+    }
+
+    *(s32*)(sprite + 0x70) = *(s32*)(sprite + 0x70) + data_ov039_0209a310;
+
+    func_ov039_02098c00(*(s32*)(sprite + 0x6C), (OtuPoint*)(sprite + 0x64),
+                        (OtuPoint*)(sprite + 0x58), (OtuPoint*)(sprite + 0x58));
+
+    v = *(s32*)(sprite + 0x60) + *(s32*)(sprite + 0x70);
+    *(s32*)(sprite + 0x60) = v;
+    if (v > 0) {
+        *(s32*)(sprite + 0x60) = 0;
+        if (*(s32*)(sprite + 0x70) > 0) {
+            *(s32*)(sprite + 0x70) =
+                (s32)(((s64)*(s32*)(sprite + 0x70) * -data_ov039_0209a300 +
+                       0x800) >>
+                      12);
+        }
+    }
+
+    Sprite_Update((Sprite*)sprite);
+    *(s32*)(sprite + 0x78) = 1;
+    return 1;
 }
