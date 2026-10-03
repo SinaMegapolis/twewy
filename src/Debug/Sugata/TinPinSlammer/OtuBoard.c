@@ -17,16 +17,6 @@
  *  (Written as the single-constant form; verified codegen-neutral.) */
 #define OTU_BOARD_HEAP(scene) ((Heap*)((u8*)(scene) + 0x1158C))
 
-/** The helper-handle array at stage + 0x18C, one word per slot. Folded to a
- *  single address expression (`stage + 0x18C + i * 4`); verified neutral.
- *  64 entries. */
-#define OTU_HELPER_ID(stage, i) (*(s32*)((u8*)(stage) + 0x18C + (i) * 4))
-
-/** The effect-handle array at stage + 0x28C -- immediately after the helper
- *  array's 0x40 entries, not a separate region. Folded like OTU_HELPER_ID;
- *  verified neutral. */
-#define OTU_EFFECT_ID(stage, i) (*(s32*)((u8*)(stage) + 0x28C + (i) * 4))
-
 /** The board's countdown block for the menu currently being shown.
  *  `scene + 0x44084 + menuIndex * 0x34`; the 0x44000 + 0x84 pair is folded to
  *  one constant, verified neutral. */
@@ -127,7 +117,7 @@ void func_ov039_0208871c(TinPinSlammer_Scene* scene) {
     s32          me;
     s32          i;
 
-    pin = EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, func_ov039_02088418(scene->state.unk_AF0)));
+    pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]);
     func_ov039_0208e6fc(pin, &at);
     event = func_ov039_0208eff8(pin);
     func_ov039_0208e848(pin, &at);
@@ -147,18 +137,18 @@ void func_ov039_0208871c(TinPinSlammer_Scene* scene) {
             continue;
         }
 
-        pin = EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, i));
+        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
         func_ov039_0208e848(pin, &at);
         func_ov039_0208e6fc(pin, &other);
         func_ov039_0208e870(pin, other.x, other.y);
     }
 
     for (i = 0; i < 0x40; i++) {
-        func_ov039_02094e88(EasyTask_GetTaskData(OTU_POOL2(scene), OTU_HELPER_ID(stage, i)), &at);
+        func_ov039_02094e88(EasyTask_GetTaskData(OTU_POOL2(scene), stage->helperIds[i]), &at);
     }
 
     for (i = 0; i < stage->effectCount; i++) {
-        func_ov039_02092730(EasyTask_GetTaskData(OTU_POOL2(scene), OTU_EFFECT_ID(stage, i)), &at);
+        func_ov039_02092730(EasyTask_GetTaskData(OTU_POOL2(scene), stage->effectIds[i]), &at);
     }
 }
 
@@ -186,24 +176,24 @@ void func_ov039_020888e0(TinPinSlammer_Scene* scene) {
     s32          i;
 
     for (i = 0; i < 0x40; i++) {
-        OTU_HELPER_ID(stage, i) = func_ov039_02094e58(OTU_POOL2(scene), scene->base.spareDataType);
+        stage->helperIds[i] = func_ov039_02094e58(OTU_POOL2(scene), scene->base.spareDataType);
     }
 
     for (i = 0; i < stage->effectCount; i++) {
         // bufB is walked eight bytes at a time and handed on by address; nothing
         // here interprets the record.
-        OTU_EFFECT_ID(stage, i) = func_ov039_020926f0(OTU_POOL2(scene), scene->base.spareDataType, stage->params.kind,
-                                                      stage->params.variant, (OtuObstacle_Params*)(stage->bufB + i * 8));
+        stage->effectIds[i] = func_ov039_020926f0(OTU_POOL2(scene), scene->base.spareDataType, stage->params.kind,
+                                                  stage->params.variant, (OtuObstacle_Params*)(stage->bufB + i * 8));
     }
 
     stage->pinTask = func_ov039_02095468(OTU_POOL2(scene), scene->base.spareDataType,
-                                         OTU_CHILD_ID(stage, func_ov039_02088418(scene->state.unk_AF0)));
+                                         stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]);
     stage->bgTaskA = func_ov039_02092310(OTU_POOL2(scene), scene->base.spareDataType, OTU_BOARD_HEAP(scene), &stage->params);
     stage->bgTaskB = func_ov039_02092cd4(OTU_POOL2(scene), scene->base.spareDataType, OTU_BOARD_HEAP(scene), &stage->params);
     stage->bgTaskC = func_ov039_020934a8(OTU_POOL2(scene), scene->base.spareDataType, OTU_BOARD_HEAP(scene), &stage->params);
     stage->fxTask  = func_ov039_020941d0(OTU_POOL2(scene), scene->base.spareDataType, stage->countdownAux);
     stage->fxTask2 = func_ov039_02094ab4(OTU_POOL2(scene), scene->base.spareDataType,
-                                         OTU_CHILD_ID(stage, func_ov039_02088418(scene->state.unk_AF0)));
+                                         stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]);
     // The one task in this function that lives in pool 1.
     stage->soundTask = func_ov039_02096b18(OTU_POOL1(scene), scene->base.spareDataType);
 
@@ -236,7 +226,7 @@ void func_ov039_02088a8c(TinPinSlammer_Scene* scene) {
     s32          i;
 
     for (i = 0; i < stage->childCount; i++) {
-        OTU_CHILD_ID(stage, i) =
+        stage->childIds[i] =
             func_ov039_0208dcb0(OTU_POOL2(scene), scene->base.spareDataType, i, (i == 0) ? func_ov039_02088440(i) : (void*)0,
                                 &stage->params, scene, (u8*)scene + 0x41EF0, OTU_PIN_TRAY(scene, i), (i == 0),
                                 (i == 0) ? (u8*)0 : (u8*)scene + 0x44974 + stage->countdown->group[i - 1].groupCount * 0x22);
@@ -261,9 +251,9 @@ void func_ov039_02088b80(TinPinSlammer_Scene* scene) {
     s32          i;
 
     for (i = 0; i < stage->childCount; i++) {
-        OTU_CHILD_ID(stage, i) = func_ov039_0208dcb0(OTU_POOL2(scene), scene->base.spareDataType, i, func_ov039_02088440(i),
-                                                     &stage->params, scene, (u8*)scene + 0x41EF0, OTU_PIN_TRAY(scene, i),
-                                                     (i == func_ov039_02088418(scene->state.unk_AF0)), 0);
+        stage->childIds[i] = func_ov039_0208dcb0(OTU_POOL2(scene), scene->base.spareDataType, i, func_ov039_02088440(i),
+                                                 &stage->params, scene, (u8*)scene + 0x41EF0, OTU_PIN_TRAY(scene, i),
+                                                 (i == func_ov039_02088418(scene->state.unk_AF0)), 0);
     }
 
     func_ov039_020888e0(scene);
@@ -463,13 +453,13 @@ void func_ov039_02088fac(TinPinSlammer_Scene* scene) {
     s32          j;
 
     for (i = 0; i < stage->childCount; i++) {
-        pin = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, i));
+        pin = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
 
         claimed = func_ov039_0208e9f8(OTU_POOL2(scene), pin);
         if (claimed != 0) {
             for (j = 0; j < stage->childCount; j++) {
                 if (i != j) {
-                    func_ov039_0208eaa0(pin, EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, j)));
+                    func_ov039_0208eaa0(pin, EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[j]));
                 }
             }
         }
@@ -489,7 +479,7 @@ void func_ov039_02088fac(TinPinSlammer_Scene* scene) {
  *
  * The cursor is a base index, not a running count: the target adds it to the loop
  * counter and only then scales by four, which is why the array is reached with
- * OTU_HELPER_ID(stage, cursor + i) rather than a walked pointer. The wrap is a
+ * stage->helperIds[cursor + i] rather than a walked pointer. The wrap is a
  * post-store clamp (`cmp #0x40 / movge #0 / strge`) on a value that is written
  * unconditionally first -- the same idiom as func_ov039_0208f048 in band 1.
  */
@@ -498,7 +488,7 @@ void func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at) {
     s32          i;
 
     for (i = 0; i < 0x10; i++) {
-        func_ov039_02094e9c(EasyTask_GetTaskData(OTU_POOL2(scene), OTU_HELPER_ID(stage, i + stage->helperCursor)), at);
+        func_ov039_02094e9c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->helperIds[i + stage->helperCursor]), at);
     }
 
     stage->helperCursor = stage->helperCursor + 0x10;
@@ -571,7 +561,7 @@ void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuPinTask* a, OtuPinTask* 
         }
     }
 
-    func_ov039_0208e85c(EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, func_ov039_02088418(scene->state.unk_AF0))),
+    func_ov039_0208e85c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]),
                         &board);
     func_ov039_02087d04(effectId, &pb, &board);
 }
@@ -598,10 +588,10 @@ void func_ov039_020891fc(TinPinSlammer_Scene* scene) {
     s32          j;
 
     for (i = 0; i < stage->childCount - 1; i++) {
-        a = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, i));
+        a = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
 
         for (j = i + 1; j < stage->childCount; j++) {
-            b = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, j));
+            b = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[j]);
 
             touching = func_ov039_0208e28c(a, b);
             if (touching != 0) {
@@ -627,10 +617,10 @@ void func_ov039_020892c4(TinPinSlammer_Scene* scene) {
     s32          j;
 
     for (i = 0; i < stage->childCount - 1; i++) {
-        a = EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, i));
+        a = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
 
         for (j = i + 1; j < stage->childCount; j++) {
-            func_ov039_0208e37c(a, EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, j)));
+            func_ov039_0208e37c(a, EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[j]));
         }
     }
 }
@@ -650,10 +640,10 @@ void func_ov039_02089360(TinPinSlammer_Scene* scene) {
     s32          j;
 
     for (i = 0; i < stage->childCount; i++) {
-        pin = EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, i));
+        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
 
         for (j = 0; j < stage->effectCount; j++) {
-            func_ov039_0208e504(pin, EasyTask_GetTaskData(OTU_POOL2(scene), OTU_EFFECT_ID(stage, j)));
+            func_ov039_0208e504(pin, EasyTask_GetTaskData(OTU_POOL2(scene), stage->effectIds[j]));
         }
     }
 }
@@ -761,7 +751,7 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
         func_ov039_02096b48(EasyTask_GetTaskData(OTU_POOL1(scene), stage->soundTask), 0);
 
         for (i = 0; i < stage->childCount; i++) {
-            pin                     = EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, i));
+            pin                     = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
             OTU_BOARD_SLOT_SCORE(i) = (u16)func_ov039_0208f034(pin);
 
             me = func_ov039_02088418(scene->state.unk_AF0);
@@ -786,7 +776,7 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
     settledMask = 0;
 
     for (i = 0; i < stage->childCount; i++) {
-        pin = EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, i));
+        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
 
         hasPin = func_ov039_0208f00c(pin);
         if (hasPin != 0) {
@@ -797,7 +787,7 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
 
     if ((settled <= 1) && (settled < stage->childCount)) {
         for (i = 0; i < stage->childCount; i++) {
-            pin = EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, i));
+            pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
 
             if ((settledMask & (1 << i)) != 0) {
                 func_ov039_0208f024(pin);
@@ -904,7 +894,7 @@ void func_ov039_020897dc(TinPinSlammer_Scene* scene) {
         quiet = func_ov039_02096c44(EasyTask_GetTaskData(OTU_POOL1(scene), stage->soundTask));
 
         if (quiet == 0) {
-            EasyTask_GetTaskData(OTU_POOL2(scene), OTU_CHILD_ID(stage, func_ov039_02088418(scene->state.unk_AF0)));
+            EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]);
 
             if (stage->outcome == 1) {
                 gSaveData.unk_24B4 = 6;

@@ -1,5 +1,6 @@
 #include "Debug/Sugata/TinPinSlammer.h"
 #include "Engine/EasyTask.h"
+#include "OtuFieldAccessShared.h"
 
 /**
  * @file OtuTaskPick.c
@@ -78,7 +79,7 @@ typedef struct {
 // target hoists both sp-relative bases inside its count > 0 guard. Both are
 // optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_02087f4c(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
-    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuPinStage* table = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
     // Declaration order here is load-bearing: mwcc hands out stack slots in
     // reverse, and the target puts candPos at sp+0, selfPos at sp+8 and picks
     // at sp+0x10, which is what makes the frame exactly 0x28.
@@ -91,7 +92,7 @@ OtuPinTask* func_ov039_02087f4c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 
     // The caller's own position, read once before the scan rather than
     // recomputed inside it.
-    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
+    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[which]), &selfPos);
 
     // The pool count is re-read from the table on every iteration, not hoisted
     // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
@@ -100,14 +101,14 @@ OtuPinTask* func_ov039_02087f4c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     // which reads as the obvious thing to do -- compiles the load once and
     // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
+    for (i = 0; i < table->childCount; i++) {
         OtuPinTask* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, i));
+        cand = (OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[i]);
 
         if (!func_ov039_0208ee84(cand)) {
             continue;
@@ -160,7 +161,7 @@ OtuPinTask* func_ov039_02087f4c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 // target hoists both sp-relative bases inside its count > 0 guard. Both are
 // optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_02088064(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
-    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuPinStage* table = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
     // Declaration order here is load-bearing: mwcc hands out stack slots in
     // reverse, and the target puts candPos at sp+0, selfPos at sp+8 and picks
     // at sp+0x10, which is what makes the frame exactly 0x28.
@@ -173,7 +174,7 @@ OtuPinTask* func_ov039_02088064(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 
     // The caller's own position, read once before the scan rather than
     // recomputed inside it.
-    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
+    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[which]), &selfPos);
 
     // The pool count is re-read from the table on every iteration, not hoisted
     // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
@@ -182,14 +183,14 @@ OtuPinTask* func_ov039_02088064(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     // which reads as the obvious thing to do -- compiles the load once and
     // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
+    for (i = 0; i < table->childCount; i++) {
         OtuPinTask* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, i));
+        cand = (OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[i]);
 
         if (!func_ov039_0208e9d0(cand)) {
             continue;
@@ -242,7 +243,7 @@ OtuPinTask* func_ov039_02088064(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 // target hoists both sp-relative bases inside its count > 0 guard. Both are
 // optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_0208817c(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
-    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuPinStage* table = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
     // Declaration order here is load-bearing: mwcc hands out stack slots in
     // reverse, and the target puts candPos at sp+0, selfPos at sp+8 and picks
     // at sp+0x10, which is what makes the frame exactly 0x28.
@@ -255,7 +256,7 @@ OtuPinTask* func_ov039_0208817c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 
     // The caller's own position, read once before the scan rather than
     // recomputed inside it.
-    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
+    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[which]), &selfPos);
 
     // The pool count is re-read from the table on every iteration, not hoisted
     // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
@@ -264,14 +265,14 @@ OtuPinTask* func_ov039_0208817c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     // which reads as the obvious thing to do -- compiles the load once and
     // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
+    for (i = 0; i < table->childCount; i++) {
         OtuPinTask* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, i));
+        cand = (OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[i]);
 
         if (!func_ov039_0208e998(cand)) {
             continue;
@@ -324,7 +325,7 @@ OtuPinTask* func_ov039_0208817c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 // target hoists both sp-relative bases inside its count > 0 guard. Both are
 // optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_02088294(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
-    OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuPinStage* table = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
     // Declaration order here is load-bearing: mwcc hands out stack slots in
     // reverse, and the target puts candPos at sp+0, selfPos at sp+8 and picks
     // at sp+0x10, which is what makes the frame exactly 0x28.
@@ -337,7 +338,7 @@ OtuPinTask* func_ov039_02088294(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 
     // The caller's own position, read once before the scan rather than
     // recomputed inside it.
-    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
+    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[which]), &selfPos);
 
     // The pool count is re-read from the table on every iteration, not hoisted
     // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
@@ -346,14 +347,14 @@ OtuPinTask* func_ov039_02088294(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     // which reads as the obvious thing to do -- compiles the load once and
     // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
+    for (i = 0; i < table->childCount; i++) {
         OtuPinTask* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, i));
+        cand = (OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[i]);
 
         if (!func_ov039_0208e984(cand)) {
             continue;
@@ -418,15 +419,15 @@ OtuPinTask* func_ov039_02088294(TaskPool* self, TinPinSlammer_Scene* scene, s32 
 // target hoists both sp-relative bases inside its count > 0 guard. Both are
 // optimisation-threshold effects the source cannot ask for.
 OtuPinTask* func_ov039_02087e2c(TaskPool* self, TinPinSlammer_Scene* scene, s32 which) {
-    OtuTextRow* table  = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuPinTask* result = NULL;
-    OtuPoint    selfPos;
-    OtuPoint    candPos;
-    OtuPick     picks[3];
-    s32         found = 0;
-    s32         i;
+    OtuPinStage* table  = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuPinTask*  result = NULL;
+    OtuPoint     selfPos;
+    OtuPoint     candPos;
+    OtuPick      picks[3];
+    s32          found = 0;
+    s32          i;
 
-    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, which)), &selfPos);
+    func_ov039_0208e6e0((OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[which]), &selfPos);
 
     // The pool count is re-read from the table on every iteration, not hoisted
     // into a local: the target's `ldr r0, [r6, #0x140]` sits at the *bottom* of
@@ -435,14 +436,14 @@ OtuPinTask* func_ov039_02087e2c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     // which reads as the obvious thing to do -- compiles the load once and
     // costs instructions (72.2% -> 64.7%).
 
-    for (i = 0; i < OTU_CHILD_COUNT(table); i++) {
+    for (i = 0; i < table->childCount; i++) {
         OtuPinTask* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuPinTask*)EasyTask_GetTaskData(self, OTU_CHILD_ID(table, i));
+        cand = (OtuPinTask*)EasyTask_GetTaskData(self, table->childIds[i]);
 
         if (!func_ov039_0208efb0(cand, 0x444)) {
             continue;

@@ -2834,11 +2834,11 @@ extern u32 data_ov039_0209a4b0[];
 /* Callees with no owner yet. Declared here rather than relied on implicitly:
  * under -lang=c99 an undeclared call becomes an implicit int(...), and the
  * pointer arguments below are then rejected. */
-extern OtuPinTask* func_ov039_0208817c(TaskPool* pool, void* scene, s32 index);
+extern OtuPinTask* func_ov039_0208817c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
 
-extern OtuPinTask* func_ov039_02088294(TaskPool* pool, void* scene, s32 index);
+extern OtuPinTask* func_ov039_02088294(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
 
-extern OtuPinTask* func_ov039_02087e2c(TaskPool* pool, void* scene, s32 index);
+extern OtuPinTask* func_ov039_02087e2c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
 
 extern s32 func_ov039_02097ad8(void* data);
 

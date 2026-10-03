@@ -139,8 +139,8 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
                     break;
                 }
                 i = i + 1;
-            } while (i < OTU_CHILD_COUNT(stage));
-            if (i != OTU_CHILD_COUNT(stage)) {
+            } while (i < stage->childCount);
+            if (i != stage->childCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 2);
@@ -156,7 +156,7 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
             func_ov040_0209ef88();
 
             mask = 0;
-            for (i = 1; i < OTU_CHILD_COUNT(stage); i++) {
+            for (i = 1; i < stage->childCount; i++) {
                 mask |= 1 << i;
             }
             func_ov040_0209ed58(mask);
@@ -174,12 +174,12 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
 
         case 4:
             data_ov039_0209ad00 = 2;
-            for (i = 0; i < OTU_CHILD_COUNT(stage); i++) {
+            for (i = 0; i < stage->childCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 2) {
                     break;
                 }
             }
-            if (i != OTU_CHILD_COUNT(stage)) {
+            if (i != stage->childCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 6);
@@ -187,12 +187,12 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
 
         case 6:
             data_ov039_0209ad00 = 3;
-            for (i = 0; i < OTU_CHILD_COUNT(stage); i++) {
+            for (i = 0; i < stage->childCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 3) {
                     break;
                 }
             }
-            if (i != OTU_CHILD_COUNT(stage)) {
+            if (i != stage->childCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 7);
@@ -265,16 +265,16 @@ void func_ov039_02089d6c(TinPinSlammer_Scene* scene) {
 
     data_ov039_0209ad00 = 4;
 
-    if (OTU_CHILD_COUNT(stage) > 0) {
+    if (stage->childCount > 0) {
         do {
             if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 4) {
                 break;
             }
             i++;
-        } while (i < OTU_CHILD_COUNT(stage));
+        } while (i < stage->childCount);
     }
 
-    if (i != OTU_CHILD_COUNT(stage)) {
+    if (i != stage->childCount) {
         return;
     }
 
@@ -481,12 +481,12 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
 
         case 1:
             data_ov039_0209ad00 = 1;
-            for (i = 0; i < OTU_CHILD_COUNT(stage); i++) {
+            for (i = 0; i < stage->childCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 1) {
                     break;
                 }
             }
-            if (i != OTU_CHILD_COUNT(stage)) {
+            if (i != stage->childCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 2);
@@ -508,12 +508,12 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
 
         case 4:
             data_ov039_0209ad00 = 2;
-            for (i = 0; i < OTU_CHILD_COUNT(stage); i++) {
+            for (i = 0; i < stage->childCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 2) {
                     break;
                 }
             }
-            if (i != OTU_CHILD_COUNT(stage)) {
+            if (i != stage->childCount) {
                 return;
             }
             func_ov040_0209ed58(1);
@@ -529,12 +529,12 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
 
         case 6:
             data_ov039_0209ad00 = 3;
-            for (i = 0; i < OTU_CHILD_COUNT(stage); i++) {
+            for (i = 0; i < stage->childCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 3) {
                     break;
                 }
             }
-            if (i != OTU_CHILD_COUNT(stage)) {
+            if (i != stage->childCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 7);
@@ -586,16 +586,16 @@ void func_ov039_0208a354(TinPinSlammer_Scene* scene) {
 
     data_ov039_0209ad00 = 4;
 
-    if (OTU_CHILD_COUNT(stage) > 0) {
+    if (stage->childCount > 0) {
         do {
             if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 4) {
                 break;
             }
             i++;
-        } while (i < OTU_CHILD_COUNT(stage));
+        } while (i < stage->childCount);
     }
 
-    if (i != OTU_CHILD_COUNT(stage)) {
+    if (i != stage->childCount) {
         return;
     }
 
