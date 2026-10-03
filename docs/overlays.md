@@ -379,9 +379,9 @@ members — every field past `0xFFF` is too far for a `ldr` displacement, which 
 why the target re-derives the containing pointer on each access rather than
 hoisting it.
 
-Status: 561 of 561 functions decompiled, 387 of them at 100%.
+Status: 561 of 561 functions decompiled, 390 of them at 100%.
 No function is a stub any more; the overlay is fully covered, and the remaining
-174 are partial matches.
+171 are partial matches.
 `OtuMenuText` is 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of
 `.bss`); `OtuVBlank` is 100% across all five functions; `OtuSceneEntry` holds the
 two plain entry points, the teardown, its thunk and both stage dispatches at

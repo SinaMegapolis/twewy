@@ -14,18 +14,6 @@ DOC = Path("docs/overlays.md")
 REPORT = Path("build/usa/report.json")
 TOTAL = 561
 
-NEW_STATUS = """Status: {matched} of {total} functions decompiled, {perfect} of them at 100%.
-`OtuMenuText` is 100% matched (860 bytes of `.data`, 268 of `.rodata`, 8 of
-`.bss`); `OtuVBlank` is 100% across all five functions; `OtuSceneEntry` holds the
-two plain entry points, the teardown, its thunk and both stage dispatches at
-100%. `OtuScoreRow` is now the overlay's largest unit and holds eleven row
-builders plus the countdown steppers that drive them. Partial:
-`func_ov039_02083bb0` at 99.97%, `OtuGxInit` at 95.9%, both per-frame updates at
-91.0% and 95.4%, the clamp helper at 94.5%, the place stepper at 92.3%, the
-pin-count row at 83.8%, the countdown at 76.0%, the wireless teardown at 72.8%.
-The remaining {remaining} functions are stubs.
-"""
-
 NEW_LAYOUT = """### Row layouts, and why the tables keep the build's names
 
 The result screens have a dozen or so numeric rows, and the `d.ddd` family has
@@ -109,12 +97,22 @@ def main():
 
     text = DOC.read_text(encoding="latin1")
 
-    text = re.sub(
-        r"Status: \d+ of \d+ functions decompiled, \d+ of them at 100%.*?are stubs\.\n",
-        NEW_STATUS.format(matched=matched, total=TOTAL, perfect=perfect,
-                          remaining=TOTAL - matched),
-        text, count=1, flags=re.S,
+    # Targeted number updates, not a whole-paragraph replacement: the prose has
+    # changed shape twice and a template that no longer matches silently does
+    # nothing. `remaining` here means the partial matches, not undecompiled stubs
+    # (there are none now).
+    text, n1 = re.subn(
+        r"Status: \d+ of \d+ functions decompiled, \d+ of them at 100%\.",
+        f"Status: {matched} of {TOTAL} functions decompiled, {perfect} of them at 100%.",
+        text, count=1,
     )
+    text, n2 = re.subn(
+        r"the remaining\n\d+ are partial matches",
+        f"the remaining\n{TOTAL - perfect} are partial matches",
+        text, count=1,
+    )
+    if n1 == 0:
+        print("WARNING: status line not found; not updated")
 
     # Replace the old four-row table section, whatever it is currently called.
     text = re.sub(
@@ -124,7 +122,8 @@ def main():
     )
 
     DOC.write_text(text, encoding="latin1")
-    print(f"status: {matched}/{TOTAL} matched, {perfect} at 100%")
+    print(f"status: {matched}/{TOTAL} matched, {perfect} at 100% "
+          f"({TOTAL - perfect} partial)")
     if "Four row layouts" in text:
         print("WARNING: old layout section still present")
 
