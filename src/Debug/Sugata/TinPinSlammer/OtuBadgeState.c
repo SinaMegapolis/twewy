@@ -856,6 +856,11 @@ s32 func_ov039_0208c128(OtuBadgeState* self, s32 which, s32 loType, s32 hiType, 
     // Re-rolling only happens once the badge is running a different AI than
     // last frame. While it is still on the old one the previous decision is
     // simply carried forward.
+    //
+    // The two `return 1;` paths are an if/else that falls through to one return,
+    // not an early return inside the first branch: the target branches to a
+    // shared epilogue, and an inline `return 1;` there makes mwcc emit the
+    // epilogue twice instead. (objdiff 100%.)
     if (self->curAI != which) {
         if (self->chanceTbl[which] < RNG_Next(0x10000)) {
             return 0;
@@ -875,13 +880,12 @@ s32 func_ov039_0208c128(OtuBadgeState* self, s32 which, s32 loType, s32 hiType, 
         self->curAI    = which;
         self->unk_1B8  = kind;
         self->anchorPt = found;
-        return 1;
-    }
-
-    if (func_ov039_0208c0e4(&self->pos, &self->anchorPt) != 0) {
-        self->curAI = 0x11;
     } else {
-        func_ov039_0208be30(self, &self->anchorPt);
+        if (func_ov039_0208c0e4(&self->pos, &self->anchorPt) != 0) {
+            self->curAI = 0x11;
+        } else {
+            func_ov039_0208be30(self, &self->anchorPt);
+        }
     }
 
     return 1;
