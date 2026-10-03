@@ -28,6 +28,21 @@ extern s32 data_ov039_0209ad08[4];
 /* The task handles the result-screen spawners hand to EasyTask_CreateTask. */
 extern const TaskHandle data_ov039_0209a06c;
 extern const TaskHandle data_ov039_02099c64;
+extern const TaskHandle data_ov039_020995a4;
+extern const TaskHandle data_ov039_020995ec;
+extern const TaskHandle data_ov039_02099998;
+
+/* The stage tables the four-word dispatchers copy and index. */
+extern const TaskStages data_ov039_02099568;
+extern const TaskStages data_ov039_020995b0;
+extern const TaskStages data_ov039_02099610;
+extern const TaskStages data_ov039_020999a4;
+extern const TaskStages data_ov039_0209a030;
+extern const TaskStages data_ov039_0209a078;
+
+/* The two reset-time helpers the parameter initialisers hand the block to. */
+void func_ov039_02091788(void* self, void* params);
+void func_ov039_02094bac(void* self, void* params);
 
 /* ------------------------------------------------------------------ */
 /* The pin task's own queries, 0x0208ee84 - 0x0208efb0.                */
@@ -722,4 +737,342 @@ s32 func_ov039_020885f4(void* record, TinPinSlammer_Scene* scene) {
     }
 
     return 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* The six-word record reset, the sprite step pair and the child       */
+/* teardown.                                                           */
+/* ------------------------------------------------------------------ */
+
+/** The flat six-word record `func_ov039_02098a20` zeroes out. */
+typedef struct {
+    /* 0x00 */ s32 unk_00;
+    /* 0x04 */ s32 unk_04;
+    /* 0x08 */ s32 unk_08;
+    /* 0x0C */ s32 unk_0C;
+    /* 0x10 */ s32 unk_10;
+    /* 0x14 */ s32 unk_14;
+} OtuRec6;
+
+/**
+ * @brief Stores `owner` in the first word and clears the other five.
+ *
+ * The zero stores are not in address order and neither a designator list nor a
+ * memset reproduces the target's 0/4/C/10/8/14 sequence, so the six writes are
+ * spelled out in the order the target emits them.
+ */
+void func_ov039_02098a20(void* a, void* owner) {
+    OtuRec6* rec = (OtuRec6*)a;
+
+    rec->unk_00 = (s32)owner;
+    rec->unk_04 = 0;
+    rec->unk_0C = 0;
+    rec->unk_10 = 0;
+    rec->unk_08 = 0;
+    rec->unk_14 = 0;
+}
+
+/** Steps the sprite block at task+0x18 when +0x44 is set. */
+s32 func_ov039_020988d8(void* pool, void* task) {
+    u8* sprite = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    if (*(s32*)(sprite + 0x44) != 0) {
+        Sprite_Update((Sprite*)(sprite + 4));
+    }
+    return 1;
+}
+
+/** Renders the sprite block at task+0x18 when +0x44 is set. */
+s32 func_ov039_020988fc(void* pool, void* task) {
+    u8* sprite = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    if (*(s32*)(sprite + 0x44) != 0) {
+        Sprite_RenderFrame((Sprite*)(sprite + 4));
+    }
+    return 1;
+}
+
+/**
+ * @brief Steps the sprite block at task+0x18 when +0x6C is set.
+ *
+ * The same pair of Q12.12 position writes as `func_ov039_02094dac`, minus that
+ * function's +0x60 term and against a different guard word.
+ */
+s32 func_ov039_02091a5c(void* pool, void* task) {
+    Sprite* sprite = *(Sprite**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    if (*(s32*)((u8*)sprite + 0x6C) != 0) {
+        *(s16*)((u8*)sprite + 0x0C) =
+            (s16)((*(s32*)((u8*)sprite + 0x58) - *(s32*)((u8*)sprite + 0x50)) >> 12);
+        *(s16*)((u8*)sprite + 0x0E) =
+            (s16)((*(s32*)((u8*)sprite + 0x5C) - *(s32*)((u8*)sprite + 0x54)) >> 12);
+        Sprite_RenderFrame(sprite);
+    }
+    return 1;
+}
+
+/** Releases the block's sprite and deletes its eight child tasks. */
+s32 func_ov039_02091524(TaskPool* pool, void* task) {
+    OtuChildGroup* self = *(OtuChildGroup**)((u8*)task + 0x18);
+    s32            i;
+
+    Sprite_Release((Sprite*)((u8*)self + 4));
+
+    for (i = 0; i < 8; i++) {
+        EasyTask_DeleteTask(pool, self->ids[i]);
+    }
+    return 1;
+}
+
+/** The two-argument result-screen spawners: one word of dataType, one of id. */
+s32 func_ov039_02091b00(TaskPool* pool, s32 dataType, s32 childId) {
+    s32 args[2];
+
+    args[0] = dataType;
+    args[1] = childId;
+    return EasyTask_CreateTask(pool, &data_ov039_020995a4, NULL, 0, NULL, args);
+}
+
+/** The board's three-word spawner. */
+s32 func_ov039_02092310(TaskPool* pool, s32 dataType, Heap* heap,
+                        OtuBoardParams* params) {
+    s32 args[3];
+
+    args[0] = dataType;
+    args[1] = (s32)heap;
+    args[2] = (s32)params;
+    return EasyTask_CreateTask(pool, &data_ov039_020995ec, NULL, 0, NULL, args);
+}
+
+/** The board's second three-word spawner, against its own task table. */
+s32 func_ov039_02092cd4(TaskPool* pool, s32 dataType, Heap* heap,
+                        OtuBoardParams* params) {
+    s32 args[3];
+
+    args[0] = dataType;
+    args[1] = (s32)heap;
+    args[2] = (s32)params;
+    return EasyTask_CreateTask(pool, &data_ov039_02099998, NULL, 0, NULL, args);
+}
+
+/**
+ * @brief Runs the stage handler at `index` from the table at data_ov039_02099568.
+ *
+ * Same stack copy and index as `func_ov039_02094188`, against a different table.
+ */
+void func_ov039_02091560(void* a, void* b, void* c, s32 index) {
+    TaskStages table = data_ov039_02099568;
+
+    table.iter[index](a, b, c);
+}
+
+/** The same dispatcher against data_ov039_020995b0. */
+void func_ov039_02091ab8(void* a, void* b, void* c, s32 index) {
+    TaskStages table = data_ov039_020995b0;
+
+    table.iter[index](a, b, c);
+}
+
+/** The same dispatcher against data_ov039_02099610. */
+void func_ov039_020922c8(void* a, void* b, void* c, s32 index) {
+    TaskStages table = data_ov039_02099610;
+
+    table.iter[index](a, b, c);
+}
+
+/** The same dispatcher against data_ov039_020999a4. */
+void func_ov039_02092c8c(void* a, void* b, void* c, s32 index) {
+    TaskStages table = data_ov039_020999a4;
+
+    table.iter[index](a, b, c);
+}
+
+/** The same dispatcher against data_ov039_0209a030. */
+void func_ov039_0209834c(void* a, void* b, void* c, s32 index) {
+    TaskStages table = data_ov039_0209a030;
+
+    table.iter[index](a, b, c);
+}
+
+/** The same dispatcher against data_ov039_0209a078. */
+void func_ov039_020989a8(void* a, void* b, void* c, s32 index) {
+    TaskStages table = data_ov039_0209a078;
+
+    table.iter[index](a, b, c);
+}
+
+/**
+ * @brief Steps the sprite block at task+0x18 when +0x80 is set.
+ *
+ * `func_ov039_02094dac` again, one guard word further along.
+ */
+s32 func_ov039_020982e8(void* pool, void* task) {
+    Sprite* sprite = *(Sprite**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    if (*(s32*)((u8*)sprite + 0x80) != 0) {
+        *(s16*)((u8*)sprite + 0x0C) =
+            (s16)((*(s32*)((u8*)sprite + 0x58) - *(s32*)((u8*)sprite + 0x50)) >> 12);
+        *(s16*)((u8*)sprite + 0x0E) =
+            (s16)((*(s32*)((u8*)sprite + 0x60) +
+                   (*(s32*)((u8*)sprite + 0x5C) - *(s32*)((u8*)sprite + 0x54))) >>
+                  12);
+        Sprite_RenderFrame(sprite);
+    }
+    return 1;
+}
+
+/**
+ * @brief The same two Q12.12 position writes against a shifted field set.
+ *
+ * The x half reads the +0x5C/+0x54 pair and the y half adds a third term at
+ * +0x64 before subtracting +0x58; the block is rendered at +4 rather than at
+ * its base, which is the one place it differs from `func_ov039_020982e8`.
+ */
+s32 func_ov039_020914d0(void* pool, void* task) {
+    u8* sprite = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    if (*(s32*)(sprite + 0x6C) != 0) {
+        *(s16*)(sprite + 0x10) =
+            (s16)((*(s32*)(sprite + 0x5C) - *(s32*)(sprite + 0x54)) >> 12);
+        *(s16*)(sprite + 0x12) =
+            (s16)((*(s32*)(sprite + 0x60) + *(s32*)(sprite + 0x64) -
+                   *(s32*)(sprite + 0x58)) >>
+                  12);
+        Sprite_RenderFrame((Sprite*)(sprite + 4));
+    }
+    return 1;
+}
+
+/**
+ * @brief Clears the parameter block at task+0x18 and re-derives it.
+ *
+ * The store order is not address order: the four zero words at +0x50 come after
+ * the one at +0x68, and +0x40 comes last. Written in the target's order because
+ * nothing about the sequence is recoverable from the field names.
+ */
+// Nonmatching: 97.6%, and the whole gap is one register. The target keeps the
+// materialised 0 in r3 and the 0x2000 in r1; this source gets 0 in r2 and leaves
+// r3 unused. The zero is live across the 0x2000 materialisation (it is stored
+// both before and after it), so the two constants do need separate registers --
+// but which of r1/r3 each takes is a coin flip of mwcc's allocator. Named
+// locals for either constant are constant-folded away and move nothing, and
+// 11 declaration orders scored identically. Every other instruction agrees.
+s32 func_ov039_02091814(void* pool, void* task, void* arg) {
+    u8* sprite = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    *(s32*)(sprite + 0x68) = *(s32*)((u8*)arg + 0x4);
+    *(s32*)(sprite + 0x50) = 0;
+    *(s32*)(sprite + 0x54) = 0;
+    *(s32*)(sprite + 0x58) = 0;
+    *(s32*)(sprite + 0x5C) = 0;
+    *(s32*)(sprite + 0x40) = 0;
+    *(s32*)(sprite + 0x44) = 0x2000;
+    *(s32*)(sprite + 0x48) = 0x2000;
+    *(s16*)(sprite + 0x4C) = 0;
+    *(s16*)(sprite + 0x4E) = 0;
+    *(s32*)(sprite + 0x6C) = 0;
+    *(s32*)(sprite + 0x70) = 0;
+
+    func_ov039_02091788(sprite, sprite);
+    return 1;
+}
+
+// Nonmatching: 97.0%, the same one-register gap as func_ov039_02091814 and
+// almost certainly the same cause: 0 in r2 where the target has r3. The target
+// reads only r0 and r1, so the parameter count cannot be the lever, and adding
+// an unused third parameter changed nothing at all.
+/** The same reset against the sibling helper, over a longer zero run. */
+s32 func_ov039_02094c50(void* pool, void* task) {
+    u8* sprite = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    *(s32*)(sprite + 0x74) = 0;
+    *(s32*)(sprite + 0x78) = 0;
+    *(s32*)(sprite + 0x50) = 0;
+    *(s32*)(sprite + 0x54) = 0;
+    *(s32*)(sprite + 0x58) = 0;
+    *(s32*)(sprite + 0x5C) = 0;
+    *(s32*)(sprite + 0x60) = 0;
+    *(s32*)(sprite + 0x64) = 0;
+    *(s32*)(sprite + 0x68) = 0;
+    *(s32*)(sprite + 0x40) = 0;
+    *(s32*)(sprite + 0x44) = 0x2000;
+    *(s32*)(sprite + 0x48) = 0x2000;
+    *(s16*)(sprite + 0x4C) = 0;
+    *(s16*)(sprite + 0x4E) = 0;
+
+    func_ov039_02094bac(sprite, sprite);
+    return 1;
+}
+
+/**
+ * @brief Stamps a 4x4 block of tile numbers into a 32-wide map.
+ *
+ * Each row is 32 entries apart, so the value advances by 0x20 per row while
+ * only the first four entries of each are written. `value` is a u16 and is
+ * narrowed after every increment, which is why the loop reads as
+ * `add`/`lsl`/`lsr` rather than a plain `add`.
+ */
+void func_ov039_02091b40(u16 start, u16* map) {
+    u16 value = start;
+    s32 col;
+    s32 row;
+
+    for (row = 0; row < 4; row++) {
+        for (col = 0; col < 4; col++) {
+            map[row * 0x20 + col] = value;
+            value++;
+        }
+        value += 0x1C;
+    }
+}
+
+/**
+ * @brief Runs the +0x04 object's +0x04 handler on `arg`, then frees the block's
+ * allocation.
+ *
+ * The two conditions are one `&&` chain, not two `if`s: the target guards the
+ * handler load with `ldrne` so the pointer is loaded only when the object is
+ * present, and it is then called from the loaded register rather than reloaded.
+ * The assignment is written inside the condition on purpose, because splitting
+ * it into a separate statement turns the `cmpne` pair into two branches.
+ *
+ * The free is `Mem_Free(heap, ptr)`: the +0x14 word is both the guard and the
+ * pointer handed in, which is why it is loaded into a local before the test.
+ */
+void func_ov039_02098af4(void* task, void* arg) {
+    u8*   self = (u8*)task;
+    u8*   obj;
+    void* ptr;
+    void (*fn)(void*);
+
+    if (*(s32*)(self + 0x10) == 0) {
+        return;
+    }
+
+    obj = *(u8**)(self + 0x04);
+    if (obj != NULL && (fn = *(void (**)(void*))(obj + 0x04)) != NULL) {
+        fn(arg);
+    }
+
+    ptr = *(void**)(self + 0x14);
+    if (ptr == NULL) {
+        return;
+    }
+
+    Mem_Free(*(Heap**)(self + 0x00), ptr);
+    *(s32*)(self + 0x14) = 0;
 }
