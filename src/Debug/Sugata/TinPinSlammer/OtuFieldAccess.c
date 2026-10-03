@@ -1639,4 +1639,8 @@ OtuSpriteSlot* func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
 // Batch: the badge AI and update. After band 14, which it calls and whose
 // OtuBadgeState field names it shares with band 11.
 #include "OtuBadgeAi.inc"
+// Band 15: the pin task's own queries (0x0208ee84 - 0x0208efb0) and the
+// wireless input snapshot. Last, because it calls band 10's cell query and
+// bands 1/3's accessors with no forward declarations of its own.
+#include "OtuGaps.inc"
 // clang-format on

@@ -275,7 +275,7 @@ void func_ov040_0209d40c(void (*cb)(), void* arg);
 void func_ov040_0209d420(void (*cb)(), void* arg);
 
 void func_ov040_0209d588(void);
-void func_ov040_0209d728(void);
+s32 func_ov040_0209d728(void);
 void func_ov040_0209d818(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5);
 void func_ov040_0209d848(s32 arg0);
 void func_ov040_0209ece8(u8* buf, s32 len);
