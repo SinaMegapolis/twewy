@@ -106,13 +106,28 @@ def _rebuild(stmts, tail):
 
 
 def mut_reorder_stmts(fn, rng):
-    """Swap two adjacent top-level statements."""
+    """Swap two adjacent top-level statements, but never across a dependency.
+
+    The byte scorer accepts a swap that puts `x = f();` after a use of `x`,
+    because an uninitialised read is cheap to align. Two of the first batch's
+    four "wins" were exactly that (`negative = scaled < 0` hoisted above the
+    assignment to `scaled`), so a swap is rejected when the earlier statement
+    assigns a name the later one reads.
+    """
     stmts = _statements(fn)
     if len(stmts) < 2:
         return None
-    i = rng.randrange(len(stmts) - 1)
-    stmts[i], stmts[i + 1] = stmts[i + 1], stmts[i]
-    return _rebuild(stmts, "")
+    for _ in range(8):
+        i = rng.randrange(len(stmts) - 1)
+        a, b = stmts[i], stmts[i + 1]
+        m = ASSIGN.match(a.strip())
+        if m:
+            n = re.match(r"[\w\.\[\]>-]+", m.group(2))
+            if n and re.search(r"\b%s\b" % re.escape(n.group(0)), b):
+                continue
+        stmts[i], stmts[i + 1] = b, a
+        return _rebuild(stmts, "")
+    return None
 
 
 def mut_block_scope(fn, rng):
@@ -210,7 +225,7 @@ def mut_inline_ptr(fn, rng):
         return None
     out = lines[:i] + lines[i + 1:]
     for k in sorted(uses, reverse=True):
-        if k < i:
+        if k > i:
             k -= 1
         out[k] = re.sub(rf"\b{re.escape(var)}\b", f"({expr})", out[k])
     return "\n".join(out)
