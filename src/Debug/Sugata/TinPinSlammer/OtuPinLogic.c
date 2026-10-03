@@ -144,11 +144,17 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
 
         case 1:
             data_ov039_0209ad00 = 1;
-            for (i = 0; i < OTU_CHILD_COUNT(stage); i++) {
+            // A do-while, not a for: the target enters the loop unconditionally
+            // and tests at the bottom, which shifts its literal pool 12 bytes
+            // later and is worth ~0.6% here. Still short of 100% -- the
+            // residual is pool placement, not code.
+            i = 0;
+            do {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 1) {
                     break;
                 }
-            }
+                i = i + 1;
+            } while (i < OTU_CHILD_COUNT(stage));
             if (i != OTU_CHILD_COUNT(stage)) {
                 return;
             }
