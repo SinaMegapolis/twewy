@@ -2185,3 +2185,75 @@ OtuSpriteSlot* func_ov039_0208f7b4(OtuSpriteTask* t, s32 arg, s32 sel) {
             return NULL;
     }
 }
+
+/**
+ * @brief Builds a 2x2 tile bitmask grid over the +0x04 object's cell array.
+ *
+ * The +0x04 object is a width/height header at +2/+3 with a cell array pointer
+ * at +0x10, cells two bytes apart. The grid is walked in 2x2 blocks: each block
+ * samples the four cells at (5+2j .. 7+2j) x (5+2i .. 7+2i), ORs a `bit` into a
+ * mask that starts at 0x23F0, and shifts `bit` left for the next cell. `bit` is
+ * a u16 and is narrowed after every shift, which is why the loop reads as
+ * `lsl`/`lsl`/`lsr` rather than one `lsl`.
+ *
+ * The output is a u16 grid at +0x40 with 32 entries per row, offset by
+ * `xBase` entries and `yBase` rows. xBase/yBase are the block counts put back
+ * into grid space: `(0x28 - (w - 10)) / 2 + 10` and `(0x28 - (h - 10)) / 2 + 2`.
+ */
+// Nonmatching: 36.4%, and it is a long way from done -- worth recording what is
+// known so the next pass does not re-derive it.
+//
+//   * The block counts are `0x28 - (w - 10)`, not `50 - w`. mwcc keeps the
+//     inner subtract as its own instruction and folding the pair into one
+//     `50 - w` costs it. Worth 4% on its own.
+//   * `cols` spills: the target keeps `(w - 9) / 2` in r11 and allocates five
+//     stack words (`sub sp, #0x14`), this source needs seven and puts an extra
+//     `cols <= 0` guard in front of the outer loop that the target does not
+//     have -- mwcc rotated the inner loop and added the pre-header test. That
+//     rotation is what the frame-size gap and the extra check both come from.
+//   * The mask/bit inner pair, the `0x23F0` seed, the u16 narrowing of `bit`
+//     and the `ptr + (y * w + x) * 2` cell fetch are all believed correct.
+void func_ov039_02092e30(void* task) {
+    u8* self = (u8*)task;
+    u8* obj  = *(u8**)(self + 0x04);
+    s32 w    = obj[2];
+    s32 h    = obj[3];
+    u8* ptr  = *(u8**)(obj + 0x10);
+
+    /* The block counts are put back into grid space as `0x28 - (w - 10)`,
+     * not `50 - w`: mwcc keeps the inner `w - 10` / `h - 10` as its own
+     * subtract and the outer `rsb` as a separate one, and folding them into a
+     * single `50 - w` costs that instruction. */
+    s32 dw    = w - 10;
+    s32 dh    = h - 10;
+    s32 xBase = (0x28 - dw) / 2 + 10;
+    s32 yBase = (0x28 - dh) / 2 + 2;
+    s32 rows  = (h - 9) / 2;
+    s32 cols  = (w - 9) / 2;
+    s32 j;
+    s32 i;
+
+    if (rows <= 0) {
+        return;
+    }
+
+    for (j = 0; j < rows; j++) {
+        for (i = 0; i < cols; i++) {
+            u16 mask = 0x23F0;
+            u16 bit  = 1;
+            s32 y;
+            s32 x;
+
+            for (y = 5 + j * 2; y < 7 + j * 2; y++) {
+                for (x = 5 + i * 2; x < 7 + i * 2; x++) {
+                    if (*(u8*)(ptr + (y * w + x) * 2) != 0) {
+                        mask |= bit;
+                    }
+                    bit = (u16)(bit << 1);
+                }
+            }
+
+            *(u16*)(self + 0x40 + xBase * 2 + (yBase + j) * 64 + i * 2) = mask;
+        }
+    }
+}
