@@ -1805,12 +1805,6 @@ void func_ov039_0208d210(OtuBadge* task) {
  * +0x64 into +0x58. The +0x60 accumulator is then moved by +0x70 and, when it
  * overshoots, is clamped and its velocity damped by `-data_ov039_0209a300`.
  */
-// Nonmatching: 93.5%, and the gap is the two exits. The target branches both
-// the +0x74 guard and the `count <= 0` path to one shared epilogue; this source
-// has mwcc if-convert them into inline `mov r0, #1` / `ldmia` pairs. Collapsing
-// the three `return 1`s into one tail with an if/else was the obvious fix and
-// is wrong -- it scores 87.5%, because the else half then moves the stores off
-// the target's fall-through path.
 s32 func_ov039_02094ca8(void* pool, void* task) {
     u8* sprite = *(u8**)((u8*)task + 0x18);
     s32 count;
@@ -1819,47 +1813,52 @@ s32 func_ov039_02094ca8(void* pool, void* task) {
 
     (void)pool;
 
-    if (*(s32*)(sprite + 0x74) == 0) {
-        return 1;
-    }
+    /* One `return 1` at the end, and the guard arms ordered so the *clear* is
+     * the `then`: the target lays that inline as the fall-through and branches
+     * to the spring body, which `if (count > 0) { spring } else { clear }`
+     * inverts. `func_ov039_020981a4` needed the opposite polarity on its first
+     * guard -- in both cases it is the layout, not the meaning, that decides. */
+    if (*(s32*)(sprite + 0x74) != 0) {
+        count = *(s32*)(sprite + 0x80) - 1;
+        *(s32*)(sprite + 0x80) = count;
 
-    count = *(s32*)(sprite + 0x80) - 1;
-    *(s32*)(sprite + 0x80) = count;
-    if (count <= 0) {
-        *(s32*)(sprite + 0x74) = 0;
-        *(s32*)(sprite + 0x78) = 0;
-        return 1;
-    }
+        if (count <= 0) {
+            *(s32*)(sprite + 0x74) = 0;
+            *(s32*)(sprite + 0x78) = 0;
+        } else {
+            scale = (count << 13) / *(s32*)(sprite + 0x7C);
+            *(s32*)(sprite + 0x48) = scale;
+            *(s32*)(sprite + 0x44) = scale;
 
-    scale = (count << 13) / *(s32*)(sprite + 0x7C);
-    *(s32*)(sprite + 0x48) = scale;
-    *(s32*)(sprite + 0x44) = scale;
+            v = *(s32*)(sprite + 0x6C) - data_ov039_0209a304;
+            *(s32*)(sprite + 0x6C) = v;
+            if (v < 0) {
+                *(s32*)(sprite + 0x6C) = 0;
+            }
 
-    v = *(s32*)(sprite + 0x6C) - data_ov039_0209a304;
-    *(s32*)(sprite + 0x6C) = v;
-    if (v < 0) {
-        *(s32*)(sprite + 0x6C) = 0;
-    }
+            *(s32*)(sprite + 0x70) = *(s32*)(sprite + 0x70) + data_ov039_0209a310;
 
-    *(s32*)(sprite + 0x70) = *(s32*)(sprite + 0x70) + data_ov039_0209a310;
+            func_ov039_02098c00(*(s32*)(sprite + 0x6C),
+                                (OtuPoint*)(sprite + 0x64),
+                                (OtuPoint*)(sprite + 0x58),
+                                (OtuPoint*)(sprite + 0x58));
 
-    func_ov039_02098c00(*(s32*)(sprite + 0x6C), (OtuPoint*)(sprite + 0x64),
-                        (OtuPoint*)(sprite + 0x58), (OtuPoint*)(sprite + 0x58));
+            v = *(s32*)(sprite + 0x60) + *(s32*)(sprite + 0x70);
+            *(s32*)(sprite + 0x60) = v;
+            if (v > 0) {
+                *(s32*)(sprite + 0x60) = 0;
+                if (*(s32*)(sprite + 0x70) > 0) {
+                    *(s32*)(sprite + 0x70) =
+                        (s32)(((s64)*(s32*)(sprite + 0x70) *
+                               -data_ov039_0209a300 + 0x800) >>
+                              12);
+                }
+            }
 
-    v = *(s32*)(sprite + 0x60) + *(s32*)(sprite + 0x70);
-    *(s32*)(sprite + 0x60) = v;
-    if (v > 0) {
-        *(s32*)(sprite + 0x60) = 0;
-        if (*(s32*)(sprite + 0x70) > 0) {
-            *(s32*)(sprite + 0x70) =
-                (s32)(((s64)*(s32*)(sprite + 0x70) * -data_ov039_0209a300 +
-                       0x800) >>
-                      12);
+            Sprite_Update((Sprite*)sprite);
+            *(s32*)(sprite + 0x78) = 1;
         }
     }
-
-    Sprite_Update((Sprite*)sprite);
-    *(s32*)(sprite + 0x78) = 1;
     return 1;
 }
 
