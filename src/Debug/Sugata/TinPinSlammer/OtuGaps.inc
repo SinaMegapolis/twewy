@@ -44,6 +44,13 @@ extern const TaskStages data_ov039_0209a078;
 void func_ov039_02091788(void* self, void* params);
 void func_ov039_02094bac(void* self, void* params);
 
+/* The two more the +0x68/+0x78 family re-derives the block through. */
+void func_ov039_020911dc(void* self, void* params);
+void func_ov039_020980b8(void* self, void* params);
+
+extern const TaskHandle     data_ov039_0209955c;
+extern const SpriteAnimation data_ov039_0209a088;
+
 /* ------------------------------------------------------------------ */
 /* The pin task's own queries, 0x0208ee84 - 0x0208efb0.                */
 /* ------------------------------------------------------------------ */
@@ -1075,4 +1082,176 @@ void func_ov039_02098af4(void* task, void* arg) {
 
     Mem_Free(*(Heap**)(self + 0x00), ptr);
     *(s32*)(self + 0x14) = 0;
+}
+
+/**
+ * @brief Resets the block at task+0x18 and re-derives it through +0x11dc.
+ *
+ * The first store is the *pool*, not a field of the block's own state: the
+ * block's word 0 is the heap it will later allocate out of. The zero and
+ * 0x1000 runs are written in the target's order rather than by address.
+ */
+s32 func_ov039_02091268(TaskPool* pool, void* task, void* arg) {
+    u8* block = *(u8**)((u8*)task + 0x18);
+
+    *(TaskPool**)(block + 0x00) = pool;
+    *(s32*)(block + 0x6C) = 0;
+    *(s32*)(block + 0x68) = *(s32*)((u8*)arg + 0x4);
+    *(s32*)(block + 0x54) = 0;
+    *(s32*)(block + 0x58) = 0;
+    *(s32*)(block + 0x5C) = 0;
+    *(s32*)(block + 0x60) = 0;
+    *(s32*)(block + 0x64) = 0;
+    *(s32*)(block + 0x44) = 0;
+    *(s32*)(block + 0x48) = 0x1000;
+    *(s32*)(block + 0x4C) = 0x1000;
+    *(s16*)(block + 0x50) = 0;
+    *(s16*)(block + 0x52) = 0;
+    *(s32*)(block + 0x80) = 0;
+
+    func_ov039_020911dc(block, block + 4);
+    return 1;
+}
+
+// Nonmatching: 96.9%, the same one-register class as func_ov039_02091814 and
+// func_ov039_02094c50. The target puts the value read from arg+4 in r3 and the
+// materialised 0 in ip; this source keeps the value in r2 -- recycling the arg
+// register -- and the zero in r3. Giving the value a named local makes it worse
+// (80%), not better. Everything else agrees.
+/** The same reset against the +0x80b8 helper, over a longer zero run. */
+s32 func_ov039_02098144(TaskPool* pool, void* task, void* arg) {
+    u8* block = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    *(s32*)(block + 0x7C) = 0;
+    *(s32*)(block + 0x80) = 0;
+    *(s32*)(block + 0x78) = *(s32*)((u8*)arg + 0x4);
+    *(s32*)(block + 0x50) = 0;
+    *(s32*)(block + 0x54) = 0;
+    *(s32*)(block + 0x58) = 0;
+    *(s32*)(block + 0x5C) = 0;
+    *(s32*)(block + 0x60) = 0;
+    *(s32*)(block + 0x64) = 0;
+    *(s32*)(block + 0x68) = 0;
+    *(s32*)(block + 0x40) = 0;
+    *(s32*)(block + 0x44) = 0x2000;
+    *(s32*)(block + 0x48) = 0x2000;
+    *(s16*)(block + 0x4C) = 0;
+    *(s16*)(block + 0x4E) = 0;
+
+    func_ov039_020980b8(block, block);
+    return 1;
+}
+
+/** Loads the sprite for the task whose anim template is data_ov039_0209a088. */
+void func_ov039_020985e0(void* self, void* sprite) {
+    SpriteAnimation anim = data_ov039_0209a088;
+
+    anim.owner    = self;
+    anim.dataType = (u16) * (s32*)self;
+    _Sprite_Load((Sprite*)sprite, &anim);
+}
+
+/**
+ * @brief Runs the group's stage at +0x10/+0x14 and records a position pair.
+ *
+ * The group is an element of `g_DisplaySettings.engineState`, sized 0x220,
+ * which is what folds the +0x64 addend into the pool word: spelling the base as
+ * a raw `+ 0x64` leaves mwcc materialising `g_DisplaySettings` and then adding
+ * 0x64 in a register. The stage kind is the first word of `bgSettings[b]` and is
+ * a real `switch` -- the target builds a six-entry jump table rather than
+ * testing the values, so an `if` chain is not interchangeable here. Cases 1-5
+ * share one body and case 0 falls through to `default`, which is why the
+ * table's first entry lands on the same label as the out-of-range branch.
+ *
+ * The three writes land on `bgAffines[b].unk_14` and the `bgOffsets[b]` pair.
+ */
+// Nonmatching: 98.5%, and the complete gap is one register rename. The target
+// keeps the engine-state index in r4 and the group pointer in lr; this source
+// has them the other way round, so every `mla`/`add` reads `r4` where the
+// target reads `lr`. mwcc hoists the pool-constant load to the top of the
+// block, which is what makes the group pointer win r4; the target loads the
+// index first. Ten shapes were tried -- all six declaration orders, no named
+// group local at all (leaving the address to CSE), array decay instead of
+// &array[i], a named base local, and both load orders -- and four of them score
+// identically here while the rest are worse. Every other instruction agrees.
+void func_ov039_02092348(void* self, s32 x, s32 y) {
+    s32 a = *(s32*)((u8*)self + 0x10);
+    s32 b = *(s32*)((u8*)self + 0x14);
+    DisplayEngineState* group = g_DisplaySettings.engineState + a;
+    switch (group->bgSettings[b].bgMode) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            group->bgAffines[b].unk_14 = 1;
+            break;
+
+        default:
+            break;
+    }
+
+    group->bgOffsets[b].hOffset = x;
+    group->bgOffsets[b].vOffset = y;
+}
+
+/**
+ * @brief Promotes the +0x0C word into +0x04, optionally allocates, then calls
+ *        the +0x04 object's first handler.
+ *
+ * The allocation is sized by the +0x0C word of the object that was just moved
+ * into +0x04, which is why that word is tested before the call. The handler is
+ * one `&&` chain for the same reason as `func_ov039_02098af4`.
+ */
+void func_ov039_02098a60(void* task, void* arg) {
+    u8*   self = (u8*)task;
+    u8*   obj;
+    s32   size;
+    void (*fn)(void*);
+
+    if (*(s32*)(self + 0x10) == 0) {
+        return;
+    }
+
+    *(s32*)(self + 0x04) = *(s32*)(self + 0x0C);
+    *(s32*)(self + 0x08) = 0;
+    *(s32*)(self + 0x0C) = 0;
+    *(s32*)(self + 0x10) = 0;
+
+    obj  = *(u8**)(self + 0x04);
+    size = *(s32*)(obj + 0x0C);
+    if (size != 0) {
+        *(void**)(self + 0x14) = Mem_AllocHeapTail(*(Heap**)(self + 0x00), size);
+    }
+
+    obj = *(u8**)(self + 0x04);
+    if (obj != NULL && (fn = *(void (**)(void*))(obj + 0x00)) != NULL) {
+        fn(arg);
+    }
+}
+
+/**
+ * @brief Spawns the group task and its eight children, returning the handle.
+ *
+ * The children are named into the group's +0x84 array, which is the same
+ * `OtuChildGroup` layout `func_ov039_02091524` and `func_ov039_02091690` walk.
+ */
+s32 func_ov039_020915a8(TaskPool* pool, s32 word0, s32 word1) {
+    OtuTaskParams  args;
+    s32            handle;
+    OtuChildGroup* group;
+    s32            i;
+
+    args.word0 = word0;
+    args.word1 = word1;
+
+    handle = EasyTask_CreateTask(pool, &data_ov039_0209955c, NULL, 0, NULL, &args);
+    group  = EasyTask_GetTaskData(pool, handle);
+
+    for (i = 0; i < 8; i++) {
+        group->ids[i] = func_ov039_02097e68(pool, word0, word1);
+    }
+    return handle;
 }
