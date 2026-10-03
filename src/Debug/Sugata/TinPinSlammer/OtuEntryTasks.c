@@ -725,8 +725,12 @@ void func_ov039_02095cd4(OtuPointTask* self, s32 count) {
     // Both indices are narrowed to s16 *before* they are used, not at the call:
     // the target's `lsl #0x10` / `asr #0x10` pair lands ahead of the argument
     // loads, and for the second one ahead of the `<= 1` compare. Passing the
-    // narrowed value on is what reproduces that.
-    first = (s16)(count % 10 + 1);
+    // narrowed value on is what reproduces that. The first one must also be
+    // materialised through `last` first -- the store is overwritten at `last =`
+    // below and is dead, but mwcc's allocation for the first digit only matches
+    // when the value goes through that slot (found by the permuter; objdiff 100%).
+    last  = (count % 10) + 1;
+    first = (s16)last;
     Sprite_ChangeAnimation(&self->sprite[2], self->sprite[2].animData, first, self->sprite[2].cellTable);
 
     last = (s16)((self->unk_11C / 10) % 10 + 1);

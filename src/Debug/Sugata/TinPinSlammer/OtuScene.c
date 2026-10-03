@@ -202,6 +202,7 @@ void func_ov039_020827d0(TinPinSlammer_Scene* scene) {
     // the stage offset to that, so mwcc keeps one base in a register instead
     // of re-deriving a typed pointer at each of the nine uses below.
     u8* base = (u8*)scene;
+    s32 reset;
     func_ov039_02098a60(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), scene);
     func_ov039_02098acc(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), scene);
 
@@ -229,7 +230,10 @@ void func_ov039_020827d0(TinPinSlammer_Scene* scene) {
             } break;
         }
 
-        if (SystemStatusFlags.reset != 0) {
+        // A named temp, not `if (SystemStatusFlags.reset != 0)`: the target
+        // materialises the flag in a register first. (Permuter finding; objdiff 100%.)
+        reset = (SystemStatusFlags.reset != 0);
+        if (reset) {
             func_ov040_0209d990();
             func_ov039_02098a40(((OtuStageDispatch*)(base + TIN_PIN_SLAMMER_STAGE_OFFSET)), &OtuScene_WirelessStage);
         }
