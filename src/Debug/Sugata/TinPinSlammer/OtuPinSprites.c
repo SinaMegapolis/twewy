@@ -1,5 +1,10 @@
 #include "OtuFieldAccessShared.h"
 
+/*
+ * ov039 region 0x0208f00c - 0x0209003c. One translation unit of the
+ * overlay; dsd gives each file a single contiguous `.text` claim. The
+ * shared types, externs and prototypes are in OtuFieldAccessShared.h.
+ */
 // Size: 0x74
 
 /* The piyo and marker keep their two pin pairs at +0x40 and +0x48, where the

@@ -1,5 +1,10 @@
 #include "OtuFieldAccessShared.h"
 
+/*
+ * ov039 region 0x02098394 - 0x02098bb0. One translation unit of the
+ * overlay; dsd gives each file a single contiguous `.text` claim. The
+ * shared types, externs and prototypes are in OtuFieldAccessShared.h.
+ */
 /** Spawns one child of a simulation task, packing two words of args.
  *
  * Typed as returning the new task's handle, because Tsk_OtosuGame_hammer's

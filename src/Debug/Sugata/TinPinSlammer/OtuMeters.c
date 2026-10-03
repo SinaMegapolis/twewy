@@ -1,5 +1,10 @@
 #include "OtuFieldAccessShared.h"
 
+/*
+ * ov039 region 0x0209003c - 0x02092484. One translation unit of the
+ * overlay; dsd gives each file a single contiguous `.text` claim. The
+ * shared types, externs and prototypes are in OtuFieldAccessShared.h.
+ */
 /** Splits a fixed-point value into a screen offset. */
 #define OTU_ANGLE_INDEX(a) (((s32)((a) >> 4)) * 2)
 

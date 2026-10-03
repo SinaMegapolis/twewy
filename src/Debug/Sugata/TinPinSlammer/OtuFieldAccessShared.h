@@ -1,6 +1,15 @@
 #ifndef OTU_FIELDACCESS_SHARED_H
 #define OTU_FIELDACCESS_SHARED_H
 
+/*
+ * Private declarations for the ov039 region files (OtuFieldAccess.c,
+ * OtuBoard.c, ...). dsd claims one contiguous `.text` range per source file,
+ * so the overlay is split by address; everything the regions share --
+ * typedefs, externs, file-scope macros and function prototypes -- lives
+ * here, in the order the original single translation unit declared it.
+ * See docs/overlays.md for the layout.
+ */
+
 #include "CriSndMgr.h"
 #include "Debug/Sugata/TinPinSlammer.h"
 #include "EasyFade.h"

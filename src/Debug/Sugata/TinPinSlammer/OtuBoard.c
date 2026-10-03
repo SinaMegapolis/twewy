@@ -1,5 +1,10 @@
 #include "OtuFieldAccessShared.h"
 
+/*
+ * ov039 region 0x02088698 - 0x02089950. One translation unit of the
+ * overlay; dsd gives each file a single contiguous `.text` claim. The
+ * shared types, externs and prototypes are in OtuFieldAccessShared.h.
+ */
 /** The round's per-slot score, a `u16` at data_02071cf0 + 0x3434.
  *
  *  The target reaches it as `add rX, rbase, rI, lsl #1 / add rX, rX, #0x3400 /

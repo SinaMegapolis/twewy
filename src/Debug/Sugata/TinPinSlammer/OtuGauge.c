@@ -1,5 +1,10 @@
 #include "OtuFieldAccessShared.h"
 
+/*
+ * ov039 region 0x02094214 - 0x020950b8. One translation unit of the
+ * overlay; dsd gives each file a single contiguous `.text` claim. The
+ * shared types, externs and prototypes are in OtuFieldAccessShared.h.
+ */
 /* ------------------------------------------------------------------ */
 /* The cell builder, 0x02094214.                                       */
 /* ------------------------------------------------------------------ */

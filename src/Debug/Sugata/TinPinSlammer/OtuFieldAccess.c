@@ -1,14 +1,11 @@
 #include "OtuFieldAccessShared.h"
 
 /*
- * This is the overlay's catch-all translation unit. Besides the helpers
- * described below, it carries every function whose address is interleaved with
- * them -- the board, badge, wireless and simulation task families. dsd gives a
- * source file exactly one contiguous `.text` claim and forbids overlapping
- * claims, so those groups cannot be split into their own files without moving
- * functions across address ranges. They used to live in sixteen `.inc` band
- * files `#include`d at the bottom; they are now inlined here so that the tree
- * has no `.inc` sources.
+ * ov039 region file, 0x020883ac - 0x02088698. One of the overlay's translation
+ * units; dsd gives each file a single contiguous `.text` claim. The types,
+ * externs and prototypes these region files share live in
+ * OtuFieldAccessShared.h. The notes below describe the overlay's field-accessor
+ * family, whose functions are spread across this and the neighbouring regions.
  */
 
 /**

@@ -898,12 +898,17 @@ owns a fan-out of eight children.
 ### Traps in this overlay, and what each one cost
 
 > Note added after the fact: the `.inc` "band files" referenced throughout this
-> section have since been inlined into `OtuFieldAccess.c`, which is now the
-> overlay's one catch-all translation unit (dsd gives a source file a single
-> contiguous `.text` claim, and the bands interleave, so no per-band TU was
-> possible). The traps are kept as a record of what the layout cost. In
-> particular, Trap 3's `-ipa file` stale-cache hazard no longer applies: an edit
-> to `OtuFieldAccess.c` invalidates its own object normally.
+> section have since been removed. The overlay's interleaved groups were first
+> inlined into a single `OtuFieldAccess.c`, then repartitioned into one real
+> translation unit per contiguous `.text` range (`OtuBoard.c`, `OtuPinLogic.c`,
+> `OtuBadgeState.c`, ...), with the types, externs and prototypes they share in
+> `OtuFieldAccessShared.h`. dsd gives a source file a single contiguous `.text`
+> claim, so the split points are address ranges, not call-graph groups; the
+> region files take their names from the group that dominates each range. The
+> traps are kept as a record of what the old layout cost. Trap 3's `-ipa file`
+> stale-cache hazard no longer applies: each region file now includes the shared
+> header directly and edits invalidate their own objects normally. Run
+> `python tools/check_band_order.py` to confirm every region declares what it uses.
 
 These are all ways of being *wrong without finding out*. None of them produced an
 error, a warning, or a failed build; each one had to be caught by looking at

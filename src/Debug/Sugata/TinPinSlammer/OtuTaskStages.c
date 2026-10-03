@@ -1,5 +1,10 @@
 #include "OtuFieldAccessShared.h"
 
+/*
+ * ov039 region 0x020960bc - 0x0209702c. One translation unit of the
+ * overlay; dsd gives each file a single contiguous `.text` claim. The
+ * shared types, externs and prototypes are in OtuFieldAccessShared.h.
+ */
 /** Releases the two sprites at self + 0 and self + 0x40. */
 s32 func_ov039_020960bc(void* pool, void* task, void* args) {
     u8* self = *(u8**)((u8*)task + 0x18);
