@@ -53,6 +53,13 @@ void func_ov039_020980b8(void* self, void* sprite, s32* args);
 
 extern const TaskHandle     data_ov039_0209955c;
 extern const SpriteAnimation data_ov039_0209a088;
+extern s32*                  data_ov039_0209a620[];
+
+/* The child-tile setup helper func_ov039_020929ec drives. */
+void func_ov039_0209276c(void* self, s32 value);
+
+/* The per-child step func_ov039_02091070 runs four times. */
+void func_ov039_020983c8(void* data, OtuPoint* pt, void* table, s32 index);
 extern const SpriteAnimation data_ov039_020995c0;
 extern const SpriteAnimation data_ov039_02099578;
 extern const SpriteAnimation data_ov039_02099c80;
@@ -1327,4 +1334,265 @@ void func_ov039_0209041c(OtuHammer* self, Sprite* sprite, OtuHammer_Params* para
     anim.posX     = *(s32*)((u8*)self + 0xB4) >> 12;
     anim.posY     = *(s32*)((u8*)self + 0xB8) >> 12;
     _Sprite_Load(sprite, &anim);
+}
+
+/* ------------------------------------------------------------------ */
+/* The resource teardown pair and the palette-source installers.       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Releases every screen, char, palette and data handle the block holds.
+ *
+ * The six manager calls run in pairs per display: screen, char, then palette,
+ * with the palette manager indexed separately from the two Bg resource
+ * managers. The final pair releases the data handle at +0x48 and the sprite
+ * block at +4.
+ */
+s32 func_ov039_02098920(void* pool, void* task) {
+    u8* block = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    BgResMgr_ReleaseScreen(g_BgResourceManagers[0], *(BgResource**)(block + 0x54));
+    BgResMgr_ReleaseChar(g_BgResourceManagers[0], *(BgResource**)(block + 0x50));
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0],
+                               *(PaletteResource**)(block + 0x4C));
+
+    BgResMgr_ReleaseScreen(g_BgResourceManagers[1], *(BgResource**)(block + 0x60));
+    BgResMgr_ReleaseChar(g_BgResourceManagers[1], *(BgResource**)(block + 0x5C));
+    PaletteMgr_ReleaseResource(g_PaletteManagers[1],
+                               *(PaletteResource**)(block + 0x58));
+
+    DatMgr_ReleaseData(*(Data**)(block + 0x48));
+    Sprite_Release((Sprite*)(block + 4));
+    return 1;
+}
+
+/** The two-wide background slot group torn down by `func_ov039_02092bf8`. */
+typedef struct {
+    /* 0x00 */ u8               pad_00[0x04];
+    /* 0x04 */ Heap*            heap;
+    /* 0x08 */ s32              flag;
+    /* 0x0C */ u8               pad_0C[0x04];
+    /* 0x10 */ Data*            dataIds[2];
+    /* 0x18 */ PaletteResource* paletteIds[2];
+    /* 0x20 */ BgResource*      charIds[2];
+    /* 0x28 */ u8               pad_28[0x50];
+    /* 0x78 */ void*            buffers[2];
+} OtuBgGroup; // Size: 0x80
+
+/**
+ * @brief The two-wide version of the same teardown, plus a slot free.
+ *
+ * Returns early when +0x08 is clear, and that early `return 1` is what lets
+ * mwcc if-convert the guard into `moveq`/`popeq` -- the sibling
+ * `func_ov039_0209411c` had to spell its guard the other way round to stop it.
+ */
+s32 func_ov039_02092bf8(void* pool, void* task) {
+    OtuBgGroup* group = *(OtuBgGroup**)((u8*)task + 0x18);
+    s32         i;
+
+    (void)pool;
+
+    if (group->flag == 0) {
+        return 1;
+    }
+
+    func_0200d954(0, 2);
+    func_0200d954(0, 3);
+
+    for (i = 0; i < 2; i++) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[0], group->charIds[i]);
+        PaletteMgr_ReleaseResource(g_PaletteManagers[0], group->paletteIds[i]);
+        Mem_Free(group->heap, group->buffers[i]);
+        DatMgr_ReleaseData(group->dataIds[i]);
+    }
+    return 1;
+}
+
+/**
+ * @brief Points palette manager 0 at five sources, one per 0x14-strided slot.
+ *
+ * Each slot is a frame cursor at +0 and a palette resource at +0x10; the cursor
+ * is stepped by `func_ov039_02098dbc` and its result is the source palette, so
+ * the call has to be the third argument expression and not hoisted into a
+ * statement of its own.
+ */
+s32 func_ov039_02092154(void* pool, void* task) {
+    u8* block = *(u8**)((u8*)task + 0x18);
+
+    (void)pool;
+
+    /* Spelled out five times rather than looped: the target unrolls it. */
+    PaletteMgr_SetSource(g_PaletteManagers[0], *(PaletteResource**)(block + 0x64),
+                         (void*)func_ov039_02098dbc(block + 0x54));
+    PaletteMgr_SetSource(g_PaletteManagers[0], *(PaletteResource**)(block + 0x78),
+                         (void*)func_ov039_02098dbc(block + 0x68));
+    PaletteMgr_SetSource(g_PaletteManagers[0], *(PaletteResource**)(block + 0x8C),
+                         (void*)func_ov039_02098dbc(block + 0x7C));
+    PaletteMgr_SetSource(g_PaletteManagers[0], *(PaletteResource**)(block + 0xA0),
+                         (void*)func_ov039_02098dbc(block + 0x90));
+    PaletteMgr_SetSource(g_PaletteManagers[0], *(PaletteResource**)(block + 0xB4),
+                         (void*)func_ov039_02098dbc(block + 0xA4));
+    return 1;
+}
+
+/** The block `func_ov039_020929ec` stores its params into and then sets up. */
+typedef struct {
+    /* 0x00 */ s32 word0;
+    /* 0x04 */ s32 word1;
+    /* 0x08 */ s32 active;
+    /* 0x0C */ u8* selector;
+    /* 0x10 */ u8  pad_10[0x80];
+    /* 0x90 */ s32 flagsA[2];
+    /* 0x98 */ s32 flagsB[2];
+} OtuTileSetup; // Size: 0xA0
+
+/**
+ * @brief Stores the three-word params block and runs the tile setup twice.
+ *
+ * +0x0C is a pointer to a byte that both selects the table in
+ * `data_ov039_0209a620` and gates the whole body: when it is zero the block is
+ * still written and the function returns, which is the `else` half of the
+ * `movne`/`strne`/`bne` sequence rather than an early guard.
+ */
+s32 func_ov039_020929ec(void* pool, void* task, s32* params) {
+    OtuTileSetup* self = *(OtuTileSetup**)((u8*)task + 0x18);
+    s32           i;
+
+    (void)pool;
+
+    self->word0    = params[0];
+    self->word1    = params[1];
+    self->selector = (u8*)params[2];
+
+    if (*self->selector != 0) {
+        self->active = 1;
+    } else {
+        self->active = 0;
+        return 1;
+    }
+
+    for (i = 0; i < 2; i++) {
+        func_ov039_0209276c(self, data_ov039_0209a620[*self->selector][i]);
+        self->flagsA[i] = 0;
+        self->flagsB[i] = 0;
+    }
+    return 1;
+}
+
+/**
+ * @brief The +0x8538 member of the sprite-slot selector family.
+ *
+ * Byte-for-byte the shape of `func_ov039_0209352c`: the same
+ * `&data_0206b408` pointer, the same three flat short-circuit tests over +0x18,
+ * +0x1C and +0x16, the same two-step u16 lookup, and `depthKey` set to 3 rather
+ * than computed. The tail sets `depthKey` only -- there is no +0x0C write here,
+ * which is what separates this one from `func_ov039_0208d2f8`.
+ */
+// Nonmatching: 88.7%, byte-for-byte the same gap as func_ov039_0209352c, which
+// this is a copy of. The target reloads the +0x16 index and the +0x1C table
+// pointer after the `slot->unk_04` store (`ldrsh r2, [r0, #0x16]` / `ldr r3,
+// [r0, #0x1c]`); this source keeps both in registers across that store, so the
+// second half of the two-step lookup reads `r12` where the target reads `r3`.
+// Writing the lookup through `t`'s fields rather than the locals does not
+// restore the reload either -- the store to `slot` is a global and mwcc has
+// already decided it cannot alias `t`.
+OtuSpriteSlot* func_ov039_02098538(OtuSpriteTask* t, s32 arg, s32 sel) {
+    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
+
+    switch (sel) {
+        case 1:
+            slot->unk_00 = 1;
+            return slot;
+
+        case 2: {
+            s32 index;
+            u8* table;
+
+            slot->unk_04   = 0;
+            slot->unk_08   = 0;
+            slot->unk_0C   = 0;
+            slot->depthKey = -1;
+
+            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
+                (index = *(s16*)((u8*)t + 0x16)) >= 0)
+            {
+                slot->unk_04 = ((u16*)table)[index * 4 + 1];
+                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
+            }
+
+            slot->depthKey = 3;
+            return slot;
+        }
+
+        default:
+            return NULL;
+    }
+}
+
+/** The four-child arc group stepped by `func_ov039_02091070`. */
+typedef struct {
+    /* 0x00 */ TaskPool* pool;
+    /* 0x04 */ u8        pad_04[0xA8];
+    /* 0xAC */ OtuPoint  home;
+    /* 0xB4 */ u8        pad_B4[0x08];
+    /* 0xBC */ OtuPoint  center;
+    /* 0xC4 */ u8        pad_C4[0x64];
+    /* 0x128 */ s32      ids[4];
+} OtuArcGroup; // Size: 0x138
+
+/**
+ * @brief Steps the four child tasks named by +0x128 and places them along an arc.
+ *
+ * Child 0 is placed at the raw `home` pair against the +0x84 table; the other
+ * three are placed by difference -- `func_ov039_02098bb0` takes the arc chord
+ * between `home` and `center`, then `func_ov039_02098c00` scales it by a quarter
+ * of the phase counter and adds it back to `center`, against the +0x94 table.
+ * The phase advances 0x1000 per child and is divided by 4 when used, so the
+ * scale runs 0, 0x400, 0x800, 0xC00.
+ */
+// Nonmatching: 89.4%, and the gap is one register's worth of allocation. The
+// target gives `table` its own callee-saved register (r7) and so needs six plus
+// a `push {r3, ...}` alignment dummy; this source computes `table` straight
+// into the call's r2 and needs only five. Every other difference follows from
+// that: the whole register naming shifts by one because the values pack
+// tighter. Three things were real and are fixed -- the ids load needs a typed
+// `ids[4]` at +0x128 or mwcc strength-reduces `i * 4` into a running offset
+// instead of the `add rN, rN, rN, lsl #2` the target has; the `/ 4` must be
+// taken of `i * 0x1000` rather than of an accumulator, or mwcc folds the divide
+// into the induction variable and advances it by 0x400 instead of 0x1000; and
+// the home pair has to be loaded before either is stored or the two do not come
+// out in the target's order. Declaration order of `table` and of the home pair
+// makes no difference.
+void func_ov039_02091070(OtuArcGroup* self) {
+    OtuPoint pt;
+    s32      i;
+
+    for (i = 0; i < 4; i++) {
+        void* table;
+        void* data = EasyTask_GetTaskData(self->pool, self->ids[i]);
+
+        if (i == 0) {
+            s32 hy = self->home.y;
+            s32 hx = self->home.x;
+
+            pt.x  = hx;
+            pt.y  = hy;
+            table = (u8*)self + 0x84;
+        } else {
+            /* `i * 0x1000` is spelled out rather than kept as an accumulator:
+             * mwcc strength-reduces the product into a `+ 0x1000` counter but
+             * still emits a real signed divide for the `/ 4`, which is what the
+             * target has. An accumulator declared outside the loop gets the
+             * divide folded into it and advances by 0x400 instead. */
+            s32 phase = i * 0x1000;
+
+            func_ov039_02098bb0(&self->home, &self->center, &pt);
+            func_ov039_02098c00(phase / 4, &pt, &self->center, &pt);
+            table = (u8*)self + 0x94;
+        }
+
+        func_ov039_020983c8(data, &pt, table, i);
+    }
 }
