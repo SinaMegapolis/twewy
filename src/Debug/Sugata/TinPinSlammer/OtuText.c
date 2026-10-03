@@ -153,10 +153,6 @@ void func_ov039_02083af4(s32* value, s32 direction, u32 place) {
  * scene calls this every frame and the result screens are static most of the
  * time.
  */
-// Nonmatching: 99.97% in objdiff, which is its ceiling here -- the residual is
-// three constant-pool `.word` symbol names, not code. Every instruction, field
-// access and branch matches, and the size is exact.
-//
 // The fix that closed this was dropping the cached `row` pointer. The target
 // re-derives it (`ldr [r4,#0]` then `add r1, r4, r0, lsl #4`) at every field
 // access, which is six instructions mwcc will not re-emit once a local has

@@ -1,25 +1,22 @@
 #!/bin/bash
-# Reseed and search several ov039 functions in one go.
+# Reseed and search the ov039 functions closest to matching, in one go.
 #
-#   bash run_permuter_batch.sh "<seconds per function>"
+#   bash run_permuter_batch.sh "<seconds per function>" [jobs] [fn ...]
 #
-# Every function in the list is re-imported from the *current* source first, so
-# each search starts from the best checkpoint found so far rather than from an
-# older one, and a win on one function does not stale the others.
+# With no function list it uses the current 95%+ imperfect set; functions given
+# on the command line replace it. run_permuter_list.sh re-imports each function
+# from the *current* source before searching, so a win on one function does not
+# stale the others.
 set -u
 
 SECS="${1:-120}"
 JOBS="${2:-8}"
-FNS="func_ov039_020827d0 func_ov039_020831d8 func_ov039_02082774 func_ov039_02082e98 func_ov039_02082ff8 func_ov039_02083ed4 func_ov039_02083cbc func_ov039_020832c0"
 
-for FN in $FNS; do
-  echo "############ $FN ############"
-  python3 tools/perm_setup.py "$FN" 2>&1 | tail -1
-  mkdir -p permtmp
-  export TMPDIR="$PWD/permtmp" TMP="$PWD/permtmp" TEMP="$PWD/permtmp"
-  timeout "$SECS" python3 \
-    /mnt/c/Users/COMIRAN/AppData/Local/Temp/opencode/decomp-permuter/permuter.py \
-    -j "$JOBS" --best-only --stop-on-zero "nonmatchings/$FN" 2>&1 | tail -2
-  ls -d "nonmatchings/$FN"/output-* 2>/dev/null \
-    | while read -r d; do printf "  %s  " "$d"; cat "$d/score.txt" 2>/dev/null || echo '?'; done
-done
+# The near-miss set as of the last campaign. Stale by design is fine here -- the
+# point of passing functions explicitly is to override it.
+DEFAULT="func_ov039_0208a490 func_ov039_020855e0 func_ov039_02092d0c func_ov039_02092348 func_ov039_02093a30 func_ov039_0208d210 func_ov039_0208fee0 func_ov039_0208e9f8"
+FNS="${*:3}"
+FNS="${FNS:-$DEFAULT}"
+
+export JOBS
+exec bash "$(dirname "$0")/run_permuter_list.sh" "$SECS" $FNS

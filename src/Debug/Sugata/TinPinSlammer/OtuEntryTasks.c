@@ -695,15 +695,6 @@ s32 func_ov039_02095ca0(TaskPool* pool, s32 dataType, s32 pin) {
  * The argument is stored at +0x11C and read back for the second digit, which
  * is why the target reloads it rather than keeping it in a register.
  */
-// Nonmatching: 96.9%. Every field, constant, both loop strides and the whole
-// loop body match, as do both magic-multiply divides, the early return and the
-// second animation narrowing. The single residual is mwcc's scheduling of the
-// *first* narrowing: the target keeps the `lsl #0x10` / `asr #0x10` pair
-// adjacent and emits it before the call's argument loads, whereas this version
-// splits the pair and sinks the `asr` past them. The value, the register (r2) and
-// the instruction count are all the same -- only the placement differs. Writing
-// the cast inline at the call site instead of through the `first` local makes no
-// difference, and neither does dropping the now-unused offset counter.
 void func_ov039_02095cd4(OtuPointTask* self, s32 count) {
     s32 i;
     s16 first;

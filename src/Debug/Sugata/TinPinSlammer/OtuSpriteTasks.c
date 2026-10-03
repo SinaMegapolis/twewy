@@ -185,9 +185,6 @@ s32 func_ov039_020971b0(TaskPool* pool, Task* task, void* param) {
 }
 
 /** The first pin-sprite's stage dispatcher. */
-// Nonmatching: 99.4%, one row -- the literal pool word naming the anonymous
-// template (`@NNNN`) where the target names it `data_ov039_02099f10`. Same bytes,
-// same instruction; see the section note. Every instruction matches.
 s32 func_ov039_020971c4(TaskPool* pool, Task* task, void* param, s32 stage) {
     OtuTaskSpriteStage stages[4] = {func_ov039_02096fcc, func_ov039_0209702c, func_ov039_02097160, func_ov039_020971b0};
 
@@ -338,11 +335,6 @@ OtuSpriteSlot* func_ov039_02097398(OtuSpriteTask* t, s32 arg, s32 mode) {
  * costs nothing in the ROM because the copy is immediate.
  */
 
-// Nonmatching: 99.9%, one row -- the literal pool word. mwcc names the template
-// `@NNNN` where the target's delinked object names it `data_ov039_02099f68`; the
-// bytes behind the two are identical. This is the relocation-naming case the
-// objdiff skill lists as ignorable, and it is the price of making the template a
-// local initialiser rather than an `extern`: see the section note above.
 void func_ov039_02097454(OtuTaskSprite* self, Sprite* sprite, s32* dataType) {
     SpriteAnimation anim = {
         /* 0x00 */ {2, 0, 0, 5, 0, 2, 0}, // 0x2282
@@ -522,7 +514,6 @@ s32 func_ov039_020976c0(TaskPool* pool, Task* task, void* param) {
 }
 
 /** The second pin-sprite's stage dispatcher. */
-// Nonmatching: 99.3%, one row -- the literal pool word naming, as above.
 s32 func_ov039_020976d4(TaskPool* pool, Task* task, void* param, s32 stage) {
     OtuTaskSpriteStage stages[4] = {func_ov039_020974e0, func_ov039_02097528, func_ov039_02097670, func_ov039_020976c0};
 
@@ -648,12 +639,6 @@ OtuSpriteSlot* func_ov039_020977d0(OtuSpriteTask* t, s32 arg, s32 mode) {
  * cell builder (func_ov039_020977d0), four of the trailing halfwords, and its
  * final `animIndex`.
  */
-// Nonmatching: 99.9%, one row -- the literal pool word. mwcc gives the template
-// an anonymous name (`@NNNN`) where the target's delinked object names it
-// `data_ov039_02099fb0`; the two point at identical bytes. This is the
-// relocation-naming case the objdiff skill lists as ignorable, and it is why
-// the template is a local initialiser rather than a referenced `extern`: see the
-// section note above. Every instruction matches.
 void func_ov039_0209788c(OtuTaskSprite* self, Sprite* sprite, s32* dataType) {
     SpriteAnimation anim = {
         /* 0x00 */ {2, 0, 0, 5, 0, 2, 0}, // 0x2282
@@ -768,7 +753,6 @@ s32 func_ov039_02097a14(TaskPool* pool, Task* task, void* param) {
 }
 
 /** The third pin-sprite's stage dispatcher. */
-// Nonmatching: 99.4%, one row -- the literal pool word naming, as above.
 s32 func_ov039_02097a28(TaskPool* pool, Task* task, void* param, s32 stage) {
     OtuTaskSpriteStage stages[4] = {func_ov039_02097918, func_ov039_02097954, func_ov039_020979cc, func_ov039_02097a14};
 
@@ -876,7 +860,6 @@ OtuSpriteSlot* func_ov039_02097ae0(OtuSpriteTask* t, s32 arg, s32 mode) {
  * `bits_12_13` is 1 instead of 2 -- and it reads its anchor from the other pair
  * of words, +0x58/+0x5C, matching the first and fourth tasks' position block.
  */
-// Nonmatching: 99.9%, one row -- the literal pool word naming, as above.
 void func_ov039_02097ba4(OtuTaskSprite* self, Sprite* sprite, s32* dataType) {
     SpriteAnimation anim = {
         /* 0x00 */ {2, 0, 0, 5, 0, 1, 0}, // 0x1282
@@ -1017,7 +1000,6 @@ s32 func_ov039_02097e0c(TaskPool* pool, Task* task, void* param) {
 }
 
 /** The fourth pin-sprite's stage dispatcher. */
-// Nonmatching: 99.3%, one row -- the literal pool word naming, as above.
 s32 func_ov039_02097e20(TaskPool* pool, Task* task, void* param, s32 stage) {
     OtuTaskSpriteStage stages[4] = {func_ov039_02097c30, func_ov039_02097c90, func_ov039_02097dbc, func_ov039_02097e0c};
 

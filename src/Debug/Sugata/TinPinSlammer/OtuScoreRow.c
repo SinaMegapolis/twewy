@@ -194,12 +194,8 @@ void func_ov039_020841a0(TinPinSlammer_Scene* scene, s32 which, s32 step) {
  * the 0x20 hide flag, the character at that column's offset is blanked, which is
  * how a hidden column keeps the row's shape without a digit in it.
  */
-// Nonmatching: 99.95%, which is the ceiling here -- the single remaining
-// difference is one constant-pool `.word` symbol name. Every instruction,
-// field access, branch and the size match exactly.
-//
-// Three things had to be written the way they are, each of which is worth
-// keeping if this function is revisited:
+// Three things are written the way they are, each worth keeping if this
+// function is revisited:
 //
 //   * `row` is `char[0x1D]`, not `char[0x18]`. Only 0x19 bytes are ever
 //     touched (six 4-byte groups plus a terminator at 0x18), but declaring the
@@ -275,11 +271,6 @@ void func_ov039_020842bc(TinPinSlammer_Scene* scene, s32 which) {
  * Clears the table's flags afterwards, so the hide-column check in the row
  * builders re-evaluates from scratch on the next frame.
  */
-// Nonmatching: 99.88%, which is its ceiling here -- the residual is one
-// constant-pool `.word` symbol name and nothing else, the same one that keeps
-// func_ov039_020844f8 at 99.91%. The target's countdown base is an unnamed
-// delinker symbol, `data_ov039_0209a3dc`; this build reaches the same address
-// through the named `OtuText_Shadow`, which is what OTU_COUNTDOWN_COLUMN spells.
 void func_ov039_02084458(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     s32*        base  = OTU_COUNTDOWN_COLUMN(slot);
@@ -322,9 +313,6 @@ void func_ov039_02084458(TinPinSlammer_Scene* scene, s32 slot, s32 step) {
  * terminator -- the target overwrites it with a NUL rather than reserving a
  * separate byte.
  */
-// Nonmatching: 99.82%, which is its ceiling here -- the residual is two
-// constant-pool `.word` symbol names and nothing else.
-//
 // `row` is declared `char[0x20]` although only 0x18 bytes are used, and the
 // trailing space at 0x17 is written *before* the blanking check and then
 // overwritten with the terminator *after* it. Both are deliberate: the exact
@@ -393,8 +381,7 @@ void func_ov039_020845dc(TinPinSlammer_Scene* scene, s32 step) {
  * the others -- the stage names a column and sets the 0x20 flag, and that
  * character is blanked.
  */
-// Nonmatching: 99.74%, which is its ceiling here -- two constant-pool `.word`
-// symbol names and nothing else. Note there is deliberately no explicit space
+// Note there is deliberately no explicit space
 // store after the group: the target relies on func_ov039_02083a20's own
 // trailing space and writes only the NUL terminator, and adding a redundant
 // `row[5] = ' '` costs a register (91.6% -> 99.7%).
@@ -450,8 +437,7 @@ void func_ov039_020846c4(TinPinSlammer_Scene* scene, s32 step) {
     table->flags = 0;
 }
 
-// Nonmatching: 99.89%, which is its ceiling -- one constant-pool `.word` symbol
-// name. Note the deliberate absence of a trailing space store: the target emits
+// Note the deliberate absence of a trailing space store: the target emits
 // only the NUL terminator after the last group, and writing the space as well
 // costs a register (93.0%).
 void func_ov039_02084738(TinPinSlammer_Scene* scene) {
@@ -472,8 +458,6 @@ void func_ov039_02084738(TinPinSlammer_Scene* scene) {
     Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x98, row);
 }
 
-// Nonmatching: 99.71%, ceiling -- one pool symbol name. No trailing space
-// store, as above.
 void func_ov039_02084874(TinPinSlammer_Scene* scene) {
     char        row[0x20];
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -493,7 +477,6 @@ void func_ov039_02084874(TinPinSlammer_Scene* scene) {
     Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0xA0, row);
 }
 
-// Nonmatching: 100% -- objdiff reports MATCH.
 void func_ov039_020849a4(TinPinSlammer_Scene* scene) {
     char        row[0x20];
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -510,7 +493,6 @@ void func_ov039_020849a4(TinPinSlammer_Scene* scene) {
     Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0xA8, row);
 }
 
-// Nonmatching: 99.71%, ceiling -- one pool symbol name.
 void func_ov039_02084ac4(TinPinSlammer_Scene* scene) {
     char        row[0x20];
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -530,7 +512,6 @@ void func_ov039_02084ac4(TinPinSlammer_Scene* scene) {
     Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x8, row);
 }
 
-// Nonmatching: 99.66%, ceiling -- pool symbol names.
 void func_ov039_02084c34(TinPinSlammer_Scene* scene) {
     char        row[0x20];
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -552,9 +533,9 @@ void func_ov039_02084c34(TinPinSlammer_Scene* scene) {
     Text_RenderToScreen(OTU_TEXT(scene), 0x38, 0x10, row);
 }
 
-// Nonmatching: 100% -- objdiff reports MATCH. This one *does* write the
-// trailing space before the terminator, unlike func_ov039_02084738 two
-// functions above; the two shapes are not interchangeable.
+// This one *does* write the trailing space before the terminator, unlike
+// func_ov039_02084738 two functions above; the two shapes are not
+// interchangeable.
 void func_ov039_02084d80(TinPinSlammer_Scene* scene) {
     char        row[0x20];
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -1495,7 +1476,6 @@ void func_ov039_02085e54(TinPinSlammer_Scene* scene, s32 slot) {
  * that function steps, rendered as two five-digit groups separated by a space --
  * twelve characters. No +1 bias here, unlike the tray row.
  */
-// Nonmatching: full MATCH.
 void func_ov039_02084f08(TinPinSlammer_Scene* scene) {
     OtuTextRow* table = (OtuTextRow*)func_ov039_02098b70(OTU_STAGE(scene));
     char        row[0x20];
