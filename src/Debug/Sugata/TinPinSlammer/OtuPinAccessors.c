@@ -39,8 +39,7 @@
  *  lsl #2`, defaulting to the load, so this stays a switch with one arm per
  *  case value rather than a chain of equality tests.
  */
-s32 func_ov039_0208e890(void* task) {
-    OtuBadge* self = (OtuBadge*)task;
+s32 func_ov039_0208e890(OtuPinTask* self) {
 
     switch (self->kind) {
         case 0:
@@ -66,9 +65,8 @@ s32 func_ov039_0208e890(void* task) {
  * Kind 8, sub-kind 4: the cursor at +0x100 against half the cell's size word,
  * counted down from 0x1000.
  */
-s32 func_ov039_0208e8c4(void* task) {
-    OtuBadge* self  = (OtuBadge*)task;
-    s32       scale = 0x1000;
+s32 func_ov039_0208e8c4(OtuPinTask* self) {
+    s32 scale = 0x1000;
 
     if (self->kind == 8) {
         switch (self->subKind) {
@@ -107,9 +105,8 @@ s32 func_ov039_0208e8c4(void* task) {
  *  The `bne` past both tests is why this is a nested if rather than a second
  *  switch -- the subkind is never read unless the kind already matched.
  */
-s32 func_ov039_0208e950(void* task) {
-    OtuBadge* self = (OtuBadge*)task;
-    s32       r    = 0;
+s32 func_ov039_0208e950(OtuPinTask* self) {
+    s32 r = 0;
 
     if (self->kind == 8) {
         /* A switch, not two `if`s: with two `if`s mwcc selects both arms with
@@ -180,11 +177,10 @@ s32 func_ov039_0208e998(OtuPinTask* task) {
  *  the match. The return type stays `s32` because band 7 declares it that way
  *  and uses the value.
  */
-s32 func_ov039_0208e9ac(void* task) {
-    OtuBadge* self = (OtuBadge*)task;
-    u16       a;
-    s32       x = -self->dir.x;
-    s32       y = -self->dir.y;
+s32 func_ov039_0208e9ac(OtuPinTask* self) {
+    u16 a;
+    s32 x = -self->dir.x;
+    s32 y = -self->dir.y;
 
     /* y first, x second -- that is the callee's own parameter order
      * (`u16 FX_Atan2Idx(s32 y, s32 x)`), and mwcc evaluates arguments in
@@ -536,8 +532,8 @@ s32 func_ov039_0208ee84(OtuPinTask* task) {
 }
 
 /** The "alive" word at +0x148. This is the one 0208ee84 tests. */
-s32 func_ov039_0208ee98(void* task) {
-    return ((OtuBadge*)task)->alive;
+s32 func_ov039_0208ee98(OtuPinTask* task) {
+    return (task)->alive;
 }
 
 /* ------------------------------------------------------------------ */
@@ -554,20 +550,20 @@ s32 func_ov039_0208ee98(void* task) {
  * the add -- so the accessors read as members and the note records why.
  */
 
-s16 func_ov039_0208eea0(void* task) {
-    return ((OtuBadge*)task)->timers.trackFrames;
+s16 func_ov039_0208eea0(OtuPinTask* task) {
+    return (task)->timers.trackFrames;
 }
 
-s16 func_ov039_0208eeac(void* task) {
-    return ((OtuBadge*)task)->timers.bounceTimer;
+s16 func_ov039_0208eeac(OtuPinTask* task) {
+    return (task)->timers.bounceTimer;
 }
 
-s16 func_ov039_0208eeb8(void* task) {
-    return ((OtuBadge*)task)->timers.arcFrames;
+s16 func_ov039_0208eeb8(OtuPinTask* task) {
+    return (task)->timers.arcFrames;
 }
 
-s16 func_ov039_0208eec4(void* task) {
-    return ((OtuBadge*)task)->timers.spinFrames;
+s16 func_ov039_0208eec4(OtuPinTask* task) {
+    return (task)->timers.spinFrames;
 }
 
 /**
@@ -578,9 +574,8 @@ s16 func_ov039_0208eec4(void* task) {
  * target's `ldreq`/`cmpeq` run of conditional loads is mwcc folding that
  * five-term short-circuit chain into one compare chain.
  */
-s32 func_ov039_0208eed0(void* pin) {
-    OtuBadge* self = (OtuBadge*)pin;
-    s32       r    = 0;
+s32 func_ov039_0208eed0(OtuPinTask* self) {
+    s32 r = 0;
 
     if (self->unk_128 == 0 && self->kind == 1 && self->step == 1) {
         if (func_ov039_02098ca8(&self->aimStart, &self->aimCur) >= 0x10000) {
@@ -604,8 +599,8 @@ void func_ov039_0208ef14(void* pin, OtuPoint* a, OtuPoint* b) {
  *
  * `movge`/`movlt` again: `>= 0x1E`, not `> 0x1E`.
  */
-s32 func_ov039_0208ef38(void* task) {
-    return ((OtuBadge*)task)->unk_1CC >= 0x1E;
+s32 func_ov039_0208ef38(OtuPinTask* task) {
+    return (task)->unk_1CC >= 0x1E;
 }
 
 /**
@@ -672,9 +667,8 @@ s32 func_ov039_0208efb0(OtuPinTask* task, s32 which) {
  * Returns the old value and stores zero, so a caller polling this sees each
  * value exactly once. It is the only accessor here with that shape.
  */
-s32 func_ov039_0208eff8(void* task) {
-    OtuBadge* self  = (OtuBadge*)task;
-    s32       value = self->unk_1A4;
+s32 func_ov039_0208eff8(OtuPinTask* self) {
+    s32 value = self->unk_1A4;
 
     self->unk_1A4 = 0;
     return value;

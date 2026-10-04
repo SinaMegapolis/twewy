@@ -226,7 +226,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
 
     if (self->home != NULL) {
         func_ov039_0208ac98((OtuInputLatch*)self);
-        func_ov039_0208acc0((OtuBadgeState*)self);
+        func_ov039_0208acc0(self);
     }
 
     self->unk_0DC = 1;
@@ -248,7 +248,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
         case 3:
         case 6:
         case 7:
-            func_ov039_0208af6c((OtuBadgeState*)self);
+            func_ov039_0208af6c(self);
             break;
 
         default:
@@ -284,7 +284,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
     switch (self->kind) {
         case 1:
             if (self->home != NULL) {
-                func_ov039_0208bb2c((OtuBadgeState*)self);
+                func_ov039_0208bb2c(self);
             } else {
                 func_ov039_0208c9cc(self);
             }
@@ -554,7 +554,7 @@ s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* ar
         func_ov039_02096154(EasyTask_GetTaskData(self->pool, self->labelTask), 1, self->pinID[1] == 0x130 ? 1 : 0);
     }
 
-    func_ov039_0208ae8c((OtuBadgeState*)self);
+    func_ov039_0208ae8c(self);
 
     return id;
 }
@@ -715,12 +715,13 @@ void func_ov039_0208e130(OtuBadge* self, OtuBadge* other) {
  *  therefore not two spellings of one predicate: one is pin-against-pin
  *  attraction and the other is pin-against-board.
  */
-/* Typed to band 9's declaration, which comes first in this translation
- * unit and so governs. Taking the real struct types here collides with it
- * and cascades into "expression syntax error" through the whole body. */
-s32 func_ov039_0208e28c(void* a, void* b) {
-    OtuBadge* self  = (OtuBadge*)a;
-    OtuBadge* other = (OtuBadge*)b;
+/* These three pairwise predicates were declared `void*` for as long as the badge had
+ * three separate views: band 9's declaration governed this translation unit, and
+ * giving the definitions real struct types collided with it and cascaded into
+ * "expression syntax error" through the whole body. With OtuBadge, OtuBadgeState
+ * and OtuPinTask now one type there is nothing left to collide with, so the
+ * parameters are spelled out. Verified neutral. */
+s32 func_ov039_0208e28c(OtuPinTask* self, OtuPinTask* other) {
 
     if (self->flags > 0) {
         return 0;
@@ -764,12 +765,8 @@ s32 func_ov039_0208e28c(void* a, void* b) {
  *  an odd overlap rounds the two halves differently and reproduces the
  *  target's asymmetry.
  */
-/* Typed to band 9's declaration, which comes first in this translation
- * unit and so governs. Taking the real struct types here collides with it
- * and cascades into "expression syntax error" through the whole body. */
-s32 func_ov039_0208e37c(void* a, void* b) {
-    OtuBadge* self  = (OtuBadge*)a;
-    OtuBadge* other = (OtuBadge*)b;
+/* Typed as the sibling predicates above; see the note on func_ov039_0208e28c. */
+s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
 
     OtuPoint dir;
     s32      dist;
@@ -855,11 +852,8 @@ s32 func_ov039_0208e37c(void* a, void* b) {
  *  -- the pair func_ov039_0208e6cc copies out. So +0x138 is where the pin
  *  publishes the shove it received.
  */
-/* Typed to band 9's declaration, which comes first in this translation
- * unit and so governs. Taking the real struct types here collides with it
- * and cascades into "expression syntax error" through the whole body. */
-s32 func_ov039_0208e504(void* a, void* obstacle) {
-    OtuBadge* self = (OtuBadge*)a;
+/* Typed as the sibling predicates above; see the note on func_ov039_0208e28c. */
+s32 func_ov039_0208e504(OtuPinTask* self, OtuObstacle* obstacle) {
 
     OtuPoint other;
     OtuPoint dir;
@@ -943,8 +937,8 @@ void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out) {
 }
 
 /** A single word at +0x128. */
-s32 func_ov039_0208e6f4(void* task) {
-    return ((OtuBadge*)task)->unk_128;
+s32 func_ov039_0208e6f4(OtuPinTask* task) {
+    return (task)->unk_128;
 }
 
 /* ------------------------------------------------------------------ */

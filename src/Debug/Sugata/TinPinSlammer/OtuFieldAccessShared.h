@@ -495,11 +495,11 @@ void func_ov039_02098b8c(OtuPoint* a, OtuPoint* b, OtuPoint* out);
 s32 func_ov039_02098d10(OtuPoint* v);
 
 /* The pin task's own three queries, 0x0208eed0 - 0x0208ef38. */
-s32 func_ov039_0208eed0(void* pin);
+s32 func_ov039_0208eed0(OtuPinTask* pin);
 
 void func_ov039_0208ef14(void* pin, OtuPoint* a, OtuPoint* b);
 
-s32 func_ov039_0208ef38(void* pin);
+s32 func_ov039_0208ef38(OtuPinTask* pin);
 
 /* The board stage's per-sprite animation stepper, 0x02087bf8. */
 void func_ov039_02087bf8(void* anim, void* limit);
@@ -1457,7 +1457,7 @@ void func_ov039_02087d04(s32 mode, void* dst, void* src);
 
 void func_ov039_0208f048(void* task, s32 arg1, s32 arg2);
 
-s32 func_ov039_0208e9ac(void* task);
+s32 func_ov039_0208e9ac(OtuPinTask* task);
 
 /* The five animation tables the state machine walks, in the overlay's data. */
 extern OtuFrame6 data_ov039_02099494;
@@ -1857,11 +1857,11 @@ s32 func_ov039_0208e9f8(TaskPool* pool, void* task);
 void func_ov039_0208eaa0(void* self, void* other);
 
 /** The pairwise interaction predicates: contact, push-apart, and effect-pull. */
-s32 func_ov039_0208e28c(void* a, void* b);
+s32 func_ov039_0208e28c(OtuPinTask* a, OtuPinTask* b);
 
-s32 func_ov039_0208e37c(void* a, void* b);
+s32 func_ov039_0208e37c(OtuPinTask* a, OtuPinTask* b);
 
-s32 func_ov039_0208e504(void* a, void* b);
+s32 func_ov039_0208e504(OtuPinTask* a, OtuObstacle* b);
 
 /** Reads a pin child's *own* aim point -- a different pair from the +0x120 one
  *  that func_ov039_0208e6e0 copies out. */
@@ -1926,7 +1926,7 @@ void func_ov039_0208f024(void* task);
 s32 func_ov039_0208f0b0(void* task);
 
 // the tray slot is empty (0x130)
-void func_ov039_0208f0c8(void* task);
+void func_ov039_0208f0c8(OtuPinTask* task);
 
 // clear the child's +0x84/+0x80 pair
 void func_ov039_0208f104(void* task);
@@ -2000,15 +2000,15 @@ void func_ov039_02096270(void* task);
 
 void func_ov039_02095ddc(void* task);
 
-s32 func_ov039_0208e6f4(void* task);
+s32 func_ov039_0208e6f4(OtuPinTask* task);
 
-s32 func_ov039_0208ee98(void* task);
+s32 func_ov039_0208ee98(OtuPinTask* task);
 
-s32 func_ov039_0208e890(void* task);
+s32 func_ov039_0208e890(OtuPinTask* task);
 
-s32 func_ov039_0208e8c4(void* task);
+s32 func_ov039_0208e8c4(OtuPinTask* task);
 
-s32 func_ov039_0208e950(void* task);
+s32 func_ov039_0208e950(OtuPinTask* task);
 
 s32 func_ov039_0208a490(void* task, s32 arg2);
 
@@ -3277,14 +3277,14 @@ s32            func_ov039_0208e984(OtuPinTask* task);
 s32            func_ov039_0208e998(OtuPinTask* task);
 s32            func_ov039_0208e9d0(OtuPinTask* task);
 s32            func_ov039_0208ee84(OtuPinTask* task);
-s16            func_ov039_0208eea0(void* task);
-s16            func_ov039_0208eeac(void* task);
-s16            func_ov039_0208eeb8(void* task);
-s16            func_ov039_0208eec4(void* task);
+s16            func_ov039_0208eea0(OtuPinTask* task);
+s16            func_ov039_0208eeac(OtuPinTask* task);
+s16            func_ov039_0208eeb8(OtuPinTask* task);
+s16            func_ov039_0208eec4(OtuPinTask* task);
 s32            func_ov039_0208efb0(OtuPinTask* task, s32 which);
-s32            func_ov039_0208eff8(void* task);
-s32            func_ov039_0208f034(void* task);
-void           func_ov039_0208f03c(void* task);
+s32            func_ov039_0208eff8(OtuPinTask* task);
+s32            func_ov039_0208f034(OtuPinTask* task);
+void           func_ov039_0208f03c(OtuPinTask* task);
 void           func_ov039_0208f0f0(void* task, s32 value);
 OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 arg, s32 mode);
 s32            func_ov039_0208f2a4(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);

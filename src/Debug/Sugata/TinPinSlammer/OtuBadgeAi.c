@@ -459,7 +459,7 @@ refresh:
 
     func_ov039_02093d68((OtuCounterData*)EasyTask_GetTaskData(self->pool, *(u32*)((u8*)self + 0x1F4)), self->unk_1AC);
 
-    func_ov039_0208d5dc((OtuBadge*)self);
+    func_ov039_0208d5dc(self);
 
     for (i = 0; i < 2; i++) {
         func_ov039_02095ddc((void*)EasyTask_GetTaskData(self->pool, *(u32*)((u8*)self + 0x228 + i * 4)));
@@ -660,7 +660,7 @@ void func_ov039_0208ce88(OtuBadge* task) {
             do {
                 s32 step = i * 0x10000;
 
-                func_ov039_02097750(EasyTask_GetTaskData(*(void**)(self + 8), ((OtuBadge*)task)->groupIds[i]),
+                func_ov039_02097750(EasyTask_GetTaskData(*(void**)(self + 8), task->groupIds[i]),
                                     (OtuTaskParams*)(self + 0x120), (u32)((step + ((u32)(step >> 2) >> 0x1D)) << 0xD) >> 0x10,
                                     0x2000, 0xCD, 0x14);
                 i = i + 1;

@@ -43,13 +43,13 @@ void func_ov039_0208f024(void* arg) {
 }
 
 /** A single word at +0x1AC. */
-s32 func_ov039_0208f034(void* task) {
-    return ((OtuBadge*)task)->unk_1AC;
+s32 func_ov039_0208f034(OtuPinTask* task) {
+    return (task)->unk_1AC;
 }
 
 /** Raises the +0x1B4 word to 0x11. Set, not incremented. */
-void func_ov039_0208f03c(void* task) {
-    ((OtuBadge*)task)->curAI = 0x11;
+void func_ov039_0208f03c(OtuPinTask* task) {
+    (task)->curAI = 0x11;
 }
 
 /**
@@ -88,8 +88,7 @@ s32 func_ov039_0208f0b0(void* task) {
  * something else does. Worth stating because it is the one place in this band
  * where an early exit is a side-effect guard rather than a value test.
  */
-void func_ov039_0208f0c8(void* task) {
-    OtuBadge* self = (OtuBadge*)task;
+void func_ov039_0208f0c8(OtuPinTask* self) {
 
     if (self->hasLabel != 0) {
         func_ov039_02096270(EasyTask_GetTaskData(self->pool, self->labelTask));
