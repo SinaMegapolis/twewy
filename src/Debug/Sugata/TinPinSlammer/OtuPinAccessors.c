@@ -41,7 +41,7 @@
  */
 s32 func_ov039_0208e890(OtuPinTask* self) {
 
-    switch (self->kind) {
+    switch (self->phase) {
         case 0:
         case 2:
         case 3:
@@ -59,16 +59,16 @@ s32 func_ov039_0208e890(OtuPinTask* self) {
 /**
  * @brief The pin child's aim scale, 0x1000 when nothing applies.
  *
- * Kind 8, sub-kind 1: while the +0x100 cursor is under 10 this is the cursor
+ * Phase 8, sub-kind 1: while the +0x100 cursor is under 10 this is the cursor
  * over 10, on a 0x1000 scale.
  *
- * Kind 8, sub-kind 4: the cursor at +0x100 against half the cell's size word,
+ * Phase 8, sub-kind 4: the cursor at +0x100 against half the cell's size word,
  * counted down from 0x1000.
  */
 s32 func_ov039_0208e8c4(OtuPinTask* self) {
     s32 scale = 0x1000;
 
-    if (self->kind == 8) {
+    if (self->phase == 8) {
         switch (self->subKind) {
             case 1: {
                 s32 cursor = self->frameBudget;
@@ -99,7 +99,7 @@ s32 func_ov039_0208e8c4(OtuPinTask* self) {
 }
 
 /**
- * @brief A three-valued answer, but only for kind 8: subkind 2 answers 2,
+ * @brief A three-valued answer, but only for phase 8: subkind 2 answers 2,
  *        subkind 3 answers 3, and every other combination answers 0.
  *
  *  The `bne` past both tests is why this is a nested if rather than a second
@@ -108,7 +108,7 @@ s32 func_ov039_0208e8c4(OtuPinTask* self) {
 s32 func_ov039_0208e950(OtuPinTask* self) {
     s32 r = 0;
 
-    if (self->kind == 8) {
+    if (self->phase == 8) {
         /* A switch, not two `if`s: with two `if`s mwcc selects both arms with
          * `moveq`, while the target branches to an out-of-line `mov r2, #2` for
          * the first and only then tests for 3 with a conditional move. The arms
@@ -130,14 +130,14 @@ s32 func_ov039_0208e950(OtuPinTask* self) {
 /**
  * @brief True when the pin's kind is 8.
  *
- *  Written as a local plus a select, not as `return task->kind == 8;`. The
+ *  Written as a local plus a select, not as `return task->phase == 8;`. The
  *  target copies the field into a register, zeroes the result and selects into
  *  it -- `ldr r1, [r0, #0xf8] / mov r0, #0 / cmp r1, #0x8 / moveq r0, #1` --
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
 s32 func_ov039_0208e984(OtuPinTask* task) {
-    s32 found = task->kind;
+    s32 found = task->phase;
     s32 r     = 0;
 
     if (found == 8) {
@@ -150,14 +150,14 @@ s32 func_ov039_0208e984(OtuPinTask* task) {
 /**
  * @brief True when the pin's kind is 7.
  *
- *  Written as a local plus a select, not as `return task->kind == 7;`. The
+ *  Written as a local plus a select, not as `return task->phase == 7;`. The
  *  target copies the field into a register, zeroes the result and selects into
  *  it -- `ldr r1, [r0, #0xf8] / mov r0, #0 / cmp r1, #0x7 / moveq r0, #1` --
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
 s32 func_ov039_0208e998(OtuPinTask* task) {
-    s32 found = task->kind;
+    s32 found = task->phase;
     s32 r     = 0;
 
     if (found == 7) {
@@ -203,14 +203,14 @@ s32 func_ov039_0208e9ac(OtuPinTask* self) {
 /**
  * @brief True when the pin's kind is 6.
  *
- *  Written as a local plus a select, not as `return task->kind == 6;`. The
+ *  Written as a local plus a select, not as `return task->phase == 6;`. The
  *  target copies the field into a register, zeroes the result and selects into
  *  it -- `ldr r1, [r0, #0xf8] / mov r0, #0 / cmp r1, #0x6 / moveq r0, #1` --
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
 s32 func_ov039_0208e9d0(OtuPinTask* task) {
-    s32 found = task->kind;
+    s32 found = task->phase;
     s32 r     = 0;
 
     if (found == 6) {
@@ -223,14 +223,14 @@ s32 func_ov039_0208e9d0(OtuPinTask* task) {
 /**
  * @brief True when the pin's kind is 9.
  *
- *  Written as a local plus a select, not as `return task->kind == 9;`. The
+ *  Written as a local plus a select, not as `return task->phase == 9;`. The
  *  target copies the field into a register, zeroes the result and selects into
  *  it -- `ldr r1, [r0, #0xf8] / mov r0, #0 / cmp r1, #0x9 / moveq r0, #1` --
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
 s32 func_ov039_0208e9e4(OtuPinTask* task) {
-    s32 found = task->kind;
+    s32 found = task->phase;
     s32 r     = 0;
 
     if (found == 9) {
@@ -577,7 +577,7 @@ s16 func_ov039_0208eec4(OtuPinTask* task) {
 s32 func_ov039_0208eed0(OtuPinTask* self) {
     s32 r = 0;
 
-    if (self->unk_128 == 0 && self->kind == 1 && self->step == 1) {
+    if (self->unk_128 == 0 && self->phase == 1 && self->step == 1) {
         if (func_ov039_02098ca8(&self->aimStart, &self->aimCur) >= 0x10000) {
             r = 1;
         }
@@ -617,7 +617,7 @@ s32 func_ov039_0208ef38(OtuPinTask* task) {
  */
 s32 func_ov039_0208ef4c(void* task, u32 which) {
     OtuBadge* self = (OtuBadge*)task;
-    s32       kind = self->kind;
+    s32       kind = self->phase;
     s32       r    = 0;
 
     switch (kind) {

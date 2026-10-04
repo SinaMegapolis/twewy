@@ -143,7 +143,7 @@ OtuPinTask* func_ov039_02087f4c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     return result;
 }
 
-/** @brief The nearest child of kind 6, 0x02088064. */
+/** @brief The nearest child in phase 6, 0x02088064. */
 // Nonmatching: 72.2%, four bytes over the target's 280. The logic is settled --
 // every field, the self-skip, the minimum scan and the two early returns all
 // match, and the four kind-queries differ from each other exactly as the
@@ -225,7 +225,7 @@ OtuPinTask* func_ov039_02088064(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     return result;
 }
 
-/** @brief The nearest child of kind 7, 0x0208817c. */
+/** @brief The nearest child in phase 7, 0x0208817c. */
 // Nonmatching: 72.2%, four bytes over the target's 280. The logic is settled --
 // every field, the self-skip, the minimum scan and the two early returns all
 // match, and the four kind-queries differ from each other exactly as the
@@ -307,7 +307,7 @@ OtuPinTask* func_ov039_0208817c(TaskPool* self, TinPinSlammer_Scene* scene, s32 
     return result;
 }
 
-/** @brief The nearest child of kind 8, 0x02088294. */
+/** @brief The nearest child in phase 8, 0x02088294. */
 // Nonmatching: 72.2%, four bytes over the target's 280. The logic is settled --
 // every field, the self-skip, the minimum scan and the two early returns all
 // match, and the four kind-queries differ from each other exactly as the

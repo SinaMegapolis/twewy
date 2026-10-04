@@ -279,22 +279,22 @@ s32 func_ov039_020945c8(TaskPool* pool, Task* task, void* args) {
 
         switch (i) {
             case 0:
-                alive = func_ov039_0208e9d0(pin); // pin kind 6
+                alive = func_ov039_0208e9d0(pin); // pin in phase 6
                 count = func_ov039_0208eea0(pin);
                 break;
 
             case 1:
-                alive = func_ov039_0208e984(pin); // pin kind 8
+                alive = func_ov039_0208e984(pin); // pin in phase 8
                 count = func_ov039_0208eeac(pin);
                 break;
 
             case 2:
-                alive = func_ov039_0208e998(pin); // pin kind 7
+                alive = func_ov039_0208e998(pin); // pin in phase 7
                 count = func_ov039_0208eeb8(pin);
                 break;
 
             case 3:
-                alive = func_ov039_0208e9e4(pin); // pin kind 9
+                alive = func_ov039_0208e9e4(pin); // pin in phase 9
                 count = func_ov039_0208eec4(pin);
                 break;
 

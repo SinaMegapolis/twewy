@@ -8,7 +8,7 @@
 /* --- family A: should this pin run its update this frame? ---------------- */
 
 /**
- * @brief Frame-budget test for one pin kind: roll against chanceTbl[5], require
+ * @brief Frame-budget test for one pin phase: roll against chanceTbl[5], require
  *        the timer at +0x17A to be positive, require the scene to still have
  *        that pin, then require it to be within 0x46000 of us.
  *
@@ -41,7 +41,7 @@ s32 func_ov039_0208c4ec(OtuBadgeState* self) {
 }
 
 /** @brief As 0x0208c4ec, but chanceTbl[6], the timer at +0x178, a speed cap of
- *         0x3000, and its own kind handler. */
+ *         0x3000, and its own phase handler. */
 s32 func_ov039_0208c568(OtuBadgeState* self) {
     OtuPinTask* other;
 
@@ -375,7 +375,7 @@ found:
 void func_ov039_0208cb64(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     if (func_ov039_0208a794(&self->pos, (OtuCellGrid*)self->board) == 0) {
-        self->kind                = 1;
+        self->phase               = 1;
         self->step                = 0;
         *(s32*)((u8*)self + 0xD0) = 0x1000;
         *(s32*)((u8*)self + 0xD4) = 0x1000;
@@ -512,8 +512,8 @@ void func_ov039_0208ce20(OtuBadge* arg) {
         return;
     }
 
-    self->kind = 1;
-    self->step = 0;
+    self->phase = 1;
+    self->step  = 0;
 }
 
 /** @brief The same shape, against a different task id. */
@@ -523,8 +523,8 @@ void func_ov039_0208ce54(OtuBadge* arg) {
         return;
     }
 
-    self->kind = 1;
-    self->step = 0;
+    self->phase = 1;
+    self->step  = 0;
 }
 
 /* ------------------------------------------------------------------ */

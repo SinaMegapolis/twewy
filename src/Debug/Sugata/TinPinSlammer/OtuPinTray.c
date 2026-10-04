@@ -243,7 +243,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
         self->flags--;
     }
 
-    switch (self->kind) {
+    switch (self->phase) {
         case 1:
         case 3:
         case 6:
@@ -281,7 +281,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
         }
     }
 
-    switch (self->kind) {
+    switch (self->phase) {
         case 1:
             if (self->home != NULL) {
                 func_ov039_0208bb2c(self);
@@ -380,7 +380,7 @@ s32 func_ov039_0208da74(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
 
-    switch (self->kind) {
+    switch (self->phase) {
         case 1:
         case 3:
         case 4:
@@ -726,7 +726,7 @@ s32 func_ov039_0208e28c(OtuPinTask* self, OtuPinTask* other) {
     if (self->flags > 0) {
         return 0;
     }
-    if (self->kind != 1 && self->kind != 6 && self->kind != 7) {
+    if (self->phase != 1 && self->phase != 6 && self->phase != 7) {
         return 0;
     }
     if (self->unk_128 != 0) {
@@ -735,7 +735,7 @@ s32 func_ov039_0208e28c(OtuPinTask* self, OtuPinTask* other) {
     if (other->flags > 0) {
         return 0;
     }
-    if (other->kind != 1 && other->kind != 6 && other->kind != 7) {
+    if (other->phase != 1 && other->phase != 6 && other->phase != 7) {
         return 0;
     }
     if (other->unk_128 != 0) {
@@ -776,7 +776,7 @@ s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
         return 0;
     }
 
-    switch (self->kind) {
+    switch (self->phase) {
         case 0:
         case 2:
         case 5:
@@ -795,7 +795,7 @@ s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
         return 0;
     }
 
-    switch (other->kind) {
+    switch (other->phase) {
         case 0:
         case 2:
         case 5:
@@ -860,7 +860,7 @@ s32 func_ov039_0208e504(OtuPinTask* self, OtuObstacle* obstacle) {
     s32      radius;
     s32      len;
 
-    switch (self->kind) {
+    switch (self->phase) {
         case 1:
         case 6:
         case 7:
@@ -948,7 +948,7 @@ s32 func_ov039_0208e6f4(OtuPinTask* task) {
 /**
  * @brief The velocity a pin child should steer with, written to `out`.
  *
- * Only kind 8 enters the switch; kind 1 and everything past the two cases fall
+ * Only phase 8 enters the switch; phase 1 and everything past the two cases fall
  * through to the plain "point at the child's own +0x120/+0x124, rebased by the
  * board origin" answer, which is also the whole body for every other kind.
  *

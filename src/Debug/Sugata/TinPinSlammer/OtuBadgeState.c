@@ -92,7 +92,7 @@ void func_ov039_0208ad2c(OtuPoint* vel, s32 shortfall) {
 
 /** Enters phase 2: pick the badge's sprite up and send it back to the home tile. */
 void func_ov039_0208ad88(OtuBadgeState* self) {
-    if (self->kind == 2) {
+    if (self->phase == 2) {
         return;
     }
 
@@ -102,25 +102,25 @@ void func_ov039_0208ad88(OtuBadgeState* self) {
     self->vel.x   = 0;
     self->vel.y   = 0;
     self->step    = 0;
-    self->kind    = 2;
+    self->phase   = 2;
     self->subKind = 0;
 }
 
 /** Enters phase 3: sit still for 0x1E frames with the badge visible. */
 void func_ov039_0208ade8(OtuBadgeState* self) {
-    if (self->kind == 3) {
+    if (self->phase == 3) {
         return;
     }
 
     self->step        = 0;
-    self->kind        = 3;
+    self->phase       = 3;
     self->frameBudget = 0x1E;
     self->alive       = 0;
 }
 
 /** Enters phase 4: retire whatever the badge was attached to. */
 void func_ov039_0208ae14(OtuBadgeState* self) {
-    if (self->kind == 4) {
+    if (self->phase == 4) {
         return;
     }
 
@@ -135,7 +135,7 @@ void func_ov039_0208ae14(OtuBadgeState* self) {
 
     self->alive       = 0;
     self->step        = 0;
-    self->kind        = 4;
+    self->phase       = 4;
     self->frameBudget = 0x3C;
 }
 
@@ -149,7 +149,7 @@ void func_ov039_0208ae8c(OtuBadgeState* self) {
     self->velMag  = 0;
     self->unk_164 = 0x50;
     self->step    = 0;
-    self->kind    = 5;
+    self->phase   = 5;
     self->subKind = 0;
 
     // Tiles are 0x20 pixels and every badge is inset by half a tile, which is
@@ -227,7 +227,7 @@ void func_ov039_0208af6c(OtuBadgeState* self) {
 
         // While the badge is still being set up its rate is doubled. The test
         // is `phase <= 3`, i.e. every phase before the rolling one.
-        if (self->kind <= 3) {
+        if (self->phase <= 3) {
             rate = rate * 2;
         }
 
@@ -289,7 +289,7 @@ void func_ov039_0208af6c(OtuBadgeState* self) {
     }
 
     // Trail marks, dropped every few frames while the badge is moving fast.
-    if (self->unk_128 == 0 && self->kind != 3) {
+    if (self->unk_128 == 0 && self->phase != 3) {
         s32 trailLen = func_ov039_02098d10(&self->vel);
 
         if (trailLen > 0x1000) {
@@ -537,8 +537,8 @@ void func_ov039_0208b94c(OtuBadgeState* self) {
         return;
     }
 
-    self->step = 0;
-    self->kind = 6;
+    self->step  = 0;
+    self->phase = 6;
 
     slot = &self->slots[self->pinID[0]];
     func_ov039_02091654(EasyTask_GetTaskData(self->pool, self->taskId2), slot->animX, slot->animY);
@@ -554,8 +554,8 @@ void func_ov039_0208b9b4(OtuBadgeState* self) {
         return;
     }
 
-    self->step = 0;
-    self->kind = 7;
+    self->step  = 0;
+    self->phase = 7;
 
     slot = &self->slots[self->pinID[0]];
     func_ov039_02091028(EasyTask_GetTaskData(self->pool, self->taskId1), slot->curveA, slot->curveB, slot->curveC,
@@ -572,7 +572,7 @@ void func_ov039_0208ba34(OtuBadgeState* self) {
 
     self->vel.x   = 0;
     self->vel.y   = 0;
-    self->kind    = 8;
+    self->phase   = 8;
     self->step    = 0;
     self->subKind = 0;
 
@@ -595,7 +595,7 @@ void func_ov039_0208ba70(OtuBadgeState* self) {
 
     self->unk_134     = data_ov039_0209a320;
     self->step        = 0;
-    self->kind        = 9;
+    self->phase       = 9;
     self->step        = 0;
     self->frameBudget = 9;
 

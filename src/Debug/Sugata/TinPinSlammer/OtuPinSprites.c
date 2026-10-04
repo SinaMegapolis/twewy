@@ -848,7 +848,7 @@ s32 func_ov039_0208fbe0(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
  */
 // Nonmatching: 94%. The logic is settled -- the four-state jump table, all four
 // case bodies, the shared Sprite_Update guard and the null-pin arm are correct,
-// and the filter is the kind == 8 test.
+// and the filter is the phase == 8 test.
 //
 // What is left is one duplicated store and the block placement around it. The
 // target emits the null-pin clear as its own tail block at 0x0208fd68

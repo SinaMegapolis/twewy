@@ -241,7 +241,7 @@ void func_ov039_020867d4(TinPinSlammer_Scene* scene) {
  * weight, bending force, then needle, meteo, hammer and stun time.
  *
  * Menu 3 is why the overlay is worth reading. Its needle/meteo/hammer rows are
- * the same three the sprite-cell builders select on (`kind` 6, 7, 8) and the same
+ * the same three the sprite-cell builders select on (`phase` 6, 7, 8) and the same
  * three the ROM's task list names, and here they are as three labelled rows of a
  * results screen. The three constants, the three task names and the three rows
  * are the same three objects seen from three directions.

@@ -265,6 +265,17 @@ typedef struct {
  * than as flags, and each is the one and only guard on its phase's entry
  * setter.
  *
+ * The first four are the frame budgets for phases 6 to 9, one each, and
+ * func_ov039_0208b94c/0208b9b4/0208ba34/0208ba70 -- the four phase entry
+ * setters -- each decrement the one belonging to the phase it enters. They are
+ * *seeded* from the pin-slot record rather than computed: 0208d5dc copies
+ * slot->tile[0..3] into them at spawn, and note the order is not the phase
+ * order, it is tile[0]->phase 6, tile[1]->phase 8, tile[2]->phase 7,
+ * tile[3]->phase 9. That is why an earlier reading of these four as
+ * `tile0..tile3` was half right -- correct about where the values come from,
+ * wrong about what they are for. The last two are the trail cursor and its
+ * timer, unrelated to the phases.
+ *
  * The task's own code reaches them through a `+0x100` base register and then a
  * small displacement -- `add rX, self, #0x100` followed by `ldrsh [rX, #0x78]`
  * -- rather than folding 0x178 into the load. Keeping them in a struct of their
@@ -319,7 +330,7 @@ typedef struct OtuBadge {
     /* 0x0EE */ u16                  contactFlags;
     /* 0x0F0 */ u16                  stateFlags;
     /* 0x0F4 */ s32                  step;    // sub-phase within `kind`
-    /* 0x0F8 */ s32                  kind;    // 1..9; see the dual-purpose note above
+    /* 0x0F8 */ s32                  phase;   // 1..9; see the note below before renaming
     /* 0x0FC */ s32                  subKind; // gates kind 8 in the render stage
     /* 0x100 */ s32                  frameBudget;
     /* 0x104 */ s32                  lastTileType;
@@ -392,6 +403,29 @@ typedef OtuBadge OtuBadgeState;
  * 0x178 up by four without a single diagnostic. The task really is 0x25C bytes,
  * and three separate views previously agreed on that, so pin it. */
 typedef char OtuBadge_SizeMustBe_0x25C[(sizeof(OtuBadge) == 0x25C) ? 1 : -1];
+
+/**
+ * @brief 0xF8 was called `kind` by two of the three badge views, and it is
+ *        wrong. It is a phase counter.
+ *
+ * Checked against the target rather than argued from the names. The predicate
+ * 0208e984 is `ldr r1, [r0, #0xf8] / cmp r1, #0x8 / moveq r0, #0x1` -- so the
+ * pool queries really do test +0xF8 against 6, 7, 8 and 9. But the phase entry
+ * setters *write* that same word: 0208b94c is `mov r0, #0x6 / str r0,
+ * [r4, #0xf8]` and 0208ba70 does the same with #0x9, and the two in between use
+ * 7 and 8. Each of the four also decrements one field of OtuTimers and has its
+ * own doc comment saying "Enters phase N".
+ *
+ * So one word is both written as a monotone 6,7,8,9 and tested against those
+ * same values. It cannot be a per-badge type tag -- a type is assigned once, and
+ * this is assigned four times by four different functions in sequence. What the
+ * predicates actually select is "the nearest child currently in phase N", which
+ * is a sensible thing for this overlay to ask: phases 6 to 9 are the track, arc,
+ * bounce and spin behaviours, i.e. the ones where the pin is reachable.
+ *
+ * `OtuBadgeState` had it right as `phase`; the other two bands only ever saw a
+ * comparison constant and reached for `kind`.
+ */
 
 /**
  * @brief The same 0x25C task again, as the pool queries see it.
