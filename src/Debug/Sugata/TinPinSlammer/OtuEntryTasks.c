@@ -256,9 +256,7 @@ OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -486,9 +484,7 @@ OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -736,8 +732,10 @@ void func_ov039_02095cd4(OtuPointTask* self, s32 count) {
 
 /** Clears the +0x114 and +0x118 words together. */
 void func_ov039_02095ddc(void* task) {
-    *(s32*)((u8*)task + 0x114) = 0;
-    *(s32*)((u8*)task + 0x118) = 0;
+    OtuPointTask* self = (OtuPointTask*)task;
+
+    self->unk_114 = 0;
+    self->unk_118 = 0;
 }
 
 // Nonmatching: 68-78%. The body, the three varied constants and the guard chain
@@ -778,9 +776,7 @@ OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }

@@ -67,13 +67,13 @@ s32 func_ov039_0208e890(void* task) {
  * counted down from 0x1000.
  */
 s32 func_ov039_0208e8c4(void* task) {
-    u8* self  = (u8*)task;
-    s32 scale = 0x1000;
+    OtuBadge* self  = (OtuBadge*)task;
+    s32       scale = 0x1000;
 
-    if (*(s32*)(self + 0xF8) == 8) {
-        switch (*(s32*)(self + 0xFC)) {
+    if (self->kind == 8) {
+        switch (self->subKind) {
             case 1: {
-                s32 cursor = *(s32*)(self + 0x100);
+                s32 cursor = self->frameBudget;
 
                 if (cursor < 0xA) {
                     scale = FX_Divide(cursor << 12, 0xA000);
@@ -82,12 +82,12 @@ s32 func_ov039_0208e8c4(void* task) {
             }
 
             case 4: {
-                u16 index = *(u16*)*(s32*)(self + 0x16C);
-                s32 base  = *(s32*)(self + 0x170);
+                u16 index = *(u16*)self->pinID;
+                s32 base  = (s32)self->slots;
                 u32 size  = *(u16*)((u8*)(base + index * 0x1C) + 0xE);
 
-                if (*(s32*)(self + 0x100) < (s32)(size >> 1)) {
-                    scale = 0x1000 - FX_Divide(*(s32*)(self + 0x100) << 12, (s32)(size >> 1) << 12);
+                if (self->frameBudget < (s32)(size >> 1)) {
+                    scale = 0x1000 - FX_Divide(self->frameBudget << 12, (s32)(size >> 1) << 12);
                 }
                 break;
             }
@@ -532,12 +532,12 @@ void func_ov039_0208eaa0(void* self_, void* task) {
  * this overlay's predicates their two conditional moves.
  */
 s32 func_ov039_0208ee84(OtuPinTask* task) {
-    return *(s32*)((u8*)task + 0x148) > 0;
+    return task->alive > 0;
 }
 
 /** The "alive" word at +0x148. This is the one 0208ee84 tests. */
 s32 func_ov039_0208ee98(void* task) {
-    return *(s32*)((u8*)task + 0x148);
+    return ((OtuBadge*)task)->alive;
 }
 
 /* ------------------------------------------------------------------ */
@@ -546,26 +546,28 @@ s32 func_ov039_0208ee98(void* task) {
 
 /*
  * These four read 0x78, 0x7A, 0x7C and 0x7E off a base already offset by 0x100,
- * so they are four consecutive s16 fields. The `add r0, r0, #0x100` is spelled
- * out in each rather than folded into the load offset: a single
- * `ldrsh [r0, #0x178]` is a valid alternative encoding that this build does not
- * produce.
+ * so they are four consecutive s16 fields -- `OtuBadge.tile0`..`tile3`, which sit
+ * at 0x178. Note the offset was *not* spelled as `0x100 + 0x78`: the split is
+ * what makes the target emit a separate `add r0, r0, #0x100` before the `ldrsh`,
+ * and naming the field folds it into a single `ldrsh [r0, #0x178]` that this
+ * build does not produce. Naming the field is still codegen-neutral -- mwcc keeps
+ * the add -- so the accessors read as members and the note records why.
  */
 
 s16 func_ov039_0208eea0(void* task) {
-    return *(s16*)((u8*)task + 0x100 + 0x78);
+    return ((OtuBadge*)task)->timers.trackFrames;
 }
 
 s16 func_ov039_0208eeac(void* task) {
-    return *(s16*)((u8*)task + 0x100 + 0x7A);
+    return ((OtuBadge*)task)->timers.bounceTimer;
 }
 
 s16 func_ov039_0208eeb8(void* task) {
-    return *(s16*)((u8*)task + 0x100 + 0x7C);
+    return ((OtuBadge*)task)->timers.arcFrames;
 }
 
 s16 func_ov039_0208eec4(void* task) {
-    return *(s16*)((u8*)task + 0x100 + 0x7E);
+    return ((OtuBadge*)task)->timers.spinFrames;
 }
 
 /**
@@ -577,11 +579,11 @@ s16 func_ov039_0208eec4(void* task) {
  * five-term short-circuit chain into one compare chain.
  */
 s32 func_ov039_0208eed0(void* pin) {
-    u8* self = (u8*)pin;
-    s32 r    = 0;
+    OtuBadge* self = (OtuBadge*)pin;
+    s32       r    = 0;
 
-    if (*(s32*)(self + 0x128) == 0 && *(s32*)(self + 0xF8) == 1 && *(s32*)(self + 0xF4) == 1) {
-        if (func_ov039_02098ca8((OtuPoint*)(self + 0x14C), (OtuPoint*)(self + 0x154)) >= 0x10000) {
+    if (self->unk_128 == 0 && self->kind == 1 && self->step == 1) {
+        if (func_ov039_02098ca8(&self->aimStart, &self->aimCur) >= 0x10000) {
             r = 1;
         }
     }
@@ -591,10 +593,10 @@ s32 func_ov039_0208eed0(void* pin) {
 
 /** Copies the +0x14C and +0x154 pairs out as two points. */
 void func_ov039_0208ef14(void* pin, OtuPoint* a, OtuPoint* b) {
-    u8* self = (u8*)pin;
+    OtuBadge* self = (OtuBadge*)pin;
 
-    *a = *(OtuPoint*)(self + 0x14C);
-    *b = *(OtuPoint*)(self + 0x154);
+    *a = self->aimStart;
+    *b = self->aimCur;
 }
 
 /**
@@ -603,7 +605,7 @@ void func_ov039_0208ef14(void* pin, OtuPoint* a, OtuPoint* b) {
  * `movge`/`movlt` again: `>= 0x1E`, not `> 0x1E`.
  */
 s32 func_ov039_0208ef38(void* task) {
-    return *(s32*)((u8*)task + 0x1CC) >= 0x1E;
+    return ((OtuBadge*)task)->unk_1CC >= 0x1E;
 }
 
 /**
@@ -619,14 +621,14 @@ s32 func_ov039_0208ef38(void* task) {
  * probability `which / 0x10000`.
  */
 s32 func_ov039_0208ef4c(void* task, u32 which) {
-    u8* self = (u8*)task;
-    s32 kind = *(s32*)(self + 0xF8);
-    s32 r    = 0;
+    OtuBadge* self = (OtuBadge*)task;
+    s32       kind = self->kind;
+    s32       r    = 0;
 
     switch (kind) {
         case 1:
         default:
-            if (func_ov039_0208a794((OtuPoint*)(self + 0x120), (OtuCellGrid*)*(s32*)(self + 0xE4)) != 0xC) {
+            if (func_ov039_0208a794((OtuPoint*)&self->pos.x, (OtuCellGrid*)*(s32*)((u8*)self + 0xE4)) != 0xC) {
                 r = 1;
             } else if (RNG_Next(0x10000) < which) {
                 r = 1;
@@ -652,12 +654,12 @@ s32 func_ov039_0208ef4c(void* task, u32 which) {
  * real answer comes from func_ov039_0208ef4c.
  */
 s32 func_ov039_0208efb0(OtuPinTask* task, s32 which) {
-    u8* self = (u8*)task;
+    OtuBadge* self = (OtuBadge*)task;
 
-    if (func_ov039_0208a794((OtuPoint*)(self + 0x120), (OtuCellGrid*)*(s32*)(self + 0xE4)) == 0) {
+    if (func_ov039_0208a794((OtuPoint*)&self->pos.x, (OtuCellGrid*)*(s32*)((u8*)self + 0xE4)) == 0) {
         return 0;
     }
-    if (*(u16*)*(s32*)(self + 0x16C) == 0x130) {
+    if (*self->pinID == 0x130) {
         return 0;
     }
 
@@ -671,8 +673,9 @@ s32 func_ov039_0208efb0(OtuPinTask* task, s32 which) {
  * value exactly once. It is the only accessor here with that shape.
  */
 s32 func_ov039_0208eff8(void* task) {
-    s32 value = *(s32*)((u8*)task + 0x1A4);
+    OtuBadge* self  = (OtuBadge*)task;
+    s32       value = self->unk_1A4;
 
-    *(s32*)((u8*)task + 0x1A4) = 0;
+    self->unk_1A4 = 0;
     return value;
 }

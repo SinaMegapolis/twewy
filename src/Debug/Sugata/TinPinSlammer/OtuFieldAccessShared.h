@@ -215,6 +215,212 @@ extern const TaskHandle data_ov039_02099b50;
 extern const u16 data_ov039_02099a18[1];
 
 /**
+ * @brief Where a badge was spawned: one flag byte and its starting tile.
+ *
+ * Read through +0xE8. Bit 0 of `flags` is copied straight into bit 0 of the
+ * badge's packed state word by 0x0208acc0, which is the only thing that ties
+ * the two objects together; `tileX`/`tileY` are the tile the badge belongs to
+ * and are shifted up by twelve to become Q12.12.
+ */
+typedef struct {
+    /* 0x0 */ u8 flags; // bit 0 is mirrored into the badge's stateFlags
+    /* 0x1 */ u8 pad_01;
+    /* 0x2 */ u8 tileX;
+    /* 0x3 */ u8 tileY;
+} OtuHomePos;
+
+// Size: 0x4
+
+/**
+ * @brief One badge kind's behaviour record, 0x1C-byte stride.
+ *
+ * Reached through +0x170 and indexed by the tray slot at +0x16C, so the stride
+ * is a `mla` against 0x1C rather than an array subscript the compiler could
+ * fold away. The two groups of fields serve two different phases and nothing
+ * suggests they are related: +0x04/+0x06 drive the rolling phase, +0x08
+ * onward the scripted set-piece phases.
+ */
+typedef struct {
+    /* 0x00 */ u8  pad_00[0x04];
+    /* 0x04 */ u8  speedIndex; // index into data_ov039_0209a3e0
+    /* 0x05 */ u8  pad_05;
+    /* 0x06 */ s16 friction;   // Q12.12, scaled by unk_144 / 3 into a heading offset
+    /* 0x08 */ u16 animX;
+    /* 0x0A */ u16 animY;
+    /* 0x0C */ u8  pad_0C[0x04];
+    /* 0x10 */ s16 curveA;
+    /* 0x12 */ s16 curveB;
+    /* 0x14 */ u16 curveC;
+    /* 0x16 */ u16 curveD;
+    /* 0x18 */ u8  pad_18[0x04];
+} OtuBadgeSlot;
+
+// Size: 0x1C
+
+/**
+ * @brief The badge's six 16-bit countdown slots, 0x28 bytes at +0x178.
+ *
+ * Every one is read-modify-written with a `ldrsh`/`sub 1`/`strh` triple, which
+ * is what identifies them as counters that are allowed to go negative rather
+ * than as flags, and each is the one and only guard on its phase's entry
+ * setter.
+ *
+ * The task's own code reaches them through a `+0x100` base register and then a
+ * small displacement -- `add rX, self, #0x100` followed by `ldrsh [rX, #0x78]`
+ * -- rather than folding 0x178 into the load. Keeping them in a struct of their
+ * own at 0x178 preserves that split, because the displacement is too large for
+ * the short form to be what this build emits.
+ */
+typedef struct {
+    /* 0x00 */ s16 trackFrames; // self +0x178: phase 6
+    /* 0x02 */ s16 bounceTimer; // self +0x17A: phase 8
+    /* 0x04 */ s16 arcFrames;   // self +0x17C: phase 7
+    /* 0x06 */ s16 spinFrames;  // self +0x17E: phase 9
+    /* 0x08 */ u8  pad_08[0x1C];
+    /* 0x24 */ s16 trailIndex;  // self +0x19C: cursor into the trail id table
+    /* 0x26 */ s16 trailTimer;  // self +0x19E: frames between trail marks
+} OtuTimers;
+
+// Size: 0x28
+
+/**
+ * @brief "Tsk_OtosuGame_badge": the badge task, 0x25C bytes.
+ *
+ * This is the same object the header models as `OtuPinTask`, which stops at
+ * 0x174; that type exists for the five nearest-child queries and only needs
+ * +0xF8/+0x120/+0x124/+0x148/+0x16C, so it is left alone. Every offset below
+ * 0x174 agrees with it -- `kind`, `x`, `y`, `alive`, `pinID` -- and this type
+ * continues past it.
+ *
+ * It is also the same object band B3 models as `OtuBadgeState`, seen from the
+ * AI's side and under its own field names. The two do not share every name, so
+ * they are kept apart rather than merged; the handle above ties them together.
+ *
+ * Positions and velocities are Q12.12, the overlay's usual scale, and three
+ * Sprites are embedded rather than pointed at (see the header note).
+ */
+typedef struct OtuBadge {
+    /* 0x000 */ TinPinSlammer_Scene* scene;
+    /* 0x004 */ s32                  dataType; // copied into SpriteAnimation.dataType
+    /* 0x008 */ TaskPool*            pool;     // saved by the init stage
+    /* 0x00C */ Sprite               spriteA;
+    /* 0x04C */ Sprite               spriteB;
+    /* 0x08C */ Sprite               spriteC;
+    /* 0x0CC */ s32                  unk_0CC; // travel rescaled by 1/4096
+    /* 0x0D0 */ s32                  unk_0D0; // starts at 0x1000
+    /* 0x0D4 */ s32                  unk_0D4; // starts at 0x1000
+    /* 0x0D8 */ u16                  unk_0D8;
+    /* 0x0DA */ u16                  unk_0DA;
+    /* 0x0DC */ s32                  unk_0DC; // raised to 1 by init and by update
+    /* 0x0E0 */ s32                  index;   // which badge this is; passed to the pool resolvers
+    /* 0x0E4 */ u8*                  board;   // see the note at the top of the file
+    /* 0x0E8 */ OtuHomePos*          home;    // non-NULL switches on the variant path
+    /* 0x0EC */ u16                  unk_0EC; // home->tileX
+    /* 0x0EE */ u16                  contactFlags;
+    /* 0x0F0 */ u16                  stateFlags;
+    /* 0x0F4 */ s32                  step;    // sub-phase within `kind`
+    /* 0x0F8 */ s32                  kind;    // 1..9; see the dual-purpose note above
+    /* 0x0FC */ s32                  subKind; // gates kind 8 in the render stage
+    /* 0x100 */ s32                  frameBudget;
+    /* 0x104 */ s32                  lastTileType;
+    /* 0x108 */ s32                  lastCellX;
+    /* 0x10C */ s32                  lastCellY;
+    /* 0x110 */ OtuPoint             origin;  // the render subtracts these
+    /* 0x118 */ OtuPoint             unk_118;
+    /* 0x120 */ OtuPoint             pos;     // Q12.12
+    /* 0x128 */ s32                  unk_128; // added into pos.y by the render
+    /* 0x12C */ OtuPoint             vel;
+    /* 0x134 */ s32                  unk_134;
+    /* 0x138 */ OtuPoint             dir;      // vel re-normalised in here when vel is non-zero
+    /* 0x140 */ s32                  travel;   // integrated from vel each update
+    /* 0x144 */ s32                  velMag;   // decays by a fixed step each update
+    /* 0x148 */ s32                  alive;
+    /* 0x14C */ OtuPoint             aimStart; // where the current aim began
+    /* 0x154 */ OtuPoint             aimCur;   // where it is aiming now
+    /* 0x15C */ s32                  unk_15C;
+    /* 0x160 */ s32                  unk_160;
+    /* 0x164 */ s32                  unk_164;
+    /* 0x168 */ s32                  flags;     // init 0xA2; bit 1 blocks the render
+    /* 0x16C */ u16*                 pinID;     // a tray slot; 0x130 means "no pin"
+    /* 0x170 */ OtuBadgeSlot*        slots;     // per-pin record, 0x1C stride, indexed by *pinID
+    /* 0x174 */ u16*                 chanceTbl; // one 0x10000 chance per AI
+    /* 0x178 */ OtuTimers            timers;    // 0x28 bytes, so it also covers 0x19C/0x19E
+    /* 0x1A0 */ u16                  unk_1A0;
+    /* 0x1A4 */ s32                  unk_1A4;   // raised to 1 by the init stage
+    /* 0x1A8 */ s32                  hasLabel;  // gates two of the children
+    /* 0x1AC */ s32                  unk_1AC;
+    /* 0x1B0 */ struct OtuBadge*     partner;   // the pin this one last touched
+    /* 0x1B4 */ s32                  curAI;     // 0x11 = parked
+    /* 0x1B8 */ s32                  unk_1B8;   // counts down, then re-raises curAI
+    /* 0x1BC */ struct OtuBadge*     chaseTarget;
+    /* 0x1C0 */ OtuPoint             anchorPt;  // where the current AI sent us
+    /* 0x1C8 */ s32                  unk_1C8;
+    /* 0x1CC */ s32                  unk_1CC;   // frames spent aiming; 0x1E = commit
+    /* 0x1D0 */ s32                  mode;      // 0x10 once the badge is committed
+    /* 0x1D4 */ s32                  child0;
+    /* 0x1D8 */ s32                  child1;
+    /* 0x1DC */ s32                  child2;
+    /* 0x1E0 */ s32                  child3;
+    /* 0x1E4 */ u32                  taskId1; // the arc task
+    /* 0x1E8 */ u32                  taskId2; // the track task
+    /* 0x1EC */ u32                  taskId3; // the spin task
+    /* 0x1F0 */ s32                  child7;
+    /* 0x1F4 */ s32                  child8;
+    /* 0x1F8 */ u32                  trailId[12];
+    /* 0x228 */ s32                  pairIds[2];
+    /* 0x230 */ s32                  labelTask;
+    /* 0x234 */ s32                  child9;
+    /* 0x238 */ s32                  groupIds[8];
+    /* 0x258 */ u32                  taskId; // the badge's own sprite task
+} OtuBadge;
+
+/**
+ * @brief The same 0x25C task, as band B3 saw it.
+ *
+ * This used to be a second, independently written struct over the same bytes,
+ * which is what forced the `(OtuBadgeState*)` casts scattered through
+ * OtuPinTray.c. The two never disagreed on an offset -- only on names, and
+ * where they differed the better name won -- so it is now an alias.
+ *
+ * `OtuBadgeState` is kept as a name because it still documents *which band*
+ * reads the AI half of the struct, which the pool queries and the render do not.
+ */
+typedef OtuBadge OtuBadgeState;
+
+/* The one field this merge can get wrong silently: OtuTimers is 0x28 bytes, so it
+ * swallows 0x19C/0x19E, and declaring those two again would push everything after
+ * 0x178 up by four without a single diagnostic. The task really is 0x25C bytes,
+ * and three separate views previously agreed on that, so pin it. */
+typedef char OtuBadge_SizeMustBe_0x25C[(sizeof(OtuBadge) == 0x25C) ? 1 : -1];
+
+/**
+ * @brief The same 0x25C task again, as the pool queries see it.
+ *
+ * A third view of the identical object, previously trimmed to 0x174 bytes with
+ * padding up to every offset. OtuPinAccessors.c already documented the
+ * relationship ("Every offset OtuPinTask does model agrees with OtuBadge, so
+ * the cast is always safe"), so the trimmed view bought nothing but the padding
+ * and the `(OtuPinTask*)` casts.
+ *
+ * The name is kept because it is still the useful annotation: it marks the
+ * handful of fields the five nearest-child queries read (index, kind, pos,
+ * alive, pinID, and the sub-word pair) as distinct from the AI's own fields.
+ */
+typedef OtuBadge OtuPinTask;
+
+/* Copies a task's +0x120/+0x124 pair into `out` (OtuTaskPick.c). Moved here
+ * from include/Debug/Sugata/TinPinSlammer.h, which can no longer see the badge
+ * struct; the two names below are aliases of it, so the signatures are
+ * unchanged. */
+void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out);
+
+/* The five child filters: true when the child is a candidate worth scoring. */
+s32 func_ov039_0208e984(OtuPinTask* task); // kind == 8
+s32 func_ov039_0208e998(OtuPinTask* task); // kind == 7
+s32 func_ov039_0208e9d0(OtuPinTask* task); // kind == 6
+s32 func_ov039_0208ee84(OtuPinTask* task); // alive
+s32 func_ov039_0208efb0(OtuPinTask* task, s32 which);
+/**
  * @brief The palette block inside a loaded `Data`'s buffer.
  *
  * The overlay addresses this the same way in 020934e0 and 02093fcc, and the
@@ -568,6 +774,43 @@ typedef struct {
 /* Referenced overlay data and cross-module routines.                  */
 /* ==================================================================== */
 
+/* ------------------------------------------------------------------ */
+/* The three-sprite task of 02096874 / 020968c0 / 020969fc / 02096b48. */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Three `Sprite`s on a 0x40 stride from +0, then a state block from +0xC0.
+ * All four stage functions in this band agree on that layout and on the four
+ * state words, so they are named together. The text-cell block at +0xD0 is the
+ * same four-word shape as `OtuTextBlock` (cleared x, 1.0 y, 1.0 scale, zero
+ * width) followed by the cursor func_ov039_02087ba0 builds at +0xE0.
+ *
+ * Named because the state words are read from *all four* stages and the field
+ * names are what stop the offsets being re-derived per function -- verified
+ * codegen-neutral.
+ *
+ * The three sprites are `pad_000` and stay raw casts. Spelling them as
+ * `Sprite sprite[3]` is *worse*, and measurably so: `Sprite_Update(self + 0x40)`
+ * became `add r0, r4, #0x3800` rather than `add r0, r4, #0x40` (020968c0,
+ * 99.97%), because mwcc treats a pointer to `sprite[n]` as needing the index
+ * scaled and folds the 0x40 stride into an `mla`-style displacement. The
+ * array member is correct as a *description* and wrong as *code* here.
+ */
+typedef struct {
+    /* 0x000 */ u8  pad_000[0x0C0];
+    /* 0x0C0 */ s32 visible; // "draw the text block"; gates the tail of Update
+    /* 0x0C4 */ s32 which;   // which of the three sprites the stage acts on
+    /* 0x0C8 */ s32 state;   // the four-state machine, 0..3
+    /* 0x0CC */ s32 counter; // 0x3C-frame timer, reloaded on each transition
+    /* 0x0D0 */ s32 textX;
+    /* 0x0D4 */ s32 textY;
+    /* 0x0D8 */ s32 textScale;
+    /* 0x0DC */ s16 textWidth;
+    /* 0x0DE */ s16 pad_DE;
+} OtuTripleSprite;
+
+// Size: 0xE0
+
 /*
  * The four TaskHandles and the four TaskStages tables this band dispatches
  * through.  All eight are `.rodata` in the original overlay and are not
@@ -697,6 +940,17 @@ void func_ov039_02087ba0(void* out, void* table, s32 count, void* cell);
  * and the layouts differ between the four objects: the second task's block is
  * the first's shifted down by 0x10 for the first six fields and not for the
  * rest. Grouping them would assert a correspondence the code does not have.
+ *
+ * `unk_4C` is the one word in the run that is *not* only a word, and the
+ * distinction is worth keeping. 02097c30 clears 0x4C and 0x4E as two separate
+ * halfwords -- hence the `*(s16*)` casts, and hence no member for 0x4E -- while
+ * the two init zero-runs at 020974e0 and 02097918 clear 0x4C with a single
+ * 32-bit store. Splitting the field into `s16 unk_4C; s16 unk_4E;` was tried
+ * and is *not* codegen-neutral: mwcc does not merge two adjacent same-value
+ * halfword stores into one word store, so 020974e0 drops 100% -> 91.11% and
+ * 02097918 drops 100% -> 89.33%, each losing exactly one `str r12, [r0, #0x4c]`
+ * against two `strh`. So `s32` is what the original declared, and 02097c30's
+ * halfword pair was written deliberately through a cast.
  */
 typedef struct {
     /* 0x00 */ Sprite sprite; // 0x40 bytes; +0x0C/+0x0E are posX/posY
@@ -2297,158 +2551,6 @@ extern OtuBadgeSpeed data_ov039_0209a3e0[];
 /* Task-data shapes.                                                   */
 /* ------------------------------------------------------------------ */
 
-/**
- * @brief Where a badge was spawned: one flag byte and its starting tile.
- *
- * Read through +0xE8. Bit 0 of `flags` is copied straight into bit 0 of the
- * badge's packed state word by 0x0208acc0, which is the only thing that ties
- * the two objects together; `tileX`/`tileY` are the tile the badge belongs to
- * and are shifted up by twelve to become Q12.12.
- */
-typedef struct {
-    /* 0x0 */ u8 flags; // bit 0 is mirrored into the badge's stateFlags
-    /* 0x1 */ u8 pad_01;
-    /* 0x2 */ u8 tileX;
-    /* 0x3 */ u8 tileY;
-} OtuHomePos;
-
-// Size: 0x4
-
-/**
- * @brief One badge kind's behaviour record, 0x1C-byte stride.
- *
- * Reached through +0x170 and indexed by the tray slot at +0x16C, so the stride
- * is a `mla` against 0x1C rather than an array subscript the compiler could
- * fold away. The two groups of fields serve two different phases and nothing
- * suggests they are related: +0x04/+0x06 drive the rolling phase, +0x08
- * onward the scripted set-piece phases.
- */
-typedef struct {
-    /* 0x00 */ u8  pad_00[0x04];
-    /* 0x04 */ u8  speedIndex; // index into data_ov039_0209a3e0
-    /* 0x05 */ u8  pad_05;
-    /* 0x06 */ s16 friction;   // Q12.12, scaled by unk_144 / 3 into a heading offset
-    /* 0x08 */ u16 animX;
-    /* 0x0A */ u16 animY;
-    /* 0x0C */ u8  pad_0C[0x04];
-    /* 0x10 */ s16 curveA;
-    /* 0x12 */ s16 curveB;
-    /* 0x14 */ u16 curveC;
-    /* 0x16 */ u16 curveD;
-    /* 0x18 */ u8  pad_18[0x04];
-} OtuBadgeSlot;
-
-// Size: 0x1C
-
-/**
- * @brief The badge's six 16-bit countdown slots, 0x28 bytes at +0x178.
- *
- * Every one is read-modify-written with a `ldrsh`/`sub 1`/`strh` triple, which
- * is what identifies them as counters that are allowed to go negative rather
- * than as flags, and each is the one and only guard on its phase's entry
- * setter.
- *
- * The task's own code reaches them through a `+0x100` base register and then a
- * small displacement -- `add rX, self, #0x100` followed by `ldrsh [rX, #0x78]`
- * -- rather than folding 0x178 into the load. Keeping them in a struct of their
- * own at 0x178 preserves that split, because the displacement is too large for
- * the short form to be what this build emits.
- */
-typedef struct {
-    /* 0x00 */ s16 trackFrames; // self +0x178: phase 6
-    /* 0x02 */ s16 bounceTimer; // self +0x17A: phase 8
-    /* 0x04 */ s16 arcFrames;   // self +0x17C: phase 7
-    /* 0x06 */ s16 spinFrames;  // self +0x17E: phase 9
-    /* 0x08 */ u8  pad_08[0x1C];
-    /* 0x24 */ s16 trailIndex;  // self +0x19C: cursor into the trail id table
-    /* 0x26 */ s16 trailTimer;  // self +0x19E: frames between trail marks
-} OtuTimers;
-
-// Size: 0x28
-
-/**
- * @brief "Tsk_OtosuGame_badge", 0x25C bytes of state.
- *
- * The same object is modelled twice more in this translation unit:
- * OtuPinTray as `OtuBadge` (the task's own view) and the header as the
- * 0x174 prefix `OtuPinTask` (the view the pool queries use). The three share
- * the handle at 0x0209926c; they are not three tasks.
- *
- * Every offset below is fixed by at least one load or store in this band, and
- * the padding is sized so each field lands on the displacement the target uses.
- * The six point-shaped regions are `OtuPoint` because the overlay's vector
- * helpers take them by address and this band hands them straight to
- * `func_ov039_02098b8c` and friends.
- *
- * `stateFlags` is a packed word rather than a set of booleans: bit 0 mirrors
- * the home tile's flag, bit 1 records that the badge disagrees with it, bit 2
- * records that it used to agree. `contactFlags` is a mask of the set-piece
- * phases allowed to fire this frame.
- */
-typedef struct {
-    /* 0x000 */ TinPinSlammer_Scene* scene;
-    /* 0x004 */ u8                   pad_004[0x04];
-    /* 0x008 */ TaskPool*            pool;
-    /* 0x00C */ u8                   pad_00C[0xD0];
-    /* 0x0DC */ s32                  unk_0DC; // cleared on arriving at tile 12
-    /* 0x0E0 */ s32                  index;   // which badge this is
-    /* 0x0E4 */ u8*                  board;   // see the note at the top of the file
-    /* 0x0E8 */ OtuHomePos*          home;
-    /* 0x0EC */ u16                  unk_0EC;
-    /* 0x0EE */ u16                  contactFlags;
-    /* 0x0F0 */ u16                  stateFlags;
-    /* 0x0F2 */ u8                   pad_0F2[0x02];
-    /* 0x0F4 */ s32                  step;        // sub-phase within `phase`
-    /* 0x0F8 */ s32                  phase;       // 2..9
-    /* 0x0FC */ s32                  unk_FC;
-    /* 0x100 */ s32                  frameBudget; // the current phase's frame budget
-    /* 0x104 */ s32                  lastTileType;
-    /* 0x108 */ s32                  lastCellX;
-    /* 0x10C */ s32                  lastCellY;
-    /* 0x110 */ OtuPoint             origin;   // the sound cue's anchor
-    /* 0x118 */ OtuPoint             unk_118;  // shared offset added to both aim points
-    /* 0x120 */ OtuPoint             pos;      // Q12.12
-    /* 0x128 */ s32                  unk_128;  // "something else is steering", in frames
-    /* 0x12C */ OtuPoint             vel;      // Q12.12
-    /* 0x134 */ s32                  unk_134;  // per-frame velocity nudge
-    /* 0x138 */ OtuPoint             velNorm;  // the last unit vector taken
-    /* 0x140 */ s32                  unk_140;
-    /* 0x144 */ s32                  unk_144;  // the wobble, in Q12.12
-    /* 0x148 */ s32                  unk_148;  // frames left of a live interaction
-    /* 0x14C */ OtuPoint             startPos; // where the current aim began
-    /* 0x154 */ OtuPoint             curPos;   // where it is aiming now
-    /* 0x15C */ s32                  unk_15C;  // the phase-5 start x, in Q12.12
-    /* 0x160 */ s32                  unk_160;  // the phase-5 start y, in Q12.12
-    /* 0x164 */ s32                  unk_164;
-    /* 0x168 */ u8                   pad_168[0x04];
-    /* 0x16C */ u16*                 pinID;     // a tray slot's value; 0x130 = no pin
-    /* 0x170 */ OtuBadgeSlot*        slots;     // per-kind behaviour records, 0x1C stride
-    /* 0x174 */ u16*                 chanceTbl; // one 0x10000 chance per AI
-    /* 0x178 */ OtuTimers            timers;
-    /* 0x1A0 */ u8                   pad_1A0[0x04];
-    /* 0x1A4 */ s32                  unk_1A4; // set to 1 when phase 5 starts
-    /* 0x1A8 */ s32                  unk_1A8; // non-zero: fade the display out first
-    /* 0x1AC */ s32                  unk_1AC; // stepped by the sound helper
-    /* 0x1B0 */ void*                unk_1B0; // live sound handle, retired at phase 4
-    /* 0x1B4 */ s32                  curAI;   // which AI is driving; 0x11 = parked
-    /* 0x1B8 */ s32                  unk_1B8;
-    /* 0x1BC */ OtuPinTask*          chaseTarget;
-    /* 0x1C0 */ OtuPoint             anchorPt; // where the current AI sent us
-    /* 0x1C8 */ u8                   pad_1C8[0x04];
-    /* 0x1CC */ s32                  unk_1CC;  // frames spent aiming; 0x1E = commit
-    /* 0x1D0 */ s32                  mode;     // 0x10 once the badge is committed
-    /* 0x1D4 */ u8                   pad_1D4[0x10];
-    /* 0x1E4 */ u32                  taskId1;  // the arc task
-    /* 0x1E8 */ u32                  taskId2;  // the track task
-    /* 0x1EC */ u32                  taskId3;  // the spin task
-    /* 0x1F0 */ u8                   pad_1F0[0x08];
-    /* 0x1F8 */ u32                  trailId[12];
-    /* 0x228 */ u8                   pad_228[0x30];
-    /* 0x258 */ u32                  taskId; // the badge's own sprite task
-} OtuBadgeState;
-
-// Size: 0x25C
-
 /* ------------------------------------------------------------------ */
 /* Declarations this TU does not otherwise have.                       */
 /* ------------------------------------------------------------------ */
@@ -2636,104 +2738,6 @@ typedef struct {
     /* 0x04 */ u8 weight;  // indexes the two OtuPinScale tables
     u8            pad_05[0x17];
 } OtuPinRow;
-
-/**
- * @brief "Tsk_OtosuGame_badge": the badge task, 0x25C bytes.
- *
- * This is the same object the header models as `OtuPinTask`, which stops at
- * 0x174; that type exists for the five nearest-child queries and only needs
- * +0xF8/+0x120/+0x124/+0x148/+0x16C, so it is left alone. Every offset below
- * 0x174 agrees with it -- `kind`, `x`, `y`, `alive`, `pinID` -- and this type
- * continues past it.
- *
- * It is also the same object band B3 models as `OtuBadgeState`, seen from the
- * AI's side and under its own field names. The two do not share every name, so
- * they are kept apart rather than merged; the handle above ties them together.
- *
- * Positions and velocities are Q12.12, the overlay's usual scale, and three
- * Sprites are embedded rather than pointed at (see the header note).
- */
-typedef struct OtuBadge {
-    /* 0x000 */ s32              unk_000;  // the spawn argument, unused here
-    /* 0x004 */ s32              dataType; // copied into SpriteAnimation.dataType
-    /* 0x008 */ TaskPool*        pool;     // saved by the init stage
-    /* 0x00C */ Sprite           spriteA;
-    /* 0x04C */ Sprite           spriteB;
-    /* 0x08C */ Sprite           spriteC;
-    /* 0x0CC */ s32              unk_0CC; // unk_140 rescaled by 1/4096
-    /* 0x0D0 */ s32              unk_0D0; // starts at 0x1000
-    /* 0x0D4 */ s32              unk_0D4; // starts at 0x1000
-    /* 0x0D8 */ u16              unk_0D8;
-    /* 0x0DA */ u16              unk_0DA;
-    /* 0x0DC */ s32              unk_0DC;   // raised to 1 by init and by update
-    /* 0x0E0 */ s32              tileIndex; // scaled by two, see the init stage
-    /* 0x0E4 */ u8*              tileTable;
-    /* 0x0E8 */ void*            unk_0E8;   // non-NULL switches on the variant path
-    /* 0x0EC */ u16              unk_0EC;   // *(u16*)(unk_0E8 + 4)
-    /* 0x0EE */ u16              unk_0EE;
-    /* 0x0F0 */ u16              unk_0F0;
-    /* 0x0F4 */ s32              unk_0F4;
-    /* 0x0F8 */ s32              kind;    // 1..9; see the header note above
-    /* 0x0FC */ s32              subKind; // gates kind 8 in the render stage
-    /* 0x100 */ s32              unk_100;
-    /* 0x104 */ s32              unk_104; // starts at 1
-    /* 0x108 */ s32              unk_108;
-    /* 0x10C */ s32              unk_10C;
-    /* 0x110 */ s32              anchorX; // the render subtracts these
-    /* 0x114 */ s32              anchorY;
-    /* 0x118 */ s32              unk_118;
-    /* 0x11C */ s32              unk_11C;
-    /* 0x120 */ s32              x;       // Q12.12, OtuPoint
-    /* 0x124 */ s32              y;
-    /* 0x128 */ s32              unk_128; // added into y by the render
-    /* 0x12C */ OtuPoint         vel;
-    /* 0x134 */ s32              unk_134;
-    /* 0x138 */ OtuPoint         dir;
-    /* 0x140 */ s32              travel; // integrated from vel each update
-    /* 0x144 */ s32              velMag; // decays by a fixed step each update
-    /* 0x148 */ s32              alive;
-    /* 0x14C */ u8               pad_14C[0x1C];
-    /* 0x168 */ s32              flags;    // init 0xA2; bit 1 blocks the render
-    /* 0x16C */ u16*             pinID;    // a tray slot; 0x130 means "no pin"
-    /* 0x170 */ u8*              rowTable; // OtuPinRow[], 0x1C stride
-    /* 0x174 */ s32              unk_174;
-    /* 0x178 */ s16              tile0;    // rowTable[*pinID].tile[0]
-    /* 0x17A */ s16              tile1;
-    /* 0x17C */ s16              tile2;
-    /* 0x17E */ s16              tile3;
-    /* 0x180 */ u8               pad_180[0x1C];
-    /* 0x19C */ u16              unk_19C;
-    /* 0x19E */ u16              unk_19E; // starts at 5
-    /* 0x1A0 */ u16              unk_1A0;
-    /* 0x1A2 */ u8               pad_1A2[2];
-    /* 0x1A4 */ s32              unk_1A4;  // raised to 1 by the init stage
-    /* 0x1A8 */ s32              hasLabel; // gates two of the children
-    /* 0x1AC */ s32              unk_1AC;
-    /* 0x1B0 */ struct OtuBadge* partner;  // the pin this one last touched
-    /* 0x1B4 */ s32              unk_1B4;
-    /* 0x1B8 */ s32              unk_1B8;  // counts down, then re-raises unk_1B4
-    /* 0x1BC */ s32              unk_1BC;
-    /* 0x1C0 */ s32              unk_1C0;
-    /* 0x1C4 */ s32              unk_1C4;
-    /* 0x1C8 */ s32              unk_1C8;
-    /* 0x1CC */ s32              unk_1CC;
-    /* 0x1D0 */ s32              unk_1D0; // frame counter, saturating
-    /* 0x1D4 */ s32              child0;
-    /* 0x1D8 */ s32              child1;
-    /* 0x1DC */ s32              child2;
-    /* 0x1E0 */ s32              child3;
-    /* 0x1E4 */ s32              child4;
-    /* 0x1E8 */ s32              child5;
-    /* 0x1EC */ s32              child6;
-    /* 0x1F0 */ s32              child7;
-    /* 0x1F4 */ s32              child8;
-    /* 0x1F8 */ s32              children[12];
-    /* 0x228 */ s32              pairIds[2];
-    /* 0x230 */ s32              labelTask;
-    /* 0x234 */ s32              child9;
-    /* 0x238 */ s32              groupIds[8];
-    /* 0x258 */ s32              child10;
-} OtuBadge;
 
 /**
  * @brief The nine-word block the init stage reads and the spawner builds.

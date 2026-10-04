@@ -70,14 +70,16 @@ s32 func_ov039_02096124(TaskPool* pool, s32 arg1) {
  * the `lsl #0x10` / `asr #0x10` pair the target does not have.
  */
 void func_ov039_02096154(void* self, s16 which, s32 hasLabel) {
-    *(s32*)((u8*)self + 0x84) = 1;
-    *(s32*)((u8*)self + 0x88) = 0x78;
-    *(s32*)((u8*)self + 0x8C) = hasLabel;
-    *(s32*)((u8*)self + 0x90) = 0;
-    *(s32*)((u8*)self + 0x94) = 0x1000;
-    *(s32*)((u8*)self + 0x98) = 0x1000;
-    *(s16*)((u8*)self + 0x9C) = 0;
-    *(s16*)((u8*)self + 0x9E) = 0;
+    OtuEntryTask* s = (OtuEntryTask*)self;
+
+    s->unk_84       = 1;
+    s->unk_88       = 0x78;
+    s->unk_8C       = hasLabel;
+    s->anim0.unk_00 = 0;
+    s->anim0.scaleX = 0x1000;
+    s->anim0.scaleY = 0x1000;
+    s->anim0.unk_0C = 0;
+    s->anim0.unk_0E = 0;
 
     // A switch even though there is no jump table: the target does both
     // compares up front and emits the two bodies out of line, which is the
@@ -99,23 +101,25 @@ void func_ov039_02096154(void* self, s16 which, s32 hasLabel) {
 
     Sprite_ChangeAnimation((Sprite*)self, *(void**)((u8*)self + 0x18), which, *(void**)((u8*)self + 0x1C));
 
-    if (*(s32*)((u8*)self + 0x8C) == 0) {
+    if (s->unk_8C == 0) {
         return;
     }
 
-    *(s32*)((u8*)self + 0xA0) = 0;
-    *(s32*)((u8*)self + 0xA4) = 0x1000;
-    *(s32*)((u8*)self + 0xA8) = 0x1000;
-    *(s16*)((u8*)self + 0xAC) = 0;
-    *(s16*)((u8*)self + 0xAE) = 0;
+    s->anim1.unk_00 = 0;
+    s->anim1.scaleX = 0x1000;
+    s->anim1.scaleY = 0x1000;
+    s->anim1.unk_0C = 0;
+    s->anim1.unk_0E = 0;
     func_ov039_02087ba0((u8*)self + 0xBC, data_ov039_0209a830, 0xA, (u8*)self + 0xA0);
     Sprite_ChangeAnimation((Sprite*)(self + 0x40), *(void**)((u8*)self + 0x58), 3, *(void**)((u8*)self + 0x5C));
 }
 
 /** Clears the +0x80 and +0x84 words together, store order reversed. */
 void func_ov039_02096270(void* task) {
-    *(s32*)((u8*)task + 0x84) = 0;
-    *(s32*)((u8*)task + 0x80) = 0;
+    OtuEntryTask* self = (OtuEntryTask*)task;
+
+    self->unk_84 = 0;
+    self->unk_80 = 0;
 }
 
 // Nonmatching: 68-78%. The body, the three varied constants and the guard chain
@@ -156,9 +160,7 @@ OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -390,9 +392,7 @@ OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -445,9 +445,7 @@ OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -528,58 +526,58 @@ s32 func_ov039_02096874(void* pool, void* task, s32* args) {
  * text-cell advance through func_ov039_02087bf8.
  */
 s32 func_ov039_020968c0(void* pool, void* task, void* args) {
-    u8* self = *(u8**)((u8*)task + 0x18);
+    OtuTripleSprite* self = *(OtuTripleSprite**)((u8*)task + 0x18);
 
-    switch (*(s32*)((u8*)self + 0xC8)) {
+    switch (self->state) {
         case 0:
-            *(s32*)((u8*)self + 0xC0) = 0;
+            self->visible = 0;
             break;
 
         case 1:
-            *(s32*)((u8*)self + 0xC0) = 1;
+            self->visible = 1;
             EasyFade_FadeMainDisplay(FADER_INSTANT, 0, 0x3C);
-            *(s32*)((u8*)self + 0xCC) = *(s32*)((u8*)self + 0xCC) - 1;
-            if (*(s32*)((u8*)self + 0xCC) <= 0) {
-                *(s32*)((u8*)self + 0xCC) = 0x3C;
-                *(s32*)((u8*)self + 0xC8) = 2;
+            self->counter = self->counter - 1;
+            if (self->counter <= 0) {
+                self->counter = 0x3C;
+                self->state   = 2;
             }
             break;
 
         case 2:
-            *(s32*)((u8*)self + 0xC0) = 1;
-            *(s32*)((u8*)self + 0xCC) = *(s32*)((u8*)self + 0xCC) - 1;
-            if (*(s32*)((u8*)self + 0xCC) <= 0) {
+            self->visible = 1;
+            self->counter = self->counter - 1;
+            if (self->counter <= 0) {
                 SndMgr_StartPlayingSE(0x34C);
-                *(s32*)((u8*)self + 0xCC) = 0x3C;
-                *(s32*)((u8*)self + 0xC8) = 3;
+                self->counter = 0x3C;
+                self->state   = 3;
             }
             break;
 
         case 3:
-            *(s32*)((u8*)self + 0xC0) = 1;
+            self->visible = 1;
             EasyFade_FadeBothDisplays(FADER_INSTANT, 0x10, 0x3C);
-            *(s32*)((u8*)self + 0xCC) = *(s32*)((u8*)self + 0xCC) - 1;
-            if (*(s32*)((u8*)self + 0xCC) <= 0) {
-                *(s32*)((u8*)self + 0xC8) = 0;
+            self->counter = self->counter - 1;
+            if (self->counter <= 0) {
+                self->state = 0;
             }
             break;
     }
 
-    if (*(s32*)((u8*)self + 0xC0) != 0) {
+    if (self->visible != 0) {
         func_ov039_02087bf8((u8*)self + 0xE0, (u8*)self + 0xD0);
 
-        switch (*(s32*)((u8*)self + 0xC4)) {
+        switch (self->which) {
             case 0:
                 Sprite_Update((Sprite*)self);
                 break;
 
             case 1:
             case 2:
-                Sprite_Update((Sprite*)(self + 0x40));
+                Sprite_Update((Sprite*)((u8*)self + 0x40));
                 break;
 
             case 3:
-                Sprite_Update((Sprite*)(self + 0x80));
+                Sprite_Update((Sprite*)((u8*)self + 0x80));
                 break;
         }
     }
@@ -618,23 +616,26 @@ s32 func_ov039_020968c0(void* pool, void* task, void* args) {
 // address in a local was tried and changed nothing, so this is mwcc's
 // evaluation order for the call and not a misread of the source.
 s32 func_ov039_020969fc(void* pool, void* task, void* args) {
-    u8* self = *(u8**)((u8*)task + 0x18);
+    OtuTripleSprite* self = *(OtuTripleSprite**)((u8*)task + 0x18);
 
-    if (*(s32*)((u8*)self + 0xC0) != 0) {
-        switch (*(s32*)((u8*)self + 0xC4)) {
+    if (self->visible != 0) {
+        switch (self->which) {
             case 0:
-                ((Sprite*)self)->unk_0A.unk_05 = (u16)OamMgr_AllocAffineGroup(
-                    &g_OamMgr[((Sprite*)self)->bits_0_1], 0, *(s32*)((u8*)self + 0xD4), *(s32*)((u8*)self + 0xD8), 0);
+                /* `self` (not `&self->sprite[0]`): the sprite *is* the block's
+                 * base, so the two spellings address identically but only the
+                 * raw one keeps mwcc's addressing to `add r0, r4, #0` / `+0x40`. */
+                ((Sprite*)self)->unk_0A.unk_05 =
+                    (u16)OamMgr_AllocAffineGroup(&g_OamMgr[((Sprite*)self)->bits_0_1], 0, self->textY, self->textScale, 0);
                 Sprite_RenderFrame((Sprite*)self);
                 break;
 
             case 1:
             case 2:
-                Sprite_RenderFrame((Sprite*)(self + 0x40));
+                Sprite_RenderFrame((Sprite*)((u8*)self + 0x40));
                 break;
 
             case 3:
-                Sprite_RenderFrame((Sprite*)(self + 0x80));
+                Sprite_RenderFrame((Sprite*)((u8*)self + 0x80));
                 break;
         }
     }
@@ -691,17 +692,19 @@ s32 func_ov039_02096b18(TaskPool* pool, s32 arg1) {
 
 /** Initialises the three-sprite task for one of its four selectors. */
 void func_ov039_02096b48(void* self, s32 which) {
-    *(s32*)((u8*)self + 0xC8) = 1;
-    *(s32*)((u8*)self + 0xCC) = 0x3C;
-    *(s32*)((u8*)self + 0xC4) = which;
+    OtuTripleSprite* s = (OtuTripleSprite*)self;
+
+    s->state   = 1;
+    s->counter = 0x3C;
+    s->which   = which;
 
     // The text-cell block at +0xD0: a cleared x, a 0x1000 (1.0) y and scale,
     // then a zero width, followed by the cursor built over the glyph table.
-    *(s32*)((u8*)self + 0xD0) = 0;
-    *(s32*)((u8*)self + 0xD4) = 0x1000;
-    *(s32*)((u8*)self + 0xD8) = 0x1000;
-    *(s16*)((u8*)self + 0xDC) = 0;
-    *(s16*)((u8*)self + 0xDE) = 0;
+    s->textX     = 0;
+    s->textY     = 0x1000;
+    s->textScale = 0x1000;
+    s->textWidth = 0;
+    s->pad_DE    = 0;
     func_ov039_02087ba0((u8*)self + 0xE0, data_ov039_0209aa0c, 0xC, (u8*)self + 0xD0);
 
     // A switch, not an if/else chain: the target compares against 3 with
@@ -732,7 +735,7 @@ void func_ov039_02096b48(void* self, s32 which) {
 
 /** Reads the +0xC8 word and returns it as a predicate. */
 s32 func_ov039_02096c44(void* self) {
-    return *(s32*)((u8*)self + 0xC8) != 0;
+    return ((OtuTripleSprite*)self)->state != 0;
 }
 
 /* ==================================================================== */
@@ -936,9 +939,7 @@ OtuSpriteSlot* func_ov039_02096e7c(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }

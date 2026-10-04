@@ -31,7 +31,7 @@ s32 func_ov039_0208c4ec(OtuBadgeState* self) {
         return 0;
     }
 
-    if (func_ov039_02098ca8(&self->pos, (OtuPoint*)&other->x) > 0x46000) {
+    if (func_ov039_02098ca8(&self->pos, &other->pos) > 0x46000) {
         return 0;
     }
 
@@ -63,7 +63,7 @@ s32 func_ov039_0208c568(OtuBadgeState* self) {
         return 0;
     }
 
-    if (func_ov039_02098ca8(&self->pos, (OtuPoint*)&other->x) > 0x46000) {
+    if (func_ov039_02098ca8(&self->pos, &other->pos) > 0x46000) {
         return 0;
     }
 
@@ -94,7 +94,7 @@ s32 func_ov039_0208c5f8(OtuBadgeState* self) {
         return 0;
     }
 
-    if (func_ov039_02098ca8(&self->pos, (OtuPoint*)&other->x) > 0x32000) {
+    if (func_ov039_02098ca8(&self->pos, &other->pos) > 0x32000) {
         return 0;
     }
 
@@ -125,7 +125,7 @@ s32 func_ov039_0208c688(OtuBadgeState* self) {
         return 0;
     }
 
-    if (func_ov039_02098ca8(&self->pos, (OtuPoint*)&other->x) > 0x64000) {
+    if (func_ov039_02098ca8(&self->pos, &other->pos) > 0x64000) {
         return 0;
     }
 
@@ -152,7 +152,7 @@ s32 func_ov039_0208c718(OtuBadgeState* self) {
         return 0;
     }
 
-    if (func_ov039_02098ca8(&self->pos, (OtuPoint*)&other->x) > 0x64000) {
+    if (func_ov039_02098ca8(&self->pos, &other->pos) > 0x64000) {
         return 0;
     }
 
@@ -184,11 +184,11 @@ s32 func_ov039_0208c794(OtuBadgeState* self) {
             return 0;
         }
 
-        if (func_ov039_02098ca8(&self->pos, (OtuPoint*)&other->x) > 0xC8000) {
+        if (func_ov039_02098ca8(&self->pos, &other->pos) > 0xC8000) {
             return 0;
         }
 
-        func_ov039_0208be30(self, (OtuPoint*)&other->x);
+        func_ov039_0208be30(self, &other->pos);
 
         self->curAI       = 0xA;
         self->unk_1B8     = 1;
@@ -198,7 +198,7 @@ s32 func_ov039_0208c794(OtuBadgeState* self) {
     }
 
     if (func_ov039_0208efb0(self->chaseTarget, 0x444) != 0) {
-        func_ov039_0208be30(self, (OtuPoint*)&self->chaseTarget->x);
+        func_ov039_0208be30(self, &self->chaseTarget->pos);
     }
 
     return 1;
@@ -260,7 +260,7 @@ s32 func_ov039_0208c92c(OtuBadgeState* self) {
             return 0;
         }
 
-        func_ov039_0208be30(self, (OtuPoint*)&other->x);
+        func_ov039_0208be30(self, &other->pos);
 
         self->curAI       = 0x10;
         self->unk_1B8     = 1;
@@ -270,7 +270,7 @@ s32 func_ov039_0208c92c(OtuBadgeState* self) {
     }
 
     if (func_ov039_0208efb0(self->chaseTarget, 0x444) != 0) {
-        func_ov039_0208be30(self, (OtuPoint*)&self->chaseTarget->x);
+        func_ov039_0208be30(self, &self->chaseTarget->pos);
     }
 
     return 1;
@@ -288,7 +288,7 @@ void func_ov039_0208c9cc(OtuBadge* arg) {
     s32 (**fn)(OtuBadgeState*);
     s32 i;
 
-    if (self->unk_148 > 0) {
+    if (self->alive > 0) {
         return;
     }
 
@@ -326,7 +326,7 @@ void func_ov039_0208ca1c(OtuBadge* arg) {
     s32            i;
     s32            count;
 
-    if (self->unk_FC != 0) {
+    if (self->subKind != 0) {
         return;
     }
 
@@ -366,7 +366,7 @@ found:
 
     func_ov039_02097aa4((OtuTaskSprite*)data, (OtuTaskParams*)&self->pos, 2);
 
-    self->unk_FC = 1;
+    self->subKind = 1;
 }
 
 /**
@@ -375,14 +375,14 @@ found:
 void func_ov039_0208cb64(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
     if (func_ov039_0208a794(&self->pos, (OtuCellGrid*)self->board) == 0) {
-        self->phase               = 1;
+        self->kind                = 1;
         self->step                = 0;
         *(s32*)((u8*)self + 0xD0) = 0x1000;
         *(s32*)((u8*)self + 0xD4) = 0x1000;
         return;
     }
 
-    if (self->unk_148 > 0) {
+    if (self->alive > 0) {
         return;
     }
 
@@ -439,7 +439,7 @@ void func_ov039_0208cc4c(OtuBadge* arg) {
 
     func_ov039_02093d18((OtuCounterData*)EasyTask_GetTaskData(self->pool, *(u32*)((u8*)self + 0x1F4)), self->pinID);
 
-    if (self->unk_1A8 != 0) {
+    if (self->hasLabel != 0) {
         if (self->pinID[0] >= 0x130) {
             goto refresh;
         }
@@ -471,17 +471,17 @@ refresh:
  */
 void func_ov039_0208cd50(OtuBadge* arg) {
     OtuBadgeState* self = (OtuBadgeState*)arg;
-    if (self->unk_1A8 == 0) {
+    if (self->hasLabel == 0) {
         return;
     }
 
     EasyFade_FadeMainDisplay(3, 0, 0x1E);
 
-    if (self->unk_FC == 0) {
+    if (self->subKind == 0) {
         return;
     }
 
-    if (self->unk_FC != 1) {
+    if (self->subKind != 1) {
         return;
     }
 
@@ -491,7 +491,7 @@ void func_ov039_0208cd50(OtuBadge* arg) {
         return;
     }
 
-    if (self->unk_1A8 != 0) {
+    if (self->hasLabel != 0) {
         func_ov039_02096154((void*)EasyTask_GetTaskData(self->pool, *(u32*)((u8*)self + 0x230)), 2, 0);
     }
 
@@ -500,7 +500,7 @@ void func_ov039_0208cd50(OtuBadge* arg) {
     EasyFade_FadeMainDisplay(2, 0x10, 0x1000);
 
     self->unk_164 = 0x34;
-    self->unk_FC  = 1;
+    self->subKind = 1;
 }
 
 /* --- the two one-line probes -------------------------------------------- */
@@ -512,8 +512,8 @@ void func_ov039_0208ce20(OtuBadge* arg) {
         return;
     }
 
-    self->phase = 1;
-    self->step  = 0;
+    self->kind = 1;
+    self->step = 0;
 }
 
 /** @brief The same shape, against a different task id. */
@@ -523,8 +523,8 @@ void func_ov039_0208ce54(OtuBadge* arg) {
         return;
     }
 
-    self->phase = 1;
-    self->step  = 0;
+    self->kind = 1;
+    self->step = 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -790,9 +790,7 @@ OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }

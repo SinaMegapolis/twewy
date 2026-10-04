@@ -161,7 +161,9 @@ s32 func_ov039_020926f0(TaskPool* pool, s32 oamAttrs, s16 unk_04, s16 slot, OtuO
 // it merge them into `stmia`; the struct assignment is the target's four
 // instructions (ldr, ldr, str, str) exactly.
 void func_ov039_02092730(void* task, OtuPoint* in) {
-    *(OtuPoint*)((u8*)task + 0x40) = *in;
+    OtuObstacle* self = (OtuObstacle*)task;
+
+    *(OtuPoint*)&self->originX = *in;
 }
 
 /** Reads the +0x48/+0x4C pair out to a point. */
@@ -170,17 +172,19 @@ void func_ov039_02092730(void* task, OtuPoint* in) {
 // it merge them into `stmia`; the struct assignment is the target's four
 // instructions (ldr, ldr, str, str) exactly.
 void func_ov039_02092744(void* task, OtuPoint* out) {
-    *out = *(OtuPoint*)((u8*)task + 0x48);
+    OtuObstacle* self = (OtuObstacle*)task;
+
+    *out = *(OtuPoint*)&self->targetX;
 }
 
 /** A single word at +0x50. */
 s32 func_ov039_02092758(void* task) {
-    return *(s32*)((u8*)task + 0x50);
+    return ((OtuObstacle*)task)->scale;
 }
 
 /** Raises the +0x54 word to 1. */
 void func_ov039_02092760(void* task) {
-    *(s32*)((u8*)task + 0x54) = 1;
+    ((OtuObstacle*)task)->animPending = 1;
 }
 
 /**

@@ -92,65 +92,65 @@ void func_ov039_0208ad2c(OtuPoint* vel, s32 shortfall) {
 
 /** Enters phase 2: pick the badge's sprite up and send it back to the home tile. */
 void func_ov039_0208ad88(OtuBadgeState* self) {
-    if (self->phase == 2) {
+    if (self->kind == 2) {
         return;
     }
 
     func_ov039_02097aa4(EasyTask_GetTaskData(self->pool, self->taskId), (void*)&self->pos, 1);
     func_ov039_02087d04(0x343, &self->pos, &self->origin);
 
-    self->vel.x  = 0;
-    self->vel.y  = 0;
-    self->step   = 0;
-    self->phase  = 2;
-    self->unk_FC = 0;
+    self->vel.x   = 0;
+    self->vel.y   = 0;
+    self->step    = 0;
+    self->kind    = 2;
+    self->subKind = 0;
 }
 
 /** Enters phase 3: sit still for 0x1E frames with the badge visible. */
 void func_ov039_0208ade8(OtuBadgeState* self) {
-    if (self->phase == 3) {
+    if (self->kind == 3) {
         return;
     }
 
     self->step        = 0;
-    self->phase       = 3;
+    self->kind        = 3;
     self->frameBudget = 0x1E;
-    self->unk_148     = 0;
+    self->alive       = 0;
 }
 
 /** Enters phase 4: retire whatever the badge was attached to. */
 void func_ov039_0208ae14(OtuBadgeState* self) {
-    if (self->phase == 4) {
+    if (self->kind == 4) {
         return;
     }
 
     // A badge still carrying a sound handle hands it back with a different cue
     // depending on whether it had a live rival to chase.
-    if (self->unk_1B0 != NULL && *self->pinID < 0x130) {
-        func_ov039_0208a490(self, self->unk_148 > 0 ? 5 : 2);
+    if (self->partner != NULL && *self->pinID < 0x130) {
+        func_ov039_0208a490(self, self->alive > 0 ? 5 : 2);
     }
-    self->unk_1B0 = NULL;
+    self->partner = NULL;
 
     func_ov039_02087dc0(self->scene, self);
 
-    self->unk_148     = 0;
+    self->alive       = 0;
     self->step        = 0;
-    self->phase       = 4;
+    self->kind        = 4;
     self->frameBudget = 0x3C;
 }
 
 /** Enters phase 5: place the badge on its starting tile and start it rolling. */
 void func_ov039_0208ae8c(OtuBadgeState* self) {
-    if (self->unk_1A8 != 0) {
+    if (self->hasLabel != 0) {
         EasyFade_FadeMainDisplay(2, 0x10, 0x1000);
     }
 
-    self->unk_140 = 0;
-    self->unk_144 = 0;
+    self->travel  = 0;
+    self->velMag  = 0;
     self->unk_164 = 0x50;
     self->step    = 0;
-    self->phase   = 5;
-    self->unk_FC  = 0;
+    self->kind    = 5;
+    self->subKind = 0;
 
     // Tiles are 0x20 pixels and every badge is inset by half a tile, which is
     // what lands it in the middle of its cell rather than on a corner. The
@@ -162,10 +162,10 @@ void func_ov039_0208ae8c(OtuBadgeState* self) {
     self->vel.x   = 0;
     self->vel.y   = 0;
 
-    self->velNorm.x = 0x1000;
-    self->velNorm.y = 0;
-    self->unk_148   = 0;
-    self->unk_1A4   = 1;
+    self->dir.x   = 0x1000;
+    self->dir.y   = 0;
+    self->alive   = 0;
+    self->unk_1A4 = 1;
 }
 
 /** Enters phase 7's approach: kill the velocity and play the corner sound. */
@@ -227,7 +227,7 @@ void func_ov039_0208af6c(OtuBadgeState* self) {
 
         // While the badge is still being set up its rate is doubled. The test
         // is `phase <= 3`, i.e. every phase before the rolling one.
-        if (self->phase <= 3) {
+        if (self->kind <= 3) {
             rate = rate * 2;
         }
 
@@ -245,7 +245,7 @@ void func_ov039_0208af6c(OtuBadgeState* self) {
 
         // How hard the badge curves is the friction coefficient scaled by the
         // wobble 0x0208be30 left behind.
-        turn = (s32)(((s64)slot->friction * (self->unk_144 / 3) + 0x800) >> 12);
+        turn = (s32)(((s64)slot->friction * (self->velMag / 3) + 0x800) >> 12);
 
         dir  = FX_Atan2Idx(self->vel.y, self->vel.x) + turn;
         cell = dir >> 4;
@@ -289,7 +289,7 @@ void func_ov039_0208af6c(OtuBadgeState* self) {
     }
 
     // Trail marks, dropped every few frames while the badge is moving fast.
-    if (self->unk_128 == 0 && self->phase != 3) {
+    if (self->unk_128 == 0 && self->kind != 3) {
         s32 trailLen = func_ov039_02098d10(&self->vel);
 
         if (trailLen > 0x1000) {
@@ -455,7 +455,7 @@ void func_ov039_0208af6c(OtuBadgeState* self) {
             if (len > 0) {
                 func_ov039_02098d3c(&self->vel, &norm);
                 func_ov039_02098c00((s32)(((s64)len * data_ov039_0209a324 + 0x800) >> 12), &norm, &zero, &self->vel);
-                self->velNorm = norm;
+                self->dir = norm;
             }
         }
     }
@@ -498,28 +498,28 @@ void func_ov039_0208af6c(OtuBadgeState* self) {
         case 8:
             self->vel.x = 0;
             self->vel.y = -data_ov039_0209a308;
-            func_ov039_02098d3c(&self->vel, &self->velNorm);
+            func_ov039_02098d3c(&self->vel, &self->dir);
             func_ov039_02087d04(0x345, &self->pos, &self->origin);
             break;
 
         case 9:
             self->vel.x = data_ov039_0209a308;
             self->vel.y = 0;
-            func_ov039_02098d3c(&self->vel, &self->velNorm);
+            func_ov039_02098d3c(&self->vel, &self->dir);
             func_ov039_02087d04(0x345, &self->pos, &self->origin);
             break;
 
         case 10:
             self->vel.x = 0;
             self->vel.y = data_ov039_0209a308;
-            func_ov039_02098d3c(&self->vel, &self->velNorm);
+            func_ov039_02098d3c(&self->vel, &self->dir);
             func_ov039_02087d04(0x345, &self->pos, &self->origin);
             break;
 
         case 11:
             self->vel.x = -data_ov039_0209a308;
             self->vel.y = 0;
-            func_ov039_02098d3c(&self->vel, &self->velNorm);
+            func_ov039_02098d3c(&self->vel, &self->dir);
             func_ov039_02087d04(0x345, &self->pos, &self->origin);
             break;
     }
@@ -537,8 +537,8 @@ void func_ov039_0208b94c(OtuBadgeState* self) {
         return;
     }
 
-    self->step  = 0;
-    self->phase = 6;
+    self->step = 0;
+    self->kind = 6;
 
     slot = &self->slots[self->pinID[0]];
     func_ov039_02091654(EasyTask_GetTaskData(self->pool, self->taskId2), slot->animX, slot->animY);
@@ -554,8 +554,8 @@ void func_ov039_0208b9b4(OtuBadgeState* self) {
         return;
     }
 
-    self->step  = 0;
-    self->phase = 7;
+    self->step = 0;
+    self->kind = 7;
 
     slot = &self->slots[self->pinID[0]];
     func_ov039_02091028(EasyTask_GetTaskData(self->pool, self->taskId1), slot->curveA, slot->curveB, slot->curveC,
@@ -570,11 +570,11 @@ void func_ov039_0208ba34(OtuBadgeState* self) {
         return;
     }
 
-    self->vel.x  = 0;
-    self->vel.y  = 0;
-    self->phase  = 8;
-    self->step   = 0;
-    self->unk_FC = 0;
+    self->vel.x   = 0;
+    self->vel.y   = 0;
+    self->kind    = 8;
+    self->step    = 0;
+    self->subKind = 0;
 
     self->timers.bounceTimer = self->timers.bounceTimer - 1;
 }
@@ -590,18 +590,18 @@ void func_ov039_0208ba70(OtuBadgeState* self) {
     zero.x = 0;
     zero.y = 0;
 
-    func_ov039_02098c00(data_ov039_0209a38c, &self->velNorm, &zero, &self->vel);
-    func_ov039_02098d3c(&self->vel, &self->velNorm);
+    func_ov039_02098c00(data_ov039_0209a38c, &self->dir, &zero, &self->vel);
+    func_ov039_02098d3c(&self->vel, &self->dir);
 
     self->unk_134     = data_ov039_0209a320;
     self->step        = 0;
-    self->phase       = 9;
+    self->kind        = 9;
     self->step        = 0;
     self->frameBudget = 9;
 
     func_ov039_02091b34(EasyTask_GetTaskData(self->pool, self->taskId3));
 
-    if (self->unk_148 > 0) {
+    if (self->alive > 0) {
         func_ov039_0208a490(self, 1);
     }
 
@@ -619,11 +619,11 @@ void func_ov039_0208bb2c(OtuBadgeState* self) {
     // A badge that still has a rival attached is finishing an interaction. The
     // two-frame decrement only happens once the interaction is flagged as over,
     // so the frames are counted from the end rather than from the start.
-    if (self->unk_148 > 0) {
+    if (self->alive > 0) {
         if (self->stateFlags & 2) {
-            self->unk_148 = self->unk_148 - 2;
-            if (self->unk_148 < 0) {
-                self->unk_148 = 0;
+            self->alive = self->alive - 2;
+            if (self->alive < 0) {
+                self->alive = 0;
             }
         }
         self->step = 0;
@@ -661,10 +661,10 @@ void func_ov039_0208bb2c(OtuBadgeState* self) {
         self->unk_1CC = 0;
         self->step    = 1;
 
-        self->startPos.x = self->home->tileX << 0xC;
-        self->startPos.y = self->home->tileY << 0xC;
-        self->curPos.x   = self->startPos.x;
-        self->curPos.y   = self->startPos.y;
+        self->aimStart.x = self->home->tileX << 0xC;
+        self->aimStart.y = self->home->tileY << 0xC;
+        self->aimCur.x   = self->aimStart.x;
+        self->aimCur.y   = self->aimStart.y;
 
     } else if (self->step == 1) {
         s32 turn;
@@ -678,8 +678,8 @@ void func_ov039_0208bb2c(OtuBadgeState* self) {
 
         // The aim point tracks the home tile, so until the badge has somewhere
         // else to be it is still following it.
-        self->curPos.x = self->home->tileX << 0xC;
-        self->curPos.y = self->home->tileY << 0xC;
+        self->aimCur.x = self->home->tileX << 0xC;
+        self->aimCur.y = self->home->tileY << 0xC;
 
         if (!(self->stateFlags & 4)) {
             return;
@@ -687,14 +687,14 @@ void func_ov039_0208bb2c(OtuBadgeState* self) {
 
         self->step = 0;
 
-        turn = func_ov039_02098ca8(&self->startPos, &self->curPos);
+        turn = func_ov039_02098ca8(&self->aimStart, &self->aimCur);
         if (turn <= 0) {
             return;
         }
 
         // Join the two aim points by an offset from where the badge is now.
-        func_ov039_02098b8c(&self->startPos, &self->unk_118, &fromHome);
-        func_ov039_02098b8c(&self->curPos, &self->unk_118, &fromPos);
+        func_ov039_02098b8c(&self->aimStart, &self->unk_118, &fromHome);
+        func_ov039_02098b8c(&self->aimCur, &self->unk_118, &fromPos);
 
         reach = func_ov039_0208a624(&fromHome, &fromPos, &self->pos);
         if (reach == 0) {
@@ -740,7 +740,7 @@ void func_ov039_0208bb2c(OtuBadgeState* self) {
         // the badge ends up winding tight or winding loose.
         sign = (func_ov039_02098c70(&legB, &legA) >= 0) ? data_ov039_0209a394 : -data_ov039_0209a394;
 
-        self->unk_144 = (s32)(((s64)(sign * scale) * reach + 0x800) >> 12) * 3;
+        self->velMag = (s32)(((s64)(sign * scale) * reach + 0x800) >> 12) * 3;
     }
 }
 
@@ -767,7 +767,7 @@ void func_ov039_0208be30(OtuBadgeState* self, OtuPoint* dir) {
 
     // The wobble is a full-width random offset, tripled to match the three
     // the caller divides it back down by.
-    self->unk_144 = (s32)((RNG_Next(data_ov039_0209a394 * 2) - data_ov039_0209a394) << 0xC) * 3;
+    self->velMag = (s32)((RNG_Next(data_ov039_0209a394 * 2) - data_ov039_0209a394) << 0xC) * 3;
 }
 
 /**
@@ -952,12 +952,12 @@ s32 func_ov039_0208c304(OtuBadgeState* self) {
             return 0;
         }
 
-        gap = func_ov039_02098ca8(&self->pos, (OtuPoint*)&target->x);
+        gap = func_ov039_02098ca8(&self->pos, &target->pos);
         if (gap > 0xC8000) {
             return 0;
         }
 
-        func_ov039_0208be30(self, (OtuPoint*)&target->x);
+        func_ov039_0208be30(self, &target->pos);
 
         self->curAI       = 2;
         self->unk_1B8     = 1;
@@ -969,7 +969,7 @@ s32 func_ov039_0208c304(OtuBadgeState* self) {
     target = self->chaseTarget;
     alive  = func_ov039_0208efb0(target, 0x444);
     if (alive != 0) {
-        func_ov039_0208be30(self, (OtuPoint*)&target->x);
+        func_ov039_0208be30(self, &target->pos);
     }
     return 1;
 }
@@ -989,14 +989,14 @@ s32 func_ov039_0208c3bc(OtuBadgeState* self) {
         return 0;
     }
 
-    gap = func_ov039_02098ca8(&self->pos, (OtuPoint*)&target->x);
+    gap = func_ov039_02098ca8(&self->pos, &target->pos);
     if (gap > 0x46000) {
         return 0;
     }
 
     // Two subtractions, which net out to `target - (self - target)`: running
     // away is the chase reflected through the target.
-    func_ov039_02098bb0((OtuPoint*)&target->x, &self->pos, &away);
+    func_ov039_02098bb0(&target->pos, &self->pos, &away);
     func_ov039_02098bb0(&self->pos, &away, &away);
 
     func_ov039_0208be30(self, &away);
@@ -1028,7 +1028,7 @@ s32 func_ov039_0208c45c(OtuBadgeState* self) {
         return 0;
     }
 
-    gap = func_ov039_02098ca8(&self->pos, (OtuPoint*)&target->x);
+    gap = func_ov039_02098ca8(&self->pos, &target->pos);
     if (gap > 0x46000) {
         return 0;
     }

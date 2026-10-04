@@ -642,36 +642,25 @@ typedef struct {
  * is the same sentinel func_ov039_020824a0 fills the tray with; func_ov039_0208efb0
  * rejects those. Only fields the queries or their filters read are named.
  */
-/**
- * @brief One pin, 0x174 bytes -- the trimmed view of the same object band 12
- *        models in full as OtuBadge, and band B3 as OtuBadgeState.
+/*
+ * The pin/badge task's data block. This used to be a third, trimmed 0x174-byte
+ * view of the same object, declared here because the pool-query prototypes below
+ * name it. All three badge views -- this one, `OtuBadge` and `OtuBadgeState` --
+ * were independently written over one 0x25C task ("Tsk_OtosuGame_badge") and
+ * are now a single definition in OtuFieldAccessShared.h, which this header's
+ * consumers all reach through. The definitions could not stay here because the
+ * unified struct needs `Sprite`, `OtuHomePos`, `OtuBadgeSlot` and `OtuTimers`,
+ * none of which this header has seen.
  *
- *  All three are views of one 0x25C task, "Tsk_OtosuGame_badge". This one is
- *  the narrow prefix the pool queries need; see OtuBadge's own comment for the
- *  handle that ties them together.
+ * The old trimmed view carried no padding at all, so C laid its fields out at
+ * 0x0, 0x4, 0x8 ... and every access compiled to a displacement four times too
+ * small: `task->kind` became `ldr r0, [r0, #4]` instead of `ldr r1, [r0, #0xf8]`.
+ * Nothing noticed for as long as the type was only ever used as an opaque
+ * pointer -- the seven accessors at 0x0208e6cc..0x0208e87c that read through it
+ * were all sitting at 60%, and four of this band's seven predicates at 57.8%.
  *
- *  The offsets in the comments are load-bearing. This type used to carry no
- *  padding at all, so C laid its fields out at 0x0, 0x4, 0x8 ... and every
- *  access compiled to a displacement four times too small: `task->kind` became
- *  `ldr r0, [r0, #4]` instead of `ldr r1, [r0, #0xf8]`. Nothing noticed for as
- *  long as the type was only ever used as an opaque pointer -- the seven
- *  accessors at 0x0208e6cc..0x0208e87c that read through it were all sitting at
- *  60%, and four of this band's seven predicates at 57.8%.
+ * The prototypes below moved to OtuFieldAccessShared.h along with the type.
  */
-typedef struct {
-    u8               pad_000[0xE4];
-    /* 0x0E4 */ s32  unk_E4;
-    u8               pad_0E8[0x10];
-    /* 0x0F8 */ s32  kind; // 6, 7 or 8 -- which sort of pin this is
-    u8               pad_0FC[0x24];
-    /* 0x120 */ s32  x;
-    /* 0x124 */ s32  y;
-    u8               pad_128[0x20];
-    /* 0x148 */ s32  alive; // non-zero while the pin is still in play
-    u8               pad_14C[0x20];
-    /* 0x16C */ u16* pinID; // a tray slot's value; 0x130 means "no pin"
-    u8               pad_170[0x04];
-} OtuPinTask;               // Size: 0x174
 
 /**
  * The child task ids the stage keeps at +0x17C, one word per pool slot.
@@ -693,18 +682,12 @@ typedef struct {
  */
 #define OTU_CHILD_ID(table, i) (*(s32*)((u8*)(table) + (i) * 4 + 0x17C))
 
-/* Copies a task's +0x120/+0x124 pair into `out` (OtuTaskPick.c). */
-void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out);
+/* Copies a task's +0x120/+0x124 pair into `out` (OtuTaskPick.c), and the five
+ * child filters, moved to OtuFieldAccessShared.h along with the unified badge
+ * struct they name. */
 
 /* Returns a score for the pair of points, via the overlay's vector unit. */
 s32 func_ov039_02098ca8(OtuPoint* a, OtuPoint* b);
-
-/* The five child filters: true when the child is a candidate worth scoring. */
-s32 func_ov039_0208e984(OtuPinTask* task); // kind == 8
-s32 func_ov039_0208e998(OtuPinTask* task); // kind == 7
-s32 func_ov039_0208e9d0(OtuPinTask* task); // kind == 6
-s32 func_ov039_0208ee84(OtuPinTask* task); // alive
-s32 func_ov039_0208efb0(OtuPinTask* task, s32 which);
 
 /**
  * @brief The sprite slot this overlay fills in, 0x14 bytes.
@@ -732,13 +715,30 @@ extern OtuSpriteSlot* data_0206b408;
 /**
  * @brief A task that can produce a sprite cell.
  *
- * Only the four fields the twenty-two cell builders read are named: a signed
- * index at +0x16 and a table pointer at +0x1C, which together drive the
- * two-step lookup, plus the coordinate fields at +0x4C and onwards that the
- * packer is fed from.
+ * The three fields the whole cell-builder family reads *in common* are named:
+ * the cell index at +0x16, the enable word at +0x18 and the cell-table pointer
+ * at +0x1C, which together drive the two-step lookup. All twenty-eight builders
+ * agree on both the offsets and the widths, so `t->index` / `t->cellTable` /
+ * `t->unk_18` mean the same thing in every one of them.
+ *
+ * Naming them is codegen-neutral: an A/B build of func_ov039_0209352c with and
+ * without the members emitted byte-identical code, and the family's match
+ * percentages are unchanged against baseline. So this is a readability change
+ * with a measured cost of zero instructions -- which is *not* the same as the
+ * builders being correct. They sit at 76-89% for an unrelated reason (the
+ * two-step lookup's register scheduling and the literal-pool symbol name), and
+ * see the `// Nonmatching` note on each.
+ *
+ * Everything from +0x20 up is deliberately left unnamed. Each builder takes a
+ * *different* task layout, so the depth-key source is +0x4C in one, +0x5C in
+ * another and a bare +0x40 in a third; there is no single field to name.
  */
 typedef struct {
-    u8 pad_16[0x100];
+    /* 0x00 */ u8  pad_00[0x16];
+    /* 0x16 */ s16 index;  // cell index into `cellTable`; must be >= 0
+    /* 0x18 */ s32 unk_18; // non-zero enables the lookup
+    /* 0x1C */ u8* cellTable;
+    /* 0x20 */ u8  pad_20[0xE0];
 } OtuSpriteTask;
 
 /* Packs a Q12.12 pair into a single sortable depth key (OtuSpriteCell.c). */

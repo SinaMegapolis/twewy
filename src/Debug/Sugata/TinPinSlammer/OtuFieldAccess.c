@@ -52,6 +52,23 @@
  * they touch. Every structure involved is shared with code that already matches,
  * and naming fields on them would move stack slots and register choices in
  * functions that are currently byte-for-byte correct.
+ *
+ * That reasoning was tested rather than assumed. Where a struct already carried
+ * a field at the right offset *and* the right width -- `OtuBadge`, `OtuShadowTask`,
+ * `OtuEntryTask`, `OtuObstacle`, `OtuStageDispatch` and the rest -- naming the
+ * field is codegen-neutral, and those conversions are in the tree. The two
+ * cases where it is *not* neutral are both recorded at their use sites:
+ *
+ *   - a `Sprite sprite[3]` array member, which makes mwcc scale the index and
+ *     emit `add r0, r4, #0x3800` where the target has `add r0, r4, #0x40`
+ *     (OtuFieldAccessShared.h, OtuTripleSprite);
+ *   - a field whose declared width disagrees with the access -- `stateFlags`
+ *     is a `u16` but one store is a full word, and `OtuBadgeState.home` is a
+ *     pointer but is read here as a word flag (OtuMeters.c).
+ *
+ * So the rule is narrower than "naming fields is safe": it is safe when offset
+ * and width already agree, and it is checked per access rather than assumed for
+ * a whole structure.
  */
 
 /* ------------------------------------------------------------------ */

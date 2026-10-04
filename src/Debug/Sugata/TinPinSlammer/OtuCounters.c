@@ -211,9 +211,13 @@ OtuSpriteSlot* func_ov039_0209352c(OtuSpriteTask* t, s32 arg, s32 sel) {
             // The same three flat short-circuit tests the twenty-two use, over
             // +0x18, +0x1C and +0x16. The `ldrne` on the table load is the
             // short-circuit, which is why +0x18 is tested at all.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            //
+            // Written as members, which is codegen-neutral here: an A/B build
+            // with and without them emits byte-identical code and the match% is
+            // unchanged from baseline. It does *not* reach 100% -- see the
+            // `// Nonmatching` note above, which is about mwcc holding the table
+            // pointer and index across the store between the two lookups.
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
             }
@@ -455,9 +459,7 @@ OtuSpriteSlot* func_ov039_02093884(OtuSpriteTask* t, s32 arg, s32 sel) {
             slot->unk_0C   = 0;
             slot->depthKey = -1;
 
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
             }
@@ -826,9 +828,7 @@ OtuSpriteSlot* func_ov039_02093e3c(OtuSpriteTask* t, s32 arg, s32 sel) {
             slot->unk_0C   = 0;
             slot->depthKey = -1;
 
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
             }
@@ -1048,10 +1048,10 @@ s32 func_ov039_020941d0(TaskPool* pool, s32 a, s32 b) {
 
 /** A single word at +0xC4. */
 s32 func_ov039_02094204(void* task) {
-    return *(s32*)((u8*)task + 0xC4);
+    return ((OtuCountdownData*)task)->countdown;
 }
 
 /** A single word at +0xCC. */
 s32 func_ov039_0209420c(void* task) {
-    return *(s32*)((u8*)task + 0xCC);
+    return ((OtuCountdownData*)task)->alarmed;
 }

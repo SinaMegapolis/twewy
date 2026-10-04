@@ -115,9 +115,7 @@ OtuSpriteSlot* func_ov039_02098538(OtuSpriteTask* t, s32 arg, s32 sel) {
             slot->unk_0C   = 0;
             slot->depthKey = -1;
 
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -358,9 +356,11 @@ void func_ov039_02098a20(void* a, void* owner) {
  * This is the call the entry points make when choosing which stage to run --
  * func_ov039_02082c50 branches on it to pick the menu stage or the result stage.
  */
-void func_ov039_02098a40(void* dispatch, void* stage) {
-    *(void**)((u8*)dispatch + 0x0C) = stage;
-    *(s32*)((u8*)dispatch + 0x10)   = 1;
+void func_ov039_02098a40(void* dispatch_, void* stage) {
+    OtuStageDispatch* dispatch = (OtuStageDispatch*)dispatch_;
+
+    dispatch->action = stage;
+    dispatch->active = 1;
 }
 
 /** Increments the stage index -- the only accessor here that does not assign. */
@@ -460,7 +460,9 @@ void func_ov039_02098af4(void* task, void* arg) {
 
 /** True when +0x0C is clear and +0x10 is set. */
 s32 func_ov039_02098b44(void* task) {
-    if (*(s32*)((u8*)task + 0x0C) == 0 && *(s32*)((u8*)task + 0x10) != 0) {
+    OtuStageDispatch* dispatch = (OtuStageDispatch*)task;
+
+    if (dispatch->action == NULL && dispatch->active != 0) {
         return 1;
     }
     return 0;
@@ -468,7 +470,7 @@ s32 func_ov039_02098b44(void* task) {
 
 /** Reads the current stage block. */
 void* func_ov039_02098b68(void* dispatch) {
-    return *(void**)((u8*)dispatch + 0x04);
+    return ((OtuStageDispatch*)dispatch)->stage;
 }
 
 /** Reads the stage block the row table hangs off. */
@@ -478,8 +480,8 @@ void* func_ov039_02098b70(OtuStageDispatch* dispatch) {
 
 /** Copies the container's first two words out. */
 void func_ov039_02098b78(OtuStageDispatch* dispatch, s32* out) {
-    out[0] = *(s32*)((u8*)dispatch + 0x00);
-    out[1] = *(s32*)((u8*)dispatch + 0x04);
+    out[0] = (s32)dispatch->heap;
+    out[1] = (s32)dispatch->stage;
 }
 
 /** out = a + b, component-wise. */

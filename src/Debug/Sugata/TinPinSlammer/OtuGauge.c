@@ -50,9 +50,7 @@ OtuSpriteSlot* func_ov039_02094214(OtuSpriteTask* t, s32 arg, s32 mode) {
 
             // The two-step lookup: a u16 out of the cell table at one stride,
             // then a byte pointer built from the u16 at the other.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = *(u16*)(table + index * 8 + 2);
                 slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
             }
@@ -550,9 +548,7 @@ OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -805,9 +801,7 @@ OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }

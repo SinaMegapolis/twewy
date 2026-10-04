@@ -44,12 +44,12 @@ void func_ov039_0208f024(void* arg) {
 
 /** A single word at +0x1AC. */
 s32 func_ov039_0208f034(void* task) {
-    return *(s32*)((u8*)task + 0x1AC);
+    return ((OtuBadge*)task)->unk_1AC;
 }
 
 /** Raises the +0x1B4 word to 0x11. Set, not incremented. */
 void func_ov039_0208f03c(void* task) {
-    *(s32*)((u8*)task + 0x1B4) = 0x11;
+    ((OtuBadge*)task)->curAI = 0x11;
 }
 
 /**
@@ -89,8 +89,10 @@ s32 func_ov039_0208f0b0(void* task) {
  * where an early exit is a side-effect guard rather than a value test.
  */
 void func_ov039_0208f0c8(void* task) {
-    if (*(s32*)((u8*)task + 0x1A8) != 0) {
-        func_ov039_02096270(EasyTask_GetTaskData(*(void**)((u8*)task + 8), *(s32*)((u8*)task + 0x230)));
+    OtuBadge* self = (OtuBadge*)task;
+
+    if (self->hasLabel != 0) {
+        func_ov039_02096270(EasyTask_GetTaskData(self->pool, self->labelTask));
     }
 }
 
@@ -101,8 +103,10 @@ void func_ov039_0208f0c8(void* task) {
  * the source is an `if` with the constant folded into it, not a masked write.
  */
 void func_ov039_0208f0f0(void* task, s32 value) {
-    if (*(s32*)((u8*)task + 0x1B0) == value) {
-        *(s32*)((u8*)task + 0x1B0) = 0;
+    OtuBadge* self = (OtuBadge*)task;
+
+    if ((s32)self->partner == value) {
+        self->partner = 0;
     }
 }
 
@@ -165,9 +169,7 @@ OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -412,9 +414,7 @@ OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -583,8 +583,10 @@ s32 func_ov039_0208f770(TaskPool* pool, s32 dataType, s32 childId) {
 
 /** Writes +0x58 from a value and raises +0x5C to 1. */
 void func_ov039_0208f7a4(void* task, s32 value) {
-    *(s32*)((u8*)task + 0x58) = value;
-    *(s32*)((u8*)task + 0x5C) = 1;
+    OtuShadowTask* self = (OtuShadowTask*)task;
+
+    self->pinPosB_hi.x = value;
+    self->pinPosB_hi.y = 1;
 }
 
 /**
@@ -623,9 +625,7 @@ OtuSpriteSlot* func_ov039_0208f7b4(OtuSpriteTask* t, s32 arg, s32 sel) {
             slot->unk_0C   = 0;
             slot->depthKey = -1;
 
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
@@ -773,9 +773,7 @@ OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 arg, s32 mode) {
             // The two-step lookup: a u16 out of the task's table at one stride,
             // then a byte pointer built from the u16 at the other. Guarded on the
             // table pointer and on the index being non-negative.
-            if (*(s32*)((u8*)t + 0x18) != 0 && (table = *(u8**)((u8*)t + 0x1C)) != NULL &&
-                (index = *(s16*)((u8*)t + 0x16)) >= 0)
-            {
+            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
                 slot->unk_04 = ((u16*)table)[index * 4 + 1];
                 slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
             }
