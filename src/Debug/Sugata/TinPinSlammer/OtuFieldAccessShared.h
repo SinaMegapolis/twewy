@@ -388,7 +388,7 @@ typedef struct OtuBadge {
     /* 0x1EC */ u32                  taskId3; // the spin task
     /* 0x1F0 */ s32                  child7;
     /* 0x1F4 */ s32                  child8;
-    /* 0x1F8 */ u32                  trailId[12];
+    /* 0x1F8 */ u32                  trailId[12]; // see the note below
     /* 0x228 */ s32                  pairIds[2];
     /* 0x230 */ s32                  labelTask;
     /* 0x234 */ s32                  child9;
@@ -414,6 +414,27 @@ typedef OtuBadge OtuBadgeState;
  * 0x178 up by four without a single diagnostic. The task really is 0x25C bytes,
  * and three separate views previously agreed on that, so pin it. */
 typedef char OtuBadge_SizeMustBe_0x25C[(sizeof(OtuBadge) == 0x25C) ? 1 : -1];
+
+/**
+ * @brief 0x1F8 was `children[12]` in OtuBadge and `trailId[12]` in
+ *        OtuBadgeState. It is not two arrays, and it is not a conflation --
+ *        checked, because the two names did suggest an overlap.
+ *
+ * The suspicion was a 4-versus-12 mismatch: OtuMeters.c walks a
+ * `children[i]` with `for (i = 0; i < 4; i++)`, and 0208db44 walks 0x1F8 with
+ * `cmp r6, #0xc`. That comparison is a red herring. The 4-iteration loops are
+ * in functions whose parameter is an `OtuHammer*`, not this struct -- 02090d90
+ * does `ldr r4, [r1, #0x18]` for task->data and then `ldr r1, [r0, #0x128]`,
+ * and +0x128 is `OtuHammer.children[4]`, a different field on a different task.
+ * Two structs in this overlay both have a `children` array; they are unrelated.
+ *
+ * Every read of *this* field is twelve wide. The badge's teardown walks 0x1F8
+ * with `cmp r6, #0xc` and nothing else in the field is ever indexed, and
+ * OtuBadgeState places a trail mark through `trailId[timers.trailIndex]` and
+ * wraps the cursor at `>= 0xC`. So twelve is the width, `trailId` is the role,
+ * and `children` was simply a name with no use behind it -- the badge view
+ * invented it and no code ever read it that way.
+ */
 
 /**
  * @brief 0xF8 was called `kind` by two of the three badge views, and it is
