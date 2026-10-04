@@ -19,7 +19,11 @@
  *  separate (`mla r1, r3, r1, r6` then `ldrb r3, [r1, #4]`), and folding the
  *  two together costs an instruction. Same reasoning as OTU_CHILD_ID.
  */
-#define OTU_PIN_ROW(self) ((OtuPinRow*)((u8*)(self)->slots + *(self)->pinID * 0x1C))
+/* Same expression OtuBadgeState.c writes by hand as
+ * `&self->slots[self->pinID[0]]`. Kept as a macro because the target reloads
+ * pinID and slots for every access rather than hoisting them, and spelling
+ * the subscript out longhand invites the compiler to hoist it. */
+#define OTU_PIN_ROW(self) (&(self)->slots[*(self)->pinID])
 
 /** The pin's position, as the vector helpers want it. */
 #define OTU_PIN_POS(self) (&(self)->pos)
@@ -690,18 +694,18 @@ void func_ov039_0208e130(OtuBadge* self, OtuBadge* other) {
 
     // The row pointer is not hoisted into a local: the target re-reads both
     // `pinID` and `rowTable` from the task on each of the four lookups, so a
-    // cached OtuPinRow* is a source-level difference, not a scheduling one.
+    // cached OtuBadgeSlot* is a source-level difference, not a scheduling one.
     scale = (self->alive > 0) ? data_ov039_0209a388 : 0x1000;
-    func_ov039_0208dff0(&dir, OTU_MUL_Q12(score, scale), data_ov039_0209a3e4[OTU_PIN_ROW(self)->weight].scaleA,
-                        (other->mode > 0) ? data_ov039_0209a3e8[OTU_PIN_ROW(other)->weight].scaleB * 2
-                                          : data_ov039_0209a3e8[OTU_PIN_ROW(other)->weight].scaleB,
+    func_ov039_0208dff0(&dir, OTU_MUL_Q12(score, scale), data_ov039_0209a3e4[OTU_PIN_ROW(self)->tuneIndex].scaleA,
+                        (other->mode > 0) ? data_ov039_0209a3e8[OTU_PIN_ROW(other)->tuneIndex].scaleB * 2
+                                          : data_ov039_0209a3e8[OTU_PIN_ROW(other)->tuneIndex].scaleB,
                         self);
     self->partner = other;
 
     scale = (other->alive > 0) ? data_ov039_0209a388 : 0x1000;
-    func_ov039_0208dff0(&dir, -OTU_MUL_Q12(score, scale), data_ov039_0209a3e4[OTU_PIN_ROW(other)->weight].scaleA,
-                        (self->mode > 0) ? data_ov039_0209a3e8[OTU_PIN_ROW(self)->weight].scaleB * 2
-                                         : data_ov039_0209a3e8[OTU_PIN_ROW(self)->weight].scaleB,
+    func_ov039_0208dff0(&dir, -OTU_MUL_Q12(score, scale), data_ov039_0209a3e4[OTU_PIN_ROW(other)->tuneIndex].scaleA,
+                        (self->mode > 0) ? data_ov039_0209a3e8[OTU_PIN_ROW(self)->tuneIndex].scaleB * 2
+                                         : data_ov039_0209a3e8[OTU_PIN_ROW(self)->tuneIndex].scaleB,
                         other);
     other->partner = self;
 }

@@ -726,12 +726,12 @@ void func_ov039_0208d210(OtuBadge* task) {
     /* The cell record is reached through a u16 index whose home is itself a
      * pointer at +0x16C, and the record is 0x1C bytes at +0x170. */
     {
-        u16 index      = *(u16*)*(s32*)(self + 0x16C);
-        u8* slots      = *(u8**)(self + 0x170);
-        u8  speedIndex = *(u8*)(slots + index * 0x1C + 4);
+        u16 index     = *(u16*)*(s32*)(self + 0x16C);
+        u8* slots     = *(u8**)(self + 0x170);
+        u8  tuneIndex = *(u8*)(slots + index * 0x1C + 4);
 
         rate = data_ov039_0209a39c[3];
-        rate = (s32)(((s64)data_ov039_0209a3e0[speedIndex].speed * rate + 0x800) >> 12);
+        rate = (s32)(((s64)data_ov039_0209a3e0[tuneIndex].speed * rate + 0x800) >> 12);
     }
 
     func_ov039_0208ad2c((OtuPoint*)(self + 0x12C), rate);

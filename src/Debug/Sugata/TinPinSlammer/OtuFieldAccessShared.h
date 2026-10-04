@@ -232,19 +232,30 @@ typedef struct {
 // Size: 0x4
 
 /**
- * @brief One badge kind's behaviour record, 0x1C-byte stride.
+ * @brief One pin's behaviour record, 0x1C-byte stride, reached through +0x170.
  *
- * Reached through +0x170 and indexed by the tray slot at +0x16C, so the stride
- * is a `mla` against 0x1C rather than an array subscript the compiler could
- * fold away. The two groups of fields serve two different phases and nothing
- * suggests they are related: +0x04/+0x06 drive the rolling phase, +0x08
- * onward the scripted set-piece phases.
+ * Indexed by the tray slot at +0x16C, so the stride is a `mla` against 0x1C
+ * rather than an array subscript the compiler could fold away:
+ * `ldr r0, [r4, #0x16c] / ldr r3, [r4, #0x170] / ldrh r2, [r0, #0x0] /
+ * mov r0, #0x1c / mla r0, r2, r0, r3`.
+ *
+ * This was two structs, this one and a second called `OtuPinRow`, and they were
+ * never two records. The target shows one array: the four leading bytes at +0x00
+ * are read with `ldrb` by 0208d5dc as tile[0..3], and +0x04 is read with `ldrb`
+ * by both 0208af6c and 0208e130 and used as `ldr rX, [rX, r2, lsl #0x4]` -- an
+ * index into a 0x10-stride table. data_ov039_0209a3e0, _3e4 and _3e8 are three
+ * *fields* of one such array, not three tables, which is what let the two bands
+ * read +0x04 as an unrelated `speedIndex` and `weight`. One type covers both
+ * now.
+ *
+ * `tile[]` are the frame budgets the badge is spawned with, in the order
+ * 6, 8, 7, 9 -- see OtuTimers, which is what they are copied into.
  */
 typedef struct {
-    /* 0x00 */ u8  pad_00[0x04];
-    /* 0x04 */ u8  speedIndex; // index into data_ov039_0209a3e0
+    /* 0x00 */ u8  tile[4];   // copied into OtuTimers as phases 6, 8, 7, 9
+    /* 0x04 */ u8  tuneIndex; // index into data_ov039_0209a3e0, 0x10 stride
     /* 0x05 */ u8  pad_05;
-    /* 0x06 */ s16 friction;   // Q12.12, scaled by unk_144 / 3 into a heading offset
+    /* 0x06 */ s16 friction;  // Q12.12, scaled by unk_144 / 3 into a heading offset
     /* 0x08 */ u16 animX;
     /* 0x0A */ u16 animY;
     /* 0x0C */ u8  pad_0C[0x04];
@@ -2572,185 +2583,18 @@ typedef struct {
 extern OtuBadgeSpeed data_ov039_0209a3e0[];
 
 /**
- * The base module's sine/cosine table, indexed by `(angle >> 4) * 2`.
- *
- * `entry[n * 2]` is the cosine and `entry[n * 2 + 1]` the sine; 0x0208af6c
- * puts the sine on x and the cosine on y, which is the overlay's convention
- * for turning a heading into a direction vector.
- */
-/* declared by band 3 as s32[]; bands 5 and 7 read it through a s16* cast -- declared/defined elsewhere in this TU; see the
- * note below on why band 11 does not repeat it. */
-
-/* ------------------------------------------------------------------ */
-/* Task-data shapes.                                                   */
-/* ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------ */
-/* Declarations this TU does not otherwise have.                       */
-/* ------------------------------------------------------------------ */
-
-/*
- * Everything below is outside the band and outside OtuFieldAccess's own
- * bodies, so nothing in this translation unit declares it. Undefined callees
- * are not a problem: dsd resolves them against the original overlay.
- */
-
-/** The shared vector unit's normalise helper. */
-
-/*
- * func_ov039_02098b78 is really a point copy (`out = *(OtuPoint*)src`) but
- * OtuFieldAccess.c above declares it as the dispatch container's word pair,
- * and that declaration is what this TU sees. It is called through that
- * prototype here; the type is being corrected separately, not here.
- */
-
-/** The board's tile lookup: which tile kind is under this Q12.12 point. */
-/* defined in band 10 as u8 (OtuPoint*, OtuCellGrid*) -- declared/defined elsewhere in this TU; see the note
- * below on why band 11 does not repeat it. */
-
-/** Scales a direction to `scale`, applies it to the badge, then plays it. */
-/* defined in band 10 as void (OtuPinLogic*, OtuPoint*, s32) -- declared/defined elsewhere in this TU; see the note
- * below on why band 11 does not repeat it. */
-
-/** Joins two directions through `out` and returns the length; 0 = unreachable. */
-s32 func_ov039_0208a624(OtuPoint* a, OtuPoint* b, OtuPoint* out);
-
-/** The turn between two directions, against the 0x24000 turn radius. */
-s32 func_ov039_0208a530(OtuPoint* a, OtuPoint* b, OtuPoint* out);
-
-/** The arc task's per-frame stepper, driven from phase 7. */
-void func_ov039_02091028(void* task, s32 x, s32 y, s32 z, u16 w);
-
-/** The overlay's nearest-child queries, by pin kind. */
-OtuPinTask* func_ov039_02087f4c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which);
-
-OtuPinTask* func_ov039_02088064(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which);
-
-/* ============================================================================
- * BATCH B4 -- the "badge" task's own support routines,
- * 0x0208d3bc - 0x0208e504 (18 functions, 4880 bytes).
- *
- * WHAT THIS BATCH IS
- * -----------------
- * These are not a slice of somebody else's call graph -- they are one whole
- * task's body. The TaskHandle at 0x0209926c names it, and the name string at
- * 0x0209a49c is "Tsk_OtosuGame_badge": {name, taskFunc = 0x0208dc68,
- * dataSize = 0x25C}. The stage table at 0x02099278 is
- *
- *     0x0208d6dc  init
- *     0x0208d7e4  update
- *     0x0208da74  render
- *     0x0208db44  cleanup
- *
- * and 0x0208dc68 is the usual four-slot trampoline over it. So the first
- * four stage-shaped functions here are that task's lifecycle, 0x0208d3bc /
- * 0x0208d4cc / 0x0208d554 are its three sprite loaders (one per embedded
- * Sprite), 0x0208d5dc is its state reset, 0x0208d9ec its per-frame position
- * push, 0x0208dcb0 its spawner, and the tail of the band
- * (0x0208df2c .. 0x0208e504) is the pair-versus-pair collision code that the
- * pin task runs against itself.
- *
- * The same task is modelled twice more in this translation unit: the header's
- * `OtuPinTask` is the narrow 0x174 prefix of it that the pool queries use, and
- * band B3's `OtuBadgeState` is the badge AI's own full view of the same 0x25C
- * bytes under different field names. All three describe one object. There is
- * no "badger" task -- that was a misreading of the handle's
- * "Tsk_OtosuGame_badge", confirmed against the ROM's task strings, none of
- * which contains "badger" except `Tsk_OtosuGame_badgeradar`.
- *
- * STRUCTURAL FINDINGS
- * -------------------
- * 1. Three Sprites are embedded at +0x0C, +0x4C and +0x8C. That is not an
- *    inference from the address arithmetic: 0x0208d9ec stores to +0x18/+0x1A
- *    and +0x98/+0x9A, which are Sprite.posX/posY (+0x0C/+0x0E) inside a
- *    Sprite at +0x0C and +0x8C respectively, and 0x0208da74 does the same at
- *    +0x58/+0x5A for the one at +0x4C. 0x0C + 0x40 + 0x40 = 0x8C exactly.
- * 2. The +0x100 sub-object is real and is what OtuFieldAccess.c's four
- *    0x100+0x78..0x7E accessors read. 0x0208d5dc writes them from four
- *    *bytes* of a 0x1C-stride record table (so they are four s16 fields fed
- *    byte by byte, not one u32), and also writes +0x100+0x9E = 5.
- * 3. The record table at +0x170 is indexed by the u16 at +0x16C with a
- *    0x1C *byte* stride. +0x16C is the same tray-slot pointer the header
- *    documents for OtuPinTask.pinID, and 0x130 is the same "no pin" sentinel.
- * 4. `kind` at +0xF8 is the state's discriminator. Three different switches
- *    over it appear in this band and they select *different* sets:
- *      0x0208d7e4 update : 1,3,6,7 share func_ov039_0208af6c, then a full
- *                          1..9 dispatch to nine per-kind handlers
- *      0x0208da74 render : 1,3,4,5,7,9 render, 8 renders only for subKind
- *                          0/1/6
- *      0x0208e28c        : only kinds 1,6,7 may interact
- *      0x0208e37c        : only kinds 1,3,4,6,7
- *      0x0208e504        : only kinds 1,6,7,9
- *    So 1/6/7 is one class (they interact and are what 0x0208e28c drives) and
- *    9 joins them only for the wall/board case in 0x0208e504.
- * 5. The three sprite loaders differ only in which 0x2C-byte SpriteAnimation
- *    template they copy (0x02099288 / 0x020992b4 / 0x020992e0 -- exactly one
- *    struct apart each) and, for the first only, in a pin-dependent
- *    binIden/packIndex patch. The `<< 0x1C` / `>> 0x1A` pair is the
- *    `dataType` bitfield insert; the `bic #0x380` / `orr #0x300` in the first
- *    one alone is `bits_7_9 = 6`.
- * 6. The child-task handles at +0x1D4..+0x258 are created by band 1/2/3/4/5/7's
- *    spawners in a fixed order and deleted in reverse by 0x0208db44, which is
- *    the same set of eleven child sorts the header's OtuPinTask comment calls
- *    "the three pin types the results screen scores separately" -- except this
- *    task creates *eleven*, so the three-kind story in the header is about
- *    querying, not about what a pin owns.
- *
- * NOT DETERMINED / KNOWN GAPS
- * ---------------------------
- *  - The `adds r4, #0x12C` / `bne` / `adds r4, #0x130` / `popeq` tail of
- *    0x0208dff0 compares *addresses*, with no loads at all. No reading of
- *    "vel.x != 0 || vel.y != 0" produces that (it needs two loads), and both
- *    fields are read as data everywhere else in the overlay. Written below as
- *    the pointer test the flags encode, with a comment.
- *  - +0xE4 is a pointer and +0xE0 an index multiplied by *two*, then bytes +8
- *    and +9 of the result are read. A 2-byte stride with +8/+9 offsets is not
- *    self-consistent; reproduced literally.
- *  - `self->unk_0CC = (u32)unk_140 * 0x10 / 0x10000` is guessed from the
- *    `lsl #4` / `lsr #16` pair. A plain `>> 12` is one instruction, so the
- *    source really did spell it as a multiply and a divide; which of the two
- *    is which cannot be told from the encoding.
- *  - Six of the eleven spawners 0x0208dcb0 calls are typed `void` in bands
- *    2/4/5 while the target stores their return value into a child-handle
- *    field. Band 4 already retyped two siblings of exactly this kind (02096b18,
- *    02096e4c) to `s32` for the same reason; the same fix is needed here and
- *    is called out at the call sites.
- *
- * WHERE THIS FILE HAS TO BE INCLUDED
- * ----------------------------------
- * Last, after OtuPinSprites. It calls 0x0208f40c / 0x0208f770 / 0x0208fa5c /
- * 0x0208fe60 (band 1), 0x0209383c / 0x02093cd8 / 0x02093d18 (band 2),
- * 0x02095750 / 0x02095ca0 (band 3), 0x02096124 / 0x02096548 / 0x02096154
- * (band 4), 0x0209771c / 0x02097a70 (band 5) and 0x02090e1c (band 7) with no
- * declaration of its own for any of them, so going in earlier means an implicit
- * `int (...)` that then collides with the real definition -- the failure mode
- * the file header already documents for bands 4/5/1.
- * ==========================================================================*/
-
-/* ------------------------------------------------------------------ */
-/* Data the band reads.                                               */
-/* ------------------------------------------------------------------ */
-
-/** The badge task's three SpriteAnimation templates, 0x2C bytes each. */
-
-/** The four stage slots, indexed by the stage argument of 0x0208dc68. */
-
-/** The task's handle: name "Tsk_OtosuGame_badge", taskFunc 0x0208dc68, 0x25C. */
-
-/*
- * The bin identifiers the first sprite loader patches in. Both pool words sit
- * inside one run of {0x27, char*} pairs at 0x0209a0b4 and the two are exactly
- * five entries (0x28 bytes) apart, so the run is one array and the two names
- * are element 0 and element 5 of it. Declared as two so the pool words keep
- * the target's names, per the note in TinPinSlammer.h about gap-filled data.
- */
-
-/** The two scale tables 0x0208e130 indexes, four words apart, 0x10 stride.
+ * @brief The two scale tables 0x0208e130 indexes, four words apart, 0x10 stride.
  *
  *  Both are read as `ldr rX, [base, index, lsl #4]`, and the bases are four
  *  bytes apart, so they are one array of 0x10-byte records read at two
- *  different field offsets rather than two independent tables. Declared as
- *  two so each pool word names the address the target names.
+ *  different field offsets rather than two independent tables -- the same
+ *  array as OtuBadgeSpeed just above, reached at its +0x04 and +0x08 instead
+ *  of its +0x00. Declared as two so each pool word names the address the
+ *  target names.
+ *
+ *  This is the array OtuBadgeSlot.tuneIndex points into, which is the third
+ *  piece of evidence that the byte at record+0x04 is one index rather than the
+ *  unrelated `speedIndex` and `weight` the two badge views each called it.
  */
 typedef struct {
     /* 0x00 */ s32 scaleA;
@@ -2760,18 +2604,8 @@ typedef struct {
 
 // Size: 0x10
 
-/** The constant 0x800 0x0208e504 scales the pin's speed by. */
-
-/* ------------------------------------------------------------------ */
-/* Shapes.                                                            */
-/* ------------------------------------------------------------------ */
-
-/** One 0x1C-byte row of the tray table at +0x170. */
-typedef struct {
-    /* 0x00 */ u8 tile[4]; // copied byte by byte to +0x178..+0x17E as four s16s
-    /* 0x04 */ u8 weight;  // indexes the two OtuPinScale tables
-    u8            pad_05[0x17];
-} OtuPinRow;
+/* OtuPinRow is gone: it was these same 0x1C bytes seen from the other end,
+ * so there is no second record and no second cast. See OtuBadgeSlot. */
 
 /**
  * @brief The nine-word block the init stage reads and the spawner builds.

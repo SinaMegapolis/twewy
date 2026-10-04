@@ -221,7 +221,7 @@ void func_ov039_0208af6c(OtuBadgeState* self) {
         }
 
         slot  = &self->slots[self->pinID[0]];
-        speed = &data_ov039_0209a3e0[slot->speedIndex];
+        speed = &data_ov039_0209a3e0[slot->tuneIndex];
 
         rate = (s32)(((s64)speed->speed * rate + 0x800) >> 12);
 
