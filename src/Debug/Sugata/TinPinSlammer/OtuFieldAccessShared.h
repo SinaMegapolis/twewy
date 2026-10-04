@@ -1802,7 +1802,14 @@ extern const s32 data_ov039_0209a360[10];
  *
  *  Four words, and the copy at 02088698 moves twelve of them in one go with
  *  `ldm`/`stm` -- which is what mwcc emits for a 16-byte struct assignment, and
- *  is why this is a struct rather than a `memcpy`. */
+ *  is why this is a struct rather than a `memcpy`.
+ *
+ *  Those four words are opaque on purpose: this is the received packet's
+ *  payload, copied verbatim from the wire buffer, and nothing in the overlay
+ *  ever reads an individual word of it. The fields it *can* see live either side
+ *  of the array -- `packetKind` at +0x06 is compared against the wire packet's
+ *  own +0x50, and `gotPacket` at +0x08 is set once the copy completes. So this
+ *  is not an unfinished decode; it is a payload with no structure to recover. */
 typedef struct {
     /* 0x00 */ s32 w[4];
 } OtuWireRecord;
@@ -2878,12 +2885,16 @@ typedef struct {
     /* 0x04 */ u8  pad_04[0x24];
 } OtuFlagSlot;
 
-/** The three-word point-and-scale record `func_ov039_02091628` fills in. */
-typedef struct {
-    /* 0x00 */ s32 x;
-    /* 0x04 */ s32 y;
-    /* 0x08 */ s32 scale;
-} OtuPoint3;
+/**
+ * @brief The three-word point-and-scale record `func_ov039_02091628` fills in.
+ *
+ * This is OtuPinRecord: same three words, same field names, same role as an
+ * out-parameter. The two functions differ only in how the target stores them --
+ * 0208fee0 writes three separate `str` at +0/+4/+8, while 02091628 writes
+ * `stmia r1, {r2, r3}` then one `str`. The difference comes from the source
+ * around the stores, not from this type, so one type serves both.
+ */
+typedef OtuPinRecord OtuPoint3;
 
 /** The child-task group stepped by `func_ov039_02091690`. */
 typedef struct {
@@ -2965,7 +2976,20 @@ typedef struct {
 /* The +0x276c resource-allocation setup.                              */
 /* ------------------------------------------------------------------ */
 
-/** The 0x28-byte per-slot object func_ov039_0209276c drives. */
+/**
+ * @brief A 0x28-byte per-slot object the overlay never looks inside.
+ *
+ * All padding is correct here, not laziness. The two uses in OtuObstacles.c are
+ * `&self->slots[params->slot]` handed straight to func_0200d1d8 and
+ * func_0200d858, and both take their object as `void*` -- they are the engine's
+ * OBJ-resource helpers and this block is theirs. func_ov039_0209276c fills the
+ * surrounding `OtuResGroup` (loading the data and palette ids, allocating the
+ * buffers) but never touches the slot bodies.
+ *
+ * So the struct carries no fields on purpose; what it does carry is the 0x28
+ * stride and the fact that there are two of them, which is what makes
+ * `slots[params->slot]` type-check.
+ */
 typedef struct {
     /* 0x00 */ u8 pad[0x28];
 } OtuResSlot;
