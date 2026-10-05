@@ -100,11 +100,6 @@ void func_ov039_02082c50(void) {
  * from inside the overlay; the dispatcher reaches it through a function pointer,
  * so it has no incoming relocations.
  */
-// Nonmatching: 95.2%. Every call, field access and branch agrees with the
-// target. The remainder is register choice in the prologue (target holds the
-// scene in r4 and the pool-1 offset in r3; mwcc picks r5/r4) and the
-// literal-pool layout that follows from it.  Five source shapes were tried and
-// this is the best of them.
 void func_ov039_02082e98(TinPinSlammer_Scene* scene) {
     OverlayTag menuTag;
     OverlayTag resultTag;
@@ -156,11 +151,6 @@ void func_ov039_02082e98(TinPinSlammer_Scene* scene) {
  * has already been consumed by the time this runs.
  */
 
-// Nonmatching: 95.4%. Both functions' sizes and instruction sequences match the
-// target exactly. The remainder is one word: the target loads the overlay id
-// from a literal-pool word where mwcc folds it into `mov r1, #2`, which shifts
-// every later pool displacement. Seven spellings of the id and a volatile local
-// were tried; all are equal or worse.
 void func_ov039_02082ff8(TinPinSlammer_Scene* scene) {
     OverlayTag linkTag;
     OverlayTag resultTag;
@@ -327,13 +317,10 @@ void func_ov039_020831cc(TinPinSlammer_Scene* scene) {
  * `state.wirelessStatus` -- so the wireless stack sees them again on the way
  * out.  The entry point cleared them; this puts them back.
  */
-// Nonmatching: 72.8%. The bit writes and the teardown call are all correct;
-// the target has no prologue and ends in a tail call (`bx ip`) where this build
-// pushes {r3, lr} and uses `bl`. mwcc needs one more scratch register for the
-// two read-modify-writes than the target does. Six spellings of the bitfield
-// assignment and a locals-first variant were tried; all are equal or worse.
 void func_ov039_020831d8(TinPinSlammer_Scene* scene) {
-    SystemStatusFlags.unk_06 = scene->linkStatus != 0;
+    SystemStatusFlags; // Unused volatile read, as in OtosuMenu
+    SystemStatusFlags.unk_06 = scene->linkStatus;
+    SystemStatusFlags;
     SystemStatusFlags.unk_07 = scene->wirelessStatus != 0;
 
     func_ov039_02083164(scene);

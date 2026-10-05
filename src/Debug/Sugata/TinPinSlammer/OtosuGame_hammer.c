@@ -428,8 +428,8 @@ s32 OtosuGame_hammer_Update(TaskPool* pool, Task* task, void* args) {
                     index                = OTU_ANGLE_INDEX(self->angle);
                     headX                = (s32)(((s64)self->scale * ((s16*)data_0205e4e0)[index + 1] + 0x800) >> 12);
                     headY                = (s32)(((s64)self->scale * ((s16*)data_0205e4e0)[index] + 0x800) >> 12);
-                    self->posB.x         = self->pinPos.x + ((headX + (headX >> 31)) >> 1);
-                    self->posB.y         = self->pinPos.y + ((headY + (headY >> 31)) >> 1);
+                    self->posB.x         = self->pinPos.x + headX / 2;
+                    self->posB.y         = self->pinPos.y + headY / 2;
                 }
 
                 steppedB = func_ov039_0209008c(&self->cursorSpin);
@@ -475,8 +475,8 @@ s32 OtosuGame_hammer_Update(TaskPool* pool, Task* task, void* args) {
                     self->affineA.rotation = (u16)(angle + 0x4000);
                     self->posA.x           = self->pinPos.x + headX;
                     self->posA.y           = self->pinPos.y + headY;
-                    self->posB.x           = self->pinPos.x + ((headX + (headX >> 31)) >> 1);
-                    self->posB.y           = self->pinPos.y + ((headY + (headY >> 31)) >> 1);
+                    self->posB.x           = self->pinPos.x + headX / 2;
+                    self->posB.y           = self->pinPos.y + headY / 2;
                 } else {
                     self->framesLeft = self->totalFrames;
                     self->state      = (u32)(self->state + 1);
@@ -515,8 +515,8 @@ s32 OtosuGame_hammer_Update(TaskPool* pool, Task* task, void* args) {
                             headY        = (s32)(((s64)self->scale * ((s16*)data_0205e4e0)[index2] + 0x800) >> 12);
                             self->posA.x = self->pinPos.x + headX;
                             self->posA.y = self->pinPos.y + headY;
-                            self->posB.x = self->pinPos.x + ((headX + (headX >> 31)) >> 1);
-                            self->posB.y = self->pinPos.y + ((headY + (headY >> 31)) >> 1);
+                            self->posB.x = self->pinPos.x + headX / 2;
+                            self->posB.y = self->pinPos.y + headY / 2;
 
                             self->reportTimer = self->reportTimer - 1;
                             if (self->reportTimer <= 0) {
@@ -542,13 +542,13 @@ s32 OtosuGame_hammer_Update(TaskPool* pool, Task* task, void* args) {
                                     self->affineA.rotation = (u16)(angle + 0x4000);
                                     self->posA.x           = self->pinPos.x + headX;
                                     self->posA.y           = self->pinPos.y + headY;
-                                    self->posB.x           = self->pinPos.x + ((headX + (headX >> 31)) >> 1);
-                                    self->posB.y           = self->pinPos.y + ((headY + (headY >> 31)) >> 1);
+                                    self->posB.x           = self->pinPos.x + headX / 2;
+                                    self->posB.y           = self->pinPos.y + headY / 2;
                                 } else {
                                     s32 len;
 
                                     len           = self->affineB.scaleY;
-                                    self->halfLen = (s32)((s32)(len + ((u32)(len >> 1) >> 0x1E)) >> 2);
+                                    self->halfLen = len / 4;
                                     func_ov039_0209005c(&self->cursorSpin, data_ov039_02099458, 5);
                                     func_ov039_0208ffac(&self->cursorScale, data_ov039_02099438, 4);
                                     self->state = (u32)(self->state + 1);
@@ -567,8 +567,8 @@ s32 OtosuGame_hammer_Update(TaskPool* pool, Task* task, void* args) {
                                             index                = OTU_ANGLE_INDEX(self->angle);
                                             headX = (s32)(((s64)self->scale * ((s16*)data_0205e4e0)[index + 1] + 0x800) >> 12);
                                             headY = (s32)(((s64)self->scale * ((s16*)data_0205e4e0)[index] + 0x800) >> 12);
-                                            self->posB.x = self->pinPos.x + ((headX + (headX >> 31)) >> 1);
-                                            self->posB.y = self->pinPos.y + ((headY + (headY >> 31)) >> 1);
+                                            self->posB.x = self->pinPos.x + headX / 2;
+                                            self->posB.y = self->pinPos.y + headY / 2;
                                         }
 
                                         steppedB = func_ov039_0209008c(&self->cursorSpin);

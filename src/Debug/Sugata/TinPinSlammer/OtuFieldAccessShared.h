@@ -961,7 +961,7 @@ void func_ov039_020923b4(OtosuGame_floor* self, s32 event);
 
 /* OtosuGame_obstacle.c */
 
-s32 OtosuGame_obstacle_CreateTask(TaskPool* pool, s32 oamAttrs, s16 unk_04, s16 slot, OtosuGame_obstacle_Params* params);
+s32 OtosuGame_obstacle_CreateTask(TaskPool* pool, s32 dataType, s16 unk_04, s16 slot, OtosuGame_obstacle_Params* params);
 
 void func_ov039_02092730(OtosuGame_obstacle* self, OtuPoint* origin);
 

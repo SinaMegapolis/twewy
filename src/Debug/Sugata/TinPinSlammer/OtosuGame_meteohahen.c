@@ -170,15 +170,14 @@ s32 OtosuGame_meteohahen_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
  * Launches a meteor fragment from `at`: a jittered speed, an upward kick, a
  * random direction from the base game's table and one of animations 10..16.
  */
-// Nonmatching: 87.6%, register allocation and load scheduling only.
+// Nonmatching: 94.3%, load scheduling of the two table reads only.
 void func_ov039_02097240(OtuHahen* self, OtuPoint* at) {
     s32 index;
 
     self->active        = 1;
     self->affine.scaleX = 0x1800;
     self->affine.scaleY = 0x1800;
-    self->pos.x         = at->x;
-    self->pos.y         = at->y;
+    self->pos           = *at;
     self->height        = 0;
 
     self->speed = data_ov039_0209a314;
@@ -189,7 +188,7 @@ void func_ov039_02097240(OtuHahen* self, OtuPoint* at) {
     self->lifeMax = OTU_ABS_AIRTIME(self->vz);
     self->life    = self->lifeMax;
 
-    index       = RNG_Next(0x10000) >> 4;
+    index       = (RNG_Next(0x10000) >> 4) * 2;
     self->dir.x = ((s16*)data_0205e4e0)[index + 1];
     self->dir.y = ((s16*)data_0205e4e0)[index];
 

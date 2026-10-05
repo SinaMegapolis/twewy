@@ -61,7 +61,7 @@ s32 OtosuGame_bg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
  * s16 parameter, and the record is stored and re-read rather than kept in a
  * local: both are what the target does.
  */
-// Nonmatching: 86.7%, register naming in the first block.
+// Nonmatching: 86.8%, register naming and scheduling only.
 void func_ov039_0209276c(OtosuGame_bg* self, OtuResParams* params) {
     Data* rec;
     u8*   ref0;
@@ -107,7 +107,11 @@ void func_ov039_0209276c(OtosuGame_bg* self, OtuResParams* params) {
     self->heights[params->slot] = params->height << 20;
 
     if (params->layers >= 0) {
-        g_DisplaySettings.controls[0].layers |= params->layers;
+        if (params->layers < 0) {
+            g_DisplaySettings.controls[0].layers = 0x1F;
+        } else {
+            g_DisplaySettings.controls[0].layers |= params->layers;
+        }
     }
 
     g_DisplaySettings.engineState[0].bgSettings[params->group].priority = params->priority;

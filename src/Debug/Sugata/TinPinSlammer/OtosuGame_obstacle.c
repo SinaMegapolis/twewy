@@ -6,9 +6,9 @@
 #include "OtuFieldAccessShared.h"
 
 typedef struct {
-    /* 0x00 */ s32                        oamAttrs; // ORed into the template's OAM word, shifted to bit 6.
+    /* 0x00 */ s32                        dataType; // the sprite template's dataType
     /* 0x04 */ s16                        unk_04;
-    /* 0x06 */ s16                        slot;     // Which of the three palette slots to use.
+    /* 0x06 */ u16                        slot;     // Which of the three palette slots to use.
     /* 0x08 */ OtosuGame_obstacle_Params* params;
 } OtosuGame_obstacle_Args;                          // Size: 0xC
 
@@ -97,15 +97,14 @@ SpriteFrameInfo* OtosuGame_obstacle_GetFrameInfo(Sprite* sprite, s32 arg, s32 mo
 
 /**
  * Loads the obstacle sprite, patching the template's art by `kind` and its
- * palette by `kind` and `slot`. The dataType edit is one expression because
- * mwcc hoists the argument loads above it regardless.
+ * palette by `kind` and `slot`.
  */
 void OtosuGame_obstacle_Load(OtosuGame_obstacle* self, Sprite* sprite, OtosuGame_obstacle_Args* args) {
     SpriteAnimation params = OtosuGame_obstacle_Anim;
     u16             kind   = args->params->kind;
 
-    *(u16*)&params   = (u16)(*(u16*)&params & ~0x3C) | (u16)((u16)args->oamAttrs << 2);
     params.owner     = self;
+    params.dataType  = (u16)args->dataType;
     params.packIndex = data_ov039_0209992a[kind];
     params.unk_20    = data_ov039_02099958[kind][args->slot];
     params.unk_26    = data_ov039_02099918[kind];
@@ -173,10 +172,10 @@ s32 OtosuGame_obstacle_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 
-s32 OtosuGame_obstacle_CreateTask(TaskPool* pool, s32 oamAttrs, s16 unk_04, s16 slot, OtosuGame_obstacle_Params* params) {
+s32 OtosuGame_obstacle_CreateTask(TaskPool* pool, s32 dataType, s16 unk_04, s16 slot, OtosuGame_obstacle_Params* params) {
     OtosuGame_obstacle_Args args;
 
-    args.oamAttrs = oamAttrs;
+    args.dataType = dataType;
     args.unk_04   = unk_04;
     args.slot     = slot;
     args.params   = params;

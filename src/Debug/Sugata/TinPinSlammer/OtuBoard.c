@@ -98,10 +98,12 @@ void func_ov039_0208871c(TinPinSlammer_Scene* scene) {
     func_ov039_0208e848(pin, &at);
     func_ov039_0208e870(pin, at.x, at.y);
 
-    func_ov039_02092348(EasyTask_GetTaskData(OTU_POOL2(scene), stage->floorId), at.x, at.y);
-    func_ov039_020923b4(EasyTask_GetTaskData(OTU_POOL2(scene), stage->floorId), event);
-    func_ov039_02092d0c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgId), at.x, at.y);
-    func_ov039_02092e04(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgId), event);
+    pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->floorId);
+    func_ov039_02092348(pin, at.x, at.y);
+    func_ov039_020923b4(pin, event);
+    pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgId);
+    func_ov039_02092d0c(pin, at.x, at.y);
+    func_ov039_02092e04(pin, event);
 
     // The local pin is skipped: its aim point is already in `at`. The mode
     // selector is re-read and re-resolved inside the loop, which the target does
@@ -486,24 +488,13 @@ void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtosuGame_badge* a, OtosuGa
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
     s32            bothEmpty;
     s32            effectId;
-    s32            t;
     OtuPoint       pa;    // sp+0x10
     OtuPoint       pb;    // sp+0x08
     OtuPoint       board; // sp+0x00
 
-    // Both of these are short-circuit `||` in the target -- the second predicate
-    // is only reached when the first is false -- so they are nested rather than
-    // hoisted into two unconditional calls. The duplicated `= 1` / `= id` bodies
-    // are what merge back into the target's single join point.
     bothEmpty = 0;
-    t         = func_ov039_0208f0b0(a);
-    if (t != 0) {
+    if (func_ov039_0208f0b0(a) != 0 || func_ov039_0208f0b0(b) != 0) {
         bothEmpty = 1;
-    } else {
-        t = func_ov039_0208f0b0(b);
-        if (t != 0) {
-            bothEmpty = 1;
-        }
     }
 
     func_ov039_0208e6e0(a, &pa);
@@ -518,16 +509,10 @@ void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtosuGame_badge* a, OtosuGa
         func_ov039_02089064(scene, &pb);
     }
 
-    t = func_ov039_0208ee84(a);
-    if (t != 0) {
+    if (func_ov039_0208ee84(a) != 0 || func_ov039_0208ee84(b) != 0) {
         effectId = 0x33D;
     } else {
-        t = func_ov039_0208ee84(b);
-        if (t != 0) {
-            effectId = 0x33D;
-        } else {
-            effectId = 0x32F;
-        }
+        effectId = 0x32F;
     }
 
     func_ov039_0208e85c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[func_ov039_02088418(scene->multiplayer)]),
@@ -636,16 +621,16 @@ void func_ov039_02089360(TinPinSlammer_Scene* scene) {
  * one other -> 3, where the "more than one" test is a population count and is
  * skipped entirely when the scene mode is 0 (which 02088418 maps to player 0).
  *
- * Written with three returns rather than one accumulated local because the target
- * materialises the result in r1 and jumps to a single exit; see the mwcc-emission
- * note on `if`-inversion before changing this to an accumulator.
+ * The result is one accumulated local with a single exit, and the "is a winner"
+ * test is the outer `if`, which is how the target lays out its r1 result.
  */
 s32 func_ov039_020893fc(TinPinSlammer_Scene* scene) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32            best;
     u16            mask;
     s32            me;
     s32            i;
+    u32            best;
+    s32            result;
 
     best = 0;
     mask = 0;
@@ -657,21 +642,23 @@ s32 func_ov039_020893fc(TinPinSlammer_Scene* scene) {
             best = score;
             mask = (u16)(1 << i);
         } else if (best == score) {
-            mask |= (u16)(1 << i);
+            mask |= 1 << i;
         }
     }
 
     me = func_ov039_02088418(scene->multiplayer);
 
-    if ((mask & (1 << me)) == 0) {
-        return 2;
+    if (mask & (1 << me)) {
+        if (scene->multiplayer != 0) {
+            result = ((u32)func_02047e84(mask) > 1) ? 3 : 1;
+        } else {
+            result = 1;
+        }
+    } else {
+        result = 2;
     }
 
-    if (scene->multiplayer != 0) {
-        return (func_02047e84(mask) > 1) ? 3 : 1;
-    }
-
-    return 1;
+    return result;
 }
 
 /* ============================================================================
@@ -746,7 +733,7 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
         hasPin = func_ov039_0208f00c(pin);
         if (hasPin != 0) {
             settled++;
-            settledMask |= (u16)(1 << i);
+            settledMask |= 1 << i;
         }
     }
 

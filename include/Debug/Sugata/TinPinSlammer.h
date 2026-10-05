@@ -2,6 +2,7 @@
 #define TIN_PIN_SLAMMER_H
 
 #include "Engine/Core/OamMgr.h"
+#include "Engine/Overlay/OverlayManager.h"
 #include "Engine/Text.h"
 #include "Interface/Menu/MenuCommon.h"
 #include "SpriteMgr.h"
@@ -537,8 +538,8 @@ extern OtuSceneStage OtuScene_ResultStage;
  */
 extern const char* const OtuScene_SequenceNames[3];
 
-/** The overlay the scene hands over to when it ends (the Otosu menus). */
-#define OTU_OVERLAY_ID 2
+/** The overlay the scene hands over to when it ends (the Otosu menus), a linker symbol. */
+#define OTU_OVERLAY_ID ((s32) & OVERLAY_2_ID)
 
 #define OTU_HEAP(scene)        (&(scene)->heap)
 #define OTU_HEAP_BUFFER(scene) ((void*)&(scene)->heapBuffer)

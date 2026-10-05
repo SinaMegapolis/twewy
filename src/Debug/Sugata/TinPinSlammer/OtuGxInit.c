@@ -22,7 +22,7 @@
  * register directly rather than going through g_DisplaySettings.
  */
 
-// Nonmatching: 95.9%. Prologue and size match exactly, and every call, VRAM
+// Nonmatching: 96.9%. Prologue and size match exactly, and every call, VRAM
 // bank, field value and constant is right. The remainder is register choice
 // inside the g_DisplaySettings init block: the target keeps its base in r3 and
 // folds the two data_0206aa7x stores between the field writes, while this build
@@ -82,16 +82,16 @@ void func_ov039_020832c0(void) {
     Display_InitMainBG3(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 6, 6, 1, 0x4618);
 
     // Priority runs back-to-front on the main engine; mosaic stays off.
-    Display_GetBG0Settings(DISPLAY_MAIN)->priority  = 2;
-    Display_GetBG1Settings(DISPLAY_MAIN)->priority  = 3;
-    Display_GetBG2Settings(DISPLAY_MAIN)->priority  = 0;
-    Display_GetBG3Settings(DISPLAY_MAIN)->priority  = 1;
-    Display_GetBG0Settings(DISPLAY_MAIN)->mosaic    = 0;
-    Display_GetBG1Settings(DISPLAY_MAIN)->mosaic    = 0;
-    Display_GetBG2Settings(DISPLAY_MAIN)->mosaic    = 0;
-    Display_GetBG3Settings(DISPLAY_MAIN)->mosaic    = 0;
-    g_DisplaySettings.controls[DISPLAY_MAIN].layers = 0x13;
-    g_DisplaySettings.controls[DISPLAY_MAIN].layers = 0x13 | 0xC;
+    Display_GetBG0Settings(DISPLAY_MAIN)->priority = 2;
+    Display_GetBG1Settings(DISPLAY_MAIN)->priority = 3;
+    Display_GetBG2Settings(DISPLAY_MAIN)->priority = 0;
+    Display_GetBG3Settings(DISPLAY_MAIN)->priority = 1;
+    Display_GetBG0Settings(DISPLAY_MAIN)->mosaic   = 0;
+    Display_GetBG1Settings(DISPLAY_MAIN)->mosaic   = 0;
+    Display_GetBG2Settings(DISPLAY_MAIN)->mosaic   = 0;
+    Display_GetBG3Settings(DISPLAY_MAIN)->mosaic   = 0;
+    Display_SetMainLayers(0x13);
+    g_DisplaySettings.controls[DISPLAY_MAIN].layers |= 0xC;
 
     // Sub engine: four 256x256 text layers, same field-then-poke pattern.
     g_DisplaySettings.controls[DISPLAY_SUB].bgMode = GX_BGMODE_0;

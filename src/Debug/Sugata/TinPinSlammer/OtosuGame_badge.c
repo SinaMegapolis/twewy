@@ -174,30 +174,23 @@ static u32 data_ov039_0209a4b0[17] = {(u32)func_ov039_0208c218, (u32)func_ov039_
 
 /** Rebuilds the packed state word from the home tile's flag. */
 void func_ov039_0208acc0(OtosuGame_badge* self) {
-    u16 home  = (self->pad->touched & 1) != 0 ? 1 : 0;
-    u16 flags = self->touchFlags;
+    u16 home = (self->pad->touched & 1) != 0 ? 1 : 0;
 
-    // Bit 1 records "the badge is not where its home tile says it is". The
-    // condition is the XOR masked back down to one bit rather than a plain
-    // compare, which is what produces the target's eor/and/tst trio.
-    if ((flags ^ home) & home & 1) {
-        flags |= 2;
+    // Bit 1: the touch began (not touching before, touching now).
+    if ((self->touchFlags ^ home) & home & 1) {
+        self->touchFlags |= 2;
     } else {
-        flags &= ~2;
+        self->touchFlags &= ~2;
     }
-    self->touchFlags = flags;
 
-    // Bit 2 records the transition itself, so it runs the other way round: the
-    // badge has to have been home and no longer is.
-    flags = self->touchFlags;
-    if ((flags ^ home) & flags & 1) {
-        flags |= 4;
+    // Bit 2: the touch ended (touching before, not now).
+    if ((self->touchFlags ^ home) & self->touchFlags & 1) {
+        self->touchFlags |= 4;
     } else {
-        flags &= ~4;
+        self->touchFlags &= ~4;
     }
-    self->touchFlags = flags;
 
-    // Bit 0 is not a flag at all; it is the home tile's bit 0 latched in.
+    // Bit 0 latches the current state.
     self->touchFlags &= ~1;
     self->touchFlags |= home;
 }
@@ -267,10 +260,10 @@ void func_ov039_0208ae14(OtosuGame_badge* self) {
         return;
     }
 
-    // A badge still carrying a sound handle hands it back with a different cue
-    // depending on whether it had a live rival to chase.
+    // The pin that last touched this one scores the knock-out: 5 if this one
+    // was stunned at the time, 2 otherwise.
     if (self->partner != NULL && *self->pinID < 0x130) {
-        func_ov039_0208a490(self, self->stun > 0 ? 5 : 2);
+        func_ov039_0208a490(self->partner, self->stun > 0 ? 5 : 2);
     }
     self->partner = NULL;
 
@@ -298,12 +291,16 @@ void func_ov039_0208ae8c(OtosuGame_badge* self) {
     // Tiles are 0x20 pixels and every badge is inset by half a tile, which is
     // what lands it in the middle of its cell rather than on a corner. The
     // starting tile comes from the board's two-bytes-per-badge table at +8.
-    self->startPos.x = ((self->board->start[self->index][0] << 5) + 0x10) << 0xC;
-    self->startPos.y = ((self->board->start[self->index][1] << 5) + 0x10) << 0xC;
-    self->pos.x      = self->startPos.x;
-    self->pos.y      = self->startPos.y;
-    self->vel.x      = 0;
-    self->vel.y      = 0;
+    {
+        s32 x = ((self->board->start[self->index][0] << 5) + 0x10) << 0xC;
+        s32 y = ((self->board->start[self->index][1] << 5) + 0x10) << 0xC;
+
+        self->startPos.x = x;
+        self->startPos.y = y;
+    }
+    self->pos   = self->startPos;
+    self->vel.x = 0;
+    self->vel.y = 0;
 
     self->dir.x   = 0x1000;
     self->dir.y   = 0;
@@ -335,6 +332,7 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
     s32            cellY;
     s32            len;
     s32            hit;
+    s32            flip = -1;
 
     self->vz = self->vz + data_ov039_0209a318;
 
@@ -368,9 +366,8 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
 
         rate = (s32)(((s64)*accel * rate + 0x800) >> 12);
 
-        // While the badge is still being set up its rate is doubled. The test
-        // is `phase <= 3`, i.e. every phase before the rolling one.
-        if (self->phase <= 3) {
+        // Phase 3 rolls at double rate.
+        if (self->phase == 3) {
             rate = rate * 2;
         }
 
@@ -379,22 +376,24 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
 
     // Turning, but only while nothing external is steering the badge.
     if (self->height == 0) {
-        s32 turn;
-        s16 dir;
+        u16 dir;
         s32 cell;
 
-        len  = func_ov039_02098d10(&self->vel);
-        slot = &self->slots[self->pinID[0]];
+        len = func_ov039_02098d10(&self->vel);
 
         // How hard the badge curves is the friction coefficient scaled by the
-        // wobble 0x0208be30 left behind.
-        turn = (s32)(((s64)slot->friction * (self->velMag / 3) + 0x800) >> 12);
-
-        dir  = FX_Atan2Idx(self->vel.y, self->vel.x) + turn;
+        // wobble 0x0208be30 left behind, taken down to whole angle units.
+        dir = FX_Atan2Idx(self->vel.y, self->vel.x) +
+              ((s32)(((s64)(self->velMag / 3) * self->slots[self->pinID[0]].friction + 0x800) >> 12) >> 12);
         cell = dir >> 4;
 
-        self->vel.x = (s32)(((s64)len * ((s16*)data_0205e4e0)[cell * 2 + 1] + 0x800) >> 12);
-        self->vel.y = (s32)(((s64)len * ((s16*)data_0205e4e0)[cell * 2] + 0x800) >> 12);
+        {
+            s32 x = (s32)(((s64)len * ((s16*)data_0205e4e0)[cell * 2 + 1] + 0x800) >> 12);
+            s32 y = (s32)(((s64)len * ((s16*)data_0205e4e0)[cell * 2] + 0x800) >> 12);
+
+            self->vel.x = x;
+            self->vel.y = y;
+        }
     }
 
     func_ov039_02098b8c(&self->pos, &self->vel, &self->pos);
@@ -469,7 +468,7 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
             tile    = func_ov039_0208a794(&probe, self->board);
             if (tile == 2) {
                 self->pos.x = (probe.x & ~OTU_CELL_BITS) - 0xC000;
-                self->vel.x = self->vel.x * -0x2000;
+                self->vel.x = self->vel.x * flip;
                 hit         = 1;
             }
         } else if (self->vel.x < 0) {
@@ -478,7 +477,7 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
             tile    = func_ov039_0208a794(&probe, self->board);
             if (tile == 2) {
                 self->pos.x = (probe.x | OTU_CELL_BITS) + 0xC000;
-                self->vel.x = -self->vel.x;
+                self->vel.x = self->vel.x * flip;
                 hit         = 1;
             }
         }
@@ -489,7 +488,7 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
             tile    = func_ov039_0208a794(&probe, self->board);
             if (tile == 2) {
                 self->pos.y = (probe.y & ~OTU_CELL_BITS) - 0xC000;
-                self->vel.y = self->vel.y * -0x2000;
+                self->vel.y = self->vel.y * flip;
                 hit         = 1;
             }
         } else if (self->vel.y < 0) {
@@ -498,7 +497,7 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
             tile    = func_ov039_0208a794(&probe, self->board);
             if (tile == 2) {
                 self->pos.y = (probe.y | OTU_CELL_BITS) + 0xC000;
-                self->vel.y = -self->vel.y;
+                self->vel.y = self->vel.y * flip;
                 hit         = 1;
             }
         }
@@ -521,8 +520,8 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
                         self->pos.x = probe.x - 0xC000;
                         hit         = 1;
                         self->pos.y = probe.y + 0xC000;
-                        self->vel.x = -self->vel.x;
-                        self->vel.y = -self->vel.y;
+                        self->vel.x = self->vel.x * flip;
+                        self->vel.y = self->vel.y * flip;
                     }
                 }
             }
@@ -540,8 +539,8 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
                         self->pos.x = probe.x - 0xC000;
                         hit         = 1;
                         self->pos.y = probe.y - 0xC000;
-                        self->vel.x = -self->vel.x;
-                        self->vel.y = -self->vel.y;
+                        self->vel.x = self->vel.x * flip;
+                        self->vel.y = self->vel.y * flip;
                     }
                 }
             }
@@ -559,8 +558,8 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
                         self->pos.x = probe.x + 0xC000;
                         hit         = 1;
                         self->pos.y = probe.y + 0xC000;
-                        self->vel.x = -self->vel.x;
-                        self->vel.y = -self->vel.y;
+                        self->vel.x = self->vel.x * flip;
+                        self->vel.y = self->vel.y * flip;
                     }
                 }
             }
@@ -578,8 +577,8 @@ void func_ov039_0208af6c(OtosuGame_badge* self) {
                         self->pos.x = probe.x + 0xC000;
                         hit         = 1;
                         self->pos.y = probe.y - 0xC000;
-                        self->vel.x = -self->vel.x;
-                        self->vel.y = -self->vel.y;
+                        self->vel.x = self->vel.x * flip;
+                        self->vel.y = self->vel.y * flip;
                     }
                 }
             }
@@ -688,6 +687,7 @@ void func_ov039_0208b94c(OtosuGame_badge* self) {
 
 /** Enters phase 7: hand the badge to the arc task for `arcFrames`. */
 void func_ov039_0208b9b4(OtosuGame_badge* self) {
+    void*          hammer;
     OtuBadgeParam* slot;
 
     if (self->arcFrames <= 0) {
@@ -697,9 +697,9 @@ void func_ov039_0208b9b4(OtosuGame_badge* self) {
     self->step  = 0;
     self->phase = 7;
 
-    slot = &self->slots[self->pinID[0]];
-    func_ov039_02091028(EasyTask_GetTaskData(self->pool, self->hammerId), slot->hammerRate, slot->hammerLength,
-                        slot->hammerFrames, slot->hammerArc);
+    hammer = EasyTask_GetTaskData(self->pool, self->hammerId);
+    slot   = &self->slots[self->pinID[0]];
+    func_ov039_02091028(hammer, slot->hammerRate, slot->hammerLength, slot->hammerFrames, slot->hammerArc);
 
     self->arcFrames = self->arcFrames - 1;
 }
@@ -753,8 +753,8 @@ void func_ov039_0208bb2c(OtosuGame_badge* self) {
     OtuPoint fromHome;
     OtuPoint fromPos;
     OtuPoint mid;
-    OtuPoint legA;
     OtuPoint legB;
+    OtuPoint legA;
 
     // A badge that still has a rival attached is finishing an interaction. The
     // two-frame decrement only happens once the interaction is flagged as over,
@@ -792,95 +792,116 @@ void func_ov039_0208bb2c(OtosuGame_badge* self) {
         return;
     }
 
-    if (self->step == 0) {
-        // Wait for the home tile to report itself before aiming anywhere.
-        if (!(self->touchFlags & 2)) {
-            return;
+    switch (self->step) {
+        case 0: {
+            // Wait for the home tile to report itself before aiming anywhere.
+            if (!(self->touchFlags & 2)) {
+                return;
+            }
+
+            self->aimFrames = 0;
+            self->step      = 1;
+
+            {
+                s32 x = self->pad->x << 0xC;
+                s32 y = self->pad->y << 0xC;
+
+                self->aimStart.x = x;
+                self->aimStart.y = y;
+            }
+            {
+                s32 x = self->pad->x << 0xC;
+                s32 y = self->pad->y << 0xC;
+
+                self->aimCur.x = x;
+                self->aimCur.y = y;
+            }
+
+            break;
         }
+        case 1: {
+            s32 turn;
+            s32 scale;
+            s32 reach;
+            s32 sign;
 
-        self->aimFrames = 0;
-        self->step      = 1;
+            if (self->aimFrames < 0x1E) {
+                self->aimFrames = self->aimFrames + 1;
+            }
 
-        self->aimStart.x = self->pad->x << 0xC;
-        self->aimStart.y = self->pad->y << 0xC;
-        self->aimCur.x   = self->aimStart.x;
-        self->aimCur.y   = self->aimStart.y;
+            // The aim point tracks the home tile, so until the badge has somewhere
+            // else to be it is still following it.
+            {
+                s32 x = self->pad->x << 0xC;
+                s32 y = self->pad->y << 0xC;
 
-    } else if (self->step == 1) {
-        s32 turn;
-        s32 scale;
-        s32 reach;
-        s32 sign;
+                self->aimCur.x = x;
+                self->aimCur.y = y;
+            }
 
-        if (self->aimFrames < 0x1E) {
-            self->aimFrames = self->aimFrames + 1;
+            if (!(self->touchFlags & 4)) {
+                return;
+            }
+
+            self->step = 0;
+
+            turn = func_ov039_02098ca8(&self->aimStart, &self->aimCur);
+            if (turn <= 0) {
+                return;
+            }
+
+            // Join the two aim points by an offset from where the badge is now.
+            func_ov039_02098b8c(&self->aimStart, &self->homeOffset, &fromHome);
+            func_ov039_02098b8c(&self->aimCur, &self->homeOffset, &fromPos);
+
+            reach = func_ov039_0208a624(&fromHome, &fromPos, &self->pos);
+            if (reach == 0) {
+                return;
+            }
+
+            func_ov039_02098bb0(&fromPos, &fromHome, &mid);
+
+            turn = func_ov039_02098d10(&mid);
+            if (turn > 0x50000) {
+                turn = 0x50000;
+            }
+            scale = FX_Divide(turn, 0x50000);
+
+            // Having aimed for a full half second the badge commits: the mode flag
+            // goes up and the turn is sharpened from here on.
+            if (self->aimFrames >= 0x1E) {
+                scale      = (s32)(((s64)scale * 0x1800 + 0x800) >> 12);
+                self->mode = 0x10;
+            }
+
+            func_ov039_02098d3c(&mid, &mid);
+            func_ov039_0208a6f8(self, &mid, scale);
+
+            if (self->aimFrames >= 0x1E) {
+                return;
+            }
+
+            func_ov039_02098bb0(&fromPos, &fromHome, &legB);
+            func_ov039_02098bb0(&self->pos, &fromHome, &legA);
+
+            reach = func_ov039_0208a530(&fromHome, &fromPos, &self->pos);
+            if (reach > 0x24000) {
+                reach = 0x24000;
+            }
+            reach = FX_Divide(reach, 0x24000);
+
+            if (*self->pinID >= 0x130) {
+                return;
+            }
+
+            // Which way round the turn is decides the sign, and with it whether
+            // the badge ends up winding tight or winding loose.
+            sign = (func_ov039_02098c70(&legB, &legA) >= 0) ? data_ov039_0209a394 : -data_ov039_0209a394;
+
+            sign         = sign * scale;
+            self->velMag = (s32)(((s64)sign * reach + 0x800) >> 12) * 3;
+            break;
         }
-
-        // The aim point tracks the home tile, so until the badge has somewhere
-        // else to be it is still following it.
-        self->aimCur.x = self->pad->x << 0xC;
-        self->aimCur.y = self->pad->y << 0xC;
-
-        if (!(self->touchFlags & 4)) {
-            return;
-        }
-
-        self->step = 0;
-
-        turn = func_ov039_02098ca8(&self->aimStart, &self->aimCur);
-        if (turn <= 0) {
-            return;
-        }
-
-        // Join the two aim points by an offset from where the badge is now.
-        func_ov039_02098b8c(&self->aimStart, &self->homeOffset, &fromHome);
-        func_ov039_02098b8c(&self->aimCur, &self->homeOffset, &fromPos);
-
-        reach = func_ov039_0208a624(&fromHome, &fromPos, &self->pos);
-        if (reach == 0) {
-            return;
-        }
-
-        func_ov039_02098bb0(&fromPos, &fromHome, &mid);
-
-        turn = func_ov039_02098d10(&mid);
-        if (turn > 0x50000) {
-            turn = 0x50000;
-        }
-        scale = FX_Divide(turn, 0x50000);
-
-        // Having aimed for a full half second the badge commits: the mode flag
-        // goes up and the turn is sharpened from here on.
-        if (self->aimFrames >= 0x1E) {
-            scale      = (s32)(((s64)scale * 0x1800 + 0x800) >> 12);
-            self->mode = 0x10;
-        }
-
-        func_ov039_02098d3c(&mid, &mid);
-        func_ov039_0208a6f8(self, &mid, scale);
-
-        if (self->aimFrames >= 0x1E) {
-            return;
-        }
-
-        func_ov039_02098bb0(&fromPos, &fromHome, &legB);
-        func_ov039_02098bb0(&self->pos, &fromHome, &legA);
-
-        reach = func_ov039_0208a530(&fromHome, &fromPos, &self->pos);
-        if (reach > 0x24000) {
-            reach = 0x24000;
-        }
-        reach = FX_Divide(reach, 0x24000);
-
-        if (*self->pinID >= 0x130) {
-            return;
-        }
-
-        // Which way round the turn is decides the sign, and with it whether
-        // the badge ends up winding tight or winding loose.
-        sign = (func_ov039_02098c70(&legB, &legA) >= 0) ? data_ov039_0209a394 : -data_ov039_0209a394;
-
-        self->velMag = (s32)(((s64)(sign * scale) * reach + 0x800) >> 12) * 3;
     }
 }
 
@@ -1102,15 +1123,15 @@ s32 func_ov039_0208c304(OtosuGame_badge* self) {
         self->curAI       = 2;
         self->unk_1B8     = 1;
         self->chaseTarget = target;
-        return 1;
+    } else {
+        // Already chasing: keep going while the target is still worth chasing.
+        target = self->chaseTarget;
+        alive  = func_ov039_0208efb0(target, 0x444);
+        if (alive != 0) {
+            func_ov039_0208be30(self, &target->pos);
+        }
     }
 
-    // Already chasing: keep going while the target is still worth chasing.
-    target = self->chaseTarget;
-    alive  = func_ov039_0208efb0(target, 0x444);
-    if (alive != 0) {
-        func_ov039_0208be30(self, &target->pos);
-    }
     return 1;
 }
 
@@ -1365,12 +1386,11 @@ s32 func_ov039_0208c794(OtosuGame_badge* self) {
         self->curAI       = 0xA;
         self->unk_1B8     = 1;
         self->chaseTarget = other;
-
-        return 1;
-    }
-
-    if (func_ov039_0208efb0(self->chaseTarget, 0x444) != 0) {
-        func_ov039_0208be30(self, &self->chaseTarget->pos);
+    } else {
+        other = self->chaseTarget;
+        if (func_ov039_0208efb0(other, 0x444) != 0) {
+            func_ov039_0208be30(self, &other->pos);
+        }
     }
 
     return 1;
@@ -1437,12 +1457,11 @@ s32 func_ov039_0208c92c(OtosuGame_badge* self) {
         self->curAI       = 0x10;
         self->unk_1B8     = 1;
         self->chaseTarget = other;
-
-        return 1;
-    }
-
-    if (func_ov039_0208efb0(self->chaseTarget, 0x444) != 0) {
-        func_ov039_0208be30(self, &self->chaseTarget->pos);
+    } else {
+        other = self->chaseTarget;
+        if (func_ov039_0208efb0(other, 0x444) != 0) {
+            func_ov039_0208be30(self, &other->pos);
+        }
     }
 
     return 1;
@@ -1636,40 +1655,45 @@ refresh:
 }
 
 /**
- * @brief The fade-out state.
+ * @brief The fade state: sub-step 0 holds the screen black and then fades the
+ *        entry banner back in, sub-step 1 waits for that and returns to phase 1.
  */
 void func_ov039_0208cd50(OtosuGame_badge* arg) {
     OtosuGame_badge* self = (OtosuGame_badge*)arg;
-    if (self->hasLabel == 0) {
-        return;
-    }
-
-    EasyFade_FadeMainDisplay(3, 0, 0x1E);
-
-    if (self->subKind == 0) {
-        return;
-    }
-
-    if (self->subKind != 1) {
-        return;
-    }
-
-    self->unk_164 = self->unk_164 - 1;
-
-    if (self->unk_164 > 0) {
-        return;
-    }
 
     if (self->hasLabel != 0) {
-        func_ov039_02096154(EasyTask_GetTaskData(self->pool, self->entryId), 2, 0);
+        EasyFade_FadeMainDisplay(3, 0, 0x1E);
     }
 
-    *(s32*)((u8*)gFaders + 8) = 0x10000;
+    switch (self->subKind) {
+        case 0:
+            // Hold black, then bring the entry banner back and fade in.
+            self->unk_164 = self->unk_164 - 1;
+            if (self->unk_164 > 0) {
+                return;
+            }
 
-    EasyFade_FadeMainDisplay(2, 0x10, 0x1000);
+            if (self->hasLabel != 0) {
+                func_ov039_02096154(EasyTask_GetTaskData(self->pool, self->entryId), 2, 0);
+                *(s32*)((u8*)gFaders + 8) = 0x10000;
+                EasyFade_FadeMainDisplay(2, 0x10, 0x1000);
+            }
 
-    self->unk_164 = 0x34;
-    self->subKind = 1;
+            self->unk_164 = 0x34;
+            self->subKind = 1;
+            return;
+
+        case 1:
+            // Wait out the fade-in, then return to phase 1.
+            self->unk_164 = self->unk_164 - 1;
+            if (self->unk_164 > 0) {
+                return;
+            }
+
+            self->phase = 1;
+            self->step  = 0;
+            return;
+    }
 }
 
 /* --- the two one-line probes -------------------------------------------- */
@@ -2464,17 +2488,17 @@ s32 func_ov039_0208df2c(OtuPoint* posA, OtuPoint* velA, s32 reachA, OtuPoint* po
         return 0;
     }
 
-    if (func_ov039_02098ca8(posA, posB) > reachA + reachB) {
-        return 0;
+    if (func_ov039_02098ca8(posA, posB) <= reachA + reachB) {
+        func_ov039_02098bb0(posB, posA, &dir);
+        dotA = func_ov039_02098c40(&dir, velA);
+
+        func_ov039_02098bb0(posA, posB, &dir);
+        dotB = func_ov039_02098c40(&dir, velB);
+
+        return (dotA > 0 || dotB > 0) ? 1 : 0;
     }
 
-    func_ov039_02098bb0(posB, posA, &dir);
-    dotA = func_ov039_02098c40(&dir, velA);
-
-    func_ov039_02098bb0(posA, posB, &dir);
-    dotB = func_ov039_02098c40(&dir, velB);
-
-    return (dotA > 0 || dotB > 0) ? 1 : 0;
+    return 0;
 }
 
 /**
@@ -2497,7 +2521,7 @@ void func_ov039_0208dff0(OtuPoint* dir, s32 speed, s32 scaleA, s32 scaleB, Otosu
     func_ov039_02098c00(OtuQ12Mul(mag, scaleB), dir, &other->vel, &other->vel);
     func_ov039_0208a6c4(&other->vel);
 
-    if (&other->vel != NULL && &other->vel.y != NULL) {
+    if (&other->vel != NULL || &other->vel.y != NULL) {
         func_ov039_02098d3c(&other->vel, &other->dir);
     }
 }
@@ -2564,23 +2588,25 @@ void func_ov039_0208e130(OtosuGame_badge* self, OtosuGame_badge* other) {
     OtuPoint dir;
     s32      score;
     s32      scale;
+    s32      weight;
 
     func_ov039_0208e058(&self->pos, &self->vel, &other->pos, &other->vel, &dir, &score);
 
-    // The row pointer is not hoisted into a local: the target re-reads both
-    // `pinID` and `rowTable` from the task on each of the four lookups, so a
-    // cached OtuBadgeParam* is a source-level difference, not a scheduling one.
-    scale = (self->stun > 0) ? data_ov039_0209a388 : 0x1000;
-    func_ov039_0208dff0(&dir, OtuQ12Mul(score, scale), data_ov039_0209a3e4[self->slots[*self->pinID].tuneIndex][0],
-                        (other->mode > 0) ? data_ov039_0209a3e8[other->slots[*other->pinID].tuneIndex][0] * 2
-                                          : data_ov039_0209a3e8[other->slots[*other->pinID].tuneIndex][0],
+    scale  = (self->stun > 0) ? data_ov039_0209a388 : 0x1000;
+    weight = data_ov039_0209a3e8[other->slots[*other->pinID].tuneIndex][0];
+    if (other->mode > 0) {
+        weight *= 2;
+    }
+    func_ov039_0208dff0(&dir, OtuQ12Mul(score, scale), data_ov039_0209a3e4[self->slots[*self->pinID].tuneIndex][0], weight,
                         self);
     self->partner = other;
 
-    scale = (other->stun > 0) ? data_ov039_0209a388 : 0x1000;
-    func_ov039_0208dff0(&dir, -OtuQ12Mul(score, scale), data_ov039_0209a3e4[other->slots[*other->pinID].tuneIndex][0],
-                        (self->mode > 0) ? data_ov039_0209a3e8[self->slots[*self->pinID].tuneIndex][0] * 2
-                                         : data_ov039_0209a3e8[self->slots[*self->pinID].tuneIndex][0],
+    scale  = (other->stun > 0) ? data_ov039_0209a388 : 0x1000;
+    weight = data_ov039_0209a3e8[self->slots[*self->pinID].tuneIndex][0];
+    if (self->mode > 0) {
+        weight *= 2;
+    }
+    func_ov039_0208dff0(&dir, -OtuQ12Mul(score, scale), data_ov039_0209a3e4[other->slots[*other->pinID].tuneIndex][0], weight,
                         other);
     other->partner = self;
 }
@@ -2599,20 +2625,30 @@ s32 func_ov039_0208e28c(OtosuGame_badge* self, OtosuGame_badge* other) {
     if (self->flags > 0) {
         return 0;
     }
-    if (self->phase != 1 && self->phase != 6 && self->phase != 7) {
-        return 0;
-    }
-    if (self->height != 0) {
-        return 0;
+    switch (self->phase) {
+        case 1:
+        case 6:
+        case 7:
+            if (self->height != 0) {
+                return 0;
+            }
+            break;
+        default:
+            return 0;
     }
     if (other->flags > 0) {
         return 0;
     }
-    if (other->phase != 1 && other->phase != 6 && other->phase != 7) {
-        return 0;
-    }
-    if (other->height != 0) {
-        return 0;
+    switch (other->phase) {
+        case 1:
+        case 6:
+        case 7:
+            if (other->height != 0) {
+                return 0;
+            }
+            break;
+        default:
+            return 0;
     }
 
     if (func_ov039_0208df2c(&self->pos, &self->vel, 0xC000, &other->pos, &other->vel, 0xC000) == 0) {
@@ -2742,48 +2778,48 @@ s32 func_ov039_0208e504(OtosuGame_badge* self, OtosuGame_obstacle* obstacle) {
     func_ov039_02092744(obstacle, &other);
     radius = func_ov039_02092758(obstacle);
 
-    if (func_ov039_02098ca8(&self->pos, &other) >= radius + 0xC000) {
-        return 0;
+    if (func_ov039_02098ca8(&self->pos, &other) < radius + 0xC000) {
+
+        func_ov039_02098bb0(&self->pos, &other, &dir);
+
+        if (dir.x != 0 || dir.y != 0) {
+            func_ov039_02098d3c(&dir, &dir);
+        } else {
+            dir.x = 0x1000;
+            dir.y = 0;
+        }
+
+        // Note the argument order: `other` is the base here, not `dir`, so this
+        // moves the obstacle's copy of the point rather than the pin's.
+        func_ov039_02098c00(radius + 0xC000, &dir, &other, &self->pos);
+
+        func_ov039_02098bb0(&other, &self->pos, &dir);
+
+        if (dir.x != 0 || dir.y != 0) {
+            func_ov039_02098d3c(&dir, &dir);
+        } else {
+            dir.x = 0x1000;
+            dir.y = 0;
+        }
+
+        len = func_ov039_02098c40(&self->vel, &dir);
+        func_ov039_02098c00(-(len * 2), &dir, &self->vel, &self->vel);
+
+        if (self->vel.x != 0 || self->vel.y != 0) {
+            func_ov039_02098d3c(&self->vel, &dir);
+
+            len = func_ov039_02098d10(&self->vel);
+            func_ov039_02098bd4(OtuQ12Mul(len, data_ov039_0209a324), &dir, &self->vel);
+
+            self->dir = dir;
+        }
+
+        func_ov039_02092760(obstacle);
+
+        return 1;
     }
 
-    func_ov039_02098bb0(&self->pos, &other, &dir);
-
-    if (dir.x != 0 || dir.y != 0) {
-        func_ov039_02098d3c(&dir, &dir);
-    } else {
-        dir.x = 0x1000;
-        dir.y = 0;
-    }
-
-    // Note the argument order: `other` is the base here, not `dir`, so this
-    // moves the obstacle's copy of the point rather than the pin's.
-    func_ov039_02098c00(radius + 0xC000, &dir, &other, &self->pos);
-
-    func_ov039_02098bb0(&other, &self->pos, &dir);
-
-    if (dir.x != 0 || dir.y != 0) {
-        func_ov039_02098d3c(&dir, &dir);
-    } else {
-        dir.x = 0x1000;
-        dir.y = 0;
-    }
-
-    len = func_ov039_02098c40(&self->vel, &dir);
-    func_ov039_02098c00(-(len * 2), &dir, &self->vel, &self->vel);
-
-    if (self->vel.x != 0 || self->vel.y != 0) {
-        func_ov039_02098d3c(&self->vel, &dir);
-
-        len = func_ov039_02098d10(&self->vel);
-        func_ov039_02098bd4(OtuQ12Mul(len, data_ov039_0209a324), &dir, &self->vel);
-
-        self->dir.x = dir.x;
-        self->dir.y = dir.y;
-    }
-
-    func_ov039_02092760(obstacle);
-
-    return 1;
+    return 0;
 }
 
 /* The badge's point accessors. Each is a whole-OtuPoint assignment: two scalar
@@ -2818,18 +2854,13 @@ s32 func_ov039_0208e6f4(OtosuGame_badge* task) {
  * The stack point is passed as both the source and the destination of
  * `func_ov039_02098bb0`; that aliasing is what the target does.
  */
-// Nonmatching: 73%, and the whole gap is one scheduling choice. The target
-// loads the +0x124 word before the +0x120 one and only then subtracts both;
-// this source reads them in address order. Writing the two reads in either
-// order, as an initialiser, or through named temporaries all move the score but
-// none reproduces the target's pair, so this is mwcc's scheduler and not the
-// source shape. Every instruction otherwise agrees.
 void func_ov039_0208e6fc(OtosuGame_badge* self, OtuPoint* out) {
-
     if (self->phase == 8) {
         switch (self->subKind) {
             case 2: {
-                OtuPoint scratch = {self->pos.x - 0x80000, self->pos.y - 0x60000};
+                s32      x       = self->pos.x - 0x80000;
+                s32      y       = self->pos.y - 0x60000;
+                OtuPoint scratch = {x, y};
 
                 func_ov039_02098bb0(&scratch, &self->homeOffset, &scratch);
 
@@ -2845,18 +2876,19 @@ void func_ov039_0208e6fc(OtosuGame_badge* self, OtuPoint* out) {
             }
 
             case 3: {
-                OtuPoint scratch;
-                s32      scale = FX_Divide(0x1000, self->frameBudget << 12);
-
-                scratch.x = self->pos.x - 0x80000;
-                scratch.y = self->pos.y - 0x60000;
+                s32      scale   = FX_Divide(0x1000, self->frameBudget << 12);
+                s32      x       = self->pos.x - 0x80000;
+                s32      y       = self->pos.y - 0x60000;
+                OtuPoint scratch = {x, y};
                 func_ov039_02098bb0(&scratch, &self->homeOffset, &scratch);
                 func_ov039_02098c00(scale, &scratch, &self->homeOffset, out);
                 return;
             }
 
             default:
-                break;
+                out->x = self->pos.x - 0x80000;
+                out->y = self->pos.y - 0x60000;
+                return;
         }
     }
 

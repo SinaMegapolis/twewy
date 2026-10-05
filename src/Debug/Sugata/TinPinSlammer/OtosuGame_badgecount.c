@@ -158,11 +158,6 @@ void OtosuGame_badgecount_LoadSpriteB(OtosuGame_badgecount* data, Sprite* sprite
  * entry being the odd one out.
  */
 
-// Nonmatching: 97.8%. Two instructions of mwcc scheduling and nothing else: it
-// hoists `index * 2` above the two `ldrh`s that copy the table into the stack
-// local, where the target computes it after them. The copy, the table read, the
-// guarded position shift and the `_Sprite_Load` tail are all correct and in
-// order.
 void OtosuGame_badgecount_LoadDigit(OtosuGame_badgecount* data, Sprite* sprite, s32 index) {
     SpriteAnimation anim   = OtosuGame_badgecount_AnimDigit;
     s16             lut[4] = {0x21, 0x21, 0x21, 0x1D};

@@ -36,18 +36,18 @@ extern u32 data_ov038_0209ef6c;
  *
  * They are `.data`, not `.rodata`, so they are declared non-`const`.
  */
-extern u8 data_ov039_0209923c[4];
-extern u8 data_ov039_02099240[4];
-extern u8 data_ov039_02099244[4];
-extern u8 data_ov039_02099248[4];
-extern u8 data_ov039_0209924c[4];
-extern u8 data_ov039_02099250[4];
-extern u8 data_ov039_02099254[4];
-extern u8 data_ov039_02099258[4];
-extern u8 data_ov039_0209925c[4];
-extern u8 data_ov039_02099260[4];
-extern u8 data_ov039_02099264[4];
-extern u8 data_ov039_02099268[4];
+extern u8 data_ov039_0209923c[2][2];
+extern u8 data_ov039_02099240[2][2];
+extern u8 data_ov039_02099244[2][2];
+extern u8 data_ov039_02099248[2][2];
+extern u8 data_ov039_0209924c[2][2];
+extern u8 data_ov039_02099250[2][2];
+extern u8 data_ov039_02099254[2][2];
+extern u8 data_ov039_02099258[2][2];
+extern u8 data_ov039_0209925c[2][2];
+extern u8 data_ov039_02099260[2][2];
+extern u8 data_ov039_02099264[2][2];
+extern u8 data_ov039_02099268[2][2];
 
 /*
  * Overlay 40's wireless stack, plus the two 02047xxx/02044xxx engine entry
@@ -923,65 +923,64 @@ void func_ov039_0208a6f8(OtosuGame_badge* self, OtuPoint* dir, s32 angle) {
  * tails (9..13, 14..18, 19..23, 24..28) show.
  */
 u8 func_ov039_0208a794(OtuPoint* p, OtuBoardLayout* grid) {
-    s32 gx   = p->x >> 12;
-    s32 gy   = p->y >> 12;
-    s32 row  = (gy / 32) * grid->width + (gx / 32);
-    u8* cell = grid->cells + row * 2;
+    s32 gx  = p->x >> 12;
+    s32 gy  = p->y >> 12;
+    s32 row = (gy / 32) * grid->width + (gx / 32);
     s32 gx32;
     s32 gy32;
     u32 kind;
 
-    if (cell[0] != 0) {
-        return cell[0];
+    if (grid->cells[row * 2] != 0) {
+        return grid->cells[row * 2];
     }
 
-    gx32 = (gx / 16) & 1;
-    gy32 = (gy / 16) & 1;
-    kind = cell[1] - 0x10;
+    gx32 = (gx / 16) % 2;
+    gy32 = (gy / 16) % 2;
+    kind = (grid->cells + row * 2)[1] - 0x10;
 
     switch (kind) {
         case 1:
-            return data_ov039_02099248[gy32 * 2 + gx32];
+            return data_ov039_02099248[gy32][gx32];
         case 2:
-            return data_ov039_02099244[gy32 * 2 + gx32];
+            return data_ov039_02099244[gy32][gx32];
         case 3:
-            return data_ov039_02099250[gy32 * 2 + gx32];
+            return data_ov039_02099250[gy32][gx32];
         case 4:
-            return data_ov039_0209923c[gy32 * 2 + gx32];
+            return data_ov039_0209923c[gy32][gx32];
         case 5:
-            return data_ov039_0209924c[gy32 * 2 + gx32];
+            return data_ov039_0209924c[gy32][gx32];
         case 6:
-            return data_ov039_02099240[gy32 * 2 + gx32];
+            return data_ov039_02099240[gy32][gx32];
         case 7:
-            return data_ov039_02099268[gy32 * 2 + gx32];
+            return data_ov039_02099268[gy32][gx32];
         case 8:
-            return data_ov039_02099264[gy32 * 2 + gx32];
+            return data_ov039_02099264[gy32][gx32];
         case 9:
         case 10:
         case 11:
         case 12:
         case 13:
-            return data_ov039_02099260[gy32 * 2 + gx32];
+            return data_ov039_02099260[gy32][gx32];
         case 14:
         case 15:
         case 16:
         case 17:
         case 18:
-            return data_ov039_0209925c[gy32 * 2 + gx32];
+            return data_ov039_0209925c[gy32][gx32];
         case 19:
         case 20:
         case 21:
         case 22:
         case 23:
-            return data_ov039_02099258[gy32 * 2 + gx32];
+            return data_ov039_02099258[gy32][gx32];
         case 24:
         case 25:
         case 26:
         case 27:
         case 28:
-            return data_ov039_02099254[gy32 * 2 + gx32];
+            return data_ov039_02099254[gy32][gx32];
         default:
-            return cell[0];
+            return grid->cells[row * 2];
     }
 }
 

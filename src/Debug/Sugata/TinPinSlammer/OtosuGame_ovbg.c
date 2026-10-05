@@ -24,38 +24,40 @@ static const u16 data_ov039_02099a18[36] = {
  * block of cells, centred on the 32x32 screen, whose low four bits say which of
  * the block's cells are occupied (on top of the 0x23F0 base tile).
  */
-// Nonmatching: 36.4%. Known: the block counts are `0x28 - (w - 10)` (folding
-// to `50 - w` costs an instruction), and the target keeps `cols` in r11 with a
-// five-word frame where this build spills and adds a `cols <= 0` pre-test.
+// Nonmatching: 85%, register allocation only. The block counts are
+// `0x28 - (w - 10)` (folding to `50 - w` costs an instruction), and the layout's
+// width and cells are re-read through `self->layout` inside the loop.
 void func_ov039_02092e30(OtosuGame_ovbg* self) {
-    OtuBoardLayout* layout = self->layout;
-    s32             w      = layout->width;
-    s32             h      = layout->height;
-    u8*             cells  = layout->cells;
-
-    s32 dw    = w - 10;
-    s32 dh    = h - 10;
-    s32 xBase = (0x28 - dw) / 2 + 10;
-    s32 yBase = (0x28 - dh) / 2 + 2;
-    s32 rows  = (h - 9) / 2;
-    s32 cols  = (w - 9) / 2;
-    s32 j;
+    s32 w;
+    s32 h;
+    s32 dw;
+    s32 dh;
     s32 i;
+    s32 cols;
+    s32 xBase;
+    s32 yBase;
+    s32 j;
+    s32 rows;
 
-    if (rows <= 0) {
-        return;
-    }
+    w     = self->layout->width;
+    h     = self->layout->height;
+    dw    = w - 10;
+    dh    = h - 10;
+    xBase = (0x28 - dw) / 2 + 10;
+    yBase = (0x28 - dh) / 2 + 2;
+    rows  = (h - 9) / 2;
+    cols  = (w - 9) / 2;
 
     for (j = 0; j < rows; j++) {
         for (i = 0; i < cols; i++) {
-            u16 mask = 0x23F0;
-            u16 bit  = 1;
             s32 y;
             s32 x;
+            u16 mask = 0x23F0;
+            u16 bit  = 1;
 
             for (y = 5 + j * 2; y < 7 + j * 2; y++) {
                 for (x = 5 + i * 2; x < 7 + i * 2; x++) {
-                    if (cells[(y * w + x) * 2] != 0) {
+                    if (((u8(*)[2])self->layout->cells)[y * self->layout->width + x][0] != 0) {
                         mask |= bit;
                     }
                     bit = (u16)(bit << 1);

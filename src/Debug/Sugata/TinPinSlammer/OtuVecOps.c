@@ -80,13 +80,11 @@ typedef struct {
  *
  * 0x040002B0 is the control/scratch port: write 1 to start, poll bit 15 for
  * busy, read the result at 0x040002B4. The input is a Q12.12 value promoted to
- * the Q2.30 the unit wants, which is the low word shifted up by 2 with the high
- * word's bottom bits folded in below it.
+ * the Q2.30 the unit wants: the whole 64-bit value shifted up by 2.
  */
-#define SQRT_CONTROL  ((volatile s16*)0x040002B0)
-#define SQRT_RESULT   (*(volatile s32*)0x040002B4)
-#define SQRT_INPUT_LO (*(volatile s32*)0x040002B8)
-#define SQRT_INPUT_HI (*(volatile s32*)0x040002BC)
+#define SQRT_CONTROL (*(volatile u16*)0x040002B0)
+#define SQRT_RESULT  (*(volatile s32*)0x040002B4)
+#define SQRT_INPUT   (*(volatile u64*)0x040002B8)
 
 /** The distance between two points, rounded to nearest.
  *
@@ -94,15 +92,14 @@ typedef struct {
  * needs, then rounded by adding 1 before the halving shift.
  */
 s32 func_ov039_02098ca8(OtuPoint* a, OtuPoint* b) {
-    s64 sum = (s64)(a->y - b->y) * (a->y - b->y) + (s64)(a->x - b->x) * (a->x - b->x);
-    u32 lo  = (u32)sum;
-    u32 hi  = (u32)(sum >> 32);
+    s32 dx  = a->x - b->x;
+    s32 dy  = a->y - b->y;
+    s64 sum = (s64)dx * dx + (s64)dy * dy;
 
-    *SQRT_CONTROL = 1;
-    SQRT_INPUT_HI = hi << 2;
-    SQRT_INPUT_LO = (lo << 2) | (hi >> 30);
+    SQRT_CONTROL = 1;
+    SQRT_INPUT   = (u64)sum << 2;
 
-    while (*SQRT_CONTROL & 0x8000) {
+    while (SQRT_CONTROL & 0x8000) {
     }
 
     return (SQRT_RESULT + 1) >> 1;
@@ -152,7 +149,7 @@ s32 func_ov039_02098d7c(OtuFrameCursor* cursor, s32 base, OtuFrameSlot* slots, s
     cursor->count     = count;
     cursor->base      = base;
     cursor->index     = 0;
-    cursor->remaining = slots->duration;
+    cursor->remaining = cursor->slots[cursor->index].duration;
 
     return cursor->base + cursor->slots[cursor->index].offset * 2;
 }

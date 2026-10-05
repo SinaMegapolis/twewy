@@ -165,15 +165,14 @@ s32 OtosuGame_needlehahen_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
 }
 
 /** func_ov039_02097240 at full scale, with one of animations 3..13. */
-// Nonmatching: 87.6%, the same register allocation as func_ov039_02097240.
+// Nonmatching: 94.3%, the same load scheduling as func_ov039_02097240.
 void func_ov039_02097e9c(OtuHahen* self, OtuPoint* at) {
     s32 index;
 
     self->active        = 1;
     self->affine.scaleX = 0x1000;
     self->affine.scaleY = 0x1000;
-    self->pos.x         = at->x;
-    self->pos.y         = at->y;
+    self->pos           = *at;
     self->height        = 0;
     self->speed         = data_ov039_0209a314;
     self->speed         = self->speed + RNG_Next(data_ov039_0209a328 - data_ov039_0209a314);
@@ -181,7 +180,7 @@ void func_ov039_02097e9c(OtuHahen* self, OtuPoint* at) {
     self->vz            = self->vz - RNG_Next(data_ov039_0209a30c - data_ov039_0209a2fc);
     self->lifeMax       = OTU_ABS_AIRTIME(self->vz);
     self->life          = self->lifeMax;
-    index               = RNG_Next(0x10000) >> 4;
+    index               = (RNG_Next(0x10000) >> 4) * 2;
     self->dir.x         = ((s16*)data_0205e4e0)[index + 1];
     self->dir.y         = ((s16*)data_0205e4e0)[index];
     Sprite_ChangeAnimation(&self->sprite, self->sprite.animData, (s16)(RNG_Next(0xB) + 3), self->sprite.cellTable);

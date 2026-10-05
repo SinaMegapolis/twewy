@@ -323,7 +323,7 @@ void OtosuGame_specialgauge_LoadDigit(OtosuGame_specialgauge* self, Sprite* spri
     anim.dataType  = (u16)self->dataType;
     anim.posX      = data_ov039_0209a790[index][which].x;
     anim.posY      = data_ov039_0209a790[index][which].y;
-    anim.animIndex = index + 1;
+    anim.packIndex = index + 1;
 
     _Sprite_Load(sprite, &anim);
 }

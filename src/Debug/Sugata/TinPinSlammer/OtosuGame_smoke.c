@@ -182,10 +182,10 @@ s32 OtosuGame_smoke_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
  * Puffs smoke at `at`, drifting in the table direction `angle >> 4` at
  * `speed`, slowing by `decel`, and holding for `hold` frames.
  */
-// Nonmatching: 46.3%, the scheduler interleaves the stores and the two table
-// loads differently; every field, constant and argument position is settled.
+// Nonmatching: 43%, scheduling only: the target interleaves the stores and the
+// two table loads differently.
 void func_ov039_02097750(OtosuGame_smoke* self, OtuPoint* at, s32 angle, s32 speed, s32 decel, s32 hold) {
-    s32 index = angle >> 4;
+    s32 index = (angle >> 4) * 2;
 
     self->pos.x  = at->x;
     self->pos.y  = at->y;

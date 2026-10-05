@@ -39,6 +39,8 @@ void func_ov039_02087b04(TinPinSlammer_Scene* scene) {
         case 9:
             func_ov040_0209d540();
             break;
+        case 3: // nothing to do in this state
+            break;
         default:
             func_ov040_0209d588();
             break;
@@ -113,8 +115,8 @@ void func_ov039_02087cac(TinPinSlammer_Scene* scene, s32 slot, const void* src, 
  */
 void func_ov039_02087d04(s32 se, OtuPoint* from, OtuPoint* to) {
     OtuPoint anchor;
-    s32      distance;
     s32      pan;
+    s32      distance;
     s32      maxVolume;
 
     anchor.x = 0x80000;
@@ -122,16 +124,13 @@ void func_ov039_02087d04(s32 se, OtuPoint* from, OtuPoint* to) {
 
     func_ov039_02098b8c(to, &anchor, &anchor);
 
-    distance = func_ov039_02098ca8(from, &anchor) >> 0xC;
-    distance = (distance + ((u32)(distance >> 2) >> 0x1D)) >> 3;
+    distance = (func_ov039_02098ca8(from, &anchor) >> 0xC) / 8;
 
     pan = (from->x - to->x) >> 0xC;
 
     if (pan > 0xFF) {
         pan = 0xFF;
-    }
-
-    if (pan < 0) {
+    } else if (pan < 0) {
         pan = 0;
     }
 
@@ -140,9 +139,7 @@ void func_ov039_02087d04(s32 se, OtuPoint* from, OtuPoint* to) {
 
     if (distance > maxVolume) {
         distance = maxVolume;
-    }
-
-    if (distance < 0) {
+    } else if (distance < 0) {
         distance = 0;
     }
 

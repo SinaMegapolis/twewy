@@ -159,7 +159,7 @@ s32 func_ov039_020885f4(void* record, TinPinSlammer_Scene* scene) {
     if (*(u16*)(self + 0x14) == *(u16*)(target + 6)) {
         (*(u16*)(target + 6))++;
 
-        if (*(s32*)(target + 6) < *(s32*)(target + 0x140)) {
+        if (*(u16*)(target + 6) < *(s32*)(target + 0x140)) {
             flag = 1;
         } else {
             flag = 0;
