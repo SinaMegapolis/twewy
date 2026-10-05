@@ -10,18 +10,18 @@ typedef struct {
     s32 pinId;
     s32 index;
     s32 hasSpriteA;
-} OtuBadgeCountArgs;
+} OtosuGame_badgecount_Args;
 
-extern const SpriteAnimation data_ov039_02099acc;
-extern const SpriteAnimation data_ov039_02099af8;
-extern const SpriteAnimation data_ov039_02099b24;
+extern const SpriteAnimation OtosuGame_badgecount_AnimSpriteB;
+extern const SpriteAnimation OtosuGame_badgecount_AnimSpriteA;
+extern const SpriteAnimation OtosuGame_badgecount_AnimDigit;
 
 /** Four `s16` offsets: the x positions of the counter task's digit sprites. */
 extern const u16        data_ov039_02099aa8[4];
 extern const TaskStages data_ov039_02099abc;
-extern const TaskHandle data_ov039_02099ab0;
+extern const TaskHandle Tsk_OtosuGame_badgecount;
 
-SpriteFrameInfo* func_ov039_02093884(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_badgecount_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
@@ -34,8 +34,8 @@ SpriteFrameInfo* func_ov039_02093884(Sprite* sprite, s32 arg, s32 mode) {
  * same per-menu selector -- laid out as 19 pixels of vertical offset rather
  * than as an animation choice.
  */
-void func_ov039_0209392c(OtuBadgeCount* data, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_02099af8;
+void OtosuGame_badgecount_LoadSpriteA(OtosuGame_badgecount* data, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_badgecount_AnimSpriteA;
 
     anim.owner    = data;
     anim.dataType = data->dataType;
@@ -53,8 +53,8 @@ void func_ov039_0209392c(OtuBadgeCount* data, Sprite* sprite) {
  * is why the two are recognisably the same family: `unk_188` names a menu and
  * each menu owns seven animations, and this sprite is showing the seventh.
  */
-void func_ov039_020939b0(OtuBadgeCount* data, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_02099acc;
+void OtosuGame_badgecount_LoadSpriteB(OtosuGame_badgecount* data, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_badgecount_AnimSpriteB;
 
     anim.owner     = data;
     anim.dataType  = data->dataType;
@@ -83,8 +83,8 @@ void func_ov039_020939b0(OtuBadgeCount* data, Sprite* sprite) {
 // local, where the target computes it after them. The copy, the table read, the
 // guarded position shift and the `_Sprite_Load` tail are all correct and in
 // order.
-void func_ov039_02093a30(OtuBadgeCount* data, Sprite* sprite, s32 index) {
-    SpriteAnimation anim = data_ov039_02099b24;
+void OtosuGame_badgecount_LoadDigit(OtosuGame_badgecount* data, Sprite* sprite, s32 index) {
+    SpriteAnimation anim = OtosuGame_badgecount_AnimDigit;
     s16             lut[4];
 
     lut[0] = data_ov039_02099aa8[0];
@@ -119,9 +119,9 @@ void func_ov039_02093a30(OtuBadgeCount* data, Sprite* sprite, s32 index) {
  * The digit sprites' visible bitmask at +0x194 is raised to 0xC (bits 2 and 3)
  * here: two of the four digits start showing and two start hidden.
  */
-s32 func_ov039_02093b08(TaskPool* pool, Task* self, OtuBadgeCountArgs* args) {
-    OtuBadgeCount* data = (OtuBadgeCount*)self->data;
-    s32            i;
+s32 OtosuGame_badgecount_Init(TaskPool* pool, Task* self, OtosuGame_badgecount_Args* args) {
+    OtosuGame_badgecount* data = (OtosuGame_badgecount*)self->data;
+    s32                   i;
 
     data->dataType   = args->dataType;
     data->pinId      = args->pinId;
@@ -131,13 +131,13 @@ s32 func_ov039_02093b08(TaskPool* pool, Task* self, OtuBadgeCountArgs* args) {
     data->visible    = 0xC;
 
     if (data->hasSpriteA != 0) {
-        func_ov039_0209392c(data, &data->spriteA);
+        OtosuGame_badgecount_LoadSpriteA(data, &data->spriteA);
     }
 
-    func_ov039_020939b0(data, &data->spriteB);
+    OtosuGame_badgecount_LoadSpriteB(data, &data->spriteB);
 
     for (i = 0; i < 4; i++) {
-        func_ov039_02093a30(data, &data->digits[i], i);
+        OtosuGame_badgecount_LoadDigit(data, &data->digits[i], i);
     }
 
     return 1;
@@ -151,8 +151,8 @@ s32 func_ov039_02093b08(TaskPool* pool, Task* self, OtuBadgeCountArgs* args) {
  * is decided here, and the render stage 02093bc0 does nothing at all while
  * `resolved` is clear.
  */
-s32 func_ov039_02093b98(TaskPool* pool, Task* self, void* arg) {
-    OtuBadgeCount* data = (OtuBadgeCount*)self->data;
+s32 OtosuGame_badgecount_Update(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_badgecount* data = (OtosuGame_badgecount*)self->data;
 
     data->resolved = EasyTask_GetTaskData(pool, data->pinId) != NULL;
     return 1;
@@ -178,9 +178,9 @@ s32 func_ov039_02093b98(TaskPool* pool, Task* self, void* arg) {
  * because that is how the target forms the address, and mwcc keeps the split.
  */
 
-s32 func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg) {
-    OtuBadgeCount* data = (OtuBadgeCount*)self->data;
-    s32            i;
+s32 OtosuGame_badgecount_Render(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_badgecount* data = (OtosuGame_badgecount*)self->data;
+    s32                   i;
 
     if (data->resolved != 0) {
         if (data->hasSpriteA != 0) {
@@ -205,9 +205,9 @@ s32 func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg) {
 /**
  * @brief The counter task's cleanup stage, 0x02093c44.
  */
-s32 func_ov039_02093c44(TaskPool* pool, Task* self, void* arg) {
-    OtuBadgeCount* data = (OtuBadgeCount*)self->data;
-    s32            i;
+s32 OtosuGame_badgecount_Destroy(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_badgecount* data = (OtosuGame_badgecount*)self->data;
+    s32                   i;
 
     if (data->hasSpriteA != 0) {
         Sprite_Release(&data->spriteA);
@@ -223,7 +223,7 @@ s32 func_ov039_02093c44(TaskPool* pool, Task* self, void* arg) {
 }
 
 /** The counter task's stage dispatcher, 0x02093c90. */
-s32 func_ov039_02093c90(TaskPool* pool, Task* self, void* arg, s32 stage) {
+s32 OtosuGame_badgecount_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage) {
     TaskStages stages = data_ov039_02099abc;
 
     return stages.iter[stage](pool, self, arg);
@@ -236,15 +236,15 @@ s32 func_ov039_02093c90(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * the radar task's five. All three create wrappers are the same body; the
  * argument count and the `TaskHandle` are the only differences.
  */
-s32 func_ov039_02093cd8(TaskPool* pool, s32 dataType, s32 pinId, s32 index, s32 hasSpriteA) {
-    OtuBadgeCountArgs args;
+s32 OtosuGame_badgecount_CreateTask(TaskPool* pool, s32 dataType, s32 pinId, s32 index, s32 hasSpriteA) {
+    OtosuGame_badgecount_Args args;
 
     args.dataType   = dataType;
     args.pinId      = pinId;
     args.index      = index;
     args.hasSpriteA = hasSpriteA;
 
-    return EasyTask_CreateTask(pool, &data_ov039_02099ab0, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_badgecount, NULL, 0, NULL, &args);
 }
 
 /**
@@ -263,7 +263,7 @@ s32 func_ov039_02093cd8(TaskPool* pool, s32 dataType, s32 pinId, s32 index, s32 
  * The whole function is a tail call: the target jumps to `Sprite_ChangeAnimation`
  * rather than calling and returning, so there is no frame of its own.
  */
-s32 func_ov039_02093d18(OtuBadgeCount* data, u16* slots) {
+s32 func_ov039_02093d18(OtosuGame_badgecount* data, u16* slots) {
     s32 i;
 
     for (i = 0; i < 6; i++) {
@@ -319,7 +319,7 @@ s32 func_ov039_02093d18(OtuBadgeCount* data, u16* slots) {
 // per-iteration address arithmetic follows from that (the target recomputes
 // `data + j * 0x40` for the cell table, where this build walks the sprite
 // pointer). Nothing about the overlay is in doubt here.
-void func_ov039_02093d68(OtuBadgeCount* data, s32 value) {
+void func_ov039_02093d68(OtosuGame_badgecount* data, s32 value) {
     s16 buf[4];
     s32 count;
     s32 idx;

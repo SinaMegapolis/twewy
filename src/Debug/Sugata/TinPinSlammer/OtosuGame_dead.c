@@ -5,20 +5,20 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle data_ov039_02099dd4;
+extern const TaskHandle Tsk_OtosuGame_dead;
 extern const TaskStages data_ov039_02099de0;
 
 /* The sprite template the loader copies to the stack. */
-extern const SpriteAnimation data_ov039_02099df0;
+extern const SpriteAnimation OtosuGame_dead_Anim;
 
-SpriteFrameInfo* func_ov039_02096280(Sprite* sprite, s32 arg, s32 mode) {
-    OtuDead* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_dead_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_dead* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(3, owner->pos.y, 0));
 }
 
-void func_ov039_0209633c(OtuDead* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099df0;
+void OtosuGame_dead_Load(OtosuGame_dead* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_dead_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -27,8 +27,8 @@ void func_ov039_0209633c(OtuDead* self, Sprite* sprite, OtuPinSpriteArgs* args) 
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_020963c8(void* pool, void* task, OtuPinSpriteArgs* args) {
-    OtuDead* self = ((Task*)task)->data;
+s32 OtosuGame_dead_Init(void* pool, void* task, OtuPinSpriteArgs* args) {
+    OtosuGame_dead* self = ((Task*)task)->data;
 
     self->pinId    = args->childId;
     self->origin.x = 0;
@@ -37,14 +37,14 @@ s32 func_ov039_020963c8(void* pool, void* task, OtuPinSpriteArgs* args) {
     self->pos.y    = 0;
     self->visible  = 0;
     self->state    = 0;
-    func_ov039_0209633c(self, &self->sprite, args);
+    OtosuGame_dead_Load(self, &self->sprite, args);
     return 1;
 }
 
 /** Follows the pin while playing, and hides once the animation has finished. */
-s32 func_ov039_02096404(void* pool, void* task, void* args) {
-    OtuDead* self = ((Task*)task)->data;
-    void*    pin  = EasyTask_GetTaskData(pool, self->pinId);
+s32 OtosuGame_dead_Update(void* pool, void* task, void* args) {
+    OtosuGame_dead* self = ((Task*)task)->data;
+    void*           pin  = EasyTask_GetTaskData(pool, self->pinId);
 
     if (pin != NULL) {
         switch (self->state) {
@@ -73,8 +73,8 @@ s32 func_ov039_02096404(void* pool, void* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020964a4(void* pool, void* task, void* args) {
-    OtuDead* self = ((Task*)task)->data;
+s32 OtosuGame_dead_Render(void* pool, void* task, void* args) {
+    OtosuGame_dead* self = ((Task*)task)->data;
 
     if (self->visible != 0) {
         self->sprite.posX = (self->pos.x - self->origin.x) >> 12;
@@ -84,29 +84,29 @@ s32 func_ov039_020964a4(void* pool, void* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020964ec(void* pool, void* task, void* args) {
-    OtuDead* self = ((Task*)task)->data;
+s32 OtosuGame_dead_Destroy(void* pool, void* task, void* args) {
+    OtosuGame_dead* self = ((Task*)task)->data;
 
     Sprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov039_02096500(TaskPool* pool, Task* task, void* data, s32 stage) {
+s32 OtosuGame_dead_RunTask(TaskPool* pool, Task* task, void* data, s32 stage) {
     TaskStages stages = data_ov039_02099de0;
 
     return stages.iter[stage](pool, task, data);
 }
 
-s32 func_ov039_02096548(TaskPool* pool, s32 dataType, s32 pinId) {
+s32 OtosuGame_dead_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = pinId;
-    return EasyTask_CreateTask(pool, &data_ov039_02099dd4, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_dead, NULL, 0, NULL, &args);
 }
 
 /** Plays the knockout animation. */
-void func_ov039_0209657c(OtuDead* self) {
+void func_ov039_0209657c(OtosuGame_dead* self) {
     self->state = 1;
     Sprite_SetAnimation(&self->sprite, self->sprite.animData, 4, self->sprite.cellTable);
 }

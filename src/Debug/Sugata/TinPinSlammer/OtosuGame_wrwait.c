@@ -15,23 +15,23 @@ typedef struct {
         PaletteResource* palette;
         BgResource*      chars;
         BgResource*      screen;
-    } bg[2]; // one per display
-} OtuWrwait; // Size: 0x64
+    } bg[2];        // one per display
+} OtosuGame_wrwait; // Size: 0x64
 
 /* The task's handle, stage table and sprite template. */
-extern const TaskHandle      data_ov039_0209a06c;
+extern const TaskHandle      Tsk_OtosuGame_wrwait;
 extern const TaskStages      data_ov039_0209a078;
-extern const SpriteAnimation data_ov039_0209a088;
+extern const SpriteAnimation OtosuGame_wrwait_Anim;
 
 /** The 0x27-sized bin the loader pulls, plus its three sub-objects. */
 extern const BinIdentifier data_ov039_0209a0e4;
 
-SpriteFrameInfo* func_ov039_02098538(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_wrwait_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
-void func_ov039_020985e0(OtuWrwait* self, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_0209a088;
+void OtosuGame_wrwait_Load(OtosuGame_wrwait* self, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_wrwait_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)self->dataType;
@@ -42,9 +42,9 @@ void func_ov039_020985e0(OtuWrwait* self, Sprite* sprite) {
  * Shows BG1 on both displays, loads the wait screen's palette, char and screen
  * data into it, loads the sprite and fades both displays in.
  */
-s32 func_ov039_02098650(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
+s32 OtosuGame_wrwait_Init(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
     DisplayEngineState* state;
-    OtuWrwait*          self = task->data;
+    OtosuGame_wrwait*   self = task->data;
     Data*               data;
 
     self->visible  = 1;
@@ -144,14 +144,14 @@ s32 func_ov039_02098650(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
         PaletteMgr_Flush(g_PaletteManagers[1], self->bg[1].palette);
     }
 
-    func_ov039_020985e0(self, &self->sprite);
+    OtosuGame_wrwait_Load(self, &self->sprite);
     EasyFade_FadeMainDisplay(2, 0, 0x1000);
     EasyFade_FadeSubDisplay(2, 0, 0x1000);
     return 1;
 }
 
-s32 func_ov039_020988d8(TaskPool* pool, Task* task, void* args) {
-    OtuWrwait* self = task->data;
+s32 OtosuGame_wrwait_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_wrwait* self = task->data;
 
     if (self->visible != 0) {
         Sprite_Update(&self->sprite);
@@ -159,8 +159,8 @@ s32 func_ov039_020988d8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020988fc(TaskPool* pool, Task* task, void* args) {
-    OtuWrwait* self = task->data;
+s32 OtosuGame_wrwait_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_wrwait* self = task->data;
 
     if (self->visible != 0) {
         Sprite_RenderFrame(&self->sprite);
@@ -168,8 +168,8 @@ s32 func_ov039_020988fc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02098920(TaskPool* pool, Task* task, void* args) {
-    OtuWrwait* self = task->data;
+s32 OtosuGame_wrwait_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_wrwait* self = task->data;
 
     BgResMgr_ReleaseScreen(g_BgResourceManagers[0], self->bg[0].screen);
     BgResMgr_ReleaseChar(g_BgResourceManagers[0], self->bg[0].chars);
@@ -184,15 +184,15 @@ s32 func_ov039_02098920(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020989a8(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_wrwait_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_0209a078;
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_020989f0(TaskPool* pool, s32 dataType) {
+s32 OtosuGame_wrwait_CreateTask(TaskPool* pool, s32 dataType) {
     OtuTaskArgs1 args;
 
     args.dataType = dataType;
-    return EasyTask_CreateTask(pool, &data_ov039_0209a06c, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_wrwait, NULL, 0, NULL, &args);
 }

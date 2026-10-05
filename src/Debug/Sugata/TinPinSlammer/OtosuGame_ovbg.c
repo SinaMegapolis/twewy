@@ -7,7 +7,7 @@
 
 /* The task's stage table and handle. */
 extern const TaskStages data_ov039_020999c0;
-extern const TaskHandle data_ov039_020999b4;
+extern const TaskHandle Tsk_OtosuGame_ovbg;
 
 /** The table 020934e0 refuses to re-point the animated palette at twice. */
 extern const u16 data_ov039_02099a18[1];
@@ -24,7 +24,7 @@ extern const void*         data_ov039_020999d0;
 // Nonmatching: 36.4%. Known: the block counts are `0x28 - (w - 10)` (folding
 // to `50 - w` costs an instruction), and the target keeps `cols` in r11 with a
 // five-word frame where this build spills and adds a `cols <= 0` pre-test.
-void func_ov039_02092e30(OtuOvbg* self) {
+void func_ov039_02092e30(OtosuGame_ovbg* self) {
     OtuBoardLayout* layout = self->layout;
     s32             w      = layout->width;
     s32             h      = layout->height;
@@ -69,12 +69,12 @@ void func_ov039_02092e30(OtuOvbg* self) {
  * layer, the occupancy overlay built by func_ov039_02092e30 and a top layer,
  * blended over layers 0/1.
  */
-s32 func_ov039_02092f88(TaskPool* pool, Task* task, OtuBoardArgs* args) {
-    OtuOvbg* self = task->data;
-    Data*    data;
-    u8*      pal;
-    u8*      chr;
-    u8*      scr;
+s32 OtosuGame_ovbg_Init(TaskPool* pool, Task* task, OtuBoardArgs* args) {
+    OtosuGame_ovbg* self = task->data;
+    Data*           data;
+    u8*             pal;
+    u8*             chr;
+    u8*             scr;
 
     self->heap   = args->heap;
     self->layout = args->layout;
@@ -244,8 +244,8 @@ s32 func_ov039_02092f88(TaskPool* pool, Task* task, OtuBoardArgs* args) {
  * The other three layers are left alone, so this is a per-frame recolour of
  * one BG layer rather than a repaint.
  */
-s32 func_ov039_020933c0(TaskPool* pool, Task* self, void* arg) {
-    OtuOvbg* data = (OtuOvbg*)self->data;
+s32 OtosuGame_ovbg_Update(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_ovbg* data = (OtosuGame_ovbg*)self->data;
 
     PaletteMgr_SetSource(g_PaletteManagers[1], data->palettes[1], func_ov039_02098dbc(&data->paletteAnim));
     return 1;
@@ -269,7 +269,7 @@ s32 func_ov039_020933c0(TaskPool* pool, Task* self, void* arg) {
  * update slot -- for a task whose render (02096da0) is the one that does the
  * work. Same instruction, different meaning; the four are left independent.
  */
-s32 func_ov039_020933f0(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_ovbg_Render(TaskPool* pool, Task* self, void* arg) {
     return 1;
 }
 
@@ -284,9 +284,9 @@ s32 func_ov039_020933f0(TaskPool* pool, Task* self, void* arg) {
  * displacement. Written that way deliberately; indexing the arrays as arrays
  * costs an add per access.
  */
-s32 func_ov039_020933f8(TaskPool* pool, Task* self, void* arg) {
-    OtuOvbg* data = (OtuOvbg*)self->data;
-    s32      i;
+s32 OtosuGame_ovbg_Destroy(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_ovbg* data = (OtosuGame_ovbg*)self->data;
+    s32             i;
 
     for (i = 0; i < 4; i++) {
         BgResMgr_ReleaseChar(g_BgResourceManagers[1], data->screens[i]);
@@ -307,7 +307,7 @@ s32 func_ov039_020933f8(TaskPool* pool, Task* self, void* arg) {
  * `EasyTask` passes when it wants one stage run rather than the whole
  * lifecycle.
  */
-s32 func_ov039_02093460(TaskPool* pool, Task* self, void* arg, s32 stage) {
+s32 OtosuGame_ovbg_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage) {
     TaskStages stages = data_ov039_020999c0;
 
     return stages.iter[stage](pool, self, arg);
@@ -325,16 +325,16 @@ s32 func_ov039_02093460(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * overlay stores the result into a child-handle field. It costs nothing
  * here -- the body has no `mov r0` of its own in either spelling, so the
  * handle already comes back in r0 and both compile to the same
- * instructions. Same finding as func_ov039_02098394.
+ * instructions. Same finding as OtosuGame_hammerhahen_CreateTask.
  */
-s32 func_ov039_020934a8(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout) {
+s32 OtosuGame_ovbg_CreateTask(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout) {
     OtuBoardArgs args;
 
     args.dataType = dataType;
     args.heap     = heap;
     args.layout   = layout;
 
-    return EasyTask_CreateTask(pool, &data_ov039_020999b4, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_ovbg, NULL, 0, NULL, &args);
 }
 
 /**
@@ -350,7 +350,7 @@ s32 func_ov039_020934a8(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout
  * frames: `func_ov039_02098dbc` steps through the table one entry per call and
  * wraps at this value.
  */
-void func_ov039_020934e0(OtuOvbg* data) {
+void func_ov039_020934e0(OtosuGame_ovbg* data) {
     if (data->paletteAnim.table == data_ov039_02099a18) {
         return;
     }

@@ -5,7 +5,7 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle data_ov039_02099998;
+extern const TaskHandle Tsk_OtosuGame_bg;
 extern const TaskStages data_ov039_020999a4;
 
 /* The 7- and 4-argument cell set-up pair func_ov039_0209276c drives. */
@@ -52,7 +52,7 @@ extern OtuResParams** data_ov039_0209a620[];
  * local: both are what the target does.
  */
 // Nonmatching: 86.7%, register naming in the first block.
-void func_ov039_0209276c(OtuBg* self, OtuResParams* params) {
+void func_ov039_0209276c(OtosuGame_bg* self, OtuResParams* params) {
     Data* rec;
     u8*   ref0;
     u8*   ref1;
@@ -107,9 +107,9 @@ void func_ov039_0209276c(OtuBg* self, OtuResParams* params) {
  * Loads both layers for the layout's kind, if it has any. The `active` store
  * is predicated in the target, so the kind-0 case is the `else`.
  */
-s32 func_ov039_020929ec(TaskPool* pool, Task* task, OtuBoardArgs* args) {
-    OtuBg* self = task->data;
-    s32    i;
+s32 OtosuGame_bg_Init(TaskPool* pool, Task* task, OtuBoardArgs* args) {
+    OtosuGame_bg* self = task->data;
+    s32           i;
 
     self->dataType = args->dataType;
     self->heap     = args->heap;
@@ -134,10 +134,10 @@ s32 func_ov039_020929ec(TaskPool* pool, Task* task, OtuBoardArgs* args) {
  * Scrolls the layers, wrapping at their size and flagging the map for upload.
  * Kind 1 scrolls layer 1 slowly; kind 2 also scrolls layer 0 twice as fast.
  */
-s32 func_ov039_02092a78(TaskPool* pool, Task* task, void* args) {
-    OtuBg* self = task->data;
-    s32    limit;
-    s32    v;
+s32 OtosuGame_bg_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_bg* self = task->data;
+    s32           limit;
+    s32           v;
 
     if (self->active == 0) {
         return 1;
@@ -203,13 +203,13 @@ s32 func_ov039_02092a78(TaskPool* pool, Task* task, void* args) {
 }
 
 /** The bg task's render stage: the BG layers draw themselves. */
-s32 func_ov039_02092bf0(void) {
+s32 OtosuGame_bg_Render(void) {
     return 1;
 }
 
-s32 func_ov039_02092bf8(TaskPool* pool, Task* task, void* args) {
-    OtuBg* self = task->data;
-    s32    i;
+s32 OtosuGame_bg_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_bg* self = task->data;
+    s32           i;
 
     if (self->active == 0) {
         return 1;
@@ -227,19 +227,19 @@ s32 func_ov039_02092bf8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02092c8c(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_bg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_020999a4;
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02092cd4(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout) {
+s32 OtosuGame_bg_CreateTask(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout) {
     OtuBoardArgs args;
 
     args.dataType = dataType;
     args.heap     = heap;
     args.layout   = layout;
-    return EasyTask_CreateTask(pool, &data_ov039_02099998, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_bg, NULL, 0, NULL, &args);
 }
 
 /**
@@ -247,7 +247,7 @@ s32 func_ov039_02092cd4(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout
  * for update. Written out twice: a helper would be a `bl`.
  */
 // Nonmatching: 98.5%, the same register swap as func_ov039_02092348.
-void func_ov039_02092d0c(OtuBg* self, s32 x, s32 y) {
+void func_ov039_02092d0c(OtosuGame_bg* self, s32 x, s32 y) {
     DisplayEngineState* group;
     s32                 b;
     s32                 px;
@@ -297,7 +297,7 @@ void func_ov039_02092d0c(OtuBg* self, s32 x, s32 y) {
 }
 
 /** Marks both layers' maps dirty when `event` is set. */
-void func_ov039_02092e04(OtuBg* self, s32 event) {
+void func_ov039_02092e04(OtosuGame_bg* self, s32 event) {
     s32  i;
     s32* flags;
 

@@ -150,27 +150,27 @@ void func_ov039_020888e0(TinPinSlammer_Scene* scene) {
     s32            i;
 
     for (i = 0; i < 0x40; i++) {
-        stage->sparkIds[i] = func_ov039_02094e58(OTU_POOL2(scene), scene->spareDataType);
+        stage->sparkIds[i] = OtosuGame_spark_CreateTask(OTU_POOL2(scene), scene->spareDataType);
     }
 
     for (i = 0; i < stage->obstacleCount; i++) {
         // bufB is walked eight bytes at a time and handed on by address; nothing
         // here interprets the record.
         stage->obstacleIds[i] =
-            func_ov039_020926f0(OTU_POOL2(scene), scene->spareDataType, stage->layout.kind, stage->layout.variant,
-                                (OtuObstacle_Params*)(stage->layout.obstacles + i * 8));
+            OtosuGame_obstacle_CreateTask(OTU_POOL2(scene), scene->spareDataType, stage->layout.kind, stage->layout.variant,
+                                          (OtosuGame_obstacle_Params*)(stage->layout.obstacles + i * 8));
     }
 
-    stage->slashId =
-        func_ov039_02095468(OTU_POOL2(scene), scene->spareDataType, stage->badgeIds[func_ov039_02088418(scene->multiplayer)]);
-    stage->floorId = func_ov039_02092310(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
-    stage->bgId    = func_ov039_02092cd4(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
-    stage->ovbgId  = func_ov039_020934a8(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
-    stage->timerId = func_ov039_020941d0(OTU_POOL2(scene), scene->spareDataType, stage->timerSeconds);
-    stage->gaugeId =
-        func_ov039_02094ab4(OTU_POOL2(scene), scene->spareDataType, stage->badgeIds[func_ov039_02088418(scene->multiplayer)]);
+    stage->slashId = OtosuGame_slash_CreateTask(OTU_POOL2(scene), scene->spareDataType,
+                                                stage->badgeIds[func_ov039_02088418(scene->multiplayer)]);
+    stage->floorId = OtosuGame_floor_CreateTask(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
+    stage->bgId    = OtosuGame_bg_CreateTask(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
+    stage->ovbgId  = OtosuGame_ovbg_CreateTask(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
+    stage->timerId = OtosuGame_timer_CreateTask(OTU_POOL2(scene), scene->spareDataType, stage->timerSeconds);
+    stage->gaugeId = OtosuGame_specialgauge_CreateTask(OTU_POOL2(scene), scene->spareDataType,
+                                                       stage->badgeIds[func_ov039_02088418(scene->multiplayer)]);
     // The one task in this function that lives in pool 1.
-    stage->gameoverId = func_ov039_02096b18(OTU_POOL1(scene), scene->spareDataType);
+    stage->gameoverId = OtosuGame_gameover_CreateTask(OTU_POOL1(scene), scene->spareDataType);
 
     func_ov039_0208871c(scene);
 }
@@ -199,7 +199,7 @@ void func_ov039_02088a8c(TinPinSlammer_Scene* scene) {
     s32            i;
 
     for (i = 0; i < stage->badgeCount; i++) {
-        stage->badgeIds[i] = func_ov039_0208dcb0(
+        stage->badgeIds[i] = OtosuGame_badge_CreateTask(
             OTU_POOL2(scene), scene->spareDataType, i, (i == 0) ? func_ov039_02088440(i) : (void*)0, &stage->layout, scene,
             scene->badgeParams, scene->decks[i], (i == 0), (i == 0) ? (u8*)0 : scene->ai[stage->match->opponents[i - 1].ai]);
     }
@@ -225,8 +225,8 @@ void func_ov039_02088b80(TinPinSlammer_Scene* scene) {
     for (i = 0; i < stage->badgeCount; i++) {
         BOOL local = (i == func_ov039_02088418(scene->multiplayer));
 
-        stage->badgeIds[i] = func_ov039_0208dcb0(OTU_POOL2(scene), scene->spareDataType, i, func_ov039_02088440(i),
-                                                 &stage->layout, scene, scene->badgeParams, scene->decks[i], local, 0);
+        stage->badgeIds[i] = OtosuGame_badge_CreateTask(OTU_POOL2(scene), scene->spareDataType, i, func_ov039_02088440(i),
+                                                        &stage->layout, scene, scene->badgeParams, scene->decks[i], local, 0);
     }
 
     func_ov039_020888e0(scene);
@@ -415,14 +415,14 @@ void func_ov039_02088f18(TinPinSlammer_Scene* scene) {
  * pair".
  */
 void func_ov039_02088fac(TinPinSlammer_Scene* scene) {
-    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuBadge*      pin;
-    s32            claimed;
-    s32            i;
-    s32            j;
+    OtuBoardStage*   stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtosuGame_badge* pin;
+    s32              claimed;
+    s32              i;
+    s32              j;
 
     for (i = 0; i < stage->badgeCount; i++) {
-        pin = (OtuBadge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
+        pin = (OtosuGame_badge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
 
         claimed = func_ov039_0208e9f8(OTU_POOL2(scene), pin);
         if (claimed != 0) {
@@ -482,7 +482,7 @@ void func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at) {
  * The effect id is 0x33D when either pin is alive and 0x32F when neither is --
  * the same pair of constants the hammer task uses for its states.
  */
-void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuBadge* a, OtuBadge* b) {
+void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtosuGame_badge* a, OtosuGame_badge* b) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
     s32            bothEmpty;
     s32            effectId;
@@ -549,18 +549,18 @@ void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuBadge* a, OtuBadge* b) {
  * for a counted loop whose bound it cannot prove positive.
  */
 void func_ov039_020891fc(TinPinSlammer_Scene* scene) {
-    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuBadge*      a;
-    OtuBadge*      b;
-    s32            touching;
-    s32            i;
-    s32            j;
+    OtuBoardStage*   stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtosuGame_badge* a;
+    OtosuGame_badge* b;
+    s32              touching;
+    s32              i;
+    s32              j;
 
     for (i = 0; i < stage->badgeCount - 1; i++) {
-        a = (OtuBadge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
+        a = (OtosuGame_badge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
 
         for (j = i + 1; j < stage->badgeCount; j++) {
-            b = (OtuBadge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[j]);
+            b = (OtosuGame_badge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[j]);
 
             touching = func_ov039_0208e28c(a, b);
             if (touching != 0) {
@@ -886,8 +886,8 @@ void func_ov039_020898a8(TinPinSlammer_Scene* scene) {
     stage->active     = 1;
     stage->timer      = 0x258;
     stage->badgeCount = scene->playerCount;
-    stage->wriconId   = func_ov039_02096e4c(OTU_POOL1(scene), scene->spareDataType);
-    stage->wrwaitId   = func_ov039_020989f0(OTU_POOL1(scene), scene->spareDataType);
+    stage->wriconId   = OtosuGame_wricon_CreateTask(OTU_POOL1(scene), scene->spareDataType);
+    stage->wrwaitId   = OtosuGame_wrwait_CreateTask(OTU_POOL1(scene), scene->spareDataType);
 }
 
 /**

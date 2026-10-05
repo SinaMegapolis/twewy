@@ -68,7 +68,7 @@ extern OtuSceneSlotState OtuScene_SlotState;
  * @brief One pin's parameters: one record of BeBadge_Parm.bin, indexed by pin id.
  *
  * The scene loads the whole file into TinPinSlammer_Scene.badgeParams, the
- * badges read their pin's record through OtuBadge.slots, and SINGLE MENU 3 of
+ * badges read their pin's record through OtosuGame_badge.slots, and SINGLE MENU 3 of
  * the debug editor edits one record at a time.
  */
 typedef struct {
@@ -482,28 +482,28 @@ s32 func_ov039_02098ca8(OtuPoint* a, OtuPoint* b);
 s32 func_ov039_02088400(s32 layer, s32 y, s32 z);
 
 /* The tasks' sprite frame-info callbacks (`SpriteAnimation.frameInfoCallback`). */
-SpriteFrameInfo* func_ov039_0208d2f8(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_0208f134(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_0208f440(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_0208fa90(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02090208(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_020902cc(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02091118(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_020916c4(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_020923c8(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02094ae8(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02094ff4(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_0209549c(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_020958a8(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02095dec(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02096280(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_0209659c(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02096660(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02096e7c(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02097398(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_020977d0(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02097ae0(Sprite* sprite, s32 arg, s32 mode);
-SpriteFrameInfo* func_ov039_02097ff4(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_badge_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_shadow_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_piyo_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_meteo_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_hammer_GetFrameInfoSpriteA(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_hammer_GetFrameInfoSpriteB(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_needle_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_hand_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_obstacle_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_spark_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_slash_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_track_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_point_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_entry_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_dead_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_gameover_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_gameover_GetFrameInfoSprite0(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_meteohahen_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_smoke_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_warp_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_needlehahen_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_hammerhahen_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 
 /* The stage sequencer (OtuStageDispatch.c). */
 void* func_ov039_02098b70(OtuStageDispatch* dispatch);

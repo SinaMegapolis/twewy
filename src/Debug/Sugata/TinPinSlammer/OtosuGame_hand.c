@@ -5,19 +5,19 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle data_ov039_020995a4;
+extern const TaskHandle Tsk_OtosuGame_hand;
 extern const TaskStages data_ov039_020995b0;
 
-extern const SpriteAnimation data_ov039_020995c0;
+extern const SpriteAnimation OtosuGame_hand_Anim;
 
-SpriteFrameInfo* func_ov039_020916c4(Sprite* sprite, s32 arg, s32 mode) {
-    OtuHand* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_hand_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_hand* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(4, owner->pos.y, 0));
 }
 
-void func_ov039_02091788(OtuHand* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_020995c0;
+void OtosuGame_hand_Load(OtosuGame_hand* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_hand_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -27,8 +27,8 @@ void func_ov039_02091788(OtuHand* self, Sprite* sprite, OtuPinSpriteArgs* args) 
 }
 
 /** The stores are in the target's order, not by address. */
-s32 func_ov039_02091814(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
-    OtuHand* self = task->data;
+s32 OtosuGame_hand_Init(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
+    OtosuGame_hand* self = task->data;
 
     self->pinId           = args->childId;
     self->origin.x        = 0;
@@ -43,7 +43,7 @@ s32 func_ov039_02091814(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
     self->visible         = 0;
     self->state           = 0;
 
-    func_ov039_02091788(self, &self->sprite, args);
+    OtosuGame_hand_Load(self, &self->sprite, args);
     return 1;
 }
 
@@ -53,9 +53,9 @@ s32 func_ov039_02091814(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
  * grab animation, 4 shrinks back. `== 1` keeps the target's compare on the
  * isPlaying bit.
  */
-s32 func_ov039_02091868(TaskPool* pool, Task* task, void* args) {
-    OtuHand* self = task->data;
-    void*    pin;
+s32 OtosuGame_hand_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_hand* self = task->data;
+    void*           pin;
 
     pin = EasyTask_GetTaskData(pool, self->pinId);
 
@@ -122,8 +122,8 @@ s32 func_ov039_02091868(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02091a5c(TaskPool* pool, Task* task, void* args) {
-    OtuHand* self = task->data;
+s32 OtosuGame_hand_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_hand* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.posX = (s16)((self->pos.x - self->origin.x) >> 12);
@@ -133,26 +133,26 @@ s32 func_ov039_02091a5c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02091aa4(TaskPool* pool, Task* task, void* args) {
-    Sprite_Release(&((OtuHand*)task->data)->sprite);
+s32 OtosuGame_hand_Destroy(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtosuGame_hand*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_02091ab8(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_hand_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_020995b0;
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02091b00(TaskPool* pool, s32 dataType, s32 pinId) {
+s32 OtosuGame_hand_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = pinId;
-    return EasyTask_CreateTask(pool, &data_ov039_020995a4, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_hand, NULL, 0, NULL, &args);
 }
 
 /** Starts the grab. */
-void func_ov039_02091b34(OtuHand* self) {
+void func_ov039_02091b34(OtosuGame_hand* self) {
     self->state = 1;
 }

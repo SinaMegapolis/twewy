@@ -6,9 +6,9 @@
 #include "OtuFieldAccessShared.h"
 
 /* The task's handle, stage table and sprite template. */
-extern TaskHandle       data_ov039_02099cac;
+extern TaskHandle       Tsk_OtosuGame_slash;
 extern const TaskStages data_ov039_02099cb8;
-extern SpriteAnimation  data_ov039_02099cc8;
+extern SpriteAnimation  OtosuGame_slash_Anim;
 
 /** "Tsk_OtosuGame_slash": the aiming arrow drawn from the player's pin. */
 typedef struct {
@@ -20,16 +20,16 @@ typedef struct {
     /* 0x64 */ s32            visible;
     /* 0x68 */ s32            state; // 0 start, 1 follow, 2 settle
     /* 0x6C */ s32            timer; // settle frames left
-} OtuSlashTask;                      // Size: 0x70
+} OtosuGame_slash;                   // Size: 0x70
 
-SpriteFrameInfo* func_ov039_02094ff4(Sprite* sprite, s32 arg, s32 mode) {
-    OtuSlashTask* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_slash_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_slash* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(6, owner->pos.y, 0));
 }
 
-void func_ov039_020950b8(OtuSlashTask* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099cc8;
+void OtosuGame_slash_Load(OtosuGame_slash* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_slash_Anim;
 
     anim.owner    = self;
     anim.dataType = args->dataType;
@@ -39,8 +39,8 @@ void func_ov039_020950b8(OtuSlashTask* self, Sprite* sprite, OtuPinSpriteArgs* a
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_02095144(TaskPool* pool, Task* task, void* args) {
-    OtuSlashTask*     self = task->data;
+s32 OtosuGame_slash_Init(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_slash*  self = task->data;
     OtuPinSpriteArgs* a    = args;
 
     self->pinId           = a->childId;
@@ -55,7 +55,7 @@ s32 func_ov039_02095144(TaskPool* pool, Task* task, void* args) {
     self->timer           = 0;
     self->state           = 0;
 
-    func_ov039_020950b8(self, &self->sprite, a);
+    OtosuGame_slash_Load(self, &self->sprite, a);
     return 1;
 }
 
@@ -65,11 +65,11 @@ s32 func_ov039_02095144(TaskPool* pool, Task* task, void* args) {
  * pitched by length once the frame finishes), 2 shrinks the arrow back over
  * `timer` frames after the pin stops. The cases fall through into each other.
  */
-s32 func_ov039_02095194(TaskPool* pool, Task* task, void* args) {
-    OtuSlashTask* self = task->data;
-    OtuBadge*     pin;
-    s32           len;
-    s32           pan;
+s32 OtosuGame_slash_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_slash* self = task->data;
+    OtosuGame_badge* pin;
+    s32              len;
+    s32              pan;
 
     pin = EasyTask_GetTaskData(pool, self->pinId);
 
@@ -159,8 +159,8 @@ s32 func_ov039_02095194(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020953c4(TaskPool* pool, Task* task, void* args) {
-    OtuSlashTask* self = task->data;
+s32 OtosuGame_slash_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_slash* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.posX = (self->pos.x - self->origin.x) >> 12;
@@ -170,21 +170,21 @@ s32 func_ov039_020953c4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_0209540c(TaskPool* pool, Task* task, void* args) {
-    Sprite_Release(&((OtuSlashTask*)task->data)->sprite);
+s32 OtosuGame_slash_Destroy(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtosuGame_slash*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_02095420(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_slash_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = data_ov039_02099cb8;
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02095468(TaskPool* pool, s32 dataType, s32 pin) {
+s32 OtosuGame_slash_CreateTask(TaskPool* pool, s32 dataType, s32 pin) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = pin;
 
-    return EasyTask_CreateTask(pool, &data_ov039_02099cac, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_slash, NULL, 0, NULL, &args);
 }

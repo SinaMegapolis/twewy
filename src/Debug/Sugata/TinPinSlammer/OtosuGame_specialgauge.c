@@ -7,12 +7,12 @@
 
 /* The task's handle, stage table and four sprite templates. They all name
  * data_ov039_0209a0fc as their bin. */
-extern const TaskHandle data_ov039_02099b98;
+extern const TaskHandle Tsk_OtosuGame_specialgauge;
 extern const TaskStages data_ov039_02099ba4;
-extern SpriteAnimation  data_ov039_02099bb4;
-extern SpriteAnimation  data_ov039_02099be0;
-extern SpriteAnimation  data_ov039_02099c0c;
-extern SpriteAnimation  data_ov039_02099c38;
+extern SpriteAnimation  OtosuGame_specialgauge_AnimDial;
+extern SpriteAnimation  OtosuGame_specialgauge_AnimPlate;
+extern SpriteAnimation  OtosuGame_specialgauge_AnimCell;
+extern SpriteAnimation  OtosuGame_specialgauge_AnimDigit;
 
 /** @brief One cell's single-digit position: two halfwords. */
 typedef struct {
@@ -34,7 +34,7 @@ extern OtuGaugePos data_ov039_0209a780[4];
 extern OtuGaugePos data_ov039_0209a790[4][2]; // [cell][0 = units, 1 = tens]
 
 /**
- * @brief The two words `func_ov039_02094ab4` packs and the init stage reads.
+ * @brief The two words `OtosuGame_specialgauge_CreateTask` packs and the init stage reads.
  *
  * The first becomes the task's `dataType` and is folded into the `dataType`
  * bitfield of all eighteen `SpriteAnimation` templates; the second is the pin
@@ -44,9 +44,9 @@ extern OtuGaugePos data_ov039_0209a790[4][2]; // [cell][0 = units, 1 = tens]
  * second store as dead and the frame shrinks by four bytes.
  */
 typedef struct {
-    /* 0x00 */ s32 dataType; // SpriteAnimation.dataType, four bits
-    /* 0x04 */ s32 pinId;    // handle of the pin task this gauge watches
-} OtuGaugeArgs;              // Size: 0x8
+    /* 0x00 */ s32 dataType;   // SpriteAnimation.dataType, four bits
+    /* 0x04 */ s32 pinId;      // handle of the pin task this gauge watches
+} OtosuGame_specialgauge_Args; // Size: 0x8
 
 /**
  * @brief One cell of the gauge: its two digit sprites, 0x80 apart.
@@ -99,7 +99,7 @@ typedef struct {
     /* 0x48C */ OamAffineParam affine;       // the dial spins 0x100 per frame
     /* 0x49C */ s16            lastCount[4]; // the count each cell was last drawn for
     /* 0x4A4 */ s32            alive[4];     // the filter's answer for this cell's pin
-} OtuGauge;                                  // Size: 0x4B4
+} OtosuGame_specialgauge;                    // Size: 0x4B4
 
 /**
  * @brief The palette block inside a loaded sprite resource's buffer.
@@ -127,7 +127,7 @@ static inline void* OtuGaugePaletteSource(Data* file, s32 packEntry) {
  * as a bare array so no dsd symbol has to be invented for the block itself. */
 extern u8 data_02071cf0[];
 
-SpriteFrameInfo* func_ov039_02094214(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_specialgauge_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
@@ -147,8 +147,8 @@ SpriteFrameInfo* func_ov039_02094214(Sprite* sprite, s32 arg, s32 mode) {
  */
 
 /** Loads the affine-path sprite (0x44C) from the template at 0x02099bb4. */
-void func_ov039_020942bc(OtuGauge* self, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_02099bb4;
+void OtosuGame_specialgauge_LoadDial(OtosuGame_specialgauge* self, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_specialgauge_AnimDial;
 
     anim.owner    = self;
     anim.dataType = (u16)self->dataType;
@@ -157,8 +157,8 @@ void func_ov039_020942bc(OtuGauge* self, Sprite* sprite) {
 }
 
 /** Loads the wide backing sprite (0x40C) from the template at 0x02099be0. */
-void func_ov039_0209432c(OtuGauge* self, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_02099be0;
+void OtosuGame_specialgauge_LoadPlate(OtosuGame_specialgauge* self, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_specialgauge_AnimPlate;
 
     anim.owner    = self;
     anim.dataType = (u16)self->dataType;
@@ -176,8 +176,8 @@ void func_ov039_0209432c(OtuGauge* self, Sprite* sprite) {
  * template's own value. Zero is therefore not a valid pack index, the same
  * convention the point task uses on its own digit table.
  */
-void func_ov039_0209439c(OtuGauge* self, Sprite* sprite, s32 index) {
-    SpriteAnimation anim = data_ov039_02099c0c;
+void OtosuGame_specialgauge_LoadCell(OtosuGame_specialgauge* self, Sprite* sprite, s32 index) {
+    SpriteAnimation anim = OtosuGame_specialgauge_AnimCell;
 
     anim.owner     = self;
     anim.dataType  = (u16)self->dataType;
@@ -199,8 +199,8 @@ void func_ov039_0209439c(OtuGauge* self, Sprite* sprite, s32 index) {
  * The `+ 1` on the index is the same one the 0x40-walk loader applies, so all
  * four of a cell's sprites come from the same template with the same animation.
  */
-void func_ov039_02094418(OtuGauge* self, Sprite* sprite, s32 index, s32 which) {
-    SpriteAnimation anim = data_ov039_02099c38;
+void OtosuGame_specialgauge_LoadDigit(OtosuGame_specialgauge* self, Sprite* sprite, s32 index, s32 which) {
+    SpriteAnimation anim = OtosuGame_specialgauge_AnimDigit;
 
     anim.owner     = self;
     anim.dataType  = (u16)self->dataType;
@@ -231,27 +231,27 @@ void func_ov039_02094418(OtuGauge* self, Sprite* sprite, s32 index, s32 which) {
  * genuinely `s16`; nothing reads them, which is why they stay
  * `unk`.
  */
-s32 func_ov039_020944bc(TaskPool* pool, Task* task, void* arg) {
-    OtuGauge*     self = (OtuGauge*)task->data;
-    OtuGaugeArgs* args = (OtuGaugeArgs*)arg;
-    s32           i;
+s32 OtosuGame_specialgauge_Init(TaskPool* pool, Task* task, void* arg) {
+    OtosuGame_specialgauge*      self = (OtosuGame_specialgauge*)task->data;
+    OtosuGame_specialgauge_Args* args = (OtosuGame_specialgauge_Args*)arg;
+    s32                          i;
 
     self->dataType = args->dataType;
     self->pinId    = args->pinId;
 
-    func_ov039_020942bc(self, &self->dial);
-    func_ov039_0209432c(self, &self->plate);
+    OtosuGame_specialgauge_LoadDial(self, &self->dial);
+    OtosuGame_specialgauge_LoadPlate(self, &self->plate);
 
     for (i = 0; i < 4; i++) {
         self->lastCount[i] = 0;
         self->alive[i]     = 0;
 
-        func_ov039_0209439c(self, &self->spriteA[i], i);
+        OtosuGame_specialgauge_LoadCell(self, &self->spriteA[i], i);
         Sprite_ChangeAnimation(&self->spriteA[i], self->spriteA[i].animData, 0xC, self->spriteA[i].cellTable);
 
-        func_ov039_0209439c(self, &self->spriteB[i], i);
-        func_ov039_02094418(self, &self->digit[i].spriteLow, i, 0);
-        func_ov039_02094418(self, &self->digit[i].spriteHigh, i, 1);
+        OtosuGame_specialgauge_LoadCell(self, &self->spriteB[i], i);
+        OtosuGame_specialgauge_LoadDigit(self, &self->digit[i].spriteLow, i, 0);
+        OtosuGame_specialgauge_LoadDigit(self, &self->digit[i].spriteHigh, i, 1);
     }
 
     self->affine.rotation = 0;
@@ -309,12 +309,12 @@ s32 func_ov039_020944bc(TaskPool* pool, Task* task, void* arg) {
  * the two divides -- which is why the tens digit's frame is spelled through a
  * local rather than as `(count / 10) % 10 + 2` inline.
  */
-s32 func_ov039_020945c8(TaskPool* pool, Task* task, void* args) {
-    OtuGauge* self = (OtuGauge*)task->data;
-    OtuBadge* pin;
-    s32       i;
-    s32       count;
-    s32       alive;
+s32 OtosuGame_specialgauge_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_specialgauge* self = (OtosuGame_specialgauge*)task->data;
+    OtosuGame_badge*        pin;
+    s32                     i;
+    s32                     count;
+    s32                     alive;
 
     self->running         = 1;
     self->affine.rotation = (u16)(self->affine.rotation + 0x100);
@@ -322,7 +322,7 @@ s32 func_ov039_020945c8(TaskPool* pool, Task* task, void* args) {
     Sprite_Update(&self->dial);
     Sprite_Update(&self->plate);
 
-    pin = (OtuBadge*)EasyTask_GetTaskData(pool, self->pinId);
+    pin = (OtosuGame_badge*)EasyTask_GetTaskData(pool, self->pinId);
 
     for (i = 0; i < 4; i++) {
         s16               frame;
@@ -457,9 +457,9 @@ s32 func_ov039_020945c8(TaskPool* pool, Task* task, void* args) {
  * left it, which is the opposite of the hammer and the point task
  * and is why this task needs no render-side anchor arithmetic at all.
  */
-s32 func_ov039_020948f4(TaskPool* pool, Task* task, void* args) {
-    OtuGauge* self = (OtuGauge*)task->data;
-    s32       i;
+s32 OtosuGame_specialgauge_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_specialgauge* self = (OtosuGame_specialgauge*)task->data;
+    s32                     i;
 
     if (self->running != 0) {
         self->dial.unk_0A.unk_05 = (u16)OamMgr_AllocAffineGroup(&g_OamMgr[self->dial.bits_0_1], self->affine.rotation,
@@ -495,9 +495,9 @@ s32 func_ov039_020948f4(TaskPool* pool, Task* task, void* args) {
  * shares with the update -- which is why the target builds its four walking
  * pointers identically in the two functions.
  */
-s32 func_ov039_020949f4(TaskPool* pool, Task* task, void* args) {
-    OtuGauge* self = (OtuGauge*)task->data;
-    s32       i;
+s32 OtosuGame_specialgauge_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_specialgauge* self = (OtosuGame_specialgauge*)task->data;
+    s32                     i;
 
     Sprite_Release(&self->dial);
     Sprite_Release(&self->plate);
@@ -528,7 +528,7 @@ s32 func_ov039_020949f4(TaskPool* pool, Task* task, void* args) {
  * the `blx` -- so the return type is `s32` only because that is what the four
  * stages return and what the engine's taskFunc signature says.
  */
-s32 func_ov039_02094a6c(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_specialgauge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = data_ov039_02099ba4;
 
     return stages.iter[stage](pool, task, args);
@@ -546,11 +546,11 @@ s32 func_ov039_02094a6c(TaskPool* pool, Task* task, void* args, s32 stage) {
  * target's last two instructions are the call and the epilogue with no `mov r0`
  * between, so the handle comes back in r0 for free.
  */
-s32 func_ov039_02094ab4(TaskPool* pool, s32 arg1, s32 arg2) {
-    OtuGaugeArgs args;
+s32 OtosuGame_specialgauge_CreateTask(TaskPool* pool, s32 arg1, s32 arg2) {
+    OtosuGame_specialgauge_Args args;
 
     args.dataType = arg1;
     args.pinId    = arg2;
 
-    return EasyTask_CreateTask(pool, &data_ov039_02099b98, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_specialgauge, NULL, 0, NULL, &args);
 }

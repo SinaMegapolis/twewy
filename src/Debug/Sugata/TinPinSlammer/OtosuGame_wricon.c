@@ -10,37 +10,37 @@ typedef struct {
     /* 0x00 */ s32    dataType;
     /* 0x04 */ Sprite sprite;
     /* 0x44 */ s32    visible;
-} OtuWricon; // Size: 0x48
+} OtosuGame_wricon; // Size: 0x48
 
-extern const TaskHandle      data_ov039_02099ebc;
+extern const TaskHandle      Tsk_OtosuGame_wricon;
 extern const TaskStages      data_ov039_02099ec8;
-extern const SpriteAnimation data_ov039_02099ed8;
+extern const SpriteAnimation OtosuGame_wricon_Anim;
 
 /* Overlay 40's animation-phase counter, read by 02096da0. */
 extern s32 func_ov040_0209cb5c(void);
 
-SpriteFrameInfo* func_ov039_02096c58(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_wricon_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
-void func_ov039_02096d00(OtuWricon* self, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_02099ed8;
+void OtosuGame_wricon_Load(OtosuGame_wricon* self, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_wricon_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)self->dataType;
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_02096d70(void* pool, void* task, OtuTaskArgs1* args) {
-    OtuWricon* self = ((Task*)task)->data;
+s32 OtosuGame_wricon_Init(void* pool, void* task, OtuTaskArgs1* args) {
+    OtosuGame_wricon* self = ((Task*)task)->data;
 
     self->visible  = 1;
     self->dataType = args->dataType;
-    func_ov039_02096d00(self, &self->sprite);
+    OtosuGame_wricon_Load(self, &self->sprite);
     return 1;
 }
 
-s32 func_ov039_02096d98(void) {
+s32 OtosuGame_wricon_Update(void) {
     return 1;
 }
 
@@ -48,8 +48,8 @@ s32 func_ov039_02096d98(void) {
  * Shows the link strength: animation `5 - level`, where ov040 reports the
  * level. Narrowed inline so it goes straight into the argument register.
  */
-s32 func_ov039_02096da0(void* pool, void* task, void* args) {
-    OtuWricon* self = ((Task*)task)->data;
+s32 OtosuGame_wricon_Render(void* pool, void* task, void* args) {
+    OtosuGame_wricon* self = ((Task*)task)->data;
 
     if (self->visible != 0) {
         Sprite_ChangeAnimation(&self->sprite, self->sprite.animData, (s16)(5 - func_ov040_0209cb5c()), self->sprite.cellTable);
@@ -59,22 +59,22 @@ s32 func_ov039_02096da0(void* pool, void* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02096dec(void* pool, void* task, void* args) {
-    OtuWricon* self = ((Task*)task)->data;
+s32 OtosuGame_wricon_Destroy(void* pool, void* task, void* args) {
+    OtosuGame_wricon* self = ((Task*)task)->data;
 
     Sprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov039_02096e04(TaskPool* pool, Task* task, void* data, s32 stage) {
+s32 OtosuGame_wricon_RunTask(TaskPool* pool, Task* task, void* data, s32 stage) {
     TaskStages stages = data_ov039_02099ec8;
 
     return stages.iter[stage](pool, task, data);
 }
 
-s32 func_ov039_02096e4c(TaskPool* pool, s32 dataType) {
+s32 OtosuGame_wricon_CreateTask(TaskPool* pool, s32 dataType) {
     OtuTaskArgs1 args;
 
     args.dataType = dataType;
-    return EasyTask_CreateTask(pool, &data_ov039_02099ebc, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_wricon, NULL, 0, NULL, &args);
 }

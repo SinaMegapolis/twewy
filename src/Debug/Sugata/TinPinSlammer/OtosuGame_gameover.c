@@ -5,55 +5,55 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle      data_ov039_02099e1c;
+extern const TaskHandle      Tsk_OtosuGame_gameover;
 extern const TaskStages      data_ov039_02099e28;
-extern const SpriteAnimation data_ov039_02099e38;
-extern const SpriteAnimation data_ov039_02099e64;
-extern const SpriteAnimation data_ov039_02099e90;
+extern const SpriteAnimation OtosuGame_gameover_AnimSprite0;
+extern const SpriteAnimation OtosuGame_gameover_AnimSprite1;
+extern const SpriteAnimation OtosuGame_gameover_AnimSprite2;
 extern const OtuScaleKey     data_ov039_0209aa0c[];
 
-SpriteFrameInfo* func_ov039_0209659c(Sprite* sprite, s32 arg, s32 mode) {
-    OtuGameover* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_gameover_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_gameover* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(7, 0, 0));
 }
 
-SpriteFrameInfo* func_ov039_02096660(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_gameover_GetFrameInfoSprite0(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(7, 0, 0));
 }
 
-void func_ov039_02096718(OtuGameover* self, Sprite* sprite, OtuTaskArgs1* args) {
-    SpriteAnimation anim = data_ov039_02099e38;
+void OtosuGame_gameover_LoadSprite0(OtosuGame_gameover* self, Sprite* sprite, OtuTaskArgs1* args) {
+    SpriteAnimation anim = OtosuGame_gameover_AnimSprite0;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
     _Sprite_Load(sprite, &anim);
 }
 
-void func_ov039_0209678c(OtuGameover* self, Sprite* sprite, OtuTaskArgs1* args) {
-    SpriteAnimation anim = data_ov039_02099e64;
+void OtosuGame_gameover_LoadSprite1(OtosuGame_gameover* self, Sprite* sprite, OtuTaskArgs1* args) {
+    SpriteAnimation anim = OtosuGame_gameover_AnimSprite1;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
     _Sprite_Load(sprite, &anim);
 }
 
-void func_ov039_02096800(OtuGameover* self, Sprite* sprite, OtuTaskArgs1* args) {
-    SpriteAnimation anim = data_ov039_02099e90;
+void OtosuGame_gameover_LoadSprite2(OtosuGame_gameover* self, Sprite* sprite, OtuTaskArgs1* args) {
+    SpriteAnimation anim = OtosuGame_gameover_AnimSprite2;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_02096874(void* pool, void* task, OtuTaskArgs1* args) {
-    OtuGameover* self = ((Task*)task)->data;
+s32 OtosuGame_gameover_Init(void* pool, void* task, OtuTaskArgs1* args) {
+    OtosuGame_gameover* self = ((Task*)task)->data;
 
     self->state   = 0;
     self->visible = 0;
-    func_ov039_02096718(self, &self->sprite0, args);
-    func_ov039_0209678c(self, &self->sprite1, args);
-    func_ov039_02096800(self, &self->sprite2, args);
+    OtosuGame_gameover_LoadSprite0(self, &self->sprite0, args);
+    OtosuGame_gameover_LoadSprite1(self, &self->sprite1, args);
+    OtosuGame_gameover_LoadSprite2(self, &self->sprite2, args);
     return 1;
 }
 
@@ -62,8 +62,8 @@ s32 func_ov039_02096874(void* pool, void* task, OtuTaskArgs1* args) {
  * 2 plays the sound, 3 fades both displays and finishes. While visible it steps
  * the scale keyframes and the selected sprite.
  */
-s32 func_ov039_020968c0(void* pool, void* task, void* args) {
-    OtuGameover* self = ((Task*)task)->data;
+s32 OtosuGame_gameover_Update(void* pool, void* task, void* args) {
+    OtosuGame_gameover* self = ((Task*)task)->data;
 
     switch (self->state) {
         case 0:
@@ -124,8 +124,8 @@ s32 func_ov039_020968c0(void* pool, void* task, void* args) {
 /** Draws the selected sprite; sprite0 through an affine group for its scale. */
 // Nonmatching: 83%, the scheduling of the OamMgr_AllocAffineGroup call in case
 // 0: the target forms the manager address before storing the stack argument.
-s32 func_ov039_020969fc(void* pool, void* task, void* args) {
-    OtuGameover* self = ((Task*)task)->data;
+s32 OtosuGame_gameover_Render(void* pool, void* task, void* args) {
+    OtosuGame_gameover* self = ((Task*)task)->data;
 
     if (self->visible != 0) {
         switch (self->which) {
@@ -148,29 +148,29 @@ s32 func_ov039_020969fc(void* pool, void* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02096ab0(void* pool, void* task, void* args) {
-    OtuGameover* self = ((Task*)task)->data;
+s32 OtosuGame_gameover_Destroy(void* pool, void* task, void* args) {
+    OtosuGame_gameover* self = ((Task*)task)->data;
 
     Sprite_Release(&self->sprite0);
     Sprite_Release(&self->sprite1);
     return 1;
 }
 
-s32 func_ov039_02096ad0(TaskPool* pool, Task* task, void* data, s32 stage) {
+s32 OtosuGame_gameover_RunTask(TaskPool* pool, Task* task, void* data, s32 stage) {
     TaskStages stages = data_ov039_02099e28;
 
     return stages.iter[stage](pool, task, data);
 }
 
-s32 func_ov039_02096b18(TaskPool* pool, s32 dataType) {
+s32 OtosuGame_gameover_CreateTask(TaskPool* pool, s32 dataType) {
     OtuTaskArgs1 args;
 
     args.dataType = dataType;
-    return EasyTask_CreateTask(pool, &data_ov039_02099e1c, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_gameover, NULL, 0, NULL, &args);
 }
 
-/** Starts the banner showing `which` (see OtuGameover.which). */
-void func_ov039_02096b48(OtuGameover* self, s32 which) {
+/** Starts the banner showing `which` (see OtosuGame_gameover.which). */
+void func_ov039_02096b48(OtosuGame_gameover* self, s32 which) {
     self->state   = 1;
     self->counter = 0x3C;
     self->which   = which;
@@ -207,6 +207,6 @@ void func_ov039_02096b48(OtuGameover* self, s32 which) {
 }
 
 /** True while the banner's sequence is running. */
-s32 func_ov039_02096c44(OtuGameover* self) {
+s32 func_ov039_02096c44(OtosuGame_gameover* self) {
     return self->state != 0;
 }

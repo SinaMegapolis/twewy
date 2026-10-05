@@ -6,10 +6,10 @@
 #include "OtuFieldAccessShared.h"
 
 /* The task's sprite template. */
-extern const SpriteAnimation data_ov039_02099328;
+extern const SpriteAnimation OtosuGame_shadow_Anim;
 
 /* The task's handle and stage table. */
-extern const TaskHandle data_ov039_0209930c;
+extern const TaskHandle Tsk_OtosuGame_shadow;
 extern const TaskStages data_ov039_02099318;
 
 /** "Tsk_OtosuGame_shadow": a drop shadow under the pin, scaled with it. */
@@ -20,10 +20,10 @@ typedef struct {
     /* 0x58 */ OtuPoint       pos;
     /* 0x60 */ s32            pinId;
     /* 0x64 */ s32            visible; // func_ov039_0208e890's answer; drawn only when 1
-} OtuShadow;                           // Size: 0x68
+} OtosuGame_shadow;                    // Size: 0x68
 
-SpriteFrameInfo* func_ov039_0208f134(Sprite* sprite, s32 arg, s32 mode) {
-    OtuShadow* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_shadow_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_shadow* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(0, owner->pos.y, 0));
 }
@@ -33,8 +33,8 @@ SpriteFrameInfo* func_ov039_0208f134(Sprite* sprite, s32 arg, s32 mode) {
  * what keeps the shadow behind everything else. The dataType edit has to stay
  * after both position stores.
  */
-void func_ov039_0208f1f8(OtuShadow* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099328;
+void OtosuGame_shadow_Load(OtosuGame_shadow* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_shadow_Anim;
 
     anim.owner           = self;
     anim.dataType        = args->dataType;
@@ -46,8 +46,8 @@ void func_ov039_0208f1f8(OtuShadow* self, Sprite* sprite, OtuPinSpriteArgs* args
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_0208f2a4(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
-    OtuShadow* self = task->data;
+s32 OtosuGame_shadow_Init(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
+    OtosuGame_shadow* self = task->data;
 
     self->pinId           = args->childId;
     self->origin.x        = 0;
@@ -60,14 +60,14 @@ s32 func_ov039_0208f2a4(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
     self->affine.unk_0C   = 0;
     self->affine.unk_0E   = 0;
 
-    func_ov039_0208f1f8(self, &self->sprite, args);
+    OtosuGame_shadow_Load(self, &self->sprite, args);
     return 1;
 }
 
 /** Follows the pin and its scale, but only while func_ov039_0208e890 says exactly 1. */
-s32 func_ov039_0208f2f0(TaskPool* pool, Task* task, void* args) {
-    OtuShadow* self = task->data;
-    void*      pin  = EasyTask_GetTaskData(pool, self->pinId);
+s32 OtosuGame_shadow_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_shadow* self = task->data;
+    void*             pin  = EasyTask_GetTaskData(pool, self->pinId);
 
     if (pin != NULL) {
         self->visible = func_ov039_0208e890(pin);
@@ -86,8 +86,8 @@ s32 func_ov039_0208f2f0(TaskPool* pool, Task* task, void* args) {
 }
 
 /** Draws the shadow three pixels down and right of the pin. */
-s32 func_ov039_0208f360(TaskPool* pool, Task* task, void* args) {
-    OtuShadow* self = task->data;
+s32 OtosuGame_shadow_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_shadow* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.posX = F2I(self->pos.x - self->origin.x) + 3;
@@ -97,21 +97,21 @@ s32 func_ov039_0208f360(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_0208f3b0(TaskPool* pool, Task* task, void* args) {
-    Sprite_Release(&((OtuShadow*)task->data)->sprite);
+s32 OtosuGame_shadow_Destroy(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtosuGame_shadow*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_0208f3c4(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_shadow_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = data_ov039_02099318;
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_0208f40c(TaskPool* pool, s32 dataType, s32 childId) {
+s32 OtosuGame_shadow_CreateTask(TaskPool* pool, s32 dataType, s32 childId) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = childId;
-    return EasyTask_CreateTask(pool, &data_ov039_0209930c, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_shadow, NULL, 0, NULL, &args);
 }

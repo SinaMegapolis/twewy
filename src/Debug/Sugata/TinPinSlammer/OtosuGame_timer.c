@@ -8,13 +8,13 @@
 typedef struct {
     s32 dataType;
     s32 seconds;
-} OtuTimerArgs;
+} OtosuGame_timer_Args;
 
-extern const SpriteAnimation data_ov039_02099b6c;
+extern const SpriteAnimation OtosuGame_timer_Anim;
 extern const TaskStages      data_ov039_02099b5c;
-extern const TaskHandle      data_ov039_02099b50;
+extern const TaskHandle      Tsk_OtosuGame_timer;
 
-SpriteFrameInfo* func_ov039_02093e3c(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_timer_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
@@ -27,8 +27,8 @@ SpriteFrameInfo* func_ov039_02093e3c(Sprite* sprite, s32 arg, s32 mode) {
  * what a three-digit readout wants. No `animIndex` and no `unk_188`: this task
  * is laid out by count rather than by menu.
  */
-void func_ov039_02093ee4(OtuTimer* data, Sprite* sprite, s32 index) {
-    SpriteAnimation anim = data_ov039_02099b6c;
+void OtosuGame_timer_Load(OtosuGame_timer* data, Sprite* sprite, s32 index) {
+    SpriteAnimation anim = OtosuGame_timer_Anim;
 
     anim.owner    = data;
     anim.dataType = data->dataType;
@@ -53,9 +53,9 @@ void func_ov039_02093ee4(OtuTimer* data, Sprite* sprite, s32 index) {
  * it is set once at construction and the countdown's own state lives at +0xC4
  * and +0xCC.
  */
-s32 func_ov039_02093f70(TaskPool* pool, Task* self, OtuTimerArgs* args) {
-    OtuTimer* data = (OtuTimer*)self->data;
-    s32       i;
+s32 OtosuGame_timer_Init(TaskPool* pool, Task* self, OtosuGame_timer_Args* args) {
+    OtosuGame_timer* data = (OtosuGame_timer*)self->data;
+    s32              i;
 
     data->visible   = 1;
     data->alarmed   = 0;
@@ -63,7 +63,7 @@ s32 func_ov039_02093f70(TaskPool* pool, Task* self, OtuTimerArgs* args) {
     data->countdown = args->seconds * 0x3C;
 
     for (i = 0; i < 3; i++) {
-        func_ov039_02093ee4(data, &data->digits[i], i);
+        OtosuGame_timer_Load(data, &data->digits[i], i);
     }
 
     return 1;
@@ -117,11 +117,11 @@ s32 func_ov039_02093f70(TaskPool* pool, Task* self, OtuTimerArgs* args) {
 // palette pointer with `moveq r2, #0` inside the null test, where the `pal =
 // NULL` here hoists a `mov r2, #0` above the test. Both are register choices,
 // not logic.
-s32 func_ov039_02093fcc(TaskPool* pool, Task* self, void* arg) {
-    OtuTimer* data = (OtuTimer*)self->data;
-    s32       before;
-    s32       secs;
-    s32       i;
+s32 OtosuGame_timer_Update(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_timer* data = (OtosuGame_timer*)self->data;
+    s32              before;
+    s32              secs;
+    s32              i;
 
     before = data->countdown;
     if (before > 0) {
@@ -163,9 +163,9 @@ s32 func_ov039_02093fcc(TaskPool* pool, Task* self, void* arg) {
 }
 
 /** Renders the three sprites at sprite+4, 0x40 apart, when +0xC8 is set. */
-s32 func_ov039_0209411c(TaskPool* pool, Task* task, void* args) {
-    OtuTimer* data = task->data;
-    s32       i;
+s32 OtosuGame_timer_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_timer* data = task->data;
+    s32              i;
 
     if (data->visible != 0) {
         for (i = 0; i < 3; i++) {
@@ -176,9 +176,9 @@ s32 func_ov039_0209411c(TaskPool* pool, Task* task, void* args) {
 }
 
 /** Releases the three sprites at sprite+4, 0x40 apart. */
-s32 func_ov039_02094158(TaskPool* pool, Task* task, void* args) {
-    OtuTimer* data = task->data;
-    s32       i;
+s32 OtosuGame_timer_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_timer* data = task->data;
+    s32              i;
 
     for (i = 0; i < 3; i++) {
         Sprite_Release(&data->digits[i]);
@@ -193,29 +193,29 @@ s32 func_ov039_02094158(TaskPool* pool, Task* task, void* args) {
  * indexed, which is why it is a struct copy rather than four assigns: mwcc
  * emits the copy for the whole struct and a plain `ldr` of the selected entry.
  */
-s32 func_ov039_02094188(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_timer_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_02099b5c;
 
     return stages.iter[stage](pool, task, args);
 }
 
-/** Spawns the task table data_ov039_02099b50 with two words of args. */
-s32 func_ov039_020941d0(TaskPool* pool, s32 dataType, s32 seconds) {
-    OtuTimerArgs args;
+/** Spawns the task table Tsk_OtosuGame_timer with two words of args. */
+s32 OtosuGame_timer_CreateTask(TaskPool* pool, s32 dataType, s32 seconds) {
+    OtosuGame_timer_Args args;
 
     args.dataType = dataType;
     args.seconds  = seconds;
-    return EasyTask_CreateTask(pool, &data_ov039_02099b50, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_timer, NULL, 0, NULL, &args);
 }
 
 /* Single words elsewhere. */
 
 /** A single word at +0xC4. */
-s32 func_ov039_02094204(OtuTimer* self) {
+s32 func_ov039_02094204(OtosuGame_timer* self) {
     return self->countdown;
 }
 
 /** A single word at +0xCC. */
-s32 func_ov039_0209420c(OtuTimer* self) {
+s32 func_ov039_0209420c(OtosuGame_timer* self) {
     return self->alarmed;
 }

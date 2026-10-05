@@ -5,8 +5,8 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const SpriteAnimation data_ov039_020993b8;
-extern const TaskHandle      data_ov039_0209939c;
+extern const SpriteAnimation OtosuGame_marker_Anim;
+extern const TaskHandle      Tsk_OtosuGame_marker;
 extern const TaskStages      data_ov039_020993a8;
 
 /** "Tsk_OtosuGame_marker": a sprite whose animation is chosen by the pin. */
@@ -16,17 +16,17 @@ typedef struct {
     /* 0x48 */ OtuPoint pos;
     /* 0x50 */ s32      pinId;
     /* 0x54 */ s32      frame; // func_ov039_0208e950's answer; 0 hides the marker
-} OtuMarker;                   // Size: 0x58
+} OtosuGame_marker;            // Size: 0x58
 
 /** Sorted one row below the pin, without the packer call. */
-SpriteFrameInfo* func_ov039_0208f7b4(Sprite* sprite, s32 arg, s32 mode) {
-    OtuMarker* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_marker_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_marker* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackSorted(sprite, mode, (((owner->pos.y >> 12) & 0x7FF) + 1) << 12);
 }
 
-void func_ov039_0208f874(OtuMarker* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_020993b8;
+void OtosuGame_marker_Load(OtosuGame_marker* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_marker_Anim;
 
     anim.owner    = self;
     anim.dataType = args->dataType;
@@ -36,8 +36,8 @@ void func_ov039_0208f874(OtuMarker* self, Sprite* sprite, OtuPinSpriteArgs* args
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_0208f900(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
-    OtuMarker* self = task->data;
+s32 OtosuGame_marker_Init(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
+    OtosuGame_marker* self = task->data;
 
     self->pinId    = args->childId;
     self->origin.x = 0;
@@ -46,16 +46,16 @@ s32 func_ov039_0208f900(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
     self->pos.y    = 0;
     self->frame    = 0;
 
-    func_ov039_0208f874(self, &self->sprite, args);
+    OtosuGame_marker_Load(self, &self->sprite, args);
     return 1;
 }
 
 /** Shows whichever animation func_ov039_0208e950 picks for the pin. */
-s32 func_ov039_0208f938(TaskPool* pool, Task* task, void* args) {
-    OtuMarker* self = task->data;
-    void*      pin  = EasyTask_GetTaskData(pool, self->pinId);
-    s32        prev;
-    s32        frame;
+s32 OtosuGame_marker_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_marker* self = task->data;
+    void*             pin  = EasyTask_GetTaskData(pool, self->pinId);
+    s32               prev;
+    s32               frame;
 
     if (pin != NULL) {
         prev        = self->frame;
@@ -76,8 +76,8 @@ s32 func_ov039_0208f938(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_0208f9b8(TaskPool* pool, Task* task, void* args) {
-    OtuMarker* self = task->data;
+s32 OtosuGame_marker_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_marker* self = task->data;
 
     if (self->frame != 0) {
         self->sprite.posX = F2I(self->pos.x - self->origin.x);
@@ -87,21 +87,21 @@ s32 func_ov039_0208f9b8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_0208fa00(TaskPool* pool, Task* task, void* args) {
-    Sprite_Release(&((OtuMarker*)task->data)->sprite);
+s32 OtosuGame_marker_Destroy(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtosuGame_marker*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_0208fa14(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_marker_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = data_ov039_020993a8;
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_0208fa5c(TaskPool* pool, s32 dataType, s32 childId) {
+s32 OtosuGame_marker_CreateTask(TaskPool* pool, s32 dataType, s32 childId) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = childId;
-    return EasyTask_CreateTask(pool, &data_ov039_0209939c, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_marker, NULL, 0, NULL, &args);
 }

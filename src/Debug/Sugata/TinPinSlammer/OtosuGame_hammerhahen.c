@@ -6,19 +6,19 @@
 #include "OtuFieldAccessShared.h"
 
 /** The handle this spawns. Already in the overlay's .rodata. */
-extern const TaskHandle data_ov039_0209a024;
+extern const TaskHandle Tsk_OtosuGame_hammerhahen;
 extern const TaskStages data_ov039_0209a030;
 
-extern const SpriteAnimation data_ov039_0209a040;
+extern const SpriteAnimation OtosuGame_hammerhahen_Anim;
 
-SpriteFrameInfo* func_ov039_02097ff4(Sprite* sprite, s32 arg, s32 mode) {
-    OtuHammerHahen* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_hammerhahen_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_hammerhahen* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(3, owner->pos.y, owner->height));
 }
 
-void func_ov039_020980b8(OtuHammerHahen* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_0209a040;
+void OtosuGame_hammerhahen_Load(OtosuGame_hammerhahen* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_hammerhahen_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -27,9 +27,9 @@ void func_ov039_020980b8(OtuHammerHahen* self, Sprite* sprite, OtuPinSpriteArgs*
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_02098144(TaskPool* pool, Task* task, void* args) {
-    OtuHammerHahen*   self = task->data;
-    OtuPinSpriteArgs* a    = args;
+s32 OtosuGame_hammerhahen_Init(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_hammerhahen* self = task->data;
+    OtuPinSpriteArgs*      a    = args;
 
     self->active          = 0;
     self->visible         = 0;
@@ -47,21 +47,21 @@ s32 func_ov039_02098144(TaskPool* pool, Task* task, void* args) {
     self->affine.unk_0C   = 0;
     self->affine.unk_0E   = 0;
 
-    func_ov039_020980b8(self, &self->sprite, a);
+    OtosuGame_hammerhahen_Load(self, &self->sprite, a);
     return 1;
 }
 
 /**
- * func_ov039_0209702c with a spin: the rotation advances by `spin` each frame.
+ * OtosuGame_meteohahen_Update with a spin: the rotation advances by `spin` each frame.
  * One shared `return 1`, and the guard is `data != NULL` with the clear as the
  * else, which is the target's block layout.
  */
-s32 func_ov039_020981a4(TaskPool* pool, Task* task, void* args) {
-    OtuHammerHahen* self = task->data;
-    void*           data = EasyTask_GetTaskData(pool, self->pinId);
-    s32             count;
-    s32             scale;
-    s32             v;
+s32 OtosuGame_hammerhahen_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_hammerhahen* self = task->data;
+    void*                  data = EasyTask_GetTaskData(pool, self->pinId);
+    s32                    count;
+    s32                    scale;
+    s32                    v;
 
     if (data != NULL) {
         if (self->active != 0) {
@@ -110,8 +110,8 @@ s32 func_ov039_020981a4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020982e8(TaskPool* pool, Task* task, void* args) {
-    OtuHammerHahen* self = task->data;
+s32 OtosuGame_hammerhahen_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_hammerhahen* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.posX = (s16)((self->pos.x - self->origin.x) >> 12);
@@ -121,24 +121,24 @@ s32 func_ov039_020982e8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02098338(TaskPool* pool, Task* task, void* args) {
-    Sprite_Release(&((OtuHammerHahen*)task->data)->sprite);
+s32 OtosuGame_hammerhahen_Destroy(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtosuGame_hammerhahen*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_0209834c(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_hammerhahen_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_0209a030;
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02098394(TaskPool* pool, s32 dataType, s32 pinId) {
+s32 OtosuGame_hammerhahen_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = pinId;
 
-    return EasyTask_CreateTask(pool, &data_ov039_0209a024, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_hammerhahen, NULL, 0, NULL, &args);
 }
 
 /**
@@ -147,7 +147,7 @@ s32 func_ov039_02098394(TaskPool* pool, s32 dataType, s32 pinId) {
  */
 // Nonmatching: 90.6%. The target loads `at`'s halves with two `ldr`s; this
 // build merges them into an `ldmia`, which also swaps their registers.
-void func_ov039_020983c8(OtuHammerHahen* self, OtuPoint* at, OamAffineParam* affine, s32 index) {
+void func_ov039_020983c8(OtosuGame_hammerhahen* self, OtuPoint* at, OamAffineParam* affine, s32 index) {
     s32 ax;
     s32 ay;
     s32 cell;

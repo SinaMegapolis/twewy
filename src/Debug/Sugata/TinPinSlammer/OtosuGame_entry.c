@@ -5,10 +5,10 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern SpriteAnimation data_ov039_02099da8;
+extern SpriteAnimation OtosuGame_entry_Anim;
 
 /* The task's handle and stage table. */
-extern const TaskHandle data_ov039_02099d8c;
+extern const TaskHandle Tsk_OtosuGame_entry;
 extern const TaskStages data_ov039_02099d98;
 
 /* The scale keyframe tables the entry, dead and gameover tasks animate with. */
@@ -16,12 +16,12 @@ extern const OtuScaleKey data_ov039_0209a830[];
 extern const OtuScaleKey data_ov039_0209a8a8[];
 extern const OtuScaleKey data_ov039_0209a938[];
 
-SpriteFrameInfo* func_ov039_02095dec(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_entry_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(7, 0, 0));
 }
 
-void func_ov039_02095ea4(OtuEntryTask* self, Sprite* sprite, OtuTaskArgs1* args) {
-    SpriteAnimation anim = data_ov039_02099da8;
+void OtosuGame_entry_Load(OtosuGame_entry* self, Sprite* sprite, OtuTaskArgs1* args) {
+    SpriteAnimation anim = OtosuGame_entry_Anim;
 
     anim.owner    = self;
     anim.dataType = args->dataType;
@@ -29,21 +29,21 @@ void func_ov039_02095ea4(OtuEntryTask* self, Sprite* sprite, OtuTaskArgs1* args)
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_02095f18(TaskPool* pool, Task* task, void* args) {
-    OtuEntryTask* self = task->data;
-    OtuTaskArgs1* a    = args;
+s32 OtosuGame_entry_Init(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_entry* self = task->data;
+    OtuTaskArgs1*    a    = args;
 
     self->state = 0;
 
-    func_ov039_02095ea4(self, &self->sprite, a);
-    func_ov039_02095ea4(self, &self->labelSprite, a);
+    OtosuGame_entry_Load(self, &self->sprite, a);
+    OtosuGame_entry_Load(self, &self->labelSprite, a);
 
     self->labelSprite.posY = 0x91;
     return 1;
 }
 
-s32 func_ov039_02095f58(TaskPool* pool, Task* task, void* args) {
-    OtuEntryTask* self = task->data;
+s32 OtosuGame_entry_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_entry* self = task->data;
 
     switch (self->state) {
         case 0:
@@ -79,8 +79,8 @@ s32 func_ov039_02095f58(TaskPool* pool, Task* task, void* args) {
 // Nonmatching: 72.6%, argument scheduling of OamMgr_AllocAffineGroup: the
 // target forms the manager address before spilling the fifth argument (the
 // same gap Shop_item2.c carries for this expression).
-s32 func_ov039_02095fe4(TaskPool* pool, Task* task, void* args) {
-    OtuEntryTask* self = task->data;
+s32 OtosuGame_entry_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_entry* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.unk_0A.unk_05 =
@@ -96,25 +96,25 @@ s32 func_ov039_02095fe4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020960bc(void* pool, void* task, void* args) {
-    OtuEntryTask* self = ((Task*)task)->data;
+s32 OtosuGame_entry_Destroy(void* pool, void* task, void* args) {
+    OtosuGame_entry* self = ((Task*)task)->data;
 
     Sprite_Release(&self->sprite);
     Sprite_Release(&self->labelSprite);
     return 1;
 }
 
-s32 func_ov039_020960dc(TaskPool* pool, Task* task, void* data, s32 stage) {
+s32 OtosuGame_entry_RunTask(TaskPool* pool, Task* task, void* data, s32 stage) {
     TaskStages stages = data_ov039_02099d98;
 
     return stages.iter[stage](pool, task, data);
 }
 
-s32 func_ov039_02096124(TaskPool* pool, s32 dataType) {
+s32 OtosuGame_entry_CreateTask(TaskPool* pool, s32 dataType) {
     OtuTaskArgs1 args;
 
     args.dataType = dataType;
-    return EasyTask_CreateTask(pool, &data_ov039_02099d8c, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_entry, NULL, 0, NULL, &args);
 }
 
 /**
@@ -124,7 +124,7 @@ s32 func_ov039_02096124(TaskPool* pool, s32 dataType) {
  * `which` is s16 because it goes to Sprite_ChangeAnimation unnarrowed. The two
  * arms are a switch: the target does both compares up front.
  */
-void func_ov039_02096154(OtuEntryTask* self, s16 which, s32 hasLabel) {
+void func_ov039_02096154(OtosuGame_entry* self, s16 which, s32 hasLabel) {
     self->state            = 1;
     self->timer            = 0x78;
     self->hasLabel         = hasLabel;
@@ -164,7 +164,7 @@ void func_ov039_02096154(OtuEntryTask* self, s16 which, s32 hasLabel) {
 }
 
 /** Hides the entry banner. */
-void func_ov039_02096270(OtuEntryTask* self) {
+void func_ov039_02096270(OtosuGame_entry* self) {
     self->state   = 0;
     self->visible = 0;
 }

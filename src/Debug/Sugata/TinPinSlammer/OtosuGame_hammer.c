@@ -6,7 +6,7 @@
 #include "OtuFieldAccessShared.h"
 
 extern const TaskStages data_ov039_02099448;
-extern const TaskHandle data_ov039_0209942c;
+extern const TaskHandle Tsk_OtosuGame_hammer;
 
 /* The hammer's keyframe tables. */
 extern OtuFrame4             data_ov039_02099494[];
@@ -15,8 +15,8 @@ extern OtuFrame6             data_ov039_02099476[];
 extern OtuFrame6             data_ov039_020994d8[];
 extern OtuFrame6             data_ov039_02099458[];
 extern OtuFrame4             data_ov039_02099438[];
-extern const SpriteAnimation data_ov039_02099504;
-extern const SpriteAnimation data_ov039_02099530;
+extern const SpriteAnimation OtosuGame_hammer_AnimSpriteA;
+extern const SpriteAnimation OtosuGame_hammer_AnimSpriteB;
 
 #define OTU_ANGLE_INDEX(a) (((s32)((a) >> 4)) * 2)
 
@@ -175,21 +175,21 @@ u16 func_ov039_020901e0(OtuCursor6* c) {
     return c->table[c->index].value;
 }
 
-SpriteFrameInfo* func_ov039_02090208(Sprite* sprite, s32 arg, s32 mode) {
-    OtuHammer* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_hammer_GetFrameInfoSpriteA(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_hammer* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affineA, func_ov039_02088400(4, owner->posA.y, 0));
 }
 
-SpriteFrameInfo* func_ov039_020902cc(Sprite* sprite, s32 arg, s32 mode) {
-    OtuHammer* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_hammer_GetFrameInfoSpriteB(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_hammer* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affineB, func_ov039_02088400(2, owner->posB.y, 0));
 }
 
-/** Loads the sprite for the task whose anim template is data_ov039_02099504. */
-void func_ov039_02090390(OtuHammer* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099504;
+/** Loads the sprite for the task whose anim template is OtosuGame_hammer_AnimSpriteA. */
+void OtosuGame_hammer_LoadSpriteA(OtosuGame_hammer* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_hammer_AnimSpriteA;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -198,9 +198,9 @@ void func_ov039_02090390(OtuHammer* self, Sprite* sprite, OtuPinSpriteArgs* args
     _Sprite_Load(sprite, &anim);
 }
 
-/** Loads the sprite for the task whose anim template is data_ov039_02099530. */
-void func_ov039_0209041c(OtuHammer* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099530;
+/** Loads the sprite for the task whose anim template is OtosuGame_hammer_AnimSpriteB. */
+void OtosuGame_hammer_LoadSpriteB(OtosuGame_hammer* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_hammer_AnimSpriteB;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -209,8 +209,8 @@ void func_ov039_0209041c(OtuHammer* self, Sprite* sprite, OtuPinSpriteArgs* args
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_020904a8(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
-    OtuHammer* self = task->data;
+s32 OtosuGame_hammer_Init(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
+    OtosuGame_hammer* self = task->data;
 
     self->pool = pool;
 
@@ -243,8 +243,8 @@ s32 func_ov039_020904a8(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
     self->affineB.unk_0E   = 0;
 
     self->state = 0;
-    func_ov039_02090390(self, &self->spriteA, args);
-    func_ov039_0209041c(self, &self->spriteB, args);
+    OtosuGame_hammer_LoadSpriteA(self, &self->spriteA, args);
+    OtosuGame_hammer_LoadSpriteB(self, &self->spriteB, args);
     return 1;
 }
 
@@ -269,11 +269,11 @@ s32 func_ov039_020904a8(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
  * gates both the sprite updates and the render. A pin that goes invalid mid-flight
  * stops the hammer rather than letting it fly off on a stale target.
  */
-s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
-    OtuBadge*  pin;
-    OtuHammer* self = (OtuHammer*)task->data;
+s32 OtosuGame_hammer_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_badge*  pin;
+    OtosuGame_hammer* self = (OtosuGame_hammer*)task->data;
 
-    pin = (OtuBadge*)EasyTask_GetTaskData(pool, self->pinId);
+    pin = (OtosuGame_badge*)EasyTask_GetTaskData(pool, self->pinId);
     s32 stepped;
     s32 steppedB;
     u16 angle;
@@ -517,8 +517,8 @@ s32 func_ov039_0209054c(TaskPool* pool, Task* task, void* args) {
  * position for even one frame reads visibly. This is the third task in the
  * overlay to do it this way.
  */
-s32 func_ov039_02090cec(TaskPool* pool, Task* task, void* args) {
-    OtuHammer* self = (OtuHammer*)task->data;
+s32 OtosuGame_hammer_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_hammer* self = (OtosuGame_hammer*)task->data;
 
     if (self->live != 0) {
         if (self->showA != 0) {
@@ -542,9 +542,9 @@ s32 func_ov039_02090cec(TaskPool* pool, Task* task, void* args) {
  * The children are deleted in a plain counted loop over `children[4]`; the task
  * does not wait on them, it hands them to EasyTask_DeleteTask and moves on.
  */
-s32 func_ov039_02090d90(TaskPool* pool, Task* task, void* args) {
-    OtuHammer* self = (OtuHammer*)task->data;
-    s32        i;
+s32 OtosuGame_hammer_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_hammer* self = (OtosuGame_hammer*)task->data;
+    s32               i;
 
     Sprite_Release(&self->spriteB);
     Sprite_Release(&self->spriteA);
@@ -562,7 +562,7 @@ s32 func_ov039_02090d90(TaskPool* pool, Task* task, void* args) {
  * onto the stack and then indexed by `stage`, so this is a plain indirect call
  * through a four-word copy rather than a switch.
  */
-s32 func_ov039_02090dd4(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_hammer_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_02099448;
 
     return stages.iter[stage](pool, task, args);
@@ -575,21 +575,21 @@ s32 func_ov039_02090dd4(TaskPool* pool, Task* task, void* args, s32 stage) {
  * parent's own data rather than being returned, so this returns one task and
  * leaves four behind it.
  */
-u32 func_ov039_02090e1c(TaskPool* pool, s32 dataType, s32 pinId) {
-    OtuPinSpriteArgs params;
-    u32              handle;
-    OtuHammer*       self;
-    s32              i;
+u32 OtosuGame_hammer_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
+    OtuPinSpriteArgs  params;
+    u32               handle;
+    OtosuGame_hammer* self;
+    s32               i;
 
     params.dataType = dataType;
     params.childId  = pinId;
 
-    handle = EasyTask_CreateTask(pool, &data_ov039_0209942c, NULL, 0, NULL, &params);
+    handle = EasyTask_CreateTask(pool, &Tsk_OtosuGame_hammer, NULL, 0, NULL, &params);
 
-    self = (OtuHammer*)EasyTask_GetTaskData(pool, handle);
+    self = (OtosuGame_hammer*)EasyTask_GetTaskData(pool, handle);
 
     for (i = 0; i < 4; i++) {
-        self->children[i] = func_ov039_02098394(pool, dataType, pinId);
+        self->children[i] = OtosuGame_hammerhahen_CreateTask(pool, dataType, pinId);
     }
     return handle;
 }
@@ -608,7 +608,7 @@ u32 func_ov039_02090e1c(TaskPool* pool, s32 dataType, s32 pinId) {
  * A shared local for the 0x10000 was tried and is byte-identical, so the merge is
  * the scheduler's choice rather than anything the source asks for.
  */
-s32 func_ov039_02090e9c(OtuHammer* self, OtuPinRecord* out) {
+s32 func_ov039_02090e9c(OtosuGame_hammer* self, OtuPinRecord* out) {
     s16 cosT;
     s16 sinT;
     s32 index;
@@ -633,12 +633,12 @@ s32 func_ov039_02090e9c(OtuHammer* self, OtuPinRecord* out) {
 }
 
 /** True while the hammer is swinging. */
-s32 func_ov039_02091014(OtuHammer* self) {
+s32 func_ov039_02091014(OtosuGame_hammer* self) {
     return self->state != 0;
 }
 
 /** Starts a swing: the length rate, the final length, its frames and its arc. */
-void func_ov039_02091028(OtuHammer* self, s32 rate, s32 scale, s32 frames, u16 arc) {
+void func_ov039_02091028(OtosuGame_hammer* self, s32 rate, s32 scale, s32 frames, u16 arc) {
     self->rate0       = rate;
     self->scale0      = scale;
     self->totalFrames = frames;
@@ -648,14 +648,14 @@ void func_ov039_02091028(OtuHammer* self, s32 rate, s32 scale, s32 frames, u16 a
 }
 
 /** Ends the arc early if the hammer is mid-swing. */
-void func_ov039_0209104c(OtuHammer* self) {
+void func_ov039_0209104c(OtosuGame_hammer* self) {
     if (self->state == 4) {
         self->framesLeft = 0;
     }
 }
 
 /** The hammer's current angle. */
-u16 func_ov039_02091060(OtuHammer* self) {
+u16 func_ov039_02091060(OtosuGame_hammer* self) {
     return (u16)self->angle;
 }
 
@@ -666,7 +666,7 @@ u16 func_ov039_02091060(OtuHammer* self) {
  */
 // Nonmatching: 89.4%, one register: the target keeps `affine` in its own
 // callee-saved register and needs an alignment push for it.
-void func_ov039_02091070(OtuHammer* self) {
+void func_ov039_02091070(OtosuGame_hammer* self) {
     OtuPoint pt;
     s32      i;
 

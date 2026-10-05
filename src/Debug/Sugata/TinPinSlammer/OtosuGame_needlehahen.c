@@ -5,17 +5,17 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const SpriteAnimation data_ov039_02099ff8;
-extern const TaskHandle      data_ov039_02099fdc;
+extern const SpriteAnimation OtosuGame_needlehahen_Anim;
+extern const TaskHandle      Tsk_OtosuGame_needlehahen;
 
-SpriteFrameInfo* func_ov039_02097ae0(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_needlehahen_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     OtuHahen* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(3, owner->pos.y, owner->height));
 }
 
-void func_ov039_02097ba4(OtuHahen* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099ff8;
+void OtosuGame_needlehahen_Load(OtuHahen* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_needlehahen_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -24,7 +24,7 @@ void func_ov039_02097ba4(OtuHahen* self, Sprite* sprite, OtuPinSpriteArgs* args)
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_02097c30(TaskPool* pool, Task* task, void* args) {
+s32 OtosuGame_needlehahen_Init(TaskPool* pool, Task* task, void* args) {
     OtuHahen*         self = task->data;
     OtuPinSpriteArgs* a    = args;
 
@@ -43,13 +43,13 @@ s32 func_ov039_02097c30(TaskPool* pool, Task* task, void* args) {
     self->affine.scaleY   = 0x1000;
     self->affine.unk_0C   = 0;
     self->affine.unk_0E   = 0;
-    func_ov039_02097ba4(self, &self->sprite, a);
+    OtosuGame_needlehahen_Load(self, &self->sprite, a);
 
     return 1;
 }
 
-/** func_ov039_0209702c at full scale, with the origin read before the tick. */
-s32 func_ov039_02097c90(TaskPool* pool, Task* task, void* args) {
+/** OtosuGame_meteohahen_Update at full scale, with the origin read before the tick. */
+s32 OtosuGame_needlehahen_Update(TaskPool* pool, Task* task, void* args) {
     OtuHahen* self = task->data;
     s32       life;
     void*     pin = EasyTask_GetTaskData(pool, self->pinId);
@@ -98,7 +98,7 @@ s32 func_ov039_02097c90(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02097dbc(TaskPool* pool, Task* task, void* args) {
+s32 OtosuGame_needlehahen_Render(TaskPool* pool, Task* task, void* args) {
     OtuHahen* self = task->data;
 
     if (self->visible != 0) {
@@ -110,28 +110,28 @@ s32 func_ov039_02097dbc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02097e0c(TaskPool* pool, Task* task, void* args) {
+s32 OtosuGame_needlehahen_Destroy(TaskPool* pool, Task* task, void* args) {
     Sprite_Release(&((OtuHahen*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_02097e20(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_needlehahen_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = {
-        .initialize = func_ov039_02097c30,
-        .update     = func_ov039_02097c90,
-        .render     = func_ov039_02097dbc,
-        .cleanup    = func_ov039_02097e0c,
+        .initialize = OtosuGame_needlehahen_Init,
+        .update     = OtosuGame_needlehahen_Update,
+        .render     = OtosuGame_needlehahen_Render,
+        .cleanup    = OtosuGame_needlehahen_Destroy,
     };
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02097e68(TaskPool* pool, s32 dataType, s32 pinId) {
+s32 OtosuGame_needlehahen_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = pinId;
-    return EasyTask_CreateTask(pool, &data_ov039_02099fdc, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_needlehahen, NULL, 0, NULL, &args);
 }
 
 /** func_ov039_02097240 at full scale, with one of animations 3..13. */

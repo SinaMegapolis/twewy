@@ -26,7 +26,7 @@ typedef struct {
     /* 0x18 */ u16*            pinID;
     /* 0x1C */ s32             unk_1C; // -> self + 0x1A8
     /* 0x20 */ s32             unk_20; // -> self + 0x174
-} OtuBadge_InitArgs;                   // Size: 0x24
+} OtosuGame_badge_Args;                // Size: 0x24
 
 /**
  * @brief A pin type's movement numbers, all Q12.12, indexed by
@@ -51,11 +51,11 @@ extern const s32 data_ov039_0209a3e8[][4]; // OtuPinTune.weight column
 extern const BinIdentifier data_ov039_0209a0dc;
 
 /* The task's handle, stage table and three sprite templates. */
-extern const SpriteAnimation data_ov039_02099288;
-extern const SpriteAnimation data_ov039_020992b4;
-extern const SpriteAnimation data_ov039_020992e0;
+extern const SpriteAnimation OtosuGame_badge_AnimSpriteA;
+extern const SpriteAnimation OtosuGame_badge_AnimSpriteB;
+extern const SpriteAnimation OtosuGame_badge_AnimSpriteC;
 extern const TaskStages      data_ov039_02099278;
-extern const TaskHandle      data_ov039_0209926c;
+extern const TaskHandle      Tsk_OtosuGame_badge;
 
 /* The fade-manager block the target reaches as `.word gFaders`. Only the
  * word at +8 is read. */
@@ -65,7 +65,7 @@ extern u32 gFaders[];
  * entry, indexed from 1 to 0x10 inclusive. */
 extern u32 data_ov039_0209a4b0[];
 
-void func_ov039_0208d5dc(OtuBadge* self);
+void func_ov039_0208d5dc(OtosuGame_badge* self);
 
 #define OTU_CELL_BITS 0x1FFFF
 
@@ -80,7 +80,7 @@ void func_ov039_0208d5dc(OtuBadge* self);
  */
 
 /** Rebuilds the packed state word from the home tile's flag. */
-void func_ov039_0208acc0(OtuBadge* self) {
+void func_ov039_0208acc0(OtosuGame_badge* self) {
     u16 home  = (self->pad->touched & 1) != 0 ? 1 : 0;
     u16 flags = self->touchFlags;
 
@@ -141,7 +141,7 @@ void func_ov039_0208ad2c(OtuPoint* vel, s32 shortfall) {
 }
 
 /** Enters phase 2: pick the badge's sprite up and send it back to the home tile. */
-void func_ov039_0208ad88(OtuBadge* self) {
+void func_ov039_0208ad88(OtosuGame_badge* self) {
     if (self->phase == 2) {
         return;
     }
@@ -157,7 +157,7 @@ void func_ov039_0208ad88(OtuBadge* self) {
 }
 
 /** Enters phase 3: sit still for 0x1E frames with the badge visible. */
-void func_ov039_0208ade8(OtuBadge* self) {
+void func_ov039_0208ade8(OtosuGame_badge* self) {
     if (self->phase == 3) {
         return;
     }
@@ -169,7 +169,7 @@ void func_ov039_0208ade8(OtuBadge* self) {
 }
 
 /** Enters phase 4: retire whatever the badge was attached to. */
-void func_ov039_0208ae14(OtuBadge* self) {
+void func_ov039_0208ae14(OtosuGame_badge* self) {
     if (self->phase == 4) {
         return;
     }
@@ -190,7 +190,7 @@ void func_ov039_0208ae14(OtuBadge* self) {
 }
 
 /** Enters phase 5: place the badge on its starting tile and start it rolling. */
-void func_ov039_0208ae8c(OtuBadge* self) {
+void func_ov039_0208ae8c(OtosuGame_badge* self) {
     if (self->hasLabel != 0) {
         EasyFade_FadeMainDisplay(2, 0x10, 0x1000);
     }
@@ -219,7 +219,7 @@ void func_ov039_0208ae8c(OtuBadge* self) {
 }
 
 /** Enters phase 7's approach: kill the velocity and play the corner sound. */
-void func_ov039_0208af38(OtuBadge* self) {
+void func_ov039_0208af38(OtosuGame_badge* self) {
     self->vz   = data_ov039_0209a31c;
     self->step = 0;
 
@@ -231,7 +231,7 @@ void func_ov039_0208af38(OtuBadge* self) {
  * and wall corners, drop trail marks, and finally react to the tile the badge
  * has just arrived on.
  */
-void func_ov039_0208af6c(OtuBadge* self) {
+void func_ov039_0208af6c(OtosuGame_badge* self) {
     OtuPoint       probe;
     OtuPoint       norm;
     OtuPoint       zero;
@@ -577,7 +577,7 @@ void func_ov039_0208af6c(OtuBadge* self) {
 }
 
 /** Enters phase 6: hand the badge to the track task for `trackFrames`. */
-void func_ov039_0208b94c(OtuBadge* self) {
+void func_ov039_0208b94c(OtosuGame_badge* self) {
     OtuBadgeParam* slot;
 
     if (self->trackFrames <= 0) {
@@ -594,7 +594,7 @@ void func_ov039_0208b94c(OtuBadge* self) {
 }
 
 /** Enters phase 7: hand the badge to the arc task for `arcFrames`. */
-void func_ov039_0208b9b4(OtuBadge* self) {
+void func_ov039_0208b9b4(OtosuGame_badge* self) {
     OtuBadgeParam* slot;
 
     if (self->arcFrames <= 0) {
@@ -612,7 +612,7 @@ void func_ov039_0208b9b4(OtuBadge* self) {
 }
 
 /** Enters phase 8: stop dead for `bounceFrames`. */
-void func_ov039_0208ba34(OtuBadge* self) {
+void func_ov039_0208ba34(OtosuGame_badge* self) {
     if (self->bounceTimer <= 0) {
         return;
     }
@@ -627,7 +627,7 @@ void func_ov039_0208ba34(OtuBadge* self) {
 }
 
 /** Enters phase 9: spin down to a stop over `spinFrames`. */
-void func_ov039_0208ba70(OtuBadge* self) {
+void func_ov039_0208ba70(OtosuGame_badge* self) {
     OtuPoint zero;
 
     if (self->spinFrames <= 0) {
@@ -656,7 +656,7 @@ void func_ov039_0208ba70(OtuBadge* self) {
 }
 
 /** The per-frame decision: which set-piece phase, if any, runs this frame. */
-void func_ov039_0208bb2c(OtuBadge* self) {
+void func_ov039_0208bb2c(OtosuGame_badge* self) {
     OtuPoint fromHome;
     OtuPoint fromPos;
     OtuPoint mid;
@@ -792,7 +792,7 @@ void func_ov039_0208bb2c(OtuBadge* self) {
 }
 
 /** Steers the badge along `dir` at full speed, jittering its wobble. */
-void func_ov039_0208be30(OtuBadge* self, OtuPoint* dir) {
+void func_ov039_0208be30(OtosuGame_badge* self, OtuPoint* dir) {
     OtuPoint step;
 
     func_ov039_02098bb0(dir, &self->pos, &step);
@@ -822,7 +822,7 @@ void func_ov039_0208be30(OtuBadge* self, OtuPoint* dir) {
  * first cell whose tile type falls in [loType, hiType]. True when one is
  * found, in which case `out` receives that cell's point.
  */
-s32 func_ov039_0208bed8(OtuBadge* self, s32 rings, s32 loType, s32 hiType, OtuPoint* out) {
+s32 func_ov039_0208bed8(OtosuGame_badge* self, s32 rings, s32 loType, s32 hiType, OtuPoint* out) {
     OtuPoint at;
     s32      ring;
     s32      span = 2;
@@ -897,7 +897,7 @@ s32 func_ov039_0208c0e4(OtuPoint* a, OtuPoint* b) {
 }
 
 /** The "wander to an interesting tile" AI, entry `which` of the chance table. */
-s32 func_ov039_0208c128(OtuBadge* self, s32 which, s32 loType, s32 hiType, s32 kind) {
+s32 func_ov039_0208c128(OtosuGame_badge* self, s32 which, s32 loType, s32 hiType, s32 kind) {
     OtuPoint found;
 
     // Re-rolling only happens once the badge is running a different AI than
@@ -939,7 +939,7 @@ s32 func_ov039_0208c128(OtuBadge* self, s32 which, s32 loType, s32 hiType, s32 k
 }
 
 /** The "spin down in place" AI. */
-s32 func_ov039_0208c218(OtuBadge* self) {
+s32 func_ov039_0208c218(OtosuGame_badge* self) {
     // Once the badge is committed to something it stops re-rolling, so the
     // chance test is only worth making while it is still free.
     if (self->curAI != 0 && self->chanceTbl[0] < RNG_Next(0x10000)) {
@@ -951,7 +951,7 @@ s32 func_ov039_0208c218(OtuBadge* self) {
 }
 
 /** The "keep rolling forward until something opens up" AI. */
-s32 func_ov039_0208c258(OtuBadge* self) {
+s32 func_ov039_0208c258(OtosuGame_badge* self) {
     OtuPoint at;
     s32      tries = 0;
     s32      tile;
@@ -984,10 +984,10 @@ s32 func_ov039_0208c258(OtuBadge* self) {
 }
 
 /** The "chase the nearest rival badge" AI. */
-s32 func_ov039_0208c304(OtuBadge* self) {
-    OtuBadge* target;
-    s32       alive;
-    s32       gap;
+s32 func_ov039_0208c304(OtosuGame_badge* self) {
+    OtosuGame_badge* target;
+    s32              alive;
+    s32              gap;
 
     if (self->curAI != 2) {
         if (self->chanceTbl[2] < RNG_Next(0x10000)) {
@@ -1022,10 +1022,10 @@ s32 func_ov039_0208c304(OtuBadge* self) {
 }
 
 /** The "run away from the nearest rival badge" AI. */
-s32 func_ov039_0208c3bc(OtuBadge* self) {
-    OtuBadge* target;
-    OtuPoint  away;
-    s32       gap;
+s32 func_ov039_0208c3bc(OtosuGame_badge* self) {
+    OtosuGame_badge* target;
+    OtuPoint         away;
+    s32              gap;
 
     if (self->chanceTbl[3] < RNG_Next(0x10000)) {
         return 0;
@@ -1051,10 +1051,10 @@ s32 func_ov039_0208c3bc(OtuBadge* self) {
 }
 
 /** The "take the scripted arc if there is one left" AI. */
-s32 func_ov039_0208c45c(OtuBadge* self) {
-    OtuBadge* target;
-    s32       speed;
-    s32       gap;
+s32 func_ov039_0208c45c(OtosuGame_badge* self) {
+    OtosuGame_badge* target;
+    s32              speed;
+    s32              gap;
 
     if (self->chanceTbl[4] < RNG_Next(0x10000)) {
         return 0;
@@ -1093,8 +1093,8 @@ s32 func_ov039_0208c45c(OtuBadge* self) {
  *
  *  0x46000 is 18.0 in Q12.12. Returns 1 when the update should run.
  */
-s32 func_ov039_0208c4ec(OtuBadge* self) {
-    OtuBadge* other;
+s32 func_ov039_0208c4ec(OtosuGame_badge* self) {
+    OtosuGame_badge* other;
 
     if (self->chanceTbl[5] < RNG_Next(0x10000)) {
         return 0;
@@ -1121,8 +1121,8 @@ s32 func_ov039_0208c4ec(OtuBadge* self) {
 
 /** @brief As 0x0208c4ec, but chanceTbl[6], the timer at +0x178, a speed cap of
  *         0x3000, and its own phase handler. */
-s32 func_ov039_0208c568(OtuBadge* self) {
-    OtuBadge* other;
+s32 func_ov039_0208c568(OtosuGame_badge* self) {
+    OtosuGame_badge* other;
 
     if (self->chanceTbl[6] < RNG_Next(0x10000)) {
         return 0;
@@ -1152,8 +1152,8 @@ s32 func_ov039_0208c568(OtuBadge* self) {
 }
 
 /** @brief As 0x0208c568, but chanceTbl[7] and a 0x32000 distance limit. */
-s32 func_ov039_0208c5f8(OtuBadge* self) {
-    OtuBadge* other;
+s32 func_ov039_0208c5f8(OtosuGame_badge* self) {
+    OtosuGame_badge* other;
 
     if (self->chanceTbl[7] < RNG_Next(0x10000)) {
         return 0;
@@ -1183,8 +1183,8 @@ s32 func_ov039_0208c5f8(OtuBadge* self) {
 }
 
 /** @brief chanceTbl[8], the timer at +0x17C, and a 0x64000 limit. */
-s32 func_ov039_0208c688(OtuBadge* self) {
-    OtuBadge* other;
+s32 func_ov039_0208c688(OtosuGame_badge* self) {
+    OtosuGame_badge* other;
 
     if (self->chanceTbl[8] < RNG_Next(0x10000)) {
         return 0;
@@ -1214,8 +1214,8 @@ s32 func_ov039_0208c688(OtuBadge* self) {
 }
 
 /** @brief chanceTbl[9], the timer at +0x17A, no speed cap, 0x64000. */
-s32 func_ov039_0208c718(OtuBadge* self) {
-    OtuBadge* other;
+s32 func_ov039_0208c718(OtosuGame_badge* self) {
+    OtosuGame_badge* other;
 
     if (self->chanceTbl[9] < RNG_Next(0x10000)) {
         return 0;
@@ -1249,8 +1249,8 @@ s32 func_ov039_0208c718(OtuBadge* self) {
  *  The acquire path and the chase path both end by returning 1, so the `goto`
  *  is the target's own shape and a flag would not compile the same.
  */
-s32 func_ov039_0208c794(OtuBadge* self) {
-    OtuBadge* other;
+s32 func_ov039_0208c794(OtosuGame_badge* self) {
+    OtosuGame_badge* other;
 
     if (self->curAI != 0xA) {
         if (self->chanceTbl[10] < RNG_Next(0x10000)) {
@@ -1285,7 +1285,7 @@ s32 func_ov039_0208c794(OtuBadge* self) {
 
 /** @brief The homing state, curAI 0xB: acquire once when standing on tile 12,
  *         then do nothing but answer 1. */
-s32 func_ov039_0208c84c(OtuBadge* self) {
+s32 func_ov039_0208c84c(OtosuGame_badge* self) {
     if (self->curAI != 0xB) {
         if (self->chanceTbl[11] < RNG_Next(0x10000)) {
             return 0;
@@ -1308,25 +1308,25 @@ s32 func_ov039_0208c84c(OtuBadge* self) {
  * lands on the stack is written out longhand because mwcc builds the outgoing
  * area from the declaration, not from the call. */
 
-void func_ov039_0208c8ac(OtuBadge* self) {
+void func_ov039_0208c8ac(OtosuGame_badge* self) {
     func_ov039_0208c128(self, 0xC, 0xC, 0xC, 1);
 }
 
-void func_ov039_0208c8cc(OtuBadge* self) {
+void func_ov039_0208c8cc(OtosuGame_badge* self) {
     func_ov039_0208c128(self, 0xD, 5, 5, 1);
 }
 
-void func_ov039_0208c8ec(OtuBadge* self) {
+void func_ov039_0208c8ec(OtosuGame_badge* self) {
     func_ov039_0208c128(self, 0xE, 7, 7, 1);
 }
 
-void func_ov039_0208c90c(OtuBadge* self) {
+void func_ov039_0208c90c(OtosuGame_badge* self) {
     func_ov039_0208c128(self, 0xF, 8, 0xB, 1);
 }
 
 /** @brief The third latching state, curAI 0x10 -- same shape as 0x0208c794. */
-s32 func_ov039_0208c92c(OtuBadge* self) {
-    OtuBadge* other;
+s32 func_ov039_0208c92c(OtosuGame_badge* self) {
+    OtosuGame_badge* other;
 
     if (self->curAI != 0x10) {
         if (self->chanceTbl[16] < RNG_Next(0x10000)) {
@@ -1362,9 +1362,9 @@ s32 func_ov039_0208c92c(OtuBadge* self) {
  *  the loop runs from index 1 to 0x10 inclusive. Any non-zero answer stops the
  *  walk, so this reads as an early-out over the table.
  */
-void func_ov039_0208c9cc(OtuBadge* arg) {
-    OtuBadge* self = (OtuBadge*)arg;
-    s32 (**fn)(OtuBadge*);
+void func_ov039_0208c9cc(OtosuGame_badge* arg) {
+    OtosuGame_badge* self = (OtosuGame_badge*)arg;
+    s32 (**fn)(OtosuGame_badge*);
     s32 i;
 
     if (self->stun > 0) {
@@ -1375,7 +1375,7 @@ void func_ov039_0208c9cc(OtuBadge* arg) {
         return;
     }
 
-    fn = (s32(**)(OtuBadge*))data_ov039_0209a4b0;
+    fn = (s32(**)(OtosuGame_badge*))data_ov039_0209a4b0;
 
     for (i = 1; i < 0x11; i++) {
         if (fn[i](self) != 0) {
@@ -1389,13 +1389,13 @@ void func_ov039_0208c9cc(OtuBadge* arg) {
  * warp's target cell and plays the warp sprite (subKind 0 -> 1); once that
  * finishes it drops back to phase 1 (subKind 1).
  */
-void func_ov039_0208ca1c(OtuBadge* self) {
-    OtuWarp* warp;
-    u8       cell[2];
-    s32      count;
-    s32      i;
-    u8       x;
-    u8       y;
+void func_ov039_0208ca1c(OtosuGame_badge* self) {
+    OtosuGame_warp* warp;
+    u8              cell[2];
+    s32             count;
+    s32             i;
+    u8              x;
+    u8              y;
 
     switch (self->subKind) {
         case 0:
@@ -1448,8 +1448,8 @@ void func_ov039_0208ca1c(OtuBadge* self) {
 /**
  * @brief One frame of the pin: release, tick, fade out and tear down.
  */
-void func_ov039_0208cb64(OtuBadge* arg) {
-    OtuBadge* self = (OtuBadge*)arg;
+void func_ov039_0208cb64(OtosuGame_badge* arg) {
+    OtosuGame_badge* self = (OtosuGame_badge*)arg;
     if (func_ov039_0208a794(&self->pos, self->board) == 0) {
         self->phase         = 1;
         self->step          = 0;
@@ -1495,9 +1495,9 @@ void func_ov039_0208cb64(OtuBadge* arg) {
  * @brief The main update: tick the frame budget, advance the tray slot, and
  *        refresh the counter and the two linked-list tasks.
  */
-void func_ov039_0208cc4c(OtuBadge* arg) {
-    OtuBadge* self = (OtuBadge*)arg;
-    s32       i;
+void func_ov039_0208cc4c(OtosuGame_badge* arg) {
+    OtosuGame_badge* self = (OtosuGame_badge*)arg;
+    s32              i;
 
     self->frameBudget = self->frameBudget - 1;
 
@@ -1545,8 +1545,8 @@ refresh:
 /**
  * @brief The fade-out state.
  */
-void func_ov039_0208cd50(OtuBadge* arg) {
-    OtuBadge* self = (OtuBadge*)arg;
+void func_ov039_0208cd50(OtosuGame_badge* arg) {
+    OtosuGame_badge* self = (OtosuGame_badge*)arg;
     if (self->hasLabel == 0) {
         return;
     }
@@ -1582,8 +1582,8 @@ void func_ov039_0208cd50(OtuBadge* arg) {
 /* --- the two one-line probes -------------------------------------------- */
 
 /** @brief If that probe task is finished, retire the pin. */
-void func_ov039_0208ce20(OtuBadge* arg) {
-    OtuBadge* self = (OtuBadge*)arg;
+void func_ov039_0208ce20(OtosuGame_badge* arg) {
+    OtosuGame_badge* self = (OtosuGame_badge*)arg;
     if (func_ov039_0209167c(EasyTask_GetTaskData(self->pool, self->needleId)) != 0) {
         return;
     }
@@ -1593,8 +1593,8 @@ void func_ov039_0208ce20(OtuBadge* arg) {
 }
 
 /** @brief The same shape, against a different task id. */
-void func_ov039_0208ce54(OtuBadge* arg) {
-    OtuBadge* self = (OtuBadge*)arg;
+void func_ov039_0208ce54(OtosuGame_badge* arg) {
+    OtosuGame_badge* self = (OtosuGame_badge*)arg;
     if (func_ov039_02091014(EasyTask_GetTaskData(self->pool, self->hammerId)) != 0) {
         return;
     }
@@ -1640,7 +1640,7 @@ void func_ov039_0208ce54(OtuBadge* arg) {
 // lower stack word first); and case 2's wireless +0xE8 pointer must be a named
 // local, or mwcc loads it twice instead of once. The `aim` pair's own stack
 // slots prologue/epilogue, every branch target and every store now agree.
-void func_ov039_0208ce88(OtuBadge* self) {
+void func_ov039_0208ce88(OtosuGame_badge* self) {
 
     switch (self->subKind) {
         default:
@@ -1681,7 +1681,7 @@ void func_ov039_0208ce88(OtuBadge* self) {
                     }
                 }
             } else {
-                OtuBadge* cand = func_ov039_02087e2c(self->pool, self->scene, self->index);
+                OtosuGame_badge* cand = func_ov039_02087e2c(self->pool, self->scene, self->index);
 
                 if (cand != NULL) {
                     func_ov039_02098bb0(&cand->pos, &self->pos, &dir);
@@ -1772,7 +1772,7 @@ void func_ov039_0208ce88(OtuBadge* self) {
 // the speed in r2; this source recycles r12 for the rate and puts the speed in
 // r1. Giving the speed a named local makes it worse (97.2%), so the allocation
 // is not reachable from the declaration shape.
-void func_ov039_0208d210(OtuBadge* self) {
+void func_ov039_0208d210(OtosuGame_badge* self) {
     s32 count;
     s32 rate;
     s32 v;
@@ -1815,8 +1815,8 @@ void func_ov039_0208d210(OtuBadge* self) {
     }
 }
 
-SpriteFrameInfo* func_ov039_0208d2f8(Sprite* sprite, s32 arg, s32 mode) {
-    OtuBadge* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_badge_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_badge* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(3, owner->pos.y, owner->height));
 }
@@ -1831,8 +1831,8 @@ SpriteFrameInfo* func_ov039_0208d2f8(Sprite* sprite, s32 arg, s32 mode) {
  *  defaulted. 0x130 at the tray slot means "no pin" and selects the second
  *  bin with a fixed pack index of 0xB.
  */
-void func_ov039_0208d3bc(OtuBadge* self, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_02099288;
+void OtosuGame_badge_LoadSpriteA(OtosuGame_badge* self, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_badge_AnimSpriteA;
 
     anim.owner    = self;
     anim.dataType = (u16)self->dataType;
@@ -1859,8 +1859,8 @@ void func_ov039_0208d3bc(OtuBadge* self, Sprite* sprite) {
 }
 
 /** Loads sprite B. The same loader with the second template and no patch-up. */
-void func_ov039_0208d4cc(OtuBadge* self, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_020992b4;
+void OtosuGame_badge_LoadSpriteB(OtosuGame_badge* self, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_badge_AnimSpriteB;
 
     anim.owner    = self;
     anim.dataType = (u16)self->dataType;
@@ -1870,13 +1870,13 @@ void func_ov039_0208d4cc(OtuBadge* self, Sprite* sprite) {
     _Sprite_Load(sprite, &anim);
 }
 
-/** Loads sprite C. func_ov039_0208d4cc with the third template.
+/** Loads sprite C. OtosuGame_badge_LoadSpriteB with the third template.
  *
  *  The third template differs from the second only in its packIndex (1 against
  *  6) and its animIndex (5 against 1), neither of which the loader touches --
  *  the three really are one function instantiated three times. */
-void func_ov039_0208d554(OtuBadge* self, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_020992e0;
+void OtosuGame_badge_LoadSpriteC(OtosuGame_badge* self, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_badge_AnimSpriteC;
 
     anim.owner    = self;
     anim.dataType = (u16)self->dataType;
@@ -1900,7 +1900,7 @@ void func_ov039_0208d554(OtuBadge* self, Sprite* sprite) {
  *  fields through it. Written flat here; the base is a register-allocation
  *  choice the source does not get to make.
  */
-void func_ov039_0208d5dc(OtuBadge* self) {
+void func_ov039_0208d5dc(OtosuGame_badge* self) {
     self->step            = 0;
     self->lastTileType    = 1;
     self->lastCellX       = 0;
@@ -1937,7 +1937,7 @@ void func_ov039_0208d5dc(OtuBadge* self) {
     self->arcFrames   = self->slots[*self->pinID].tile[2];
     self->spinFrames  = self->slots[*self->pinID].tile[3];
 
-    func_ov039_0208d3bc(self, &self->spriteA);
+    OtosuGame_badge_LoadSpriteA(self, &self->spriteA);
 }
 
 /**
@@ -1956,10 +1956,10 @@ void func_ov039_0208d5dc(OtuBadge* self) {
  *  `unk_0EC` is the one field read out of the variant pointer: `*(u16*)(unk_0E8 + 4)`
  *  when there is one, zero otherwise -- the `ldrhne`/`strhne`/`strheq` shape.
  */
-s32 func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadge_InitArgs* args) {
-    OtuBadge* self = (OtuBadge*)task->data;
-    u8        startX;
-    u8        startY;
+s32 OtosuGame_badge_Init(TaskPool* pool, Task* task, OtosuGame_badge_Args* args) {
+    OtosuGame_badge* self = (OtosuGame_badge*)task->data;
+    u8               startX;
+    u8               startY;
 
     self->dataType    = args->dataType;
     self->pool        = pool;
@@ -1994,8 +1994,8 @@ s32 func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadge_InitArgs* args) {
     self->unk_1A4 = 1;
 
     func_ov039_0208d5dc(self);
-    func_ov039_0208d4cc(self, &self->spriteB);
-    func_ov039_0208d554(self, &self->spriteC);
+    OtosuGame_badge_LoadSpriteB(self, &self->spriteB);
+    OtosuGame_badge_LoadSpriteC(self, &self->spriteC);
 
     return 1;
 }
@@ -2013,8 +2013,8 @@ s32 func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadge_InitArgs* args) {
  *  The `switch` over `kind` here is a *table* dispatch (`cmp r0, #9; addls pc,
  *  pc, r0, lsl #2`) with nine out-of-line bodies, one per kind, all named.
  */
-s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
-    OtuBadge* self = (OtuBadge*)task->data;
+s32 OtosuGame_badge_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_badge* self = (OtosuGame_badge*)task->data;
 
     if (self->pad != NULL) {
         func_ov039_0208ac98(self);
@@ -2132,7 +2132,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
  *  stored fields are `Sprite.posX`/`Sprite.posY` (a Sprite's +0x0C/+0x0E),
  *  which is what fixes the sprite bases at +0x0C/+0x4C/+0x8C.
  */
-void func_ov039_0208d9ec(OtuBadge* self) {
+void func_ov039_0208d9ec(OtosuGame_badge* self) {
     if (self->mode > 0) {
         self->spriteC.posX = (self->pos.x - self->origin.x) >> 12;
         self->spriteC.posY = ((self->pos.y + self->height) - self->origin.y) >> 12;
@@ -2154,8 +2154,8 @@ void func_ov039_0208d9ec(OtuBadge* self) {
  *  renders itself through 0x0208d9ec, but only for the kinds listed, and kind
  *  8 only for three of its sub-kinds. +0x168 bit 1 suppresses all of it.
  */
-s32 func_ov039_0208da74(TaskPool* pool, Task* task, void* args) {
-    OtuBadge* self = (OtuBadge*)task->data;
+s32 OtosuGame_badge_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_badge* self = (OtosuGame_badge*)task->data;
 
     if (self->visible == 0) {
         if (self->hasLabel != 0) {
@@ -2207,9 +2207,9 @@ s32 func_ov039_0208da74(TaskPool* pool, Task* task, void* args) {
  *  is created between the pair group and the twelve, and is deleted between
  *  the pair group and child9 -- so the order is exact, not simply reversed.
  */
-s32 func_ov039_0208db44(TaskPool* pool, Task* task, void* args) {
-    OtuBadge* self = (OtuBadge*)task->data;
-    s32       i;
+s32 OtosuGame_badge_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_badge* self = (OtosuGame_badge*)task->data;
+    s32              i;
 
     EasyTask_DeleteTask(pool, self->warpId);
 
@@ -2249,7 +2249,7 @@ s32 func_ov039_0208db44(TaskPool* pool, Task* task, void* args) {
 }
 
 /** The task's entry point: the four-slot stage trampoline. */
-s32 func_ov039_0208dc68(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_badge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = data_ov039_02099278;
 
     return stages.iter[stage](pool, task, args);
@@ -2276,12 +2276,12 @@ s32 func_ov039_0208dc68(TaskPool* pool, Task* task, void* args, s32 stage) {
  *  edge of what mwcc can hold -- if the frame comes out larger, the fix is to
  *  drop `i` and unroll one of the loops rather than to shrink the block.
  */
-s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* arg4, void* arg5, void* arg6, void* arg7,
-                        s32 arg8, void* arg9) {
-    OtuBadge_InitArgs args;
-    OtuBadge*         self;
-    s32               id;
-    s32               i;
+s32 OtosuGame_badge_CreateTask(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* arg4, void* arg5, void* arg6, void* arg7,
+                               s32 arg8, void* arg9) {
+    OtosuGame_badge_Args args;
+    OtosuGame_badge*     self;
+    s32                  id;
+    s32                  i;
 
     args.dataType = arg1;
     args.unk_04   = arg2;
@@ -2293,42 +2293,42 @@ s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* ar
     args.unk_1C   = arg8;
     args.unk_20   = arg9;
 
-    id   = EasyTask_CreateTask(pool, &data_ov039_0209926c, NULL, 0, NULL, &args);
-    self = (OtuBadge*)EasyTask_GetTaskData(pool, id);
+    id   = EasyTask_CreateTask(pool, &Tsk_OtosuGame_badge, NULL, 0, NULL, &args);
+    self = (OtosuGame_badge*)EasyTask_GetTaskData(pool, id);
 
-    self->shadowId = func_ov039_0208f40c(pool, arg1, id);
-    self->piyoId   = func_ov039_0208f770(pool, arg1, id);
-    self->markerId = func_ov039_0208fa5c(pool, arg1, id);
-    self->meteoId  = func_ov039_0208fe60(pool, arg1, id);
-    self->hammerId = func_ov039_02090e1c(pool, arg1, id);
-    self->needleId = func_ov039_020915a8(pool, arg1, id);
-    self->handId   = func_ov039_02091b00(pool, arg1, id);
+    self->shadowId = OtosuGame_shadow_CreateTask(pool, arg1, id);
+    self->piyoId   = OtosuGame_piyo_CreateTask(pool, arg1, id);
+    self->markerId = OtosuGame_marker_CreateTask(pool, arg1, id);
+    self->meteoId  = OtosuGame_meteo_CreateTask(pool, arg1, id);
+    self->hammerId = OtosuGame_hammer_CreateTask(pool, arg1, id);
+    self->needleId = OtosuGame_needle_CreateTask(pool, arg1, id);
+    self->handId   = OtosuGame_hand_CreateTask(pool, arg1, id);
 
     // The radar and the counter each take two extra words, built in the
     // outgoing-argument area rather than in a frame of their own.
-    self->radarId   = func_ov039_0209383c(pool, arg1, id, arg2, arg4, arg8);
-    self->counterId = func_ov039_02093cd8(pool, arg1, id, arg2, arg8);
+    self->radarId   = OtosuGame_badgeradar_CreateTask(pool, arg1, id, arg2, arg4, arg8);
+    self->counterId = OtosuGame_badgecount_CreateTask(pool, arg1, id, arg2, arg8);
     func_ov039_02093d18(EasyTask_GetTaskData(pool, self->counterId), (u16*)arg7);
 
     for (i = 0; i < 12; i++) {
-        self->trackIds[i] = func_ov039_02095750(pool, arg1, id);
+        self->trackIds[i] = OtosuGame_track_CreateTask(pool, arg1, id);
     }
 
     for (i = 0; i < 2; i++) {
-        self->pointIds[i] = func_ov039_02095ca0(pool, arg1, id);
+        self->pointIds[i] = OtosuGame_point_CreateTask(pool, arg1, id);
     }
 
     if (self->hasLabel != 0) {
-        self->entryId = func_ov039_02096124(pool, arg1);
+        self->entryId = OtosuGame_entry_CreateTask(pool, arg1);
     }
 
-    self->deadId = func_ov039_02096548(pool, arg1, id);
+    self->deadId = OtosuGame_dead_CreateTask(pool, arg1, id);
 
     for (i = 0; i < 8; i++) {
-        self->smokeIds[i] = func_ov039_0209771c(pool, arg1, id);
+        self->smokeIds[i] = OtosuGame_smoke_CreateTask(pool, arg1, id);
     }
 
-    self->warpId = func_ov039_02097a70(pool, arg1, id);
+    self->warpId = OtosuGame_warp_CreateTask(pool, arg1, id);
 
     if (self->hasLabel != 0 && *self->pinID < 0x130) {
         // The label rides in the *second* halfword of the tray slot, and the
@@ -2392,7 +2392,7 @@ s32 func_ov039_0208df2c(OtuPoint* posA, OtuPoint* velA, s32 reachA, OtuPoint* po
  *  flags actually encode, which is the only reading consistent with zero
  *  loads. See the note in the header.
  */
-void func_ov039_0208dff0(OtuPoint* dir, s32 speed, s32 scaleA, s32 scaleB, OtuBadge* other) {
+void func_ov039_0208dff0(OtuPoint* dir, s32 speed, s32 scaleA, s32 scaleB, OtosuGame_badge* other) {
     s32 mag = OtuQ12Mul(speed, scaleA);
 
     func_ov039_02098c00(OtuQ12Mul(mag, scaleB), dir, &other->vel, &other->vel);
@@ -2461,7 +2461,7 @@ void func_ov039_0208e058(OtuPoint* posA, OtuPoint* velA, OtuPoint* posB, OtuPoin
  *  (`data_ov039_0209a388`) while a settled pin gets 0x1000, i.e. 3.0 against
  *  1.0.
  */
-void func_ov039_0208e130(OtuBadge* self, OtuBadge* other) {
+void func_ov039_0208e130(OtosuGame_badge* self, OtosuGame_badge* other) {
     OtuPoint dir;
     s32      score;
     s32      scale;
@@ -2495,7 +2495,7 @@ void func_ov039_0208e130(OtuBadge* self, OtuBadge* other) {
  *  therefore not two spellings of one predicate: one is pin-against-pin
  *  attraction and the other is pin-against-board.
  */
-s32 func_ov039_0208e28c(OtuBadge* self, OtuBadge* other) {
+s32 func_ov039_0208e28c(OtosuGame_badge* self, OtosuGame_badge* other) {
 
     if (self->flags > 0) {
         return 0;
@@ -2539,7 +2539,7 @@ s32 func_ov039_0208e28c(OtuBadge* self, OtuBadge* other) {
  *  target's asymmetry.
  */
 /* Typed as the sibling predicates above; see the note on func_ov039_0208e28c. */
-s32 func_ov039_0208e37c(OtuBadge* self, OtuBadge* other) {
+s32 func_ov039_0208e37c(OtosuGame_badge* self, OtosuGame_badge* other) {
 
     OtuPoint dir;
     s32      dist;
@@ -2614,7 +2614,7 @@ s32 func_ov039_0208e37c(OtuBadge* self, OtuBadge* other) {
  *  The second argument is *not* another pin: it is read through
  *  func_ov039_02092744 / _02092758 / _02092760, which are the accessors for
  *  the overlay's second, smaller object -- a point at +0x48/+0x4C, a radius
- *  at +0x50, and a flag at +0x54. That object is an OtuObstacle.
+ *  at +0x50, and a flag at +0x54. That object is an OtosuGame_obstacle.
  *
  *  The third block is the interesting one: the pin's velocity is normalised,
  *  measured, and turned into a *position* offset which lands in +0x138/+0x13C
@@ -2622,7 +2622,7 @@ s32 func_ov039_0208e37c(OtuBadge* self, OtuBadge* other) {
  *  publishes the shove it received.
  */
 /* Typed as the sibling predicates above; see the note on func_ov039_0208e28c. */
-s32 func_ov039_0208e504(OtuBadge* self, OtuObstacle* obstacle) {
+s32 func_ov039_0208e504(OtosuGame_badge* self, OtosuGame_obstacle* obstacle) {
 
     OtuPoint other;
     OtuPoint dir;
@@ -2690,15 +2690,15 @@ s32 func_ov039_0208e504(OtuBadge* self, OtuObstacle* obstacle) {
 /* The badge's point accessors. Each is a whole-OtuPoint assignment: two scalar
  * stores interleave differently, and a local merges into `stmia`. */
 
-void func_ov039_0208e6cc(OtuBadge* self, OtuPoint* out) {
+void func_ov039_0208e6cc(OtosuGame_badge* self, OtuPoint* out) {
     *out = self->dir;
 }
 
-void func_ov039_0208e6e0(OtuBadge* task, OtuPoint* out) {
+void func_ov039_0208e6e0(OtosuGame_badge* task, OtuPoint* out) {
     *out = task->pos;
 }
 
-s32 func_ov039_0208e6f4(OtuBadge* task) {
+s32 func_ov039_0208e6f4(OtosuGame_badge* task) {
     return (task)->height;
 }
 
@@ -2725,7 +2725,7 @@ s32 func_ov039_0208e6f4(OtuBadge* task) {
 // order, as an initialiser, or through named temporaries all move the score but
 // none reproduces the target's pair, so this is mwcc's scheduler and not the
 // source shape. Every instruction otherwise agrees.
-void func_ov039_0208e6fc(OtuBadge* self, OtuPoint* out) {
+void func_ov039_0208e6fc(OtosuGame_badge* self, OtuPoint* out) {
 
     if (self->phase == 8) {
         switch (self->subKind) {
@@ -2765,22 +2765,22 @@ void func_ov039_0208e6fc(OtuBadge* self, OtuPoint* out) {
     out->y = self->pos.y - 0x60000;
 }
 
-void func_ov039_0208e848(OtuBadge* self, OtuPoint* origin) {
+void func_ov039_0208e848(OtosuGame_badge* self, OtuPoint* origin) {
     self->origin = *origin;
 }
 
 /* The stage task's 0x110 - 0x1B4 block. */
 
-void func_ov039_0208e85c(OtuBadge* self, OtuPoint* out) {
+void func_ov039_0208e85c(OtosuGame_badge* self, OtuPoint* out) {
     *out = self->origin;
 }
 
-void func_ov039_0208e870(OtuBadge* self, s32 x, s32 y) {
+void func_ov039_0208e870(OtosuGame_badge* self, s32 x, s32 y) {
     self->homeOffset.x = x;
     self->homeOffset.y = y;
 }
 
-void func_ov039_0208e87c(OtuBadge* self, OtuPoint* out) {
+void func_ov039_0208e87c(OtosuGame_badge* self, OtuPoint* out) {
     *out = self->homeOffset;
 }
 
@@ -2795,7 +2795,7 @@ void func_ov039_0208e87c(OtuBadge* self, OtuPoint* out) {
  *  lsl #2`, defaulting to the load, so this stays a switch with one arm per
  *  case value rather than a chain of equality tests.
  */
-s32 func_ov039_0208e890(OtuBadge* self) {
+s32 func_ov039_0208e890(OtosuGame_badge* self) {
 
     switch (self->phase) {
         case 0:
@@ -2821,7 +2821,7 @@ s32 func_ov039_0208e890(OtuBadge* self) {
  * Phase 8, sub-kind 4: the cursor at +0x100 against half the cell's size word,
  * counted down from 0x1000.
  */
-s32 func_ov039_0208e8c4(OtuBadge* self) {
+s32 func_ov039_0208e8c4(OtosuGame_badge* self) {
     s32 scale = 0x1000;
 
     if (self->phase == 8) {
@@ -2859,7 +2859,7 @@ s32 func_ov039_0208e8c4(OtuBadge* self) {
  *  The `bne` past both tests is why this is a nested if rather than a second
  *  switch -- the subkind is never read unless the kind already matched.
  */
-s32 func_ov039_0208e950(OtuBadge* self) {
+s32 func_ov039_0208e950(OtosuGame_badge* self) {
     s32 r = 0;
 
     if (self->phase == 8) {
@@ -2890,7 +2890,7 @@ s32 func_ov039_0208e950(OtuBadge* self) {
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
-s32 func_ov039_0208e984(OtuBadge* task) {
+s32 func_ov039_0208e984(OtosuGame_badge* task) {
     s32 found = task->phase;
     s32 r     = 0;
 
@@ -2910,7 +2910,7 @@ s32 func_ov039_0208e984(OtuBadge* task) {
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
-s32 func_ov039_0208e998(OtuBadge* task) {
+s32 func_ov039_0208e998(OtosuGame_badge* task) {
     s32 found = task->phase;
     s32 r     = 0;
 
@@ -2930,7 +2930,7 @@ s32 func_ov039_0208e998(OtuBadge* task) {
  *  `u16` and not to `s16` -- an `s16` emits `asr` for the second shift and costs
  *  the match. The return type is `s32` because the caller uses the full word.
  */
-s32 func_ov039_0208e9ac(OtuBadge* self) {
+s32 func_ov039_0208e9ac(OtosuGame_badge* self) {
     u16 a;
     s32 x = -self->dir.x;
     s32 y = -self->dir.y;
@@ -2961,7 +2961,7 @@ s32 func_ov039_0208e9ac(OtuBadge* self) {
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
-s32 func_ov039_0208e9d0(OtuBadge* task) {
+s32 func_ov039_0208e9d0(OtosuGame_badge* task) {
     s32 found = task->phase;
     s32 r     = 0;
 
@@ -2981,7 +2981,7 @@ s32 func_ov039_0208e9d0(OtuBadge* task) {
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
-s32 func_ov039_0208e9e4(OtuBadge* task) {
+s32 func_ov039_0208e9e4(OtosuGame_badge* task) {
     s32 found = task->phase;
     s32 r     = 0;
 
@@ -3009,7 +3009,7 @@ s32 func_ov039_0208e9e4(OtuBadge* task) {
 // a negated `||`, and two sequential guards each with its own `break` -- and
 // all four compile to the same folded form. mwcc is choosing conditional
 // execution over branching here and there is no source shape that changes that.
-s32 func_ov039_0208e9f8(TaskPool* pool, OtuBadge* self) {
+s32 func_ov039_0208e9f8(TaskPool* pool, OtosuGame_badge* self) {
     s32 claimed = 0;
     s32 ret;
 
@@ -3088,7 +3088,7 @@ s32 func_ov039_0208e9f8(TaskPool* pool, OtuBadge* self) {
 // block's loads, the order of the two pool words, and which callee-saved
 // registers the hit walk lands in. (Walking the hits through a raw byte pointer
 // to the badge scored 89.9%, through register naming alone.)
-void func_ov039_0208eaa0(OtuBadge* other, OtuBadge* self) {
+void func_ov039_0208eaa0(OtosuGame_badge* other, OtosuGame_badge* self) {
 
     if (self->height != 0) {
         return;
@@ -3256,12 +3256,12 @@ void func_ov039_0208eaa0(OtuBadge* other, OtuBadge* self) {
  * `> 0` and not `!= 0`. Written as a select into zero, the shape that gives
  * this overlay's predicates their two conditional moves.
  */
-s32 func_ov039_0208ee84(OtuBadge* task) {
+s32 func_ov039_0208ee84(OtosuGame_badge* task) {
     return task->stun > 0;
 }
 
 /** The badge's remaining stun frames. */
-s32 func_ov039_0208ee98(OtuBadge* task) {
+s32 func_ov039_0208ee98(OtosuGame_badge* task) {
     return (task)->stun;
 }
 
@@ -3269,7 +3269,7 @@ s32 func_ov039_0208ee98(OtuBadge* task) {
 
 /*
  * These four read 0x78, 0x7A, 0x7C and 0x7E off a base already offset by 0x100,
- * so they are four consecutive s16 fields -- `OtuBadge.tile0`..`tile3`, which sit
+ * so they are four consecutive s16 fields -- `OtosuGame_badge.tile0`..`tile3`, which sit
  * at 0x178. Note the offset was *not* spelled as `0x100 + 0x78`: the split is
  * what makes the target emit a separate `add r0, r0, #0x100` before the `ldrsh`,
  * and naming the field folds it into a single `ldrsh [r0, #0x178]` that this
@@ -3277,19 +3277,19 @@ s32 func_ov039_0208ee98(OtuBadge* task) {
  * the add -- so the accessors read as members and the note records why.
  */
 
-s16 func_ov039_0208eea0(OtuBadge* task) {
+s16 func_ov039_0208eea0(OtosuGame_badge* task) {
     return (task)->trackFrames;
 }
 
-s16 func_ov039_0208eeac(OtuBadge* task) {
+s16 func_ov039_0208eeac(OtosuGame_badge* task) {
     return (task)->bounceTimer;
 }
 
-s16 func_ov039_0208eeb8(OtuBadge* task) {
+s16 func_ov039_0208eeb8(OtosuGame_badge* task) {
     return (task)->arcFrames;
 }
 
-s16 func_ov039_0208eec4(OtuBadge* task) {
+s16 func_ov039_0208eec4(OtosuGame_badge* task) {
     return (task)->spinFrames;
 }
 
@@ -3301,7 +3301,7 @@ s16 func_ov039_0208eec4(OtuBadge* task) {
  * target's `ldreq`/`cmpeq` run of conditional loads is mwcc folding that
  * five-term short-circuit chain into one compare chain.
  */
-s32 func_ov039_0208eed0(OtuBadge* self) {
+s32 func_ov039_0208eed0(OtosuGame_badge* self) {
     s32 r = 0;
 
     if (self->height == 0 && self->phase == 1 && self->step == 1) {
@@ -3315,7 +3315,7 @@ s32 func_ov039_0208eed0(OtuBadge* self) {
 
 /** Copies the +0x14C and +0x154 pairs out as two points. */
 void func_ov039_0208ef14(void* pin, OtuPoint* a, OtuPoint* b) {
-    OtuBadge* self = (OtuBadge*)pin;
+    OtosuGame_badge* self = (OtosuGame_badge*)pin;
 
     *a = self->aimStart;
     *b = self->aimCur;
@@ -3326,7 +3326,7 @@ void func_ov039_0208ef14(void* pin, OtuPoint* a, OtuPoint* b) {
  *
  * `movge`/`movlt` again: `>= 0x1E`, not `> 0x1E`.
  */
-s32 func_ov039_0208ef38(OtuBadge* task) {
+s32 func_ov039_0208ef38(OtosuGame_badge* task) {
     return (task)->aimFrames >= 0x1E;
 }
 
@@ -3343,9 +3343,9 @@ s32 func_ov039_0208ef38(OtuBadge* task) {
  * probability `which / 0x10000`.
  */
 s32 func_ov039_0208ef4c(void* task, u32 which) {
-    OtuBadge* self = (OtuBadge*)task;
-    s32       kind = self->phase;
-    s32       r    = 0;
+    OtosuGame_badge* self = (OtosuGame_badge*)task;
+    s32              kind = self->phase;
+    s32              r    = 0;
 
     switch (kind) {
         case 1:
@@ -3375,8 +3375,8 @@ s32 func_ov039_0208ef4c(void* task, u32 which) {
  * and the pin id at +0x16C must not be the 0x130 "no pin" sentinel -- and the
  * real answer comes from func_ov039_0208ef4c.
  */
-s32 func_ov039_0208efb0(OtuBadge* task, s32 which) {
-    OtuBadge* self = (OtuBadge*)task;
+s32 func_ov039_0208efb0(OtosuGame_badge* task, s32 which) {
+    OtosuGame_badge* self = (OtosuGame_badge*)task;
 
     if (func_ov039_0208a794((OtuPoint*)&self->pos.x, self->board) == 0) {
         return 0;
@@ -3394,7 +3394,7 @@ s32 func_ov039_0208efb0(OtuBadge* task, s32 which) {
  * Returns the old value and stores zero, so a caller polling this sees each
  * value exactly once. It is the only accessor here with that shape.
  */
-s32 func_ov039_0208eff8(OtuBadge* self) {
+s32 func_ov039_0208eff8(OtosuGame_badge* self) {
     s32 value = self->unk_1A4;
 
     self->unk_1A4 = 0;
@@ -3404,21 +3404,21 @@ s32 func_ov039_0208eff8(OtuBadge* self) {
 /* Badge accessors: 0208f00c - 0208f104. */
 
 /** True when the badge's tray slot holds a real pin (0x130 means empty). */
-s32 func_ov039_0208f00c(OtuBadge* self) {
+s32 func_ov039_0208f00c(OtosuGame_badge* self) {
     return *self->pinID < 0x130;
 }
 
 /** Tail-calls func_ov039_0208a490 with a second argument of 10. */
-void func_ov039_0208f024(OtuBadge* self) {
+void func_ov039_0208f024(OtosuGame_badge* self) {
     func_ov039_0208a490(self, 0xA);
 }
 
-s32 func_ov039_0208f034(OtuBadge* task) {
+s32 func_ov039_0208f034(OtosuGame_badge* task) {
     return (task)->score;
 }
 
 /** Parks the badge's AI. */
-void func_ov039_0208f03c(OtuBadge* task) {
+void func_ov039_0208f03c(OtosuGame_badge* task) {
     (task)->curAI = 0x11;
 }
 
@@ -3427,7 +3427,7 @@ void func_ov039_0208f03c(OtuBadge* task) {
  * round-robin. The cursor is written back before it wraps, and is re-read from
  * the badge on both sides of the call rather than held in a register.
  */
-void func_ov039_0208f048(OtuBadge* self, OtuPoint* at, s32 selector) {
+void func_ov039_0208f048(OtosuGame_badge* self, OtuPoint* at, s32 selector) {
     func_ov039_02097750(EasyTask_GetTaskData(self->pool, self->smokeIds[self->smokeCursor]), at, selector, 0x1000, 0x66, 6);
 
     self->smokeCursor = self->smokeCursor + 1;
@@ -3437,26 +3437,26 @@ void func_ov039_0208f048(OtuBadge* self, OtuPoint* at, s32 selector) {
 }
 
 /** True when the badge's tray slot is empty. */
-s32 func_ov039_0208f0b0(OtuBadge* self) {
+s32 func_ov039_0208f0b0(OtosuGame_badge* self) {
     return *self->pinID == 0x130;
 }
 
 /** Resets the badge's label child, if it has one. */
-void func_ov039_0208f0c8(OtuBadge* self) {
+void func_ov039_0208f0c8(OtosuGame_badge* self) {
     if (self->hasLabel != 0) {
         func_ov039_02096270(EasyTask_GetTaskData(self->pool, self->entryId));
     }
 }
 
 /** Forgets `other` as this badge's last contact. */
-void func_ov039_0208f0f0(OtuBadge* self, OtuBadge* other) {
+void func_ov039_0208f0f0(OtosuGame_badge* self, OtosuGame_badge* other) {
     if (self->partner == other) {
         self->partner = NULL;
     }
 }
 
 /** Resets both of the badge's pair children. */
-void func_ov039_0208f104(OtuBadge* self) {
+void func_ov039_0208f104(OtosuGame_badge* self) {
     s32 i;
 
     for (i = 0; i < 2; i++) {

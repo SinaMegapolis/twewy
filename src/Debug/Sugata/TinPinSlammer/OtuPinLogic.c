@@ -423,8 +423,8 @@ void func_ov039_02089ec0(TinPinSlammer_Scene* scene) {
     stage->timer      = 0x258;
     stage->badgeCount = scene->playerCount;
 
-    stage->wriconId = func_ov039_02096e4c(OTU_POOL1(scene), scene->spareDataType);
-    stage->wrwaitId = func_ov039_020989f0(OTU_POOL1(scene), scene->spareDataType);
+    stage->wriconId = OtosuGame_wricon_CreateTask(OTU_POOL1(scene), scene->spareDataType);
+    stage->wrwaitId = OtosuGame_wrwait_CreateTask(OTU_POOL1(scene), scene->spareDataType);
 }
 
 /* ================================================================== */
@@ -725,7 +725,7 @@ void func_ov039_0208a454(TinPinSlammer_Scene* scene) {
  * @brief Adds `value` to the badge's score, capped at 999, and shows it on the
  *        counter and on the next of the two score pop-ups.
  */
-void func_ov039_0208a490(OtuBadge* self, s32 value) {
+void func_ov039_0208a490(OtosuGame_badge* self, s32 value) {
     if ((u32)*self->pinID >= OTU_NO_PIN) {
         return;
     }
@@ -873,7 +873,7 @@ void func_ov039_0208a6c4(OtuPoint* v) {
  * everything else 0x32E. That is an `==` against a constant, not a `>=`, which
  * is why the `ldreq / ldrne` pair straddles the argument setup.
  */
-void func_ov039_0208a6f8(OtuBadge* self, OtuPoint* dir, s32 angle) {
+void func_ov039_0208a6f8(OtosuGame_badge* self, OtuPoint* dir, s32 angle) {
     u8  tuneIndex = self->slots[*self->pinID].tuneIndex;
     s32 speed     = data_ov039_0209a3dc[tuneIndex].launch;
 
@@ -1126,7 +1126,7 @@ s32 func_ov039_0208a988(OtuPoint* self, OtuBoardLayout* grid, TinPinSlammer_Scen
  * 32-bit field is what produces the `lsl #0x10 / lsr #0x10` round trip the
  * target does *not* have here.
  */
-void func_ov039_0208ac98(OtuBadge* self) {
+void func_ov039_0208ac98(OtosuGame_badge* self) {
     u16 now = self->pad->sysControl;
 
     self->pressedKeys = now & (self->lastKeys ^ now);

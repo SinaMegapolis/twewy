@@ -5,22 +5,22 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern TaskHandle       data_ov039_02099d44;
+extern TaskHandle       Tsk_OtosuGame_point;
 extern const TaskStages data_ov039_02099d50;
-extern SpriteAnimation  data_ov039_02099d60;
+extern SpriteAnimation  OtosuGame_point_Anim;
 
 /* Four `s16` values, 12, 11, 1, 1 -- one per sprite of the point task. */
 extern const s16 data_ov039_02099d3c[4];
 
-SpriteFrameInfo* func_ov039_020958a8(Sprite* sprite, s32 arg, s32 mode) {
-    OtuPointTask* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_point_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_point* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(5, owner->pos.y, 0));
 }
 
 /** Loads sprite `index`, whose animation comes from data_ov039_02099d3c. */
-void func_ov039_02095964(OtuPointTask* self, Sprite* sprite, OtuPinSpriteArgs* args, s32 index) {
-    SpriteAnimation anim = data_ov039_02099d60;
+void OtosuGame_point_Load(OtosuGame_point* self, Sprite* sprite, OtuPinSpriteArgs* args, s32 index) {
+    SpriteAnimation anim = OtosuGame_point_Anim;
 
     anim.owner     = self;
     anim.dataType  = args->dataType;
@@ -31,8 +31,8 @@ void func_ov039_02095964(OtuPointTask* self, Sprite* sprite, OtuPinSpriteArgs* a
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_02095a18(TaskPool* pool, Task* task, void* args) {
-    OtuPointTask*     self = task->data;
+s32 OtosuGame_point_Init(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_point*  self = task->data;
     OtuPinSpriteArgs* a    = args;
     s32               i;
 
@@ -45,7 +45,7 @@ s32 func_ov039_02095a18(TaskPool* pool, Task* task, void* args) {
     self->visible  = 0;
 
     for (i = 0; i < 4; i++) {
-        func_ov039_02095964(self, &self->sprite[i], a, i);
+        OtosuGame_point_Load(self, &self->sprite[i], a, i);
     }
     return 1;
 }
@@ -55,9 +55,9 @@ s32 func_ov039_02095a18(TaskPool* pool, Task* task, void* args) {
  * (0x800 per frame) and, on landing, rebounds at a quarter of its speed. The
  * whole popup hides once `timer` runs out.
  */
-s32 func_ov039_02095a78(TaskPool* pool, Task* task, void* args) {
-    OtuPointTask* self = task->data;
-    s32           i;
+s32 OtosuGame_point_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_point* self = task->data;
+    s32              i;
 
     if (self->active != 0) {
         for (i = 0; i < 4; i++) {
@@ -92,10 +92,10 @@ s32 func_ov039_02095a78(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02095b6c(TaskPool* pool, Task* task, void* args) {
-    OtuPointTask* self = task->data;
-    OtuBadge*     pin;
-    s32           i;
+s32 OtosuGame_point_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_point* self = task->data;
+    OtosuGame_badge* pin;
+    s32              i;
 
     if (self->visible != 0) {
         pin = EasyTask_GetTaskData(pool, self->pinId);
@@ -120,9 +120,9 @@ s32 func_ov039_02095b6c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02095c2c(TaskPool* pool, Task* task, void* args) {
-    OtuPointTask* self = task->data;
-    s32           i;
+s32 OtosuGame_point_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_point* self = task->data;
+    s32              i;
 
     for (i = 0; i < 4; i++) {
         Sprite_Release(&self->sprite[i]);
@@ -130,25 +130,25 @@ s32 func_ov039_02095c2c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02095c58(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_point_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = data_ov039_02099d50;
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02095ca0(TaskPool* pool, s32 dataType, s32 pin) {
+s32 OtosuGame_point_CreateTask(TaskPool* pool, s32 dataType, s32 pin) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = pin;
 
-    return EasyTask_CreateTask(pool, &data_ov039_02099d44, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_point, NULL, 0, NULL, &args);
 }
 
 /**
  * Pops up `count` for 60 frames: the digits drop in staggered by four frames,
  * sprite 2 shows the ones digit and sprite 3 the tens (hidden when zero).
  */
-void func_ov039_02095cd4(OtuPointTask* self, s32 count) {
+void func_ov039_02095cd4(OtosuGame_point* self, s32 count) {
     s32 i;
     s16 first;
     s16 last;
@@ -183,7 +183,7 @@ void func_ov039_02095cd4(OtuPointTask* self, s32 count) {
 }
 
 /** Hides the popup. */
-void func_ov039_02095ddc(OtuPointTask* self) {
+void func_ov039_02095ddc(OtosuGame_point* self) {
     self->active  = 0;
     self->visible = 0;
 }

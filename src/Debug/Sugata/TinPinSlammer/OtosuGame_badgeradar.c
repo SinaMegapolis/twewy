@@ -12,14 +12,14 @@ typedef struct {
     s32                    index;
     struct OtuBoardLayout* board;
     s32                    isFirst;
-} OtuBadgeRadarArgs;
+} OtosuGame_badgeradar_Args;
 
 /* The task's sprite template, stage table and handle. */
-extern const SpriteAnimation data_ov039_02099a7c;
+extern const SpriteAnimation OtosuGame_badgeradar_Anim;
 extern const TaskStages      data_ov039_02099a6c;
-extern const TaskHandle      data_ov039_02099a60;
+extern const TaskHandle      Tsk_OtosuGame_badgeradar;
 
-SpriteFrameInfo* func_ov039_0209352c(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_badgeradar_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
@@ -66,8 +66,8 @@ SpriteFrameInfo* func_ov039_0209352c(Sprite* sprite, s32 arg, s32 mode) {
  * `animBias` at +0x50 is then added as a signed 16-bit value -- the
  * `lsl #0x10 / asr #0x10` pair, i.e. a sign-extending narrowing of a word.
  */
-void func_ov039_020935d4(OtuBadgeRadar* data, Sprite* sprite) {
-    SpriteAnimation anim = data_ov039_02099a7c;
+void OtosuGame_badgeradar_Load(OtosuGame_badgeradar* data, Sprite* sprite) {
+    SpriteAnimation anim = OtosuGame_badgeradar_Anim;
 
     anim.owner     = data;
     anim.dataType  = data->dataType;
@@ -87,8 +87,8 @@ void func_ov039_020935d4(OtuBadgeRadar* data, Sprite* sprite) {
  * block, which is how the cell builder handed to `_Sprite_Load` finds its way
  * back to +0x18/+0x1C/+0x16 when it is called per frame.
  */
-s32 func_ov039_02093668(TaskPool* pool, Task* self, OtuBadgeRadarArgs* args) {
-    OtuBadgeRadar* data = (OtuBadgeRadar*)self->data;
+s32 OtosuGame_badgeradar_Init(TaskPool* pool, Task* self, OtosuGame_badgeradar_Args* args) {
+    OtosuGame_badgeradar* data = (OtosuGame_badgeradar*)self->data;
 
     data->dataType = args->dataType;
     data->pinId    = args->pinId;
@@ -99,7 +99,7 @@ s32 func_ov039_02093668(TaskPool* pool, Task* self, OtuBadgeRadarArgs* args) {
     data->x        = 0;
     data->y        = 0;
 
-    func_ov039_020935d4(data, &data->sprite);
+    OtosuGame_badgeradar_Load(data, &data->sprite);
     return 1;
 }
 
@@ -144,11 +144,11 @@ s32 func_ov039_02093668(TaskPool* pool, Task* self, OtuBadgeRadarArgs* args) {
 // the `Sprite_Update` block), where the `else if` chain here puts the same
 // store inline ahead of the branch. Same work, different block placement; it
 // was not worth a `goto` to chase two instructions.
-s32 func_ov039_020936b8(TaskPool* pool, Task* self, void* arg) {
-    OtuBadgeRadar* data  = (OtuBadgeRadar*)self->data;
-    OtuBadge*      child = (OtuBadge*)EasyTask_GetTaskData(pool, data->pinId);
-    OtuPoint       pt;
-    s32            skew;
+s32 OtosuGame_badgeradar_Update(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_badgeradar* data  = (OtosuGame_badgeradar*)self->data;
+    OtosuGame_badge*      child = (OtosuGame_badge*)EasyTask_GetTaskData(pool, data->pinId);
+    OtuPoint              pt;
+    s32                   skew;
 
     if (child == NULL) {
         data->linked = 0;
@@ -181,8 +181,8 @@ s32 func_ov039_020936b8(TaskPool* pool, Task* self, void* arg) {
  * tracking whether the tracked child exists, and the render stage does the
  * arithmetic.
  */
-s32 func_ov039_020937a0(TaskPool* pool, Task* self, void* arg) {
-    OtuBadgeRadar* data = (OtuBadgeRadar*)self->data;
+s32 OtosuGame_badgeradar_Render(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_badgeradar* data = (OtosuGame_badgeradar*)self->data;
 
     if (data->linked != 0) {
         data->sprite.posX = data->x >> 12;
@@ -196,15 +196,15 @@ s32 func_ov039_020937a0(TaskPool* pool, Task* self, void* arg) {
 /**
  * @brief The radar task's cleanup stage, 0x020937dc.
  */
-s32 func_ov039_020937dc(TaskPool* pool, Task* self, void* arg) {
-    OtuBadgeRadar* data = (OtuBadgeRadar*)self->data;
+s32 OtosuGame_badgeradar_Destroy(TaskPool* pool, Task* self, void* arg) {
+    OtosuGame_badgeradar* data = (OtosuGame_badgeradar*)self->data;
 
     Sprite_Release(&data->sprite);
     return 1;
 }
 
 /** The radar task's stage dispatcher, 0x020937f4. */
-s32 func_ov039_020937f4(TaskPool* pool, Task* self, void* arg, s32 stage) {
+s32 OtosuGame_badgeradar_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage) {
     TaskStages stages = data_ov039_02099a6c;
 
     return stages.iter[stage](pool, self, arg);
@@ -217,8 +217,8 @@ s32 func_ov039_020937f4(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * the visible difference between the two `sub sp, sp, #imm` frame sizes
  * (0x1C against 0x14) and is how the two create wrappers tell themselves apart.
  */
-s32 func_ov039_0209383c(TaskPool* pool, s32 dataType, s32 pinId, s32 index, OtuBoardLayout* board, s32 isFirst) {
-    OtuBadgeRadarArgs args;
+s32 OtosuGame_badgeradar_CreateTask(TaskPool* pool, s32 dataType, s32 pinId, s32 index, OtuBoardLayout* board, s32 isFirst) {
+    OtosuGame_badgeradar_Args args;
 
     args.dataType = dataType;
     args.pinId    = pinId;
@@ -226,5 +226,5 @@ s32 func_ov039_0209383c(TaskPool* pool, s32 dataType, s32 pinId, s32 index, OtuB
     args.board    = board;
     args.isFirst  = isFirst;
 
-    return EasyTask_CreateTask(pool, &data_ov039_02099a60, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_badgeradar, NULL, 0, NULL, &args);
 }

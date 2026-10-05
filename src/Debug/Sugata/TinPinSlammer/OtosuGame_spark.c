@@ -5,21 +5,21 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle data_ov039_02099c64;
+extern const TaskHandle Tsk_OtosuGame_spark;
 
-extern const SpriteAnimation data_ov039_02099c80;
+extern const SpriteAnimation OtosuGame_spark_Anim;
 
 /** A four-entry handler table copied to the stack before one is called. */
 extern const TaskStages data_ov039_02099c70;
 
-SpriteFrameInfo* func_ov039_02094ae8(Sprite* sprite, s32 arg, s32 mode) {
-    OtuSpark* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_spark_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_spark* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(3, owner->pos.y, owner->height));
 }
 
-void func_ov039_02094bac(OtuSpark* self, Sprite* sprite, OtuTaskArgs1* args) {
-    SpriteAnimation anim = data_ov039_02099c80;
+void OtosuGame_spark_Load(OtosuGame_spark* self, Sprite* sprite, OtuTaskArgs1* args) {
+    SpriteAnimation anim = OtosuGame_spark_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -28,8 +28,8 @@ void func_ov039_02094bac(OtuSpark* self, Sprite* sprite, OtuTaskArgs1* args) {
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_02094c50(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
-    OtuSpark* self = task->data;
+s32 OtosuGame_spark_Init(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
+    OtosuGame_spark* self = task->data;
 
     self->active          = 0;
     self->visible         = 0;
@@ -46,7 +46,7 @@ s32 func_ov039_02094c50(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
     self->affine.unk_0C   = 0;
     self->affine.unk_0E   = 0;
 
-    func_ov039_02094bac(self, &self->sprite, args);
+    OtosuGame_spark_Load(self, &self->sprite, args);
     return 1;
 }
 
@@ -54,11 +54,11 @@ s32 func_ov039_02094c50(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
  * Flies the spark like an OtuHahen. The clear is the `then` arm and there is
  * one shared `return 1`: that is the target's block layout.
  */
-s32 func_ov039_02094ca8(TaskPool* pool, Task* task, void* args) {
-    OtuSpark* self = task->data;
-    s32       count;
-    s32       scale;
-    s32       v;
+s32 OtosuGame_spark_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_spark* self = task->data;
+    s32              count;
+    s32              scale;
+    s32              v;
 
     if (self->active != 0) {
         count      = self->life - 1;
@@ -98,8 +98,8 @@ s32 func_ov039_02094ca8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02094dac(TaskPool* pool, Task* task, void* args) {
-    OtuSpark* self = task->data;
+s32 OtosuGame_spark_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_spark* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.posX = (s16)((self->pos.x - self->origin.x) >> 12);
@@ -109,26 +109,26 @@ s32 func_ov039_02094dac(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02094dfc(TaskPool* pool, Task* task, void* args) {
-    Sprite_Release(&((OtuSpark*)task->data)->sprite);
+s32 OtosuGame_spark_Destroy(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtosuGame_spark*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_02094e10(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_spark_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_02099c70;
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02094e58(TaskPool* pool, s32 dataType) {
+s32 OtosuGame_spark_CreateTask(TaskPool* pool, s32 dataType) {
     OtuTaskArgs1 args;
 
     args.dataType = dataType;
-    return EasyTask_CreateTask(pool, &data_ov039_02099c64, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_spark, NULL, 0, NULL, &args);
 }
 
 /** Sets the point the spark is drawn relative to. */
-void func_ov039_02094e88(OtuSpark* self, OtuPoint* origin) {
+void func_ov039_02094e88(OtosuGame_spark* self, OtuPoint* origin) {
     self->origin = *origin;
 }
 
@@ -138,7 +138,7 @@ void func_ov039_02094e88(OtuSpark* self, OtuPoint* origin) {
  */
 // Nonmatching: 88.9%, scheduling at the top: the target loads both halves of
 // `at` before storing either.
-void func_ov039_02094e9c(OtuSpark* self, OtuPoint* at) {
+void func_ov039_02094e9c(OtosuGame_spark* self, OtuPoint* at) {
     s32 cell;
     s32 airtime;
 

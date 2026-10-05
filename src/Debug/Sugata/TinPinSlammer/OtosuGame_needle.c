@@ -8,17 +8,17 @@
 /* The stage tables the four-word dispatchers copy and index. */
 extern const TaskStages data_ov039_02099568;
 
-extern const TaskHandle      data_ov039_0209955c;
-extern const SpriteAnimation data_ov039_02099578;
+extern const TaskHandle      Tsk_OtosuGame_needle;
+extern const SpriteAnimation OtosuGame_needle_Anim;
 
-SpriteFrameInfo* func_ov039_02091118(Sprite* sprite, s32 arg, s32 mode) {
-    OtuNeedle* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_needle_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_needle* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(4, owner->pos.y, 0));
 }
 
-void func_ov039_020911dc(OtuNeedle* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099578;
+void OtosuGame_needle_Load(OtosuGame_needle* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_needle_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -28,8 +28,8 @@ void func_ov039_020911dc(OtuNeedle* self, Sprite* sprite, OtuPinSpriteArgs* args
 }
 
 /** The stores are in the target's order, not by address. */
-s32 func_ov039_02091268(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
-    OtuNeedle* self = task->data;
+s32 OtosuGame_needle_Init(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
+    OtosuGame_needle* self = task->data;
 
     self->pool            = pool;
     self->visible         = 0;
@@ -46,7 +46,7 @@ s32 func_ov039_02091268(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
     self->affine.unk_0E   = 0;
     self->state           = 0;
 
-    func_ov039_020911dc(self, &self->sprite, args);
+    OtosuGame_needle_Load(self, &self->sprite, args);
     return 1;
 }
 
@@ -56,9 +56,9 @@ s32 func_ov039_02091268(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
  * `holdFrames`, 4 shrinks it back. The cases fall through on the frame a state
  * finishes.
  */
-s32 func_ov039_020912c8(TaskPool* pool, Task* task, void* args) {
-    OtuNeedle* self = task->data;
-    void*      pin;
+s32 OtosuGame_needle_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_needle* self = task->data;
+    void*             pin;
 
     pin = EasyTask_GetTaskData(pool, self->pinId);
 
@@ -140,8 +140,8 @@ s32 func_ov039_020912c8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020914d0(TaskPool* pool, Task* task, void* args) {
-    OtuNeedle* self = task->data;
+s32 OtosuGame_needle_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_needle* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.posX = (s16)((self->pos.x - self->origin.x) >> 12);
@@ -151,9 +151,9 @@ s32 func_ov039_020914d0(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02091524(TaskPool* pool, Task* task, void* args) {
-    OtuNeedle* self = task->data;
-    s32        i;
+s32 OtosuGame_needle_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_needle* self = task->data;
+    s32               i;
 
     Sprite_Release(&self->sprite);
 
@@ -163,33 +163,33 @@ s32 func_ov039_02091524(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02091560(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_needle_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_02099568;
 
     return stages.iter[stage](pool, task, args);
 }
 
 /** Creates the needle and its eight fragment tasks. */
-s32 func_ov039_020915a8(TaskPool* pool, s32 dataType, s32 pinId) {
-    OtuPinSpriteArgs args;
-    s32              handle;
-    OtuNeedle*       self;
-    s32              i;
+s32 OtosuGame_needle_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
+    OtuPinSpriteArgs  args;
+    s32               handle;
+    OtosuGame_needle* self;
+    s32               i;
 
     args.dataType = dataType;
     args.childId  = pinId;
 
-    handle = EasyTask_CreateTask(pool, &data_ov039_0209955c, NULL, 0, NULL, &args);
+    handle = EasyTask_CreateTask(pool, &Tsk_OtosuGame_needle, NULL, 0, NULL, &args);
     self   = EasyTask_GetTaskData(pool, handle);
 
     for (i = 0; i < 8; i++) {
-        self->hahenIds[i] = func_ov039_02097e68(pool, dataType, pinId);
+        self->hahenIds[i] = OtosuGame_needlehahen_CreateTask(pool, dataType, pinId);
     }
     return handle;
 }
 
 /** The needle's tip while it is held, with a fixed scale of 32.0. */
-s32 func_ov039_02091628(OtuNeedle* self, OtuPinRecord* out) {
+s32 func_ov039_02091628(OtosuGame_needle* self, OtuPinRecord* out) {
     s32 y;
     s32 x;
 
@@ -207,26 +207,26 @@ s32 func_ov039_02091628(OtuNeedle* self, OtuPinRecord* out) {
 }
 
 /** Starts the needle: charge for `chargeFrames`, hold for `holdFrames`. */
-void func_ov039_02091654(OtuNeedle* self, s32 chargeFrames, s32 holdFrames) {
+void func_ov039_02091654(OtosuGame_needle* self, s32 chargeFrames, s32 holdFrames) {
     self->chargeFrames = chargeFrames;
     self->holdFrames   = holdFrames;
     self->state        = 1;
 }
 
 /** While held, cuts the hold short to what is left of its first 30 frames. */
-void func_ov039_02091668(OtuNeedle* self) {
+void func_ov039_02091668(OtosuGame_needle* self) {
     if (self->state == 3) {
         self->timer = self->holdTimer;
     }
 }
 
 /** True while the needle is out. */
-s32 func_ov039_0209167c(OtuNeedle* self) {
+s32 func_ov039_0209167c(OtosuGame_needle* self) {
     return self->state != 0;
 }
 
 /** Throws the eight fragments from the needle's tip. */
-void func_ov039_02091690(OtuNeedle* self) {
+void func_ov039_02091690(OtosuGame_needle* self) {
     s32 i;
 
     for (i = 0; i < 8; i++) {

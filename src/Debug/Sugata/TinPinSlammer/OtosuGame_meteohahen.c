@@ -5,19 +5,19 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const SpriteAnimation data_ov039_02099f20;
+extern const SpriteAnimation OtosuGame_meteohahen_Anim;
 
 /* The task's handle. */
-extern const TaskHandle data_ov039_02099f04;
+extern const TaskHandle Tsk_OtosuGame_meteohahen;
 
-SpriteFrameInfo* func_ov039_02096e7c(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* OtosuGame_meteohahen_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     OtuHahen* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(3, owner->pos.y, owner->height));
 }
 
-void func_ov039_02096f40(OtuHahen* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099f20;
+void OtosuGame_meteohahen_Load(OtuHahen* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_meteohahen_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -27,7 +27,7 @@ void func_ov039_02096f40(OtuHahen* self, Sprite* sprite, OtuPinSpriteArgs* args)
 }
 
 /** The stores are in the target's order: the flags, then the pin, then the rest. */
-s32 func_ov039_02096fcc(TaskPool* pool, Task* task, void* args) {
+s32 OtosuGame_meteohahen_Init(TaskPool* pool, Task* task, void* args) {
     OtuHahen*         self = task->data;
     OtuPinSpriteArgs* a    = args;
 
@@ -46,7 +46,7 @@ s32 func_ov039_02096fcc(TaskPool* pool, Task* task, void* args) {
     self->affine.scaleY   = 0x1800;
     self->affine.unk_0C   = 0;
     self->affine.unk_0E   = 0;
-    func_ov039_02096f40(self, &self->sprite, a);
+    OtosuGame_meteohahen_Load(self, &self->sprite, a);
     return 1;
 }
 
@@ -55,7 +55,7 @@ s32 func_ov039_02096fcc(TaskPool* pool, Task* task, void* args) {
  * moves it along `dir` and bounces its height off the ground with damping.
  * The rescale is a rounded 64-bit Q12 multiply; `/ 0x1000` calls __ll_sdiv.
  */
-s32 func_ov039_0209702c(TaskPool* pool, Task* task, void* args) {
+s32 OtosuGame_meteohahen_Update(TaskPool* pool, Task* task, void* args) {
     OtuHahen* self = task->data;
     void*     pin  = EasyTask_GetTaskData(pool, self->pinId);
 
@@ -102,7 +102,7 @@ s32 func_ov039_0209702c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02097160(TaskPool* pool, Task* task, void* args) {
+s32 OtosuGame_meteohahen_Render(TaskPool* pool, Task* task, void* args) {
     OtuHahen* self = task->data;
 
     if (self->visible != 0) {
@@ -114,28 +114,28 @@ s32 func_ov039_02097160(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020971b0(TaskPool* pool, Task* task, void* args) {
+s32 OtosuGame_meteohahen_Destroy(TaskPool* pool, Task* task, void* args) {
     Sprite_Release(&((OtuHahen*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_020971c4(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_meteohahen_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = {
-        .initialize = func_ov039_02096fcc,
-        .update     = func_ov039_0209702c,
-        .render     = func_ov039_02097160,
-        .cleanup    = func_ov039_020971b0,
+        .initialize = OtosuGame_meteohahen_Init,
+        .update     = OtosuGame_meteohahen_Update,
+        .render     = OtosuGame_meteohahen_Render,
+        .cleanup    = OtosuGame_meteohahen_Destroy,
     };
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_0209720c(TaskPool* pool, s32 dataType, s32 pinId) {
+s32 OtosuGame_meteohahen_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = pinId;
-    return EasyTask_CreateTask(pool, &data_ov039_02099f04, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_meteohahen, NULL, 0, NULL, &args);
 }
 
 /**

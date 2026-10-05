@@ -5,7 +5,7 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle    data_ov039_020995ec;
+extern const TaskHandle    Tsk_OtosuGame_floor;
 extern const TaskStages    data_ov039_02099610;
 extern s32                 data_ov039_02099620[];
 extern s32                 data_ov039_02099630[];
@@ -43,23 +43,23 @@ void func_ov039_02091b40(u16 start, u16* map) {
  * stack slot the target does not have.
  */
 // Nonmatching: 88.3%, register naming and two extra stack words.
-s32 func_ov039_02091b98(TaskPool* pool, Task* task, OtuBoardArgs* args) {
-    OtuFloor* self = task->data;
-    Data*     data;
-    Data*     data2;
-    u8*       pal;
-    u8*       chr;
-    u8*       scr;
-    Heap*     heap;
-    s32       row;
-    s32       row2;
-    s32       cellsWide;
-    s32       cellsHigh;
-    s32       i;
-    s32       j;
-    s32       run;
-    u8        wide;
-    s32       col;
+s32 OtosuGame_floor_Init(TaskPool* pool, Task* task, OtuBoardArgs* args) {
+    OtosuGame_floor* self = task->data;
+    Data*            data;
+    Data*            data2;
+    u8*              pal;
+    u8*              chr;
+    u8*              scr;
+    Heap*            heap;
+    s32              row;
+    s32              row2;
+    s32              cellsWide;
+    s32              cellsHigh;
+    s32              i;
+    s32              j;
+    s32              run;
+    u8               wide;
+    s32              col;
 
     self->loaded   = 1;
     self->dataType = args->dataType;
@@ -241,8 +241,8 @@ s32 func_ov039_02091b98(TaskPool* pool, Task* task, OtuBoardArgs* args) {
 }
 
 /** Steps the five animated palettes. Unrolled, as the target has it. */
-s32 func_ov039_02092154(TaskPool* pool, Task* task, void* args) {
-    OtuFloor* self = task->data;
+s32 OtosuGame_floor_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_floor* self = task->data;
 
     PaletteMgr_SetSource(g_PaletteManagers[0], self->animPalettes[0].palette,
                          (void*)func_ov039_02098dbc(&self->animPalettes[0].anim));
@@ -258,12 +258,12 @@ s32 func_ov039_02092154(TaskPool* pool, Task* task, void* args) {
 }
 
 /** The floor's render stage: the BG draws itself. */
-s32 func_ov039_020921f4(void) {
+s32 OtosuGame_floor_Render(void) {
     return 1;
 }
 
-s32 func_ov039_020921fc(TaskPool* pool, Task* task, void* args) {
-    OtuFloor* self = task->data;
+s32 OtosuGame_floor_Destroy(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_floor* self = task->data;
 
     func_0200d954(0, 1);
 
@@ -285,19 +285,19 @@ s32 func_ov039_020921fc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020922c8(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_floor_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov039_02099610;
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02092310(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout) {
+s32 OtosuGame_floor_CreateTask(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout) {
     OtuBoardArgs args;
 
     args.dataType = dataType;
     args.heap     = heap;
     args.layout   = layout;
-    return EasyTask_CreateTask(pool, &data_ov039_020995ec, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_floor, NULL, 0, NULL, &args);
 }
 
 /**
@@ -306,7 +306,7 @@ s32 func_ov039_02092310(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout
  */
 // Nonmatching: 98.5%, one register swap between the engine index and the
 // engine-state pointer; ten source shapes were tried.
-void func_ov039_02092348(OtuFloor* self, s32 x, s32 y) {
+void func_ov039_02092348(OtosuGame_floor* self, s32 x, s32 y) {
     s32                 a     = self->bg.display;
     s32                 b     = self->bg.layer;
     DisplayEngineState* group = g_DisplaySettings.engineState + a;
@@ -328,7 +328,7 @@ void func_ov039_02092348(OtuFloor* self, s32 x, s32 y) {
 }
 
 /** Marks the floor's BG map dirty when `event` is set. */
-void func_ov039_020923b4(OtuFloor* self, s32 event) {
+void func_ov039_020923b4(OtosuGame_floor* self, s32 event) {
     if (event != 0) {
         self->bg.flags |= 2;
     }

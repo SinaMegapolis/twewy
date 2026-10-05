@@ -5,25 +5,25 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern TaskHandle       data_ov039_02099cf4;
+extern TaskHandle       Tsk_OtosuGame_track;
 extern const TaskStages data_ov039_02099d00;
-extern SpriteAnimation  data_ov039_02099d10;
+extern SpriteAnimation  OtosuGame_track_Anim;
 
 /** The track task's creation block: it keeps the pool to find its pin. */
 typedef struct {
     s32       dataType;
     TaskPool* pool;
     s32       pinId;
-} OtuTaskArgs3;
+} OtosuGame_track_Args;
 
-SpriteFrameInfo* func_ov039_0209549c(Sprite* sprite, s32 arg, s32 mode) {
-    OtuTrackTask* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_track_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_track* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(4, owner->pos.y, 0));
 }
 
-void func_ov039_02095558(OtuTrackTask* self, Sprite* sprite, OtuTaskArgs3* args) {
-    SpriteAnimation anim = data_ov039_02099d10;
+void OtosuGame_track_Load(OtosuGame_track* self, Sprite* sprite, OtosuGame_track_Args* args) {
+    SpriteAnimation anim = OtosuGame_track_Anim;
 
     anim.owner    = self;
     anim.dataType = args->dataType;
@@ -33,9 +33,9 @@ void func_ov039_02095558(OtuTrackTask* self, Sprite* sprite, OtuTaskArgs3* args)
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_020955f4(TaskPool* pool, Task* task, void* args) {
-    OtuTrackTask* self = task->data;
-    OtuTaskArgs3* a    = args;
+s32 OtosuGame_track_Init(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_track*      self = task->data;
+    OtosuGame_track_Args* a    = args;
 
     self->pool     = a->pool;
     self->pinId    = a->pinId;
@@ -46,20 +46,20 @@ s32 func_ov039_020955f4(TaskPool* pool, Task* task, void* args) {
     self->pos.x    = 0;
     self->pos.y    = 0;
 
-    func_ov039_02095558(self, &self->sprite, a);
+    OtosuGame_track_Load(self, &self->sprite, a);
     return 1;
 }
 
 /** Drifts the mark by `vel` until its animation ends. */
-s32 func_ov039_02095638(TaskPool* pool, Task* task, void* args) {
-    OtuTrackTask* self = task->data;
+s32 OtosuGame_track_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_track* self = task->data;
 
     if (self->active != 0) {
         if (SpriteMgr_IsAnimationFinished(&self->sprite)) {
             self->active  = 0;
             self->visible = 0;
         } else {
-            OtuBadge* pin = EasyTask_GetTaskData(self->pool, self->pinId);
+            OtosuGame_badge* pin = EasyTask_GetTaskData(self->pool, self->pinId);
 
             func_ov039_0208e85c(pin, &self->origin);
             func_ov039_02098b8c(&self->pos, &self->vel, &self->pos);
@@ -70,8 +70,8 @@ s32 func_ov039_02095638(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020956a4(TaskPool* pool, Task* task, void* args) {
-    OtuTrackTask* self = task->data;
+s32 OtosuGame_track_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_track* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.posX = (self->pos.x - self->origin.x) >> 12;
@@ -81,24 +81,24 @@ s32 func_ov039_020956a4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020956f0(TaskPool* pool, Task* task, void* args) {
-    Sprite_Release(&((OtuTrackTask*)task->data)->sprite);
+s32 OtosuGame_track_Destroy(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtosuGame_track*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_02095708(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_track_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = data_ov039_02099d00;
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_02095750(TaskPool* pool, s32 dataType, s32 pin) {
-    OtuTaskArgs3 args;
+s32 OtosuGame_track_CreateTask(TaskPool* pool, s32 dataType, s32 pin) {
+    OtosuGame_track_Args args;
 
     args.dataType = dataType;
     args.pool     = pool;
     args.pinId    = pin;
 
-    return EasyTask_CreateTask(pool, &data_ov039_02099cf4, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_track, NULL, 0, NULL, &args);
 }
 
 /**
@@ -109,7 +109,7 @@ s32 func_ov039_02095750(TaskPool* pool, s32 dataType, s32 pin) {
  * The 64-bit `>> 12` is load-bearing: `/ 0x1000` calls `_ll_sdiv`.
  */
 // Nonmatching: scratch-register choice in the index arithmetic only.
-void func_ov039_02095788(OtuTrackTask* self, OtuPoint* at, s32 angle, s32 dir, s32 len) {
+void func_ov039_02095788(OtosuGame_track* self, OtuPoint* at, s32 angle, s32 dir, s32 len) {
     s32 index;
     s16 scaleX;
     s16 scaleY;

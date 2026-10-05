@@ -10,12 +10,12 @@
 
 /** A candidate: its distance score (func_ov039_02098ca8) and the badge. */
 typedef struct {
-    s32       score;
-    OtuBadge* task;
+    s32              score;
+    OtosuGame_badge* task;
 } OtuPick; // Size: 0x8
 
 /** The nearest stunned badge. */
-OtuBadge* func_ov039_02087f4c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
+OtosuGame_badge* func_ov039_02087f4c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuPick        picks[3];
     OtuPoint       selfPos;
@@ -24,17 +24,17 @@ OtuBadge* func_ov039_02087f4c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
     s32            best;
     s32            i;
 
-    func_ov039_0208e6e0((OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
+    func_ov039_0208e6e0((OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
 
     found = 0;
     for (i = 0; i < stage->badgeCount; i++) {
-        OtuBadge* cand;
+        OtosuGame_badge* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
+        cand = (OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
 
         if (!func_ov039_0208ee84(cand)) {
             continue;
@@ -67,7 +67,7 @@ OtuBadge* func_ov039_02087f4c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
 }
 
 /** The nearest badge in phase 6. */
-OtuBadge* func_ov039_02088064(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
+OtosuGame_badge* func_ov039_02088064(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuPick        picks[3];
     OtuPoint       selfPos;
@@ -76,17 +76,17 @@ OtuBadge* func_ov039_02088064(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
     s32            best;
     s32            i;
 
-    func_ov039_0208e6e0((OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
+    func_ov039_0208e6e0((OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
 
     found = 0;
     for (i = 0; i < stage->badgeCount; i++) {
-        OtuBadge* cand;
+        OtosuGame_badge* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
+        cand = (OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
 
         if (!func_ov039_0208e9d0(cand)) {
             continue;
@@ -119,7 +119,7 @@ OtuBadge* func_ov039_02088064(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
 }
 
 /** The nearest badge in phase 7. */
-OtuBadge* func_ov039_0208817c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
+OtosuGame_badge* func_ov039_0208817c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuPick        picks[3];
     OtuPoint       selfPos;
@@ -128,17 +128,17 @@ OtuBadge* func_ov039_0208817c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
     s32            best;
     s32            i;
 
-    func_ov039_0208e6e0((OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
+    func_ov039_0208e6e0((OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
 
     found = 0;
     for (i = 0; i < stage->badgeCount; i++) {
-        OtuBadge* cand;
+        OtosuGame_badge* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
+        cand = (OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
 
         if (!func_ov039_0208e998(cand)) {
             continue;
@@ -171,7 +171,7 @@ OtuBadge* func_ov039_0208817c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
 }
 
 /** The nearest badge in phase 8. */
-OtuBadge* func_ov039_02088294(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
+OtosuGame_badge* func_ov039_02088294(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuPick        picks[3];
     OtuPoint       selfPos;
@@ -180,17 +180,17 @@ OtuBadge* func_ov039_02088294(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
     s32            best;
     s32            i;
 
-    func_ov039_0208e6e0((OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
+    func_ov039_0208e6e0((OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
 
     found = 0;
     for (i = 0; i < stage->badgeCount; i++) {
-        OtuBadge* cand;
+        OtosuGame_badge* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
+        cand = (OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
 
         if (!func_ov039_0208e984(cand)) {
             continue;
@@ -226,7 +226,7 @@ OtuBadge* func_ov039_02088294(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
  * The nearest badge on the board, holding a pin, that func_ov039_0208ef4c
  * accepts for 0x444.
  */
-OtuBadge* func_ov039_02087e2c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
+OtosuGame_badge* func_ov039_02087e2c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 which) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
     OtuPoint       selfPos;
     OtuPoint       candPos;
@@ -235,17 +235,17 @@ OtuBadge* func_ov039_02087e2c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 wh
     s32            best;
     s32            i;
 
-    func_ov039_0208e6e0((OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
+    func_ov039_0208e6e0((OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[which]), &selfPos);
 
     found = 0;
     for (i = 0; i < stage->badgeCount; i++) {
-        OtuBadge* cand;
+        OtosuGame_badge* cand;
 
         if (i == which) {
             continue;
         }
 
-        cand = (OtuBadge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
+        cand = (OtosuGame_badge*)EasyTask_GetTaskData(pool, stage->badgeIds[i]);
 
         if (!func_ov039_0208efb0(cand, 0x444)) {
             continue;

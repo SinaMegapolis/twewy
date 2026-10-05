@@ -6,11 +6,11 @@
 #include "OtuFieldAccessShared.h"
 
 /* The task's sprite template and handle. */
-extern const SpriteAnimation data_ov039_02099f68;
-extern const TaskHandle      data_ov039_02099f4c;
+extern const SpriteAnimation OtosuGame_smoke_Anim;
+extern const TaskHandle      Tsk_OtosuGame_smoke;
 
-SpriteFrameInfo* func_ov039_02097398(Sprite* sprite, s32 arg, s32 mode) {
-    OtuSmoke* owner = sprite->owner;
+SpriteFrameInfo* OtosuGame_smoke_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+    OtosuGame_smoke* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(4, owner->pos.y, owner->height));
 }
@@ -19,8 +19,8 @@ SpriteFrameInfo* func_ov039_02097398(Sprite* sprite, s32 arg, s32 mode) {
  * Loads the smoke sprite. `dataType` is read as a word and narrowed: the target
  * masks it with `lsl #0x10; lsr #0x10` before folding it into the template.
  */
-void func_ov039_02097454(OtuSmoke* self, Sprite* sprite, OtuPinSpriteArgs* args) {
-    SpriteAnimation anim = data_ov039_02099f68;
+void OtosuGame_smoke_Load(OtosuGame_smoke* self, Sprite* sprite, OtuPinSpriteArgs* args) {
+    SpriteAnimation anim = OtosuGame_smoke_Anim;
 
     anim.owner    = self;
     anim.dataType = (u16)args->dataType;
@@ -29,8 +29,8 @@ void func_ov039_02097454(OtuSmoke* self, Sprite* sprite, OtuPinSpriteArgs* args)
     _Sprite_Load(sprite, &anim);
 }
 
-s32 func_ov039_020974e0(TaskPool* pool, Task* task, void* args) {
-    OtuSmoke*         self = task->data;
+s32 OtosuGame_smoke_Init(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_smoke*  self = task->data;
     OtuPinSpriteArgs* a    = args;
 
     self->visible  = 0;
@@ -43,7 +43,7 @@ s32 func_ov039_020974e0(TaskPool* pool, Task* task, void* args) {
     self->height   = 0;
     self->dir.x    = 0;
     self->dir.y    = 0;
-    func_ov039_02097454(self, &self->sprite, a);
+    OtosuGame_smoke_Load(self, &self->sprite, a);
 
     return 1;
 }
@@ -52,9 +52,9 @@ s32 func_ov039_020974e0(TaskPool* pool, Task* task, void* args) {
  * Drifts the puff along `dir` while its speed decays, and runs the intro / hold
  * / outro animation states. `== TRUE` keeps the target's `cmp #1` on the bit.
  */
-s32 func_ov039_02097528(TaskPool* pool, Task* task, void* args) {
-    OtuSmoke* self = task->data;
-    void*     pin  = EasyTask_GetTaskData(pool, self->pinId);
+s32 OtosuGame_smoke_Update(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_smoke* self = task->data;
+    void*            pin  = EasyTask_GetTaskData(pool, self->pinId);
 
     if (pin != NULL) {
         if (self->state != 0) {
@@ -114,8 +114,8 @@ s32 func_ov039_02097528(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_02097670(TaskPool* pool, Task* task, void* args) {
-    OtuSmoke* self = task->data;
+s32 OtosuGame_smoke_Render(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_smoke* self = task->data;
 
     if (self->visible != 0) {
         self->sprite.posX = (s16)((self->pos.x - self->origin.x) >> 0xC);
@@ -126,28 +126,28 @@ s32 func_ov039_02097670(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov039_020976c0(TaskPool* pool, Task* task, void* args) {
-    Sprite_Release(&((OtuSmoke*)task->data)->sprite);
+s32 OtosuGame_smoke_Destroy(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtosuGame_smoke*)task->data)->sprite);
     return 1;
 }
 
-s32 func_ov039_020976d4(TaskPool* pool, Task* task, void* args, s32 stage) {
+s32 OtosuGame_smoke_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = {
-        .initialize = func_ov039_020974e0,
-        .update     = func_ov039_02097528,
-        .render     = func_ov039_02097670,
-        .cleanup    = func_ov039_020976c0,
+        .initialize = OtosuGame_smoke_Init,
+        .update     = OtosuGame_smoke_Update,
+        .render     = OtosuGame_smoke_Render,
+        .cleanup    = OtosuGame_smoke_Destroy,
     };
 
     return stages.iter[stage](pool, task, args);
 }
 
-s32 func_ov039_0209771c(TaskPool* pool, s32 dataType, s32 pinId) {
+s32 OtosuGame_smoke_CreateTask(TaskPool* pool, s32 dataType, s32 pinId) {
     OtuPinSpriteArgs args;
 
     args.dataType = dataType;
     args.childId  = pinId;
-    return EasyTask_CreateTask(pool, &data_ov039_02099f4c, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_OtosuGame_smoke, NULL, 0, NULL, &args);
 }
 
 /**
@@ -156,7 +156,7 @@ s32 func_ov039_0209771c(TaskPool* pool, s32 dataType, s32 pinId) {
  */
 // Nonmatching: 46.3%, the scheduler interleaves the stores and the two table
 // loads differently; every field, constant and argument position is settled.
-void func_ov039_02097750(OtuSmoke* self, OtuPoint* at, s32 angle, s32 speed, s32 decel, s32 hold) {
+void func_ov039_02097750(OtosuGame_smoke* self, OtuPoint* at, s32 angle, s32 speed, s32 decel, s32 hold) {
     s32 index = angle >> 4;
 
     self->pos.x  = at->x;
