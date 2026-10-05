@@ -358,7 +358,7 @@ extern s32 data_ov039_0209a3a0;
 extern s32 data_ov039_0209a3a4;
 extern s32 data_ov039_0209a3a8;
 
-/* Steps a Q12.12 value by one decimal place of its `d.ddd` form (OtuText.c). */
+/* Steps a Q12.12 value by one decimal place of its `d.ddd` form (OtuEditor.c). */
 void func_ov039_02083af4(s32* value, s32 direction, s32 place);
 
 /* Formats a Q12.12 value as `d.ddd` into a six-byte group. */
@@ -434,7 +434,7 @@ typedef struct {
     /* 0x38 */ s32           pinId;     // the pin page 3 edits
 } OtuEditor;                            // Size: 0x3C
 
-/* The editor stage (OtuCountdown.c). */
+/* The editor stage (OtuEditor.c). */
 void func_ov039_02086060(TinPinSlammer_Scene* scene, s32 slot);
 void func_ov039_02086174(TinPinSlammer_Scene* scene);
 void func_ov039_02086808(TinPinSlammer_Scene* scene);
@@ -505,7 +505,7 @@ SpriteFrameInfo* func_ov039_020977d0(Sprite* sprite, s32 arg, s32 mode);
 SpriteFrameInfo* func_ov039_02097ae0(Sprite* sprite, s32 arg, s32 mode);
 SpriteFrameInfo* func_ov039_02097ff4(Sprite* sprite, s32 arg, s32 mode);
 
-/* The stage sequencer (OtuHammerSpawn.c). */
+/* The stage sequencer (OtuStageDispatch.c). */
 void* func_ov039_02098b70(OtuStageDispatch* dispatch);
 
 void                 func_ov039_02098a60(OtuStageDispatch* dispatch, void* scene);

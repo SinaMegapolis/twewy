@@ -464,7 +464,7 @@ void func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at) {
  * expression, which is what the target's two `bne`/`beq` pairs are.
  *
  * The effect id is 0x33D when either pin is alive and 0x32F when neither is --
- * the same pair of constants OtuMeters's hammer uses for its states.
+ * the same pair of constants the hammer task uses for its states.
  */
 void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuBadge* a, OtuBadge* b) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -769,9 +769,8 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
         return;
     }
 
-    // Still in play. Only re-point the animated palette once the palette task
-    // says its first pass is done -- the note in OtuCounters records that this
-    // routine refuses to re-point twice.
+    // Still in play. On the frame the timer's last-twenty-seconds alarm fires,
+    // switch the overlay background's palette too.
     notYet = func_ov039_0209420c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->timerId));
 
     if (notYet != 0) {

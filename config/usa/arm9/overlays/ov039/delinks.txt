@@ -16,19 +16,16 @@ src/Debug/Sugata/TinPinSlammer/OtuGxInit.c:
 src/Debug/Sugata/TinPinSlammer/OtuVBlank.c:
     .text       start:0x02083750 end:0x02083974
 
-src/Debug/Sugata/TinPinSlammer/OtuText.c:
-    .text       start:0x02083974 end:0x02084020
+src/Debug/Sugata/TinPinSlammer/OtuEditor.c:
+    .text       start:0x02083974 end:0x02087ac4
 
 src/Debug/Sugata/TinPinSlammer/OtuMenuText.c:
     .rodata     start:0x02098e30 end:0x02098f3c
     .data       start:0x0209a140 end:0x0209a49c
     .bss       start:0x0209ad00 end:0x0209ad08
 
-src/Debug/Sugata/TinPinSlammer/OtuScoreRow.c:
-    .text       start:0x02084020 end:0x02086060
-
-src/Debug/Sugata/TinPinSlammer/OtuCountdown.c:
-    .text       start:0x02086060 end:0x02087e2c
+src/Debug/Sugata/TinPinSlammer/OtuWirelessStage.c:
+    .text       start:0x02087ac4 end:0x02087e2c
 
 src/Debug/Sugata/TinPinSlammer/OtuTaskPick.c:
     .text       start:0x02087e2c end:0x020883ac
@@ -42,44 +39,98 @@ src/Debug/Sugata/TinPinSlammer/OtuBoard.c:
 src/Debug/Sugata/TinPinSlammer/OtuPinLogic.c:
     .text       start:0x02089950 end:0x0208acc0
 
-src/Debug/Sugata/TinPinSlammer/OtuBadgeState.c:
-    .text       start:0x0208acc0 end:0x0208c4ec
+src/Debug/Sugata/TinPinSlammer/OtosuGame_badge.c:
+    .text       start:0x0208acc0 end:0x0208f134
 
-src/Debug/Sugata/TinPinSlammer/OtuBadgeAi.c:
-    .text       start:0x0208c4ec end:0x0208d3bc
+src/Debug/Sugata/TinPinSlammer/OtosuGame_shadow.c:
+    .text       start:0x0208f134 end:0x0208f440
 
-src/Debug/Sugata/TinPinSlammer/OtuPinTray.c:
-    .text       start:0x0208d3bc end:0x0208e890
+src/Debug/Sugata/TinPinSlammer/OtosuGame_piyo.c:
+    .text       start:0x0208f440 end:0x0208f7b4
 
-src/Debug/Sugata/TinPinSlammer/OtuPinAccessors.c:
-    .text       start:0x0208e890 end:0x0208f00c
+src/Debug/Sugata/TinPinSlammer/OtosuGame_marker.c:
+    .text       start:0x0208f7b4 end:0x0208fa90
 
-src/Debug/Sugata/TinPinSlammer/OtuPinSprites.c:
-    .text       start:0x0208f00c end:0x0209003c
+src/Debug/Sugata/TinPinSlammer/OtosuGame_meteo.c:
+    .text       start:0x0208fa90 end:0x0208ffac
 
-src/Debug/Sugata/TinPinSlammer/OtuMeters.c:
-    .text       start:0x0209003c end:0x02092484
+src/Debug/Sugata/TinPinSlammer/OtosuGame_hammer.c:
+    .text       start:0x0208ffac end:0x02091118
 
-src/Debug/Sugata/TinPinSlammer/OtuObstacles.c:
-    .text       start:0x02092484 end:0x020933c0
+src/Debug/Sugata/TinPinSlammer/OtosuGame_needle.c:
+    .text       start:0x02091118 end:0x020916c4
 
-src/Debug/Sugata/TinPinSlammer/OtuCounters.c:
-    .text       start:0x020933c0 end:0x02094214
+src/Debug/Sugata/TinPinSlammer/OtosuGame_hand.c:
+    .text       start:0x020916c4 end:0x02091b40
 
-src/Debug/Sugata/TinPinSlammer/OtuGauge.c:
-    .text       start:0x02094214 end:0x020950b8
+src/Debug/Sugata/TinPinSlammer/OtosuGame_floor.c:
+    .text       start:0x02091b40 end:0x020923c8
 
-src/Debug/Sugata/TinPinSlammer/OtuEntryTasks.c:
-    .text       start:0x020950b8 end:0x020960bc
+src/Debug/Sugata/TinPinSlammer/OtosuGame_obstacle.c:
+    .text       start:0x020923c8 end:0x0209276c
 
-src/Debug/Sugata/TinPinSlammer/OtuTaskStages.c:
-    .text       start:0x020960bc end:0x0209702c
+src/Debug/Sugata/TinPinSlammer/OtosuGame_bg.c:
+    .text       start:0x0209276c end:0x02092e30
 
-src/Debug/Sugata/TinPinSlammer/OtuSpriteTasks.c:
-    .text       start:0x0209702c end:0x02098394
+src/Debug/Sugata/TinPinSlammer/OtosuGame_ovbg.c:
+    .text       start:0x02092e30 end:0x0209352c
 
-src/Debug/Sugata/TinPinSlammer/OtuHammerSpawn.c:
-    .text       start:0x02098394 end:0x02098bb0
+src/Debug/Sugata/TinPinSlammer/OtosuGame_badgeradar.c:
+    .text       start:0x0209352c end:0x02093884
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_badgecount.c:
+    .text       start:0x02093884 end:0x02093e3c
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_timer.c:
+    .text       start:0x02093e3c end:0x02094214
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_specialgauge.c:
+    .text       start:0x02094214 end:0x02094ae8
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_spark.c:
+    .text       start:0x02094ae8 end:0x02094ff4
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_slash.c:
+    .text       start:0x02094ff4 end:0x0209549c
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_track.c:
+    .text       start:0x0209549c end:0x020958a8
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_point.c:
+    .text       start:0x020958a8 end:0x02095dec
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_entry.c:
+    .text       start:0x02095dec end:0x02096280
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_dead.c:
+    .text       start:0x02096280 end:0x0209659c
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_gameover.c:
+    .text       start:0x0209659c end:0x02096c58
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_wricon.c:
+    .text       start:0x02096c58 end:0x02096e7c
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_meteohahen.c:
+    .text       start:0x02096e7c end:0x02097398
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_smoke.c:
+    .text       start:0x02097398 end:0x020977d0
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_warp.c:
+    .text       start:0x020977d0 end:0x02097ae0
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_needlehahen.c:
+    .text       start:0x02097ae0 end:0x02097ff4
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_hammerhahen.c:
+    .text       start:0x02097ff4 end:0x02098538
+
+src/Debug/Sugata/TinPinSlammer/OtosuGame_wrwait.c:
+    .text       start:0x02098538 end:0x02098a20
+
+src/Debug/Sugata/TinPinSlammer/OtuStageDispatch.c:
+    .text       start:0x02098a20 end:0x02098bb0
 
 src/Debug/Sugata/TinPinSlammer/OtuVecOps.c:
     .text       start:0x02098bb0 end:0x02098e24
