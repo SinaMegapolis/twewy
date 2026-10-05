@@ -5,6 +5,22 @@
 
 #include "OtuFieldAccessShared.h"
 
+typedef struct {
+    s32 dataType;
+    s32 pinId;
+    s32 index;
+    s32 hasSpriteA;
+} OtuBadgeCountArgs;
+
+extern const SpriteAnimation data_ov039_02099acc;
+extern const SpriteAnimation data_ov039_02099af8;
+extern const SpriteAnimation data_ov039_02099b24;
+
+/** Four `s16` offsets: the x positions of the counter task's digit sprites. */
+extern const u16        data_ov039_02099aa8[4];
+extern const TaskStages data_ov039_02099abc;
+extern const TaskHandle data_ov039_02099ab0;
+
 SpriteFrameInfo* func_ov039_02093884(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }

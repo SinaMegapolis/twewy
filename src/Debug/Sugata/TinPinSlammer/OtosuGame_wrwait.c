@@ -5,6 +5,27 @@
 
 #include "OtuFieldAccessShared.h"
 
+/** "Tsk_OtosuGame_wrwait": the wireless "please wait" screen, a BG on both displays. */
+typedef struct {
+    /* 0x00 */ s32    dataType;
+    /* 0x04 */ Sprite sprite;
+    /* 0x44 */ s32    visible;
+    /* 0x48 */ Data*  data;
+    /* 0x4C */ struct {
+        PaletteResource* palette;
+        BgResource*      chars;
+        BgResource*      screen;
+    } bg[2]; // one per display
+} OtuWrwait; // Size: 0x64
+
+/* The task's handle, stage table and sprite template. */
+extern const TaskHandle      data_ov039_0209a06c;
+extern const TaskStages      data_ov039_0209a078;
+extern const SpriteAnimation data_ov039_0209a088;
+
+/** The 0x27-sized bin the loader pulls, plus its three sub-objects. */
+extern const BinIdentifier data_ov039_0209a0e4;
+
 SpriteFrameInfo* func_ov039_02098538(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }

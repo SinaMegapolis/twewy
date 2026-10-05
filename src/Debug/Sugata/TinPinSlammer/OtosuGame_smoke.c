@@ -5,12 +5,20 @@
 
 #include "OtuFieldAccessShared.h"
 
+/* The task's sprite template and handle. */
+extern const SpriteAnimation data_ov039_02099f68;
+extern const TaskHandle      data_ov039_02099f4c;
+
 SpriteFrameInfo* func_ov039_02097398(Sprite* sprite, s32 arg, s32 mode) {
     OtuSmoke* owner = sprite->owner;
 
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(4, owner->pos.y, owner->height));
 }
 
+/**
+ * Loads the smoke sprite. `dataType` is read as a word and narrowed: the target
+ * masks it with `lsl #0x10; lsr #0x10` before folding it into the template.
+ */
 void func_ov039_02097454(OtuSmoke* self, Sprite* sprite, OtuPinSpriteArgs* args) {
     SpriteAnimation anim = data_ov039_02099f68;
 

@@ -5,6 +5,19 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const SpriteAnimation data_ov039_020993b8;
+extern const TaskHandle      data_ov039_0209939c;
+extern const TaskStages      data_ov039_020993a8;
+
+/** "Tsk_OtosuGame_marker": a sprite whose animation is chosen by the pin. */
+typedef struct {
+    /* 0x00 */ Sprite   sprite;
+    /* 0x40 */ OtuPoint origin;
+    /* 0x48 */ OtuPoint pos;
+    /* 0x50 */ s32      pinId;
+    /* 0x54 */ s32      frame; // func_ov039_0208e950's answer; 0 hides the marker
+} OtuMarker;                   // Size: 0x58
+
 /** Sorted one row below the pin, without the packer call. */
 SpriteFrameInfo* func_ov039_0208f7b4(Sprite* sprite, s32 arg, s32 mode) {
     OtuMarker* owner = sprite->owner;

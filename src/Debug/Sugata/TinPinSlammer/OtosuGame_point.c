@@ -5,6 +5,13 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern TaskHandle       data_ov039_02099d44;
+extern const TaskStages data_ov039_02099d50;
+extern SpriteAnimation  data_ov039_02099d60;
+
+/* Four `s16` values, 12, 11, 1, 1 -- one per sprite of the point task. */
+extern const s16 data_ov039_02099d3c[4];
+
 SpriteFrameInfo* func_ov039_020958a8(Sprite* sprite, s32 arg, s32 mode) {
     OtuPointTask* owner = sprite->owner;
 
@@ -160,7 +167,7 @@ void func_ov039_02095cd4(OtuPointTask* self, s32 count) {
     self->count = count;
 
     // Both digits are narrowed before use; routing the first through `last`
-    // is what the register allocation needs (found by the permuter).
+    // is what the register allocation needs.
     last  = (count % 10) + 1;
     first = (s16)last;
     Sprite_ChangeAnimation(&self->sprite[2], self->sprite[2].animData, first, self->sprite[2].cellTable);

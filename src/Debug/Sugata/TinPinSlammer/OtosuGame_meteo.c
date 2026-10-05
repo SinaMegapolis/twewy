@@ -5,6 +5,13 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const SpriteAnimation data_ov039_02099400;
+extern const TaskHandle      data_ov039_020993e4;
+extern const TaskStages      data_ov039_020993f0;
+
+/* The meteo's wind-up scale keyframes. */
+extern const OtuScaleKey data_ov039_0209a54c[3];
+
 SpriteFrameInfo* func_ov039_0208fa90(Sprite* sprite, s32 arg, s32 mode) {
     OtuMeteo* owner = sprite->owner;
 

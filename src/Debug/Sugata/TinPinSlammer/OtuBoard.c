@@ -1,10 +1,33 @@
+/**
+ * @file OtuBoard.c
+ * @brief The single-player board stage: the round's setup, per-frame physics and
+ *        outcome, the wireless scan callback, and the stages' enter and exit.
+ */
+
 #include "OtuFieldAccessShared.h"
 
-/*
- * ov039 region 0x02088698 - 0x02089950. One translation unit of the
- * overlay; dsd gives each file a single contiguous `.text` claim. The
- * shared types, externs and prototypes are in OtuFieldAccessShared.h.
- */
+/* The overlay's own bin identifier for this stage's data, and the eight 10-entry
+ * tables that go with it. Still gap-filled from the ROM. */
+extern const BinIdentifier data_ov039_0209a114;
+
+/* Offsets and sizes of the inline parameter block at stage+0x150. */
+extern const s32 data_ov039_020990fc[10];
+extern const s32 data_ov039_02099124[10];
+
+/* Size and bin offset of each of the three heap buffers. */
+extern const s32 data_ov039_0209914c[10];
+extern const s32 data_ov039_02099174[10];
+extern const s32 data_ov039_0209919c[10];
+extern const s32 data_ov039_020991c4[10];
+extern const s32 data_ov039_020991ec[10];
+extern const s32 data_ov039_02099214[10];
+
+/* Score-row seeds, indexed by the same stage index as the tables above. */
+extern const s32 data_ov039_0209a360[10]; // Size: 0x34
+
+/** ov040's packet hand-off. */
+void func_ov040_0209cb98(WMBssDesc* parent, s32 which);
+
 /* ============================================================================
  * 0x02088698 -- the wireless scan callback.
  * ==========================================================================*/
@@ -58,8 +81,6 @@ void func_ov039_02088698(WMBssDesc* bss, TinPinSlammer_Scene* scene) {
  *
  * Two frame locals, both OtuPoints, at sp+0x10/sp+0x08 and sp+0x00/sp+0x04 --
  * declared in that order so the reverse-declaration rule puts them there.
- * (m2c declares `s32 sp0; s32 sp8;` and then references an undeclared `spC`,
- * because it did not notice these are two OtuPoints.)
  */
 void func_ov039_0208871c(TinPinSlammer_Scene* scene) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -118,9 +139,8 @@ void func_ov039_0208871c(TinPinSlammer_Scene* scene) {
  * 0x11584) and it is *re-read from memory* at each call rather than kept in a
  * register -- the target holds `scene + 0x11000` in a callee-saved register and
  * loads `[rX, #0x584]` afresh, which is what stops a local from reproducing it.
- * (m2c hoists it, and also spells the heap as `arg0 + 0x1158C` in one folded
- * offset; the target splits it `+ 0x18C` then `+ 0x11400`, which is why
- * OTU_BOARD_HEAP exists.)
+ * The target adds the heap's offset as `+ 0x18C` then `+ 0x11400`, which is why
+ * OTU_BOARD_HEAP exists.
  *
  * Six of the seven factories take the block's parameter block by address; only
  * 020941d0 takes a word instead, and 02095468/02094ab4 take a pin handle.
@@ -172,9 +192,7 @@ void func_ov039_020888e0(TinPinSlammer_Scene* scene) {
  * The tenth argument is that base and the ninth is the "first child" flag; both
  * are computed from the same `i == 0` test the target makes three times, once
  * per predicate, which is why they are spelled as separate comparisons rather
- * than one hoisted flag. (m2c has the ninth and tenth arguments the wrong way
- * round, drops the +0x18C on the heap, and passes `arg0 + 0x44974` without the
- * `groupCount * 0x22`.)
+ * than one hoisted flag.
  */
 void func_ov039_02088a8c(TinPinSlammer_Scene* scene) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -235,8 +253,7 @@ void func_ov039_02088b80(TinPinSlammer_Scene* scene) {
  * because the target emits `cmp / moveq / streq / beq` -- a predicated store of
  * NULL, not a branch around the assignment.
  *
- * (m2c gets the guard the right way round but then types `effectCount` as a plain
- * field read; the target is `ldrb [r4, #0x154]`, so the source is a `u8`.)
+ * `effectCount` is a `u8`: the target reads it with `ldrb [r4, #0x154]`.
  *
  * Ends by publishing the effect count, zeroing the helper cursor, reseeding the
  * RNG and turning three display layers back on.
@@ -303,8 +320,7 @@ void func_ov039_02088c50(TinPinSlammer_Scene* scene) {
  * (0x4404C + slot * 0xE). The destination, 0x4408A + menuIndex * 0x34 +
  * slot * 0x10, is the header's OTU_SCORE_ROW -- which is also
  * `match->opponents[i].deck`, and modelled here so the +4 group count is
- * reachable. (m2c swaps MI_CpuCopyU8's source and destination, because it did
- * not know the prototype is (src, dest, len).)
+ * reachable.
  */
 void func_ov039_02088df0(TinPinSlammer_Scene* scene) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -434,7 +450,7 @@ void func_ov039_02088fac(TinPinSlammer_Scene* scene) {
  * counter and only then scales by four, which is why the array is reached with
  * stage->sparkIds[cursor + i] rather than a walked pointer. The wrap is a
  * post-store clamp (`cmp #0x40 / movge #0 / strge`) on a value that is written
- * unconditionally first -- the same idiom as func_ov039_0208f048 in band 1.
+ * unconditionally first -- the same idiom as func_ov039_0208f048.
  */
 void func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -612,7 +628,7 @@ void func_ov039_02089360(TinPinSlammer_Scene* scene) {
  * 16 bits wide and the target says so: every set goes through an
  * `lsl #0x10 / lsr #0x10` round trip, and both the maximum (`best`, compared as
  * a 32-bit unsigned against a zero-extended halfword) and the mask are separate
- * locals. Written as `u16 mask` rather than m2c's `s32`, because a 32-bit mask
+ * locals. Written as `u16 mask` rather than `s32`, because a 32-bit mask
  * would not need those round trips and would not match.
  *
  * The three outcomes: the local player is not among the winners -> 2; the local
@@ -679,10 +695,6 @@ s32 func_ov039_020893fc(TinPinSlammer_Scene* scene) {
  * The re-scoring loops are near-copies of each other. That is deliberate -- the
  * target has two separate copies, differing only in the retraction test, and the
  * first one is in the other half of the function, 250 bytes away.
- *
- * (m2c drops the task argument from six calls in here -- 0208f034, 0208f00c,
- * 02094204, 0209420c, 0208f024, 020934e0 -- all of which the target passes a
- * freshly fetched task in r0.)
  */
 void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -794,9 +806,6 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
  *
  * The fade is FADER_INSTANT (3) at brightness 0 over 30 steps, and it comes
  * *after* the round is already running -- the fade is a reveal, not a gate.
- *
- * (m2c reads this as a zero-argument function and reports every access through
- * r0 as an error; the scene arrives in r0 and is live across the first call.)
  */
 void func_ov039_02089780(TinPinSlammer_Scene* scene) {
     OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
@@ -812,8 +821,7 @@ void func_ov039_02089780(TinPinSlammer_Scene* scene) {
  * @brief Leaves it. A twelve-byte tail-call thunk onto 02088f18 and nothing else
  *        -- `ldr ip, .L / bx ip`, with no frame at all.
  *
- * Written as a plain call, following the precedent of func_ov039_0208f024 in band
- * 1: mwcc turns a one-call body into the same two instructions.
+ * Written as a plain call, like func_ov039_0208f024: mwcc turns a one-call body into the same two instructions.
  */
 void func_ov039_020897d0(TinPinSlammer_Scene* scene) {
     func_ov039_02088f18(scene);
@@ -867,9 +875,8 @@ void func_ov039_020897dc(TinPinSlammer_Scene* scene) {
  * @brief Enters the board stage's *other* variant: the same active flag, but the
  *        child count comes from the scene and two pool-1 sound tasks are made.
  *
- * 0x258 at +0x174 is set here and read by nothing in this batch -- it is
- * presumably the round timer the update consumes, but nothing decompiled shows
- * it, so it stays named for the offset. This is the only place the child count is
+ * The timer starts at 0x258 frames; the wireless steps count it down and flag
+ * a link timeout when it runs out. This is the only place the child count is
  * not derived from the match, which is why 02088b80 (not 02088a8c) is the
  * spawner this entry point needs.
  */
@@ -888,7 +895,7 @@ void func_ov039_020898a8(TinPinSlammer_Scene* scene) {
  *        then the common teardown.
  *
  * Only one of the two pool-1 tasks is deleted. The other, at +0x2CC, has no delete
- * anywhere in this batch; it is presumably cleaned up with pool 1 itself by
+ * anywhere in the overlay; it is presumably cleaned up with pool 1 itself by
  * whatever owns the pool.
  */
 void func_ov039_02089918(TinPinSlammer_Scene* scene) {

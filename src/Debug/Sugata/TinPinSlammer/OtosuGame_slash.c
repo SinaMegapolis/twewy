@@ -5,6 +5,23 @@
 
 #include "OtuFieldAccessShared.h"
 
+/* The task's handle, stage table and sprite template. */
+extern TaskHandle       data_ov039_02099cac;
+extern const TaskStages data_ov039_02099cb8;
+extern SpriteAnimation  data_ov039_02099cc8;
+
+/** "Tsk_OtosuGame_slash": the aiming arrow drawn from the player's pin. */
+typedef struct {
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine; // rotation follows the aim, scaleY its length
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ s32            pinId;
+    /* 0x64 */ s32            visible;
+    /* 0x68 */ s32            state; // 0 start, 1 follow, 2 settle
+    /* 0x6C */ s32            timer; // settle frames left
+} OtuSlashTask;                      // Size: 0x70
+
 SpriteFrameInfo* func_ov039_02094ff4(Sprite* sprite, s32 arg, s32 mode) {
     OtuSlashTask* owner = sprite->owner;
 

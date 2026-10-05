@@ -5,6 +5,16 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const TaskHandle    data_ov039_020995ec;
+extern const TaskStages    data_ov039_02099610;
+extern s32                 data_ov039_02099620[];
+extern s32                 data_ov039_02099630[];
+extern s32                 data_ov039_0209964c[];
+extern s32                 data_ov039_0209966c[];
+extern s32                 data_ov039_020996b0[];
+extern const BinIdentifier data_ov039_0209a0bc[4];
+extern u8*                 data_ov039_0209a5d8[3];
+
 /**
  * Stamps a 4x4 block of tile numbers into a 32-wide map. `value` is a u16
  * narrowed after every increment.

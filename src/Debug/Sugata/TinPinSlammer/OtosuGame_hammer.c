@@ -5,6 +5,19 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const TaskStages data_ov039_02099448;
+extern const TaskHandle data_ov039_0209942c;
+
+/* The hammer's keyframe tables. */
+extern OtuFrame4             data_ov039_02099494[];
+extern OtuFrame6             data_ov039_020994b4[];
+extern OtuFrame6             data_ov039_02099476[];
+extern OtuFrame6             data_ov039_020994d8[];
+extern OtuFrame6             data_ov039_02099458[];
+extern OtuFrame4             data_ov039_02099438[];
+extern const SpriteAnimation data_ov039_02099504;
+extern const SpriteAnimation data_ov039_02099530;
+
 #define OTU_ANGLE_INDEX(a) (((s32)((a) >> 4)) * 2)
 
 /* OtuCursor: a cursor over a table of s32 keyframes. */

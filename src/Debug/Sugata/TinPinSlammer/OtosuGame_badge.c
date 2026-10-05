@@ -9,6 +9,64 @@
 
 #include "OtuFieldAccessShared.h"
 
+/**
+ * @brief The nine-word block the init stage reads and the spawner builds.
+ *
+ * Built in the outgoing-argument area of 0x0208dcb0 as nine consecutive
+ * words at sp+8..sp+0x28 and handed to EasyTask_CreateTask as its `param`,
+ * which is why the frame is 0x48 with the block's own pointer at sp+4.
+ */
+typedef struct {
+    /* 0x00 */ s32             dataType;
+    /* 0x04 */ s32             unk_04; // -> self + 0x0E0
+    /* 0x08 */ OtuPadState*    pad;    // -> self + 0x0E8
+    /* 0x0C */ OtuBoardLayout* board;  // -> self + 0x0E4
+    /* 0x10 */ s32             unk_10; // -> self + 0x000
+    /* 0x14 */ u8*             rowTable;
+    /* 0x18 */ u16*            pinID;
+    /* 0x1C */ s32             unk_1C; // -> self + 0x1A8
+    /* 0x20 */ s32             unk_20; // -> self + 0x174
+} OtuBadge_InitArgs;                   // Size: 0x24
+
+/**
+ * @brief A pin type's movement numbers, all Q12.12, indexed by
+ * OtuBadgeParam.tuneIndex.
+ *
+ * Most readers reach a field through a pool word that already points at that
+ * field's column, so the delinker named each column as its own symbol. Reading
+ * `data_ov039_0209a3dc[i].accel` instead emits an extra `add`, so those readers
+ * use the column views below; a column view row `[i][0]` is entry i's field.
+ */
+extern const s32 data_ov039_0209a3e0[][4]; // OtuPinTune.accel column
+extern const s32 data_ov039_0209a3e4[][4]; // OtuPinTune.power column
+extern const s32 data_ov039_0209a3e8[][4]; // OtuPinTune.weight column
+
+/**
+ * @brief The bin every pin-sprite in the overlay draws its cells from.
+ *
+ * All four `SpriteAnimation` templates in the overlay name this one record (bin
+ * id 39); it is the only thing tying the four sprites' art together. Not
+ * identified further -- it is a plain identifier record in the overlay's `.data`.
+ */
+extern const BinIdentifier data_ov039_0209a0dc;
+
+/* The task's handle, stage table and three sprite templates. */
+extern const SpriteAnimation data_ov039_02099288;
+extern const SpriteAnimation data_ov039_020992b4;
+extern const SpriteAnimation data_ov039_020992e0;
+extern const TaskStages      data_ov039_02099278;
+extern const TaskHandle      data_ov039_0209926c;
+
+/* The fade-manager block the target reaches as `.word gFaders`. Only the
+ * word at +8 is read. */
+extern u32 gFaders[];
+
+/* The per-kind dispatch table 0x0208c9cc walks, one function pointer per
+ * entry, indexed from 1 to 0x10 inclusive. */
+extern u32 data_ov039_0209a4b0[];
+
+void func_ov039_0208d5dc(OtuBadge* self);
+
 #define OTU_CELL_BITS 0x1FFFF
 
 #define OTU_CELL_SIZE 0x20000
@@ -242,9 +300,6 @@ void func_ov039_0208af6c(OtuBadge* self) {
         dir  = FX_Atan2Idx(self->vel.y, self->vel.x) + turn;
         cell = dir >> 4;
 
-        /* The sin/cos table is s32[] by band 3's declaration but holds pairs of
-         * s16, so each element has to be fetched through a s16* at a doubled
-         * byte offset -- the same shape bands 5 and 7 use. */
         self->vel.x = (s32)(((s64)len * ((s16*)data_0205e4e0)[cell * 2 + 1] + 0x800) >> 12);
         self->vel.y = (s32)(((s64)len * ((s16*)data_0205e4e0)[cell * 2] + 0x800) >> 12);
     }
@@ -2215,20 +2270,12 @@ s32 func_ov039_0208dc68(TaskPool* pool, Task* task, void* args, s32 stage) {
  *  tray slot holds a label. Both re-derive the pool from `self->pool` rather
  *  than from the argument, which is why +0x008 has to be saved at all.
  *
- *  NB: six of these spawners are typed `void` in bands 2/4/5 while the target
- *  stores their result. Retyped to `s32` there -- band 4 already did this for
- *  0x02096b48/0x02096e4c's siblings -- nothing here changes.
- *
  *  The frame is exactly 0x2C: 8 bytes of outgoing arguments plus the 0x24-byte
  *  block, with no slack. `id`, `self` and `i` therefore have to live in
  *  registers, and there are only five callee-saved ones, so this is at the
  *  edge of what mwcc can hold -- if the frame comes out larger, the fix is to
  *  drop `i` and unroll one of the loops rather than to shrink the block.
  */
-/* Typed to band 9's declaration, the one already compiling everywhere else
- * in this translation unit. Taking all nine arguments as s32 and casting at
- * each use collided with band 9 and cascaded into nine "illegal access to
- * local variable" errors inside this body. */
 s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* arg4, void* arg5, void* arg6, void* arg7,
                         s32 arg8, void* arg9) {
     OtuBadge_InitArgs args;
@@ -2448,12 +2495,6 @@ void func_ov039_0208e130(OtuBadge* self, OtuBadge* other) {
  *  therefore not two spellings of one predicate: one is pin-against-pin
  *  attraction and the other is pin-against-board.
  */
-/* These three pairwise predicates were declared `void*` for as long as the badge had
- * three separate views: band 9's declaration governed this translation unit, and
- * giving the definitions real struct types collided with it and cascaded into
- * "expression syntax error" through the whole body. With OtuBadge, OtuBadge
- * and OtuBadge now one type there is nothing left to collide with, so the
- * parameters are spelled out. Verified neutral. */
 s32 func_ov039_0208e28c(OtuBadge* self, OtuBadge* other) {
 
     if (self->flags > 0) {
@@ -2568,16 +2609,12 @@ s32 func_ov039_0208e37c(OtuBadge* self, OtuBadge* other) {
 }
 
 /**
- * @brief The wall/obstacle response, and the one place in this band that
- *        reaches outside the pin task.
+ * @brief The badge's response to hitting an obstacle.
  *
  *  The second argument is *not* another pin: it is read through
  *  func_ov039_02092744 / _02092758 / _02092760, which are the accessors for
  *  the overlay's second, smaller object -- a point at +0x48/+0x4C, a radius
- *  at +0x50, and a flag at +0x54. Those three are already defined in
- *  OtuFieldAccess.c above the band includes, so they are called rather than
- *  declared, and the parameter is left `void*` because no type for that object
- *  exists yet.
+ *  at +0x50, and a flag at +0x54. That object is an OtuObstacle.
  *
  *  The third block is the interesting one: the pin's velocity is normalised,
  *  measured, and turned into a *position* offset which lands in +0x138/+0x13C
@@ -2747,31 +2784,8 @@ void func_ov039_0208e87c(OtuBadge* self, OtuPoint* out) {
     *out = self->homeOffset;
 }
 
-/* ============================================================================
- * Band 14 -- the rest of OtuBadge's field accessors.
- *
- * The seven remaining functions in the run that follows band 12, from 0x0208e890
- * to 0x0208e9e4. The seven below them -- 0208e6cc, _6e0, _6f4, _848, _85c, _870
- * and _87c -- are already in OtuFieldAccess.c itself, so this file does not
- * repeat them. Every body here is a handful of instructions copied straight from
- * the target, and where the target used a jump table this keeps the switch so
- * mwcc emits one too.
- *
- * Two signature styles appear here because both already exist for these
- * functions, in bands 1, 7, 13 and the shared header, and the earlier
- * declaration has to be the one the definition agrees with:
- *
- *   OtuBadge*  the header's trimmed +0x174-byte view of the same object,
- *                modelling only the fields the nearest-child queries read.
- *   void*        what band 1 and band 7 happen to pass around.
- *
- * OtuBadge has no field for +0x0DC or +0x0FC, so those two read through
- * OtuBadge, which band 12 declares and which models the whole 0x25C bytes.
- * Every offset OtuBadge does model agrees with OtuBadge, so the cast is
- * always safe.
- *
- * Offsets: +0x0DC unk_0DC, +0x0F8 kind, +0x0FC subKind, +0x138 dir.
- * =========================================================================*/
+/* The badge's accessors, 0x0208e890 - 0x0208e9e4. Where the target uses a jump
+ * table the switch is kept so mwcc emits one too. */
 
 /**
  * @brief Only kinds 0, 2, 3 and 4 answer with zero; everything else -- kind 1,
@@ -2914,8 +2928,7 @@ s32 func_ov039_0208e998(OtuBadge* task) {
  *  negated after it, and the answer is cut to sixteen bits with
  *  `lsl #0x10 / lsr #0x10`. That pair is a zero-extend, so the narrowing is to
  *  `u16` and not to `s16` -- an `s16` emits `asr` for the second shift and costs
- *  the match. The return type stays `s32` because band 7 declares it that way
- *  and uses the value.
+ *  the match. The return type is `s32` because the caller uses the full word.
  */
 s32 func_ov039_0208e9ac(OtuBadge* self) {
     u16 a;
@@ -2932,8 +2945,7 @@ s32 func_ov039_0208e9ac(OtuBadge* self) {
      * returning something wider than u16 -- an implicit int. fx_atan.h declares
      * it as u16, so mwcc here proves the narrowing redundant and turns the whole
      * thing into a tail call through a veneer, dropping the mask. Recovering the
-     * last 60% means hiding that prototype from this translation unit, which
-     * would cost bands 3 and 11 their own narrowing. Not worth it.
+     * last 60% would mean hiding that prototype from this file.
      */
     a = FX_Atan2Idx(y, x);
 
@@ -3086,7 +3098,7 @@ void func_ov039_0208eaa0(OtuBadge* other, OtuBadge* self) {
     }
 
     switch (self->phase) {
-        /* m2c's label order: default first (it joins the big block), then the
+        /* The target's body order: default first (it joins the big block), then the
          * modes that share the body, then mode 8's phase gate, then the
          * modes that return. */
         default:

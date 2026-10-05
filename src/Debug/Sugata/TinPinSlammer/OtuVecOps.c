@@ -2,16 +2,7 @@
  * @file OtuVecOps.c
  * @brief The overlay's Q12.12 vector helpers.
  *
- * These four functions sit in a 664-byte gap at 0x02098b8c-0x02098e24 that no
- * other translation unit claims, which is why they could not live in a band
- * include: OtuFieldAccess.c's .text claim ends at 0x02098b8c, just below them.
- *
- * That gap is why band 3 declares func_ov039_02098bb0 and func_ov039_02098c00
- * and both band 3 and band 5 call them, with no definition anywhere behind those
- * calls -- so objdiff could only ever report them "not present on target" rather
- * than as a bad match. Defining them here closes that.
- *
- * All three are the same pair of words at a scale of 0x1000, the overlay's
+ * All of them are the same pair of words at a scale of 0x1000, the overlay's
  * Q12.12 fixed point, the same convention the obstacle and hammer sprites
  * position with. The divides are written as `/ 0x1000` rather than as shifts
  * because the target spells them as the multiply-high plus shift pair mwcc emits

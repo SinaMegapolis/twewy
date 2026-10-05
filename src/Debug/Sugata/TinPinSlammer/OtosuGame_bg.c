@@ -5,6 +5,33 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const TaskHandle data_ov039_02099998;
+extern const TaskStages data_ov039_020999a4;
+
+/* The 7- and 4-argument cell set-up pair func_ov039_0209276c drives. */
+void func_0200d898(void* buf, void* src, s32 w, s32 h);
+void func_0200d858(void* obj, s32 a, s32 b, s32 c);
+
+/** The per-slot parameter block func_ov039_0209276c reads. */
+typedef struct {
+    /* 0x00 */ s32 slot;
+    /* 0x04 */ s32 width;
+    /* 0x08 */ s32 height;
+    /* 0x0C */ s32 fileId;
+    /* 0x10 */ s32 group;
+    /* 0x14 */ s32 layers;
+    /* 0x18 */ s32 priority;
+    /* 0x1C */ s32 idx[2];
+    /* 0x24 */ s32 pad_24;
+    /* 0x28 */ s32 idx1;
+    /* 0x2C */ s32 idx2;
+    /* 0x30 */ s32 palStart;
+    /* 0x34 */ s32 palCount;
+} OtuResParams;
+
+/* Per layout kind, the bg task's two layers. */
+extern OtuResParams** data_ov039_0209a620[];
+
 #define Otu_RES_REF(out, rec, idx)                        \
     do {                                                  \
         if ((rec) == NULL || (idx) <= 0) {                \

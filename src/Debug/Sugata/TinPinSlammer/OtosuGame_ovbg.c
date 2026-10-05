@@ -5,6 +5,17 @@
 
 #include "OtuFieldAccessShared.h"
 
+/* The task's stage table and handle. */
+extern const TaskStages data_ov039_020999c0;
+extern const TaskHandle data_ov039_020999b4;
+
+/** The table 020934e0 refuses to re-point the animated palette at twice. */
+extern const u16 data_ov039_02099a18[1];
+
+/** The board's bin id and the 0x12-wide frame-slot table. */
+extern const BinIdentifier data_ov039_0209a0f4;
+extern const void*         data_ov039_020999d0;
+
 /**
  * Builds the overlay layer's screen map from the layout: one entry per 2x2
  * block of cells, centred on the 32x32 screen, whose low four bits say which of
@@ -314,7 +325,7 @@ s32 func_ov039_02093460(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * overlay stores the result into a child-handle field. It costs nothing
  * here -- the body has no `mov r0` of its own in either spelling, so the
  * handle already comes back in r0 and both compile to the same
- * instructions. Same finding as func_ov039_02098394 in band 8.
+ * instructions. Same finding as func_ov039_02098394.
  */
 s32 func_ov039_020934a8(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout) {
     OtuBoardArgs args;

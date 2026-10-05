@@ -5,6 +5,13 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const TaskHandle      data_ov039_02099e1c;
+extern const TaskStages      data_ov039_02099e28;
+extern const SpriteAnimation data_ov039_02099e38;
+extern const SpriteAnimation data_ov039_02099e64;
+extern const SpriteAnimation data_ov039_02099e90;
+extern const OtuScaleKey     data_ov039_0209aa0c[];
+
 SpriteFrameInfo* func_ov039_0209659c(Sprite* sprite, s32 arg, s32 mode) {
     OtuGameover* owner = sprite->owner;
 

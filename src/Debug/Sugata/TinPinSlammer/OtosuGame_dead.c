@@ -5,6 +5,12 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const TaskHandle data_ov039_02099dd4;
+extern const TaskStages data_ov039_02099de0;
+
+/* The sprite template the loader copies to the stack. */
+extern const SpriteAnimation data_ov039_02099df0;
+
 SpriteFrameInfo* func_ov039_02096280(Sprite* sprite, s32 arg, s32 mode) {
     OtuDead* owner = sprite->owner;
 

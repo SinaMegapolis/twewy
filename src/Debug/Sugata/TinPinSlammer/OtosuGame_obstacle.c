@@ -5,6 +5,41 @@
 
 #include "OtuFieldAccessShared.h"
 
+typedef struct {
+    /* 0x00 */ s32                 oamAttrs; // ORed into the template's OAM word, shifted to bit 6.
+    /* 0x04 */ s16                 unk_04;
+    /* 0x06 */ s16                 slot;     // Which of the three palette slots to use.
+    /* 0x08 */ OtuObstacle_Params* params;
+} OtuObstacle_Args;                          // Size: 0xC
+
+/** The handle, the stage table and the sprite template are all already in the
+ *  overlay's .rodata, so they are referenced rather than redefined. The name
+ *  string inside the handle is the ground truth for what this task is. */
+extern const TaskHandle data_ov039_02099930;
+
+/** The sprite template. Every field Load does not patch is already correct here,
+ *  and the five it does patch all hold their kind-0 values, so this is literally
+ *  the index-0 case that the table lookups below then re-derive. */
+extern const SpriteAnimation data_ov039_0209996c;
+
+/* Five tables of three, indexed by OtuObstacle_Params.kind. They are separate
+ * arrays rather than one array of a struct because the target loads each base
+ * address into its own register and indexes them independently. */
+extern const s16 data_ov039_02099918[3];
+
+// -> params.unk_26
+extern const s16 data_ov039_0209991e[3];
+
+// -> params.unk_1C
+extern const s16 data_ov039_02099924[3];
+
+// -> params.unk_28
+extern const s16 data_ov039_0209992a[3];
+
+/** Palette slots. A row per kind, a column per OtuObstacle_Args.slot; all three
+ *  rows currently hold the same {4, 5, 6}, so kind does not yet change colour. */
+extern const s16 data_ov039_02099958[3][3];
+
 SpriteFrameInfo* func_ov039_020923c8(Sprite* sprite, s32 arg, s32 mode) {
     OtuObstacle* owner = sprite->owner;
 

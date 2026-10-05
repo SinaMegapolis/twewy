@@ -5,6 +5,15 @@
 
 #include "OtuFieldAccessShared.h"
 
+typedef struct {
+    s32 dataType;
+    s32 seconds;
+} OtuTimerArgs;
+
+extern const SpriteAnimation data_ov039_02099b6c;
+extern const TaskStages      data_ov039_02099b5c;
+extern const TaskHandle      data_ov039_02099b50;
+
 SpriteFrameInfo* func_ov039_02093e3c(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }

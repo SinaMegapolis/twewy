@@ -5,6 +5,17 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern SpriteAnimation data_ov039_02099da8;
+
+/* The task's handle and stage table. */
+extern const TaskHandle data_ov039_02099d8c;
+extern const TaskStages data_ov039_02099d98;
+
+/* The scale keyframe tables the entry, dead and gameover tasks animate with. */
+extern const OtuScaleKey data_ov039_0209a830[];
+extern const OtuScaleKey data_ov039_0209a8a8[];
+extern const OtuScaleKey data_ov039_0209a938[];
+
 SpriteFrameInfo* func_ov039_02095dec(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(7, 0, 0));
 }

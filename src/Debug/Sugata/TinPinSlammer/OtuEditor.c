@@ -25,113 +25,42 @@
 #include "Engine/Text.h"
 #include "OtuFieldAccessShared.h"
 
-/* "Seq_Otosu()" */
-extern const char Otu_str_0209a178[16];
-
-/* "SINGLE MENU 1" */
-extern const char Otu_str_0209a188[12];
-
-/* SJIS 83 58 83 5e 81 5b 83 67 */
-extern const char Otu_str_0209a194[12];
-
-/* SJIS 83 89 83 45 83 93 83 68 */
-extern const char Otu_str_0209a1a0[8];
-
-/* SJIS 96 80 8e 43 */
-extern const char Otu_str_0209a1a8[8];
-
-/* SJIS 83 6f 83 62 83 57 31 */
-extern const char Otu_str_0209a1b0[8];
-
-/* SJIS 83 6f 83 62 83 57 32 */
-extern const char Otu_str_0209a1b8[8];
-
-/* SJIS 83 6f 83 62 83 57 33 */
-extern const char Otu_str_0209a1c0[8];
-
-/* SJIS 83 6f 83 62 83 57 34 */
-extern const char Otu_str_0209a1c8[8];
-
-/* SJIS 8f 64 82 b3 31 */
-extern const char Otu_str_0209a1d0[8];
-
-/* SJIS 8f 64 82 b3 32 */
-extern const char Otu_str_0209a1d8[8];
-
-/* SJIS 8f 64 82 b3 33 */
-extern const char Otu_str_0209a1e0[8];
-
-/* SJIS 8f 64 82 b3 34 */
-extern const char Otu_str_0209a1e8[8];
-
-/* SJIS 8f 64 82 b3 35 */
-extern const char Otu_str_0209a1f0[8];
-
-/* SJIS 8f 64 82 b3 36 */
-extern const char Otu_str_0209a1f8[8];
-
-/* SJIS 8f 64 82 b3 37 */
-extern const char Otu_str_0209a200[4];
-
-/* "8" */
-extern const char Otu_str_0209a208[8];
-
-/* SJIS 8f 64 82 b3 39 */
-extern const char Otu_str_0209a210[8];
-
-/* SJIS 8f 64 82 b3 31 30 */
-extern const char Otu_str_0209a218[12];
-
-/* SJIS 8f 64 97 cd 89 c1 91 ac 93 78 */
-extern const char Otu_str_0209a224[8];
-
-/* SJIS 83 5e 81 5b 83 93 */
-extern const char Otu_str_0209a22c[8];
-
-/* SJIS 83 70 83 6c 83 8b */
-extern const char Otu_str_0209a234[8];
-
-/* SJIS 8b 43 90 e2 */
-extern const char Otu_str_0209a23c[16];
-
-/* "SINGLE MENU 2" */
-extern const char Otu_str_0209a24c[12];
-
-/* SJIS 8f d5 93 cb 89 89 8f 6f 31 */
-extern const char Otu_str_0209a258[12];
-
-/* SJIS 8f d5 93 cb 89 89 8f 6f 32 */
-extern const char Otu_str_0209a264[8];
-
-/* SJIS 95 4b 8e 45 8b 5a */
-extern const char Otu_str_0209a26c[12];
-
-/* SJIS 83 6f 83 62 83 57 89 f1 93 5d */
-extern const char Otu_str_0209a278[16];
-
-/* "SINGLE MENU 3" */
-extern const char Otu_str_0209a288[12];
-
-/* SJIS 83 6f 83 62 83 57 49 44 */
-extern const char Otu_str_0209a294[12];
-
-/* SJIS 95 4b 8e 45 8b 5a 8f 8a 8e 9d */
-extern const char Otu_str_0209a2a0[8];
-
-/* SJIS 8f 64 82 b3 */
-extern const char Otu_str_0209a2a8[12];
-
-/* SJIS 82 dc 82 aa 82 e9 97 cd */
-extern const char Otu_str_0209a2b4[12];
-
-/* SJIS 83 6a 81 5b 83 68 83 8b */
-extern const char Otu_str_0209a2c0[8];
-
-/* SJIS 83 81 83 65 83 49 */
-extern const char Otu_str_0209a2c8[12];
-
-/* SJIS 83 6e 83 93 83 7d 81 5b */
-extern const char Otu_str_0209a2d4[12];
+extern const char Otu_str_0209a178[16]; // "SINGLE MENU 1"
+extern const char Otu_str_0209a188[12]; // start
+extern const char Otu_str_0209a194[12]; // round
+extern const char Otu_str_0209a1a0[8];  // friction
+extern const char Otu_str_0209a1a8[8];  // badge 1
+extern const char Otu_str_0209a1b0[8];  // badge 2
+extern const char Otu_str_0209a1b8[8];  // badge 3
+extern const char Otu_str_0209a1c0[8];  // badge 4
+extern const char Otu_str_0209a1c8[8];  // weight 1
+extern const char Otu_str_0209a1d0[8];  // weight 2
+extern const char Otu_str_0209a1d8[8];  // weight 3
+extern const char Otu_str_0209a1e0[8];  // weight 4
+extern const char Otu_str_0209a1e8[8];  // weight 5
+extern const char Otu_str_0209a1f0[8];  // weight 6
+extern const char Otu_str_0209a1f8[8];  // weight 7
+extern const char Otu_str_0209a200[4];  // weight 8 (with 0209a204, "8")
+extern const char Otu_str_0209a208[8];  // weight 9
+extern const char Otu_str_0209a210[8];  // weight 10
+extern const char Otu_str_0209a218[12]; // gravity
+extern const char Otu_str_0209a224[8];  // turn
+extern const char Otu_str_0209a22c[8];  // panel
+extern const char Otu_str_0209a234[8];  // stun
+extern const char Otu_str_0209a23c[16]; // "SINGLE MENU 2"
+extern const char Otu_str_0209a24c[12]; // collision effect 1
+extern const char Otu_str_0209a258[12]; // collision effect 2
+extern const char Otu_str_0209a264[8];  // special move
+extern const char Otu_str_0209a26c[12]; // badge rotation
+extern const char Otu_str_0209a278[16]; // "SINGLE MENU 3"
+extern const char Otu_str_0209a288[12]; // badge ID
+extern const char Otu_str_0209a294[12]; // has special move
+extern const char Otu_str_0209a2a0[8];  // weight
+extern const char Otu_str_0209a2a8[12]; // turning power
+extern const char Otu_str_0209a2b4[12]; // needle
+extern const char Otu_str_0209a2c0[8];  // meteo
+extern const char Otu_str_0209a2c8[12]; // hammer
+extern const char Otu_str_0209a2d4[12]; // stun time
 
 /** Writes |value|'s low `count` decimal digits into `buf`, then a space. */
 void func_ov039_02083974(char* buf, s32 value, s32 count) {

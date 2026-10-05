@@ -5,6 +5,12 @@
 
 #include "OtuFieldAccessShared.h"
 
+/* The stage tables the four-word dispatchers copy and index. */
+extern const TaskStages data_ov039_02099568;
+
+extern const TaskHandle      data_ov039_0209955c;
+extern const SpriteAnimation data_ov039_02099578;
+
 SpriteFrameInfo* func_ov039_02091118(Sprite* sprite, s32 arg, s32 mode) {
     OtuNeedle* owner = sprite->owner;
 

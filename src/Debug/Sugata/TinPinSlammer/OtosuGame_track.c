@@ -5,6 +5,17 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern TaskHandle       data_ov039_02099cf4;
+extern const TaskStages data_ov039_02099d00;
+extern SpriteAnimation  data_ov039_02099d10;
+
+/** The track task's creation block: it keeps the pool to find its pin. */
+typedef struct {
+    s32       dataType;
+    TaskPool* pool;
+    s32       pinId;
+} OtuTaskArgs3;
+
 SpriteFrameInfo* func_ov039_0209549c(Sprite* sprite, s32 arg, s32 mode) {
     OtuTrackTask* owner = sprite->owner;
 

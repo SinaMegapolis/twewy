@@ -5,6 +5,20 @@
 
 #include "OtuFieldAccessShared.h"
 
+/** "Tsk_OtosuGame_wricon": the wireless signal-strength icon. */
+typedef struct {
+    /* 0x00 */ s32    dataType;
+    /* 0x04 */ Sprite sprite;
+    /* 0x44 */ s32    visible;
+} OtuWricon; // Size: 0x48
+
+extern const TaskHandle      data_ov039_02099ebc;
+extern const TaskStages      data_ov039_02099ec8;
+extern const SpriteAnimation data_ov039_02099ed8;
+
+/* Overlay 40's animation-phase counter, read by 02096da0. */
+extern s32 func_ov040_0209cb5c(void);
+
 SpriteFrameInfo* func_ov039_02096c58(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }

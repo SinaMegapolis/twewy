@@ -5,6 +5,128 @@
 
 #include "OtuFieldAccessShared.h"
 
+/* The task's handle, stage table and four sprite templates. They all name
+ * data_ov039_0209a0fc as their bin. */
+extern const TaskHandle data_ov039_02099b98;
+extern const TaskStages data_ov039_02099ba4;
+extern SpriteAnimation  data_ov039_02099bb4;
+extern SpriteAnimation  data_ov039_02099be0;
+extern SpriteAnimation  data_ov039_02099c0c;
+extern SpriteAnimation  data_ov039_02099c38;
+
+/** @brief One cell's single-digit position: two halfwords. */
+typedef struct {
+    /* 0x00 */ u16 x;
+    /* 0x02 */ u16 y;
+} OtuGaugePos; // Size: 0x4
+
+/*
+ * The two digit-position tables. Both are in `.data`, so they are not
+ * declared `const`.
+ *
+ * Values, recovered with `tools/ov039_bytes.py`: 0x0209a780 holds
+ * (0x37,0x9C) (0x27,0x83) (0x14,0x90) (0x1E,0xA7), and 0x0209a790's first
+ * pair repeats those exactly while its second is five to the left. So the
+ * two-digit table is the one-digit table plus the tens digit, which is exactly
+ * the choice the update's `count < 10` / `count >= 10` split makes.
+ */
+extern OtuGaugePos data_ov039_0209a780[4];
+extern OtuGaugePos data_ov039_0209a790[4][2]; // [cell][0 = units, 1 = tens]
+
+/**
+ * @brief The two words `func_ov039_02094ab4` packs and the init stage reads.
+ *
+ * The first becomes the task's `dataType` and is folded into the `dataType`
+ * bitfield of all eighteen `SpriteAnimation` templates; the second is the pin
+ * task's handle, which the update resolves through `EasyTask_GetTaskData` and
+ * then queries four ways. This is a struct rather than two scalar locals
+ * because only its *address* is ever taken, and with scalars mwcc drops the
+ * second store as dead and the frame shrinks by four bytes.
+ */
+typedef struct {
+    /* 0x00 */ s32 dataType; // SpriteAnimation.dataType, four bits
+    /* 0x04 */ s32 pinId;    // handle of the pin task this gauge watches
+} OtuGaugeArgs;              // Size: 0x8
+
+/**
+ * @brief One cell of the gauge: its two digit sprites, 0x80 apart.
+ *
+ * The 0x80 stride is load-bearing and is the reason this is a struct rather
+ * than a flat `Sprite[8]`: the update and the render each walk the "low" and
+ * the "high" sprite with a *separate* pointer advancing 0x80 per cell, side by
+ * side with the two 0x40-stride walks, and mwcc's address arithmetic follows
+ * the source's. Indexing a flat array by `i * 2` would fold the multiply and
+ * change the instruction the loop is built from.
+ *
+ * "low" is the units digit: it is repositioned and re-animated on every change
+ * of the count, and is the one shown alone when the count is below ten.
+ * "high" is the tens digit: it is only repositioned, re-animated, updated and
+ * drawn once the count reaches ten.
+ */
+typedef struct {
+    /* 0x00 */ Sprite spriteLow;  // units digit
+    /* 0x40 */ Sprite spriteHigh; // tens digit
+} OtuGaugePair;                   // Size: 0x80
+
+/**
+ * @brief "Tsk_OtosuGame_specialgauge", 0x4B4 bytes.
+ *
+ * The size is the target's, not an estimate: the `TaskHandle` at 0x02099b98
+ * carries it as its third word.
+ *
+ * The layout is derived from the strides the code uses, and every offset in it
+ * is fixed by at least one load or store in this file. From 0x0C to 0x40B the
+ * block is eighteen `Sprite`s with nothing between them, which the arithmetic
+ * above pins from three independent directions. The 0x400 tail is
+ * `OtuEntryAnim`-shaped: a rotation and an x/y scale pair handed to
+ * `OamMgr_AllocAffineGroup`, two halfwords nothing reads, and two
+ * four-entry arrays the update compares against.
+ *
+ * The two wide sprites are named for what the code does to them rather than for
+ * what they depict: `plate` (0x40C) is only ever updated and rendered, and
+ * `dial` (0x44C) is the one whose OAM attribute word has an affine slot index
+ * inserted into it every frame.
+ */
+typedef struct {
+    /* 0x000 */ s32            dataType;     // folded into every template's dataType field
+    /* 0x004 */ s32            pinId;        // the tracked pin's task handle
+    /* 0x008 */ s32            running;      // raised by Update, tested by Render
+    /* 0x00C */ Sprite         spriteA[4];   // four cells' first 0x40-walk sprite
+    /* 0x10C */ Sprite         spriteB[4];   // four cells' second 0x40-walk sprite
+    /* 0x20C */ OtuGaugePair   digit[4];     // the four two-digit displays
+    /* 0x40C */ Sprite         plate;        // the wide backing sprite
+    /* 0x44C */ Sprite         dial;         // the wide sprite drawn through the affine path
+    /* 0x48C */ OamAffineParam affine;       // the dial spins 0x100 per frame
+    /* 0x49C */ s16            lastCount[4]; // the count each cell was last drawn for
+    /* 0x4A4 */ s32            alive[4];     // the filter's answer for this cell's pin
+} OtuGauge;                                  // Size: 0x4B4
+
+/**
+ * @brief The palette block inside a loaded sprite resource's buffer.
+ *
+ * `buffer + 0x20` is the overlay's `PackHeader`; the word at the caller's
+ * offset into the table that follows is a `PackEntry`'s `offset` field, and
+ * adding it to the table's base is the sub-resource. This is the same walk as
+ * `OtuPaletteSource` and `Data_GetPackEntryData`, with the entry index as a
+ * parameter because this task needs two of them: the
+ * update takes the fifth entry when a cell has gone dead and the fourth when it
+ * has come back, and the arithmetic differs only in the constant.
+ */
+static inline void* OtuGaugePaletteSource(Data* file, s32 packEntry) {
+    PackEntry* entries = (PackEntry*)((u8*)file->buffer + sizeof(PackHeader));
+
+    return (u8*)entries + entries[packEntry].offset;
+}
+
+/* ============================================================================
+ * Data
+ * ==========================================================================*/
+
+/* An overlay-global byte block in the main module, at 0x02071cf0. Nothing in
+ * the overlay owns it; two unrelated tables inside it are written here. Declared
+ * as a bare array so no dsd symbol has to be invented for the block itself. */
+extern u8 data_02071cf0[];
+
 SpriteFrameInfo* func_ov039_02094214(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
@@ -15,10 +137,7 @@ SpriteFrameInfo* func_ov039_02094214(Sprite* sprite, s32 arg, s32 mode) {
  * All four copy a 0x2C-byte `SpriteAnimation` onto the stack, stamp it with
  * this object's `dataType` and owner, and load one sprite. The copy is the
  * `ldm/stm` triple out of a literal pool, which is how mwcc renders a copy
- * from an `extern const` object -- band 3's loaders use that same form
- * (`SpriteAnimation anim = data_ov039_02099cc8;`) and it is preferred here over
- * a local brace initialiser, which band 5 only needs because its templates
- * have no symbol of their own in the target.
+ * from an `extern const` object -- not a local brace initialiser.
  *
  * The `dataType` write is a read-modify-write of the template's first halfword:
  * `bic #0x3C` clears the field's four bits and the `<< 0x1C` / `>> 0x1A` pair
@@ -55,7 +174,7 @@ void func_ov039_0209432c(OtuGauge* self, Sprite* sprite) {
  * becomes the template's `packIndex`, selecting one of the eight walk packs.
  * It is deliberately not the animation: `animIndex` at +0x2A keeps the
  * template's own value. Zero is therefore not a valid pack index, the same
- * convention band 3's point task uses on its own digit table.
+ * convention the point task uses on its own digit table.
  */
 void func_ov039_0209439c(OtuGauge* self, Sprite* sprite, s32 index) {
     SpriteAnimation anim = data_ov039_02099c0c;
@@ -109,7 +228,7 @@ void func_ov039_02094418(OtuGauge* self, Sprite* sprite, s32 index, s32 which) {
  * rather than re-materialising it on each of the four passes.
  *
  * The two halfwords at +0x498 and +0x49A are cleared with `strh`, so they are
- * genuinely `s16`; nothing in this band reads them, which is why they stay
+ * genuinely `s16`; nothing reads them, which is why they stay
  * `unk`.
  */
 s32 func_ov039_020944bc(TaskPool* pool, Task* task, void* arg) {
@@ -144,7 +263,7 @@ s32 func_ov039_020944bc(TaskPool* pool, Task* task, void* arg) {
     return 1;
 }
 
-/* The update stage, 0x020945c8 -- the largest thing in the band. */
+/* The update stage. */
 
 /**
  * @brief The gauge's update stage: spin the dial, then walk the four cells.
@@ -327,16 +446,15 @@ s32 func_ov039_020945c8(TaskPool* pool, Task* task, void* args) {
  * `Sprite.unk_0A.raw`'s bits 5..9 -- is replaced with the slot the allocator
  * returns, and the `(u32)(u16)` around that return is load-bearing twice: it is
  * the `<< 0x10` / `>> 0x10` pair the target emits, and it makes the following
- * `>> 0x16` a logical rather than an arithmetic shift. Band 3's entry-task
- * render is the same expression over the same manager array and carries the
- * same note.
+ * `>> 0x16` a logical rather than an arithmetic shift. The entry task's
+ * render is the same expression over the same manager array.
  *
  * The manager is picked from the sprite's own display-engine bits, exactly as
- * band 3 does it, and the scale pair comes from the task rather than from a
+ * the entry task does it, and the scale pair comes from the task rather than from a
  * per-sprite limit block.
  *
  * Nothing in the stage is positioned here; every sprite draws where the update
- * left it, which is the opposite of band 7's hammer and of band 3's point task
+ * left it, which is the opposite of the hammer and the point task
  * and is why this task needs no render-side anchor arithmetic at all.
  */
 s32 func_ov039_020948f4(TaskPool* pool, Task* task, void* args) {
@@ -399,7 +517,7 @@ s32 func_ov039_020949f4(TaskPool* pool, Task* task, void* args) {
 /**
  * @brief The stage dispatcher, and the `TaskHandle`'s own `taskFunc`.
  *
- * Identical in shape to band 3's and band 7's: the four callbacks are copied
+ * Identical in shape to every task's: the four callbacks are copied
  * out of the overlay's own `TaskStages` onto the stack and then indexed by
  * `stage`, so the frame is the 0x10 the copy needs and the indirect call is
  * through the copy. The pool word is the target's `data_ov039_02099ba4`, which

@@ -5,6 +5,23 @@
 
 #include "OtuFieldAccessShared.h"
 
+/* The task's sprite template. */
+extern const SpriteAnimation data_ov039_02099328;
+
+/* The task's handle and stage table. */
+extern const TaskHandle data_ov039_0209930c;
+extern const TaskStages data_ov039_02099318;
+
+/** "Tsk_OtosuGame_shadow": a drop shadow under the pin, scaled with it. */
+typedef struct {
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine;
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ s32            pinId;
+    /* 0x64 */ s32            visible; // func_ov039_0208e890's answer; drawn only when 1
+} OtuShadow;                           // Size: 0x68
+
 SpriteFrameInfo* func_ov039_0208f134(Sprite* sprite, s32 arg, s32 mode) {
     OtuShadow* owner = sprite->owner;
 

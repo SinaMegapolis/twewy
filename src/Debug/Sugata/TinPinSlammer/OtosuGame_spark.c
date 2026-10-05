@@ -5,6 +5,13 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const TaskHandle data_ov039_02099c64;
+
+extern const SpriteAnimation data_ov039_02099c80;
+
+/** A four-entry handler table copied to the stack before one is called. */
+extern const TaskStages data_ov039_02099c70;
+
 SpriteFrameInfo* func_ov039_02094ae8(Sprite* sprite, s32 arg, s32 mode) {
     OtuSpark* owner = sprite->owner;
 

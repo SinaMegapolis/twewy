@@ -174,7 +174,7 @@ void func_ov039_02082774(TinPinSlammer_Scene* scene) {
 }
 
 void func_ov039_020827d0(TinPinSlammer_Scene* scene) {
-    // decomp-permuter's finding: cache the scene as a byte pointer and add
+    // Cache the scene as a byte pointer and add
     // the stage offset to that, so mwcc keeps one base in a register instead
     // of re-deriving a typed pointer at each of the nine uses below.
     u8* base = (u8*)scene;
@@ -205,7 +205,7 @@ void func_ov039_020827d0(TinPinSlammer_Scene* scene) {
         }
 
         // A named temp, not `if (SystemStatusFlags.reset != 0)`: the target
-        // materialises the flag in a register first. (Permuter finding; objdiff 100%.)
+        // materialises the flag in a register first.
         reset = (SystemStatusFlags.reset != 0);
         if (reset) {
             func_ov040_0209d990();

@@ -5,6 +5,12 @@
 
 #include "OtuFieldAccessShared.h"
 
+/** The handle this spawns. Already in the overlay's .rodata. */
+extern const TaskHandle data_ov039_0209a024;
+extern const TaskStages data_ov039_0209a030;
+
+extern const SpriteAnimation data_ov039_0209a040;
+
 SpriteFrameInfo* func_ov039_02097ff4(Sprite* sprite, s32 arg, s32 mode) {
     OtuHammerHahen* owner = sprite->owner;
 

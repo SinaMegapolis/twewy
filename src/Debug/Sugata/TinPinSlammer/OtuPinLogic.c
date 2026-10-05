@@ -1,10 +1,82 @@
+/**
+ * @file OtuPinLogic.c
+ * @brief The wireless menu and result stages, and the board rules a badge's
+ *        movement uses: launch, friction and the cell types.
+ */
+
 #include "OtuFieldAccessShared.h"
 
+/** The 0x10-byte scratch buffer handed to the wireless stack with a 0x10 length. */
+extern u8 data_ov039_0209b120[0x10];
+
 /*
- * ov039 region 0x02089950 - 0x0208acc0. One translation unit of the
- * overlay; dsd gives each file a single contiguous `.text` claim. The
- * shared types, externs and prototypes are in OtuFieldAccessShared.h.
+ * Four cross-overlay objects in ov038. `data_ov038_0209edc0` is passed to the
+ * two 02047xxx entry points as an argument block, `...eef4` to
+ * func_ov040_0209d970 as a name, and `...ef48` / `...ef6c` to ov003's
+ * registration routine as the first of its two arguments. Note the *two* copies
+ * of the last one: 02089a80 passes ...ef48 and 0208a098 passes ...ef6c. That is
+ * a real difference between the two board variants, not a transcription slip.
  */
+extern u32 data_ov038_0209edc0;
+extern u32 data_ov038_0209eef4;
+extern u32 data_ov038_0209ef48;
+extern u32 data_ov038_0209ef6c;
+
+/**
+ * @brief The twelve four-byte cell-type tables 0208a794 selects between.
+ *
+ * Each is a 2x2 grid of bit flags packed into four bytes: entry `gy32 * 2 + gx32`
+ * with both halves of the division by 32. The values are drawn from the set
+ * {0, 1, 0x100, 0x101}, i.e. two independent bit flags, and the mapping is
+ * driven by the cell's type byte minus 0x10:
+ *
+ *     1 -> 48   2 -> 44   3 -> 50   4 -> 3C   5 -> 4C   6 -> 40
+ *     7 -> 68   8 -> 64   9..13 -> 60   14..18 -> 5C
+ *    19..23 -> 58   24..28 -> 54   anything else -> the cell's own first byte
+ *
+ * They are `.data`, not `.rodata`, so they are declared non-`const`.
+ */
+extern u8 data_ov039_0209923c[4];
+extern u8 data_ov039_02099240[4];
+extern u8 data_ov039_02099244[4];
+extern u8 data_ov039_02099248[4];
+extern u8 data_ov039_0209924c[4];
+extern u8 data_ov039_02099250[4];
+extern u8 data_ov039_02099254[4];
+extern u8 data_ov039_02099258[4];
+extern u8 data_ov039_0209925c[4];
+extern u8 data_ov039_02099260[4];
+extern u8 data_ov039_02099264[4];
+extern u8 data_ov039_02099268[4];
+
+/*
+ * Overlay 40's wireless stack, plus the two 02047xxx/02044xxx engine entry
+ * points the board's setup calls. All void except where noted.
+ */
+u16  func_ov040_0209cb68(void); // the connected players, one bit each
+s32  func_ov040_0209cde4(void);
+void func_ov040_0209caac(s32 arg0);
+void func_ov040_0209cb9c(void);
+void func_ov040_0209cb08(void* state, s32 arg1);
+void func_ov040_0209cabc(void* state, s32 arg1);
+void func_ov040_0209c158(void);
+void func_ov040_0209ba04(void (*cb)(WMBssDesc*, TinPinSlammer_Scene*), void* scene, void* bssid, s32 arg3);
+void func_ov040_0209d0a8(s32 arg0, s32 arg1, s32 arg2);
+void func_ov040_0209d290(s32 arg0, WMBssDesc* parent);
+void func_ov040_0209d40c(void (*cb)(), void* arg);
+void func_ov040_0209d420(void (*cb)(), void* arg);
+void func_ov040_0209d818(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5);
+void func_ov040_0209d848(s32 arg0);
+void func_ov040_0209ece8(void* buf, s32 len);
+void func_ov040_0209ec5c(void (*cb)(TinPinSlammer_Scene*, s32, const void*, s32), void* scene, void* buf, s32 len);
+void func_ov040_0209ed58(s32 arg0);
+void func_ov040_0209ef88(void);
+void func_ov040_0209efc0(void);
+s32  func_020442f8(void);
+void func_020471ec(s32 a0, s32 a1, void* arg);
+void func_020472a8(void* arg);
+void func_0204737c(void);
+
 // Size: 0xF0 (only 0xE8..0xEF are known)
 
 /* ------------------------------------------------------------------ */
@@ -125,7 +197,7 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
             // residual is pool placement, not code.
             i = 0;
             do {
-                if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 1) {
+                if (((OtuPadState*)func_ov039_02088440(i))->phase != 1) {
                     break;
                 }
                 i = i + 1;
@@ -165,7 +237,7 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
         case 4:
             data_ov039_0209ad00 = 2;
             for (i = 0; i < stage->badgeCount; i++) {
-                if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 2) {
+                if (((OtuPadState*)func_ov039_02088440(i))->phase != 2) {
                     break;
                 }
             }
@@ -178,7 +250,7 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
         case 6:
             data_ov039_0209ad00 = 3;
             for (i = 0; i < stage->badgeCount; i++) {
-                if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 3) {
+                if (((OtuPadState*)func_ov039_02088440(i))->phase != 3) {
                     break;
                 }
             }
@@ -257,7 +329,7 @@ void func_ov039_02089d6c(TinPinSlammer_Scene* scene) {
 
     if (stage->badgeCount > 0) {
         do {
-            if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 4) {
+            if (((OtuPadState*)func_ov039_02088440(i))->phase != 4) {
                 break;
             }
             i++;
@@ -340,7 +412,7 @@ void func_ov039_02089e78(TinPinSlammer_Scene* scene) {
  *        pool count, and creates the two child tasks.
  *
  * `state.unk_EE0` is latched into the block's child count -- so the count the
- * rest of the band polls is the count as it was at entry, not a live read. Both
+ * stage's steps poll is the count as it was at entry, not a live read. Both
  * handle-creating calls take the same `base.spareDataType`, which is what ties
  * the two children to one wireless session.
  */
@@ -472,7 +544,7 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
         case 1:
             data_ov039_0209ad00 = 1;
             for (i = 0; i < stage->badgeCount; i++) {
-                if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 1) {
+                if (((OtuPadState*)func_ov039_02088440(i))->phase != 1) {
                     break;
                 }
             }
@@ -499,7 +571,7 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
         case 4:
             data_ov039_0209ad00 = 2;
             for (i = 0; i < stage->badgeCount; i++) {
-                if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 2) {
+                if (((OtuPadState*)func_ov039_02088440(i))->phase != 2) {
                     break;
                 }
             }
@@ -520,7 +592,7 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
         case 6:
             data_ov039_0209ad00 = 3;
             for (i = 0; i < stage->badgeCount; i++) {
-                if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 3) {
+                if (((OtuPadState*)func_ov039_02088440(i))->phase != 3) {
                     break;
                 }
             }
@@ -578,7 +650,7 @@ void func_ov039_0208a354(TinPinSlammer_Scene* scene) {
 
     if (stage->badgeCount > 0) {
         do {
-            if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 4) {
+            if (((OtuPadState*)func_ov039_02088440(i))->phase != 4) {
                 break;
             }
             i++;
@@ -768,11 +840,7 @@ s32 func_ov039_0208a624(OtuPoint* a, OtuPoint* b, OtuPoint* c) {
  * `func_ov039_02098bd4` is the Q12.12 scale-and-replace, so passing the same
  * point as both source and destination is how the target writes it -- there is
  * no separate "scale in place" helper in the overlay.
- *
- * `func_ov039_02098d10` is declared `s32` by band 3 but defined `void` in
- * OtuVecOps.c; the value is used here, so this band relies on band 3's
- * declaration. That inconsistency is pre-existing and not something this band
- * can fix from inside an include.
+
  */
 void func_ov039_0208a6c4(OtuPoint* v) {
     if (func_ov039_02098d10(v) <= 0x8000) {

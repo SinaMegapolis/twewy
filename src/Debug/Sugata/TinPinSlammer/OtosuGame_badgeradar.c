@@ -5,6 +5,20 @@
 
 #include "OtuFieldAccessShared.h"
 
+/* The task's creation block. */
+typedef struct {
+    s32                    dataType;
+    s32                    pinId;
+    s32                    index;
+    struct OtuBoardLayout* board;
+    s32                    isFirst;
+} OtuBadgeRadarArgs;
+
+/* The task's sprite template, stage table and handle. */
+extern const SpriteAnimation data_ov039_02099a7c;
+extern const TaskStages      data_ov039_02099a6c;
+extern const TaskHandle      data_ov039_02099a60;
+
 SpriteFrameInfo* func_ov039_0209352c(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
@@ -119,7 +133,7 @@ s32 func_ov039_02093668(TaskPool* pool, Task* self, OtuBadgeRadarArgs* args) {
  * 0xA0000 is 160.0 in Q12.12, so this reads as "pin position, shifted 160
  * units left and divided by eight", with a per-child skew folded in from the
  * byte table. What the byte table *is* is not established here -- it arrives as
- * a bare pointer in the init stage and nothing in this band writes it.
+ * a bare pointer in the init stage and nothing here writes it.
  */
 
 // Nonmatching: 91.3%. Everything through the position arithmetic matches

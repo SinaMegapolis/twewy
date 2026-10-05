@@ -1,10 +1,15 @@
+/**
+ * @file OtuFieldAccess.c
+ * @brief The board's obstacle list, the OAM sort-key packer and the wireless
+ *        touch-pad input.
+ */
+
 #include "OtuFieldAccessShared.h"
 
-/*
- * ov039 region 0x020883ac - 0x02088698: the board's obstacle list, the OAM
- * sort-key packer and the wireless touch-pad input. The shared types, externs
- * and prototypes are in OtuFieldAccessShared.h.
- */
+extern OtuPadState data_ov039_0209af20[];
+extern s32         data_ov039_0209ad04;
+extern s32         data_ov039_0209ad08[4];
+extern OtuPadState data_ov039_0209ad20;
 
 /* ------------------------------------------------------------------ */
 /* The board's obstacles.                                              */

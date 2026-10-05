@@ -5,6 +5,11 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const SpriteAnimation data_ov039_02099f20;
+
+/* The task's handle. */
+extern const TaskHandle data_ov039_02099f04;
+
 SpriteFrameInfo* func_ov039_02096e7c(Sprite* sprite, s32 arg, s32 mode) {
     OtuHahen* owner = sprite->owner;
 

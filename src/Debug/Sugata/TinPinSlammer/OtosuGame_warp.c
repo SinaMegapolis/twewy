@@ -5,6 +5,9 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const SpriteAnimation data_ov039_02099fb0;
+extern const TaskHandle      data_ov039_02099f94;
+
 SpriteFrameInfo* func_ov039_020977d0(Sprite* sprite, s32 arg, s32 mode) {
     OtuWarp* owner = sprite->owner;
 

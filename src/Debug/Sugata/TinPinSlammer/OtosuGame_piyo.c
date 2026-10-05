@@ -5,6 +5,10 @@
 
 #include "OtuFieldAccessShared.h"
 
+extern const SpriteAnimation data_ov039_02099370;
+extern const TaskHandle      data_ov039_02099354;
+extern const TaskStages      data_ov039_02099360;
+
 SpriteFrameInfo* func_ov039_0208f440(Sprite* sprite, s32 arg, s32 mode) {
     OtuPiyo* owner = sprite->owner;
 
