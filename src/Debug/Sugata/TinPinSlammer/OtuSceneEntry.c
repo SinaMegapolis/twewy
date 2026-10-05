@@ -8,77 +8,42 @@
 #include "Engine/Overlay/OverlayDispatcher.h"
 #include "Engine/Resources/PaletteMgr.h"
 #include "Engine/Resources/ResourceMgr.h"
+#include "OtosuMenu.h"
 #include "Save.h"
 
 /**
- * @brief The menus/results entry point -- the third scene variant.
+ * @brief The wireless entry point.
  *
- * The longest of the three entry points and the only one that branches. Where
- * `func_ov039_02082978` and `func_ov039_02082ae0` differ only in which setup
- * routine and which stage descriptor they finish with, this one also picks
- * between the menu stage and the result stage from the save record, and swaps
- * the two text-block templates to match.
- *
- * Structurally it is the same opening as the other two -- allocate the scene,
- * set the sequence name, build the heap, take two save slots, clear the slot
- * state, reinit the resource managers, start both task pools -- and then a tail
- * the others do not have:
- *
- *   * it latches the two `SystemStatusFlags` bits into the scene (the inverse of
- *     what `func_ov039_020831d8` does at teardown), and
- *   * it exchanges `OtuScene_WirelessMenu` and `OtuScene_ResultMenu` through a
- *     stack temporary when the record says the menus are already swapped.
- *
- * The swap is four `ldm`/`stm` pairs rather than a loop or a struct copy: mwcc
- * emits a 16-byte aggregate assignment as register-pair moves, and the temporary
- * has to be a real local for that to happen.
+ * The same opening as the other two entry points, then: latch and clear the
+ * two `SystemStatusFlags` bits (func_ov039_020831d8 restores them), take the
+ * board and player count from the save, swap the two text-block templates, and
+ * enter the wireless menu -- or, when the save holds a game key, rejoin that
+ * game's parent through the result stage.
  */
-// Nonmatching: 79.8%, and 16 bytes short of the target's 584.
-//
-// The logic is settled and every pool word pairs one-for-one with the target's:
-// the sequence-name index is 1 (the target reads `[base, #4]`), the record
-// fields are at +0x40A/+0x40B/+0x40C, and the copy source really is
-// `gSaveData + 0x3EC` (reached as two adds, hence OTU_WIRELESS_RECORD_SPLIT).
-// The three stage descriptors, both text-block globals and both save-slot clears
-// are all correct.
-//
-// Two things remain, both attempts at which made it *worse* and were reverted:
-//
-//   * the 16 missing bytes. The target loads each task-pool address from the
-//     literal pool and then adds the scene base -- `ldr r0, [pc, #x]` followed
-//     by `add r0, r4, r0` -- for both pools. Written inline this build folds
-//     each into one `add r0, r4, #0x41598`. Routing them through locals was
-//     tried and mwcc folded those too (568 -> 564, i.e. it got worse). Two
-//     literal-pool words the target does not have (`0x41598`, `0x41618`) are
-//     therefore missing from this build, which is most of the gap.
-//   * register allocation for the `SystemStatusFlags` latch and the record
-//     pointer: the target keeps the record in r12 and the latch result in r5,
-//     this build uses r5 and r2.
-//
-// The `ldmia`/`stmia` swap of the two text blocks does match, which is the part
-// most likely to have been wrong.
+// Nonmatching: 91.7%. The target loads both task-pool offsets (0x41598,
+// 0x41618) from the literal pool and adds the scene base; mwcc folds each into
+// an immediate add, which shifts the pool and the registers after it.
 void func_ov039_02082c50(void) {
     const char*          sequenceName = *((const char* const*)OtuScene_SequenceNames + 1);
-    TinPinSlammer_Scene* scene        = Mem_AllocHeapTail(&gDebugHeap, TIN_PIN_SLAMMER_SCENE_SIZE);
-    u8*                  record       = OTU_WIRELESS_RECORD(0x3020, 0);
-    OtuTextBlock         swap;
+    TinPinSlammer_Scene* scene        = Mem_AllocHeapTail(&gDebugHeap, sizeof(TinPinSlammer_Scene));
+    OtuPinTune           swap;
 
     Mem_SetSequence(&gDebugHeap, scene, sequenceName);
 
     MainOvlDisp_SetCbArg(scene);
     Mem_InitializeHeap(OTU_HEAP(scene), OTU_HEAP_BUFFER(scene), 0x30000);
 
-    scene->base.spareDataType = DatMgr_AllocateSlot();
-    scene->base.dataType      = DatMgr_AllocateSlot();
+    scene->spareDataType = DatMgr_AllocateSlot();
+    scene->dataType      = DatMgr_AllocateSlot();
 
     OtuScene_SlotState.count = 0;
     OtuScene_SlotState.flag  = 0;
-    scene->state.unk_EE4     = 0;
-    scene->state.unk_EE8     = 0;
-    scene->state.unk_EEC     = 0;
+    scene->linkLost          = 0;
+    scene->linkTimeout       = 0;
+    scene->linkOpen          = 0;
 
     func_ov039_02083944();
-    scene->base.prevResMgr = ResourceMgr_ReinitManagers(&scene->base.resMgr);
+    scene->prevResMgr = ResourceMgr_ReinitManagers(&scene->resMgr);
     EasyTask_InitializePool(OTU_POOL1(scene), OTU_HEAP(scene), 8, NULL, NULL);
     EasyTask_InitializePool(OTU_POOL2(scene), OTU_HEAP(scene), 0x180, NULL, NULL);
     func_0200d8f0();
@@ -91,22 +56,24 @@ void func_ov039_02082c50(void) {
     func_ov039_020825e8(scene);
     func_ov039_0208273c(scene);
 
-    scene->state.linkStatus     = SystemStatusFlags.unk_06;
-    scene->state.wirelessStatus = SystemStatusFlags.unk_07 != 0;
+    scene->linkStatus        = SystemStatusFlags.unk_06;
+    scene->wirelessStatus    = SystemStatusFlags.unk_07 != 0;
+    SystemStatusFlags.unk_06 = 0;
+    SystemStatusFlags.unk_07 = 0;
 
-    func_ov039_020824a0((u16*)scene);
+    func_ov039_020824a0(scene);
 
-    scene->pad_44A68[0]  = record[0x40C];
-    scene->state.unk_EE0 = record[0x40B];
+    scene->boardIndex  = gSaveData.otosuBoard;
+    scene->playerCount = gSaveData.otosuPlayerCount;
 
-    swap                  = OtuScene_WirelessMenu;
-    OtuScene_WirelessMenu = OtuScene_ResultMenu;
-    OtuScene_ResultMenu   = swap;
+    swap                = data_ov039_0209a47c;
+    data_ov039_0209a47c = data_ov039_0209a48c;
+    data_ov039_0209a48c = swap;
 
-    if (record[0x40A] == 0) {
+    if (gSaveData.otosuGameKey == 0) {
         func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_MenuStage);
     } else {
-        MI_CpuCopyU8(OTU_WIRELESS_RECORD_SPLIT(0x3EC), (u8*)scene + 0x41ED8, 6);
+        MI_CpuCopyU8(gSaveData.otosuParentBssid, scene->parentBssid, sizeof(scene->parentBssid));
         func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_ResultStage);
     }
 
@@ -133,7 +100,7 @@ void func_ov039_02082c50(void) {
  * from inside the overlay; the dispatcher reaches it through a function pointer,
  * so it has no incoming relocations.
  */
-// Nonmatching: 90.9%. Every call, field access and branch agrees with the
+// Nonmatching: 95.2%. Every call, field access and branch agrees with the
 // target. The remainder is register choice in the prologue (target holds the
 // scene in r4 and the pool-1 offset in r3; mwcc picks r5/r4) and the
 // literal-pool layout that follows from it.  Five source shapes were tried and
@@ -151,7 +118,7 @@ void func_ov039_02082e98(TinPinSlammer_Scene* scene) {
     OamMgr_ResetCommandQueues(&g_OamMgr[1]);
 
     EasyTask_ProcessPendingTasks(OTU_POOL1(scene));
-    if (scene->state.unk_698 != 0) {
+    if (scene->playing != 0) {
         EasyTask_ProcessPendingTasks(OTU_POOL2(scene));
     }
 
@@ -160,13 +127,13 @@ void func_ov039_02082e98(TinPinSlammer_Scene* scene) {
     EasyTask_UpdateActiveTasks(OTU_POOL1(scene));
     EasyTask_UpdateActiveTasks(OTU_POOL2(scene));
 
-    if (scene->state.unk_ADC != 0) {
+    if (scene->done != 0) {
         // 0x1F is the record's "finished" marker; anything else means the
         // wireless game is still in progress and the menu overlay is wanted.
-        if (*OTU_WIRELESS_RECORD(0x1000, 0x41C) != 0x1F) {
-            MainOvlDisp_ReplaceTop(&menuTag, OTU_OVERLAY_ID, func_ov039_0208694c, NULL, 0);
+        if (gSaveData.unk_341C != 0x1F) {
+            MainOvlDisp_ReplaceTop(&menuTag, OTU_OVERLAY_ID, ProcessOverlay_OtosuMenu_SinglePlayerRanking, NULL, 0);
         } else {
-            MainOvlDisp_ReplaceTop(&resultTag, OTU_OVERLAY_ID, func_ov039_020869cc, NULL, 0);
+            MainOvlDisp_ReplaceTop(&resultTag, OTU_OVERLAY_ID, ProcessOverlay_OtosuMenu_RoleSelection, NULL, 0);
         }
     }
 
@@ -208,7 +175,7 @@ void func_ov039_02082ff8(TinPinSlammer_Scene* scene) {
 
     if (OtuScene_SlotState.count == 0) {
         EasyTask_ProcessPendingTasks(OTU_POOL1(scene));
-        if (scene->state.unk_698 != 0) {
+        if (scene->playing != 0) {
             EasyTask_ProcessPendingTasks(OTU_POOL2(scene));
         }
 
@@ -218,11 +185,11 @@ void func_ov039_02082ff8(TinPinSlammer_Scene* scene) {
     EasyTask_UpdateActiveTasks(OTU_POOL1(scene));
     EasyTask_UpdateActiveTasks(OTU_POOL2(scene));
 
-    if (scene->state.unk_ADC != 0) {
-        if (scene->state.unk_AE0 == 0) {
-            MainOvlDisp_ReplaceTop(&linkTag, OTU_OVERLAY_ID, func_ov039_0208690c, NULL, 0);
+    if (scene->done != 0) {
+        if (scene->linkError == 0) {
+            MainOvlDisp_ReplaceTop(&linkTag, OTU_OVERLAY_ID, ProcessOverlay_OtosuMenu_MultiplayerRanking, NULL, 0);
         } else {
-            MainOvlDisp_ReplaceTop(&resultTag, OTU_OVERLAY_ID, func_ov039_0208698c, NULL, 0);
+            MainOvlDisp_ReplaceTop(&resultTag, OTU_OVERLAY_ID, ProcessOverlay_OtosuMenu_ConnectionError, NULL, 0);
         }
     }
 
@@ -242,23 +209,23 @@ void func_ov039_02082ff8(TinPinSlammer_Scene* scene) {
  */
 void func_ov039_02082978(void) {
     const char*          sequenceName = *((const char* const*)OtuScene_SequenceNames + 2);
-    TinPinSlammer_Scene* scene        = Mem_AllocHeapTail(&gDebugHeap, TIN_PIN_SLAMMER_SCENE_SIZE);
+    TinPinSlammer_Scene* scene        = Mem_AllocHeapTail(&gDebugHeap, sizeof(TinPinSlammer_Scene));
 
     Mem_SetSequence(&gDebugHeap, scene, sequenceName);
     MainOvlDisp_SetCbArg(scene);
     Mem_InitializeHeap(OTU_HEAP(scene), OTU_HEAP_BUFFER(scene), 0x30000);
 
-    scene->base.spareDataType = DatMgr_AllocateSlot();
-    scene->base.dataType      = DatMgr_AllocateSlot();
+    scene->spareDataType = DatMgr_AllocateSlot();
+    scene->dataType      = DatMgr_AllocateSlot();
 
     OtuScene_SlotState.count = 0;
     OtuScene_SlotState.flag  = 0;
-    scene->state.unk_EE4     = 0;
-    scene->state.unk_EE8     = 0;
-    scene->state.unk_EEC     = 0;
+    scene->linkLost          = 0;
+    scene->linkTimeout       = 0;
+    scene->linkOpen          = 0;
 
     func_ov039_02083928();
-    scene->base.prevResMgr = ResourceMgr_ReinitManagers(&scene->base.resMgr);
+    scene->prevResMgr = ResourceMgr_ReinitManagers(&scene->resMgr);
     EasyTask_InitializePool(OTU_POOL1(scene), OTU_HEAP(scene), 8, NULL, NULL);
     EasyTask_InitializePool(OTU_POOL2(scene), OTU_HEAP(scene), 0x180, NULL, NULL);
     func_0200d8f0();
@@ -271,9 +238,9 @@ void func_ov039_02082978(void) {
     func_ov039_020825e8(scene);
     func_ov039_02082724(scene);
 
-    scene->menuIndex = 0;
+    scene->matchIndex = 0;
 
-    func_ov039_020824a0((u16*)scene);
+    func_ov039_020824a0(scene);
     func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_FirstStage);
     MainOvlDisp_NextProcessStage();
 }
@@ -287,24 +254,24 @@ void func_ov039_02082978(void) {
  */
 void func_ov039_02082ae0(void) {
     const char*          sequenceName = *((const char* const*)OtuScene_SequenceNames + 0);
-    TinPinSlammer_Scene* scene        = Mem_AllocHeapTail(&gDebugHeap, TIN_PIN_SLAMMER_SCENE_SIZE);
+    TinPinSlammer_Scene* scene        = Mem_AllocHeapTail(&gDebugHeap, sizeof(TinPinSlammer_Scene));
 
     Mem_SetSequence(&gDebugHeap, scene, sequenceName);
 
     MainOvlDisp_SetCbArg(scene);
     Mem_InitializeHeap(OTU_HEAP(scene), OTU_HEAP_BUFFER(scene), 0x30000);
 
-    scene->base.spareDataType = DatMgr_AllocateSlot();
-    scene->base.dataType      = DatMgr_AllocateSlot();
+    scene->spareDataType = DatMgr_AllocateSlot();
+    scene->dataType      = DatMgr_AllocateSlot();
 
     OtuScene_SlotState.count = 0;
     OtuScene_SlotState.flag  = 0;
-    scene->state.unk_EE4     = 0;
-    scene->state.unk_EE8     = 0;
-    scene->state.unk_EEC     = 0;
+    scene->linkLost          = 0;
+    scene->linkTimeout       = 0;
+    scene->linkOpen          = 0;
 
     func_ov039_02083928();
-    scene->base.prevResMgr = ResourceMgr_ReinitManagers(&scene->base.resMgr);
+    scene->prevResMgr = ResourceMgr_ReinitManagers(&scene->resMgr);
     EasyTask_InitializePool(OTU_POOL1(scene), OTU_HEAP(scene), 8, NULL, NULL);
     EasyTask_InitializePool(OTU_POOL2(scene), OTU_HEAP(scene), 0x180, NULL, NULL);
     func_0200d8f0();
@@ -317,9 +284,9 @@ void func_ov039_02082ae0(void) {
     func_ov039_020825e8(scene);
     func_ov039_02082724(scene);
 
-    scene->menuIndex = *OTU_WIRELESS_RECORD(0x3000, 0x41C);
+    scene->matchIndex = gSaveData.unk_341C;
 
-    func_ov039_020824a0((u16*)scene);
+    func_ov039_020824a0(scene);
     func_ov039_02098a40(OTU_STAGE(scene), &OtuScene_WirelessBoard);
     MainOvlDisp_NextProcessStage();
 }
@@ -337,8 +304,8 @@ void func_ov039_02083164(TinPinSlammer_Scene* scene) {
     EasyTask_DestroyPool(OTU_POOL1(scene));
     EasyTask_DestroyPool(OTU_POOL2(scene));
     ResourceMgr_ReinitManagers(NULL);
-    DatMgr_ClearSlot(scene->base.spareDataType);
-    DatMgr_ClearSlot(scene->base.dataType);
+    DatMgr_ClearSlot(scene->spareDataType);
+    DatMgr_ClearSlot(scene->dataType);
     Mem_Free(&gDebugHeap, scene);
 }
 
@@ -366,8 +333,8 @@ void func_ov039_020831cc(TinPinSlammer_Scene* scene) {
 // two read-modify-writes than the target does. Six spellings of the bitfield
 // assignment and a locals-first variant were tried; all are equal or worse.
 void func_ov039_020831d8(TinPinSlammer_Scene* scene) {
-    SystemStatusFlags.unk_06 = scene->state.linkStatus != 0;
-    SystemStatusFlags.unk_07 = scene->state.wirelessStatus != 0;
+    SystemStatusFlags.unk_06 = scene->linkStatus != 0;
+    SystemStatusFlags.unk_07 = scene->wirelessStatus != 0;
 
     func_ov039_02083164(scene);
 }

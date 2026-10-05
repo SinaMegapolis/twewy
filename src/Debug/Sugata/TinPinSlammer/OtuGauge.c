@@ -5,66 +5,13 @@
  * overlay; dsd gives each file a single contiguous `.text` claim. The
  * shared types, externs and prototypes are in OtuFieldAccessShared.h.
  */
-/* ------------------------------------------------------------------ */
-/* The cell builder, 0x02094214.                                       */
-/* ------------------------------------------------------------------ */
 
-/**
- * @brief The `frameInfoCallback` all four of this task's templates name.
- *
- * The same body as the twenty-two in OtuFieldAccess.c and the three in band 2,
- * and with the same two known differences: it does not set the slot's +0x0C,
- * and it stores a constant 3 into the depth key instead of calling
- * `func_ov039_02088400`. The three flat short-circuit tests and the two-step
- * lookup are shared verbatim, down to the `ldrne` that is the short-circuit
- * over +0x18 and the fact that both the index and the table are re-loaded
- * between the two reads.
- *
- * +0x18, +0x1C and +0x16 are `Sprite.animData`, `Sprite.cellTable` and
- * `Sprite.cellIndex`, and the eight-byte stride is `SpriteCell` -- so `unk_04`
- * lands on the entry's `pieceCount` and `unk_08` on its `pieceOffset` scaled to
- * bytes. `OtuSpriteTask` is a `u8 pad_16[0x100]` blob, so the three reads are
- * spelled as casts rather than as fields; that is the form OtuFieldAccess.c
- * settled on and it is what the target's raw offsets come from.
- */
-/* `arg` is unused -- the target never loads r1 in either body. Kept as a named
- * parameter so the engine's selector stays in the third argument slot. */
-OtuSpriteSlot* func_ov039_02094214(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
+/* ==================================================================== */
+/* Tsk_OtosuGame_specialgauge                                           */
+/* ==================================================================== */
 
-    (void)arg;
-
-    switch (mode) {
-        case 1:
-            slot->unk_00 = 1;
-            return slot;
-
-        case 2: {
-            s32 index;
-            u8* table;
-
-            slot->unk_04   = 0;
-            slot->unk_08   = 0;
-            slot->unk_0C   = 0;
-            slot->depthKey = -1;
-
-            // The two-step lookup: a u16 out of the cell table at one stride,
-            // then a byte pointer built from the u16 at the other.
-            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
-                slot->unk_04 = *(u16*)(table + index * 8 + 2);
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
-            }
-
-            // The one place this differs from the twenty-two: a constant, not
-            // `func_ov039_02088400`. The `-1` above is still stored first, so
-            // the field is written twice on this path.
-            slot->depthKey = 3;
-            return slot;
-        }
-
-        default:
-            return NULL;
-    }
+SpriteFrameInfo* func_ov039_02094214(Sprite* sprite, s32 arg, s32 mode) {
+    Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
 /* ------------------------------------------------------------------ */
@@ -145,8 +92,8 @@ void func_ov039_02094418(OtuGauge* self, Sprite* sprite, s32 index, s32 which) {
 
     anim.owner     = self;
     anim.dataType  = (u16)self->dataType;
-    anim.posX      = ((u16*)&data_ov039_0209a790[index])[which * 2];
-    anim.posY      = ((u16*)&data_ov039_0209a790[index])[which * 2 + 1];
+    anim.posX      = data_ov039_0209a790[index][which].x;
+    anim.posY      = data_ov039_0209a790[index][which].y;
     anim.animIndex = index + 1;
 
     _Sprite_Load(sprite, &anim);
@@ -197,11 +144,11 @@ s32 func_ov039_020944bc(TaskPool* pool, Task* task, void* arg) {
         func_ov039_02094418(self, &self->digit[i].spriteHigh, i, 1);
     }
 
-    self->rotation = 0;
-    self->scaleX   = 0x1000;
-    self->scaleY   = 0x1000;
-    self->unk_498  = 0;
-    self->unk_49A  = 0;
+    self->affine.rotation = 0;
+    self->affine.scaleX   = 0x1000;
+    self->affine.scaleY   = 0x1000;
+    self->affine.unk_0C   = 0;
+    self->affine.unk_0E   = 0;
 
     return 1;
 }
@@ -255,19 +202,19 @@ s32 func_ov039_020944bc(TaskPool* pool, Task* task, void* arg) {
  * local rather than as `(count / 10) % 10 + 2` inline.
  */
 s32 func_ov039_020945c8(TaskPool* pool, Task* task, void* args) {
-    OtuGauge*   self = (OtuGauge*)task->data;
-    OtuPinTask* pin;
-    s32         i;
-    s32         count;
-    s32         alive;
+    OtuGauge* self = (OtuGauge*)task->data;
+    OtuBadge* pin;
+    s32       i;
+    s32       count;
+    s32       alive;
 
-    self->running  = 1;
-    self->rotation = (u16)(self->rotation + 0x100);
+    self->running         = 1;
+    self->affine.rotation = (u16)(self->affine.rotation + 0x100);
 
     Sprite_Update(&self->dial);
     Sprite_Update(&self->plate);
 
-    pin = (OtuPinTask*)EasyTask_GetTaskData(pool, self->pinId);
+    pin = (OtuBadge*)EasyTask_GetTaskData(pool, self->pinId);
 
     for (i = 0; i < 4; i++) {
         s16               frame;
@@ -353,16 +300,16 @@ s32 func_ov039_020945c8(TaskPool* pool, Task* task, void* args) {
             } else {
                 // Two digits: both take their places and the tens digit
                 // appears.
-                self->digit[i].spriteLow.posX = data_ov039_0209a790[i].lowX;
-                self->digit[i].spriteLow.posY = data_ov039_0209a790[i].lowY;
+                self->digit[i].spriteLow.posX = data_ov039_0209a790[i][0].x;
+                self->digit[i].spriteLow.posY = data_ov039_0209a790[i][0].y;
 
                 tens  = count / 10;
                 frame = (s16)(tens % 10);
                 Sprite_ChangeAnimation(&self->digit[i].spriteHigh, self->digit[i].spriteHigh.animData, frame + 2,
                                        self->digit[i].spriteHigh.cellTable);
 
-                self->digit[i].spriteHigh.posX = data_ov039_0209a790[i].highX;
-                self->digit[i].spriteHigh.posY = data_ov039_0209a790[i].highY;
+                self->digit[i].spriteHigh.posX = data_ov039_0209a790[i][1].x;
+                self->digit[i].spriteHigh.posY = data_ov039_0209a790[i][1].y;
             }
 
             self->lastCount[i] = (s16)count;
@@ -410,11 +357,8 @@ s32 func_ov039_020948f4(TaskPool* pool, Task* task, void* args) {
     s32       i;
 
     if (self->running != 0) {
-        self->dial.unk_0A.raw =
-            (self->dial.unk_0A.raw & ~0x3E0) |
-            ((u32)(u16)OamMgr_AllocAffineGroup(&g_OamMgr[self->dial.bits_0_1], self->rotation, self->scaleX, self->scaleY, 0)
-                 << 0x1B >>
-             0x16);
+        self->dial.unk_0A.unk_05 = (u16)OamMgr_AllocAffineGroup(&g_OamMgr[self->dial.bits_0_1], self->affine.rotation,
+                                                                self->affine.scaleX, self->affine.scaleY, 0);
         Sprite_RenderFrame(&self->dial);
         Sprite_RenderFrame(&self->plate);
 
@@ -510,308 +454,171 @@ s32 func_ov039_02094ab4(TaskPool* pool, s32 arg1, s32 arg2) {
     return EasyTask_CreateTask(pool, &data_ov039_02099b98, NULL, 0, NULL, &args);
 }
 
-// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
-// are all correct; what is left is mwcc scheduling the two-step lookup.
-//
-// Three bugs were real and are fixed, so the remaining gap is not one of those:
-//
-//   * the axis argument to func_ov039_02088400 is passed and never read -- the
-//     target loads it into r2 and then uses r2 only as the mask source, so the
-//     last instruction is a plain shift. The packer is now a full MATCH.
-//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
-//     Every store in the target is `str`, and the widths are load-bearing.
-//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
-//     not two nested ones. The target's `ldrne` on the table load is the
-//     short-circuit, which is why +0x18 is tested at all.
-/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
- * only r2. Kept as a named parameter so the selector stays in the third
- * argument slot, which is where the target reads it. */
-OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
+/* ==================================================================== */
+/* Tsk_OtosuGame_spark                                                  */
+/* ==================================================================== */
 
-    (void)arg;
+SpriteFrameInfo* func_ov039_02094ae8(Sprite* sprite, s32 arg, s32 mode) {
+    OtuSpark* owner = sprite->owner;
 
-    switch (mode) {
-        case 1:
-            slot->unk_00 = 1;
-            return slot;
-
-        case 2: {
-            s32 index;
-            u8* table;
-
-            slot->unk_04   = 0;
-            slot->unk_08   = 0;
-            slot->unk_0C   = 0;
-            slot->depthKey = -1;
-
-            // The two-step lookup: a u16 out of the task's table at one stride,
-            // then a byte pointer built from the u16 at the other. Guarded on the
-            // table pointer and on the index being non-negative.
-            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
-                slot->unk_04 = ((u16*)table)[index * 4 + 1];
-                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
-            }
-
-            slot->unk_0C   = (void*)((u8*)t + 0x40);
-            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 3);
-            return slot;
-        }
-
-        default:
-            return NULL;
-    }
+    Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(3, owner->pos.y, owner->height));
 }
 
-/**
- * Loads the sprite for the task whose anim template is data_ov039_02099c80.
- *
- * The only member of the family whose position is a difference rather than a
- * raw value: x is `+0x58 - +0x50` and y adds a third term at +0x60, the same
- * pair `func_ov039_02094dac` writes into the sprite's posX/posY.
- */
-void func_ov039_02094bac(void* self, void* sprite, s32* args) {
+void func_ov039_02094bac(OtuSpark* self, Sprite* sprite, OtuTaskArgs1* args) {
     SpriteAnimation anim = data_ov039_02099c80;
 
     anim.owner    = self;
-    anim.dataType = (u16) * (s32*)args;
-    anim.posX     = (s32)((*(s32*)((u8*)self + 0x58) - *(s32*)((u8*)self + 0x50)) >> 12);
-    anim.posY     = (s32)((*(s32*)((u8*)self + 0x60) + (*(s32*)((u8*)self + 0x5C) - *(s32*)((u8*)self + 0x54))) >> 12);
-    _Sprite_Load((Sprite*)sprite, &anim);
+    anim.dataType = (u16)args->dataType;
+    anim.posX     = (s32)((self->pos.x - self->origin.x) >> 12);
+    anim.posY     = (s32)((self->height + (self->pos.y - self->origin.y)) >> 12);
+    _Sprite_Load(sprite, &anim);
 }
 
-/** The same reset against the sibling helper, over a longer zero run. */
-s32 func_ov039_02094c50(void* pool, void* task, s32* args) {
-    u8* sprite = *(u8**)((u8*)task + 0x18);
+s32 func_ov039_02094c50(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
+    OtuSpark* self = task->data;
 
-    (void)pool;
+    self->active          = 0;
+    self->visible         = 0;
+    self->origin.x        = 0;
+    self->origin.y        = 0;
+    self->pos.x           = 0;
+    self->pos.y           = 0;
+    self->height          = 0;
+    self->dir.x           = 0;
+    self->dir.y           = 0;
+    self->affine.rotation = 0;
+    self->affine.scaleX   = 0x2000;
+    self->affine.scaleY   = 0x2000;
+    self->affine.unk_0C   = 0;
+    self->affine.unk_0E   = 0;
 
-    *(s32*)(sprite + 0x74) = 0;
-    *(s32*)(sprite + 0x78) = 0;
-    *(s32*)(sprite + 0x50) = 0;
-    *(s32*)(sprite + 0x54) = 0;
-    *(s32*)(sprite + 0x58) = 0;
-    *(s32*)(sprite + 0x5C) = 0;
-    *(s32*)(sprite + 0x60) = 0;
-    *(s32*)(sprite + 0x64) = 0;
-    *(s32*)(sprite + 0x68) = 0;
-    *(s32*)(sprite + 0x40) = 0;
-    *(s32*)(sprite + 0x44) = 0x2000;
-    *(s32*)(sprite + 0x48) = 0x2000;
-    *(s16*)(sprite + 0x4C) = 0;
-    *(s16*)(sprite + 0x4E) = 0;
-
-    func_ov039_02094bac(sprite, sprite, args);
+    func_ov039_02094bac(self, &self->sprite, args);
     return 1;
 }
 
 /**
- * @brief The spring step: a scaled value, then a damped velocity and a bounce.
- *
- * +0x80 is a countdown. While it runs, +0x44 and +0x48 are both set to
- * `(count << 13) / +0x7C`, the +0x6C axis is stepped down by
- * `data_ov039_0209a304` and clamped at zero, +0x70 is stepped up by
- * `data_ov039_0209a310`, and `func_ov039_02098c00` integrates the pair at
- * +0x64 into +0x58. The +0x60 accumulator is then moved by +0x70 and, when it
- * overshoots, is clamped and its velocity damped by `-data_ov039_0209a300`.
+ * Flies the spark like an OtuHahen. The clear is the `then` arm and there is
+ * one shared `return 1`: that is the target's block layout.
  */
-s32 func_ov039_02094ca8(void* pool, void* task) {
-    u8* sprite = *(u8**)((u8*)task + 0x18);
-    s32 count;
-    s32 scale;
-    s32 v;
+s32 func_ov039_02094ca8(TaskPool* pool, Task* task, void* args) {
+    OtuSpark* self = task->data;
+    s32       count;
+    s32       scale;
+    s32       v;
 
-    (void)pool;
-
-    /* One `return 1` at the end, and the guard arms ordered so the *clear* is
-     * the `then`: the target lays that inline as the fall-through and branches
-     * to the spring body, which `if (count > 0) { spring } else { clear }`
-     * inverts. `func_ov039_020981a4` needed the opposite polarity on its first
-     * guard -- in both cases it is the layout, not the meaning, that decides. */
-    if (*(s32*)(sprite + 0x74) != 0) {
-        count                  = *(s32*)(sprite + 0x80) - 1;
-        *(s32*)(sprite + 0x80) = count;
+    if (self->active != 0) {
+        count      = self->life - 1;
+        self->life = count;
 
         if (count <= 0) {
-            *(s32*)(sprite + 0x74) = 0;
-            *(s32*)(sprite + 0x78) = 0;
+            self->active  = 0;
+            self->visible = 0;
         } else {
-            scale                  = (count << 13) / *(s32*)(sprite + 0x7C);
-            *(s32*)(sprite + 0x48) = scale;
-            *(s32*)(sprite + 0x44) = scale;
+            scale               = (count << 13) / self->lifeMax;
+            self->affine.scaleY = scale;
+            self->affine.scaleX = scale;
 
-            v                      = *(s32*)(sprite + 0x6C) - data_ov039_0209a304;
-            *(s32*)(sprite + 0x6C) = v;
+            v           = self->speed - data_ov039_0209a304;
+            self->speed = v;
             if (v < 0) {
-                *(s32*)(sprite + 0x6C) = 0;
+                self->speed = 0;
             }
 
-            *(s32*)(sprite + 0x70) = *(s32*)(sprite + 0x70) + data_ov039_0209a310;
+            self->vz = self->vz + data_ov039_0209a310;
 
-            func_ov039_02098c00(*(s32*)(sprite + 0x6C), (OtuPoint*)(sprite + 0x64), (OtuPoint*)(sprite + 0x58),
-                                (OtuPoint*)(sprite + 0x58));
+            func_ov039_02098c00(self->speed, &self->dir, &self->pos, &self->pos);
 
-            v                      = *(s32*)(sprite + 0x60) + *(s32*)(sprite + 0x70);
-            *(s32*)(sprite + 0x60) = v;
+            v            = self->height + self->vz;
+            self->height = v;
             if (v > 0) {
-                *(s32*)(sprite + 0x60) = 0;
-                if (*(s32*)(sprite + 0x70) > 0) {
-                    *(s32*)(sprite + 0x70) = (s32)(((s64) * (s32*)(sprite + 0x70) * -data_ov039_0209a300 + 0x800) >> 12);
+                self->height = 0;
+                if (self->vz > 0) {
+                    self->vz = (s32)(((s64)self->vz * -data_ov039_0209a300 + 0x800) >> 12);
                 }
             }
 
-            Sprite_Update((Sprite*)sprite);
-            *(s32*)(sprite + 0x78) = 1;
+            Sprite_Update(&self->sprite);
+            self->visible = 1;
         }
     }
     return 1;
 }
 
-/** Steps and renders the sprite block at task+0x18 when +0x78 is set. */
-s32 func_ov039_02094dac(void* pool, void* task) {
-    Sprite* sprite = *(Sprite**)((u8*)task + 0x18);
+s32 func_ov039_02094dac(TaskPool* pool, Task* task, void* args) {
+    OtuSpark* self = task->data;
 
-    (void)pool;
-
-    if (*(s32*)((u8*)sprite + 0x78) != 0) {
-        *(s16*)((u8*)sprite + 0x0C) = (s16)((*(s32*)((u8*)sprite + 0x58) - *(s32*)((u8*)sprite + 0x50)) >> 12);
-        *(s16*)((u8*)sprite + 0x0E) =
-            (s16)((*(s32*)((u8*)sprite + 0x60) + (*(s32*)((u8*)sprite + 0x5C) - *(s32*)((u8*)sprite + 0x54))) >> 12);
-        Sprite_RenderFrame(sprite);
+    if (self->visible != 0) {
+        self->sprite.posX = (s16)((self->pos.x - self->origin.x) >> 12);
+        self->sprite.posY = (s16)((self->height + (self->pos.y - self->origin.y)) >> 12);
+        Sprite_RenderFrame(&self->sprite);
     }
     return 1;
 }
 
-/** Releases the sprite at task+0x18 and reports success. */
-s32 func_ov039_02094dfc(void* pool, void* task) {
-    (void)pool;
-    Sprite_Release(*(Sprite**)((u8*)task + 0x18));
+s32 func_ov039_02094dfc(TaskPool* pool, Task* task, void* args) {
+    Sprite_Release(&((OtuSpark*)task->data)->sprite);
     return 1;
 }
 
-void func_ov039_02094e10(void* a, void* b, void* c, s32 index) {
-    TaskStages table = data_ov039_02099c70;
+s32 func_ov039_02094e10(TaskPool* pool, Task* task, void* args, s32 stage) {
+    TaskStages stages = data_ov039_02099c70;
 
-    table.iter[index](a, b, c);
+    return stages.iter[stage](pool, task, args);
 }
 
-/** Spawns the task table data_ov039_02099c64 with one word of args. */
-s32 func_ov039_02094e58(TaskPool* pool, s32 arg) {
-    s32 args = arg;
+s32 func_ov039_02094e58(TaskPool* pool, s32 dataType) {
+    OtuTaskArgs1 args;
 
+    args.dataType = dataType;
     return EasyTask_CreateTask(pool, &data_ov039_02099c64, NULL, 0, NULL, &args);
 }
 
-/** Writes the +0x50/+0x54 pair from a point -- the pair's setter. */
-void func_ov039_02094e88(void* task, OtuPoint* in) {
-    *(OtuPoint*)((u8*)task + 0x50) = *in;
+/** Sets the point the spark is drawn relative to. */
+void func_ov039_02094e88(OtuSpark* self, OtuPoint* origin) {
+    self->origin = *origin;
 }
 
 /**
- * @brief Randomises the sprite's launch vector and picks a starting animation.
- *
- * The two velocity components are drawn from opposite ends of their ranges:
- * +0x6C starts at `data_ov039_0209a314` and is pushed *up* by a random span,
- * +0x70 starts at the negation of `data_ov039_0209a2fc` and is pushed *down*.
- * The magnitude at +0x7C/+0x80 is then that second component scaled by 3 and
- * taken as an absolute value -- spelled as the three-way ternary `abs` is a
- * macro for, which is why `FX_Divide` is called three times in the target
- * rather than once and reused.
+ * Launches a spark from `at`: a jittered speed, an upward kick, a random
+ * direction from the base game's table and one of animations 1..3.
  */
-// Nonmatching: 85.5%, all of it scheduling and register choice at the top of
-// the body. The target loads both `at` components before either is stored (x in
-// r2, y in r1); this source stores x before it loads y. Hoisting the two reads
-// into named locals is the obvious fix and scores *worse* (84%), because it
-// also moves the pool-constant loads. Everything from the `data_ov039_0209a314`
-// store down agrees instruction for instruction, including the three
-// `FX_Divide` calls.
-void func_ov039_02094e9c(void* task, OtuPoint* at) {
-    u8* sprite = (u8*)task;
+// Nonmatching: 88.9%, scheduling at the top: the target loads both halves of
+// `at` before storing either.
+void func_ov039_02094e9c(OtuSpark* self, OtuPoint* at) {
     s32 cell;
-    s32 mag;
+    s32 airtime;
 
-    *(s32*)(sprite + 0x74) = 1;
-    *(s32*)(sprite + 0x44) = 0x2000;
-    *(s32*)(sprite + 0x48) = 0x2000;
-    *(s32*)(sprite + 0x58) = at->x;
-    *(s32*)(sprite + 0x5C) = at->y;
-    *(s32*)(sprite + 0x60) = 0;
+    self->active        = 1;
+    self->affine.scaleX = 0x2000;
+    self->affine.scaleY = 0x2000;
+    self->pos.x         = at->x;
+    self->pos.y         = at->y;
+    self->height        = 0;
 
-    *(s32*)(sprite + 0x6C) = data_ov039_0209a314;
-    *(s32*)(sprite + 0x6C) = *(s32*)(sprite + 0x6C) + RNG_Next(data_ov039_0209a328 - data_ov039_0209a314);
+    self->speed = data_ov039_0209a314;
+    self->speed = self->speed + RNG_Next(data_ov039_0209a328 - data_ov039_0209a314);
 
-    *(s32*)(sprite + 0x70) = -data_ov039_0209a2fc;
-    *(s32*)(sprite + 0x70) = *(s32*)(sprite + 0x70) - RNG_Next(data_ov039_0209a30c - data_ov039_0209a2fc);
+    self->vz = -data_ov039_0209a2fc;
+    self->vz = self->vz - RNG_Next(data_ov039_0209a30c - data_ov039_0209a2fc);
 
-#define OTU_SPRING_MAG ((FX_Divide(*(s32*)(sprite + 0x70), data_ov039_0209a310) * 3) >> 12)
-    /* `abs` as the macro it is: the argument is evaluated once for the test and
-     * once per arm, so the three-way form is load-bearing. The `< 0` polarity
-     * is too -- the target lays the negating arm out inline and branches to the
-     * plain one (`bpl`), and the `>= 0` spelling inverts that. */
-    mag = OTU_SPRING_MAG < 0 ? -OTU_SPRING_MAG : OTU_SPRING_MAG;
-#undef OTU_SPRING_MAG
+    airtime = OTU_ABS_AIRTIME(self->vz);
 
-    *(s32*)(sprite + 0x7C) = mag;
-    *(s32*)(sprite + 0x80) = mag;
+    self->lifeMax = airtime;
+    self->life    = airtime;
 
-    /* The sin/cos table is s32[] but holds pairs of s16, so each half has to be
-     * fetched through a s16* at a doubled byte offset. */
-    cell                   = RNG_Next(0x10000) >> 4;
-    *(s32*)(sprite + 0x64) = *(s16*)((u8*)&data_0205e4e0 + (cell * 2 + 1) * 2);
-    *(s32*)(sprite + 0x68) = *(s16*)((u8*)&data_0205e4e0 + (cell * 2) * 2);
+    cell        = RNG_Next(0x10000) >> 4;
+    self->dir.x = ((s16*)data_0205e4e0)[cell * 2 + 1];
+    self->dir.y = ((s16*)data_0205e4e0)[cell * 2];
 
-    Sprite_ChangeAnimation((Sprite*)sprite, *(s32*)(sprite + 0x18), *(s32*)(sprite + 0x1C), (s16)(RNG_Next(3) + 1));
+    Sprite_ChangeAnimation(&self->sprite, self->sprite.animData, (s16)(RNG_Next(3) + 1), self->sprite.cellTable);
 }
 
-// Nonmatching: 68-78%. The body, the three varied constants and the guard chain
-// are all correct; what is left is mwcc scheduling the two-step lookup.
-//
-// Three bugs were real and are fixed, so the remaining gap is not one of those:
-//
-//   * the axis argument to func_ov039_02088400 is passed and never read -- the
-//     target loads it into r2 and then uses r2 only as the mask source, so the
-//     last instruction is a plain shift. The packer is now a full MATCH.
-//   * slot+0x04 and slot+0x08 are 32-bit words, not a u16 and a byte pointer.
-//     Every store in the target is `str`, and the widths are load-bearing.
-//   * the guard is three flat short-circuit tests over +0x18, +0x1C and +0x16,
-//     not two nested ones. The target's `ldrne` on the table load is the
-//     short-circuit, which is why +0x18 is tested at all.
-/* `arg` is unused: the target loads r1 nowhere in these bodies and compares
- * only r2. Kept as a named parameter so the selector stays in the third
- * argument slot, which is where the target reads it. */
-OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 arg, s32 mode) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
+/* ==================================================================== */
+/* Tsk_OtosuGame_slash (continued in OtuEntryTasks.c)                   */
+/* ==================================================================== */
 
-    (void)arg;
+SpriteFrameInfo* func_ov039_02094ff4(Sprite* sprite, s32 arg, s32 mode) {
+    OtuSlashTask* owner = sprite->owner;
 
-    switch (mode) {
-        case 1:
-            slot->unk_00 = 1;
-            return slot;
-
-        case 2: {
-            s32 index;
-            u8* table;
-
-            slot->unk_04   = 0;
-            slot->unk_08   = 0;
-            slot->unk_0C   = 0;
-            slot->depthKey = -1;
-
-            // The two-step lookup: a u16 out of the task's table at one stride,
-            // then a byte pointer built from the u16 at the other. Guarded on the
-            // table pointer and on the index being non-negative.
-            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
-                slot->unk_04 = ((u16*)table)[index * 4 + 1];
-                slot->unk_08 = (s32)(u8*)(table + ((u16*)table)[index * 4] * 2);
-            }
-
-            slot->unk_0C   = (void*)((u8*)t + 0x40);
-            slot->depthKey = func_ov039_02088400(*(s32*)((u8*)t + 0x5C), 0, 0);
-            return slot;
-        }
-
-        default:
-            return NULL;
-    }
+    Sprite_FrameInfoCallbackAffineSorted(sprite, mode, &owner->affine, func_ov039_02088400(6, owner->pos.y, 0));
 }

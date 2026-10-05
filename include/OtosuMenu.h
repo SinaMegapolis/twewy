@@ -210,4 +210,9 @@ void ProcessOverlay_OtosuMenu_MultiplayerRanking(void* menuObj);
  */
 void ProcessOverlay_OtosuMenu_ConnectionError(void* menuObj);
 
+/**
+ * @brief Launcher for the role selection screen of Tin Pin Slammer
+ */
+void ProcessOverlay_OtosuMenu_RoleSelection(void* menuObj);
+
 #endif // OTOSUMENU_H

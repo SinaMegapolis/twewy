@@ -21,7 +21,7 @@
  * one BG layer rather than a repaint.
  */
 s32 func_ov039_020933c0(TaskPool* pool, Task* self, void* arg) {
-    OtuBgTaskData* data = (OtuBgTaskData*)self->data;
+    OtuOvbg* data = (OtuOvbg*)self->data;
 
     PaletteMgr_SetSource(g_PaletteManagers[1], data->palettes[1], func_ov039_02098dbc(&data->paletteAnim));
     return 1;
@@ -46,10 +46,6 @@ s32 func_ov039_020933c0(TaskPool* pool, Task* self, void* arg) {
  * work. Same instruction, different meaning; the four are left independent.
  */
 s32 func_ov039_020933f0(TaskPool* pool, Task* self, void* arg) {
-    (void)pool;
-    (void)self;
-    (void)arg;
-
     return 1;
 }
 
@@ -65,8 +61,8 @@ s32 func_ov039_020933f0(TaskPool* pool, Task* self, void* arg) {
  * costs an add per access.
  */
 s32 func_ov039_020933f8(TaskPool* pool, Task* self, void* arg) {
-    OtuBgTaskData* data = (OtuBgTaskData*)self->data;
-    s32            i;
+    OtuOvbg* data = (OtuOvbg*)self->data;
+    s32      i;
 
     for (i = 0; i < 4; i++) {
         BgResMgr_ReleaseChar(g_BgResourceManagers[1], data->screens[i]);
@@ -107,14 +103,14 @@ s32 func_ov039_02093460(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * handle already comes back in r0 and both compile to the same
  * instructions. Same finding as func_ov039_02098394 in band 8.
  */
-s32 func_ov039_020934a8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3) {
-    s32 args[3];
+s32 func_ov039_020934a8(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout) {
+    OtuBoardArgs args;
 
-    args[0] = arg1;
-    args[1] = arg2;
-    args[2] = arg3;
+    args.dataType = dataType;
+    args.heap     = heap;
+    args.layout   = layout;
 
-    return EasyTask_CreateTask(pool, &data_ov039_020999b4, NULL, 0, NULL, args);
+    return EasyTask_CreateTask(pool, &data_ov039_020999b4, NULL, 0, NULL, &args);
 }
 
 /**
@@ -130,7 +126,7 @@ s32 func_ov039_020934a8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3) {
  * frames: `func_ov039_02098dbc` steps through the table one entry per call and
  * wraps at this value.
  */
-void func_ov039_020934e0(OtuBgTaskData* data) {
+void func_ov039_020934e0(OtuOvbg* data) {
     if (data->paletteAnim.table == data_ov039_02099a18) {
         return;
     }
@@ -140,95 +136,11 @@ void func_ov039_020934e0(OtuBgTaskData* data) {
 }
 
 /* ==================================================================== */
-/* The sprite-cell builders shared by this band's loaders.             */
+/* Tsk_OtosuGame_badgeradar                                             */
 /* ==================================================================== */
 
-/*
- * 0209352c, 02093884 and 02093e3c.
- *
- * These three are the same function. Not "the same body with a constant
- * varied" as the twenty-two in OtuFieldAccess.c -- byte-identical, all three,
- * with no constant to speak of. They differ from the twenty-two in exactly one
- * way: the depth key is the constant 3 rather than a call into the packer.
- * Everything else, including the three zero stores at +0x04, +0x08 and +0x0C,
- * is the same.
- *
- * The constant 3 is the interesting one. `func_ov039_02088400` returns a
- * quantised `(x << 23) + (y << 12)` key, so a literal 3 cannot be one of those:
- * it is a sort key that says "these cells are coplanar and their order is
- * fixed", which is what a set of glyphs for one number needs. The five
- * animation templates that reference these (`data_ov039_02099a7c`,
- * `data_ov039_02099af8`, `data_ov039_02099acc`, `data_ov039_02099b24`,
- * `data_ov039_02099b6c`) all carry a `frameInfoCallback` of one of the three.
- *
- * **The `sel` argument is the third one, not the second.** The target opens
- * with `cmp r2, #1`, and these are `SpriteFrameInfoCallback`s -- the engine
- * calls them as `(sprite, callbackArg, mode)`, with `mode` in r2. The mode
- * constants are in SpriteMgr.h: 0 LOAD, 1 UPDATE, 2 RENDER, 3 RELEASE. So:
- *
- *   mode 1 (UPDATE)   raise slot+0x00 and return -- "this sprite is live";
- *   mode 2 (RENDER)   fill the cell in from the task's table;
- *   anything else     return NULL -- LOAD and RELEASE draw nothing.
- *
- * That is not a guess: `case 2` is the branch that populates the cell, which is
- * precisely what a render callback is for, and `case 1` returning a slot with
- * only its first word set is what an update callback can usefully report.
- * Declaring these with two parameters moves the selector into r1 and costs the
- * first six instructions of the function.
- */
-
-// Nonmatching: 88.7%. The guard chain, the two-step lookup, the store order and
-// the constant-3 tail are all correct. What is left is that mwcc keeps the
-// table pointer and the index live across the `str` between the two lookups
-// (r12 and r3 here), where the target re-loads both -- `ldrsh [r0, #0x16]` and
-// `ldr [r0, #0x1c]` appear twice in the target and once here. This is the same
-// gap the twenty-two in OtuFieldAccess.c have and no source form reaches it:
-// mwcc will not reload a value it has proved unchanged.
-//
-// The slot write is spelled `&data_0206b408` rather than `data_0206b408`.
-// The shared header declares the symbol as an `OtuSpriteSlot*`, but the target
-// uses the symbol's *address* as the slot: `ldr r1, .L_020935d0` loads the pool
-// word and the first thing done with r1 is `str r2, [r1, #0x0]`. Taking the
-// address of the declared pointer reproduces that; reading the pointer first
-// would add a load the target does not have.
-OtuSpriteSlot* func_ov039_0209352c(OtuSpriteTask* t, s32 arg, s32 sel) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
-
-    switch (sel) {
-        case 1:
-            slot->unk_00 = 1;
-            return slot;
-
-        case 2: {
-            s32 index;
-            u8* table;
-
-            slot->unk_04   = 0;
-            slot->unk_08   = 0;
-            slot->unk_0C   = 0;
-            slot->depthKey = -1;
-
-            // The same three flat short-circuit tests the twenty-two use, over
-            // +0x18, +0x1C and +0x16. The `ldrne` on the table load is the
-            // short-circuit, which is why +0x18 is tested at all.
-            //
-            // Written as members, which is codegen-neutral here: an A/B build
-            // with and without them emits byte-identical code and the match% is
-            // unchanged from baseline. It does *not* reach 100% -- see the
-            // `// Nonmatching` note above, which is about mwcc holding the table
-            // pointer and index across the store between the two lookups.
-            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
-                slot->unk_04 = ((u16*)table)[index * 4 + 1];
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
-            }
-
-            slot->depthKey = 3;
-            return slot;
-        }
-
-        default:
-            return NULL;
-    }
+SpriteFrameInfo* func_ov039_0209352c(Sprite* sprite, s32 arg, s32 mode) {
+    Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
 /* ==================================================================== */
@@ -276,13 +188,13 @@ OtuSpriteSlot* func_ov039_0209352c(OtuSpriteTask* t, s32 arg, s32 sel) {
  * `animBias` at +0x50 is then added as a signed 16-bit value -- the
  * `lsl #0x10 / asr #0x10` pair, i.e. a sign-extending narrowing of a word.
  */
-void func_ov039_020935d4(OtuRadarData* data, Sprite* sprite) {
+void func_ov039_020935d4(OtuBadgeRadar* data, Sprite* sprite) {
     SpriteAnimation anim = data_ov039_02099a7c;
 
     anim.owner     = data;
-    anim.dataType  = data->unk_00;
-    anim.animIndex = (data->animBase == 1) ? 5 : 1;
-    anim.animIndex = anim.animIndex + (s16)data->animBias;
+    anim.dataType  = data->dataType;
+    anim.animIndex = (data->isFirst == 1) ? 5 : 1;
+    anim.animIndex = anim.animIndex + (s16)data->index;
 
     _Sprite_Load(sprite, &anim);
 }
@@ -299,15 +211,15 @@ void func_ov039_020935d4(OtuRadarData* data, Sprite* sprite) {
  * block, which is how the cell builder handed to `_Sprite_Load` finds its way
  * back to +0x18/+0x1C/+0x16 when it is called per frame.
  */
-s32 func_ov039_02093668(TaskPool* pool, Task* self, OtuInitArgs* args) {
-    OtuRadarData* data = (OtuRadarData*)self->data;
+s32 func_ov039_02093668(TaskPool* pool, Task* self, OtuBadgeRadarArgs* args) {
+    OtuBadgeRadar* data = (OtuBadgeRadar*)self->data;
 
-    data->unk_00   = args->unk_00;
-    data->targetId = args->unk_04;
-    data->animBias = args->unk_08;
-    data->table    = (u8*)args->unk_0C;
+    data->dataType = args->dataType;
+    data->pinId    = args->pinId;
+    data->index    = args->index;
+    data->board    = args->board;
     data->linked   = 0;
-    data->animBase = args->unk_10;
+    data->isFirst  = args->isFirst;
     data->x        = 0;
     data->y        = 0;
 
@@ -357,10 +269,10 @@ s32 func_ov039_02093668(TaskPool* pool, Task* self, OtuInitArgs* args) {
 // store inline ahead of the branch. Same work, different block placement; it
 // was not worth a `goto` to chase two instructions.
 s32 func_ov039_020936b8(TaskPool* pool, Task* self, void* arg) {
-    OtuRadarData* data  = (OtuRadarData*)self->data;
-    OtuPinTask*   child = (OtuPinTask*)EasyTask_GetTaskData(pool, data->targetId);
-    OtuPoint      pt;
-    s32           skew;
+    OtuBadgeRadar* data  = (OtuBadgeRadar*)self->data;
+    OtuBadge*      child = (OtuBadge*)EasyTask_GetTaskData(pool, data->pinId);
+    OtuPoint       pt;
+    s32            skew;
 
     if (child == NULL) {
         data->linked = 0;
@@ -372,11 +284,11 @@ s32 func_ov039_020936b8(TaskPool* pool, Task* self, void* arg) {
         data->linked = 1;
 
         data->x = pt.x - 0xA0000;
-        skew    = (0x28 - (data->table[2] - 0xA)) / 2;
+        skew    = (0x28 - (data->board->width - 0xA)) / 2;
         data->x = (data->x + (skew << 17)) / 8 + 0x50000;
 
         data->y = pt.y - 0xA0000;
-        skew    = (0x28 - (data->table[3] - 0xA)) / 2;
+        skew    = (0x28 - (data->board->height - 0xA)) / 2;
         data->y = (data->y + (skew << 17)) / 8 + 0x10000;
 
         Sprite_Update(&data->sprite);
@@ -394,7 +306,7 @@ s32 func_ov039_020936b8(TaskPool* pool, Task* self, void* arg) {
  * arithmetic.
  */
 s32 func_ov039_020937a0(TaskPool* pool, Task* self, void* arg) {
-    OtuRadarData* data = (OtuRadarData*)self->data;
+    OtuBadgeRadar* data = (OtuBadgeRadar*)self->data;
 
     if (data->linked != 0) {
         data->sprite.posX = data->x >> 12;
@@ -409,7 +321,7 @@ s32 func_ov039_020937a0(TaskPool* pool, Task* self, void* arg) {
  * @brief The radar task's cleanup stage, 0x020937dc.
  */
 s32 func_ov039_020937dc(TaskPool* pool, Task* self, void* arg) {
-    OtuRadarData* data = (OtuRadarData*)self->data;
+    OtuBadgeRadar* data = (OtuBadgeRadar*)self->data;
 
     Sprite_Release(&data->sprite);
     return 1;
@@ -429,48 +341,20 @@ s32 func_ov039_020937f4(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * the visible difference between the two `sub sp, sp, #imm` frame sizes
  * (0x1C against 0x14) and is how the two create wrappers tell themselves apart.
  */
-s32 func_ov039_0209383c(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
-    s32 args[5];
+s32 func_ov039_0209383c(TaskPool* pool, s32 dataType, s32 pinId, s32 index, OtuBoardLayout* board, s32 isFirst) {
+    OtuBadgeRadarArgs args;
 
-    args[0] = arg1;
-    args[1] = arg2;
-    args[2] = arg3;
-    args[3] = arg4;
-    args[4] = arg5;
+    args.dataType = dataType;
+    args.pinId    = pinId;
+    args.index    = index;
+    args.board    = board;
+    args.isFirst  = isFirst;
 
-    return EasyTask_CreateTask(pool, &data_ov039_02099a60, NULL, 0, NULL, args);
+    return EasyTask_CreateTask(pool, &data_ov039_02099a60, NULL, 0, NULL, &args);
 }
 
-// Nonmatching: 88.7%, byte-for-byte the same reason as func_ov039_0209352c above.
-OtuSpriteSlot* func_ov039_02093884(OtuSpriteTask* t, s32 arg, s32 sel) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
-
-    switch (sel) {
-        case 1:
-            slot->unk_00 = 1;
-            return slot;
-
-        case 2: {
-            s32 index;
-            u8* table;
-
-            slot->unk_04   = 0;
-            slot->unk_08   = 0;
-            slot->unk_0C   = 0;
-            slot->depthKey = -1;
-
-            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
-                slot->unk_04 = ((u16*)table)[index * 4 + 1];
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
-            }
-
-            slot->depthKey = 3;
-            return slot;
-        }
-
-        default:
-            return NULL;
-    }
+SpriteFrameInfo* func_ov039_02093884(Sprite* sprite, s32 arg, s32 mode) {
+    Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
 /**
@@ -482,12 +366,12 @@ OtuSpriteSlot* func_ov039_02093884(OtuSpriteTask* t, s32 arg, s32 sel) {
  * same per-menu selector -- laid out as 19 pixels of vertical offset rather
  * than as an animation choice.
  */
-void func_ov039_0209392c(OtuCounterData* data, Sprite* sprite) {
+void func_ov039_0209392c(OtuBadgeCount* data, Sprite* sprite) {
     SpriteAnimation anim = data_ov039_02099af8;
 
     anim.owner    = data;
-    anim.dataType = data->unk_000;
-    anim.posY     = anim.posY + data->unk_188 * 0x13;
+    anim.dataType = data->dataType;
+    anim.posY     = anim.posY + data->index * 0x13;
 
     _Sprite_Load(sprite, &anim);
 }
@@ -501,12 +385,12 @@ void func_ov039_0209392c(OtuCounterData* data, Sprite* sprite) {
  * is why the two are recognisably the same family: `unk_188` names a menu and
  * each menu owns seven animations, and this sprite is showing the seventh.
  */
-void func_ov039_020939b0(OtuCounterData* data, Sprite* sprite) {
+void func_ov039_020939b0(OtuBadgeCount* data, Sprite* sprite) {
     SpriteAnimation anim = data_ov039_02099acc;
 
     anim.owner     = data;
-    anim.dataType  = data->unk_000;
-    anim.animIndex = (data->unk_188 + 1) * 7;
+    anim.dataType  = data->dataType;
+    anim.animIndex = (data->index + 1) * 7;
 
     _Sprite_Load(sprite, &anim);
 }
@@ -526,12 +410,12 @@ void func_ov039_020939b0(OtuCounterData* data, Sprite* sprite) {
  * entry being the odd one out.
  */
 
-// Nonmatching: 96.7%. Two instructions of mwcc scheduling and nothing else: it
+// Nonmatching: 97.8%. Two instructions of mwcc scheduling and nothing else: it
 // hoists `index * 2` above the two `ldrh`s that copy the table into the stack
 // local, where the target computes it after them. The copy, the table read, the
 // guarded position shift and the `_Sprite_Load` tail are all correct and in
 // order.
-void func_ov039_02093a30(OtuCounterData* data, Sprite* sprite, s32 index) {
+void func_ov039_02093a30(OtuBadgeCount* data, Sprite* sprite, s32 index) {
     SpriteAnimation anim = data_ov039_02099b24;
     s16             lut[4];
 
@@ -541,14 +425,14 @@ void func_ov039_02093a30(OtuCounterData* data, Sprite* sprite, s32 index) {
     lut[3] = data_ov039_02099aa8[3];
 
     anim.owner     = data;
-    anim.dataType  = data->unk_000;
+    anim.dataType  = data->dataType;
     anim.animIndex = lut[index];
 
     if (index < 3) {
         anim.posX = anim.posX + (2 - index) * 6;
     }
 
-    anim.posY = anim.posY + data->unk_188 * 0x13;
+    anim.posY = anim.posY + data->index * 0x13;
 
     _Sprite_Load(sprite, &anim);
 }
@@ -569,15 +453,15 @@ void func_ov039_02093a30(OtuCounterData* data, Sprite* sprite, s32 index) {
  * The digit sprites' visible bitmask at +0x194 is raised to 0xC (bits 2 and 3)
  * here: two of the four digits start showing and two start hidden.
  */
-s32 func_ov039_02093b08(TaskPool* pool, Task* self, OtuInitArgs* args) {
-    OtuCounterData* data = (OtuCounterData*)self->data;
-    s32             i;
+s32 func_ov039_02093b08(TaskPool* pool, Task* self, OtuBadgeCountArgs* args) {
+    OtuBadgeCount* data = (OtuBadgeCount*)self->data;
+    s32            i;
 
-    data->unk_000    = args->unk_00;
-    data->sourceId   = args->unk_04;
-    data->unk_188    = args->unk_08;
+    data->dataType   = args->dataType;
+    data->pinId      = args->pinId;
+    data->index      = args->index;
     data->resolved   = 0;
-    data->hasSpriteA = args->unk_0C;
+    data->hasSpriteA = args->hasSpriteA;
     data->visible    = 0xC;
 
     if (data->hasSpriteA != 0) {
@@ -602,9 +486,9 @@ s32 func_ov039_02093b08(TaskPool* pool, Task* self, OtuInitArgs* args) {
  * `resolved` is clear.
  */
 s32 func_ov039_02093b98(TaskPool* pool, Task* self, void* arg) {
-    OtuCounterData* data = (OtuCounterData*)self->data;
+    OtuBadgeCount* data = (OtuBadgeCount*)self->data;
 
-    data->resolved = EasyTask_GetTaskData(pool, data->sourceId) != NULL;
+    data->resolved = EasyTask_GetTaskData(pool, data->pinId) != NULL;
     return 1;
 }
 
@@ -630,16 +514,9 @@ s32 func_ov039_02093b98(TaskPool* pool, Task* self, void* arg) {
  * because that is how the target forms the address, and mwcc keeps the split.
  */
 
-// Nonmatching: 93.5%. One register choice. The target keeps the walked base
-// `data + 0x100` in r4 and the constant 1 in r5, then `tst r0, r5, lsl r6`;
-// here mwcc hoists `data + 0x194` into r5 and puts the 1 in r4, giving
-// `tst r0, r4, lsl r6`. Everything else -- the early-out on `resolved`, the
-// `hasSpriteA` gate, the unconditional pair at +0x44 and the four-iteration
-// digit loop -- is instruction-for-instruction identical.
 s32 func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg) {
-    OtuCounterData* data    = (OtuCounterData*)self->data;
-    u16*            visible = (u16*)((u8*)data + 0x100);
-    s32             i;
+    OtuBadgeCount* data = (OtuBadgeCount*)self->data;
+    s32            i;
 
     if (data->resolved != 0) {
         if (data->hasSpriteA != 0) {
@@ -651,7 +528,7 @@ s32 func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg) {
         Sprite_RenderFrame(&data->spriteB);
 
         for (i = 0; i < 4; i++) {
-            if (visible[0x4A] & (1 << i)) {
+            if (data->visible & (1 << i)) {
                 Sprite_Update(&data->digits[i]);
                 Sprite_RenderFrame(&data->digits[i]);
             }
@@ -665,8 +542,8 @@ s32 func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg) {
  * @brief The counter task's cleanup stage, 0x02093c44.
  */
 s32 func_ov039_02093c44(TaskPool* pool, Task* self, void* arg) {
-    OtuCounterData* data = (OtuCounterData*)self->data;
-    s32             i;
+    OtuBadgeCount* data = (OtuBadgeCount*)self->data;
+    s32            i;
 
     if (data->hasSpriteA != 0) {
         Sprite_Release(&data->spriteA);
@@ -695,15 +572,15 @@ s32 func_ov039_02093c90(TaskPool* pool, Task* self, void* arg, s32 stage) {
  * the radar task's five. All three create wrappers are the same body; the
  * argument count and the `TaskHandle` are the only differences.
  */
-s32 func_ov039_02093cd8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    s32 args[4];
+s32 func_ov039_02093cd8(TaskPool* pool, s32 dataType, s32 pinId, s32 index, s32 hasSpriteA) {
+    OtuBadgeCountArgs args;
 
-    args[0] = arg1;
-    args[1] = arg2;
-    args[2] = arg3;
-    args[3] = arg4;
+    args.dataType   = dataType;
+    args.pinId      = pinId;
+    args.index      = index;
+    args.hasSpriteA = hasSpriteA;
 
-    return EasyTask_CreateTask(pool, &data_ov039_02099ab0, NULL, 0, NULL, args);
+    return EasyTask_CreateTask(pool, &data_ov039_02099ab0, NULL, 0, NULL, &args);
 }
 
 /**
@@ -722,7 +599,7 @@ s32 func_ov039_02093cd8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4) 
  * The whole function is a tail call: the target jumps to `Sprite_ChangeAnimation`
  * rather than calling and returning, so there is no frame of its own.
  */
-s32 func_ov039_02093d18(OtuCounterData* data, u16* slots) {
+s32 func_ov039_02093d18(OtuBadgeCount* data, u16* slots) {
     s32 i;
 
     for (i = 0; i < 6; i++) {
@@ -731,7 +608,7 @@ s32 func_ov039_02093d18(OtuCounterData* data, u16* slots) {
         }
     }
 
-    return Sprite_ChangeAnimation(&data->spriteB, data->spriteB.animData, (s16)(data->unk_188 * 7 + i + 1),
+    return Sprite_ChangeAnimation(&data->spriteB, data->spriteB.animData, (s16)(data->index * 7 + i + 1),
                                   data->spriteB.cellTable);
 }
 
@@ -778,7 +655,7 @@ s32 func_ov039_02093d18(OtuCounterData* data, u16* slots) {
 // per-iteration address arithmetic follows from that (the target recomputes
 // `data + j * 0x40` for the cell table, where this build walks the sprite
 // pointer). Nothing about the overlay is in doubt here.
-void func_ov039_02093d68(OtuCounterData* data, s32 value) {
+void func_ov039_02093d68(OtuBadgeCount* data, s32 value) {
     s16 buf[4];
     s32 count;
     s32 idx;
@@ -794,14 +671,14 @@ void func_ov039_02093d68(OtuCounterData* data, s32 value) {
         }
     }
 
-    *(u16*)((u8*)data + 0x194) = 8;
+    data->visible = 8;
 
     idx = count - 1;
     for (j = 2; j >= 0; j--) {
         Sprite* s = &data->digits[j];
 
         Sprite_ChangeAnimation(s, s->animData, buf[idx], s->cellTable);
-        *(u16*)((u8*)data + 0x194) |= (1 << j);
+        data->visible |= (1 << j);
 
         idx--;
         if (idx < 0) {
@@ -810,36 +687,8 @@ void func_ov039_02093d68(OtuCounterData* data, s32 value) {
     }
 }
 
-// Nonmatching: 88.7%, byte-for-byte the same reason as func_ov039_0209352c above.
-OtuSpriteSlot* func_ov039_02093e3c(OtuSpriteTask* t, s32 arg, s32 sel) {
-    OtuSpriteSlot* slot = (OtuSpriteSlot*)&data_0206b408;
-
-    switch (sel) {
-        case 1:
-            slot->unk_00 = 1;
-            return slot;
-
-        case 2: {
-            s32 index;
-            u8* table;
-
-            slot->unk_04   = 0;
-            slot->unk_08   = 0;
-            slot->unk_0C   = 0;
-            slot->depthKey = -1;
-
-            if (t->unk_18 != 0 && (table = t->cellTable) != NULL && (index = t->index) >= 0) {
-                slot->unk_04 = ((u16*)table)[index * 4 + 1];
-                slot->unk_08 = (s32)(u8*)(table + *(u16*)(table + index * 8) * 2);
-            }
-
-            slot->depthKey = 3;
-            return slot;
-        }
-
-        default:
-            return NULL;
-    }
+SpriteFrameInfo* func_ov039_02093e3c(Sprite* sprite, s32 arg, s32 mode) {
+    Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
 }
 
 /**
@@ -851,11 +700,11 @@ OtuSpriteSlot* func_ov039_02093e3c(OtuSpriteTask* t, s32 arg, s32 sel) {
  * what a three-digit readout wants. No `animIndex` and no `unk_188`: this task
  * is laid out by count rather than by menu.
  */
-void func_ov039_02093ee4(OtuCountdownData* data, Sprite* sprite, s32 index) {
+void func_ov039_02093ee4(OtuTimer* data, Sprite* sprite, s32 index) {
     SpriteAnimation anim = data_ov039_02099b6c;
 
     anim.owner    = data;
-    anim.dataType = data->unk_000;
+    anim.dataType = data->dataType;
     anim.posX     = (0x1F - index * 2) * 8;
     anim.posY     = 0x12;
 
@@ -879,14 +728,14 @@ void func_ov039_02093ee4(OtuCountdownData* data, Sprite* sprite, s32 index) {
  * it is set once at construction and the countdown's own state lives at +0xC4
  * and +0xCC.
  */
-s32 func_ov039_02093f70(TaskPool* pool, Task* self, OtuInitArgs* args) {
-    OtuCountdownData* data = (OtuCountdownData*)self->data;
-    s32               i;
+s32 func_ov039_02093f70(TaskPool* pool, Task* self, OtuTimerArgs* args) {
+    OtuTimer* data = (OtuTimer*)self->data;
+    s32       i;
 
-    data->unk_0C8   = 1;
+    data->visible   = 1;
     data->alarmed   = 0;
-    data->unk_000   = args->unk_00;
-    data->countdown = args->unk_04 * 0x3C;
+    data->dataType  = args->dataType;
+    data->countdown = args->seconds * 0x3C;
 
     for (i = 0; i < 3; i++) {
         func_ov039_02093ee4(data, &data->digits[i], i);
@@ -944,10 +793,10 @@ s32 func_ov039_02093f70(TaskPool* pool, Task* self, OtuInitArgs* args) {
 // NULL` here hoists a `mov r2, #0` above the test. Both are register choices,
 // not logic.
 s32 func_ov039_02093fcc(TaskPool* pool, Task* self, void* arg) {
-    OtuCountdownData* data = (OtuCountdownData*)self->data;
-    s32               before;
-    s32               secs;
-    s32               i;
+    OtuTimer* data = (OtuTimer*)self->data;
+    s32       before;
+    s32       secs;
+    s32       i;
 
     before = data->countdown;
     if (before > 0) {
@@ -989,33 +838,25 @@ s32 func_ov039_02093fcc(TaskPool* pool, Task* self, void* arg) {
 }
 
 /** Renders the three sprites at sprite+4, 0x40 apart, when +0xC8 is set. */
-s32 func_ov039_0209411c(void* pool, void* task) {
-    u8*     sprite = *(u8**)((u8*)task + 0x18);
-    s32     i;
-    Sprite* p;
+s32 func_ov039_0209411c(TaskPool* pool, Task* task, void* args) {
+    OtuTimer* data = task->data;
+    s32       i;
 
-    (void)pool;
-
-    if (*(s32*)(sprite + 0xC8) != 0) {
-        p = (Sprite*)(sprite + 4);
+    if (data->visible != 0) {
         for (i = 0; i < 3; i++) {
-            Sprite_RenderFrame(p);
-            p = (Sprite*)((u8*)p + 0x40);
+            Sprite_RenderFrame(&data->digits[i]);
         }
     }
     return 1;
 }
 
 /** Releases the three sprites at sprite+4, 0x40 apart. */
-s32 func_ov039_02094158(void* pool, void* task) {
-    s32     i;
-    Sprite* p = (Sprite*)((u8*)*(void**)((u8*)task + 0x18) + 4);
-
-    (void)pool;
+s32 func_ov039_02094158(TaskPool* pool, Task* task, void* args) {
+    OtuTimer* data = task->data;
+    s32       i;
 
     for (i = 0; i < 3; i++) {
-        Sprite_Release(p);
-        p = (Sprite*)((u8*)p + 0x40);
+        Sprite_Release(&data->digits[i]);
     }
     return 1;
 }
@@ -1027,19 +868,19 @@ s32 func_ov039_02094158(void* pool, void* task) {
  * indexed, which is why it is a struct copy rather than four assigns: mwcc
  * emits the copy for the whole struct and a plain `ldr` of the selected entry.
  */
-void func_ov039_02094188(void* a, void* b, void* c, s32 index) {
-    TaskStages table = data_ov039_02099b5c;
+s32 func_ov039_02094188(TaskPool* pool, Task* task, void* args, s32 stage) {
+    TaskStages stages = data_ov039_02099b5c;
 
-    table.iter[index](a, b, c);
+    return stages.iter[stage](pool, task, args);
 }
 
 /** Spawns the task table data_ov039_02099b50 with two words of args. */
-s32 func_ov039_020941d0(TaskPool* pool, s32 a, s32 b) {
-    s32 args[2];
+s32 func_ov039_020941d0(TaskPool* pool, s32 dataType, s32 seconds) {
+    OtuTimerArgs args;
 
-    args[0] = a;
-    args[1] = b;
-    return EasyTask_CreateTask(pool, &data_ov039_02099b50, NULL, 0, NULL, args);
+    args.dataType = dataType;
+    args.seconds  = seconds;
+    return EasyTask_CreateTask(pool, &data_ov039_02099b50, NULL, 0, NULL, &args);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1047,11 +888,11 @@ s32 func_ov039_020941d0(TaskPool* pool, s32 a, s32 b) {
 /* ------------------------------------------------------------------ */
 
 /** A single word at +0xC4. */
-s32 func_ov039_02094204(void* task) {
-    return ((OtuCountdownData*)task)->countdown;
+s32 func_ov039_02094204(OtuTimer* self) {
+    return self->countdown;
 }
 
 /** A single word at +0xCC. */
-s32 func_ov039_0209420c(void* task) {
-    return ((OtuCountdownData*)task)->alarmed;
+s32 func_ov039_0209420c(OtuTimer* self) {
+    return self->alarmed;
 }

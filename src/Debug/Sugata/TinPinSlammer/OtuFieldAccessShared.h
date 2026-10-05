@@ -26,6 +26,7 @@
 #include <nitro/fx/fx_atan.h>
 #include <nitro/fx/fx_division.h>
 #include <nitro/mi/cpumem.h>
+#include <nitro/wm.h>
 
 /*
  * 0x02093000 - 0x02094000: the pinball simulation's own task family.
@@ -111,74 +112,81 @@ typedef struct {
 
 // Size: 0x10
 
-/** The four-layer background task's state block, 0x850 bytes. */
+/** Tsk_OtosuGame_ovbg's state: the board's four-layer background. */
 typedef struct {
-    /* 0x000 */ u8               pad_000[0x008];
-    /* 0x008 */ Data*            fileData;
-    /* 0x00C */ PaletteResource* palettes[4];
-    /* 0x01C */ BgResource*      chars[4];
-    /* 0x02C */ BgResource*      screens[4];
-    /* 0x03C */ u8               tilemap[0x804];
-    /* 0x840 */ OtuPaletteAnim   paletteAnim;
-} OtuBgTaskData;
+    /* 0x000 */ Heap*                  heap;
+    /* 0x004 */ struct OtuBoardLayout* layout;
+    /* 0x008 */ Data*                  fileData;
+    /* 0x00C */ PaletteResource*       palettes[4];
+    /* 0x01C */ BgResource*            chars[4];
+    /* 0x02C */ BgResource*            screens[4];
+    /* 0x03C */ u32                    screenHeader; // the layer-2 screen data, built in place
+    /* 0x040 */ u16                    screen[32][32];
+    /* 0x840 */ OtuPaletteAnim         paletteAnim;
+} OtuOvbg;
 
-/** The badge-radar task's state block, 0x60 bytes: one sprite and its state. */
+/** Tsk_OtosuGame_badgeradar's state. */
 typedef struct {
-    /* 0x00 */ u32    unk_00;
-    /* 0x04 */ Sprite sprite;
-    /* 0x44 */ s32    x;        // Q12.12, converted to pixels by the render stage
-    /* 0x48 */ s32    y;        // Q12.12
-    /* 0x4C */ u32    targetId; // task id of the child being tracked
-    /* 0x50 */ s32    animBias; // added to the sprite's animation index
-    /* 0x54 */ u8*    table;
-    /* 0x58 */ s32    linked;
-    /* 0x5C */ s32    animBase; // 1 selects animation 5, anything else animation 1
-} OtuRadarData;
+    /* 0x00 */ s32                    dataType;
+    /* 0x04 */ Sprite                 sprite;
+    /* 0x44 */ s32                    x;     // Q12.12, converted to pixels by the render stage
+    /* 0x48 */ s32                    y;     // Q12.12
+    /* 0x4C */ u32                    pinId; // the badge being tracked
+    /* 0x50 */ s32                    index; // the badge's player index, added to the animation
+    /* 0x54 */ struct OtuBoardLayout* board;
+    /* 0x58 */ s32                    linked;
+    /* 0x5C */ s32                    isFirst; // 1 selects animation 5, anything else animation 1
+} OtuBadgeRadar;
 
 // Size: 0x60
 
-/** The badge-counter task's state block, 0x198 bytes: six sprites. */
+/** Tsk_OtosuGame_badgecount's state. */
 typedef struct {
-    /* 0x000 */ u32    unk_000;   // low nibble becomes each sprite's dataType
+    /* 0x000 */ s32    dataType;
     /* 0x004 */ Sprite spriteA;   // only present when hasSpriteA is set
     /* 0x044 */ Sprite spriteB;
     /* 0x084 */ Sprite digits[4]; // gated by the bitmask at +0x194
-    /* 0x184 */ u32    sourceId;  // task id read by the update stage
-    /* 0x188 */ s32    unk_188;   // which menu: 7 animations and a y offset per value
+    /* 0x184 */ u32    pinId;     // the badge whose count is shown
+    /* 0x188 */ s32    index;     // the badge's player index: 7 animations and a y offset each
     /* 0x18C */ s32    resolved;  // sourceId resolved in the pool
     /* 0x190 */ s32    hasSpriteA;
     /* 0x194 */ u16    visible;   // bit N is digits[N]
     /* 0x196 */ u8     pad_196[2];
-} OtuCounterData;
+} OtuBadgeCount;
 
 // Size: 0x198
 
-/** The countdown task's state block, 0xD0 bytes: three digit sprites. */
+/** Tsk_OtosuGame_timer's state: the round's time limit, three digit sprites. */
 typedef struct {
-    /* 0x000 */ u32    unk_000;   // low nibble becomes each sprite's dataType
+    /* 0x000 */ s32    dataType;
     /* 0x004 */ Sprite digits[3];
     /* 0x0C4 */ s32    countdown; // 1/60th ticks remaining
-    /* 0x0C8 */ s32    unk_0C8;   // "draw the digits"; set once by the init stage
+    /* 0x0C8 */ s32    visible;
     /* 0x0CC */ s32    alarmed;   // one-frame pulse at the 0x4B0 crossing
-} OtuCountdownData;
+} OtuTimer;
 
 // Size: 0xD0
 
-/*
- * The four-word argument block the init stages read, except that the radar and
- * counter tasks carry a fifth. 02093668 reads +0x00..+0x10 (five words);
- * 02093b08 and 02093f70 read only +0x00..+0x0C.  Left as offsets because the
- * fields' meanings differ per task.
- */
+/* The three tasks' creation blocks. */
 typedef struct {
-    s32 unk_00;
-    s32 unk_04;
-    s32 unk_08;
-    s32 unk_0C;
-    s32 unk_10;
-} OtuInitArgs;
+    s32                    dataType;
+    s32                    pinId;
+    s32                    index;
+    struct OtuBoardLayout* board;
+    s32                    isFirst;
+} OtuBadgeRadarArgs;
 
-// Size: 0x14
+typedef struct {
+    s32 dataType;
+    s32 pinId;
+    s32 index;
+    s32 hasSpriteA;
+} OtuBadgeCountArgs;
+
+typedef struct {
+    s32 dataType;
+    s32 seconds;
+} OtuTimerArgs;
 
 /* The animation templates the load wrappers copy out of `.rodata`. */
 extern const SpriteAnimation data_ov039_02099a7c;
@@ -215,106 +223,81 @@ extern const TaskHandle data_ov039_02099b50;
 extern const u16 data_ov039_02099a18[1];
 
 /**
- * @brief Where a badge was spawned: one flag byte and its starting tile.
+ * @brief The board's layout, loaded from the stage's bin into the stage block
+ * at +0x150 and handed by pointer to the badges, the floor, the backgrounds and
+ * the obstacles.
  *
- * Read through +0xE8. Bit 0 of `flags` is copied straight into bit 0 of the
- * badge's packed state word by 0x0208acc0, which is the only thing that ties
- * the two objects together; `tileX`/`tileY` are the tile the badge belongs to
- * and are shifted up by twelve to become Q12.12.
+ * `cells` is width x height two-byte cells; the first byte of a cell is its
+ * tile type, which func_ov039_0208a794 maps to the badge's movement rules.
  */
-typedef struct {
-    /* 0x0 */ u8 flags; // bit 0 is mirrored into the badge's stateFlags
-    /* 0x1 */ u8 pad_01;
-    /* 0x2 */ u8 tileX;
-    /* 0x3 */ u8 tileY;
-} OtuHomePos;
+/**
+ * @brief A pin type's movement numbers, all Q12.12, indexed by
+ * OtuBadgeParam.tuneIndex.
+ *
+ * Most readers reach a field through a pool word that already points at that
+ * field's column, so the delinker named each column as its own symbol. Reading
+ * `data_ov039_0209a3dc[i].accel` instead emits an extra `add`, so those readers
+ * use the column views below; a column view row `[i][0]` is entry i's field.
+ */
+extern const s32 data_ov039_0209a3e0[][4]; // OtuPinTune.accel column
+extern const s32 data_ov039_0209a3e4[][4]; // OtuPinTune.power column
+extern const s32 data_ov039_0209a3e8[][4]; // OtuPinTune.weight column
 
-// Size: 0x4
+typedef struct {
+    /* 0x00 */ u8 fromX; // a badge stopping on this cell...
+    /* 0x01 */ u8 fromY;
+    /* 0x02 */ u8 toX;   // ...is moved to this one
+    /* 0x03 */ u8 toY;
+} OtuBoardWarp;          // Size: 0x4
+
+typedef struct OtuBoardLayout {
+    /* 0x00 */ u8            kind;    // picks the floor art; 1 also clears the OBJ layers each round
+    /* 0x01 */ u8            variant; // the floor style; the obstacle factory's palette slot
+    /* 0x02 */ u8            width;   // in cells
+    /* 0x03 */ u8            height;
+    /* 0x04 */ u8            obstacleCount;
+    /* 0x05 */ u8            warpCount;
+    /* 0x06 */ u8            pad_06[2];
+    /* 0x08 */ u8            start[4][2]; // each badge's starting cell
+    /* 0x10 */ u8*           cells;       // 0x1388 bytes from the stage heap
+    /* 0x14 */ u8*           obstacles;   // 8-byte obstacle records
+    /* 0x18 */ OtuBoardWarp* warps;
+} OtuBoardLayout;                         // Size: 0x1C
 
 /**
- * @brief One pin's behaviour record, 0x1C-byte stride, reached through +0x170.
+ * @brief One player's touch-pad descriptor, six bytes.
  *
- * Indexed by the tray slot at +0x16C, so the stride is a `mla` against 0x1C
- * rather than an array subscript the compiler could fold away:
- * `ldr r0, [r4, #0x16c] / ldr r3, [r4, #0x170] / ldrh r2, [r0, #0x0] /
- * mov r0, #0x1c / mla r0, r2, r0, r3`.
- *
- * This was two structs, this one and a second called `OtuPinRow`, and they were
- * never two records. The target shows one array: the four leading bytes at +0x00
- * are read with `ldrb` by 0208d5dc as tile[0..3], and +0x04 is read with `ldrb`
- * by both 0208af6c and 0208e130 and used as `ldr rX, [rX, r2, lsl #0x4]` -- an
- * index into a 0x10-stride table. data_ov039_0209a3e0, _3e4 and _3e8 are three
- * *fields* of one such array, not three tables, which is what let the two bands
- * read +0x04 as an unrelated `speedIndex` and `weight`. One type covers both
- * now.
- *
- * `tile[]` are the frame budgets the badge is spawned with, in the order
- * 6, 8, 7, 9 -- see OtuTimers, which is what they are copied into.
+ * `data_ov039_0209ad20` is one of these and `data_ov039_0209af20` is an array of
+ * them; `func_ov039_02088440` is `data_ov039_0209af20 + index * 6`. The first
+ * byte is the "was touched" latch the poller resets, the next two are the touch
+ * coordinate bytes, the fourth is the phase byte the board's loops read, and
+ * +4/+5 are the raw `SysControl` word copied in each poll.
  */
 typedef struct {
-    /* 0x00 */ u8  tile[4];   // copied into OtuTimers as phases 6, 8, 7, 9
-    /* 0x04 */ u8  tuneIndex; // index into data_ov039_0209a3e0, 0x10 stride
-    /* 0x05 */ u8  pad_05;
-    /* 0x06 */ s16 friction;  // Q12.12, scaled by unk_144 / 3 into a heading offset
-    /* 0x08 */ u16 animX;
-    /* 0x0A */ u16 animY;
-    /* 0x0C */ u8  pad_0C[0x04];
-    /* 0x10 */ s16 curveA;
-    /* 0x12 */ s16 curveB;
-    /* 0x14 */ u16 curveC;
-    /* 0x16 */ u16 curveD;
-    /* 0x18 */ u8  pad_18[0x04];
-} OtuBadgeSlot;
+    /* 0x00 */ u8  touched;
+    /* 0x01 */ u8  phase;
+    /* 0x02 */ u8  x;
+    /* 0x03 */ u8  y;
+    /* 0x04 */ u16 sysControl;
+} OtuPadState; // Size: 0x6
 
-// Size: 0x1C
-
-/**
- * @brief The badge's six 16-bit countdown slots, 0x28 bytes at +0x178.
- *
- * Every one is read-modify-written with a `ldrsh`/`sub 1`/`strh` triple, which
- * is what identifies them as counters that are allowed to go negative rather
- * than as flags, and each is the one and only guard on its phase's entry
- * setter.
- *
- * The first four are the frame budgets for phases 6 to 9, one each, and
- * func_ov039_0208b94c/0208b9b4/0208ba34/0208ba70 -- the four phase entry
- * setters -- each decrement the one belonging to the phase it enters. They are
- * *seeded* from the pin-slot record rather than computed: 0208d5dc copies
- * slot->tile[0..3] into them at spawn, and note the order is not the phase
- * order, it is tile[0]->phase 6, tile[1]->phase 8, tile[2]->phase 7,
- * tile[3]->phase 9. That is why an earlier reading of these four as
- * `tile0..tile3` was half right -- correct about where the values come from,
- * wrong about what they are for. The last two are the trail cursor and its
- * timer, unrelated to the phases.
- *
- * The task's own code reaches them through a `+0x100` base register and then a
- * small displacement -- `add rX, self, #0x100` followed by `ldrsh [rX, #0x78]`
- * -- rather than folding 0x178 into the load. Keeping them in a struct of their
- * own at 0x178 preserves that split, because the displacement is too large for
- * the short form to be what this build emits.
- */
+/** A point with a reach: an attack's hit, or a sprite's position and scale. */
 typedef struct {
-    /* 0x00 */ s16 trackFrames; // self +0x178: phase 6
-    /* 0x02 */ s16 bounceTimer; // self +0x17A: phase 8
-    /* 0x04 */ s16 arcFrames;   // self +0x17C: phase 7
-    /* 0x06 */ s16 spinFrames;  // self +0x17E: phase 9
-    /* 0x08 */ u8  pad_08[0x1C];
-    /* 0x24 */ s16 trailIndex;  // self +0x19C: cursor into the trail id table
-    /* 0x26 */ s16 trailTimer;  // self +0x19E: frames between trail marks
-} OtuTimers;
-
-// Size: 0x28
+    /* 0x0 */ s32 x;
+    /* 0x4 */ s32 y;
+    /* 0x8 */ s32 scale;
+} OtuPinRecord; // Size: 0xC
 
 /**
  * @brief "Tsk_OtosuGame_badge": the badge task, 0x25C bytes.
  *
- * This is the same object the header models as `OtuPinTask`, which stops at
+ * This is the same object the header models as `OtuBadge`, which stops at
  * 0x174; that type exists for the five nearest-child queries and only needs
  * +0xF8/+0x120/+0x124/+0x148/+0x16C, so it is left alone. Every offset below
  * 0x174 agrees with it -- `kind`, `x`, `y`, `alive`, `pinID` -- and this type
  * continues past it.
  *
- * It is also the same object band B3 models as `OtuBadgeState`, seen from the
+ * It is also the same object band B3 models as `OtuBadge`, seen from the
  * AI's side and under its own field names. The two do not share every name, so
  * they are kept apart rather than merged; the handle above ties them together.
  *
@@ -328,86 +311,75 @@ typedef struct OtuBadge {
     /* 0x00C */ Sprite               spriteA;
     /* 0x04C */ Sprite               spriteB;
     /* 0x08C */ Sprite               spriteC;
-    /* 0x0CC */ s32                  unk_0CC; // travel rescaled by 1/4096
-    /* 0x0D0 */ s32                  unk_0D0; // starts at 0x1000
-    /* 0x0D4 */ s32                  unk_0D4; // starts at 0x1000
-    /* 0x0D8 */ u16                  unk_0D8;
-    /* 0x0DA */ u16                  unk_0DA;
-    /* 0x0DC */ s32                  unk_0DC; // raised to 1 by init and by update
-    /* 0x0E0 */ s32                  index;   // which badge this is; passed to the pool resolvers
-    /* 0x0E4 */ u8*                  board;   // see the note at the top of the file
-    /* 0x0E8 */ OtuHomePos*          home;    // non-NULL switches on the variant path
-    /* 0x0EC */ u16                  unk_0EC; // home->tileX
-    /* 0x0EE */ u16                  contactFlags;
-    /* 0x0F0 */ u16                  stateFlags;
-    /* 0x0F4 */ s32                  step;    // sub-phase within `kind`
-    /* 0x0F8 */ s32                  phase;   // 1..9; see the note below before renaming
-    /* 0x0FC */ s32                  subKind; // gates kind 8 in the render stage
+    /* 0x0CC */ OamAffineParam       affine;      // rotation follows `travel`
+    /* 0x0DC */ s32                  visible;     // shown by the shadow; func_ov039_0208e890
+    /* 0x0E0 */ s32                  index;       // which badge this is; passed to the pool resolvers
+    /* 0x0E4 */ OtuBoardLayout*      board;
+    /* 0x0E8 */ OtuPadState*         pad;         // the controlling player's touch pad; NULL for the CPU
+    /* 0x0EC */ u16                  lastKeys;    // pad->sysControl last frame
+    /* 0x0EE */ u16                  pressedKeys; // keys newly pressed this frame
+    /* 0x0F0 */ u16                  touchFlags;  // bit 0 touching, 1 touch began, 2 touch ended
+    /* 0x0F4 */ s32                  step;        // sub-phase within `kind`
+    /* 0x0F8 */ s32                  phase;       // 1..9; see the note below before renaming
+    /* 0x0FC */ s32                  subKind;     // gates kind 8 in the render stage
     /* 0x100 */ s32                  frameBudget;
     /* 0x104 */ s32                  lastTileType;
     /* 0x108 */ s32                  lastCellX;
     /* 0x10C */ s32                  lastCellY;
-    /* 0x110 */ OtuPoint             origin;  // the render subtracts these
-    /* 0x118 */ OtuPoint             unk_118;
-    /* 0x120 */ OtuPoint             pos;     // Q12.12
-    /* 0x128 */ s32                  unk_128; // added into pos.y by the render
+    /* 0x110 */ OtuPoint             origin;      // the render subtracts these
+    /* 0x118 */ OtuPoint             homeOffset;  // func_ov039_0208e87c's pair
+    /* 0x120 */ OtuPoint             pos;         // Q12.12
+    /* 0x128 */ s32                  height;      // <= 0; added into the drawn y
     /* 0x12C */ OtuPoint             vel;
-    /* 0x134 */ s32                  unk_134;
-    /* 0x138 */ OtuPoint             dir;      // vel re-normalised in here when vel is non-zero
-    /* 0x140 */ s32                  travel;   // integrated from vel each update
-    /* 0x144 */ s32                  velMag;   // decays by a fixed step each update
-    /* 0x148 */ s32                  alive;
-    /* 0x14C */ OtuPoint             aimStart; // where the current aim began
-    /* 0x154 */ OtuPoint             aimCur;   // where it is aiming now
-    /* 0x15C */ s32                  unk_15C;
-    /* 0x160 */ s32                  unk_160;
+    /* 0x134 */ s32                  vz;          // gravity is data_ov039_0209a318
+    /* 0x138 */ OtuPoint             dir;         // vel re-normalised in here when vel is non-zero
+    /* 0x140 */ s32                  travel;      // integrated from vel each update
+    /* 0x144 */ s32                  velMag;      // decays by a fixed step each update
+    /* 0x148 */ s32                  stun;        // frames left stunned; the AI waits it out
+    /* 0x14C */ OtuPoint             aimStart;    // where the current aim began
+    /* 0x154 */ OtuPoint             aimCur;      // where it is aiming now
+    /* 0x15C */ OtuPoint             startPos;    // the badge's starting cell, centred
     /* 0x164 */ s32                  unk_164;
-    /* 0x168 */ s32                  flags;     // init 0xA2; bit 1 blocks the render
-    /* 0x16C */ u16*                 pinID;     // a tray slot; 0x130 means "no pin"
-    /* 0x170 */ OtuBadgeSlot*        slots;     // per-pin record, 0x1C stride, indexed by *pinID
-    /* 0x174 */ u16*                 chanceTbl; // one 0x10000 chance per AI
-    /* 0x178 */ OtuTimers            timers;    // 0x28 bytes, so it also covers 0x19C/0x19E
-    /* 0x1A0 */ u16                  unk_1A0;
-    /* 0x1A4 */ s32                  unk_1A4;   // raised to 1 by the init stage
-    /* 0x1A8 */ s32                  hasLabel;  // gates two of the children
-    /* 0x1AC */ s32                  unk_1AC;
-    /* 0x1B0 */ struct OtuBadge*     partner;   // the pin this one last touched
-    /* 0x1B4 */ s32                  curAI;     // 0x11 = parked
-    /* 0x1B8 */ s32                  unk_1B8;   // counts down, then re-raises curAI
+    /* 0x168 */ s32                  flags;       // init 0xA2; bit 1 blocks the render
+    /* 0x16C */ u16*                 pinID;       // a tray slot; 0x130 means "no pin"
+    /* 0x170 */ OtuBadgeParam*       slots;       // per-pin record, 0x1C stride, indexed by *pinID
+    /* 0x174 */ u16*                 chanceTbl;   // one 0x10000 chance per AI
+    /* 0x178 */ s16                  trackFrames; // the phase 6..9 budgets, seeded from slots->tile[]
+    /* 0x17A */ s16                  bounceTimer;
+    /* 0x17C */ s16                  arcFrames;
+    /* 0x17E */ s16                  spinFrames;
+    /* 0x180 */ s32                  hitCount;    // how many of `hits` the current attack fills
+    /* 0x184 */ OtuPinRecord         hits[2];     // the attack's hit points, with their reach
+    /* 0x19C */ s16                  trailIndex;  // the next of trackIds to place
+    /* 0x19E */ s16                  trailTimer;  // frames between track marks
+    /* 0x1A0 */ s16                  pointCursor; // which of pointIds shows the next score
+    /* 0x1A4 */ s32                  unk_1A4;     // raised to 1 by the init stage
+    /* 0x1A8 */ s32                  hasLabel;    // gates two of the children
+    /* 0x1AC */ s32                  score;       // clamped to 999
+    /* 0x1B0 */ struct OtuBadge*     partner;     // the pin this one last touched
+    /* 0x1B4 */ s32                  curAI;       // 0x11 = parked
+    /* 0x1B8 */ s32                  unk_1B8;     // counts down, then re-raises curAI
     /* 0x1BC */ struct OtuBadge*     chaseTarget;
-    /* 0x1C0 */ OtuPoint             anchorPt;  // where the current AI sent us
-    /* 0x1C8 */ s32                  unk_1C8;
-    /* 0x1CC */ s32                  unk_1CC;   // frames spent aiming; 0x1E = commit
-    /* 0x1D0 */ s32                  mode;      // 0x10 once the badge is committed
-    /* 0x1D4 */ s32                  child0;
-    /* 0x1D8 */ s32                  child1;
-    /* 0x1DC */ s32                  child2;
-    /* 0x1E0 */ s32                  child3;
-    /* 0x1E4 */ u32                  taskId1; // the arc task
-    /* 0x1E8 */ u32                  taskId2; // the track task
-    /* 0x1EC */ u32                  taskId3; // the spin task
-    /* 0x1F0 */ s32                  child7;
-    /* 0x1F4 */ s32                  child8;
-    /* 0x1F8 */ u32                  trailId[12]; // see the note below
-    /* 0x228 */ s32                  pairIds[2];
-    /* 0x230 */ s32                  labelTask;
-    /* 0x234 */ s32                  child9;
-    /* 0x238 */ s32                  groupIds[8];
-    /* 0x258 */ u32                  taskId; // the badge's own sprite task
+    /* 0x1C0 */ OtuPoint             anchorPt;    // where the current AI sent us
+    /* 0x1C8 */ s32                  smokeCursor; // the next of smokeIds to puff
+    /* 0x1CC */ s32                  aimFrames;   // 0x1E = commit
+    /* 0x1D0 */ s32                  mode;        // 0x10 once the badge is committed
+    /* 0x1D4 */ s32                  shadowId;    // the badge's child tasks, created by func_ov039_0208dcb0
+    /* 0x1D8 */ s32                  piyoId;
+    /* 0x1DC */ s32                  markerId;
+    /* 0x1E0 */ s32                  meteoId;
+    /* 0x1E4 */ u32                  hammerId;
+    /* 0x1E8 */ u32                  needleId;
+    /* 0x1EC */ u32                  handId;
+    /* 0x1F0 */ s32                  radarId;
+    /* 0x1F4 */ s32                  counterId;
+    /* 0x1F8 */ u32                  trackIds[12];
+    /* 0x228 */ s32                  pointIds[2];
+    /* 0x230 */ s32                  entryId;
+    /* 0x234 */ s32                  deadId;
+    /* 0x238 */ s32                  smokeIds[8];
+    /* 0x258 */ u32                  warpId;
 } OtuBadge;
-
-/**
- * @brief The same 0x25C task, as band B3 saw it.
- *
- * This used to be a second, independently written struct over the same bytes,
- * which is what forced the `(OtuBadgeState*)` casts scattered through
- * OtuPinTray.c. The two never disagreed on an offset -- only on names, and
- * where they differed the better name won -- so it is now an alias.
- *
- * `OtuBadgeState` is kept as a name because it still documents *which band*
- * reads the AI half of the struct, which the pool queries and the render do not.
- */
-typedef OtuBadge OtuBadgeState;
 
 /* The one field this merge can get wrong silently: OtuTimers is 0x28 bytes, so it
  * swallows 0x19C/0x19E, and declaring those two again would push everything after
@@ -417,7 +389,7 @@ typedef char OtuBadge_SizeMustBe_0x25C[(sizeof(OtuBadge) == 0x25C) ? 1 : -1];
 
 /**
  * @brief 0x1F8 was `children[12]` in OtuBadge and `trailId[12]` in
- *        OtuBadgeState. It is not two arrays, and it is not a conflation --
+ *        OtuBadge. It is not two arrays, and it is not a conflation --
  *        checked, because the two names did suggest an overlap.
  *
  * The suspicion was a 4-versus-12 mismatch: OtuMeters.c walks a
@@ -430,7 +402,7 @@ typedef char OtuBadge_SizeMustBe_0x25C[(sizeof(OtuBadge) == 0x25C) ? 1 : -1];
  *
  * Every read of *this* field is twelve wide. The badge's teardown walks 0x1F8
  * with `cmp r6, #0xc` and nothing else in the field is ever indexed, and
- * OtuBadgeState places a trail mark through `trailId[timers.trailIndex]` and
+ * OtuBadge places a trail mark through `trailId[timers.trailIndex]` and
  * wraps the cursor at `>= 0xC`. So twelve is the width, `trailId` is the role,
  * and `children` was simply a name with no use behind it -- the badge view
  * invented it and no code ever read it that way.
@@ -455,37 +427,22 @@ typedef char OtuBadge_SizeMustBe_0x25C[(sizeof(OtuBadge) == 0x25C) ? 1 : -1];
  * is a sensible thing for this overlay to ask: phases 6 to 9 are the track, arc,
  * bounce and spin behaviours, i.e. the ones where the pin is reachable.
  *
- * `OtuBadgeState` had it right as `phase`; the other two bands only ever saw a
+ * `OtuBadge` had it right as `phase`; the other two bands only ever saw a
  * comparison constant and reached for `kind`.
  */
-
-/**
- * @brief The same 0x25C task again, as the pool queries see it.
- *
- * A third view of the identical object, previously trimmed to 0x174 bytes with
- * padding up to every offset. OtuPinAccessors.c already documented the
- * relationship ("Every offset OtuPinTask does model agrees with OtuBadge, so
- * the cast is always safe"), so the trimmed view bought nothing but the padding
- * and the `(OtuPinTask*)` casts.
- *
- * The name is kept because it is still the useful annotation: it marks the
- * handful of fields the five nearest-child queries read (index, kind, pos,
- * alive, pinID, and the sub-word pair) as distinct from the AI's own fields.
- */
-typedef OtuBadge OtuPinTask;
 
 /* Copies a task's +0x120/+0x124 pair into `out` (OtuTaskPick.c). Moved here
  * from include/Debug/Sugata/TinPinSlammer.h, which can no longer see the badge
  * struct; the two names below are aliases of it, so the signatures are
  * unchanged. */
-void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out);
+void func_ov039_0208e6e0(OtuBadge* task, OtuPoint* out);
 
 /* The five child filters: true when the child is a candidate worth scoring. */
-s32 func_ov039_0208e984(OtuPinTask* task); // kind == 8
-s32 func_ov039_0208e998(OtuPinTask* task); // kind == 7
-s32 func_ov039_0208e9d0(OtuPinTask* task); // kind == 6
-s32 func_ov039_0208ee84(OtuPinTask* task); // alive
-s32 func_ov039_0208efb0(OtuPinTask* task, s32 which);
+s32 func_ov039_0208e984(OtuBadge* task); // kind == 8
+s32 func_ov039_0208e998(OtuBadge* task); // kind == 7
+s32 func_ov039_0208e9d0(OtuBadge* task); // kind == 6
+s32 func_ov039_0208ee84(OtuBadge* task); // alive
+s32 func_ov039_0208efb0(OtuBadge* task, s32 which);
 /**
  * @brief The palette block inside a loaded `Data`'s buffer.
  *
@@ -502,15 +459,15 @@ static inline void* OtuPaletteSource(Data* file) {
 
 /* The five sprite-load wrappers. They call each other, so they are declared
  * here rather than in the order they appear. */
-void func_ov039_020935d4(OtuRadarData* data, Sprite* sprite);
+void func_ov039_020935d4(OtuBadgeRadar* data, Sprite* sprite);
 
-void func_ov039_0209392c(OtuCounterData* data, Sprite* sprite);
+void func_ov039_0209392c(OtuBadgeCount* data, Sprite* sprite);
 
-void func_ov039_020939b0(OtuCounterData* data, Sprite* sprite);
+void func_ov039_020939b0(OtuBadgeCount* data, Sprite* sprite);
 
-void func_ov039_02093a30(OtuCounterData* data, Sprite* sprite, s32 index);
+void func_ov039_02093a30(OtuBadgeCount* data, Sprite* sprite, s32 index);
 
-void func_ov039_02093ee4(OtuCountdownData* data, Sprite* sprite, s32 index);
+void func_ov039_02093ee4(OtuTimer* data, Sprite* sprite, s32 index);
 
 /**
  * @file OtuEntryTasks.c
@@ -551,9 +508,9 @@ void func_ov039_02093ee4(OtuCountdownData* data, Sprite* sprite, s32 index);
 /* ------------------------------------------------------------------ */
 
 /* The +0x110/+0x114, +0x118/+0x11C and +0x120/+0x124 pair copy-outs. */
-void func_ov039_0208e85c(void* task, OtuPoint* out);
+void func_ov039_0208e85c(OtuBadge* self, OtuPoint* out);
 
-void func_ov039_0208e87c(void* task, OtuPoint* out);
+void func_ov039_0208e87c(OtuBadge* self, OtuPoint* out);
 
 /* The overlay's vector unit's four helpers, 0x02098b8c - 0x02098d10. */
 void func_ov039_02098b8c(OtuPoint* a, OtuPoint* b, OtuPoint* out);
@@ -561,14 +518,13 @@ void func_ov039_02098b8c(OtuPoint* a, OtuPoint* b, OtuPoint* out);
 s32 func_ov039_02098d10(OtuPoint* v);
 
 /* The pin task's own three queries, 0x0208eed0 - 0x0208ef38. */
-s32 func_ov039_0208eed0(OtuPinTask* pin);
+s32 func_ov039_0208eed0(OtuBadge* pin);
 
 void func_ov039_0208ef14(void* pin, OtuPoint* a, OtuPoint* b);
 
-s32 func_ov039_0208ef38(OtuPinTask* pin);
+s32 func_ov039_0208ef38(OtuBadge* pin);
 
 /* The board stage's per-sprite animation stepper, 0x02087bf8. */
-void func_ov039_02087bf8(void* anim, void* limit);
 
 /* The base module's fixed-point divide.  No prototype exists in this repo,
  * but the two call sites here both pass a quotient-remainder pair. */
@@ -630,7 +586,11 @@ extern SpriteAnimation data_ov039_02099da8;
 /* Four `s16` values, 12, 11, 1, 1 -- one per sprite of the point task. */
 extern const s16 data_ov039_02099d3c[4];
 
-/* The base module's shared `s16` slope table, indexed by `angle >> 4`. */
+/* The SDK's sine/cosine table: `s16` {sin, cos} pairs in Q12 for each of 4096
+ * angles, so halfword `(angle >> 4) * 2` is the sine and the next one the
+ * cosine. Declared as words, as the rest of the build declares it: reading it
+ * through an `s16` array type lets mwcc reorder the loads past `s32` stores,
+ * which the target does not (66.9% against 94.7% on func_ov039_02095788). */
 extern s32 data_0205e4e0[];
 
 /* ------------------------------------------------------------------ */
@@ -655,148 +615,79 @@ typedef struct {
 
 // Size: 0x14
 
-/**
- * @brief "Tsk_OtosuGame_slash", 0x70 bytes.
- *
- * One `Sprite` at the base. +0x48/+0x4C is the pair the loader subtracts, and
- * +0x58/+0x5C the pair it subtracts *it* from -- so the sprite is drawn at the
- * difference between them, which the render recomputes as
- * `(+0x58 - +0x50) >> 12` against the pair the update refreshes.
- */
+/** "Tsk_OtosuGame_slash": the aiming arrow drawn from the player's pin. */
 typedef struct {
-    /* 0x00 */ Sprite sprite;
-    /* 0x40 */ s32    unk_40;
-    /* 0x44 */ s32    unk_44;
-    /* 0x48 */ s32    unk_48;
-    /* 0x4C */ s16    unk_4C;
-    /* 0x4E */ s16    unk_4E;
-    /* 0x50 */ s32    unk_50;
-    /* 0x54 */ s32    unk_54;
-    /* 0x58 */ s32    unk_58;
-    /* 0x5C */ s32    unk_5C;
-    /* 0x60 */ s32    unk_60;
-    /* 0x64 */ s32    unk_64;
-    /* 0x68 */ s32    unk_68;
-    /* 0x6C */ s32    unk_6C;
-} OtuSlashTask;
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine; // rotation follows the aim, scaleY its length
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ s32            pinId;
+    /* 0x64 */ s32            visible;
+    /* 0x68 */ s32            state; // 0 start, 1 follow, 2 settle
+    /* 0x6C */ s32            timer; // settle frames left
+} OtuSlashTask;                      // Size: 0x70
 
-// Size: 0x70
-
-/**
- * @brief "Tsk_OtosuGame_track", 0x70 bytes.
- *
- * Same size as the slash task but the `Sprite` sits at +0x08 rather than at
- * +0, and the subtracted pair is +0x50 against +0x48. The render therefore
- * computes the mirror of the slash task's expression -- `(+0x50 - +0x48) >> 12`
- * where the slash task computes `(+0x58 - +0x50) >> 12` -- which is why the
- * two tasks' loaders differ by which word they load.
- */
+/** "Tsk_OtosuGame_track": one mark of a badge's movement trail. */
 typedef struct {
-    /* 0x00 */ s32    unk_00;
-    /* 0x04 */ s32    unk_04;
-    /* 0x08 */ Sprite sprite;
-    /* 0x48 */ s32    unk_48;
-    /* 0x4C */ s32    unk_4C;
-    /* 0x50 */ s32    unk_50;
-    /* 0x54 */ s32    unk_54;
-    /* 0x58 */ s32    unk_58;
-    /* 0x5C */ s32    unk_5C;
-    /* 0x60 */ s32    unk_60;
-    /* 0x64 */ s32    unk_64;
-    /* 0x68 */ s32    unk_68;
-    /* 0x6C */ s32    unk_6C;
-} OtuTrackTask;
+    /* 0x00 */ TaskPool* pool;
+    /* 0x04 */ s32       pinId;
+    /* 0x08 */ Sprite    sprite;
+    /* 0x48 */ OtuPoint  origin;
+    /* 0x50 */ OtuPoint  pos;
+    /* 0x58 */ OtuPoint  vel;
+    /* 0x60 */ s32       active;
+    /* 0x64 */ s32       visible;
+    /* 0x68 */ u8        pad_68[0x8];
+} OtuTrackTask; // Size: 0x70
 
-// Size: 0x70
-
-/**
- * @brief "Tsk_OtosuGame_point", 0x174 bytes.
- *
- * Four `Sprite`s at 0x40 stride from +0x00 and four `OtuPointSlot`s at +0x120.
- * The anchor pair at +0x100/+0x104 is where the tracked pin is and the one at
- * +0x108/+0x10C is where this task is, both Q12.12; +0x110 holds the pin's
- * task id; +0x114 and +0x118 are the frame counter and the "still live" flag;
- * +0x170 is the counter the update decrements and clamps.
- */
+/** "Tsk_OtosuGame_point": a score popped up over a pin, up to four digits bouncing. */
 typedef struct {
     /* 0x000 */ Sprite       sprite[4];
-    /* 0x100 */ s32          unk_100;
-    /* 0x104 */ s32          unk_104;
-    /* 0x108 */ s32          unk_108;
-    /* 0x10C */ s32          unk_10C;
-    /* 0x110 */ s32          unk_110;
-    /* 0x114 */ s32          unk_114;
-    /* 0x118 */ s32          unk_118;
-    /* 0x11C */ s32          unk_11C;
+    /* 0x100 */ OtuPoint     origin;
+    /* 0x108 */ OtuPoint     pos;
+    /* 0x110 */ s32          pinId;
+    /* 0x114 */ s32          active;
+    /* 0x118 */ s32          visible;
+    /* 0x11C */ s32          count; // the value shown
     /* 0x120 */ OtuPointSlot slot[4];
-    /* 0x170 */ s32          unk_170;
-} OtuPointTask;
-
-// Size: 0x174
-
-/**
- * @brief One 0x10-byte animation-state block of the entry task.
- *
- * The two sprites each have one of these as their limit, and each also has a
- * 0x0C-byte running block that 0x02087bf8 writes. Only the scale words at the
- * block's +0x04 and +0x08 are read here -- they are what
- * `OamMgr_AllocAffineGroup` is handed -- but the whole 0x10 is there because
- * the stride is what keeps the two sprites apart.
- */
+    /* 0x170 */ s32          timer;
+} OtuPointTask; // Size: 0x174
+/** "Tsk_OtosuGame_entry": the round-start banner, with an optional label sprite. */
 typedef struct {
-    /* 0x00 */ s32 unk_00;
-    /* 0x04 */ s32 scaleX;
-    /* 0x08 */ s32 scaleY;
-    /* 0x0C */ s16 unk_0C;
-    /* 0x0E */ s16 unk_0E;
-} OtuEntryAnim;
-
-// Size: 0x10
-
-/**
- * @brief "Tsk_OtosuGame_entry", 0xC8 bytes.
- *
- * Two `Sprite`s at +0x00 and +0x40, each with a 0x10-byte limit block and a
- * 0x0C-byte running block behind it, so the second sprite's animation state
- * begins at +0xA0 and the two running blocks at +0xB0 and +0xBC.
- */
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ Sprite         labelSprite;
+    /* 0x80 */ s32            visible;
+    /* 0x84 */ s32            state;    // 1 while showing, back to 0 when the timer runs out
+    /* 0x88 */ s32            timer;    // 0x78 frames
+    /* 0x8C */ s32            hasLabel; // draws and animates labelSprite too
+    /* 0x90 */ OamAffineParam affine0;
+    /* 0xA0 */ OamAffineParam affine1;
+    /* 0xB0 */ OtuScaleAnim   scaleAnim0;
+    /* 0xBC */ OtuScaleAnim   scaleAnim1;
+} OtuEntryTask; // Size: 0xC8
+/** The creation block of a task that only needs the sprites' dataType. */
 typedef struct {
-    /* 0x00 */ Sprite       sprite;
-    /* 0x40 */ Sprite       sprite2;
-    /* 0x80 */ s32          unk_80;
-    /* 0x84 */ s32          unk_84;
-    /* 0x88 */ s32          unk_88;
-    /* 0x8C */ s32          unk_8C;
-    /* 0x90 */ OtuEntryAnim anim0;
-    /* 0xA0 */ OtuEntryAnim anim1;
-    /* 0xB0 */ u8           run0[0x0C];
-    /* 0xBC */ u8           run1[0x0C];
-} OtuEntryTask;
+    s32 dataType;
+} OtuTaskArgs1;
 
-// Size: 0xC8
-
-/**
- * @brief The block the three task-creating helpers pack and pass by pointer.
- *
- * Which words each one packs is its own business, so there are three types
- * rather than one over-declared union. The track task's middle word is the
- * caller's own pool pointer, which is why its block is three words and the
- * other two are two.
- */
+/** The track task's creation block: it keeps the pool to find its pin. */
 typedef struct {
-    s32 unk_00;
-    s32 unk_04;
-} OtuTaskArgs2;
-
-typedef struct {
-    s32       unk_00;
-    TaskPool* unk_04;
-    s32       unk_08;
+    s32       dataType;
+    TaskPool* pool;
+    s32       pinId;
 } OtuTaskArgs3;
 
+/**
+ * @brief The two-word argument block the pin tasks are created with.
+ *
+ * `dataType` is read back by the four `_Sprite_Load` wrappers (it lands in the
+ * animation template's dataType nibble); `childId` is read by the four init steps,
+ * which store it as the id of the pin the new task will track.
+ */
 typedef struct {
-    s32 unk_00;
-} OtuTaskArgs1;
+    s32 dataType;
+    s32 childId;
+} OtuPinSpriteArgs; // Size: 0x8
 
 /* ==================================================================== */
 /* The one function in this band that is deliberately absent.          */
@@ -840,42 +731,35 @@ typedef struct {
 /* Referenced overlay data and cross-module routines.                  */
 /* ==================================================================== */
 
-/* ------------------------------------------------------------------ */
-/* The three-sprite task of 02096874 / 020968c0 / 020969fc / 02096b48. */
-/* ------------------------------------------------------------------ */
-
-/*
- * Three `Sprite`s on a 0x40 stride from +0, then a state block from +0xC0.
- * All four stage functions in this band agree on that layout and on the four
- * state words, so they are named together. The text-cell block at +0xD0 is the
- * same four-word shape as `OtuTextBlock` (cleared x, 1.0 y, 1.0 scale, zero
- * width) followed by the cursor func_ov039_02087ba0 builds at +0xE0.
- *
- * Named because the state words are read from *all four* stages and the field
- * names are what stop the offsets being re-derived per function -- verified
- * codegen-neutral.
- *
- * The three sprites are `pad_000` and stay raw casts. Spelling them as
- * `Sprite sprite[3]` is *worse*, and measurably so: `Sprite_Update(self + 0x40)`
- * became `add r0, r4, #0x3800` rather than `add r0, r4, #0x40` (020968c0,
- * 99.97%), because mwcc treats a pointer to `sprite[n]` as needing the index
- * scaled and folds the 0x40 stride into an `mla`-style displacement. The
- * array member is correct as a *description* and wrong as *code* here.
- */
+/** "Tsk_OtosuGame_dead": a sprite played over a pin when it is knocked out. */
 typedef struct {
-    /* 0x000 */ u8  pad_000[0x0C0];
-    /* 0x0C0 */ s32 visible; // "draw the text block"; gates the tail of Update
-    /* 0x0C4 */ s32 which;   // which of the three sprites the stage acts on
-    /* 0x0C8 */ s32 state;   // the four-state machine, 0..3
-    /* 0x0CC */ s32 counter; // 0x3C-frame timer, reloaded on each transition
-    /* 0x0D0 */ s32 textX;
-    /* 0x0D4 */ s32 textY;
-    /* 0x0D8 */ s32 textScale;
-    /* 0x0DC */ s16 textWidth;
-    /* 0x0DE */ s16 pad_DE;
-} OtuTripleSprite;
+    /* 0x00 */ Sprite   sprite;
+    /* 0x40 */ OtuPoint origin;
+    /* 0x48 */ OtuPoint pos;
+    /* 0x50 */ s32      pinId;
+    /* 0x54 */ s32      visible;
+    /* 0x58 */ s32      state; // 1 from func_ov039_0209657c until the animation ends
+} OtuDead;                     // Size: 0x5C
 
-// Size: 0xE0
+/** "Tsk_OtosuGame_gameover": the round-end banner, one of three sprites. */
+typedef struct {
+    /* 0x00 */ Sprite         sprite0;
+    /* 0x40 */ Sprite         sprite1; // animations 1 and 2
+    /* 0x80 */ Sprite         sprite2;
+    /* 0xC0 */ s32            visible;
+    /* 0xC4 */ s32            which;   // which sprite: 0, 1 or 2 (sprite1), 3 (sprite2)
+    /* 0xC8 */ s32            state;   // 0..3
+    /* 0xCC */ s32            counter; // 0x3C frames per state
+    /* 0xD0 */ OamAffineParam affine;
+    /* 0xE0 */ OtuScaleAnim   scaleAnim;
+} OtuGameover; // Size: 0xEC
+
+/** "Tsk_OtosuGame_wricon": the wireless signal-strength icon. */
+typedef struct {
+    /* 0x00 */ s32    dataType;
+    /* 0x04 */ Sprite sprite;
+    /* 0x44 */ s32    visible;
+} OtuWricon; // Size: 0x48
 
 /*
  * The four TaskHandles and the four TaskStages tables this band dispatches
@@ -918,32 +802,25 @@ extern const SpriteAnimation data_ov039_02099ed8;
 
 extern const SpriteAnimation data_ov039_02099f20;
 
-/*
- * The glyph tables the two inits at the end of this file build cursors over.
- * Declared as arrays, not as `const void*`: these symbols *are* the tables, so
- * a pointer declaration makes every use cost an extra `ldr` through the
- * symbol, which the target does not have.
- */
-extern const u8 data_ov039_0209a830[];
+/* The scale keyframe tables the entry, dead and gameover tasks animate with. */
+extern const OtuScaleKey data_ov039_0209a830[];
 
-extern const u8 data_ov039_0209a8a8[];
+extern const OtuScaleKey data_ov039_0209a8a8[];
 
-extern const u8 data_ov039_0209a938[];
+extern const OtuScaleKey data_ov039_0209a938[];
 
-extern const u8 data_ov039_0209aa0c[];
+extern const OtuScaleKey data_ov039_0209aa0c[];
 
 /* Within this band: the sprite loaders the init stages call. */
-void func_ov039_0209633c(void* self, void* sprite, s32* args);
+void func_ov039_0209633c(OtuDead* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-void func_ov039_02096718(void* self, void* sprite, s32* args);
+void func_ov039_02096718(OtuGameover* self, Sprite* sprite, OtuTaskArgs1* args);
 
-void func_ov039_0209678c(void* self, void* sprite, s32* args);
+void func_ov039_0209678c(OtuGameover* self, Sprite* sprite, OtuTaskArgs1* args);
 
-void func_ov039_02096800(void* self, void* sprite, s32* args);
+void func_ov039_02096800(OtuGameover* self, Sprite* sprite, OtuTaskArgs1* args);
 
-void func_ov039_02096d00(void* self, void* sprite);
-
-void func_ov039_02096f40(void* self, void* sprite, s32* args);
+void func_ov039_02096d00(OtuWricon* self, Sprite* sprite);
 
 /* Elsewhere in the overlay: the animation-phase counter 02096da0 reads. */
 extern s32 func_ov040_0209cb5c(void);
@@ -951,7 +828,6 @@ extern s32 func_ov040_0209cb5c(void);
 /* Elsewhere in the overlay: the point-copy helper 02096404 calls that the
  * shared header does not declare (func_ov039_0208e6e0 is already there), and
  * the text-cell pair the two switch bodies below use. */
-void func_ov039_02087ba0(void* out, void* table, s32 count, void* cell);
 
 /*
  * ============================================================================
@@ -1042,8 +918,109 @@ typedef struct {
 
 // Size: 0x88
 
-/** @brief One of the four stages of a pin-sprite task. */
-typedef s32 (*OtuTaskSpriteStage)(TaskPool* pool, Task* task, void* param);
+/**
+ * "Tsk_OtosuGame_meteohahen" and "Tsk_OtosuGame_needlehahen": a fragment
+ * thrown off a pin. It flies along `dir` while `speed` bleeds away, bounces on
+ * `height` under gravity, and shrinks as `life` runs out.
+ */
+typedef struct {
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine;
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ s32            height; // <= 0, added into the drawn y
+    /* 0x64 */ OtuPoint       dir;
+    /* 0x6C */ s32            speed;
+    /* 0x70 */ s32            vz;
+    /* 0x74 */ s32            pinId;
+    /* 0x78 */ s32            active;
+    /* 0x7C */ s32            visible;
+    /* 0x80 */ s32            lifeMax;
+    /* 0x84 */ s32            life;
+} OtuHahen; // Size: 0x88
+
+/** "Tsk_OtosuGame_hammerhahen": OtuHahen with a spin rate. */
+typedef struct {
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine;
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ s32            height;
+    /* 0x64 */ OtuPoint       dir;
+    /* 0x6C */ s32            speed;
+    /* 0x70 */ s32            vz;
+    /* 0x74 */ u16            spin; // added to the rotation every frame
+    /* 0x76 */ u8             pad_76[2];
+    /* 0x78 */ s32            pinId;
+    /* 0x7C */ s32            active;
+    /* 0x80 */ s32            visible;
+    /* 0x84 */ s32            lifeMax;
+    /* 0x88 */ s32            life;
+} OtuHammerHahen; // Size: 0x8C
+
+/** "Tsk_OtosuGame_smoke": a puff that drifts out from a point and fades. */
+typedef struct {
+    /* 0x00 */ Sprite   sprite;
+    /* 0x40 */ OtuPoint origin;
+    /* 0x48 */ OtuPoint pos;
+    /* 0x50 */ s32      height;
+    /* 0x54 */ OtuPoint dir;
+    /* 0x5C */ s32      speed; // falls by `decel` each frame
+    /* 0x60 */ s32      decel;
+    /* 0x64 */ s32      unk_64;
+    /* 0x68 */ s32      pinId;
+    /* 0x6C */ s32      visible;
+    /* 0x70 */ s32      state; // 1 intro, 2 hold for `hold` frames, 3 outro
+    /* 0x74 */ s32      hold;
+} OtuSmoke;                    // Size: 0x78
+
+/** "Tsk_OtosuGame_warp": a one-shot sprite at a point. */
+typedef struct {
+    /* 0x00 */ Sprite   sprite;
+    /* 0x40 */ OtuPoint origin;
+    /* 0x48 */ OtuPoint pos;
+    /* 0x50 */ s32      pinId;
+    /* 0x54 */ s32      active;
+    /* 0x58 */ s32      visible;
+} OtuWarp; // Size: 0x5C
+
+/** "Tsk_OtosuGame_spark": a spark thrown off a collision, an OtuHahen without a pin. */
+typedef struct {
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine;
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ s32            height;
+    /* 0x64 */ OtuPoint       dir;
+    /* 0x6C */ s32            speed;
+    /* 0x70 */ s32            vz;
+    /* 0x74 */ s32            active;
+    /* 0x78 */ s32            visible;
+    /* 0x7C */ s32            lifeMax;
+    /* 0x80 */ s32            life;
+} OtuSpark; // Size: 0x84
+
+/** "Tsk_OtosuGame_wrwait": the wireless "please wait" screen, a BG on both displays. */
+typedef struct {
+    /* 0x00 */ s32    dataType;
+    /* 0x04 */ Sprite sprite;
+    /* 0x44 */ s32    visible;
+    /* 0x48 */ Data*  data;
+    /* 0x4C */ struct {
+        PaletteResource* palette;
+        BgResource*      chars;
+        BgResource*      screen;
+    } bg[2]; // one per display
+} OtuWrwait; // Size: 0x64
+
+void func_ov039_02096f40(OtuHahen* self, Sprite* sprite, OtuPinSpriteArgs* args);
+
+/* The smoke, warp and needlehahen sprite templates. */
+extern const SpriteAnimation data_ov039_02099f68;
+
+extern const SpriteAnimation data_ov039_02099fb0;
+
+extern const SpriteAnimation data_ov039_02099ff8;
 
 /* ------------------------------------------------------------------ */
 /* Data the band reads but does not define.                            */
@@ -1088,38 +1065,13 @@ extern const TaskStages data_ov039_02099fe8;
  */
 extern const BinIdentifier data_ov039_0209a0dc;
 
-/*
- * Eight Q12.12 constants in the overlay's `.data`, read by the two setup
- * routines. Values recovered with `tools/ov039_table.py`:
- *
- *   0209a2fc = 0x2000    0209a300 = 0x1000    0209a304 = 0x0133
- *   0209a30c = 0x4000    0209a310 = 0x0400    0209a314 = 0x3000
- *   0209a328 = 0x9800
- *
- * None of them is used the same way twice: 0x0133 is a per-frame bleed out of a
- * count, 0x0400 is both a `FX_Divide` denominator and a per-frame spin-up, and
- * 0x2000/0x4000 are the bounds of the two random ranges the starting spin is
- * drawn from.
- *
- * They are deliberately *not* declared `const`. They live in `.data`, not
- * `.rodata`, and mwcc acts on that: told a symbol is const it will keep its
- * value in a callee-saved register across the `FX_Divide` call in the two setup
- * routines, where the target reloads it every time. The `const` costs three
- * instructions there and buys nothing.
+/**
+ * Frames a fragment launched at `vz` stays airborne: three times its time to
+ * apex. A macro because the target evaluates it three times (sign test and
+ * either arm), where a helper would be called once.
  */
-extern s32 data_ov039_0209a2fc;
-
-extern s32 data_ov039_0209a300;
-
-extern s32 data_ov039_0209a304;
-
-extern s32 data_ov039_0209a30c;
-
-extern s32 data_ov039_0209a310;
-
-extern s32 data_ov039_0209a314;
-
-extern s32 data_ov039_0209a328;
+#define OTU_AIRTIME(vz)     ((FX_Divide((vz), data_ov039_0209a310) * 3) >> 0xC)
+#define OTU_ABS_AIRTIME(vz) (OTU_AIRTIME(vz) < 0 ? -OTU_AIRTIME(vz) : OTU_AIRTIME(vz))
 
 /**
  * @brief The base game's random `s16` pair table, indexed off `RNG_Next`.
@@ -1129,8 +1081,6 @@ extern s32 data_ov039_0209a328;
  * band uses it as a random direction vector; that is an inference from the two
  * values never being equal and neither being zero, not something the data says.
  */
-/* data_0205e4e0 is an array of s32, declared by band 3 -- casting its *value*
- * rather than its address was worth 43 points on func_ov039_02095788. */
 
 /**
  * @brief Reads a task's +0x110/+0x114 pair out to a point, 0x0208e85c.
@@ -1165,11 +1115,11 @@ s32 _s32_div_f();
  * touched r2 since loading the id out of it. Passing it explicitly costs no
  * instruction -- r2 already holds it -- and keeps the declaration honest.
  */
-void func_ov039_02097454(OtuTaskSprite* self, Sprite* sprite, s32* dataType);
+void func_ov039_02097454(OtuSmoke* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-void func_ov039_0209788c(OtuTaskSprite* self, Sprite* sprite, s32* dataType);
+void func_ov039_0209788c(OtuWarp* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-void func_ov039_02097ba4(OtuTaskSprite* self, Sprite* sprite, s32* dataType);
+void func_ov039_02097ba4(OtuHahen* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
 /* ------------------------------------------------------------------ */
 /* The create wrappers.                                                */
@@ -1197,14 +1147,6 @@ void func_ov039_02097ba4(OtuTaskSprite* self, Sprite* sprite, s32* dataType);
  * what they mean.
  */
 
-/** @brief The two-word parameter block `EasyTask_CreateTask` hands to a task. */
-typedef struct {
-    /* 0x0 */ s32 word0;
-    /* 0x4 */ s32 word1;
-} OtuTaskParams;
-
-// Size: 0x8
-
 /* Forward declarations for the two functions below that this file's own
  * call sites reach first. Without them C infers `int (...)` and the real
  * definition then reads as a redeclaration. This is band 5 declaring its own
@@ -1214,9 +1156,9 @@ typedef struct {
  * OtuTaskSprite and OtuTaskParams, which are defined just above: the two
  * typedefs live in this file rather than the feature header because this is
  * their only user. */
-s32 func_ov039_0209720c(TaskPool* pool, s32 word0, s32 word1);
+s32 func_ov039_0209720c(TaskPool* pool, s32 dataType, s32 pinId);
 
-void func_ov039_02097240(OtuTaskSprite* s, OtuTaskParams* param);
+void func_ov039_02097240(OtuHahen* self, OtuPoint* at);
 
 /* ------------------------------------------------------------------ */
 /* The four stage dispatchers.                                         */
@@ -1240,7 +1182,7 @@ void func_ov039_02097240(OtuTaskSprite* s, OtuTaskParams* param);
  * The first table's init entry, 0x02096fcc, lives below this band and is declared
  * here without a prototype so this file cannot disagree with whoever defines it.
  */
-s32 func_ov039_02096fcc();
+s32 func_ov039_02096fcc(TaskPool* pool, Task* task, void* args);
 
 /* ============================================================================
  * Band 6: Tsk_OtosuGame_obstacle
@@ -1282,13 +1224,11 @@ typedef struct {
 // Size: 0x6
 
 typedef struct {
-    /* 0x00 */ Sprite sprite;      // Size: 0x40. Passed straight to the sprite API.
-    /* 0x40 */ s32    originX;     // Screen position at spawn; the fixed-point target
-    /* 0x44 */ s32    originY;     // is measured relative to it.
-    /* 0x48 */ s32    targetX;     // Fixed point, <<12.
-    /* 0x4C */ s32    targetY;     // Fixed point, <<12.
-    /* 0x50 */ s32    scale;       // 16.16 scale factor, picked by kind.
-    /* 0x54 */ s32    animPending; // One-shot: set at spawn, cleared by the first Update.
+    /* 0x00 */ Sprite   sprite;      // Size: 0x40. Passed straight to the sprite API.
+    /* 0x40 */ OtuPoint origin;
+    /* 0x48 */ OtuPoint pos;         // Q12.12
+    /* 0x50 */ s32      scale;       // 16.16 scale factor, picked by kind.
+    /* 0x54 */ s32      animPending; // One-shot: set at spawn, cleared by the first Update.
 } OtuObstacle;
 
 // Size: 0x58
@@ -1336,207 +1276,182 @@ extern const s16 data_ov039_02099958[3][3];
 
 // -> params.unk_20
 
-/** The per-kind 16.16 scale factors, {0x20000, 0x18000, 0x10000}. Init copies
- *  these to the stack and indexes the copy. */
-typedef struct {
-    s32 v[3];
-} OtuObstacle_Scales;
-
-extern const OtuObstacle_Scales data_ov039_0209993c;
-
-/* ============================================================================
- * The cursor family at 0x0209003c - 0x020901e0.
- *
- * Eight functions in two identical pairs, and both halves of the band-7 hammer
- * task call all eight, so they come first: nothing else in this file links
- * until these exist.
- *
- * The shape is OtuCursor from band 1 -- table, index, count, framesLeft, 0xA
- * bytes -- but the table is walked with a stride of six *bytes*, so these entries are
- * 6 where band 1's are 4. Two functions are declared over a
- * four-byte entry instead; see func_ov039_0209003c for why that is not a typo.
- *
- *   func_ov039_0209005c / func_ov039_02090148   start a cursor at entry 0
- *   func_ov039_0209008c / func_ov039_02090178   step it by one frame
- *   func_ov039_0209003c / func_ov039_020901e0   read the entry's `value`
- *   func_ov039_020900f4                         read the entry's `value`
- *   func_ov039_0209011c                         read the entry's `scale`, <<12
- *
- * Each pair is byte-for-byte the same code, which is why the two families can
- * be read as one: the hammer task keeps one cursor per animated quantity and
- * the compiler was pointed at the same routine for each.
- * ==========================================================================*/
-
-/** One entry of the table: three halfwords, a six-byte stride.
- *
- * The stride is six *bytes*, not six halfwords -- the target's only multiply is
- * `smulbb r0, r2, r0` against an immediate of 6 feeding a byte offset, so the
- * immediate is a byte count. The three readers take the halfword at +0, +2 and
- * +4 respectively.
+/**
+ * A keyframe of the hammer's animations: three halfwords on a six-byte stride
+ * (the target's `smulbb` against an immediate 6).
  */
 typedef struct {
     /* 0x00 */ s16 duration; // frames to hold this entry
-    /* 0x02 */ s16 value;    // what func_ov039_020900f4 / _1e0 return
-    /* 0x04 */ s16 scale;    // <<12 on use, by func_ov039_0209011c
-} OtuFrame6;
+    /* 0x02 */ s16 value;
+    /* 0x04 */ s16 scale;    // <<12 on use
+} OtuFrame6;                 // Size: 0x6
 
-// Size: 0x6
-
-/** A cursor over a table of OtuFrame6, one entry per call. */
+/** A cursor over OtuFrame6 keys; the 6-byte twin of OtuCursor. */
 typedef struct {
     /* 0x00 */ OtuFrame6* table;
     /* 0x04 */ s16        index;
     /* 0x06 */ s16        count;
     /* 0x08 */ s16        framesLeft;
-} OtuCursor6;
-
-// Size: 0xA
-
-/** One entry as func_ov039_0209003c reads it: four bytes, not twelve.
- *
- *  Only this one function indexes the cursor's table with a stride of four.
- *  Everything else in the family -- including the cursor's own initialiser and
- *  stepper -- uses six, so this is a genuine disagreement in the original code
- *  rather than a transcription slip, and it is reproduced rather than tidied.
- */
-typedef struct {
-    /* 0x00 */ s16 duration;
-    /* 0x02 */ s16 value;
-} OtuFrame4;
-
-/* ============================================================================
- * Tsk_OtosuGame_hammer -- the task itself, 0x020904a8 - 0x02090e1c.
- *
- * Identity read from the ROM rather than inferred: the handle at 0x0209942c
- * carries the name string at 0x0209a594, which is "Tsk_OtosuGame_hammer", a
- * taskFunc of 0x02090dd4 (func_ov039_02090dd4, below) and a dataSize of 0x138.
- * The stage table at 0x02099448 holds, in order, initialize 0x020904a8, update
- * 0x0209054c, render 0x02090cec, cleanup 0x02090d90. That is the same four-word
- * layout as every other task in the overlay, and it is why func_ov039_02090dd4
- * can be a plain dispatcher.
- *
- * Two Sprites are embedded rather than pointed at -- Sprite_Update,
- * Sprite_RenderFrame and Sprite_Release are all handed `self + 4` and
- * `self + 0x44` directly -- so the state block begins four bytes into the task's
- * data. Positions are 12-bit fixed point measured against `baseX`/`baseY`, the
- * same convention as band 6's obstacle, which makes this the third task in the
- * overlay to use it.
- * ==========================================================================*/
+} OtuCursor6; // Size: 0xA
 
 extern const TaskStages data_ov039_02099448;
 
 extern const TaskHandle data_ov039_0209942c;
 
-/** Band 8's child spawner. Declared here because band 7 comes first in the
- *  include order, and left undeclared it would be picked up as implicit `int`. */
-s32 func_ov039_02098394(TaskPool* pool, s32 arg1, s32 arg2);
-
-/** The hammer's per-task state. Two sprites, then the numbers Update drives. */
-typedef struct {
-    /* 0x000 */ s32        unk_00; // four bytes ahead of the first sprite
-    /* 0x004 */ Sprite     spriteA;
-    /* 0x044 */ Sprite     spriteB;
-    /* 0x084 */ s32        spriteRotA; // the live angle plus 0x4000
-    /* 0x088 */ s32        spinValue;  // cursor B's value; > 0 reveals sprite A
-    /* 0x08C */ s32        unk_8C;
-    /* 0x090 */ s16        unk_90;
-    /* 0x092 */ s16        unk_92;
-    /* 0x094 */ s32        spriteRotB; // the same angle plus 0x4000, again
-    /* 0x098 */ s32        unk_98;
-    /* 0x09C */ s32        lenValue;   // the current length: the scale before the <<4
-    /* 0x0A0 */ s16        unk_A0;
-    /* 0x0A2 */ s16        unk_A2;
-    /* 0x0A4 */ s32        baseX;    // the fixed-point targets below are relative to this
-    /* 0x0A8 */ s32        baseY;
-    /* 0x0AC */ s32        targetX;  // <<12, sprite A
-    /* 0x0B0 */ s32        targetY;
-    /* 0x0B4 */ s32        targetXB; // <<12, sprite B
-    /* 0x0B8 */ s32        targetYB;
-    /* 0x0BC */ s32        originX;
-    /* 0x0C0 */ s32        originY;
-    /* 0x0C4 */ s32        zOffset; // added into sprite B's Y target only
-    /* 0x0C8 */ s32        parentHandle;
-    /* 0x0CC */ s32        live;    // outer gate: parent resolved and still valid
-    /* 0x0D0 */ s32        showA;
-    /* 0x0D4 */ s32        showB;
-    /* 0x0D8 */ s32        scale;
-    /* 0x0DC */ s32        angle0;
-    /* 0x0E0 */ s32        angle;
-    /* 0x0E4 */ s32        halfLen;
-    /* 0x0E8 */ s32        state;
-    /* 0x0EC */ s32        framesLeft;
-    /* 0x0F0 */ s32        rate0;
-    /* 0x0F4 */ s32        scale0;
-    /* 0x0F8 */ s32        totalFrames;
-    /* 0x0FC */ s32        angleBase;
-    /* 0x100 */ OtuCursor6 cursorScale;
-    /* 0x10C */ OtuCursor6 cursorSpin;
-    /* 0x118 */ OtuCursor6 cursorTrail;
-    /* 0x124 */ s32        reportTimer;
-    /* 0x128 */ s32        children[4];
-} OtuHammer;
-
-// Size: 0x138
-
-/** The two words the task is created with, and which Init reads back.
- *
- *  This is EasyTask_CreateTask's sixth argument and nothing more: the target's
- *  `str r5, [sp, #8] / str r4, [sp, #0xc]` is this pair being built, and the
- *  `stm sp, {r2, ip}` beside it is the fifth and sixth *stack* arguments being
- *  written -- NULL and `&params`. There is no outer struct; what looked like one
- *  in the m2c draft is just those two stack slots.
- */
-typedef struct {
-    /* 0x00 */ s32 arg1; // the kind, read by the two sprite loaders
-    /* 0x04 */ s32 arg2; // the parent handle, stored at +0xC8
-} OtuHammer_Params;
-
-// Size: 0x8
+s32 func_ov039_02098394(TaskPool* pool, s32 dataType, s32 pinId);
 
 /**
- * The task's initializer: zeroes the state, remembers the parent, and loads the
- * two sprites.
- *
- * `arg0` is stored at +0x00, four bytes ahead of sprite A, and nothing in this
- * band reads it -- it is the spawn-time argument the renderer never needs.
- *
- * The two sprite loaders are not decompiled and are not referenced anywhere else
- * in the overlay, so they are left as externs: dsd resolves them against the
- * original overlay rather than failing the link, which is how the rest of this
- * band's still-absent callees work too.
+ * "Tsk_OtosuGame_hammer": a pin's hammer attack. A two-part sprite (the head A
+ * and the shaft B) swung around the pin through seven states, throwing four
+ * hammerhahen fragments as it lands.
  */
-extern void func_ov039_02090390(OtuHammer* self, Sprite* sprite, OtuHammer_Params* params);
+typedef struct {
+    /* 0x000 */ TaskPool*      pool;
+    /* 0x004 */ Sprite         spriteA;
+    /* 0x044 */ Sprite         spriteB;
+    /* 0x084 */ OamAffineParam affineA; // scaleX > 0 reveals sprite A
+    /* 0x094 */ OamAffineParam affineB; // scaleY is the shaft's current length
+    /* 0x0A4 */ OtuPoint       origin;
+    /* 0x0AC */ OtuPoint       posA;
+    /* 0x0B4 */ OtuPoint       posB;
+    /* 0x0BC */ OtuPoint       pinPos; // the pin the hammer swings around
+    /* 0x0C4 */ s32            height; // the pin's height, added into both sprites' y
+    /* 0x0C8 */ s32            pinId;
+    /* 0x0CC */ s32            live;   // the pin is in phase 7
+    /* 0x0D0 */ s32            showA;
+    /* 0x0D4 */ s32            showB;
+    /* 0x0D8 */ s32            scale;
+    /* 0x0DC */ s32            angle0;
+    /* 0x0E0 */ s32            angle;
+    /* 0x0E4 */ s32            halfLen;
+    /* 0x0E8 */ s32            state; // 0..6; entered at 1 by func_ov039_02091028
+    /* 0x0EC */ s32            framesLeft;
+    /* 0x0F0 */ s32            rate0;
+    /* 0x0F4 */ s32            scale0;
+    /* 0x0F8 */ s32            totalFrames;
+    /* 0x0FC */ s32            angleBase;
+    /* 0x100 */ OtuCursor      cursorScale;
+    /* 0x10C */ OtuCursor6     cursorSpin;
+    /* 0x118 */ OtuCursor6     cursorTrail;
+    /* 0x124 */ s32            reportTimer;
+    /* 0x128 */ s32            children[4]; // hammerhahen
+} OtuHammer;                                // Size: 0x138
 
-extern void func_ov039_0209041c(OtuHammer* self, Sprite* sprite, OtuHammer_Params* params);
+void func_ov039_02090390(OtuHammer* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-/** Band 8's child spawner, re-declared for the other hammer entry point. */
+void func_ov039_0209041c(OtuHammer* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-/** Band 1's two stride-four cursor helpers, plus the four things Update calls
- *  that live in bands this one cannot see ahead of. All declared here because
- *  band 7 comes first in the include order, and an undeclared call in C99 is an
- *  implicit `int` that later collides with the real definition. */
-void func_ov039_0208ffac(OtuCursor* c, s32* table, s16 count);
+/** "Tsk_OtosuGame_needle": a pin's needle attack, charged, held, then thrown. */
+typedef struct {
+    /* 0x00 */ TaskPool*      pool;
+    /* 0x04 */ Sprite         sprite;
+    /* 0x44 */ OamAffineParam affine;
+    /* 0x54 */ OtuPoint       origin;
+    /* 0x5C */ OtuPoint       pos;
+    /* 0x64 */ s32            height;
+    /* 0x68 */ s32            pinId;
+    /* 0x6C */ s32            visible; // the pin is in phase 6
+    /* 0x70 */ s32            chargeFrames;
+    /* 0x74 */ s32            holdFrames;
+    /* 0x78 */ s32            timer;
+    /* 0x7C */ s32            holdTimer;
+    /* 0x80 */ s32            state;       // 1 start, 2 charge, 3 hold, 4 release
+    /* 0x84 */ s32            hahenIds[8]; // needlehahen
+} OtuNeedle;                               // Size: 0xA4
+
+/** "Tsk_OtosuGame_hand": a pin's grab attack, a hand thrust out along `dir`. */
+typedef struct {
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine;
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ OtuPoint       dir;
+    /* 0x68 */ s32            pinId;
+    /* 0x6C */ s32            visible;
+    /* 0x70 */ s32            state; // 1 aim, 2 thrust, 3 hold, 4 retract
+    /* 0x74 */ s32            timer;
+} OtuHand;                           // Size: 0x78
+
+/**
+ * The engine's BG tilemap object (set up by func_0200d1d8, released through
+ * func_0200d858). Only the leading words the overlay touches are named.
+ */
+typedef struct {
+    /* 0x00 */ s32 display;
+    /* 0x04 */ s32 layer;
+    /* 0x08 */ s32 flags; // bit 1: the map needs re-uploading
+    /* 0x0C */ u8  unk_0C[0x1C];
+} OtuBgMap;               // Size: 0x28
+
+/** The creation block of the board's three background tasks (floor, bg, ovbg). */
+typedef struct {
+    s32             dataType;
+    Heap*           heap;
+    OtuBoardLayout* layout;
+} OtuBoardArgs;
+
+/** One of the floor's animated palettes. */
+typedef struct {
+    /* 0x00 */ OtuPaletteAnim   anim;
+    /* 0x10 */ PaletteResource* palette;
+} OtuFloorPalette; // Size: 0x14
+
+/** "Tsk_OtosuGame_floor": the board's tiled floor, a BG built from its cell grid. */
+typedef struct {
+    /* 0x00 */ s32              dataType;
+    /* 0x04 */ Heap*            heap;
+    /* 0x08 */ s32              loaded;
+    /* 0x0C */ OtuBoardLayout*  layout;
+    /* 0x10 */ OtuBgMap         bg;
+    /* 0x38 */ u8**             tiles;    // per-cell pointers into tilePool
+    /* 0x3C */ u8*              tilePool; // 0x800 bytes per 8x8-tile cell
+    /* 0x40 */ Data*            animData;
+    /* 0x44 */ Data*            data;
+    /* 0x48 */ BgResource*      animChars;
+    /* 0x4C */ PaletteResource* palette;
+    /* 0x50 */ BgResource*      chars;
+    /* 0x54 */ OtuFloorPalette  animPalettes[5];
+} OtuFloor; // Size: 0xB8
+
+/** "Tsk_OtosuGame_bg": the board's two scrolling background layers. */
+typedef struct {
+    /* 0x00 */ s32              dataType;
+    /* 0x04 */ Heap*            heap;
+    /* 0x08 */ s32              active; // the layout has background layers at all
+    /* 0x0C */ OtuBoardLayout*  layout;
+    /* 0x10 */ Data*            data[2];
+    /* 0x18 */ PaletteResource* palettes[2];
+    /* 0x20 */ BgResource*      chars[2];
+    /* 0x28 */ OtuBgMap         maps[2];
+    /* 0x78 */ void*            buffers[2];
+    /* 0x80 */ s32              widths[2]; // Q12.12, the wrap points of the scroll
+    /* 0x88 */ s32              heights[2];
+    /* 0x90 */ s32              scrollX[2];
+    /* 0x98 */ s32              scrollY[2];
+} OtuBg; // Size: 0xA0
+
+void func_ov039_0208ffac(OtuCursor* c, OtuFrame4* table, s16 count);
 
 s32 func_ov039_0208ffd8(OtuCursor* c);
 
-void func_ov039_02087d04(s32 mode, void* dst, void* src);
+void func_ov039_02087d04(s32 se, OtuPoint* from, OtuPoint* to); // plays `se` panned by from - to
 
-void func_ov039_0208f048(void* task, s32 arg1, s32 arg2);
+void func_ov039_0208f048(OtuBadge* self, OtuPoint* at, s32 selector);
 
-s32 func_ov039_0208e9ac(OtuPinTask* task);
+s32 func_ov039_0208e9ac(OtuBadge* task);
 
-/* The five animation tables the state machine walks, in the overlay's data. */
-extern OtuFrame6 data_ov039_02099494;
+/* The hammer's keyframe tables. */
+extern OtuFrame4 data_ov039_02099494[];
 
-extern OtuFrame6 data_ov039_020994b4;
+extern OtuFrame6 data_ov039_020994b4[];
 
-extern OtuFrame6 data_ov039_02099476;
+extern OtuFrame6 data_ov039_02099476[];
 
-extern OtuFrame6 data_ov039_020994d8;
+extern OtuFrame6 data_ov039_020994d8[];
 
-extern OtuFrame6 data_ov039_02099458;
+extern OtuFrame6 data_ov039_02099458[];
 
-extern OtuFrame6 data_ov039_02099438;
+extern OtuFrame4 data_ov039_02099438[];
 
 /* ============================================================================
  * The transform helper at 0x02090e9c.
@@ -1554,20 +1469,6 @@ extern OtuFrame6 data_ov039_02099438;
  *     Q12.12, then displaced by 16 in the perpendicular direction -- one point
  *     each way, so the pair is the bar's two ends.
  * ==========================================================================*/
-
-/** One vertex of the bar: two fixed-point coordinates and a pinned w. */
-typedef struct {
-    /* 0x00 */ s32 x;
-    /* 0x04 */ s32 y;
-    /* 0x08 */ s32 w; // 0x10000, Q16.16 one
-} OtuBarVertex;
-
-// Size: 0xC
-
-/** The bar: its two ends. */
-typedef struct {
-    /* 0x00 */ OtuBarVertex v[2];
-} OtuBar;
 
 /** The handle this spawns. Already in the overlay's .rodata. */
 extern const TaskHandle data_ov039_0209a024;
@@ -1610,22 +1511,6 @@ typedef struct {
 
 // Size: 0x4
 
-/**
- * @brief One cell's two-digit position: four signed halfwords.
- *
- * The last pair is the first minus five on x, so `lowX`/`highX` read left to
- * right as tens-then-units. The halfword stride is what the code uses: 0x02094418
- * addresses entry `index` and then offsets by `which * 4` to pick a half of it.
- */
-typedef struct {
-    /* 0x00 */ u16 lowX;  // units digit
-    /* 0x02 */ u16 lowY;
-    /* 0x04 */ u16 highX; // tens digit, five pixels left of lowX
-    /* 0x06 */ u16 highY;
-} OtuGaugeDigits;
-
-// Size: 0x8
-
 /*
  * The two digit-position tables. Both are declared non-`const` because they
  * live in the overlay's `.data`, not its `.rodata` -- band 5 records that
@@ -1641,7 +1526,7 @@ typedef struct {
  */
 extern OtuGaugePos data_ov039_0209a780[4];
 
-extern OtuGaugeDigits data_ov039_0209a790[4];
+extern OtuGaugePos data_ov039_0209a790[4][2]; // [cell][0 = units, 1 = tens]
 
 /**
  * @brief The overlay's fourth "is this pin the kind I care about" filter.
@@ -1652,7 +1537,7 @@ extern OtuGaugeDigits data_ov039_0209a790[4];
  * that family and sits between them at 0x0208e9e4, inside OtuFieldAccess.c's
  * own claim and not yet defined there.
  */
-s32 func_ov039_0208e9e4(OtuPinTask* task);
+s32 func_ov039_0208e9e4(OtuBadge* task);
 
 /* ------------------------------------------------------------------ */
 /* Task-data shapes.                                                   */
@@ -1718,21 +1603,17 @@ typedef struct {
  * inserted into it every frame.
  */
 typedef struct {
-    /* 0x000 */ s32          dataType;     // folded into every template's dataType field
-    /* 0x004 */ s32          pinId;        // the tracked pin's task handle
-    /* 0x008 */ s32          running;      // raised by Update, tested by Render
-    /* 0x00C */ Sprite       spriteA[4];   // four cells' first 0x40-walk sprite
-    /* 0x10C */ Sprite       spriteB[4];   // four cells' second 0x40-walk sprite
-    /* 0x20C */ OtuGaugePair digit[4];     // the four two-digit displays
-    /* 0x40C */ Sprite       plate;        // the wide backing sprite
-    /* 0x44C */ Sprite       dial;         // the wide sprite drawn through the affine path
-    /* 0x48C */ s32          rotation;     // +0x100 per frame, kept to 16 bits
-    /* 0x490 */ s32          scaleX;       // 0x1000, handed to the affine allocator
-    /* 0x494 */ s32          scaleY;       // 0x1000 likewise
-    /* 0x498 */ s16          unk_498;      // cleared by Init, read by nothing in this band
-    /* 0x49A */ s16          unk_49A;      // likewise
-    /* 0x49C */ s16          lastCount[4]; // the count each cell was last drawn for
-    /* 0x4A4 */ s32          alive[4];     // the filter's answer for this cell's pin
+    /* 0x000 */ s32            dataType;     // folded into every template's dataType field
+    /* 0x004 */ s32            pinId;        // the tracked pin's task handle
+    /* 0x008 */ s32            running;      // raised by Update, tested by Render
+    /* 0x00C */ Sprite         spriteA[4];   // four cells' first 0x40-walk sprite
+    /* 0x10C */ Sprite         spriteB[4];   // four cells' second 0x40-walk sprite
+    /* 0x20C */ OtuGaugePair   digit[4];     // the four two-digit displays
+    /* 0x40C */ Sprite         plate;        // the wide backing sprite
+    /* 0x44C */ Sprite         dial;         // the wide sprite drawn through the affine path
+    /* 0x48C */ OamAffineParam affine;       // the dial spins 0x100 per frame
+    /* 0x49C */ s16            lastCount[4]; // the count each cell was last drawn for
+    /* 0x4A4 */ s32            alive[4];     // the filter's answer for this cell's pin
 } OtuGauge;
 
 // Size: 0x4B4
@@ -1798,112 +1679,44 @@ extern const s32 data_ov039_0209a360[10];
  * Types
  * ==========================================================================*/
 
-/** One 0x10-byte record of an inbound wireless packet.
- *
- *  Four words, and the copy at 02088698 moves twelve of them in one go with
- *  `ldm`/`stm` -- which is what mwcc emits for a 16-byte struct assignment, and
- *  is why this is a struct rather than a `memcpy`.
- *
- *  Those four words are opaque on purpose: this is the received packet's
- *  payload, copied verbatim from the wire buffer, and nothing in the overlay
- *  ever reads an individual word of it. The fields it *can* see live either side
- *  of the array -- `packetKind` at +0x06 is compared against the wire packet's
- *  own +0x50, and `gotPacket` at +0x08 is set once the copy completes. So this
- *  is not an unfinished decode; it is a payload with no structure to recover. */
-typedef struct {
-    /* 0x00 */ s32 w[4];
-} OtuWireRecord;
-
-// Size: 0x10
-
-/** The 0x10-byte parameter block at stage + 0x150.
- *
- *  Loaded verbatim from the overlay's bin by 02088c50 and handed *by address* to
- *  three task factories, so the overlay never interprets it here. Only three
- *  bytes are ever read back, and all three with `ldrb`, so all three are u8.
- *  `effectMax` becoming the effect count is the load-bearing one: 02088c50
- *  zero-extends it and stores it into a word field. */
-typedef struct {
-    /* 0x00 */ u8 kind;      // == 1 makes both rounds clear the OBJ layers
-    /* 0x01 */ u8 variant;   // handed to the obstacle factory as `slot`
-    /* 0x02 */ u8 pad_02[2];
-    /* 0x04 */ u8 effectMax; // copied to stage->effectCount by 02088c50
-    u8            pad_05[0x0B];
-} OtuBoardParams;
-
-// Size: 0x10
-
-/** One of the countdown block's three 0x10-byte groups.
- *
- *  `groupCount` is the number of menu cells this group spans -- it is what
- *  02088a8c multiplies by 0x22 to find where the next group's sprites start,
- *  and what 02088df0 counts non-zero to decide how many pin children to spawn.
- *  `row` is the 0xE-byte copy of one pin-tray slot. */
-typedef struct {
-    /* 0x04 */ u16 groupCount;
-    /* 0x06 */ u8  row[0x0A];
-} OtuBoardCountdownGroup;
-
-// Size: 0x10
-
-/** The board's countdown block: two digit columns and three score groups.
- *
- *  The 0x34 stride is what makes this a menu-indexed array. It agrees with the
- *  header's OtuMenuCountdown on the two leading digit columns -- which are the
- *  header's `thousands` and `hundreds` at +0x84/+0x86 of the 0x44000 sub-object,
- *  i.e. +0 and +2 of this block -- and differs in that it also describes the
- *  group count and the tray copy that follow them. */
-typedef struct {
-    /* 0x00 */ u16                    digits[2];
-    /* 0x04 */ OtuBoardCountdownGroup group[3];
-} OtuBoardCountdown;
-
 // Size: 0x34
 
-/** The board stage's block: the object every function in this batch reaches
- *  through `func_ov039_02098b70(OTU_STAGE(scene))`.
- *
- *  Nothing in decompiled code allocates this -- func_ov039_02098a60 does, from
- *  the size in the stage descriptor -- so the extent below is read off the
- *  highest offset any function here touches (0x2CC) and rounded to 0x2D0, which
- *  is the size the overlay's own stage descriptors advertise for the two board
- *  stages. Fields keep their offsets; the roles are named only where the code
- *  says what they are. */
+/**
+ * @brief The board stage's block (`OtuStageDispatch.stageBlock`, 0x2D0 bytes):
+ * the round's state and the handles of every task it creates. The single-player
+ * board stage (OtuBoard.c) and the wireless menu and result stages
+ * (OtuPinLogic.c) share it.
+ */
 typedef struct {
-    /* 0x000 */ u8                 pad_000[0x06];
-    /* 0x006 */ u16                packetKind;   // matched against the wire packet's +0x50
-    /* 0x008 */ s32                gotPacket;
-    /* 0x00C */ OtuWireRecord      rxRecord[12]; // 0xC0 bytes, filled wholesale by 02088698
-    /* 0x0CC */ u16                active;       // raised by both entry points at 02089780/898a8
-    /* 0x0CE */ u8                 pad_0CE[0x72];
-    /* 0x140 */ s32                childCount;   // number of pin children
-    /* 0x144 */ s32                effectCount;
-    /* 0x148 */ s32                helperCursor; // 0..0x40, round-robin base for 02089064
-    /* 0x14C */ s32                stageIndex;   // indexes all eight data tables above
-    /* 0x150 */ OtuBoardParams     params;
-    /* 0x160 */ u8*                bufA;         // 0x1388 bytes from the heap
-    /* 0x164 */ u8*                bufB;         // handed to the obstacle factory as 8-byte records
-    /* 0x168 */ u8*                bufC;
-    /* 0x16C */ OtuBoardCountdown* countdown;
-    /* 0x170 */ s32                countdownAux; // the block's second digit column, or a table entry
-    /* 0x174 */ s32                timer;        // set to 0x258 by 020898a8, read nowhere here
-    /* 0x178 */ s32                outcome;      // 020893fc's verdict: 1, 2 or 3
-    /* 0x17C */ s32                childIds[4];  // child task handles
-    /* 0x18C */ s32                helperIds[0x40];
-    /* 0x28C */ s32                effectIds[8];
-    /* 0x2AC */ s32                pinTask;
-    /* 0x2B0 */ s32                bgTaskA;
-    /* 0x2B4 */ s32                bgTaskB;
-    /* 0x2B8 */ s32                bgTaskC;    // the animated palette's owner
-    /* 0x2BC */ s32                fxTask;     // the round-state task 020894cc polls
-    /* 0x2C0 */ s32                fxTask2;
-    /* 0x2C4 */ s32                soundTask;  // lives in pool 1, not pool 2
-    /* 0x2C8 */ s32                soundTask2; // ditto; deleted by 02089918
-    /* 0x2CC */ s32                soundTask3; // ditto; created but never read here
-} OtuPinStage;
-
-// Size: 0x2D0
-
+    /* 0x000 */ s32            step;       // the wireless stages' handshake step
+    /* 0x004 */ u16            readyMask;  // one bit per player that has answered
+    /* 0x006 */ u16            packetKind; // sent to and matched against the link partner
+    /* 0x008 */ s32            gotPacket;
+    /* 0x00C */ WMBssDesc      parent;     // the beacon 02088698 accepted
+    /* 0x0CC */ u16            active;
+    /* 0x0CE */ u8             pad_0CE[0x72];
+    /* 0x140 */ s32            badgeCount;  // latched from state.unk_EE0
+    /* 0x144 */ s32            obstacleCount;
+    /* 0x148 */ s32            sparkCursor; // round-robin over sparkIds
+    /* 0x14C */ s32            stageIndex;  // indexes the ten board tables
+    /* 0x150 */ OtuBoardLayout layout;
+    /* 0x16C */ OtuMatch*      match;
+    /* 0x170 */ s32            timerSeconds; // the round's time limit
+    /* 0x174 */ s32            timer;        // 0x258 on entry
+    /* 0x178 */ s32            outcome;      // 020893fc's verdict: 1, 2 or 3
+    /* 0x17C */ s32            badgeIds[4];
+    /* 0x18C */ s32            sparkIds[0x40];
+    /* 0x28C */ s32            obstacleIds[8];
+    /* 0x2AC */ s32            slashId;
+    /* 0x2B0 */ s32            floorId;
+    /* 0x2B4 */ s32            bgId;
+    /* 0x2B8 */ s32            ovbgId;
+    /* 0x2BC */ s32            timerId;
+    /* 0x2C0 */ s32            gaugeId;
+    /* 0x2C4 */ s32            gameoverId; // in pool 1, like the next two
+    /* 0x2C8 */ s32            wriconId;
+    /* 0x2CC */ s32            wrwaitId;
+} OtuBoardStage; // Size: 0x2D0
 /* ============================================================================
  * Callee declarations. Nothing here is defined in this file.
  * ==========================================================================*/
@@ -1925,20 +1738,20 @@ void* func_ov039_02088440(s32 slot);
 void func_ov039_02088564(void* pad);
 
 /** The pin child's "is this one worth resolving" test, and its follower. */
-s32 func_ov039_0208e9f8(TaskPool* pool, void* task);
+s32 func_ov039_0208e9f8(TaskPool* pool, OtuBadge* self);
 
-void func_ov039_0208eaa0(void* self, void* other);
+void func_ov039_0208eaa0(OtuBadge* other, OtuBadge* self);
 
 /** The pairwise interaction predicates: contact, push-apart, and effect-pull. */
-s32 func_ov039_0208e28c(OtuPinTask* a, OtuPinTask* b);
+s32 func_ov039_0208e28c(OtuBadge* a, OtuBadge* b);
 
-s32 func_ov039_0208e37c(OtuPinTask* a, OtuPinTask* b);
+s32 func_ov039_0208e37c(OtuBadge* a, OtuBadge* b);
 
-s32 func_ov039_0208e504(OtuPinTask* a, OtuObstacle* b);
+s32 func_ov039_0208e504(OtuBadge* a, OtuObstacle* b);
 
 /** Reads a pin child's *own* aim point -- a different pair from the +0x120 one
  *  that func_ov039_0208e6e0 copies out. */
-void func_ov039_0208e6fc(void* task, OtuPoint* out);
+void func_ov039_0208e6fc(OtuBadge* self, OtuPoint* out);
 
 /** Creates one pin child. Ten parameters, four in registers and six on the
  *  stack; the last six are the block's parameter block, the scene, the scene's
@@ -1951,33 +1764,33 @@ s32 func_ov039_0208dcb0(TaskPool* pool, s32 dataType, s32 slot, void* pad, void*
  *  EasyTask_CreateTask and all six return the new handle in r0. */
 s32 func_ov039_02094e58(TaskPool* pool, s32 dataType);
 
-s32 func_ov039_02092310(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardParams* params);
+s32 func_ov039_02092310(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout);
 
-s32 func_ov039_02092cd4(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardParams* params);
+s32 func_ov039_02092cd4(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout);
 
-s32 func_ov039_020941d0(TaskPool* pool, s32 dataType, s32 aux);
+s32 func_ov039_020941d0(TaskPool* pool, s32 dataType, s32 seconds);
 
 s32 func_ov039_02094ab4(TaskPool* pool, s32 dataType, s32 pin);
 
 s32 func_ov039_020989f0(TaskPool* pool, s32 dataType);
 
 /** Feeds one helper child a point and resets it. */
-void func_ov039_02094e88(void* task, OtuPoint* in);
+void func_ov039_02094e88(OtuSpark* self, OtuPoint* origin);
 
 /** Feeds one helper child a point and a fresh random offset. */
-void func_ov039_02094e9c(void* task, OtuPoint* in);
+void func_ov039_02094e9c(OtuSpark* self, OtuPoint* at);
 
 /** Places one of two sprites at a point, given a bearing and a length. */
-void func_ov039_02092348(void* task, s32 x, s32 y);
+void func_ov039_02092348(OtuFloor* self, s32 x, s32 y);
 
-void func_ov039_020923b4(void* task, s32 event);
+void func_ov039_020923b4(OtuFloor* self, s32 event);
 
-void func_ov039_02092d0c(void* task, s32 x, s32 y);
+void func_ov039_02092d0c(OtuBg* self, s32 x, s32 y);
 
-void func_ov039_02092e04(void* task, s32 event);
+void func_ov039_02092e04(OtuBg* self, s32 event);
 
 /** ov040's packet hand-off. */
-void func_ov040_0209cb98(void* packet, s32 which);
+void func_ov040_0209cb98(WMBssDesc* parent, s32 which);
 
 /** Population count of a bit mask. Declared the same way Boss03.c declares it,
  *  since the overlay uses it for exactly one thing here: how many players share
@@ -1990,19 +1803,19 @@ s32 func_02047e84(u16 bits);
 
 /** out = a scaled vector offset, and the overlay's shared "apply a sprite
  *  action" helper (declared unprototyped there). */
-s32 func_ov039_0208f00c(void* task);
+s32 func_ov039_0208f00c(OtuBadge* self);
 
 // the tray slot holds a real pin
-void func_ov039_0208f024(void* task);
+void func_ov039_0208f024(OtuBadge* self);
 
 // retract one child's sprites
-s32 func_ov039_0208f0b0(void* task);
+s32 func_ov039_0208f0b0(OtuBadge* self);
 
 // the tray slot is empty (0x130)
-void func_ov039_0208f0c8(OtuPinTask* task);
+void func_ov039_0208f0c8(OtuBadge* task);
 
 // clear the child's +0x84/+0x80 pair
-void func_ov039_0208f104(void* task);
+void func_ov039_0208f104(OtuBadge* self);
 
 /**
  * @file OtuPinSprites.c
@@ -2055,8 +1868,8 @@ extern const TaskStages data_ov039_020993a8;
 
 extern const TaskStages data_ov039_020993f0;
 
-/* A 0x24-byte table passed to func_ov039_02087ba0 by the state-3 setup. */
-extern const s32 data_ov039_0209a54c[9];
+/* The meteo's wind-up scale keyframes. */
+extern const OtuScaleKey data_ov039_0209a54c[3];
 
 /* ------------------------------------------------------------------ */
 /* Sibling accessors this band calls.                                  */
@@ -2069,107 +1882,86 @@ extern const s32 data_ov039_0209a54c[9];
 /* Defined in OtuFieldAccess.c below the band include; declared here so mwcc
  * does not fall back to an implicit int() prototype and then reject the real
  * definition. */
-void func_ov039_02096270(void* task);
+void func_ov039_02096270(OtuEntryTask* self);
 
-void func_ov039_02095ddc(void* task);
+void func_ov039_02095ddc(OtuPointTask* self);
 
-s32 func_ov039_0208e6f4(OtuPinTask* task);
+s32 func_ov039_0208e6f4(OtuBadge* task);
 
-s32 func_ov039_0208ee98(OtuPinTask* task);
+s32 func_ov039_0208ee98(OtuBadge* task);
 
-s32 func_ov039_0208e890(OtuPinTask* task);
+s32 func_ov039_0208e890(OtuBadge* task);
 
-s32 func_ov039_0208e8c4(OtuPinTask* task);
+s32 func_ov039_0208e8c4(OtuBadge* task);
 
-s32 func_ov039_0208e950(OtuPinTask* task);
+s32 func_ov039_0208e950(OtuBadge* task);
 
-s32 func_ov039_0208a490(void* task, s32 arg2);
+void func_ov039_0208a490(OtuBadge* self, s32 value);
 
 /* ==================================================================== */
 /* The four _Sprite_Load wrappers: 0208f1f8, 0208f4fc, 0208f874,        */
 /* 0208fb54.  One body, four times, three constants varied.             */
 /* ==================================================================== */
 
-/**
- * @brief The pin-shadow task's data block, 0x68 bytes.
- *
- * `Sprite` first, because _Sprite_Load is handed `self` itself (the sprite lives
- * at offset 0) and the two point pairs follow the two coordinate words the
- * wrapper writes.
- *
- * This is the only one of the four with a point pair at +0x50 and another at
- * +0x58 *and* the `+3` offset in its render step, which is what distinguishes
- * the shadow's placement from the other three.
- */
 /*
- * One struct for all four tasks, deliberately minimal.
- *
- * The four tasks use the same word range for *different* things, and the
- * layouts genuinely overlap rather than sitting side by side:
- *
- *   +0x40/+0x44   piyo, marker   -- the pin's +0x110/+0x114 pair
- *   +0x48/+0x4C   piyo, marker   -- the pin's +0x120/+0x124 pair
- *   +0x44/+0x48   shadow, meteo  -- a Q12 scale pair, seeded to 0x1000
- *   +0x50/+0x54   shadow, meteo  -- the pin's +0x110/+0x114 pair
- *   +0x58/+0x5C   shadow, meteo  -- the pin's +0x120/+0x124 pair
- *
- * So +0x44 is a point's y on the piyo and a scale on the shadow, and naming both
- * readings would mean a union whose members mwcc then lays out a word apart from
- * where the target has them. Only the words the code reaches *unambiguously*
- * across all four tasks are named; the overlapping ones are read by raw offset at
- * the use site, which is also how OtuFieldAccess.c models this overlay's
- * structures.
+ * The four pin-effect sprite tasks. Each draws one sprite at a pin's position,
+ * read every frame through func_ov039_0208e85c (the pin's `origin`, which the
+ * render subtracts) and func_ov039_0208e6e0 (its `pos`).
  */
+
+/** "Tsk_OtosuGame_shadow": a drop shadow under the pin, scaled with it. */
+typedef struct {
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine;
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ s32            pinId;
+    /* 0x64 */ s32            visible; // func_ov039_0208e890's answer; drawn only when 1
+} OtuShadow;                           // Size: 0x68
+
+/** "Tsk_OtosuGame_piyo": the dizzy-stars sprite, banded by how much life is left. */
 typedef struct {
     /* 0x00 */ Sprite   sprite;
-    /* 0x40 */ s32      unk_40;
-    /* 0x44 */ s32      unk_44;
-    /* 0x48 */ s32      unk_48;
-    /* 0x4C */ u16      unk_4C;
-    /* 0x4E */ u16      unk_4E;
-    /* 0x50 */ OtuPoint pinPosA_hi;   // shadow/meteo: the pin's +0x110/+0x114 pair
-    /* 0x58 */ OtuPoint pinPosB_hi;   // shadow/meteo: the pin's +0x120/+0x124 pair
-    /* 0x60 */ s32      childId;      // shadow: the pin id it tracks
-    /* 0x64 */ s32      meteoChildId; // meteo: its pin id sits one word higher
-    /* 0x68 */ s32      alive;        // meteo only: the kind == 8 filter's result
-    /* 0x6C */ s32      state;        // meteo only: 0-3, the sub-state machine
-    /* 0x70 */ s32      timer;        // meteo only: the state machine's work counter
-} OtuShadowTask;
+    /* 0x40 */ OtuPoint origin;
+    /* 0x48 */ OtuPoint pos;
+    /* 0x50 */ s32      pinId;
+    /* 0x54 */ s32      visible;
+    /* 0x58 */ s32      stunMax; // the stun is banded as a percentage of this
+    /* 0x5C */ s32      timer;   // frames until the next func_ov039_02087d04 nudge
+} OtuPiyo;                       // Size: 0x60
 
-/**
- * @brief The two-word argument block the pin tasks are created with.
- *
- * `dataType` is read back by the four `_Sprite_Load` wrappers (it lands in the
- * animation template's dataType nibble); `childId` is read by the four init steps,
- * which store it as the id of the pin the new task will track.
- */
+/** "Tsk_OtosuGame_marker": a sprite whose animation is chosen by the pin. */
 typedef struct {
-    s32 dataType;
-    s32 childId;
-} OtuPinSpriteArgs;
+    /* 0x00 */ Sprite   sprite;
+    /* 0x40 */ OtuPoint origin;
+    /* 0x48 */ OtuPoint pos;
+    /* 0x50 */ s32      pinId;
+    /* 0x54 */ s32      frame; // func_ov039_0208e950's answer; 0 hides the marker
+} OtuMarker;                   // Size: 0x58
 
-// Size: 0x8
+/** "Tsk_OtosuGame_meteo": the meteor attack, with eight fragment children. */
+typedef struct {
+    /* 0x00 */ Sprite         sprite;
+    /* 0x40 */ OamAffineParam affine;
+    /* 0x50 */ OtuPoint       origin;
+    /* 0x58 */ OtuPoint       pos;
+    /* 0x60 */ s32            height;      // the pin's height, added into the drawn y
+    /* 0x64 */ s32            pinId;
+    /* 0x68 */ s32            alive;       // the phase == 8 filter's answer
+    /* 0x6C */ s32            state;       // 0..3, entered through 0208fefc/0208ff30/0208ff68
+    /* 0x70 */ s32            timer;
+    /* 0x74 */ s32            hahenIds[8]; // "Tsk_OtosuGame_meteohahen" children
+    /* 0x94 */ OtuScaleAnim   scaleAnim;
+} OtuMeteo;                                // Size: 0xA0
 
 /* The four load wrappers, defined further down but called by the init steps. */
-void func_ov039_0208f1f8(OtuShadowTask* self, Sprite* sprite, s32* args);
+void func_ov039_0208f1f8(OtuShadow* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-void func_ov039_0208f4fc(OtuShadowTask* self, Sprite* sprite, s32* args);
+void func_ov039_0208f4fc(OtuPiyo* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-void func_ov039_0208f874(OtuShadowTask* self, Sprite* sprite, s32* args);
+void func_ov039_0208f874(OtuMarker* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-void func_ov039_0208fb54(OtuShadowTask* self, Sprite* sprite, s32* args);
-
-/**
- * @brief A position plus a scale, the three-word record func_ov039_0208fee0 fills.
- *
- * Named rather than spelled as an `s32 out[3]` because the array form lets mwcc
- * merge the first two stores into one `stmia`, which the target does not do.
- */
-typedef struct {
-    s32 x;
-    s32 y;
-    s32 scale;
-} OtuPinRecord;
+void func_ov039_0208fb54(OtuMeteo* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
 /* ------------------------------------------------------------------ */
 /* Integration notes.                                                  */
@@ -2232,26 +2024,6 @@ extern u32 data_ov038_0209eef4;
 extern u32 data_ov038_0209ef48;
 
 extern u32 data_ov038_0209ef6c;
-
-/**
- * @brief The pin's Q12.12 speed table, sixteen bytes per entry.
- *
- * 0208a6f8 indexes it with `ldr r0, [base, index, lsl #4]` and reads the word at
- * offset 0, so the stride is sixteen *bytes* and the value is Q12.12 (the
- * entries run 0x148, 0x171, 0x19A ... 0x7AB8, 0x8000 -- i.e. 0.08 to 2.0 in
- * Q12.12, which is what the caller then multiplies a Q12.12 angle by).
- *
- * Declared with an incomplete extent: the index is a byte read out of a record
- * whose layout this band cannot see, so the count is not knowable from here.
- */
-typedef struct {
-    /* 0x00 */ s32 speed; // Q12.12
-    /* 0x04 */ u8  pad_04[0x0C];
-} OtuSpeedEntry;
-
-// Size: 0x10
-
-extern OtuSpeedEntry data_ov039_0209a3dc[];
 
 /**
  * @brief One child record of the wireless board, six bytes.
@@ -2335,7 +2107,7 @@ void* func_ov039_020883c8(TinPinSlammer_Scene* scene, s32 index);
 s32 func_ov039_020885f4(void* record, TinPinSlammer_Scene* scene);
 
 /** Wireless receive callback: (record, scene). Reached only as a function pointer. */
-void func_ov039_02088698(void* record, TinPinSlammer_Scene* scene);
+void func_ov039_02088698(WMBssDesc* bss, TinPinSlammer_Scene* scene);
 
 /** The stage's "board has changed" entry; clears state.unk_698 and re-seeds. */
 void func_ov039_02088ec4(TinPinSlammer_Scene* scene);
@@ -2367,7 +2139,7 @@ void func_ov039_02087cac(TinPinSlammer_Scene* scene, s32 slot, const void* src, 
  * Overlay 40's wireless stack, plus the two 02047xxx/02044xxx engine entry
  * points the board's setup calls. All void except where noted.
  */
-s32 func_ov040_0209cb68(void);
+u16 func_ov040_0209cb68(void); // the connected players, one bit each
 
 s32 func_ov040_0209cde4(void);
 
@@ -2381,11 +2153,11 @@ void func_ov040_0209cabc(void* state, s32 arg1);
 
 void func_ov040_0209c158(void);
 
-void func_ov040_0209ba04(void (*cb)(void*, TinPinSlammer_Scene*), void* scene, void* buf, s32 arg3);
+void func_ov040_0209ba04(void (*cb)(WMBssDesc*, TinPinSlammer_Scene*), void* scene, void* bssid, s32 arg3);
 
 void func_ov040_0209d0a8(s32 arg0, s32 arg1, s32 arg2);
 
-void func_ov040_0209d290(s32 arg0, void* arg1);
+void func_ov040_0209d290(s32 arg0, WMBssDesc* parent);
 
 void func_ov040_0209d40c(void (*cb)(), void* arg);
 
@@ -2399,7 +2171,7 @@ void func_ov040_0209d818(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5);
 
 void func_ov040_0209d848(s32 arg0);
 
-void func_ov040_0209ece8(u8* buf, s32 len);
+void func_ov040_0209ece8(void* buf, s32 len);
 
 void func_ov040_0209ec5c(void (*cb)(TinPinSlammer_Scene*, s32, const void*, s32), void* scene, void* buf, s32 len);
 
@@ -2425,137 +2197,6 @@ s32 func_02047e84(u16 arg0);
 /* Task-data shapes.                                                    */
 /* ------------------------------------------------------------------ */
 
-/**
- * @brief The wireless board's stage block, 0x2D0 bytes.
- *
- * Reached as `func_ov039_02098b70(OTU_STAGE(scene))`, which is a one-instruction
- * accessor for `dispatch->stageBlock`. The size is not an estimate: it is the
- * `size` word the header's `OtuScene_WirelessBoard` descriptor carries, and
- * 0x2CC is the last field anything here touches.
- *
- * Every field below is placed on the offset at least one load or store in this
- * band uses. Note that +0x140 and +0x144 are two *different* counts: +0x140 is
- * latched from `state.unk_EE0` by the init stage and is what the six
- * child-polling loops bound themselves by (i.e. the shared `OTU_CHILD_COUNT`
- * field), while +0x144 is what `func_ov039_020883ac` reports and what
- * 0x0208a988's placement loop walks. Conflating them is the easy mistake here.
- *
- * The three words at 0x2C4, 0x2C8 and 0x2CC are task handles: 0x2C8
- * and 0x2CC are deleted by the cleanup and by stage 8 respectively, and 0x2C4 is
- * resolved through pool 1 by both tick routines. The child-handle arrays are at
- * +0x17C and +0x28C in the stage block layout; they are accessed by offset rather
- * than as named fields in this struct definition.
- */
-typedef struct {
-    /* 0x000 */ s32 unk_00;     // the board stage's dispatch selector, 0..8
-    /* 0x004 */ u16 unk_04;     // handshake flag; the two board variants set it either way
-    /* 0x006 */ u16 unk_06;     // two bytes of wireless state, pushed as a pair
-    /* 0x008 */ s32 state;      // 0..8, the selector both update routines switch on
-    /* 0x00C */ u8  pad_00C[0x134];
-    /* 0x140 */ s32 childCount; // latched from state.unk_EE0; number of pin children
-    /* 0x144 */ s32 subCount;   // func_ov039_020883ac's answer: a *different* count
-    /* 0x148 */ u8  pad_148[4];
-    /* 0x14C */ s32 slotIndex;  // written from the 0x44000 block's +0xA68
-    /* 0x150 */ u8  pad_150[0x20];
-    /* 0x170 */ s32 unk_170;    // written from data_ov039_0209a360[slotIndex]
-    /* 0x174 */ s32 timer;      // 0x258 on entry, counted down every frame
-    /* 0x178 */ u8  pad_178[0x14C];
-    /* 0x2C4 */ s32 tickTask;   // handle resolved through pool 1 by the tick stages
-    /* 0x2C8 */ s32 initTask;   // handle deleted by the cleanup
-    /* 0x2CC */ s32 fadeTask;   // handle deleted by stage 8
-} OtuWirelessStage;
-
-// Size: 0x2D0
-
-/**
- * @brief The pin task's own state block.
- *
- * This is the same object the shared header calls `OtuPinTask` -- +0x120/+0x124
- * are that type's `x`/`y` and +0x16C its `pinID` -- but the header's version
- * stops at 0x174 and these routines reach 0x228, so the wider shape is declared
- * here rather than by widening a type that matched code already depends on.
- *
- * The five consecutive two-word pairs at +0x110, +0x118, +0x120, +0x128 and
- * +0x138 are the overlay's five OtuPoint-shaped slots; `OtuFieldAccess.c` gives
- * each of them a getter/setter/copy-out triple, which is what identifies them.
- * Only +0x110 and +0x120 are used here, and they are the `src` and `dst` pair
- * every `func_ov039_02087d04` call in the overlay takes.
- */
-typedef struct {
-    /* 0x000 */ u8        pad_000[8];
-    /* 0x008 */ TaskPool* pool;       // the pool every handle below is resolved through
-    /* 0x00C */ u8        pad_00C[0x104];
-    /* 0x110 */ OtuPoint  anchor;     // the `src` of func_ov039_02087d04
-    /* 0x118 */ u8        pad_118[8];
-    /* 0x120 */ OtuPoint  pos;        // the `dst` of func_ov039_02087d04
-    /* 0x128 */ u8        pad_128[4];
-    /* 0x12C */ OtuPoint  vel;        // clamped to length 0x8000 by 0208a6c4
-    /* 0x134 */ u8        pad_134[4];
-    /* 0x138 */ OtuPoint  dir;        // vel re-normalised into here when vel is non-zero
-    /* 0x140 */ u8        pad_140[0x2C];
-    /* 0x16C */ u16*      pinID;      // a tray slot; 0x130 there means "no pin"
-    /* 0x170 */ u8*       slots;      // OtuBoardSlot[], indexed by *pinID
-    /* 0x174 */ u8        pad_174[0x2C];
-    /* 0x1A0 */ s16       slot;       // round-robins over the two children at +0x228
-    /* 0x1A2 */ u8        pad_1A2[0xA];
-    /* 0x1AC */ s32       total;      // accumulated score, clamped to 0x3E7
-    /* 0x1B0 */ u8        pad_1B0[0x20];
-    /* 0x1D0 */ s32       mode;       // 0x10 selects one of two blend modes
-    /* 0x1D4 */ u8        pad_1D4[0x20];
-    /* 0x1F4 */ s32       counterId;  // handle of the task 02093d68 drives
-    /* 0x1F8 */ u8        pad_1F8[0x30];
-    /* 0x228 */ s32       childId[2]; // the two children the score is split between
-} OtuPinLogic;
-
-// Size: 0x230
-
-/**
- * @brief One board slot's record, 0x1C bytes.
- *
- * The pin task's +0x170 points at an array of these, indexed by the pin id in
- * its tray slot with a *byte* stride of 0x1C. Only the byte at +4 is read here,
- * and it is an index into `data_ov039_0209a3dc` rather than a value.
- */
-typedef struct {
-    /* 0x00 */ u8 pad_00[4];
-    /* 0x04 */ u8 speedIndex;
-    /* 0x05 */ u8 pad_05[0x17];
-} OtuBoardSlot;
-
-// Size: 0x1C
-
-/**
- * @brief The board's cell grid, as 0208a794 sees it.
- *
- * Two fields are read: a byte scale at +0x02 that multiplies the coarse row
- * term, and a byte pointer at +0x10 to an array of four-byte cell records whose
- * first two bytes are two independent states. Nothing else in this band (or in
- * anything else decompiled so far) reaches into it, so the rest is padding kept
- * only to hold the two offsets.
- */
-typedef struct {
-    /* 0x00 */ u8  pad_00[2];
-    /* 0x02 */ u8  rowScale; // how many cell rows one screen row spans
-    /* 0x03 */ u8  pad_03[0x0D];
-    /* 0x10 */ u8* cells;    // four bytes per entry: two state bytes, two unused
-} OtuCellGrid;
-
-// Size: 0x14
-
-/**
- * @brief The change-mask latch 0208ac98 keeps.
- *
- * A pointer to a live 16-bit state word, the value that word held last time, and
- * the bits that have changed since. Only the three fields at +0xE8..+0xEF are
- * known, so the stated size is the extent of that, not the object's real one.
- */
-typedef struct {
-    u8               pad_000[0xE8];
-    /* 0x0E8 */ u16* state; // the live word; the one read is at its own +0x04
-    /* 0x0EC */ u16  last;
-    /* 0x0EE */ u16  changed;
-} OtuInputLatch;
-
 /** One Q12.12 multiply, rounded to nearest. */
 static inline s32 OtuQ12Mul(s32 a, s32 b) {
     return (s32)(((s64)a * b + 0x800) >> 12);
@@ -2566,74 +2207,10 @@ static inline s32 OtuQ12Mul(s32 a, s32 b) {
 /* ------------------------------------------------------------------ */
 
 /*
- * Every symbol here lives in the overlay's own gap-filled `.data` and keeps
- * the build's name for it. Declaring an object of our own would let the
- * linker place it at an address of its choosing rather than the one the target
- * uses, which costs the pool word; see the same note in band 5 and band 13.
- */
-
-/** 0x133 -- the badge's per-frame acceleration, in Q12.12. */
-extern s32 data_ov039_0209a318;
-
-/** -0x2000 -- the velocity the phase-7 entry sets going through a corner. */
-extern s32 data_ov039_0209a31c;
-
-/** -0x2000 again, as the phase-9 entry's terminal velocity. */
-extern s32 data_ov039_0209a320;
-
-/** 0x800 -- the bounce re-normalisation factor. */
-extern s32 data_ov039_0209a324;
-
-/** 0x8000 -- the axis speed the four tile-driven launch cases set. */
-extern s32 data_ov039_0209a308;
-
-/*
  * The movement-rate table, four words, is declared as
  * `data_ov039_0209a39c[4]` in TinPinSlammer.h -- func_ov039_02084020 and
  * func_ov039_020840c0 reach the same four words from OtuScoreRow.c.
  */
-
-/**
- * @brief One badge kind's speed record: a 16-byte-stride Q12.12 multiplier.
- *
- * Indexed by the behaviour record's +0x04 byte, which is why the target gets
- * the stride as a shift rather than as a scale. Only the leading word is read
- * by this band; the other three are whatever the board data carries.
- */
-typedef struct {
-    /* 0x00 */ s32 speed; // Q12.12 multiplier applied to the badge's velocity
-    /* 0x04 */ s32 unk_04;
-    /* 0x08 */ s32 unk_08;
-    /* 0x0C */ s32 unk_0C;
-} OtuBadgeSpeed;
-
-// Size: 0x10
-extern OtuBadgeSpeed data_ov039_0209a3e0[];
-
-/**
- * @brief The two scale tables 0x0208e130 indexes, four words apart, 0x10 stride.
- *
- *  Both are read as `ldr rX, [base, index, lsl #4]`, and the bases are four
- *  bytes apart, so they are one array of 0x10-byte records read at two
- *  different field offsets rather than two independent tables -- the same
- *  array as OtuBadgeSpeed just above, reached at its +0x04 and +0x08 instead
- *  of its +0x00. Declared as two so each pool word names the address the
- *  target names.
- *
- *  This is the array OtuBadgeSlot.tuneIndex points into, which is the third
- *  piece of evidence that the byte at record+0x04 is one index rather than the
- *  unrelated `speedIndex` and `weight` the two badge views each called it.
- */
-typedef struct {
-    /* 0x00 */ s32 scaleA;
-    /* 0x04 */ s32 scaleB;
-    u8             pad_08[0x08];
-} OtuPinScale;
-
-// Size: 0x10
-
-/* OtuPinRow is gone: it was these same 0x1C bytes seen from the other end,
- * so there is no second record and no second cast. See OtuBadgeSlot. */
 
 /**
  * @brief The nine-word block the init stage reads and the spawner builds.
@@ -2643,15 +2220,15 @@ typedef struct {
  * which is why the frame is 0x48 with the block's own pointer at sp+4.
  */
 typedef struct {
-    /* 0x00 */ s32   unk_00; // -> self + 0x004, the SpriteAnimation dataType
-    /* 0x04 */ s32   unk_04; // -> self + 0x0E0
-    /* 0x08 */ void* unk_08; // -> self + 0x0E8
-    /* 0x0C */ u8*   unk_0C; // -> self + 0x0E4
-    /* 0x10 */ s32   unk_10; // -> self + 0x000
-    /* 0x14 */ u8*   rowTable;
-    /* 0x18 */ u16*  pinID;
-    /* 0x1C */ s32   unk_1C; // -> self + 0x1A8
-    /* 0x20 */ s32   unk_20; // -> self + 0x174
+    /* 0x00 */ s32             dataType;
+    /* 0x04 */ s32             unk_04; // -> self + 0x0E0
+    /* 0x08 */ OtuPadState*    pad;    // -> self + 0x0E8
+    /* 0x0C */ OtuBoardLayout* board;  // -> self + 0x0E4
+    /* 0x10 */ s32             unk_10; // -> self + 0x000
+    /* 0x14 */ u8*             rowTable;
+    /* 0x18 */ u16*            pinID;
+    /* 0x1C */ s32             unk_1C; // -> self + 0x1A8
+    /* 0x20 */ s32             unk_20; // -> self + 0x174
 } OtuBadge_InitArgs;
 
 // Size: 0x24
@@ -2680,10 +2257,6 @@ extern const TaskHandle data_ov039_0209926c;
 
 extern const BinIdentifier data_ov039_0209a0b4[5];
 
-extern const OtuPinScale data_ov039_0209a3e4[];
-
-extern const OtuPinScale data_ov039_0209a3e8[];
-
 extern void func_ov039_0208c9cc(OtuBadge* self);
 
 extern void func_ov039_0208ca1c(OtuBadge* self);
@@ -2702,9 +2275,9 @@ extern void func_ov039_0208ce88(OtuBadge* self);
 
 extern void func_ov039_0208d210(OtuBadge* self);
 
-extern s32 func_ov039_020915a8(TaskPool* pool, s32 dataType, s32 childId);
+s32 func_ov039_020915a8(TaskPool* pool, s32 dataType, s32 pinId);
 
-extern s32 func_ov039_02091b00(TaskPool* pool, s32 dataType, s32 childId);
+s32 func_ov039_02091b00(TaskPool* pool, s32 dataType, s32 pinId);
 
 /* ============================================================================
  * Band 15 -- the badge AI: per-kind "should this pin act now?" tests, the chase
@@ -2734,17 +2307,19 @@ extern u32 data_ov039_0209a4b0[];
 /* Callees with no owner yet. Declared here rather than relied on implicitly:
  * under -lang=c99 an undeclared call becomes an implicit int(...), and the
  * pointer arguments below are then rejected. */
-extern OtuPinTask* func_ov039_0208817c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
+extern OtuBadge* func_ov039_0208817c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
 
-extern OtuPinTask* func_ov039_02088294(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
+extern OtuBadge* func_ov039_02088294(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
 
-extern OtuPinTask* func_ov039_02087e2c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
+extern OtuBadge* func_ov039_02087e2c(TaskPool* pool, TinPinSlammer_Scene* scene, s32 index);
 
-extern s32 func_ov039_02097ad8(void* data);
+s32 func_ov039_02097ad8(OtuWarp* self);
 
-extern s32 func_ov039_0209167c(void* data);
+s32 func_ov039_0209167c(OtuNeedle* self);
 
-extern s32 func_ov039_02091014(void* data);
+s32 func_ov039_02091014(OtuHammer* self);
+
+void func_ov039_02091028(OtuHammer* self, s32 rate, s32 scale, s32 frames, u16 arc);
 
 extern u8 data_ov039_0209ad00;
 
@@ -2782,22 +2357,17 @@ extern const TaskStages data_ov039_0209a078;
  * caller's `args` straight through in r2 -- which is why the callers never
  * reload it, and why the constant-zero register in the callers moves off r2.
  */
-void func_ov039_02091788(void* self, void* sprite, s32* args);
+void func_ov039_02091788(OtuHand* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-void func_ov039_02094bac(void* self, void* sprite, s32* args);
+void func_ov039_02094bac(OtuSpark* self, Sprite* sprite, OtuTaskArgs1* args);
 
-void func_ov039_020911dc(void* self, void* sprite, s32* args);
+void func_ov039_020911dc(OtuNeedle* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
-void func_ov039_020980b8(void* self, void* sprite, s32* args);
+void func_ov039_020980b8(OtuHammerHahen* self, Sprite* sprite, OtuPinSpriteArgs* args);
 
 extern const TaskHandle data_ov039_0209955c;
 
 extern const SpriteAnimation data_ov039_0209a088;
-
-extern s32* data_ov039_0209a620[];
-
-/* The child-tile setup helper func_ov039_020929ec drives. */
-void func_ov039_0209276c(void* self, s32 paramsAddr);
 
 /* The 7- and 4-argument cell set-up pair func_ov039_0209276c drives. */
 void func_0200d898(void* buf, void* src, s32 w, s32 h);
@@ -2807,38 +2377,13 @@ void func_0200d1d8(void* obj, s32 a, s32 b, s32 c, void* buf, s32 w, s32 h);
 void func_0200d858(void* obj, s32 a, s32 b, s32 c);
 
 /* The per-child step func_ov039_02091070 runs four times. */
-void func_ov039_020983c8(void* data, OtuPoint* pt, void* table, s32 index);
+void func_ov039_020983c8(OtuHammerHahen* self, OtuPoint* at, OamAffineParam* affine, s32 index);
 
 /* The two more func_ov039_0208e9f8 dispatches to, alongside +0x1628. */
-s32 func_ov039_02090e9c(OtuHammer* self, OtuBar* out);
+s32 func_ov039_02090e9c(OtuHammer* self, OtuPinRecord* out);
 
-void func_ov039_0208fee0(OtuShadowTask* self, OtuPinRecord* out);
+void func_ov039_0208fee0(OtuMeteo* self, OtuPinRecord* out);
 
-/* The three Q12.12 constants func_ov039_02094ca8 damps with. */
-extern s32 data_ov039_0209a300;
-
-extern s32 data_ov039_0209a304;
-
-extern s32 data_ov039_0209a310;
-
-/* The four more func_ov039_02094e9c randomises its launch between. */
-extern s32 data_ov039_0209a2fc;
-
-extern s32 data_ov039_0209a30c;
-
-extern s32 data_ov039_0209a314;
-
-extern s32 data_ov039_0209a328;
-
-/** The 4-word template func_ov039_020983c8 copies onto the sprite block. */
-typedef struct {
-    /* 0x00 */ s32 w0;
-    /* 0x04 */ s32 w1;
-    /* 0x08 */ s32 w2;
-    /* 0x0C */ s32 w3;
-} OtuWord4;
-
-// Size: 0x10
 extern const SpriteAnimation data_ov039_020995c0;
 
 extern const SpriteAnimation data_ov039_02099578;
@@ -2855,146 +2400,19 @@ extern const SpriteAnimation data_ov039_02099530;
 /* The wireless input snapshot, 0x02088418 - 0x020885f4.               */
 /* ------------------------------------------------------------------ */
 
-/**
- * @brief One player's touch-pad descriptor, six bytes.
- *
- * `data_ov039_0209ad20` is one of these and `data_ov039_0209af20` is an array of
- * them; `func_ov039_02088440` is `data_ov039_0209af20 + index * 6`. The first
- * byte is the "was touched" latch the poller resets, the next two are the touch
- * coordinate bytes, the fourth is the phase byte the board's loops read, and
- * +4/+5 are the raw `SysControl` word copied in each poll.
- */
-typedef struct {
-    /* 0x00 */ u8  touched;
-    /* 0x01 */ u8  phase;
-    /* 0x02 */ u8  x;
-    /* 0x03 */ u8  y;
-    /* 0x04 */ u16 sysControl;
-} OtuPadState;
-
-// Size: 0x6
-
 extern OtuPadState data_ov039_0209ad20;
 
 /** A four-entry handler table copied to the stack before one is called. */
 extern const TaskStages data_ov039_02099c70;
-
-/** A 0x28-strided flag slot: only its first word is touched. */
-typedef struct {
-    /* 0x00 */ s32 flags;
-    /* 0x04 */ u8  pad_04[0x24];
-} OtuFlagSlot;
-
-/**
- * @brief The three-word point-and-scale record `func_ov039_02091628` fills in.
- *
- * This is OtuPinRecord: same three words, same field names, same role as an
- * out-parameter. The two functions differ only in how the target stores them --
- * 0208fee0 writes three separate `str` at +0/+4/+8, while 02091628 writes
- * `stmia r1, {r2, r3}` then one `str`. The difference comes from the source
- * around the stores, not from this type, so one type serves both.
- */
-typedef OtuPinRecord OtuPoint3;
-
-/** The child-task group stepped by `func_ov039_02091690`. */
-typedef struct {
-    /* 0x00 */ TaskPool*     pool;
-    /* 0x04 */ u8            pad_04[0x58];
-    /* 0x5C */ OtuTaskParams params;
-    /* 0x64 */ u8            pad_64[0x20];
-    /* 0x84 */ s32           ids[8];
-} OtuChildGroup;
 
 /* ------------------------------------------------------------------ */
 /* The six-word record reset, the sprite step pair and the child       */
 /* teardown.                                                           */
 /* ------------------------------------------------------------------ */
 
-/** The flat six-word record `func_ov039_02098a20` zeroes out. */
-typedef struct {
-    /* 0x00 */ s32 unk_00;
-    /* 0x04 */ s32 unk_04;
-    /* 0x08 */ s32 unk_08;
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ s32 unk_10;
-    /* 0x14 */ s32 unk_14;
-} OtuRec6;
-
-/** The two-wide background slot group torn down by `func_ov039_02092bf8`. */
-typedef struct {
-    /* 0x00 */ u8               pad_00[0x04];
-    /* 0x04 */ Heap*            heap;
-    /* 0x08 */ s32              flag;
-    /* 0x0C */ u8               pad_0C[0x04];
-    /* 0x10 */ Data*            dataIds[2];
-    /* 0x18 */ PaletteResource* paletteIds[2];
-    /* 0x20 */ BgResource*      charIds[2];
-    /* 0x28 */ u8               pad_28[0x50];
-    /* 0x78 */ void*            buffers[2];
-} OtuBgGroup;
-
-/** The block `func_ov039_02092d0c` drives two display groups out of. */
-typedef struct {
-    /* 0x00 */ u8  pad_00[0x08];
-    /* 0x08 */ s32 guard;
-    /* 0x0C */ u8  pad_0C[0x1C];
-    /* 0x28 */ s32 a1;
-    /* 0x2C */ s32 b1;
-    /* 0x30 */ u8  pad_30[0x20];
-    /* 0x50 */ s32 a2;
-    /* 0x54 */ s32 b2;
-    /* 0x58 */ u8  pad_58[0x38];
-    /* 0x90 */ s32 u1;
-    /* 0x94 */ s32 u2;
-    /* 0x98 */ s32 v1;
-    /* 0x9C */ s32 v2;
-} OtuBoardPair;
-
-/** The block `func_ov039_020929ec` stores its params into and then sets up. */
-typedef struct {
-    /* 0x00 */ s32 word0;
-    /* 0x04 */ s32 word1;
-    /* 0x08 */ s32 active;
-    /* 0x0C */ u8* selector;
-    /* 0x10 */ u8  pad_10[0x80];
-    /* 0x90 */ s32 flagsA[2];
-    /* 0x98 */ s32 flagsB[2];
-} OtuTileSetup;
-
-/** The four-child arc group stepped by `func_ov039_02091070`. */
-typedef struct {
-    /* 0x00 */ TaskPool* pool;
-    /* 0x04 */ u8        pad_04[0xA8];
-    /* 0xAC */ OtuPoint  home;
-    /* 0xB4 */ u8        pad_B4[0x08];
-    /* 0xBC */ OtuPoint  center;
-    /* 0xC4 */ u8        pad_C4[0x64];
-    /* 0x128 */ s32      ids[4];
-} OtuArcGroup;
-
 /* ------------------------------------------------------------------ */
 /* The +0x276c resource-allocation setup.                              */
 /* ------------------------------------------------------------------ */
-
-/**
- * @brief A 0x28-byte per-slot object the overlay never looks inside.
- *
- * All padding is correct here, not laziness. The two uses in OtuObstacles.c are
- * `&self->slots[params->slot]` handed straight to func_0200d1d8 and
- * func_0200d858, and both take their object as `void*` -- they are the engine's
- * OBJ-resource helpers and this block is theirs. func_ov039_0209276c fills the
- * surrounding `OtuResGroup` (loading the data and palette ids, allocating the
- * buffers) but never touches the slot bodies.
- *
- * So the struct carries no fields on purpose; what it does carry is the 0x28
- * stride and the fact that there are two of them, which is what makes
- * `slots[params->slot]` type-check.
- */
-typedef struct {
-    /* 0x00 */ u8 pad[0x28];
-} OtuResSlot;
-
-// Size: 0x28
 
 /** The per-slot parameter block func_ov039_0209276c reads. */
 typedef struct {
@@ -3013,22 +2431,12 @@ typedef struct {
     /* 0x34 */ s32 palCount;
 } OtuResParams;
 
-// Size: 0x38
+/* Per layout kind, the bg task's two layers. */
+extern OtuResParams** data_ov039_0209a620[];
 
-/** The block func_ov039_0209276c loads and allocates into. */
-typedef struct {
-    /* 0x00 */ s32              dataType;
-    /* 0x04 */ Heap*            heap;
-    /* 0x08 */ u8               pad_08[0x04];
-    /* 0x0C */ u8*              selector;
-    /* 0x10 */ Data*            data[2];
-    /* 0x18 */ PaletteResource* palettes[2];
-    /* 0x20 */ BgResource*      chars[2];
-    /* 0x28 */ OtuResSlot       slots[2];
-    /* 0x78 */ void*            buffers[2];
-    /* 0x80 */ s32              widths[2];
-    /* 0x88 */ s32              heights[2];
-} OtuResGroup;
+void func_ov039_0209276c(OtuBg* self, OtuResParams* params);
+
+// Size: 0x38
 
 /* ------------------------------------------------------------------ */
 /* The board-shape background loader, 0x02098650.                      */
@@ -3092,349 +2500,342 @@ typedef struct {
     s32 w8;
 } OtuWord9;
 
-s32            func_ov039_02088400(s32 x, s32 y, s32 axis);
-void           func_ov039_02088454(void);
-void           func_ov039_020885cc(void);
-void           func_ov039_02088688(s32 unused, TinPinSlammer_Scene* scene);
-void           func_ov039_0208871c(TinPinSlammer_Scene* scene);
-void           func_ov039_020888e0(TinPinSlammer_Scene* scene);
-void           func_ov039_02088a8c(TinPinSlammer_Scene* scene);
-void           func_ov039_02088b80(TinPinSlammer_Scene* scene);
-void           func_ov039_02088c50(TinPinSlammer_Scene* scene);
-void           func_ov039_02088df0(TinPinSlammer_Scene* scene);
-void           func_ov039_02088fac(TinPinSlammer_Scene* scene);
-void           func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at);
-void           func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuPinTask* a, OtuPinTask* b);
-void           func_ov039_020891fc(TinPinSlammer_Scene* scene);
-void           func_ov039_020892c4(TinPinSlammer_Scene* scene);
-void           func_ov039_02089360(TinPinSlammer_Scene* scene);
-s32            func_ov039_020893fc(TinPinSlammer_Scene* scene);
-void           func_ov039_02089780(TinPinSlammer_Scene* scene);
-void           func_ov039_020897d0(TinPinSlammer_Scene* scene);
-void           func_ov039_020897dc(TinPinSlammer_Scene* scene);
-void           func_ov039_020898a8(TinPinSlammer_Scene* scene);
-void           func_ov039_02089918(TinPinSlammer_Scene* scene);
-void           func_ov039_02089950(TinPinSlammer_Scene* scene);
-void           func_ov039_02089a80(TinPinSlammer_Scene* scene);
-void           func_ov039_02089d3c(TinPinSlammer_Scene* scene);
-void           func_ov039_02089d6c(TinPinSlammer_Scene* scene);
-void           func_ov039_02089e0c(TinPinSlammer_Scene* scene);
-void           func_ov039_02089e78(TinPinSlammer_Scene* scene);
-void           func_ov039_02089ec0(TinPinSlammer_Scene* scene);
-void           func_ov039_02089f30(TinPinSlammer_Scene* scene);
-void           func_ov039_02089f68(TinPinSlammer_Scene* scene);
-void           func_ov039_0208a098(TinPinSlammer_Scene* scene);
-void           func_ov039_0208a324(TinPinSlammer_Scene* scene);
-void           func_ov039_0208a354(TinPinSlammer_Scene* scene);
-void           func_ov039_0208a3f4(TinPinSlammer_Scene* scene);
-void           func_ov039_0208a454(TinPinSlammer_Scene* scene);
-void           func_ov039_0208a6c4(OtuPoint* v);
-void           func_ov039_0208a6f8(OtuPinLogic* self, OtuPoint* dir, s32 angle);
-u8             func_ov039_0208a794(OtuPoint* p, OtuCellGrid* grid);
-s32            func_ov039_0208a988(OtuPoint* self, OtuCellGrid* grid, TinPinSlammer_Scene* scene);
-void           func_ov039_0208ac98(OtuInputLatch* self);
-void           func_ov039_0208acc0(OtuBadgeState* self);
-void           func_ov039_0208ad2c(OtuPoint* vel, s32 shortfall);
-void           func_ov039_0208ad88(OtuBadgeState* self);
-void           func_ov039_0208ade8(OtuBadgeState* self);
-void           func_ov039_0208ae14(OtuBadgeState* self);
-void           func_ov039_0208ae8c(OtuBadgeState* self);
-void           func_ov039_0208af38(OtuBadgeState* self);
-void           func_ov039_0208af6c(OtuBadgeState* self);
-void           func_ov039_0208b94c(OtuBadgeState* self);
-void           func_ov039_0208b9b4(OtuBadgeState* self);
-void           func_ov039_0208ba34(OtuBadgeState* self);
-void           func_ov039_0208ba70(OtuBadgeState* self);
-void           func_ov039_0208bb2c(OtuBadgeState* self);
-void           func_ov039_0208be30(OtuBadgeState* self, OtuPoint* dir);
-s32            func_ov039_0208bed8(OtuBadgeState* self, s32 rings, s32 loType, s32 hiType, OtuPoint* out);
-s32            func_ov039_0208c0e4(OtuPoint* a, OtuPoint* b);
-s32            func_ov039_0208c128(OtuBadgeState* self, s32 which, s32 loType, s32 hiType, s32 kind);
-s32            func_ov039_0208c218(OtuBadgeState* self);
-s32            func_ov039_0208c258(OtuBadgeState* self);
-s32            func_ov039_0208c304(OtuBadgeState* self);
-s32            func_ov039_0208c3bc(OtuBadgeState* self);
-s32            func_ov039_0208c45c(OtuBadgeState* self);
-s32            func_ov039_0208c4ec(OtuBadgeState* self);
-s32            func_ov039_0208c568(OtuBadgeState* self);
-s32            func_ov039_0208c5f8(OtuBadgeState* self);
-s32            func_ov039_0208c688(OtuBadgeState* self);
-s32            func_ov039_0208c718(OtuBadgeState* self);
-s32            func_ov039_0208c794(OtuBadgeState* self);
-s32            func_ov039_0208c84c(OtuBadgeState* self);
-void           func_ov039_0208c8ac(OtuBadgeState* self);
-void           func_ov039_0208c8cc(OtuBadgeState* self);
-void           func_ov039_0208c8ec(OtuBadgeState* self);
-void           func_ov039_0208c90c(OtuBadgeState* self);
-s32            func_ov039_0208c92c(OtuBadgeState* self);
-OtuSpriteSlot* func_ov039_0208d2f8(OtuSpriteTask* t, s32 arg, s32 mode);
-void           func_ov039_0208d3bc(OtuBadge* self, Sprite* sprite);
-void           func_ov039_0208d4cc(OtuBadge* self, Sprite* sprite);
-void           func_ov039_0208d554(OtuBadge* self, Sprite* sprite);
-void           func_ov039_0208d5dc(OtuBadge* self);
-s32            func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadge_InitArgs* args);
-s32            func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args);
-void           func_ov039_0208d9ec(OtuBadge* self);
-s32            func_ov039_0208da74(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208db44(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208dc68(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_0208df2c(OtuPoint* posA, OtuPoint* velA, s32 reachA, OtuPoint* posB, OtuPoint* velB, s32 reachB);
-void           func_ov039_0208dff0(OtuPoint* dir, s32 speed, s32 scaleA, s32 scaleB, OtuBadge* other);
-void           func_ov039_0208e058(OtuPoint* posA, OtuPoint* velA, OtuPoint* posB, OtuPoint* velB, OtuPoint* out, s32* score);
-void           func_ov039_0208e130(OtuBadge* self, OtuBadge* other);
-void           func_ov039_0208e6cc(void* task, OtuPoint* out);
-void           func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out);
-void           func_ov039_0208e848(void* task, OtuPoint* in);
-void           func_ov039_0208e870(void* task, s32 x, s32 y);
-s32            func_ov039_0208e984(OtuPinTask* task);
-s32            func_ov039_0208e998(OtuPinTask* task);
-s32            func_ov039_0208e9d0(OtuPinTask* task);
-s32            func_ov039_0208ee84(OtuPinTask* task);
-s16            func_ov039_0208eea0(OtuPinTask* task);
-s16            func_ov039_0208eeac(OtuPinTask* task);
-s16            func_ov039_0208eeb8(OtuPinTask* task);
-s16            func_ov039_0208eec4(OtuPinTask* task);
-s32            func_ov039_0208efb0(OtuPinTask* task, s32 which);
-s32            func_ov039_0208eff8(OtuPinTask* task);
-s32            func_ov039_0208f034(OtuPinTask* task);
-void           func_ov039_0208f03c(OtuPinTask* task);
-void           func_ov039_0208f0f0(void* task, s32 value);
-OtuSpriteSlot* func_ov039_0208f134(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_0208f2a4(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
-s32            func_ov039_0208f2f0(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208f360(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208f3b0(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208f3c4(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_0208f40c(TaskPool* pool, s32 dataType, s32 childId);
-OtuSpriteSlot* func_ov039_0208f440(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_0208f5a8(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
-s32            func_ov039_0208f5e0(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208f6cc(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208f714(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208f728(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_0208f770(TaskPool* pool, s32 dataType, s32 childId);
-void           func_ov039_0208f7a4(void* task, s32 value);
-OtuSpriteSlot* func_ov039_0208f7b4(OtuSpriteTask* t, s32 arg, s32 sel);
-s32            func_ov039_0208f900(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
-s32            func_ov039_0208f938(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208f9b8(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208fa00(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208fa14(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_0208fa5c(TaskPool* pool, s32 dataType, s32 childId);
-OtuSpriteSlot* func_ov039_0208fa90(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_0208fbe0(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
-s32            func_ov039_0208fc38(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208fd8c(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208fddc(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_0208fe18(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_0208fe60(TaskPool* pool, s32 dataType, s32 arg2);
-void           func_ov039_0208fefc(OtuShadowTask* self, s32 frames);
-void           func_ov039_0208ff30(OtuShadowTask* self);
-void           func_ov039_0208ff68(OtuShadowTask* self);
-s16            func_ov039_0209003c(OtuCursor6* c);
-void           func_ov039_0209005c(OtuCursor6* c, OtuFrame6* table, s16 count);
-s32            func_ov039_0209008c(OtuCursor6* c);
-s16            func_ov039_020900f4(OtuCursor6* c);
-s32            func_ov039_0209011c(OtuCursor6* c);
-void           func_ov039_02090148(OtuCursor6* c, OtuFrame6* table, s16 count);
-s32            func_ov039_02090178(OtuCursor6* c);
-u16            func_ov039_020901e0(OtuCursor6* c);
-OtuSpriteSlot* func_ov039_02090208(OtuSpriteTask* t, s32 arg, s32 mode);
-OtuSpriteSlot* func_ov039_020902cc(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_020904a8(s32 arg0, Task* task, OtuHammer_Params* params);
-s32            func_ov039_0209054c(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02090cec(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02090d90(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02090dd4(TaskPool* pool, Task* task, void* args, s32 stage);
-u32            func_ov039_02090e1c(TaskPool* pool, s32 arg1, s32 arg2);
-void           func_ov039_0209104c(void* task);
-u16            func_ov039_02091060(void* task);
-void           func_ov039_02091070(OtuArcGroup* self);
-OtuSpriteSlot* func_ov039_02091118(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_02091268(TaskPool* pool, void* task, s32* args);
-s32            func_ov039_020912c8(TaskPool* pool, void* task);
-s32            func_ov039_020914d0(void* pool, void* task);
-s32            func_ov039_02091524(TaskPool* pool, void* task);
-void           func_ov039_02091560(void* a, void* b, void* c, s32 index);
-s32            func_ov039_02091628(void* task, OtuPoint3* out);
-void           func_ov039_02091654(void* task, s32 x, s32 y);
-void           func_ov039_02091668(void* task);
-void           func_ov039_02091690(OtuChildGroup* self);
-OtuSpriteSlot* func_ov039_020916c4(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_02091814(void* pool, void* task, s32* args);
-s32            func_ov039_02091868(TaskPool* pool, void* task);
-s32            func_ov039_02091a5c(void* pool, void* task);
-s32            func_ov039_02091aa4(void* pool, void* task);
-void           func_ov039_02091ab8(void* a, void* b, void* c, s32 index);
-void           func_ov039_02091b34(void* task);
-void           func_ov039_02091b40(u16 start, u16* map);
-s32            func_ov039_02091b98(TaskPool* pool, OtuBadge* task, s32* args);
-s32            func_ov039_02092154(void* pool, void* task);
-s32            func_ov039_020921f4(void);
-s32            func_ov039_020921fc(void* pool, void* task);
-void           func_ov039_020922c8(void* a, void* b, void* c, s32 index);
-OtuSpriteSlot* func_ov039_020923c8(OtuSpriteTask* t, s32 arg, s32 mode);
-void           func_ov039_02092484(OtuObstacle* self, Sprite* sprite, OtuObstacle_Args* args);
-s32            func_ov039_0209258c(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02092608(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02092658(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02092694(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_020926a8(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_020926f0(TaskPool* pool, s32 oamAttrs, s16 unk_04, s16 slot, OtuObstacle_Params* params);
-void           func_ov039_02092730(void* task, OtuPoint* in);
-void           func_ov039_02092744(void* task, OtuPoint* out);
-s32            func_ov039_02092758(void* task);
-void           func_ov039_02092760(void* task);
-s32            func_ov039_020929ec(void* pool, void* task, s32* params);
-s32            func_ov039_02092a78(void* pool, void* task);
-s32            func_ov039_02092bf0(void);
-s32            func_ov039_02092bf8(void* pool, void* task);
-void           func_ov039_02092c8c(void* a, void* b, void* c, s32 index);
-void           func_ov039_02092e30(void* task);
-s32            func_ov039_02092f88(TaskPool* pool, void* task, s32* args);
-s32            func_ov039_020933c0(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_020933f0(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_020933f8(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_02093460(TaskPool* pool, Task* self, void* arg, s32 stage);
-s32            func_ov039_020934a8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3);
-void           func_ov039_020934e0(OtuBgTaskData* data);
-OtuSpriteSlot* func_ov039_0209352c(OtuSpriteTask* t, s32 arg, s32 sel);
-s32            func_ov039_02093668(TaskPool* pool, Task* self, OtuInitArgs* args);
-s32            func_ov039_020936b8(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_020937a0(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_020937dc(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_020937f4(TaskPool* pool, Task* self, void* arg, s32 stage);
-s32            func_ov039_0209383c(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-OtuSpriteSlot* func_ov039_02093884(OtuSpriteTask* t, s32 arg, s32 sel);
-s32            func_ov039_02093b08(TaskPool* pool, Task* self, OtuInitArgs* args);
-s32            func_ov039_02093b98(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_02093c44(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_02093c90(TaskPool* pool, Task* self, void* arg, s32 stage);
-s32            func_ov039_02093cd8(TaskPool* pool, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-s32            func_ov039_02093d18(OtuCounterData* data, u16* slots);
-void           func_ov039_02093d68(OtuCounterData* data, s32 value);
-OtuSpriteSlot* func_ov039_02093e3c(OtuSpriteTask* t, s32 arg, s32 sel);
-s32            func_ov039_02093f70(TaskPool* pool, Task* self, OtuInitArgs* args);
-s32            func_ov039_02093fcc(TaskPool* pool, Task* self, void* arg);
-s32            func_ov039_0209411c(void* pool, void* task);
-s32            func_ov039_02094158(void* pool, void* task);
-void           func_ov039_02094188(void* a, void* b, void* c, s32 index);
-s32            func_ov039_02094204(void* task);
-s32            func_ov039_0209420c(void* task);
-OtuSpriteSlot* func_ov039_02094214(OtuSpriteTask* t, s32 arg, s32 mode);
-void           func_ov039_020942bc(OtuGauge* self, Sprite* sprite);
-void           func_ov039_0209432c(OtuGauge* self, Sprite* sprite);
-void           func_ov039_0209439c(OtuGauge* self, Sprite* sprite, s32 index);
-void           func_ov039_02094418(OtuGauge* self, Sprite* sprite, s32 index, s32 which);
-s32            func_ov039_020944bc(TaskPool* pool, Task* task, void* arg);
-s32            func_ov039_020945c8(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_020948f4(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_020949f4(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02094a6c(TaskPool* pool, Task* task, void* args, s32 stage);
-OtuSpriteSlot* func_ov039_02094ae8(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_02094c50(void* pool, void* task, s32* args);
-s32            func_ov039_02094ca8(void* pool, void* task);
-s32            func_ov039_02094dac(void* pool, void* task);
-s32            func_ov039_02094dfc(void* pool, void* task);
-void           func_ov039_02094e10(void* a, void* b, void* c, s32 index);
-OtuSpriteSlot* func_ov039_02094ff4(OtuSpriteTask* t, s32 arg, s32 mode);
-void           func_ov039_020950b8(OtuSlashTask* self, Sprite* sprite, OtuTaskArgs2* args);
-s32            func_ov039_02095420(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_02095468(TaskPool* pool, s32 dataType, s32 pin);
-OtuSpriteSlot* func_ov039_0209549c(OtuSpriteTask* t, s32 arg, s32 mode);
-void           func_ov039_02095558(OtuTrackTask* self, Sprite* sprite, OtuTaskArgs3* args);
-s32            func_ov039_02095708(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_02095750(TaskPool* pool, s32 dataType, s32 pin);
-void           func_ov039_02095788(OtuTrackTask* self, OtuPointSlot* slot, s32 angle, s32 dir, s32 len);
-OtuSpriteSlot* func_ov039_020958a8(OtuSpriteTask* t, s32 arg, s32 mode);
-void           func_ov039_02095964(OtuPointTask* self, Sprite* sprite, OtuTaskArgs2* args, s32 index);
-s32            func_ov039_02095c58(TaskPool* pool, Task* task, void* args, s32 stage);
-s32            func_ov039_02095ca0(TaskPool* pool, s32 dataType, s32 pin);
-void           func_ov039_02095cd4(OtuPointTask* self, s32 count);
-OtuSpriteSlot* func_ov039_02095dec(OtuSpriteTask* t, s32 arg, s32 mode);
-void           func_ov039_02095ea4(OtuEntryTask* self, Sprite* sprite, OtuTaskArgs1* args);
-s32            func_ov039_02095f18(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02095f58(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_02095fe4(TaskPool* pool, Task* task, void* args);
-s32            func_ov039_020960bc(void* pool, void* task, void* args);
-s32            func_ov039_020960dc(TaskPool* pool, Task* task, void* data, s32 stage);
-s32            func_ov039_02096124(TaskPool* pool, s32 arg1);
-void           func_ov039_02096154(void* self, s16 which, s32 hasLabel);
-OtuSpriteSlot* func_ov039_02096280(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_020963c8(void* pool, void* task, s32* args);
-s32            func_ov039_02096404(void* pool, void* task, void* args);
-s32            func_ov039_020964a4(void* pool, void* task, void* args);
-s32            func_ov039_020964ec(void* pool, void* task, void* args);
-s32            func_ov039_02096500(TaskPool* pool, Task* task, void* data, s32 stage);
-s32            func_ov039_02096548(TaskPool* pool, s32 arg1, s32 arg2);
-void           func_ov039_0209657c(Sprite* self);
-OtuSpriteSlot* func_ov039_0209659c(OtuSpriteTask* t, s32 arg, s32 mode);
-OtuSpriteSlot* func_ov039_02096660(OtuSpriteTask* t, s32 arg, s32 mode);
-s32            func_ov039_02096874(void* pool, void* task, s32* args);
-s32            func_ov039_020968c0(void* pool, void* task, void* args);
-s32            func_ov039_020969fc(void* pool, void* task, void* args);
-s32            func_ov039_02096ab0(void* pool, void* task, void* args);
-s32            func_ov039_02096ad0(TaskPool* pool, Task* task, void* data, s32 stage);
-s32            func_ov039_02096b18(TaskPool* pool, s32 arg1);
-void           func_ov039_02096b48(void* self, s32 which);
-s32            func_ov039_02096c44(void* self);
+s32              func_ov039_02088400(s32 x, s32 y, s32 axis);
+void             func_ov039_02088454(void);
+void             func_ov039_020885cc(void);
+void             func_ov039_02088688(s32 unused, TinPinSlammer_Scene* scene);
+void             func_ov039_0208871c(TinPinSlammer_Scene* scene);
+void             func_ov039_020888e0(TinPinSlammer_Scene* scene);
+void             func_ov039_02088a8c(TinPinSlammer_Scene* scene);
+void             func_ov039_02088b80(TinPinSlammer_Scene* scene);
+void             func_ov039_02088c50(TinPinSlammer_Scene* scene);
+void             func_ov039_02088df0(TinPinSlammer_Scene* scene);
+void             func_ov039_02088fac(TinPinSlammer_Scene* scene);
+void             func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at);
+void             func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuBadge* a, OtuBadge* b);
+void             func_ov039_020891fc(TinPinSlammer_Scene* scene);
+void             func_ov039_020892c4(TinPinSlammer_Scene* scene);
+void             func_ov039_02089360(TinPinSlammer_Scene* scene);
+s32              func_ov039_020893fc(TinPinSlammer_Scene* scene);
+void             func_ov039_02089780(TinPinSlammer_Scene* scene);
+void             func_ov039_020897d0(TinPinSlammer_Scene* scene);
+void             func_ov039_020897dc(TinPinSlammer_Scene* scene);
+void             func_ov039_020898a8(TinPinSlammer_Scene* scene);
+void             func_ov039_02089918(TinPinSlammer_Scene* scene);
+void             func_ov039_02089950(TinPinSlammer_Scene* scene);
+void             func_ov039_02089a80(TinPinSlammer_Scene* scene);
+void             func_ov039_02089d3c(TinPinSlammer_Scene* scene);
+void             func_ov039_02089d6c(TinPinSlammer_Scene* scene);
+void             func_ov039_02089e0c(TinPinSlammer_Scene* scene);
+void             func_ov039_02089e78(TinPinSlammer_Scene* scene);
+void             func_ov039_02089ec0(TinPinSlammer_Scene* scene);
+void             func_ov039_02089f30(TinPinSlammer_Scene* scene);
+void             func_ov039_02089f68(TinPinSlammer_Scene* scene);
+void             func_ov039_0208a098(TinPinSlammer_Scene* scene);
+void             func_ov039_0208a324(TinPinSlammer_Scene* scene);
+void             func_ov039_0208a354(TinPinSlammer_Scene* scene);
+void             func_ov039_0208a3f4(TinPinSlammer_Scene* scene);
+void             func_ov039_0208a454(TinPinSlammer_Scene* scene);
+void             func_ov039_0208a6c4(OtuPoint* v);
+void             func_ov039_0208a6f8(OtuBadge* self, OtuPoint* dir, s32 angle);
+u8               func_ov039_0208a794(OtuPoint* p, OtuBoardLayout* layout);
+s32              func_ov039_0208a988(OtuPoint* self, OtuBoardLayout* layout, TinPinSlammer_Scene* scene);
+void             func_ov039_0208ac98(OtuBadge* self);
+void             func_ov039_0208acc0(OtuBadge* self);
+void             func_ov039_0208ad2c(OtuPoint* vel, s32 shortfall);
+void             func_ov039_0208ad88(OtuBadge* self);
+void             func_ov039_0208ade8(OtuBadge* self);
+void             func_ov039_0208ae14(OtuBadge* self);
+void             func_ov039_0208ae8c(OtuBadge* self);
+void             func_ov039_0208af38(OtuBadge* self);
+void             func_ov039_0208af6c(OtuBadge* self);
+void             func_ov039_0208b94c(OtuBadge* self);
+void             func_ov039_0208b9b4(OtuBadge* self);
+void             func_ov039_0208ba34(OtuBadge* self);
+void             func_ov039_0208ba70(OtuBadge* self);
+void             func_ov039_0208bb2c(OtuBadge* self);
+void             func_ov039_0208be30(OtuBadge* self, OtuPoint* dir);
+s32              func_ov039_0208bed8(OtuBadge* self, s32 rings, s32 loType, s32 hiType, OtuPoint* out);
+s32              func_ov039_0208c0e4(OtuPoint* a, OtuPoint* b);
+s32              func_ov039_0208c128(OtuBadge* self, s32 which, s32 loType, s32 hiType, s32 kind);
+s32              func_ov039_0208c218(OtuBadge* self);
+s32              func_ov039_0208c258(OtuBadge* self);
+s32              func_ov039_0208c304(OtuBadge* self);
+s32              func_ov039_0208c3bc(OtuBadge* self);
+s32              func_ov039_0208c45c(OtuBadge* self);
+s32              func_ov039_0208c4ec(OtuBadge* self);
+s32              func_ov039_0208c568(OtuBadge* self);
+s32              func_ov039_0208c5f8(OtuBadge* self);
+s32              func_ov039_0208c688(OtuBadge* self);
+s32              func_ov039_0208c718(OtuBadge* self);
+s32              func_ov039_0208c794(OtuBadge* self);
+s32              func_ov039_0208c84c(OtuBadge* self);
+void             func_ov039_0208c8ac(OtuBadge* self);
+void             func_ov039_0208c8cc(OtuBadge* self);
+void             func_ov039_0208c8ec(OtuBadge* self);
+void             func_ov039_0208c90c(OtuBadge* self);
+s32              func_ov039_0208c92c(OtuBadge* self);
+SpriteFrameInfo* func_ov039_0208d2f8(Sprite* sprite, s32 arg, s32 mode);
+void             func_ov039_0208d3bc(OtuBadge* self, Sprite* sprite);
+void             func_ov039_0208d4cc(OtuBadge* self, Sprite* sprite);
+void             func_ov039_0208d554(OtuBadge* self, Sprite* sprite);
+void             func_ov039_0208d5dc(OtuBadge* self);
+s32              func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadge_InitArgs* args);
+s32              func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args);
+void             func_ov039_0208d9ec(OtuBadge* self);
+s32              func_ov039_0208da74(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208db44(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208dc68(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_0208df2c(OtuPoint* posA, OtuPoint* velA, s32 reachA, OtuPoint* posB, OtuPoint* velB, s32 reachB);
+void             func_ov039_0208dff0(OtuPoint* dir, s32 speed, s32 scaleA, s32 scaleB, OtuBadge* other);
+void func_ov039_0208e058(OtuPoint* posA, OtuPoint* velA, OtuPoint* posB, OtuPoint* velB, OtuPoint* out, s32* score);
+void func_ov039_0208e130(OtuBadge* self, OtuBadge* other);
+void func_ov039_0208e6cc(OtuBadge* self, OtuPoint* out);
+void func_ov039_0208e6e0(OtuBadge* task, OtuPoint* out);
+void func_ov039_0208e848(OtuBadge* self, OtuPoint* origin);
+void func_ov039_0208e870(OtuBadge* self, s32 x, s32 y);
+s32  func_ov039_0208e984(OtuBadge* task);
+s32  func_ov039_0208e998(OtuBadge* task);
+s32  func_ov039_0208e9d0(OtuBadge* task);
+s32  func_ov039_0208ee84(OtuBadge* task);
+s16  func_ov039_0208eea0(OtuBadge* task);
+s16  func_ov039_0208eeac(OtuBadge* task);
+s16  func_ov039_0208eeb8(OtuBadge* task);
+s16  func_ov039_0208eec4(OtuBadge* task);
+s32  func_ov039_0208efb0(OtuBadge* task, s32 which);
+s32  func_ov039_0208eff8(OtuBadge* task);
+s32  func_ov039_0208f034(OtuBadge* task);
+void func_ov039_0208f03c(OtuBadge* task);
+void func_ov039_0208f0f0(OtuBadge* self, OtuBadge* other);
+SpriteFrameInfo* func_ov039_0208f134(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_0208f2a4(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
+s32              func_ov039_0208f2f0(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208f360(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208f3b0(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208f3c4(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_0208f40c(TaskPool* pool, s32 dataType, s32 childId);
+SpriteFrameInfo* func_ov039_0208f440(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_0208f5a8(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
+s32              func_ov039_0208f5e0(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208f6cc(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208f714(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208f728(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_0208f770(TaskPool* pool, s32 dataType, s32 childId);
+void             func_ov039_0208f7a4(OtuPiyo* self, s32 stunMax);
+SpriteFrameInfo* func_ov039_0208f7b4(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_0208f900(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
+s32              func_ov039_0208f938(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208f9b8(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208fa00(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208fa14(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_0208fa5c(TaskPool* pool, s32 dataType, s32 childId);
+SpriteFrameInfo* func_ov039_0208fa90(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_0208fbe0(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
+s32              func_ov039_0208fc38(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208fd8c(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208fddc(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0208fe18(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_0208fe60(TaskPool* pool, s32 dataType, s32 arg2);
+void             func_ov039_0208fefc(OtuMeteo* self, s32 frames);
+void             func_ov039_0208ff30(OtuMeteo* self);
+void             func_ov039_0208ff68(OtuMeteo* self);
+s16              func_ov039_0209003c(OtuCursor* c);
+void             func_ov039_0209005c(OtuCursor6* c, OtuFrame6* table, s16 count);
+s32              func_ov039_0209008c(OtuCursor6* c);
+s16              func_ov039_020900f4(OtuCursor6* c);
+s32              func_ov039_0209011c(OtuCursor6* c);
+void             func_ov039_02090148(OtuCursor6* c, OtuFrame6* table, s16 count);
+s32              func_ov039_02090178(OtuCursor6* c);
+u16              func_ov039_020901e0(OtuCursor6* c);
+SpriteFrameInfo* func_ov039_02090208(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* func_ov039_020902cc(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_020904a8(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
+s32              func_ov039_0209054c(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02090cec(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02090d90(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02090dd4(TaskPool* pool, Task* task, void* args, s32 stage);
+u32              func_ov039_02090e1c(TaskPool* pool, s32 arg1, s32 arg2);
+void             func_ov039_0209104c(OtuHammer* self);
+u16              func_ov039_02091060(OtuHammer* self);
+void             func_ov039_02091070(OtuHammer* self);
+SpriteFrameInfo* func_ov039_02091118(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_02091268(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
+s32              func_ov039_020912c8(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020914d0(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02091524(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02091560(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_02091628(OtuNeedle* self, OtuPinRecord* out);
+void             func_ov039_02091654(OtuNeedle* self, s32 chargeFrames, s32 holdFrames);
+void             func_ov039_02091668(OtuNeedle* self);
+void             func_ov039_02091690(OtuNeedle* self);
+SpriteFrameInfo* func_ov039_020916c4(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_02091814(TaskPool* pool, Task* task, OtuPinSpriteArgs* args);
+s32              func_ov039_02091868(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02091a5c(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02091aa4(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02091ab8(TaskPool* pool, Task* task, void* args, s32 stage);
+void             func_ov039_02091b34(OtuHand* self);
+void             func_ov039_02091b40(u16 start, u16* map);
+s32              func_ov039_02091b98(TaskPool* pool, Task* task, OtuBoardArgs* args);
+s32              func_ov039_02092154(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020921f4(void);
+s32              func_ov039_020921fc(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020922c8(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* func_ov039_020923c8(Sprite* sprite, s32 arg, s32 mode);
+void             func_ov039_02092484(OtuObstacle* self, Sprite* sprite, OtuObstacle_Args* args);
+s32              func_ov039_0209258c(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02092608(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02092658(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02092694(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020926a8(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_020926f0(TaskPool* pool, s32 oamAttrs, s16 unk_04, s16 slot, OtuObstacle_Params* params);
+void             func_ov039_02092730(OtuObstacle* self, OtuPoint* origin);
+void             func_ov039_02092744(OtuObstacle* self, OtuPoint* out);
+s32              func_ov039_02092758(OtuObstacle* self);
+void             func_ov039_02092760(OtuObstacle* self);
+s32              func_ov039_020929ec(TaskPool* pool, Task* task, OtuBoardArgs* args);
+s32              func_ov039_02092a78(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02092bf0(void);
+s32              func_ov039_02092bf8(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02092c8c(TaskPool* pool, Task* task, void* args, s32 stage);
+void             func_ov039_02092e30(OtuOvbg* self);
+s32              func_ov039_02092f88(TaskPool* pool, Task* task, OtuBoardArgs* args);
+s32              func_ov039_020933c0(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_020933f0(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_020933f8(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_02093460(TaskPool* pool, Task* self, void* arg, s32 stage);
+s32              func_ov039_020934a8(TaskPool* pool, s32 dataType, Heap* heap, OtuBoardLayout* layout);
+void             func_ov039_020934e0(OtuOvbg* data);
+SpriteFrameInfo* func_ov039_0209352c(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_02093668(TaskPool* pool, Task* self, OtuBadgeRadarArgs* args);
+s32              func_ov039_020936b8(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_020937a0(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_020937dc(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_020937f4(TaskPool* pool, Task* self, void* arg, s32 stage);
+s32              func_ov039_0209383c(TaskPool* pool, s32 dataType, s32 pinId, s32 index, OtuBoardLayout* board, s32 isFirst);
+SpriteFrameInfo* func_ov039_02093884(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_02093b08(TaskPool* pool, Task* self, OtuBadgeCountArgs* args);
+s32              func_ov039_02093b98(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_02093bc0(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_02093c44(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_02093c90(TaskPool* pool, Task* self, void* arg, s32 stage);
+s32              func_ov039_02093cd8(TaskPool* pool, s32 dataType, s32 pinId, s32 index, s32 hasSpriteA);
+s32              func_ov039_02093d18(OtuBadgeCount* data, u16* slots);
+void             func_ov039_02093d68(OtuBadgeCount* data, s32 value);
+SpriteFrameInfo* func_ov039_02093e3c(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_02093f70(TaskPool* pool, Task* self, OtuTimerArgs* args);
+s32              func_ov039_02093fcc(TaskPool* pool, Task* self, void* arg);
+s32              func_ov039_0209411c(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02094158(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02094188(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_02094204(OtuTimer* self);
+s32              func_ov039_0209420c(OtuTimer* self);
+SpriteFrameInfo* func_ov039_02094214(Sprite* sprite, s32 arg, s32 mode);
+void             func_ov039_020942bc(OtuGauge* self, Sprite* sprite);
+void             func_ov039_0209432c(OtuGauge* self, Sprite* sprite);
+void             func_ov039_0209439c(OtuGauge* self, Sprite* sprite, s32 index);
+void             func_ov039_02094418(OtuGauge* self, Sprite* sprite, s32 index, s32 which);
+s32              func_ov039_020944bc(TaskPool* pool, Task* task, void* arg);
+s32              func_ov039_020945c8(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020948f4(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020949f4(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02094a6c(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* func_ov039_02094ae8(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_02094c50(TaskPool* pool, Task* task, OtuTaskArgs1* args);
+s32              func_ov039_02094ca8(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02094dac(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02094dfc(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02094e10(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* func_ov039_02094ff4(Sprite* sprite, s32 arg, s32 mode);
+void             func_ov039_020950b8(OtuSlashTask* self, Sprite* sprite, OtuPinSpriteArgs* args);
+s32              func_ov039_02095420(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_02095468(TaskPool* pool, s32 dataType, s32 pin);
+SpriteFrameInfo* func_ov039_0209549c(Sprite* sprite, s32 arg, s32 mode);
+void             func_ov039_02095558(OtuTrackTask* self, Sprite* sprite, OtuTaskArgs3* args);
+s32              func_ov039_02095708(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_02095750(TaskPool* pool, s32 dataType, s32 pin);
+void             func_ov039_02095788(OtuTrackTask* self, OtuPoint* at, s32 angle, s32 dir, s32 len);
+SpriteFrameInfo* func_ov039_020958a8(Sprite* sprite, s32 arg, s32 mode);
+void             func_ov039_02095964(OtuPointTask* self, Sprite* sprite, OtuPinSpriteArgs* args, s32 index);
+s32              func_ov039_02095c58(TaskPool* pool, Task* task, void* args, s32 stage);
+s32              func_ov039_02095ca0(TaskPool* pool, s32 dataType, s32 pin);
+void             func_ov039_02095cd4(OtuPointTask* self, s32 count);
+SpriteFrameInfo* func_ov039_02095dec(Sprite* sprite, s32 arg, s32 mode);
+void             func_ov039_02095ea4(OtuEntryTask* self, Sprite* sprite, OtuTaskArgs1* args);
+s32              func_ov039_02095f18(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02095f58(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02095fe4(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020960bc(void* pool, void* task, void* args);
+s32              func_ov039_020960dc(TaskPool* pool, Task* task, void* data, s32 stage);
+s32              func_ov039_02096124(TaskPool* pool, s32 dataType);
+void             func_ov039_02096154(OtuEntryTask* self, s16 which, s32 hasLabel);
+SpriteFrameInfo* func_ov039_02096280(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_020963c8(void* pool, void* task, OtuPinSpriteArgs* args);
+s32              func_ov039_02096404(void* pool, void* task, void* args);
+s32              func_ov039_020964a4(void* pool, void* task, void* args);
+s32              func_ov039_020964ec(void* pool, void* task, void* args);
+s32              func_ov039_02096500(TaskPool* pool, Task* task, void* data, s32 stage);
+s32              func_ov039_02096548(TaskPool* pool, s32 dataType, s32 pinId);
+void             func_ov039_0209657c(OtuDead* self);
+SpriteFrameInfo* func_ov039_0209659c(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* func_ov039_02096660(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_02096874(void* pool, void* task, OtuTaskArgs1* args);
+s32              func_ov039_020968c0(void* pool, void* task, void* args);
+s32              func_ov039_020969fc(void* pool, void* task, void* args);
+s32              func_ov039_02096ab0(void* pool, void* task, void* args);
+s32              func_ov039_02096ad0(TaskPool* pool, Task* task, void* data, s32 stage);
+s32              func_ov039_02096b18(TaskPool* pool, s32 dataType);
+void             func_ov039_02096b48(OtuGameover* self, s32 which);
+s32              func_ov039_02096c44(OtuGameover* self);
 SpriteFrameInfo* func_ov039_02096c58(Sprite* sprite, s32 arg, s32 mode);
-s32              func_ov039_02096d70(void* pool, void* task, s32* args);
+s32              func_ov039_02096d70(void* pool, void* task, OtuTaskArgs1* args);
 s32              func_ov039_02096d98(void);
 s32              func_ov039_02096da0(void* pool, void* task, void* args);
 s32              func_ov039_02096dec(void* pool, void* task, void* args);
 s32              func_ov039_02096e04(TaskPool* pool, Task* task, void* data, s32 stage);
-s32              func_ov039_02096e4c(TaskPool* pool, s32 arg1);
-OtuSpriteSlot*   func_ov039_02096e7c(OtuSpriteTask* t, s32 arg, s32 mode);
+s32              func_ov039_02096e4c(TaskPool* pool, s32 dataType);
+SpriteFrameInfo* func_ov039_02096e7c(Sprite* sprite, s32 arg, s32 mode);
 s32              func_ov039_0209702c(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097160(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_020971b0(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_020971c4(TaskPool* pool, Task* task, void* param, s32 stage);
-OtuSpriteSlot*   func_ov039_02097398(OtuSpriteTask* t, s32 arg, s32 mode);
+SpriteFrameInfo* func_ov039_02097398(Sprite* sprite, s32 arg, s32 mode);
 s32              func_ov039_020974e0(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097528(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097670(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_020976c0(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_020976d4(TaskPool* pool, Task* task, void* param, s32 stage);
-s32              func_ov039_0209771c(TaskPool* pool, s32 word0, s32 word1);
-void             func_ov039_02097750(OtuTaskSprite* s, OtuTaskParams* param, s32 selector, s32 closeBy, s32 step, s32 holdFor);
-OtuSpriteSlot*   func_ov039_020977d0(OtuSpriteTask* t, s32 arg, s32 mode);
+s32              func_ov039_0209771c(TaskPool* pool, s32 dataType, s32 pinId);
+void             func_ov039_02097750(OtuSmoke* self, OtuPoint* at, s32 selector, s32 closeBy, s32 step, s32 holdFor);
+SpriteFrameInfo* func_ov039_020977d0(Sprite* sprite, s32 arg, s32 mode);
 s32              func_ov039_02097918(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097954(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_020979cc(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097a14(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097a28(TaskPool* pool, Task* task, void* param, s32 stage);
-s32              func_ov039_02097a70(TaskPool* pool, s32 word0, s32 word1);
-void             func_ov039_02097aa4(OtuTaskSprite* s, OtuTaskParams* param, s32 animation);
-OtuSpriteSlot*   func_ov039_02097ae0(OtuSpriteTask* t, s32 arg, s32 mode);
+s32              func_ov039_02097a70(TaskPool* pool, s32 dataType, s32 pinId);
+void             func_ov039_02097aa4(OtuWarp* self, OtuPoint* at, s32 animation);
+SpriteFrameInfo* func_ov039_02097ae0(Sprite* sprite, s32 arg, s32 mode);
 s32              func_ov039_02097c30(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097c90(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097dbc(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097e0c(TaskPool* pool, Task* task, void* param);
 s32              func_ov039_02097e20(TaskPool* pool, Task* task, void* param, s32 stage);
-s32              func_ov039_02097e68(TaskPool* pool, s32 word0, s32 word1);
-void             func_ov039_02097e9c(OtuTaskSprite* s, OtuTaskParams* param);
-OtuSpriteSlot*   func_ov039_02097ff4(OtuSpriteTask* t, s32 arg, s32 mode);
-s32              func_ov039_02098144(TaskPool* pool, void* task, s32* args);
-s32              func_ov039_020981a4(TaskPool* pool, void* task);
-s32              func_ov039_020982e8(void* pool, void* task);
-s32              func_ov039_02098338(void* pool, void* task);
-void             func_ov039_0209834c(void* a, void* b, void* c, s32 index);
-OtuSpriteSlot*   func_ov039_02098538(OtuSpriteTask* t, s32 arg, s32 sel);
-void             func_ov039_020985e0(void* self, void* sprite);
-s32              func_ov039_02098650(TaskPool* pool, void* task, s32* args);
-s32              func_ov039_020988d8(void* pool, void* task);
-s32              func_ov039_020988fc(void* pool, void* task);
-s32              func_ov039_02098920(void* pool, void* task);
-void             func_ov039_020989a8(void* a, void* b, void* c, s32 index);
-void             func_ov039_02098a20(void* a, void* owner);
-void             func_ov039_02098a40(void* dispatch, void* stage);
+s32              func_ov039_02097e68(TaskPool* pool, s32 dataType, s32 pinId);
+void             func_ov039_02097e9c(OtuHahen* self, OtuPoint* at);
+SpriteFrameInfo* func_ov039_02097ff4(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_02098144(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020981a4(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020982e8(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02098338(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_0209834c(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* func_ov039_02098538(Sprite* sprite, s32 arg, s32 mode);
+void             func_ov039_020985e0(OtuWrwait* self, Sprite* sprite);
+s32              func_ov039_02098650(TaskPool* pool, Task* task, OtuTaskArgs1* args);
+s32              func_ov039_020988d8(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020988fc(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_02098920(TaskPool* pool, Task* task, void* args);
+s32              func_ov039_020989a8(TaskPool* pool, Task* task, void* args, s32 stage);
 void             func_ov039_02098a50(OtuStageDispatch* dispatch);
-void             func_ov039_02098a60(void* task, void* arg);
-void             func_ov039_02098acc(void* task, void* scene);
-void             func_ov039_02098af4(void* task, void* arg);
-s32              func_ov039_02098b44(void* task);
-void*            func_ov039_02098b68(void* dispatch);
-void             func_ov039_02098b78(OtuStageDispatch* dispatch, s32* out);
+void             func_ov039_02098b78(OtuPoint* src, OtuPoint* dst);
 #endif

@@ -19,13 +19,13 @@
  * functions, in bands 1, 7, 13 and the shared header, and the earlier
  * declaration has to be the one the definition agrees with:
  *
- *   OtuPinTask*  the header's trimmed +0x174-byte view of the same object,
+ *   OtuBadge*  the header's trimmed +0x174-byte view of the same object,
  *                modelling only the fields the nearest-child queries read.
  *   void*        what band 1 and band 7 happen to pass around.
  *
- * OtuPinTask has no field for +0x0DC or +0x0FC, so those two read through
+ * OtuBadge has no field for +0x0DC or +0x0FC, so those two read through
  * OtuBadge, which band 12 declares and which models the whole 0x25C bytes.
- * Every offset OtuPinTask does model agrees with OtuBadge, so the cast is
+ * Every offset OtuBadge does model agrees with OtuBadge, so the cast is
  * always safe.
  *
  * Offsets: +0x0DC unk_0DC, +0x0F8 kind, +0x0FC subKind, +0x138 dir.
@@ -39,7 +39,7 @@
  *  lsl #2`, defaulting to the load, so this stays a switch with one arm per
  *  case value rather than a chain of equality tests.
  */
-s32 func_ov039_0208e890(OtuPinTask* self) {
+s32 func_ov039_0208e890(OtuBadge* self) {
 
     switch (self->phase) {
         case 0:
@@ -53,7 +53,7 @@ s32 func_ov039_0208e890(OtuPinTask* self) {
             break;
     }
 
-    return self->unk_0DC;
+    return self->visible;
 }
 
 /**
@@ -65,7 +65,7 @@ s32 func_ov039_0208e890(OtuPinTask* self) {
  * Phase 8, sub-kind 4: the cursor at +0x100 against half the cell's size word,
  * counted down from 0x1000.
  */
-s32 func_ov039_0208e8c4(OtuPinTask* self) {
+s32 func_ov039_0208e8c4(OtuBadge* self) {
     s32 scale = 0x1000;
 
     if (self->phase == 8) {
@@ -80,9 +80,7 @@ s32 func_ov039_0208e8c4(OtuPinTask* self) {
             }
 
             case 4: {
-                u16 index = *(u16*)self->pinID;
-                s32 base  = (s32)self->slots;
-                u32 size  = *(u16*)((u8*)(base + index * 0x1C) + 0xE);
+                u32 size = self->slots[*self->pinID].meteoSquash;
 
                 if (self->frameBudget < (s32)(size >> 1)) {
                     scale = 0x1000 - FX_Divide(self->frameBudget << 12, (s32)(size >> 1) << 12);
@@ -105,7 +103,7 @@ s32 func_ov039_0208e8c4(OtuPinTask* self) {
  *  The `bne` past both tests is why this is a nested if rather than a second
  *  switch -- the subkind is never read unless the kind already matched.
  */
-s32 func_ov039_0208e950(OtuPinTask* self) {
+s32 func_ov039_0208e950(OtuBadge* self) {
     s32 r = 0;
 
     if (self->phase == 8) {
@@ -136,7 +134,7 @@ s32 func_ov039_0208e950(OtuPinTask* self) {
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
-s32 func_ov039_0208e984(OtuPinTask* task) {
+s32 func_ov039_0208e984(OtuBadge* task) {
     s32 found = task->phase;
     s32 r     = 0;
 
@@ -156,7 +154,7 @@ s32 func_ov039_0208e984(OtuPinTask* task) {
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
-s32 func_ov039_0208e998(OtuPinTask* task) {
+s32 func_ov039_0208e998(OtuBadge* task) {
     s32 found = task->phase;
     s32 r     = 0;
 
@@ -177,7 +175,7 @@ s32 func_ov039_0208e998(OtuPinTask* task) {
  *  the match. The return type stays `s32` because band 7 declares it that way
  *  and uses the value.
  */
-s32 func_ov039_0208e9ac(OtuPinTask* self) {
+s32 func_ov039_0208e9ac(OtuBadge* self) {
     u16 a;
     s32 x = -self->dir.x;
     s32 y = -self->dir.y;
@@ -209,7 +207,7 @@ s32 func_ov039_0208e9ac(OtuPinTask* self) {
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
-s32 func_ov039_0208e9d0(OtuPinTask* task) {
+s32 func_ov039_0208e9d0(OtuBadge* task) {
     s32 found = task->phase;
     s32 r     = 0;
 
@@ -229,7 +227,7 @@ s32 func_ov039_0208e9d0(OtuPinTask* task) {
  *  where a bare comparison compiles to a conditional move against the loaded
  *  field. Same answer, different shape, 58% against 100%.
  */
-s32 func_ov039_0208e9e4(OtuPinTask* task) {
+s32 func_ov039_0208e9e4(OtuBadge* task) {
     s32 found = task->phase;
     s32 r     = 0;
 
@@ -257,23 +255,22 @@ s32 func_ov039_0208e9e4(OtuPinTask* task) {
 // a negated `||`, and two sequential guards each with its own `break` -- and
 // all four compile to the same folded form. mwcc is choosing conditional
 // execution over branching here and there is no source shape that changes that.
-s32 func_ov039_0208e9f8(TaskPool* pool, void* task) {
-    u8* self    = (u8*)task;
+s32 func_ov039_0208e9f8(TaskPool* pool, OtuBadge* self) {
     s32 claimed = 0;
     s32 ret;
 
-    switch (*(s32*)(self + 0xF8)) {
+    switch (self->phase) {
         case 6:
-            ret = func_ov039_02091628(EasyTask_GetTaskData(pool, *(s32*)(self + 0x1E8)), (OtuPoint3*)(self + 0x184));
-            *(s32*)(self + 0x180) = ret;
+            ret            = func_ov039_02091628(EasyTask_GetTaskData(pool, self->needleId), self->hits);
+            self->hitCount = ret;
             if (ret > 0) {
                 claimed = 1;
             }
             break;
 
         case 7:
-            ret = func_ov039_02090e9c(EasyTask_GetTaskData(pool, *(s32*)(self + 0x1E4)), (OtuBar*)(self + 0x184));
-            *(s32*)(self + 0x180) = ret;
+            ret            = func_ov039_02090e9c(EasyTask_GetTaskData(pool, self->hammerId), self->hits);
+            self->hitCount = ret;
             if (ret > 0) {
                 claimed = 1;
             }
@@ -284,16 +281,16 @@ s32 func_ov039_0208e9f8(TaskPool* pool, void* task) {
              * condition: `&&`, nested `if`s and a negated `||` all fold the
              * pair into `ldreq`/`cmpeq`, where the target branches past the
              * body twice. */
-            if (*(s32*)(self + 0xFC) != 5) {
+            if (self->subKind != 5) {
                 break;
             }
-            if (*(s32*)(self + 0x100) != 0x27) {
+            if (self->frameBudget != 0x27) {
                 break;
             }
 
             claimed = 1;
-            func_ov039_0208fee0(EasyTask_GetTaskData(pool, *(s32*)(self + 0x1E0)), (OtuPinRecord*)(self + 0x184));
-            *(s32*)(self + 0x180) = claimed;
+            func_ov039_0208fee0(EasyTask_GetTaskData(pool, self->meteoId), self->hits);
+            self->hitCount = claimed;
             break;
 
         default:
@@ -333,34 +330,20 @@ s32 func_ov039_0208e9f8(TaskPool* pool, void* task) {
  * reset (mode 1) with `func_ov039_0208f7a4`, the position delta saved into
  * +0x138/+0x13C, and the two-way "clash partner" handoff at +0x1B0.
  */
-// Nonmatching: 89.9%. Three scheduling shape differences left:
-//   * the contact block. Target's contact block schedule mixes the y-diff
-//     loads before the x-diff stores, laid out: load +0x124 pair, +0x120 self
-//     copy, y-sub, +0x120 pair, x-sub, then store +0x12C before +0x130. This
-//     source compiles straightforwardly in address order. Reversing the two
-//     assignments in C scores worse (89.0).
-//   * the tail's pool words. Target reads `data_ov039_0209a398` before the
-//     +0x16C/+0x170 cell chain, so its literal pool lists a398 ahead of
-//     a3dc; this source's factor-read runs first, giving the reversed pool
-//     order. The inline-scale spelling (no scale local) supposedly matched
-//     m2c's, but scored 85.9 -- the smull operand order flipped too.
-//   * the `i = 0` init lands after the walk-inits here, before them in the
-//     target (one `mov r7` row).
-// The contact's `!= 0 || != 0` negation (swapped d3c arms) was worth +9% on
-// its own and matched subsequently. Everything else -- all three mode bodies,
-// the wind-down, the 64-bit smull/adc scale and every branch target -- agrees.
-void func_ov039_0208eaa0(void* self_, void* task) {
-    u8* other = (u8*)self_;
-    u8* self  = (u8*)task;
+// Nonmatching: 89.6%, scheduling and register naming only: the contact
+// block's loads, the order of the two pool words, and which callee-saved
+// registers the hit walk lands in. (Walking the hits through a raw byte pointer
+// to the badge scored 89.9%, through register naming alone.)
+void func_ov039_0208eaa0(OtuBadge* other, OtuBadge* self) {
 
-    if (*(s32*)(self + 0x128) != 0) {
+    if (self->height != 0) {
         return;
     }
-    if (*(s32*)(self + 0x168) > 0) {
+    if (self->flags > 0) {
         return;
     }
 
-    switch (*(s32*)(self + 0xF8)) {
+    switch (self->phase) {
         /* m2c's label order: default first (it joins the big block), then the
          * modes that share the body, then mode 8's phase gate, then the
          * modes that return. */
@@ -371,7 +354,7 @@ void func_ov039_0208eaa0(void* self_, void* task) {
             break;
 
         case 8:
-            switch (*(s32*)(self + 0xFC)) {
+            switch (self->subKind) {
                 default:
                 case 0:
                     break;
@@ -393,87 +376,85 @@ void func_ov039_0208eaa0(void* self_, void* task) {
             return;
     }
 
-    if (*(s32*)(other + 0x180) <= 0) {
+    if (other->hitCount <= 0) {
         return;
     }
     {
-        s32 i     = 0;
-        u8* mask  = other;
-        u8* entry = other + 0x184;
+        s32 i = 0;
 
         do {
-            s32 limit = *(s32*)(mask + 0x18C) + 0xC000;
+            s32 limit = other->hits[i].scale + 0xC000;
 
-            if (func_ov039_02098ca8((OtuPoint*)(self + 0x120), (OtuPoint*)entry) >= limit) {
+            if (func_ov039_02098ca8(&self->pos, (OtuPoint*)&other->hits[i]) >= limit) {
                 goto next;
             }
 
-            switch (*(s32*)(other + 0xF8)) {
+            switch (other->phase) {
                 case 6: {
-                    func_ov039_02091668(EasyTask_GetTaskData(*(void**)(other + 8), *(s32*)(other + 0x1E8)));
-                    func_ov039_02087d04(0x337, (OtuPoint*)(other + 0x120), (OtuPoint*)(other + 0x110));
+                    func_ov039_02091668(EasyTask_GetTaskData(other->pool, other->needleId));
+                    func_ov039_02087d04(0x337, &other->pos, &other->origin);
 
-                    if (*(s32*)(self + 0x148) <= 0) {
-                        if (*(u16*)*(s32*)(self + 0x16C) < 0x130) {
-                            func_ov039_0208a490(self_, 1);
+                    if (self->stun <= 0) {
+                        if (*self->pinID < 0x130) {
+                            func_ov039_0208a490(other, 1);
                         }
                     }
 
-                    *(s32*)(self + 0x12C) = *(s32*)(self + 0x120) - *(s32*)(other + 0x120);
-                    *(s32*)(self + 0x130) = *(s32*)(self + 0x124) - *(s32*)(other + 0x124);
+                    self->vel.x = self->pos.x - other->pos.x;
+                    self->vel.y = self->pos.y - other->pos.y;
 
-                    if (*(s32*)(self + 0x12C) != 0 || *(s32*)(self + 0x130) != 0) {
-                        func_ov039_02098d3c((OtuPoint*)(self + 0x12C), (OtuPoint*)(self + 0x12C));
+                    if (self->vel.x != 0 || self->vel.y != 0) {
+                        func_ov039_02098d3c(&self->vel, &self->vel);
                     } else {
-                        *(s32*)(self + 0x12C) = 0x1000;
-                        *(s32*)(self + 0x130) = 0;
+                        self->vel.x = 0x1000;
+                        self->vel.y = 0;
                     }
                     break;
                 }
 
                 case 7: {
-                    void* cand   = EasyTask_GetTaskData(*(void**)(other + 8), *(s32*)(other + 0x1E4));
+                    void* cand   = EasyTask_GetTaskData(other->pool, other->hammerId);
                     u16   cursor = (u16)(func_ov039_02091060(cand) - 0x4000);
                     s32   pair   = (cursor >> 4) * 2;
 
                     func_ov039_0209104c(cand);
 
-                    *(s32*)(self + 0x12C) = ((s16*)data_0205e4e0)[pair + 1];
-                    *(s32*)(self + 0x130) = ((s16*)data_0205e4e0)[pair];
+                    self->vel.x = ((s16*)data_0205e4e0)[pair + 1];
+                    self->vel.y = ((s16*)data_0205e4e0)[pair];
 
-                    if (*(s32*)(self + 0xF8) == 6) {
-                        func_ov039_02091690(EasyTask_GetTaskData(*(void**)(self + 8), *(s32*)(self + 0x1E8)));
+                    if (self->phase == 6) {
+                        func_ov039_02091690(EasyTask_GetTaskData(self->pool, self->needleId));
                     }
-                    func_ov039_02087d04(0x33B, (OtuPoint*)(other + 0x120), (OtuPoint*)(other + 0x110));
+                    func_ov039_02087d04(0x33B, &other->pos, &other->origin);
 
-                    if (*(s32*)(self + 0x148) <= 0) {
-                        if (*(u16*)*(s32*)(self + 0x16C) < 0x130) {
-                            func_ov039_0208a490(self_, 1);
+                    if (self->stun <= 0) {
+                        if (*self->pinID < 0x130) {
+                            func_ov039_0208a490(other, 1);
                         }
                     }
                     break;
                 }
 
                 case 8: {
-                    if (*(s32*)(self + 0xF8) == 7) {
-                        func_ov039_02091070(EasyTask_GetTaskData(*(void**)(self + 8), *(s32*)(self + 0x1E4)));
+                    if (self->phase == 7) {
+                        func_ov039_02091070(EasyTask_GetTaskData(self->pool, self->hammerId));
                     }
-                    func_ov039_02087d04(0x333, (OtuPoint*)(other + 0x120), (OtuPoint*)(other + 0x110));
+                    func_ov039_02087d04(0x333, &other->pos, &other->origin);
 
-                    if (*(s32*)(self + 0x148) <= 0) {
-                        if (*(u16*)*(s32*)(self + 0x16C) < 0x130) {
-                            func_ov039_0208a490(self_, 1);
+                    if (self->stun <= 0) {
+                        if (*self->pinID < 0x130) {
+                            func_ov039_0208a490(other, 1);
                         }
                     }
 
-                    *(s32*)(self + 0x12C) = *(s32*)(self + 0x120) - *(s32*)(other + 0x120);
-                    *(s32*)(self + 0x130) = *(s32*)(self + 0x124) - *(s32*)(other + 0x124);
+                    self->vel.x = self->pos.x - other->pos.x;
+                    self->vel.y = self->pos.y - other->pos.y;
 
-                    if (*(s32*)(self + 0x12C) != 0 || *(s32*)(self + 0x130) != 0) {
-                        func_ov039_02098d3c((OtuPoint*)(self + 0x12C), (OtuPoint*)(self + 0x12C));
+                    if (self->vel.x != 0 || self->vel.y != 0) {
+                        func_ov039_02098d3c(&self->vel, &self->vel);
                     } else {
-                        *(s32*)(self + 0x12C) = 0x1000;
-                        *(s32*)(self + 0x130) = 0;
+                        self->vel.x = 0x1000;
+                        self->vel.y = 0;
                     }
                     break;
                 }
@@ -482,37 +463,33 @@ void func_ov039_0208eaa0(void* self_, void* task) {
                     break;
             }
 
-            if (*(s32*)(self + 0x148) <= 0) {
-                *(s32*)(self + 0x148) = *(u16*)(*(u8**)(self + 0x170) + (u32) * (u16*)*(s32*)(self + 0x16C) * 0x1C + 0x18);
-                *(s32*)(self + 0xF8)  = 1;
-                *(s32*)(self + 0xF4)  = 0;
-                func_ov039_0208f7a4(EasyTask_GetTaskData(*(void**)(self + 8), *(s32*)(self + 0x1D8)), *(s32*)(self + 0x148));
+            if (self->stun <= 0) {
+                self->stun  = self->slots[*self->pinID].stunFrames;
+                self->phase = 1;
+                self->step  = 0;
+                func_ov039_0208f7a4(EasyTask_GetTaskData(self->pool, self->piyoId), self->stun);
             }
             {
                 OtuPoint  start;
-                OtuPoint* base = (OtuPoint*)(self + 0x12C);
-                s32       factor =
-                    *(s32*)((u8*)&data_ov039_0209a3dc +
-                            *(u8*)(*(u8**)(self + 0x170) + (u32) * (u16*)*(s32*)(self + 0x16C) * 0x1C + 4) * 0x10 + 8);
-                s32 scale;
+                OtuPoint* base   = &self->vel;
+                s32       factor = data_ov039_0209a3dc[self->slots[*self->pinID].tuneIndex].power;
+                s32       scale;
 
                 start.x = 0;
                 scale   = (s32)(((s64)data_ov039_0209a398 * factor + 0x800) >> 0xC);
                 start.y = 0;
 
-                *(s32*)(self + 0x138) = *(s32*)(self + 0x12C);
-                *(s32*)(self + 0x13C) = *(s32*)(self + 0x130);
+                self->dir.x = self->vel.x;
+                self->dir.y = self->vel.y;
 
                 func_ov039_02098c00(scale, base, &start, base);
-                *(s32*)(other + 0x1B0) = (s32)task;
-                *(s32*)(self + 0x1B0)  = (s32)self_;
+                other->partner = self;
+                self->partner  = other;
             }
 
         next:
-            mask += 0xC;
-            entry += 0xC;
             i = i + 1;
-        } while (i < *(s32*)(other + 0x180));
+        } while (i < other->hitCount);
     }
 }
 
@@ -527,13 +504,13 @@ void func_ov039_0208eaa0(void* self_, void* task) {
  * `> 0` and not `!= 0`. Written as a select into zero, the shape that gives
  * this overlay's predicates their two conditional moves.
  */
-s32 func_ov039_0208ee84(OtuPinTask* task) {
-    return task->alive > 0;
+s32 func_ov039_0208ee84(OtuBadge* task) {
+    return task->stun > 0;
 }
 
-/** The "alive" word at +0x148. This is the one 0208ee84 tests. */
-s32 func_ov039_0208ee98(OtuPinTask* task) {
-    return (task)->alive;
+/** The badge's remaining stun frames. */
+s32 func_ov039_0208ee98(OtuBadge* task) {
+    return (task)->stun;
 }
 
 /* ------------------------------------------------------------------ */
@@ -550,20 +527,20 @@ s32 func_ov039_0208ee98(OtuPinTask* task) {
  * the add -- so the accessors read as members and the note records why.
  */
 
-s16 func_ov039_0208eea0(OtuPinTask* task) {
-    return (task)->timers.trackFrames;
+s16 func_ov039_0208eea0(OtuBadge* task) {
+    return (task)->trackFrames;
 }
 
-s16 func_ov039_0208eeac(OtuPinTask* task) {
-    return (task)->timers.bounceTimer;
+s16 func_ov039_0208eeac(OtuBadge* task) {
+    return (task)->bounceTimer;
 }
 
-s16 func_ov039_0208eeb8(OtuPinTask* task) {
-    return (task)->timers.arcFrames;
+s16 func_ov039_0208eeb8(OtuBadge* task) {
+    return (task)->arcFrames;
 }
 
-s16 func_ov039_0208eec4(OtuPinTask* task) {
-    return (task)->timers.spinFrames;
+s16 func_ov039_0208eec4(OtuBadge* task) {
+    return (task)->spinFrames;
 }
 
 /**
@@ -574,10 +551,10 @@ s16 func_ov039_0208eec4(OtuPinTask* task) {
  * target's `ldreq`/`cmpeq` run of conditional loads is mwcc folding that
  * five-term short-circuit chain into one compare chain.
  */
-s32 func_ov039_0208eed0(OtuPinTask* self) {
+s32 func_ov039_0208eed0(OtuBadge* self) {
     s32 r = 0;
 
-    if (self->unk_128 == 0 && self->phase == 1 && self->step == 1) {
+    if (self->height == 0 && self->phase == 1 && self->step == 1) {
         if (func_ov039_02098ca8(&self->aimStart, &self->aimCur) >= 0x10000) {
             r = 1;
         }
@@ -599,8 +576,8 @@ void func_ov039_0208ef14(void* pin, OtuPoint* a, OtuPoint* b) {
  *
  * `movge`/`movlt` again: `>= 0x1E`, not `> 0x1E`.
  */
-s32 func_ov039_0208ef38(OtuPinTask* task) {
-    return (task)->unk_1CC >= 0x1E;
+s32 func_ov039_0208ef38(OtuBadge* task) {
+    return (task)->aimFrames >= 0x1E;
 }
 
 /**
@@ -623,7 +600,7 @@ s32 func_ov039_0208ef4c(void* task, u32 which) {
     switch (kind) {
         case 1:
         default:
-            if (func_ov039_0208a794((OtuPoint*)&self->pos.x, (OtuCellGrid*)*(s32*)((u8*)self + 0xE4)) != 0xC) {
+            if (func_ov039_0208a794((OtuPoint*)&self->pos.x, self->board) != 0xC) {
                 r = 1;
             } else if (RNG_Next(0x10000) < which) {
                 r = 1;
@@ -648,10 +625,10 @@ s32 func_ov039_0208ef4c(void* task, u32 which) {
  * and the pin id at +0x16C must not be the 0x130 "no pin" sentinel -- and the
  * real answer comes from func_ov039_0208ef4c.
  */
-s32 func_ov039_0208efb0(OtuPinTask* task, s32 which) {
+s32 func_ov039_0208efb0(OtuBadge* task, s32 which) {
     OtuBadge* self = (OtuBadge*)task;
 
-    if (func_ov039_0208a794((OtuPoint*)&self->pos.x, (OtuCellGrid*)*(s32*)((u8*)self + 0xE4)) == 0) {
+    if (func_ov039_0208a794((OtuPoint*)&self->pos.x, self->board) == 0) {
         return 0;
     }
     if (*self->pinID == 0x130) {
@@ -667,7 +644,7 @@ s32 func_ov039_0208efb0(OtuPinTask* task, s32 which) {
  * Returns the old value and stores zero, so a caller polling this sees each
  * value exactly once. It is the only accessor here with that shape.
  */
-s32 func_ov039_0208eff8(OtuPinTask* self) {
+s32 func_ov039_0208eff8(OtuBadge* self) {
     s32 value = self->unk_1A4;
 
     self->unk_1A4 = 0;

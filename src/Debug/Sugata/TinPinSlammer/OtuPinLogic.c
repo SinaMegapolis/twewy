@@ -11,16 +11,6 @@
 /* Addressing helpers whose *shape* is load-bearing.                   */
 /* ------------------------------------------------------------------ */
 
-/*
- * The pin tray, at `scene + 0x4404C`. (Folded to one constant; verified
- * neutral relative to the old two-add spelling.) Note this is *not*
- * `OTU_PIN_TRAY(scene, slot)`, whose slot multiply folds the 0x44000 away.
- */
-#define OTU_TRAY(scene) ((u8*)(scene) + 0x4404C)
-
-/** The wireless save record, reached the way 02082c50 reaches it. */
-#define OTU_BOARD_RECORD OTU_WIRELESS_RECORD(0x3000, 0)
-
 /* ================================================================== */
 /* 0x02089950 -- the first board variant's pre-update stage.          */
 /* ================================================================== */
@@ -43,12 +33,12 @@
  * word rather than a flag followed by unrelated padding.
  */
 void func_ov039_02089950(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
     if (stage->timer > 0) {
         stage->timer = stage->timer - 1;
     } else {
-        scene->state.unk_EE8 = 1;
+        scene->linkTimeout = 1;
     }
 
     switch (func_ov040_0209cb78()) {
@@ -56,14 +46,6 @@ void func_ov039_02089950(TinPinSlammer_Scene* scene) {
             func_ov040_0209d990();
             func_ov040_0209caac(0x400548);
             func_ov040_0209cb9c();
-            return;
-
-        case 5:
-            if (stage->childCount != func_ov040_0209cb68()) {
-                return;
-            }
-            stage->state = 0;
-            func_ov039_02098a50(OTU_STAGE(scene));
             return;
 
         case 7: {
@@ -80,11 +62,19 @@ void func_ov039_02089950(TinPinSlammer_Scene* scene) {
             func_ov040_0209d40c((void (*)())func_ov039_020885f4, scene);
             func_ov040_0209d420((void (*)())func_ov039_02088688, scene);
 
-            stage->unk_06 = 1;
-            func_ov040_0209cb08(&stage->unk_06, 2);
+            stage->packetKind = 1;
+            func_ov040_0209cb08(&stage->packetKind, 2);
             func_ov040_0209d0a8(4, b, a);
             return;
         }
+
+        case 5:
+            if (stage->badgeCount != func_02047e84(func_ov040_0209cb68())) {
+                return;
+            }
+            stage->step = 0;
+            func_ov039_02098a50(OTU_STAGE(scene));
+            return;
 
         default:
             return;
@@ -118,11 +108,11 @@ void func_ov039_02089950(TinPinSlammer_Scene* scene) {
  * `func_ov039_02087c8c`: it deletes the fade task and hands the container back.
  */
 void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32               i;
-    u16               mask;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i;
+    u16            mask;
 
-    switch (stage->unk_00) {
+    switch (stage->step) {
         case 0:
             func_ov039_02087c8c(scene, 1);
             return;
@@ -139,24 +129,24 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
                     break;
                 }
                 i = i + 1;
-            } while (i < stage->childCount);
-            if (i != stage->childCount) {
+            } while (i < stage->badgeCount);
+            if (i != stage->badgeCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 2);
             return;
 
         case 2:
-            stage->unk_04 = 1;
+            stage->readyMask = 1;
             func_020471ec(0x10, 0x10, &data_ov038_0209edc0);
             func_ov040_0209d970((s32)&data_ov038_0209eef4);
             func_ov003_0209d434((s32)&data_ov038_0209ef48, (s32)scene);
             func_ov040_0209ec5c(func_ov039_02087cac, scene, data_ov039_0209b120, 0x10);
-            scene->state.unk_EEC = 1;
+            scene->linkOpen = 1;
             func_ov040_0209ef88();
 
             mask = 0;
-            for (i = 1; i < stage->childCount; i++) {
+            for (i = 1; i < stage->badgeCount; i++) {
                 mask |= 1 << i;
             }
             func_ov040_0209ed58(mask);
@@ -165,21 +155,21 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
             return;
 
         case 3:
-            if (stage->childCount != func_02047e84(stage->unk_04)) {
+            if (stage->badgeCount != func_02047e84(stage->readyMask)) {
                 return;
             }
-            func_ov040_0209ece8(OTU_TRAY(scene), 0x38);
+            func_ov040_0209ece8(scene->decks, 0x38);
             func_ov039_02087c8c(scene, 4);
             return;
 
         case 4:
             data_ov039_0209ad00 = 2;
-            for (i = 0; i < stage->childCount; i++) {
+            for (i = 0; i < stage->badgeCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 2) {
                     break;
                 }
             }
-            if (i != stage->childCount) {
+            if (i != stage->badgeCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 6);
@@ -187,12 +177,12 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
 
         case 6:
             data_ov039_0209ad00 = 3;
-            for (i = 0; i < stage->childCount; i++) {
+            for (i = 0; i < stage->badgeCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 3) {
                     break;
                 }
             }
-            if (i != stage->childCount) {
+            if (i != stage->badgeCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 7);
@@ -211,8 +201,8 @@ void func_ov039_02089a80(TinPinSlammer_Scene* scene) {
             func_02047338();
             func_ov040_0209d970(0);
             func_ov003_0209d434(0, 0);
-            scene->state.unk_EEC = 0;
-            EasyTask_DeleteTask(OTU_POOL1(scene), stage->fadeTask);
+            scene->linkOpen = 0;
+            EasyTask_DeleteTask(OTU_POOL1(scene), stage->wrwaitId);
             func_ov039_02098a50(OTU_STAGE(scene));
             return;
 
@@ -260,25 +250,25 @@ void func_ov039_02089d3c(TinPinSlammer_Scene* scene) {
  * Byte-identical to func_ov039_0208a354.
  */
 void func_ov039_02089d6c(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32               i     = 0;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i     = 0;
 
     data_ov039_0209ad00 = 4;
 
-    if (stage->childCount > 0) {
+    if (stage->badgeCount > 0) {
         do {
             if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 4) {
                 break;
             }
             i++;
-        } while (i < stage->childCount);
+        } while (i < stage->badgeCount);
     }
 
-    if (i != stage->childCount) {
+    if (i != stage->badgeCount) {
         return;
     }
 
-    scene->state.unk_698 = 1;
+    scene->playing = 1;
     CriSndMgr_PlayFile(0x18);
     EasyFade_FadeBothDisplays(3, 0, 0x1E);
     func_ov039_02098a50(OTU_STAGE(scene));
@@ -296,10 +286,10 @@ void func_ov039_02089d6c(TinPinSlammer_Scene* scene) {
  * statement rather than the tail of the `if`.
  */
 void func_ov039_02089e0c(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
-    if (scene->state.unk_698 == 0) {
-        if (func_ov039_02096c44(EasyTask_GetTaskData(OTU_POOL1(scene), stage->tickTask)) == 0) {
+    if (scene->playing == 0) {
+        if (func_ov039_02096c44(EasyTask_GetTaskData(OTU_POOL1(scene), stage->gameoverId)) == 0) {
             func_ov040_0209d420(NULL, NULL);
             func_ov039_02098a50(OTU_STAGE(scene));
         }
@@ -355,14 +345,14 @@ void func_ov039_02089e78(TinPinSlammer_Scene* scene) {
  * the two children to one wireless session.
  */
 void func_ov039_02089ec0(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
-    stage->state      = 0;
+    stage->gotPacket  = 0;
     stage->timer      = 0x258;
-    stage->childCount = scene->state.unk_EE0;
+    stage->badgeCount = scene->playerCount;
 
-    stage->initTask = func_ov039_02096e4c(OTU_POOL1(scene), scene->base.spareDataType);
-    stage->fadeTask = func_ov039_020989f0(OTU_POOL1(scene), scene->base.spareDataType);
+    stage->wriconId = func_ov039_02096e4c(OTU_POOL1(scene), scene->spareDataType);
+    stage->wrwaitId = func_ov039_020989f0(OTU_POOL1(scene), scene->spareDataType);
 }
 
 /* ================================================================== */
@@ -376,9 +366,9 @@ void func_ov039_02089ec0(TinPinSlammer_Scene* scene) {
  * stage: the target loads it straight into the delete call.
  */
 void func_ov039_02089f30(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
-    EasyTask_DeleteTask(OTU_POOL1(scene), stage->initTask);
+    EasyTask_DeleteTask(OTU_POOL1(scene), stage->wriconId);
     func_ov039_02088f18(scene);
 }
 
@@ -404,39 +394,39 @@ void func_ov039_02089f30(TinPinSlammer_Scene* scene) {
  * neighbouring stage hands to 0x0209ec5c.
  */
 void func_ov039_02089f68(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
     if (stage->timer > 0) {
         stage->timer = stage->timer - 1;
     } else {
-        scene->state.unk_EE8 = 1;
+        scene->linkTimeout = 1;
     }
 
     switch (func_ov040_0209cb78()) {
         case 1:
-            if (stage->state == 0) {
+            if (stage->gotPacket == 0) {
                 func_ov040_0209d990();
                 func_ov040_0209caac(0x400548);
                 func_ov040_0209d848(3);
-                stage->unk_06 = OTU_BOARD_RECORD[0x40A];
-                func_ov040_0209ba04(func_ov039_02088698, scene, (u8*)scene + 0x41ED8, 0);
+                stage->packetKind = gSaveData.otosuGameKey;
+                func_ov040_0209ba04(func_ov039_02088698, scene, scene->parentBssid, 0);
                 return;
             }
 
             func_ov040_0209d818(3, 6, 0x10, 2, 0x10, 2);
-            func_ov040_0209cabc(&stage->unk_06, 2);
-            func_ov040_0209d290(5, (u8*)stage + 0x0C);
+            func_ov040_0209cabc(&stage->packetKind, 2);
+            func_ov040_0209d290(5, &stage->parent);
             return;
 
         case 2:
-            if (stage->state == 0) {
+            if (stage->gotPacket == 0) {
                 return;
             }
             func_ov040_0209c158();
             return;
 
         case 5:
-            stage->unk_00 = 0;
+            stage->step = 0;
             func_ov039_02098a50(OTU_STAGE(scene));
             return;
 
@@ -471,49 +461,49 @@ void func_ov039_02089f68(TinPinSlammer_Scene* scene) {
  * shape as their twins above.
  */
 void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32               i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i;
 
-    switch (stage->unk_00) {
+    switch (stage->step) {
         case 0:
             func_ov039_02087c8c(scene, 1);
             return;
 
         case 1:
             data_ov039_0209ad00 = 1;
-            for (i = 0; i < stage->childCount; i++) {
+            for (i = 0; i < stage->badgeCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 1) {
                     break;
                 }
             }
-            if (i != stage->childCount) {
+            if (i != stage->badgeCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 2);
             return;
 
         case 2:
-            stage->unk_04 = 0;
+            stage->readyMask = 0;
             func_020472a8(&data_ov038_0209edc0);
             func_ov040_0209d728();
             func_0204737c();
             func_ov040_0209d970((s32)&data_ov038_0209eef4);
             func_ov003_0209d434((s32)&data_ov038_0209ef6c, (s32)scene);
             func_ov040_0209ec5c(func_ov039_02087cac, scene, data_ov039_0209b120, 0x10);
-            func_ov040_0209ece8(OTU_TRAY(scene), 0x0E);
-            scene->state.unk_EEC = 1;
+            func_ov040_0209ece8(scene->decks, 0x0E);
+            scene->linkOpen = 1;
             func_ov040_0209efc0();
             func_ov039_02087c8c(scene, 4);
             return;
 
         case 4:
             data_ov039_0209ad00 = 2;
-            for (i = 0; i < stage->childCount; i++) {
+            for (i = 0; i < stage->badgeCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 2) {
                     break;
                 }
             }
-            if (i != stage->childCount) {
+            if (i != stage->badgeCount) {
                 return;
             }
             func_ov040_0209ed58(1);
@@ -521,7 +511,7 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
             return;
 
         case 5:
-            if (stage->unk_04 == 0) {
+            if (stage->readyMask == 0) {
                 return;
             }
             func_ov039_02087c8c(scene, 6);
@@ -529,12 +519,12 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
 
         case 6:
             data_ov039_0209ad00 = 3;
-            for (i = 0; i < stage->childCount; i++) {
+            for (i = 0; i < stage->badgeCount; i++) {
                 if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 3) {
                     break;
                 }
             }
-            if (i != stage->childCount) {
+            if (i != stage->badgeCount) {
                 return;
             }
             func_ov039_02087c8c(scene, 7);
@@ -553,8 +543,8 @@ void func_ov039_0208a098(TinPinSlammer_Scene* scene) {
             func_02047338();
             func_ov040_0209d970(0);
             func_ov003_0209d434(0, 0);
-            scene->state.unk_EEC = 0;
-            EasyTask_DeleteTask(OTU_POOL1(scene), stage->fadeTask);
+            scene->linkOpen = 0;
+            EasyTask_DeleteTask(OTU_POOL1(scene), stage->wrwaitId);
             func_ov039_02098a50(OTU_STAGE(scene));
             return;
 
@@ -581,25 +571,25 @@ void func_ov039_0208a324(TinPinSlammer_Scene* scene) {
 
 /** Byte-identical to func_ov039_02089d6c. */
 void func_ov039_0208a354(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32               i     = 0;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i     = 0;
 
     data_ov039_0209ad00 = 4;
 
-    if (stage->childCount > 0) {
+    if (stage->badgeCount > 0) {
         do {
             if (((OtuChildRecord*)func_ov039_02088440(i))->phase != 4) {
                 break;
             }
             i++;
-        } while (i < stage->childCount);
+        } while (i < stage->badgeCount);
     }
 
-    if (i != stage->childCount) {
+    if (i != stage->badgeCount) {
         return;
     }
 
-    scene->state.unk_698 = 1;
+    scene->playing = 1;
     CriSndMgr_PlayFile(0x18);
     EasyFade_FadeBothDisplays(3, 0, 0x1E);
     func_ov039_02098a50(OTU_STAGE(scene));
@@ -618,10 +608,10 @@ void func_ov039_0208a354(TinPinSlammer_Scene* scene) {
  * down.
  */
 void func_ov039_0208a3f4(TinPinSlammer_Scene* scene) {
-    OtuWirelessStage* stage = (OtuWirelessStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
-    if (scene->state.unk_698 == 0) {
-        if (func_ov039_02096c44(EasyTask_GetTaskData(OTU_POOL1(scene), stage->tickTask)) == 0) {
+    if (scene->playing == 0) {
+        if (func_ov039_02096c44(EasyTask_GetTaskData(OTU_POOL1(scene), stage->gameoverId)) == 0) {
             func_ov039_02098a50(OTU_STAGE(scene));
         }
     }
@@ -660,54 +650,28 @@ void func_ov039_0208a454(TinPinSlammer_Scene* scene) {
 /* ================================================================== */
 
 /**
- * @brief Credits `value` to a pin, then spreads it over the pin's two children.
- *
- * Three things are worth calling out:
- *
- *   * the empty-slot guard is `>= 0x130`, and the target exits on it with a
- *     *conditional pop* (`cmp r0, #0x130 / pophs`), so the comparison is unsigned
- *     -- hence the `(u32)` on the tray slot, which costs nothing because the load
- *     is already a zero-extending `ldrh`. A tray slot holding the "no pin"
- *     sentinel and anything above it both drop the credit. That is the same 0x130
- *     sentinel func_ov039_0208f00c tests against from the other side;
- *   * the clamp is a post-store `if (total > 0x3E7)`, reading back the value it
- *     just wrote, not a pre-store clamp -- the field really is written twice on
- *     an overflowing credit;
- *   * the round-robin is a post-increment with a separate `>= 2` reset, which
- *     is why `self->slot` is read three times rather than kept in a local.
- *
- * The two children are the words at +0x228 and +0x22C, indexed with the
- * `((s32*)((u8*)task + 0x228))[i]` subscript form -- the same one
- * func_ov039_0208f104 uses, and load-bearing: written as a byte-offset
- * expression mwcc strength-reduces it into a walked pointer instead.
- *
- * The parameter and return types are `void*` and `s32` because that is what
- * OtuPinSprites's placeholder declaration says, and the two must agree exactly or
- * mwcc rejects the pair. `s32` is a fiction: the target never materialises a
- * return value, so there is deliberately no `return` statement. The cast to
- * `OtuPinLogic` is the one place the declared type is looser than the truth.
+ * @brief Adds `value` to the badge's score, capped at 999, and shows it on the
+ *        counter and on the next of the two score pop-ups.
  */
-s32 func_ov039_0208a490(void* task, s32 value) {
-    OtuPinLogic* self = (OtuPinLogic*)task;
-
-    if ((u32)*self->pinID >= 0x130) {
+void func_ov039_0208a490(OtuBadge* self, s32 value) {
+    if ((u32)*self->pinID >= OTU_NO_PIN) {
         return;
     }
 
-    self->total = self->total + value;
-    if (self->total > 0x3E7) {
-        self->total = 0x3E7;
+    self->score = self->score + value;
+    if (self->score > 999) {
+        self->score = 999;
     }
 
-    func_ov039_02093d68(EasyTask_GetTaskData(self->pool, self->counterId), self->total);
-    func_ov039_02095cd4(EasyTask_GetTaskData(self->pool, ((s32*)((u8*)self + 0x228))[self->slot]), value);
+    func_ov039_02093d68(EasyTask_GetTaskData(self->pool, self->counterId), self->score);
+    func_ov039_02095cd4(EasyTask_GetTaskData(self->pool, self->pointIds[self->pointCursor]), value);
 
-    self->slot = self->slot + 1;
-    if (self->slot >= 2) {
-        self->slot = 0;
+    self->pointCursor = self->pointCursor + 1;
+    if (self->pointCursor >= 2) {
+        self->pointCursor = 0;
     }
 
-    func_ov039_02087d04(0x340, &self->pos, &self->anchor);
+    func_ov039_02087d04(0x340, &self->pos, &self->origin);
 }
 
 /* ================================================================== */
@@ -841,9 +805,9 @@ void func_ov039_0208a6c4(OtuPoint* v) {
  * everything else 0x32E. That is an `==` against a constant, not a `>=`, which
  * is why the `ldreq / ldrne` pair straddles the argument setup.
  */
-void func_ov039_0208a6f8(OtuPinLogic* self, OtuPoint* dir, s32 angle) {
-    u8  speedIndex = ((OtuBoardSlot*)(self->slots + *self->pinID * 0x1C))->speedIndex;
-    s32 speed      = data_ov039_0209a3dc[speedIndex].speed;
+void func_ov039_0208a6f8(OtuBadge* self, OtuPoint* dir, s32 angle) {
+    u8  tuneIndex = self->slots[*self->pinID].tuneIndex;
+    s32 speed     = data_ov039_0209a3dc[tuneIndex].launch;
 
     func_ov039_02098c00(OtuQ12Mul(speed, angle), dir, &self->vel, &self->vel);
 
@@ -853,7 +817,7 @@ void func_ov039_0208a6f8(OtuPinLogic* self, OtuPoint* dir, s32 angle) {
         func_ov039_02098d3c(&self->vel, &self->dir);
     }
 
-    func_ov039_02087d04(self->mode == 0x10 ? 0x34D : 0x32E, &self->pos, &self->anchor);
+    func_ov039_02087d04(self->mode == 0x10 ? 0x34D : 0x32E, &self->pos, &self->origin);
 }
 
 /* ================================================================== */
@@ -868,7 +832,7 @@ void func_ov039_0208a6f8(OtuPinLogic* self, OtuPoint* dir, s32 angle) {
  *
  *   1. `>> 12` off both coordinates -- the point becomes a cell coordinate;
  *   2. `/ 32` on both, giving the *coarse* cell. The row term is scaled by
- *      `grid->rowScale` and the pair addresses a four-byte cell record;
+ *      `grid->width` and the pair addresses a four-byte cell record;
  *   3. `/ 16` and then `& 1` on both, giving a *finer* pair used only to pick a
  *      two-by-two sub-table. Note this is *not* `/ 32` again -- the two reductions
  *      genuinely differ, so the fine pair is the low bit of the cell coordinate
@@ -890,10 +854,10 @@ void func_ov039_0208a6f8(OtuPinLogic* self, OtuPoint* dir, s32 angle) {
  * bodies are in ascending source order, which is what the jump table's shared
  * tails (9..13, 14..18, 19..23, 24..28) show.
  */
-u8 func_ov039_0208a794(OtuPoint* p, OtuCellGrid* grid) {
+u8 func_ov039_0208a794(OtuPoint* p, OtuBoardLayout* grid) {
     s32 gx   = p->x >> 12;
     s32 gy   = p->y >> 12;
-    s32 row  = (gy / 32) * grid->rowScale + (gx / 32);
+    s32 row  = (gy / 32) * grid->width + (gx / 32);
     u8* cell = grid->cells + row * 2;
     s32 gx32;
     s32 gy32;
@@ -985,7 +949,7 @@ u8 func_ov039_0208a794(OtuPoint* p, OtuCellGrid* grid) {
  * The child point lives at `sp + 0` and the probe at `sp + 8`, so the probe is
  * declared first: mwcc hands out stack slots in reverse declaration order.
  */
-s32 func_ov039_0208a988(OtuPoint* self, OtuCellGrid* grid, TinPinSlammer_Scene* scene) {
+s32 func_ov039_0208a988(OtuPoint* self, OtuBoardLayout* grid, TinPinSlammer_Scene* scene) {
     OtuPoint probe;
     OtuPoint childPos;
     s32      mask = 0x1FFFF;
@@ -1094,9 +1058,9 @@ s32 func_ov039_0208a988(OtuPoint* self, OtuCellGrid* grid, TinPinSlammer_Scene* 
  * 32-bit field is what produces the `lsl #0x10 / lsr #0x10` round trip the
  * target does *not* have here.
  */
-void func_ov039_0208ac98(OtuInputLatch* self) {
-    u16 now = self->state[2];
+void func_ov039_0208ac98(OtuBadge* self) {
+    u16 now = self->pad->sysControl;
 
-    self->changed = now & (self->last ^ now);
-    self->last    = self->state[2];
+    self->pressedKeys = now & (self->lastKeys ^ now);
+    self->lastKeys    = self->pad->sysControl;
 }

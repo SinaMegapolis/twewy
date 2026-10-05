@@ -58,7 +58,7 @@ const char* const OtuScene_SequenceNames[3] = {
  * Three routines the wireless stage sequences through -- one more than the
  * single-routine companion the first stage uses, so it is a bare pointer array.
  */
-void* const OtuScene_WirelessStage_Companion[3] = {
+const OtuStageHandler OtuScene_WirelessStage_Companion[3] = {
     func_ov039_02087acc,
     func_ov039_02087b04,
     func_ov039_02087b74,
@@ -70,7 +70,7 @@ void* const OtuScene_WirelessStage_Companion[3] = {
 OtuSceneStage OtuScene_WirelessStage = {
     func_ov039_02087ac4,
     func_ov039_02087ac8,
-    &OtuScene_WirelessStage_Companion,
+    OtuScene_WirelessStage_Companion,
     0,
 };
 
@@ -79,14 +79,14 @@ OtuSceneStage OtuScene_WirelessStage = {
  *
  * Runs after the shared scene setup and owns 0x3C bytes of state.
  */
-OtuSceneStageCompanion OtuScene_FirstStage_Companion = {
+OtuStageHandler OtuScene_FirstStage_Companion[1] = {
     func_ov039_02086808,
 };
 
 OtuSceneStage OtuScene_FirstStage = {
     func_ov039_02086728,
     func_ov039_020867d4,
-    &OtuScene_FirstStage_Companion,
+    OtuScene_FirstStage_Companion,
     0x3C,
 };
 
@@ -96,14 +96,14 @@ OtuSceneStage OtuScene_FirstStage = {
  * Same shape as the first stage but with a much larger state block (0x2D0) and
  * its own companion routine list at 0x0209a32c.
  */
-OtuSceneStageCompanion OtuScene_WirelessBoard_Companion = {
+OtuStageHandler OtuScene_WirelessBoard_Companion[1] = {
     func_ov039_020897dc,
 };
 
 OtuSceneStage OtuScene_WirelessBoard = {
     func_ov039_02089780,
     func_ov039_020897d0,
-    &OtuScene_WirelessBoard_Companion,
+    OtuScene_WirelessBoard_Companion,
     0x2D0,
 };
 
@@ -113,12 +113,12 @@ OtuSceneStage OtuScene_WirelessBoard = {
  * Both are six-entry pointer arrays; the stage descriptors at 0x0209a3bc and
  * 0x0209a3cc point at them.
  */
-void* const OtuScene_MenuStage_Companion[6] = {
+const OtuStageHandler OtuScene_MenuStage_Companion[6] = {
     func_ov039_02089f68, func_ov039_0208a098, func_ov039_0208a324,
     func_ov039_0208a354, func_ov039_0208a3f4, func_ov039_0208a454,
 };
 
-void* const OtuScene_ResultStage_Companion[6] = {
+const OtuStageHandler OtuScene_ResultStage_Companion[6] = {
     func_ov039_02089950, func_ov039_02089a80, func_ov039_02089d3c,
     func_ov039_02089d6c, func_ov039_02089e0c, func_ov039_02089e78,
 };
@@ -137,53 +137,35 @@ OtuSceneStage OtuScene_ResultStage = {
     0x2D0,
 };
 
-/**
- * @brief The text helpers' anchor-point coordinates, as GX 12.4 fixed point.
- *
- * Each is referenced individually -- the row-drawing code picks one per anchor
- * with a `switch`, and the layout pass reads all three of a group.  The three
- * groups are the near/mid/far x and y coordinates the Otosu score rows are
- * laid out at.
- */
-s32 OtuText_XFar       = 0x2000;
-s32 OtuText_XNear      = 0x1000;
-s32 OtuText_XTight     = 0x133;
-s32 OtuText_XWide      = 0x8000;
-s32 OtuText_XMid       = 0x4000;
-s32 OtuText_YSmall     = 0x400;
-s32 OtuText_YFar       = 0x3000;
-s32 OtuText_YTight     = 0x133;
-s32 OtuText_YUnderflow = -0x2000;
-s32 OtuText_YOverflow  = -0x2000;
-s32 OtuText_YTiny      = 0x800;
-s32 OtuText_YMid       = 0x9800;
+/* The tuning constants SINGLE MENU 1 and 2 edit; see TinPinSlammer.h. */
+s32 data_ov039_0209a2fc = 0x2000;
+s32 data_ov039_0209a300 = 0x1000;
+s32 data_ov039_0209a304 = 0x133;
+s32 data_ov039_0209a308 = 0x8000;
+s32 data_ov039_0209a30c = 0x4000;
+s32 data_ov039_0209a310 = 0x400;
+s32 data_ov039_0209a314 = 0x3000;
+s32 data_ov039_0209a318 = 0x133;
+s32 data_ov039_0209a31c = -0x2000;
+s32 data_ov039_0209a320 = -0x2000;
+s32 data_ov039_0209a324 = 0x800;
+s32 data_ov039_0209a328 = 0x9800;
 
-/** Singletons the text helpers read alongside the anchor coordinates above. */
-s32 OtuText_Shadow     = 0x8000;
-s32 OtuText_LineHeight = 0x148;
-s32 OtuText_TabStop    = 0x99A;
-
-/**
- * @brief The per-row layout table, 37 words of GX 12.4 coordinates.
- *
- * Read by the result-screen row builders, which index it to place each of the
- * three menus' fields.  Values are emitted from the ROM rather than derived.
- */
-const s32 OtuText_RowLayout[37] = {
-    0x14CD, 0x7AB8, 0x171,  0x948,  0x1614, 0x7548, 0x19A,  0x91F,  0x175C, 0x7000, 0x19A,  0x8CD,  0x187B,
-    0x6AB8, 0x1C3,  0x87B,  0x19C3, 0x6548, 0x1EC,  0x829,  0x1B0A, 0x6000, 0x214,  0x800,  0x1C52, 0x5AB8,
-    0x214,  0x7AE,  0x1D9A, 0x5548, 0x23D,  0x75C,  0x1EB8, 0x5000, 0x266,  0x733,  0x2000,
+OtuPinTune data_ov039_0209a3dc[10] = {
+    {0x8000, 0x148, 0x99A, 0x14CD},
+    {0x7AB8, 0x171, 0x948, 0x1614},
+    {0x7548, 0x19A, 0x91F, 0x175C},
+    {0x7000, 0x19A, 0x8CD, 0x187B},
+    {0x6AB8, 0x1C3, 0x87B, 0x19C3},
+    {0x6548, 0x1EC, 0x829, 0x1B0A},
+    {0x6000, 0x214, 0x800, 0x1C52},
+    {0x5AB8, 0x214, 0x7AE, 0x1D9A},
+    {0x5548, 0x23D, 0x75C, 0x1EB8},
+    {0x5000, 0x266, 0x733, 0x2000},
 };
 
-/**
- * @brief A text block's four coordinate words, swapped by the menu entry point.
- *
- * `OtuScene_WirelessMenu` and `OtuScene_ResultMenu` are exchanged at scene setup
- * depending on which save record is loaded, so both are plain 16-byte objects
- * assigned through a stack temporary.
- */
-OtuTextBlock OtuScene_WirelessMenu = {0x5000, 0x4CD, 0x4CD, 0x3000};
-OtuTextBlock OtuScene_ResultMenu   = {0x2800, 0x266, 0x4CD, 0x7000};
+OtuPinTune data_ov039_0209a47c = {0x5000, 0x4CD, 0x4CD, 0x3000};
+OtuPinTune data_ov039_0209a48c = {0x2800, 0x266, 0x4CD, 0x7000};
 
 /**
  * @brief Overlay-global state cleared by every scene entry point.

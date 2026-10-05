@@ -5,32 +5,6 @@
  * overlay; dsd gives each file a single contiguous `.text` claim. The
  * shared types, externs and prototypes are in OtuFieldAccessShared.h.
  */
-// Size: 0x1C
-
-/** Q12.12 multiply, rounded -- the form the target spells with smull + 0x800. */
-#define OTU_MUL_Q12(a, b) ((s32)((((s64)(a) * (s64)(b)) + 0x800) >> 12))
-
-// Size: 0x25C
-
-/** The row of the tray table this pin's tray slot names.
- *
- *  Spelled `base + *pinID * 0x1C` rather than as `&rowTable[*pinID]` on
- *  purpose: the target keeps the scaled add and the fixed displacement
- *  separate (`mla r1, r3, r1, r6` then `ldrb r3, [r1, #4]`), and folding the
- *  two together costs an instruction. Same reasoning as OTU_CHILD_ID.
- */
-/* Same expression OtuBadgeState.c writes by hand as
- * `&self->slots[self->pinID[0]]`. Kept as a macro because the target reloads
- * pinID and slots for every access rather than hoisting them, and spelling
- * the subscript out longhand invites the compiler to hoist it. */
-#define OTU_PIN_ROW(self) (&(self)->slots[*(self)->pinID])
-
-/** The pin's position, as the vector helpers want it. */
-#define OTU_PIN_POS(self) (&(self)->pos)
-
-/** The pin's velocity. */
-#define OTU_PIN_VEL(self) ((OtuPoint*)&(self)->vel)
-
 /* ------------------------------------------------------------------ */
 /* The three sprite loaders.                                          */
 /* ------------------------------------------------------------------ */
@@ -115,41 +89,41 @@ void func_ov039_0208d554(OtuBadge* self, Sprite* sprite) {
  *  choice the source does not get to make.
  */
 void func_ov039_0208d5dc(OtuBadge* self) {
-    self->step              = 0;
-    self->lastTileType      = 1;
-    self->lastCellX         = 0;
-    self->lastCellY         = 0;
-    self->unk_128           = 0;
-    self->vel.x             = 0;
-    self->vel.y             = 0;
-    self->dir.x             = 0x1000;
-    self->dir.y             = 0;
-    self->unk_134           = 0;
-    self->travel            = 0;
-    self->velMag            = 0;
-    self->unk_0CC           = 0;
-    self->unk_0D0           = 0x1000;
-    self->unk_0D4           = 0x1000;
-    self->unk_0D8           = 0;
-    self->unk_0DA           = 0;
-    self->timers.trailTimer = 5;
-    self->alive             = 0;
-    self->unk_1CC           = 0;
-    self->mode              = 0;
-    self->flags             = 0xA2;
-    self->partner           = NULL;
-    self->curAI             = 0x11;
-    self->unk_1B8           = 0;
-    self->chaseTarget       = NULL;
-    self->anchorPt.x        = 0;
-    self->anchorPt.y        = 0;
+    self->step            = 0;
+    self->lastTileType    = 1;
+    self->lastCellX       = 0;
+    self->lastCellY       = 0;
+    self->height          = 0;
+    self->vel.x           = 0;
+    self->vel.y           = 0;
+    self->dir.x           = 0x1000;
+    self->dir.y           = 0;
+    self->vz              = 0;
+    self->travel          = 0;
+    self->velMag          = 0;
+    self->affine.rotation = 0;
+    self->affine.scaleX   = 0x1000;
+    self->affine.scaleY   = 0x1000;
+    self->affine.unk_0C   = 0;
+    self->affine.unk_0E   = 0;
+    self->trailTimer      = 5;
+    self->stun            = 0;
+    self->aimFrames       = 0;
+    self->mode            = 0;
+    self->flags           = 0xA2;
+    self->partner         = NULL;
+    self->curAI           = 0x11;
+    self->unk_1B8         = 0;
+    self->chaseTarget     = NULL;
+    self->anchorPt.x      = 0;
+    self->anchorPt.y      = 0;
 
     // As in 0x0208e130: the row is re-derived for each byte rather than
     // hoisted, because the target reloads pinID and rowTable every time.
-    self->timers.trackFrames = OTU_PIN_ROW(self)->tile[0];
-    self->timers.bounceTimer = OTU_PIN_ROW(self)->tile[1];
-    self->timers.arcFrames   = OTU_PIN_ROW(self)->tile[2];
-    self->timers.spinFrames  = OTU_PIN_ROW(self)->tile[3];
+    self->trackFrames = self->slots[*self->pinID].tile[0];
+    self->bounceTimer = self->slots[*self->pinID].tile[1];
+    self->arcFrames   = self->slots[*self->pinID].tile[2];
+    self->spinFrames  = self->slots[*self->pinID].tile[3];
 
     func_ov039_0208d3bc(self, &self->spriteA);
 }
@@ -172,36 +146,38 @@ void func_ov039_0208d5dc(OtuBadge* self) {
  */
 s32 func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadge_InitArgs* args) {
     OtuBadge* self = (OtuBadge*)task->data;
-    u8*       cell;
+    u8        startX;
+    u8        startY;
 
-    self->dataType          = args->unk_00;
-    self->pool              = pool;
-    self->index             = args->unk_04;
-    self->home              = args->unk_08;
-    self->board             = args->unk_0C;
-    self->scene             = args->unk_10;
-    self->unk_0DC           = 1;
-    self->timers.trailIndex = 0;
-    self->unk_1A0           = 0;
-    self->hasLabel          = args->unk_1C;
-    self->unk_1AC           = 0;
-    self->unk_1C8           = 0;
-    self->slots             = (OtuBadgeSlot*)args->rowTable;
-    self->pinID             = args->pinID;
-    self->chanceTbl         = args->unk_20;
+    self->dataType    = args->dataType;
+    self->pool        = pool;
+    self->index       = args->unk_04;
+    self->pad         = args->pad;
+    self->board       = args->board;
+    self->scene       = args->unk_10;
+    self->visible     = 1;
+    self->trailIndex  = 0;
+    self->pointCursor = 0;
+    self->hasLabel    = args->unk_1C;
+    self->score       = 0;
+    self->smokeCursor = 0;
+    self->slots       = (OtuBadgeParam*)args->rowTable;
+    self->pinID       = args->pinID;
+    self->chanceTbl   = args->unk_20;
 
-    self->unk_0EC = (self->home != NULL) ? *(u16*)((u8*)self->home + 4) : 0;
+    self->lastKeys = (self->pad != NULL) ? self->pad->sysControl : 0;
 
-    self->contactFlags = 0;
-    self->stateFlags   = 0;
+    self->pressedKeys  = 0;
+    self->touchFlags   = 0;
     self->origin.x     = 0;
     self->origin.y     = 0;
-    self->unk_118.x    = 0;
-    self->unk_118.y    = 0;
+    self->homeOffset.x = 0;
+    self->homeOffset.y = 0;
 
-    cell        = self->board + self->index * 2;
-    self->pos.x = ((cell[8] << 5) + 0x10) << 12;
-    self->pos.y = ((cell[9] << 5) + 0x10) << 12;
+    startX      = self->board->start[self->index][0];
+    startY      = self->board->start[self->index][1];
+    self->pos.x = ((startX << 5) + 0x10) << 12;
+    self->pos.y = ((startY << 5) + 0x10) << 12;
 
     self->unk_1A4 = 1;
 
@@ -228,20 +204,20 @@ s32 func_ov039_0208d6dc(TaskPool* pool, Task* task, OtuBadge_InitArgs* args) {
 s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
     OtuBadge* self = (OtuBadge*)task->data;
 
-    if (self->home != NULL) {
-        func_ov039_0208ac98((OtuInputLatch*)self);
+    if (self->pad != NULL) {
+        func_ov039_0208ac98(self);
         func_ov039_0208acc0(self);
     }
 
-    self->unk_0DC = 1;
-    self->unk_0D0 = 0x1000;
-    self->unk_0D4 = 0x1000;
+    self->visible       = 1;
+    self->affine.scaleX = 0x1000;
+    self->affine.scaleY = 0x1000;
 
     if (self->mode > 0) {
         self->mode--;
     }
-    if (self->alive > 0) {
-        self->alive--;
+    if (self->stun > 0) {
+        self->stun--;
     }
     if (self->flags > 0) {
         self->flags--;
@@ -276,7 +252,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
     // `lsl #4` then `lsr #0x10`: a multiply by 0x10 followed by an unsigned
     // divide by 0x10000, not a shift right by twelve. A plain `>> 12` is one
     // instruction and would not be what the target wrote.
-    self->unk_0CC = (u32)self->travel * 0x10 / 0x10000;
+    self->affine.rotation = (u32)self->travel * 0x10 / 0x10000;
 
     if (self->unk_1B8 > 0) {
         self->unk_1B8 = self->unk_1B8 - 1;
@@ -287,7 +263,7 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
 
     switch (self->phase) {
         case 1:
-            if (self->home != NULL) {
+            if (self->pad != NULL) {
                 func_ov039_0208bb2c(self);
             } else {
                 func_ov039_0208c9cc(self);
@@ -347,13 +323,13 @@ s32 func_ov039_0208d7e4(TaskPool* pool, Task* task, void* args) {
 void func_ov039_0208d9ec(OtuBadge* self) {
     if (self->mode > 0) {
         self->spriteC.posX = (self->pos.x - self->origin.x) >> 12;
-        self->spriteC.posY = ((self->pos.y + self->unk_128) - self->origin.y) >> 12;
+        self->spriteC.posY = ((self->pos.y + self->height) - self->origin.y) >> 12;
 
         Sprite_RenderFrame(&self->spriteC);
     }
 
     self->spriteA.posX = (self->pos.x - self->origin.x) >> 12;
-    self->spriteA.posY = ((self->pos.y + self->unk_128) - self->origin.y) >> 12;
+    self->spriteA.posY = ((self->pos.y + self->height) - self->origin.y) >> 12;
 
     Sprite_RenderFrame(&self->spriteA);
 }
@@ -369,10 +345,10 @@ void func_ov039_0208d9ec(OtuBadge* self) {
 s32 func_ov039_0208da74(TaskPool* pool, Task* task, void* args) {
     OtuBadge* self = (OtuBadge*)task->data;
 
-    if (self->unk_0DC == 0) {
+    if (self->visible == 0) {
         if (self->hasLabel != 0) {
             self->spriteB.posX = (self->pos.x - self->origin.x) >> 12;
-            self->spriteB.posY = ((self->pos.y + self->unk_128) - self->origin.y) >> 12;
+            self->spriteB.posY = ((self->pos.y + self->height) - self->origin.y) >> 12;
 
             Sprite_RenderFrame(&self->spriteB);
         }
@@ -423,35 +399,35 @@ s32 func_ov039_0208db44(TaskPool* pool, Task* task, void* args) {
     OtuBadge* self = (OtuBadge*)task->data;
     s32       i;
 
-    EasyTask_DeleteTask(pool, self->taskId);
+    EasyTask_DeleteTask(pool, self->warpId);
 
     for (i = 0; i < 8; i++) {
-        EasyTask_DeleteTask(pool, self->groupIds[i]);
+        EasyTask_DeleteTask(pool, self->smokeIds[i]);
     }
 
-    EasyTask_DeleteTask(pool, self->child9);
+    EasyTask_DeleteTask(pool, self->deadId);
 
     if (self->hasLabel != 0) {
-        EasyTask_DeleteTask(pool, self->labelTask);
+        EasyTask_DeleteTask(pool, self->entryId);
     }
 
     for (i = 0; i < 2; i++) {
-        EasyTask_DeleteTask(pool, self->pairIds[i]);
+        EasyTask_DeleteTask(pool, self->pointIds[i]);
     }
 
     for (i = 0; i < 12; i++) {
-        EasyTask_DeleteTask(pool, self->trailId[i]);
+        EasyTask_DeleteTask(pool, self->trackIds[i]);
     }
 
-    EasyTask_DeleteTask(pool, self->child8);
-    EasyTask_DeleteTask(pool, self->child7);
-    EasyTask_DeleteTask(pool, self->taskId3);
-    EasyTask_DeleteTask(pool, self->taskId2);
-    EasyTask_DeleteTask(pool, self->taskId1);
-    EasyTask_DeleteTask(pool, self->child3);
-    EasyTask_DeleteTask(pool, self->child2);
-    EasyTask_DeleteTask(pool, self->child1);
-    EasyTask_DeleteTask(pool, self->child0);
+    EasyTask_DeleteTask(pool, self->counterId);
+    EasyTask_DeleteTask(pool, self->radarId);
+    EasyTask_DeleteTask(pool, self->handId);
+    EasyTask_DeleteTask(pool, self->needleId);
+    EasyTask_DeleteTask(pool, self->hammerId);
+    EasyTask_DeleteTask(pool, self->meteoId);
+    EasyTask_DeleteTask(pool, self->markerId);
+    EasyTask_DeleteTask(pool, self->piyoId);
+    EasyTask_DeleteTask(pool, self->shadowId);
 
     Sprite_Release(&self->spriteA);
     Sprite_Release(&self->spriteB);
@@ -505,10 +481,10 @@ s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* ar
     s32               id;
     s32               i;
 
-    args.unk_00   = arg1;
+    args.dataType = arg1;
     args.unk_04   = arg2;
-    args.unk_08   = arg3;
-    args.unk_0C   = (u8*)arg4;
+    args.pad      = arg3;
+    args.board    = arg4;
     args.unk_10   = arg5;
     args.rowTable = (u8*)arg6;
     args.pinID    = (u16*)arg7;
@@ -518,44 +494,44 @@ s32 func_ov039_0208dcb0(TaskPool* pool, s32 arg1, s32 arg2, void* arg3, void* ar
     id   = EasyTask_CreateTask(pool, &data_ov039_0209926c, NULL, 0, NULL, &args);
     self = (OtuBadge*)EasyTask_GetTaskData(pool, id);
 
-    self->child0  = func_ov039_0208f40c(pool, arg1, id);
-    self->child1  = func_ov039_0208f770(pool, arg1, id);
-    self->child2  = func_ov039_0208fa5c(pool, arg1, id);
-    self->child3  = func_ov039_0208fe60(pool, arg1, id);
-    self->taskId1 = func_ov039_02090e1c(pool, arg1, id);
-    self->taskId2 = func_ov039_020915a8(pool, arg1, id);
-    self->taskId3 = func_ov039_02091b00(pool, arg1, id);
+    self->shadowId = func_ov039_0208f40c(pool, arg1, id);
+    self->piyoId   = func_ov039_0208f770(pool, arg1, id);
+    self->markerId = func_ov039_0208fa5c(pool, arg1, id);
+    self->meteoId  = func_ov039_0208fe60(pool, arg1, id);
+    self->hammerId = func_ov039_02090e1c(pool, arg1, id);
+    self->needleId = func_ov039_020915a8(pool, arg1, id);
+    self->handId   = func_ov039_02091b00(pool, arg1, id);
 
     // The radar and the counter each take two extra words, built in the
     // outgoing-argument area rather than in a frame of their own.
-    self->child7 = func_ov039_0209383c(pool, arg1, id, arg2, (s32)arg4, arg8);
-    self->child8 = func_ov039_02093cd8(pool, arg1, id, arg2, arg8);
-    func_ov039_02093d18(EasyTask_GetTaskData(pool, self->child8), (u16*)arg7);
+    self->radarId   = func_ov039_0209383c(pool, arg1, id, arg2, arg4, arg8);
+    self->counterId = func_ov039_02093cd8(pool, arg1, id, arg2, arg8);
+    func_ov039_02093d18(EasyTask_GetTaskData(pool, self->counterId), (u16*)arg7);
 
     for (i = 0; i < 12; i++) {
-        *(s32*)((u8*)self + i * 4 + 0x1F8) = func_ov039_02095750(pool, arg1, id);
+        self->trackIds[i] = func_ov039_02095750(pool, arg1, id);
     }
 
     for (i = 0; i < 2; i++) {
-        *(s32*)((u8*)self + i * 4 + 0x228) = func_ov039_02095ca0(pool, arg1, id);
+        self->pointIds[i] = func_ov039_02095ca0(pool, arg1, id);
     }
 
     if (self->hasLabel != 0) {
-        self->labelTask = func_ov039_02096124(pool, arg1);
+        self->entryId = func_ov039_02096124(pool, arg1);
     }
 
-    self->child9 = func_ov039_02096548(pool, arg1, id);
+    self->deadId = func_ov039_02096548(pool, arg1, id);
 
     for (i = 0; i < 8; i++) {
-        *(s32*)((u8*)self + i * 4 + 0x238) = func_ov039_0209771c(pool, arg1, id);
+        self->smokeIds[i] = func_ov039_0209771c(pool, arg1, id);
     }
 
-    self->taskId = func_ov039_02097a70(pool, arg1, id);
+    self->warpId = func_ov039_02097a70(pool, arg1, id);
 
     if (self->hasLabel != 0 && *self->pinID < 0x130) {
         // The label rides in the *second* halfword of the tray slot, and the
         // `moveq`/`movne` pair shows it is the second halfword that is tested.
-        func_ov039_02096154(EasyTask_GetTaskData(self->pool, self->labelTask), 1, self->pinID[1] == 0x130 ? 1 : 0);
+        func_ov039_02096154(EasyTask_GetTaskData(self->pool, self->entryId), 1, self->pinID[1] == 0x130 ? 1 : 0);
     }
 
     func_ov039_0208ae8c(self);
@@ -617,12 +593,12 @@ s32 func_ov039_0208df2c(OtuPoint* posA, OtuPoint* velA, s32 reachA, OtuPoint* po
  *  loads. See the note in the header.
  */
 void func_ov039_0208dff0(OtuPoint* dir, s32 speed, s32 scaleA, s32 scaleB, OtuBadge* other) {
-    s32 mag = OTU_MUL_Q12(speed, scaleA);
+    s32 mag = OtuQ12Mul(speed, scaleA);
 
-    func_ov039_02098c00(OTU_MUL_Q12(mag, scaleB), dir, &other->vel, &other->vel);
+    func_ov039_02098c00(OtuQ12Mul(mag, scaleB), dir, &other->vel, &other->vel);
     func_ov039_0208a6c4(&other->vel);
 
-    if (&other->vel != NULL && (OtuPoint*)((u8*)&other->vel + 4) != NULL) {
+    if (&other->vel != NULL && &other->vel.y != NULL) {
         func_ov039_02098d3c(&other->vel, &other->dir);
     }
 }
@@ -667,7 +643,7 @@ void func_ov039_0208e058(OtuPoint* posA, OtuPoint* velA, OtuPoint* posB, OtuPoin
         dot = -dot;
     }
 
-    *score = OTU_MUL_Q12(*score, dot);
+    *score = OtuQ12Mul(*score, dot);
 }
 
 /**
@@ -690,22 +666,22 @@ void func_ov039_0208e130(OtuBadge* self, OtuBadge* other) {
     s32      score;
     s32      scale;
 
-    func_ov039_0208e058(OTU_PIN_POS(self), OTU_PIN_VEL(self), OTU_PIN_POS(other), OTU_PIN_VEL(other), &dir, &score);
+    func_ov039_0208e058(&self->pos, &self->vel, &other->pos, &other->vel, &dir, &score);
 
     // The row pointer is not hoisted into a local: the target re-reads both
     // `pinID` and `rowTable` from the task on each of the four lookups, so a
-    // cached OtuBadgeSlot* is a source-level difference, not a scheduling one.
-    scale = (self->alive > 0) ? data_ov039_0209a388 : 0x1000;
-    func_ov039_0208dff0(&dir, OTU_MUL_Q12(score, scale), data_ov039_0209a3e4[OTU_PIN_ROW(self)->tuneIndex].scaleA,
-                        (other->mode > 0) ? data_ov039_0209a3e8[OTU_PIN_ROW(other)->tuneIndex].scaleB * 2
-                                          : data_ov039_0209a3e8[OTU_PIN_ROW(other)->tuneIndex].scaleB,
+    // cached OtuBadgeParam* is a source-level difference, not a scheduling one.
+    scale = (self->stun > 0) ? data_ov039_0209a388 : 0x1000;
+    func_ov039_0208dff0(&dir, OtuQ12Mul(score, scale), data_ov039_0209a3e4[self->slots[*self->pinID].tuneIndex][0],
+                        (other->mode > 0) ? data_ov039_0209a3e8[other->slots[*other->pinID].tuneIndex][0] * 2
+                                          : data_ov039_0209a3e8[other->slots[*other->pinID].tuneIndex][0],
                         self);
     self->partner = other;
 
-    scale = (other->alive > 0) ? data_ov039_0209a388 : 0x1000;
-    func_ov039_0208dff0(&dir, -OTU_MUL_Q12(score, scale), data_ov039_0209a3e4[OTU_PIN_ROW(other)->tuneIndex].scaleA,
-                        (self->mode > 0) ? data_ov039_0209a3e8[OTU_PIN_ROW(self)->tuneIndex].scaleB * 2
-                                         : data_ov039_0209a3e8[OTU_PIN_ROW(self)->tuneIndex].scaleB,
+    scale = (other->stun > 0) ? data_ov039_0209a388 : 0x1000;
+    func_ov039_0208dff0(&dir, -OtuQ12Mul(score, scale), data_ov039_0209a3e4[other->slots[*other->pinID].tuneIndex][0],
+                        (self->mode > 0) ? data_ov039_0209a3e8[self->slots[*self->pinID].tuneIndex][0] * 2
+                                         : data_ov039_0209a3e8[self->slots[*self->pinID].tuneIndex][0],
                         other);
     other->partner = self;
 }
@@ -722,10 +698,10 @@ void func_ov039_0208e130(OtuBadge* self, OtuBadge* other) {
 /* These three pairwise predicates were declared `void*` for as long as the badge had
  * three separate views: band 9's declaration governed this translation unit, and
  * giving the definitions real struct types collided with it and cascaded into
- * "expression syntax error" through the whole body. With OtuBadge, OtuBadgeState
- * and OtuPinTask now one type there is nothing left to collide with, so the
+ * "expression syntax error" through the whole body. With OtuBadge, OtuBadge
+ * and OtuBadge now one type there is nothing left to collide with, so the
  * parameters are spelled out. Verified neutral. */
-s32 func_ov039_0208e28c(OtuPinTask* self, OtuPinTask* other) {
+s32 func_ov039_0208e28c(OtuBadge* self, OtuBadge* other) {
 
     if (self->flags > 0) {
         return 0;
@@ -733,7 +709,7 @@ s32 func_ov039_0208e28c(OtuPinTask* self, OtuPinTask* other) {
     if (self->phase != 1 && self->phase != 6 && self->phase != 7) {
         return 0;
     }
-    if (self->unk_128 != 0) {
+    if (self->height != 0) {
         return 0;
     }
     if (other->flags > 0) {
@@ -742,12 +718,11 @@ s32 func_ov039_0208e28c(OtuPinTask* self, OtuPinTask* other) {
     if (other->phase != 1 && other->phase != 6 && other->phase != 7) {
         return 0;
     }
-    if (other->unk_128 != 0) {
+    if (other->height != 0) {
         return 0;
     }
 
-    if (func_ov039_0208df2c(OTU_PIN_POS(self), OTU_PIN_VEL(self), 0xC000, OTU_PIN_POS(other), OTU_PIN_VEL(other), 0xC000) == 0)
-    {
+    if (func_ov039_0208df2c(&self->pos, &self->vel, 0xC000, &other->pos, &other->vel, 0xC000) == 0) {
         return 0;
     }
 
@@ -770,7 +745,7 @@ s32 func_ov039_0208e28c(OtuPinTask* self, OtuPinTask* other) {
  *  target's asymmetry.
  */
 /* Typed as the sibling predicates above; see the note on func_ov039_0208e28c. */
-s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
+s32 func_ov039_0208e37c(OtuBadge* self, OtuBadge* other) {
 
     OtuPoint dir;
     s32      dist;
@@ -791,7 +766,7 @@ s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
             break;
     }
 
-    if (self->unk_128 != 0) {
+    if (self->height != 0) {
         return 0;
     }
 
@@ -810,11 +785,11 @@ s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
             break;
     }
 
-    if (other->unk_128 != 0) {
+    if (other->height != 0) {
         return 0;
     }
 
-    dist = func_ov039_02098ca8(OTU_PIN_POS(self), OTU_PIN_POS(other));
+    dist = func_ov039_02098ca8(&self->pos, &other->pos);
 
     // The success path is the `if` body, not a fall-through after an early
     // `return 0;`: the target branches to a shared epilogue, and an early
@@ -822,7 +797,7 @@ s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
     if (dist <= 0x18000) {
         gap = 0x18000 - dist;
 
-        func_ov039_02098bb0(OTU_PIN_POS(self), OTU_PIN_POS(other), &dir);
+        func_ov039_02098bb0(&self->pos, &other->pos, &dir);
 
         if (dir.x == 0 && dir.y == 0) {
             dir.x = 0x1000;
@@ -831,8 +806,8 @@ s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
             func_ov039_02098d3c(&dir, &dir);
         }
 
-        func_ov039_02098c00(gap / 2, &dir, OTU_PIN_POS(self), OTU_PIN_POS(self));
-        func_ov039_02098c00((-gap) / 2, &dir, OTU_PIN_POS(other), OTU_PIN_POS(other));
+        func_ov039_02098c00(gap / 2, &dir, &self->pos, &self->pos);
+        func_ov039_02098c00((-gap) / 2, &dir, &other->pos, &other->pos);
 
         return 1;
     }
@@ -857,7 +832,7 @@ s32 func_ov039_0208e37c(OtuPinTask* self, OtuPinTask* other) {
  *  publishes the shove it received.
  */
 /* Typed as the sibling predicates above; see the note on func_ov039_0208e28c. */
-s32 func_ov039_0208e504(OtuPinTask* self, OtuObstacle* obstacle) {
+s32 func_ov039_0208e504(OtuBadge* self, OtuObstacle* obstacle) {
 
     OtuPoint other;
     OtuPoint dir;
@@ -878,11 +853,11 @@ s32 func_ov039_0208e504(OtuPinTask* self, OtuObstacle* obstacle) {
     func_ov039_02092744(obstacle, &other);
     radius = func_ov039_02092758(obstacle);
 
-    if (func_ov039_02098ca8(OTU_PIN_POS(self), &other) >= radius + 0xC000) {
+    if (func_ov039_02098ca8(&self->pos, &other) >= radius + 0xC000) {
         return 0;
     }
 
-    func_ov039_02098bb0(OTU_PIN_POS(self), &other, &dir);
+    func_ov039_02098bb0(&self->pos, &other, &dir);
 
     if (dir.x != 0 || dir.y != 0) {
         func_ov039_02098d3c(&dir, &dir);
@@ -893,9 +868,9 @@ s32 func_ov039_0208e504(OtuPinTask* self, OtuObstacle* obstacle) {
 
     // Note the argument order: `other` is the base here, not `dir`, so this
     // moves the obstacle's copy of the point rather than the pin's.
-    func_ov039_02098c00(radius + 0xC000, &dir, &other, OTU_PIN_POS(self));
+    func_ov039_02098c00(radius + 0xC000, &dir, &other, &self->pos);
 
-    func_ov039_02098bb0(&other, OTU_PIN_POS(self), &dir);
+    func_ov039_02098bb0(&other, &self->pos, &dir);
 
     if (dir.x != 0 || dir.y != 0) {
         func_ov039_02098d3c(&dir, &dir);
@@ -904,14 +879,14 @@ s32 func_ov039_0208e504(OtuPinTask* self, OtuObstacle* obstacle) {
         dir.y = 0;
     }
 
-    len = func_ov039_02098c40(OTU_PIN_VEL(self), &dir);
-    func_ov039_02098c00(-(len * 2), &dir, OTU_PIN_VEL(self), OTU_PIN_VEL(self));
+    len = func_ov039_02098c40(&self->vel, &dir);
+    func_ov039_02098c00(-(len * 2), &dir, &self->vel, &self->vel);
 
     if (self->vel.x != 0 || self->vel.y != 0) {
-        func_ov039_02098d3c(OTU_PIN_VEL(self), &dir);
+        func_ov039_02098d3c(&self->vel, &dir);
 
-        len = func_ov039_02098d10(OTU_PIN_VEL(self));
-        func_ov039_02098bd4(OTU_MUL_Q12(len, data_ov039_0209a324), &dir, OTU_PIN_VEL(self));
+        len = func_ov039_02098d10(&self->vel);
+        func_ov039_02098bd4(OtuQ12Mul(len, data_ov039_0209a324), &dir, &self->vel);
 
         self->dir.x = dir.x;
         self->dir.y = dir.y;
@@ -922,27 +897,19 @@ s32 func_ov039_0208e504(OtuPinTask* self, OtuObstacle* obstacle) {
     return 1;
 }
 
-/** The +0x138/+0x13C pair, copied out -- the fourth such pair on this object. */
-// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
-// interleave the first store between the two loads, and a named local makes
-// it merge them into `stmia`; the struct assignment is the target's four
-// instructions (ldr, ldr, str, str) exactly.
-void func_ov039_0208e6cc(void* task, OtuPoint* out) {
-    *out = ((OtuBadge*)task)->dir;
+/* The badge's point accessors. Each is a whole-OtuPoint assignment: two scalar
+ * stores interleave differently, and a local merges into `stmia`. */
+
+void func_ov039_0208e6cc(OtuBadge* self, OtuPoint* out) {
+    *out = self->dir;
 }
 
-/** The +0x120/+0x124 pair, copied out. Used by the nearest-child queries. */
-// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
-// interleave the first store between the two loads, and a named local makes
-// it merge them into `stmia`; the struct assignment is the target's four
-// instructions (ldr, ldr, str, str) exactly.
-void func_ov039_0208e6e0(OtuPinTask* task, OtuPoint* out) {
+void func_ov039_0208e6e0(OtuBadge* task, OtuPoint* out) {
     *out = task->pos;
 }
 
-/** A single word at +0x128. */
-s32 func_ov039_0208e6f4(OtuPinTask* task) {
-    return (task)->unk_128;
+s32 func_ov039_0208e6f4(OtuBadge* task) {
+    return (task)->height;
 }
 
 /* ------------------------------------------------------------------ */
@@ -970,35 +937,34 @@ s32 func_ov039_0208e6f4(OtuPinTask* task) {
 // order, as an initialiser, or through named temporaries all move the score but
 // none reproduces the target's pair, so this is mwcc's scheduler and not the
 // source shape. Every instruction otherwise agrees.
-void func_ov039_0208e6fc(void* task, OtuPoint* out) {
-    u8* self = (u8*)task;
+void func_ov039_0208e6fc(OtuBadge* self, OtuPoint* out) {
 
-    if (*(s32*)(self + 0xF8) == 8) {
-        switch (*(s32*)(self + 0xFC)) {
+    if (self->phase == 8) {
+        switch (self->subKind) {
             case 2: {
-                OtuPoint scratch = {*(s32*)(self + 0x120) - 0x80000, *(s32*)(self + 0x124) - 0x60000};
+                OtuPoint scratch = {self->pos.x - 0x80000, self->pos.y - 0x60000};
 
-                func_ov039_02098bb0(&scratch, (OtuPoint*)(self + 0x118), &scratch);
+                func_ov039_02098bb0(&scratch, &self->homeOffset, &scratch);
 
                 if (func_ov039_02098d10(&scratch) >= 0x400) {
                     func_ov039_02098d3c(&scratch, &scratch);
-                    func_ov039_02098c00(0x400, &scratch, (OtuPoint*)(self + 0x118), out);
+                    func_ov039_02098c00(0x400, &scratch, &self->homeOffset, out);
                     return;
                 }
 
-                out->x = *(s32*)(self + 0x120) - 0x80000;
-                out->y = *(s32*)(self + 0x124) - 0x60000;
+                out->x = self->pos.x - 0x80000;
+                out->y = self->pos.y - 0x60000;
                 return;
             }
 
             case 3: {
                 OtuPoint scratch;
-                s32      scale = FX_Divide(0x1000, *(s32*)(self + 0x100) << 12);
+                s32      scale = FX_Divide(0x1000, self->frameBudget << 12);
 
-                scratch.x = *(s32*)(self + 0x120) - 0x80000;
-                scratch.y = *(s32*)(self + 0x124) - 0x60000;
-                func_ov039_02098bb0(&scratch, (OtuPoint*)(self + 0x118), &scratch);
-                func_ov039_02098c00(scale, &scratch, (OtuPoint*)(self + 0x118), out);
+                scratch.x = self->pos.x - 0x80000;
+                scratch.y = self->pos.y - 0x60000;
+                func_ov039_02098bb0(&scratch, &self->homeOffset, &scratch);
+                func_ov039_02098c00(scale, &scratch, &self->homeOffset, out);
                 return;
             }
 
@@ -1007,44 +973,27 @@ void func_ov039_0208e6fc(void* task, OtuPoint* out) {
         }
     }
 
-    out->x = *(s32*)(self + 0x120) - 0x80000;
-    out->y = *(s32*)(self + 0x124) - 0x60000;
+    out->x = self->pos.x - 0x80000;
+    out->y = self->pos.y - 0x60000;
 }
 
-/** Writes the +0x110/+0x114 pair from a point. */
-void func_ov039_0208e848(void* task, OtuPoint* in) {
-    OtuBadge* self = (OtuBadge*)task;
-
-    *(OtuPoint*)&self->origin.x = *in;
+void func_ov039_0208e848(OtuBadge* self, OtuPoint* origin) {
+    self->origin = *origin;
 }
 
 /* ------------------------------------------------------------------ */
 /* The stage task's 0x110 - 0x1B4 block.                              */
 /* ------------------------------------------------------------------ */
 
-/** Reads the +0x110/+0x114 pair out to a point. */
-// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
-// interleave the first store between the two loads, and a named local makes
-// it merge them into `stmia`; the struct assignment is the target's four
-// instructions (ldr, ldr, str, str) exactly.
-void func_ov039_0208e85c(void* task, OtuPoint* out) {
-    *out = *(OtuPoint*)((u8*)task + 0x110);
+void func_ov039_0208e85c(OtuBadge* self, OtuPoint* out) {
+    *out = self->origin;
 }
 
-/** Writes the +0x118/+0x11C pair from two values. */
-void func_ov039_0208e870(void* task, s32 x, s32 y) {
-    OtuBadge* self = (OtuBadge*)task;
-
-    self->unk_118.x = x;
-    self->unk_118.y = y;
+void func_ov039_0208e870(OtuBadge* self, s32 x, s32 y) {
+    self->homeOffset.x = x;
+    self->homeOffset.y = y;
 }
 
-/** Reads the +0x118/+0x11C pair out to a point. */
-// Written as a whole-`OtuPoint` assignment. Two scalar stores make mwcc
-// interleave the first store between the two loads, and a named local makes
-// it merge them into `stmia`; the struct assignment is the target's four
-// instructions (ldr, ldr, str, str) exactly.
-void func_ov039_0208e87c(void* task, OtuPoint* out) {
-    OtuBadge* self = (OtuBadge*)task;
-    *out           = *(OtuPoint*)&self->unk_118;
+void func_ov039_0208e87c(OtuBadge* self, OtuPoint* out) {
+    *out = self->homeOffset;
 }

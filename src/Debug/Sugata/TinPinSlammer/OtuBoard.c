@@ -5,88 +5,42 @@
  * overlay; dsd gives each file a single contiguous `.text` claim. The
  * shared types, externs and prototypes are in OtuFieldAccessShared.h.
  */
-/** The round's per-slot score, a `u16` at data_02071cf0 + 0x3434.
- *
- *  The target reaches it as `add rX, rbase, rI, lsl #1 / add rX, rX, #0x3400 /
- *  strh r0, [rX, #0x14]` off a pool word of `data_02071cf0 + 0x20`, so the two
- *  constants 0x3400 and 0x14 are load-bearing and are written as one byte offset
- *  here. The score is what 020893fc compares to find the round's leader. */
-#define OTU_BOARD_SLOT_SCORE(i) (*(u16*)((u8*)data_02071cf0 + 0x3434 + (i) * 2))
-
-/** The scene's heap. `scene + 0x18C + 0x11400` == `&scene->base.heap`.
- *  (Written as the single-constant form; verified codegen-neutral.) */
-#define OTU_BOARD_HEAP(scene) ((Heap*)((u8*)(scene) + 0x1158C))
-
-/** The board's countdown block for the menu currently being shown.
- *  `scene + 0x44084 + menuIndex * 0x34`; the 0x44000 + 0x84 pair is folded to
- *  one constant, verified neutral. */
-#define OTU_BOARD_COUNTDOWN(scene) ((OtuBoardCountdown*)((u8*)(scene) + 0x44084 + (scene)->menuIndex * 0x34))
-
-// clear +0x114/+0x118 on two grandchildren
-
 /* ============================================================================
- * 0x02088698 -- the wireless packet receiver.
+ * 0x02088698 -- the wireless scan callback.
  * ==========================================================================*/
 
 /**
- * @brief Accepts one inbound wireless packet and files it in the stage block.
- *
- * Two parameters, not one: the packet arrives in r0 and the scene in r1, which is
- * why the stage block is fetched from the *second* argument and the packet's own
- * fields are read through the first. Five gate conditions run in the order the
- * target tests them, and each exits rather than nesting -- `popeq`/`popne` off
- * the comparison, so this is a chain of early returns, not one `if`.
- *
- * On success the packet's first 0xC0 bytes are copied twelve records at a time
- * into the stage's ring and the block is flagged, then ov040 is told to send the
- * acknowledgement. The copy is a struct assignment per record: the target's
- * `ldm r6!, {r0-r3} / stm r5!, {r0-r3}` is mwcc's 16-byte block move.
- *
- * (m2c reads this as one argument, so every access through its `arg0` is the
- * wrong object and the `pop`-based early exits become returns.)
- *
- * @param packet  the received record; read at +0x3C, +0x4A, +0x4B, +0x50
- * @param scene   the Otosu scene block
+ * @brief Accepts a scanned parent's beacon if it is an Otosu game in entry mode
+ *        advertising this stage's `packetKind`, and keeps it to connect to.
  */
-void func_ov039_02088698(void* packet, TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          i;
+// Nonmatching: 96.6%. mwcc merges the first two early returns into one
+// conditional chain where the target tests them separately.
+void func_ov039_02088698(WMBssDesc* bss, TinPinSlammer_Scene* scene) {
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
     if (stage == NULL) {
         return;
     }
 
-    if (*(u16*)((u8*)packet + 0x3C) == 0) {
+    if (bss->gameInfoLength == 0) {
         return;
     }
 
-    if (*(u8*)((u8*)packet + 0x4A) != 0x70) {
+    if (bss->gameInfo.userGameInfoLength != 0x70) {
         return;
     }
 
-    if ((*(u8*)((u8*)packet + 0x4B) & 1) == 0) {
+    if ((bss->gameInfo.gameNameCount_attribute & 1) == 0) {
         return;
     }
 
-    if (*(u16*)((u8*)packet + 0x50) != stage->packetKind) {
+    if (bss->gameInfo.userGameInfo[0] != stage->packetKind) {
         return;
     }
 
-    // Walks both pointers forward with a down-counter: the target's loop is a
-    // post-increment `ldmia`/`stmia` pair and `subs lr, lr, #1 / bne`, with no
-    // compare against the bound at the top.
-    {
-        OtuWireRecord* src = (OtuWireRecord*)packet;
-        OtuWireRecord* dst = stage->rxRecord;
-
-        i = 0xC;
-        do {
-            *dst++ = *src++;
-        } while (--i);
-    }
-
+    stage->parent    = *bss;
     stage->gotPacket = 1;
-    func_ov040_0209cb98(packet, 1);
+    func_ov040_0209cb98(bss, 1);
 }
 
 /* ============================================================================
@@ -108,47 +62,47 @@ void func_ov039_02088698(void* packet, TinPinSlammer_Scene* scene) {
  * because it did not notice these are two OtuPoints.)
  */
 void func_ov039_0208871c(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    void*        pin;
-    s32          event;
-    OtuPoint     at;
-    OtuPoint     mine;
-    OtuPoint     other;
-    s32          me;
-    s32          i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    void*          pin;
+    s32            event;
+    OtuPoint       at;
+    OtuPoint       mine;
+    OtuPoint       other;
+    s32            me;
+    s32            i;
 
-    pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]);
+    pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[func_ov039_02088418(scene->multiplayer)]);
     func_ov039_0208e6fc(pin, &at);
     event = func_ov039_0208eff8(pin);
     func_ov039_0208e848(pin, &at);
     func_ov039_0208e870(pin, at.x, at.y);
 
-    func_ov039_02092348(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgTaskA), at.x, at.y);
-    func_ov039_020923b4(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgTaskA), event);
-    func_ov039_02092d0c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgTaskB), at.x, at.y);
-    func_ov039_02092e04(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgTaskB), event);
+    func_ov039_02092348(EasyTask_GetTaskData(OTU_POOL2(scene), stage->floorId), at.x, at.y);
+    func_ov039_020923b4(EasyTask_GetTaskData(OTU_POOL2(scene), stage->floorId), event);
+    func_ov039_02092d0c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgId), at.x, at.y);
+    func_ov039_02092e04(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgId), event);
 
     // The local pin is skipped: its aim point is already in `at`. The mode
     // selector is re-read and re-resolved inside the loop, which the target does
     // on every iteration rather than hoisting.
-    for (i = 0; i < stage->childCount; i++) {
-        me = func_ov039_02088418(scene->state.unk_AF0);
+    for (i = 0; i < stage->badgeCount; i++) {
+        me = func_ov039_02088418(scene->multiplayer);
         if (i == me) {
             continue;
         }
 
-        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
+        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
         func_ov039_0208e848(pin, &at);
         func_ov039_0208e6fc(pin, &other);
         func_ov039_0208e870(pin, other.x, other.y);
     }
 
     for (i = 0; i < 0x40; i++) {
-        func_ov039_02094e88(EasyTask_GetTaskData(OTU_POOL2(scene), stage->helperIds[i]), &at);
+        func_ov039_02094e88(EasyTask_GetTaskData(OTU_POOL2(scene), stage->sparkIds[i]), &at);
     }
 
-    for (i = 0; i < stage->effectCount; i++) {
-        func_ov039_02092730(EasyTask_GetTaskData(OTU_POOL2(scene), stage->effectIds[i]), &at);
+    for (i = 0; i < stage->obstacleCount; i++) {
+        func_ov039_02092730(EasyTask_GetTaskData(OTU_POOL2(scene), stage->obstacleIds[i]), &at);
     }
 }
 
@@ -160,7 +114,7 @@ void func_ov039_0208871c(TinPinSlammer_Scene* scene) {
  * @brief Tears down nothing and rebuilds everything: 64 helpers, the effect
  *        pool, seven stage tasks, then republishes the geometry.
  *
- * The value passed to every factory is `scene->base.spareDataType` (scene +
+ * The value passed to every factory is `scene->spareDataType` (scene +
  * 0x11584) and it is *re-read from memory* at each call rather than kept in a
  * register -- the target holds `scene + 0x11000` in a callee-saved register and
  * loads `[rX, #0x584]` afresh, which is what stops a local from reproducing it.
@@ -172,30 +126,31 @@ void func_ov039_0208871c(TinPinSlammer_Scene* scene) {
  * 020941d0 takes a word instead, and 02095468/02094ab4 take a pin handle.
  */
 void func_ov039_020888e0(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i;
 
     for (i = 0; i < 0x40; i++) {
-        stage->helperIds[i] = func_ov039_02094e58(OTU_POOL2(scene), scene->base.spareDataType);
+        stage->sparkIds[i] = func_ov039_02094e58(OTU_POOL2(scene), scene->spareDataType);
     }
 
-    for (i = 0; i < stage->effectCount; i++) {
+    for (i = 0; i < stage->obstacleCount; i++) {
         // bufB is walked eight bytes at a time and handed on by address; nothing
         // here interprets the record.
-        stage->effectIds[i] = func_ov039_020926f0(OTU_POOL2(scene), scene->base.spareDataType, stage->params.kind,
-                                                  stage->params.variant, (OtuObstacle_Params*)(stage->bufB + i * 8));
+        stage->obstacleIds[i] =
+            func_ov039_020926f0(OTU_POOL2(scene), scene->spareDataType, stage->layout.kind, stage->layout.variant,
+                                (OtuObstacle_Params*)(stage->layout.obstacles + i * 8));
     }
 
-    stage->pinTask = func_ov039_02095468(OTU_POOL2(scene), scene->base.spareDataType,
-                                         stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]);
-    stage->bgTaskA = func_ov039_02092310(OTU_POOL2(scene), scene->base.spareDataType, OTU_BOARD_HEAP(scene), &stage->params);
-    stage->bgTaskB = func_ov039_02092cd4(OTU_POOL2(scene), scene->base.spareDataType, OTU_BOARD_HEAP(scene), &stage->params);
-    stage->bgTaskC = func_ov039_020934a8(OTU_POOL2(scene), scene->base.spareDataType, OTU_BOARD_HEAP(scene), &stage->params);
-    stage->fxTask  = func_ov039_020941d0(OTU_POOL2(scene), scene->base.spareDataType, stage->countdownAux);
-    stage->fxTask2 = func_ov039_02094ab4(OTU_POOL2(scene), scene->base.spareDataType,
-                                         stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]);
+    stage->slashId =
+        func_ov039_02095468(OTU_POOL2(scene), scene->spareDataType, stage->badgeIds[func_ov039_02088418(scene->multiplayer)]);
+    stage->floorId = func_ov039_02092310(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
+    stage->bgId    = func_ov039_02092cd4(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
+    stage->ovbgId  = func_ov039_020934a8(OTU_POOL2(scene), scene->spareDataType, OTU_HEAP(scene), &stage->layout);
+    stage->timerId = func_ov039_020941d0(OTU_POOL2(scene), scene->spareDataType, stage->timerSeconds);
+    stage->gaugeId =
+        func_ov039_02094ab4(OTU_POOL2(scene), scene->spareDataType, stage->badgeIds[func_ov039_02088418(scene->multiplayer)]);
     // The one task in this function that lives in pool 1.
-    stage->soundTask = func_ov039_02096b18(OTU_POOL1(scene), scene->base.spareDataType);
+    stage->gameoverId = func_ov039_02096b18(OTU_POOL1(scene), scene->spareDataType);
 
     func_ov039_0208871c(scene);
 }
@@ -205,9 +160,9 @@ void func_ov039_020888e0(TinPinSlammer_Scene* scene) {
  * ==========================================================================*/
 
 /**
- * @brief The first-game spawner: one child per populated countdown group.
+ * @brief The first-game spawner: one child per populated match group.
  *
- * Called only from 02088df0, which has just filled the countdown from the pin
+ * Called only from 02088df0, which has just filled the match from the pin
  * trays, so `childCount` here is one plus the number of non-empty groups. The
  * per-child sprite base is therefore *this* group's own start: for i > 0 it is
  * the previous group's cell count scaled by 0x22 and added to scene + 0x44974,
@@ -222,14 +177,13 @@ void func_ov039_020888e0(TinPinSlammer_Scene* scene) {
  * `groupCount * 0x22`.)
  */
 void func_ov039_02088a8c(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i;
 
-    for (i = 0; i < stage->childCount; i++) {
-        stage->childIds[i] =
-            func_ov039_0208dcb0(OTU_POOL2(scene), scene->base.spareDataType, i, (i == 0) ? func_ov039_02088440(i) : (void*)0,
-                                &stage->params, scene, (u8*)scene + 0x41EF0, OTU_PIN_TRAY(scene, i), (i == 0),
-                                (i == 0) ? (u8*)0 : (u8*)scene + 0x44974 + stage->countdown->group[i - 1].groupCount * 0x22);
+    for (i = 0; i < stage->badgeCount; i++) {
+        stage->badgeIds[i] = func_ov039_0208dcb0(
+            OTU_POOL2(scene), scene->spareDataType, i, (i == 0) ? func_ov039_02088440(i) : (void*)0, &stage->layout, scene,
+            scene->badgeParams, scene->decks[i], (i == 0), (i == 0) ? (u8*)0 : scene->ai[stage->match->opponents[i - 1].ai]);
     }
 
     func_ov039_020888e0(scene);
@@ -247,13 +201,14 @@ void func_ov039_02088a8c(TinPinSlammer_Scene* scene) {
  * r0 across the first call.
  */
 void func_ov039_02088b80(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i;
 
-    for (i = 0; i < stage->childCount; i++) {
-        stage->childIds[i] = func_ov039_0208dcb0(OTU_POOL2(scene), scene->base.spareDataType, i, func_ov039_02088440(i),
-                                                 &stage->params, scene, (u8*)scene + 0x41EF0, OTU_PIN_TRAY(scene, i),
-                                                 (i == func_ov039_02088418(scene->state.unk_AF0)), 0);
+    for (i = 0; i < stage->badgeCount; i++) {
+        BOOL local = (i == func_ov039_02088418(scene->multiplayer));
+
+        stage->badgeIds[i] = func_ov039_0208dcb0(OTU_POOL2(scene), scene->spareDataType, i, func_ov039_02088440(i),
+                                                 &stage->layout, scene, scene->badgeParams, scene->decks[i], local, 0);
     }
 
     func_ov039_020888e0(scene);
@@ -287,43 +242,43 @@ void func_ov039_02088b80(TinPinSlammer_Scene* scene) {
  * RNG and turning three display layers back on.
  */
 void func_ov039_02088c50(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          size;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            size;
 
-    DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, &stage->params, data_ov039_020990fc[stage->stageIndex],
+    DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, &stage->layout, data_ov039_020990fc[stage->stageIndex],
                                                     &data_ov039_0209a114, data_ov039_02099124[stage->stageIndex]));
 
     size = data_ov039_0209914c[stage->stageIndex];
     if (size == 0) {
-        stage->bufA = NULL;
+        stage->layout.cells = NULL;
     } else {
-        stage->bufA = Mem_AllocHeapTail(OTU_BOARD_HEAP(scene), size);
-        DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, stage->bufA, data_ov039_0209914c[stage->stageIndex],
+        stage->layout.cells = Mem_AllocHeapTail(OTU_HEAP(scene), size);
+        DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, stage->layout.cells, data_ov039_0209914c[stage->stageIndex],
                                                         &data_ov039_0209a114, data_ov039_02099174[stage->stageIndex]));
     }
 
     size = data_ov039_0209919c[stage->stageIndex];
     if (size == 0) {
-        stage->bufB = NULL;
+        stage->layout.obstacles = NULL;
     } else {
-        stage->bufB = Mem_AllocHeapTail(OTU_BOARD_HEAP(scene), size);
-        DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, stage->bufB, data_ov039_0209919c[stage->stageIndex],
+        stage->layout.obstacles = Mem_AllocHeapTail(OTU_HEAP(scene), size);
+        DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, stage->layout.obstacles, data_ov039_0209919c[stage->stageIndex],
                                                         &data_ov039_0209a114, data_ov039_020991c4[stage->stageIndex]));
     }
 
     size = data_ov039_020991ec[stage->stageIndex];
     if (size == 0) {
-        stage->bufC = NULL;
+        stage->layout.warps = NULL;
     } else {
-        stage->bufC = Mem_AllocHeapTail(OTU_BOARD_HEAP(scene), size);
-        DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, stage->bufC, data_ov039_020991ec[stage->stageIndex],
+        stage->layout.warps = Mem_AllocHeapTail(OTU_HEAP(scene), size);
+        DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, stage->layout.warps, data_ov039_020991ec[stage->stageIndex],
                                                         &data_ov039_0209a114, data_ov039_02099214[stage->stageIndex]));
     }
 
     // `ldrb` into a word field: the byte is zero-extended and the count is
     // replaced, not incremented.
-    stage->effectCount  = stage->params.effectMax;
-    stage->helperCursor = 0;
+    stage->obstacleCount = stage->layout.obstacleCount;
+    stage->sparkCursor   = 0;
     RNG_SetSeed(0);
     Display_SetMainLayers(0x13);
 }
@@ -333,12 +288,12 @@ void func_ov039_02088c50(TinPinSlammer_Scene* scene) {
  * ==========================================================================*/
 
 /**
- * @brief Starts a round from the countdown: fills the score rows from the pin
+ * @brief Starts a round from the match: fills the score rows from the pin
  *        trays, spawns one child per populated group, and raises the "round
  *        running" flag.
  *
- * `scene->state.unk_698` is the flag 020894cc polls; it is raised *first*, before
- * the countdown is even touched, which the scheduler makes look like an
+ * `scene->playing` is the flag 020894cc polls; it is raised *first*, before
+ * the match is even touched, which the scheduler makes look like an
  * afterthought. The child count starts at one -- for the local player, whose tray
  * slot is slot 0 and is never copied -- and is incremented per group whose
  * `groupCount` is non-zero.
@@ -347,28 +302,26 @@ void func_ov039_02088c50(TinPinSlammer_Scene* scene) {
  * header's OTU_PIN_TRAY: it already describes exactly these bytes
  * (0x4404C + slot * 0xE). The destination, 0x4408A + menuIndex * 0x34 +
  * slot * 0x10, is the header's OTU_SCORE_ROW -- which is also
- * `countdown->group[i].row`, and modelled here so the +4 group count is
+ * `match->opponents[i].deck`, and modelled here so the +4 group count is
  * reachable. (m2c swaps MI_CpuCopyU8's source and destination, because it did
  * not know the prototype is (src, dest, len).)
  */
 void func_ov039_02088df0(TinPinSlammer_Scene* scene) {
-    OtuPinStage*       stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuBoardCountdown* countdown;
-    s32                i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i;
 
-    scene->state.unk_698 = 1;
+    scene->playing = 1;
 
-    countdown           = OTU_BOARD_COUNTDOWN(scene);
-    stage->countdown    = countdown;
-    stage->childCount   = 1;
-    stage->stageIndex   = countdown->digits[0];
-    stage->countdownAux = countdown->digits[1];
+    stage->match        = &scene->matches[scene->matchIndex];
+    stage->badgeCount   = 1;
+    stage->stageIndex   = stage->match->board;
+    stage->timerSeconds = stage->match->timeLimit;
 
     for (i = 0; i < 3; i++) {
-        MI_CpuCopyU8(OTU_PIN_TRAY(scene, i + 1), countdown->group[i].row, 0xE);
+        MI_CpuCopyU8(stage->match->opponents[i].deck, scene->decks[i + 1], sizeof(scene->decks[0]));
 
-        if (countdown->group[i].groupCount != 0) {
-            stage->childCount++;
+        if (stage->match->opponents[i].ai != 0) {
+            stage->badgeCount++;
         }
     }
 
@@ -378,7 +331,7 @@ void func_ov039_02088df0(TinPinSlammer_Scene* scene) {
 
 /**
  * @brief Resumes a round: same block, but the stage index comes from the scene
- *        rather than the countdown, and the children are spawned by 02088b80.
+ *        rather than the match, and the children are spawned by 02088b80.
  *
  * The stage index is read from scene + 0x44A68, a word the feature header leaves
  * as padding inside its 0x44A68 run -- deliberately, since nothing else in the
@@ -387,14 +340,14 @@ void func_ov039_02088df0(TinPinSlammer_Scene* scene) {
  * `digits[0]` in 02088df0 is a single digit and not a score.
  */
 void func_ov039_02088ec4(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          which;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            which;
 
-    scene->state.unk_698 = 0;
+    scene->playing = 0;
 
-    which               = *(s32*)((u8*)scene + 0x44A68);
+    which               = scene->boardIndex;
     stage->stageIndex   = which;
-    stage->countdownAux = data_ov039_0209a360[which];
+    stage->timerSeconds = data_ov039_0209a360[which];
 
     func_ov039_02088c50(scene);
     func_ov039_02088b80(scene);
@@ -414,22 +367,22 @@ void func_ov039_02088ec4(TinPinSlammer_Scene* scene) {
  * is *not* cleaned up here; 02089918 deletes the pool-1 tasks individually.
  */
 void func_ov039_02088f18(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
     CriSndMgr_Stop(0x18);
-    EasyTask_DeleteTask(OTU_POOL1(scene), stage->soundTask);
+    EasyTask_DeleteTask(OTU_POOL1(scene), stage->gameoverId);
     EasyTask_CleanupAllTasks(OTU_POOL2(scene));
 
-    if (stage->bufA != NULL) {
-        Mem_Free(OTU_BOARD_HEAP(scene), stage->bufA);
+    if (stage->layout.cells != NULL) {
+        Mem_Free(OTU_HEAP(scene), stage->layout.cells);
     }
 
-    if (stage->bufB != NULL) {
-        Mem_Free(OTU_BOARD_HEAP(scene), stage->bufB);
+    if (stage->layout.obstacles != NULL) {
+        Mem_Free(OTU_HEAP(scene), stage->layout.obstacles);
     }
 
-    if (stage->bufC != NULL) {
-        Mem_Free(OTU_BOARD_HEAP(scene), stage->bufC);
+    if (stage->layout.warps != NULL) {
+        Mem_Free(OTU_HEAP(scene), stage->layout.warps);
     }
 }
 
@@ -446,20 +399,20 @@ void func_ov039_02088f18(TinPinSlammer_Scene* scene) {
  * pair".
  */
 void func_ov039_02088fac(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuPinTask*  pin;
-    s32          claimed;
-    s32          i;
-    s32          j;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBadge*      pin;
+    s32            claimed;
+    s32            i;
+    s32            j;
 
-    for (i = 0; i < stage->childCount; i++) {
-        pin = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
+    for (i = 0; i < stage->badgeCount; i++) {
+        pin = (OtuBadge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
 
         claimed = func_ov039_0208e9f8(OTU_POOL2(scene), pin);
         if (claimed != 0) {
-            for (j = 0; j < stage->childCount; j++) {
+            for (j = 0; j < stage->badgeCount; j++) {
                 if (i != j) {
-                    func_ov039_0208eaa0(pin, EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[j]));
+                    func_ov039_0208eaa0(pin, EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[j]));
                 }
             }
         }
@@ -479,21 +432,21 @@ void func_ov039_02088fac(TinPinSlammer_Scene* scene) {
  *
  * The cursor is a base index, not a running count: the target adds it to the loop
  * counter and only then scales by four, which is why the array is reached with
- * stage->helperIds[cursor + i] rather than a walked pointer. The wrap is a
+ * stage->sparkIds[cursor + i] rather than a walked pointer. The wrap is a
  * post-store clamp (`cmp #0x40 / movge #0 / strge`) on a value that is written
  * unconditionally first -- the same idiom as func_ov039_0208f048 in band 1.
  */
 void func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            i;
 
     for (i = 0; i < 0x10; i++) {
-        func_ov039_02094e9c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->helperIds[i + stage->helperCursor]), at);
+        func_ov039_02094e9c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->sparkIds[i + stage->sparkCursor]), at);
     }
 
-    stage->helperCursor = stage->helperCursor + 0x10;
-    if (stage->helperCursor >= 0x40) {
-        stage->helperCursor = 0;
+    stage->sparkCursor = stage->sparkCursor + 0x10;
+    if (stage->sparkCursor >= 0x40) {
+        stage->sparkCursor = 0;
     }
 }
 
@@ -513,14 +466,14 @@ void func_ov039_02089064(TinPinSlammer_Scene* scene, OtuPoint* at) {
  * The effect id is 0x33D when either pin is alive and 0x32F when neither is --
  * the same pair of constants OtuMeters's hammer uses for its states.
  */
-void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuPinTask* a, OtuPinTask* b) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          bothEmpty;
-    s32          effectId;
-    s32          t;
-    OtuPoint     pa;    // sp+0x10
-    OtuPoint     pb;    // sp+0x08
-    OtuPoint     board; // sp+0x00
+void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuBadge* a, OtuBadge* b) {
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            bothEmpty;
+    s32            effectId;
+    s32            t;
+    OtuPoint       pa;    // sp+0x10
+    OtuPoint       pb;    // sp+0x08
+    OtuPoint       board; // sp+0x00
 
     // Both of these are short-circuit `||` in the target -- the second predicate
     // is only reached when the first is false -- so they are nested rather than
@@ -561,7 +514,7 @@ void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuPinTask* a, OtuPinTask* 
         }
     }
 
-    func_ov039_0208e85c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]),
+    func_ov039_0208e85c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[func_ov039_02088418(scene->multiplayer)]),
                         &board);
     func_ov039_02087d04(effectId, &pb, &board);
 }
@@ -580,18 +533,18 @@ void func_ov039_020890d8(TinPinSlammer_Scene* scene, OtuPinTask* a, OtuPinTask* 
  * for a counted loop whose bound it cannot prove positive.
  */
 void func_ov039_020891fc(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    OtuPinTask*  a;
-    OtuPinTask*  b;
-    s32          touching;
-    s32          i;
-    s32          j;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBadge*      a;
+    OtuBadge*      b;
+    s32            touching;
+    s32            i;
+    s32            j;
 
-    for (i = 0; i < stage->childCount - 1; i++) {
-        a = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
+    for (i = 0; i < stage->badgeCount - 1; i++) {
+        a = (OtuBadge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
 
-        for (j = i + 1; j < stage->childCount; j++) {
-            b = (OtuPinTask*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[j]);
+        for (j = i + 1; j < stage->badgeCount; j++) {
+            b = (OtuBadge*)EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[j]);
 
             touching = func_ov039_0208e28c(a, b);
             if (touching != 0) {
@@ -611,16 +564,16 @@ void func_ov039_020891fc(TinPinSlammer_Scene* scene) {
  * 020891fc visits j from i+1 and only acts on contact, this visits every pair.
  */
 void func_ov039_020892c4(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    void*        a;
-    s32          i;
-    s32          j;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    void*          a;
+    s32            i;
+    s32            j;
 
-    for (i = 0; i < stage->childCount - 1; i++) {
-        a = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
+    for (i = 0; i < stage->badgeCount - 1; i++) {
+        a = EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
 
-        for (j = i + 1; j < stage->childCount; j++) {
-            func_ov039_0208e37c(a, EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[j]));
+        for (j = i + 1; j < stage->badgeCount; j++) {
+            func_ov039_0208e37c(a, EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[j]));
         }
     }
 }
@@ -634,16 +587,16 @@ void func_ov039_020892c4(TinPinSlammer_Scene* scene) {
  * object and there is nothing to skip.
  */
 void func_ov039_02089360(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    void*        pin;
-    s32          i;
-    s32          j;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    void*          pin;
+    s32            i;
+    s32            j;
 
-    for (i = 0; i < stage->childCount; i++) {
-        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
+    for (i = 0; i < stage->badgeCount; i++) {
+        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
 
-        for (j = 0; j < stage->effectCount; j++) {
-            func_ov039_0208e504(pin, EasyTask_GetTaskData(OTU_POOL2(scene), stage->effectIds[j]));
+        for (j = 0; j < stage->obstacleCount; j++) {
+            func_ov039_0208e504(pin, EasyTask_GetTaskData(OTU_POOL2(scene), stage->obstacleIds[j]));
         }
     }
 }
@@ -672,17 +625,17 @@ void func_ov039_02089360(TinPinSlammer_Scene* scene) {
  * note on `if`-inversion before changing this to an accumulator.
  */
 s32 func_ov039_020893fc(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          best;
-    u16          mask;
-    s32          me;
-    s32          i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            best;
+    u16            mask;
+    s32            me;
+    s32            i;
 
     best = 0;
     mask = 0;
 
-    for (i = 0; i < stage->childCount; i++) {
-        u16 score = OTU_BOARD_SLOT_SCORE(i);
+    for (i = 0; i < stage->badgeCount; i++) {
+        u16 score = gSaveData.otosuScores[i];
 
         if (score > best) {
             best = score;
@@ -692,13 +645,13 @@ s32 func_ov039_020893fc(TinPinSlammer_Scene* scene) {
         }
     }
 
-    me = func_ov039_02088418(scene->state.unk_AF0);
+    me = func_ov039_02088418(scene->multiplayer);
 
     if ((mask & (1 << me)) == 0) {
         return 2;
     }
 
-    if (scene->state.unk_AF0 != 0) {
+    if (scene->multiplayer != 0) {
         return (func_02047e84(mask) > 1) ? 3 : 1;
     }
 
@@ -732,29 +685,29 @@ s32 func_ov039_020893fc(TinPinSlammer_Scene* scene) {
  * freshly fetched task in r0.)
  */
 void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          settled;
-    u16          settledMask;
-    void*        pin;
-    s32          notYet;
-    s32          hasPin;
-    s32          me;
-    s32          i;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            settled;
+    u16            settledMask;
+    void*          pin;
+    s32            notYet;
+    s32            hasPin;
+    s32            me;
+    s32            i;
 
-    if (scene->state.unk_698 == 0) {
+    if (scene->playing == 0) {
         return;
     }
 
-    notYet = func_ov039_02094204(EasyTask_GetTaskData(OTU_POOL2(scene), stage->fxTask));
+    notYet = func_ov039_02094204(EasyTask_GetTaskData(OTU_POOL2(scene), stage->timerId));
 
     if (notYet == 0) {
-        func_ov039_02096b48(EasyTask_GetTaskData(OTU_POOL1(scene), stage->soundTask), 0);
+        func_ov039_02096b48(EasyTask_GetTaskData(OTU_POOL1(scene), stage->gameoverId), 0);
 
-        for (i = 0; i < stage->childCount; i++) {
-            pin                     = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
-            OTU_BOARD_SLOT_SCORE(i) = (u16)func_ov039_0208f034(pin);
+        for (i = 0; i < stage->badgeCount; i++) {
+            pin                      = EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
+            gSaveData.otosuScores[i] = (u16)func_ov039_0208f034(pin);
 
-            me = func_ov039_02088418(scene->state.unk_AF0);
+            me = func_ov039_02088418(scene->multiplayer);
             if (i == me) {
                 func_ov039_0208f0c8(pin);
             }
@@ -764,19 +717,19 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
 
         stage->outcome = func_ov039_020893fc(scene);
 
-        if (stage->params.kind == 1) {
+        if (stage->layout.kind == 1) {
             g_DisplaySettings.controls[DISPLAY_MAIN].layers &= ~0xC;
         }
 
-        scene->state.unk_698 = 0;
+        scene->playing = 0;
         return;
     }
 
     settled     = 0;
     settledMask = 0;
 
-    for (i = 0; i < stage->childCount; i++) {
-        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
+    for (i = 0; i < stage->badgeCount; i++) {
+        pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
 
         hasPin = func_ov039_0208f00c(pin);
         if (hasPin != 0) {
@@ -785,17 +738,17 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
         }
     }
 
-    if ((settled <= 1) && (settled < stage->childCount)) {
-        for (i = 0; i < stage->childCount; i++) {
-            pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[i]);
+    if ((settled <= 1) && (settled < stage->badgeCount)) {
+        for (i = 0; i < stage->badgeCount; i++) {
+            pin = EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[i]);
 
             if ((settledMask & (1 << i)) != 0) {
                 func_ov039_0208f024(pin);
             }
 
-            OTU_BOARD_SLOT_SCORE(i) = (u16)func_ov039_0208f034(pin);
+            gSaveData.otosuScores[i] = (u16)func_ov039_0208f034(pin);
 
-            me = func_ov039_02088418(scene->state.unk_AF0);
+            me = func_ov039_02088418(scene->multiplayer);
             if (i == me) {
                 func_ov039_0208f0c8(pin);
             }
@@ -806,23 +759,23 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
         stage->outcome = func_ov039_020893fc(scene);
         // The target's `lsl #0x10 / asr #0x10` pair is this call site's narrowing
         // cast, not the field's: `outcome` is a word and 02096b48 wants a half.
-        func_ov039_02096b48(EasyTask_GetTaskData(OTU_POOL1(scene), stage->soundTask), (s16)stage->outcome);
+        func_ov039_02096b48(EasyTask_GetTaskData(OTU_POOL1(scene), stage->gameoverId), (s16)stage->outcome);
 
-        if (stage->params.kind == 1) {
+        if (stage->layout.kind == 1) {
             g_DisplaySettings.controls[DISPLAY_MAIN].layers &= ~0xC;
         }
 
-        scene->state.unk_698 = 0;
+        scene->playing = 0;
         return;
     }
 
     // Still in play. Only re-point the animated palette once the palette task
     // says its first pass is done -- the note in OtuCounters records that this
     // routine refuses to re-point twice.
-    notYet = func_ov039_0209420c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->fxTask));
+    notYet = func_ov039_0209420c(EasyTask_GetTaskData(OTU_POOL2(scene), stage->timerId));
 
     if (notYet != 0) {
-        func_ov039_020934e0(EasyTask_GetTaskData(OTU_POOL2(scene), stage->bgTaskC));
+        func_ov039_020934e0(EasyTask_GetTaskData(OTU_POOL2(scene), stage->ovbgId));
     }
 
     func_ov039_0208871c(scene);
@@ -847,7 +800,7 @@ void func_ov039_020894cc(TinPinSlammer_Scene* scene) {
  * r0 as an error; the scene arrives in r0 and is live across the first call.)
  */
 void func_ov039_02089780(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
     stage->active = 1;
     func_ov039_02088564(func_ov039_02088440(0));
@@ -885,16 +838,16 @@ void func_ov039_020897d0(TinPinSlammer_Scene* scene) {
  * apart from them, so this is an `if`/`else` and not a table.
  */
 void func_ov039_020897dc(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
-    s32          quiet;
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    s32            quiet;
 
     func_ov039_02088564(func_ov039_02088440(0));
 
-    if (scene->state.unk_698 == 0) {
-        quiet = func_ov039_02096c44(EasyTask_GetTaskData(OTU_POOL1(scene), stage->soundTask));
+    if (scene->playing == 0) {
+        quiet = func_ov039_02096c44(EasyTask_GetTaskData(OTU_POOL1(scene), stage->gameoverId));
 
         if (quiet == 0) {
-            EasyTask_GetTaskData(OTU_POOL2(scene), stage->childIds[func_ov039_02088418(scene->state.unk_AF0)]);
+            EasyTask_GetTaskData(OTU_POOL2(scene), stage->badgeIds[func_ov039_02088418(scene->multiplayer)]);
 
             if (stage->outcome == 1) {
                 gSaveData.unk_24B4 = 6;
@@ -918,17 +871,17 @@ void func_ov039_020897dc(TinPinSlammer_Scene* scene) {
  * 0x258 at +0x174 is set here and read by nothing in this batch -- it is
  * presumably the round timer the update consumes, but nothing decompiled shows
  * it, so it stays named for the offset. This is the only place the child count is
- * not derived from the countdown, which is why 02088b80 (not 02088a8c) is the
+ * not derived from the match, which is why 02088b80 (not 02088a8c) is the
  * spawner this entry point needs.
  */
 void func_ov039_020898a8(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
     stage->active     = 1;
     stage->timer      = 0x258;
-    stage->childCount = scene->state.unk_EE0;
-    stage->soundTask2 = func_ov039_02096e4c(OTU_POOL1(scene), scene->base.spareDataType);
-    stage->soundTask3 = func_ov039_020989f0(OTU_POOL1(scene), scene->base.spareDataType);
+    stage->badgeCount = scene->playerCount;
+    stage->wriconId   = func_ov039_02096e4c(OTU_POOL1(scene), scene->spareDataType);
+    stage->wrwaitId   = func_ov039_020989f0(OTU_POOL1(scene), scene->spareDataType);
 }
 
 /**
@@ -940,8 +893,8 @@ void func_ov039_020898a8(TinPinSlammer_Scene* scene) {
  * whatever owns the pool.
  */
 void func_ov039_02089918(TinPinSlammer_Scene* scene) {
-    OtuPinStage* stage = (OtuPinStage*)func_ov039_02098b70(OTU_STAGE(scene));
+    OtuBoardStage* stage = (OtuBoardStage*)func_ov039_02098b70(OTU_STAGE(scene));
 
-    EasyTask_DeleteTask(OTU_POOL1(scene), stage->soundTask2);
+    EasyTask_DeleteTask(OTU_POOL1(scene), stage->wriconId);
     func_ov039_02088f18(scene);
 }
