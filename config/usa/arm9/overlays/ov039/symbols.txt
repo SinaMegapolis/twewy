@@ -601,130 +601,130 @@ data_ov039_0209925c kind:data(any) addr:0x0209925c
 data_ov039_02099260 kind:data(any) addr:0x02099260
 data_ov039_02099264 kind:data(any) addr:0x02099264
 data_ov039_02099268 kind:data(any) addr:0x02099268
-Tsk_OtosuGame_badge kind:data(any) addr:0x0209926c
-data_ov039_02099278 kind:data(any) addr:0x02099278
-OtosuGame_badge_AnimSpriteA kind:data(any) addr:0x02099288
-OtosuGame_badge_AnimSpriteB kind:data(any) addr:0x020992b4
-OtosuGame_badge_AnimSpriteC kind:data(any) addr:0x020992e0
-Tsk_OtosuGame_shadow kind:data(any) addr:0x0209930c
-data_ov039_02099318 kind:data(any) addr:0x02099318
-OtosuGame_shadow_Anim kind:data(any) addr:0x02099328
-Tsk_OtosuGame_piyo kind:data(any) addr:0x02099354
-data_ov039_02099360 kind:data(any) addr:0x02099360
-OtosuGame_piyo_Anim kind:data(any) addr:0x02099370
-Tsk_OtosuGame_marker kind:data(any) addr:0x0209939c
-data_ov039_020993a8 kind:data(any) addr:0x020993a8
-OtosuGame_marker_Anim kind:data(any) addr:0x020993b8
-Tsk_OtosuGame_meteo kind:data(any) addr:0x020993e4
-data_ov039_020993f0 kind:data(any) addr:0x020993f0
-OtosuGame_meteo_Anim kind:data(any) addr:0x02099400
-Tsk_OtosuGame_hammer kind:data(any) addr:0x0209942c
-data_ov039_02099438 kind:data(any) addr:0x02099438
-data_ov039_02099448 kind:data(any) addr:0x02099448
-data_ov039_02099458 kind:data(any) addr:0x02099458
-data_ov039_02099476 kind:data(any) addr:0x02099476
-data_ov039_02099494 kind:data(any) addr:0x02099494
-data_ov039_020994b4 kind:data(any) addr:0x020994b4
-data_ov039_020994d8 kind:data(any) addr:0x020994d8
-OtosuGame_hammer_AnimSpriteA kind:data(any) addr:0x02099504
-OtosuGame_hammer_AnimSpriteB kind:data(any) addr:0x02099530
-Tsk_OtosuGame_needle kind:data(any) addr:0x0209955c
-data_ov039_02099568 kind:data(any) addr:0x02099568
-OtosuGame_needle_Anim kind:data(any) addr:0x02099578
-Tsk_OtosuGame_hand kind:data(any) addr:0x020995a4
-data_ov039_020995b0 kind:data(any) addr:0x020995b0
-OtosuGame_hand_Anim kind:data(any) addr:0x020995c0
-Tsk_OtosuGame_floor kind:data(any) addr:0x020995ec
-data_ov039_020995f8 kind:data(any) addr:0x020995f8
-data_ov039_02099604 kind:data(any) addr:0x02099604
-data_ov039_02099610 kind:data(any) addr:0x02099610
-data_ov039_02099620 kind:data(any) addr:0x02099620
-data_ov039_02099630 kind:data(any) addr:0x02099630
-data_ov039_0209964c kind:data(any) addr:0x0209964c
-data_ov039_0209966c kind:data(any) addr:0x0209966c
-data_ov039_0209968c kind:data(any) addr:0x0209968c
-data_ov039_020996b0 kind:data(any) addr:0x020996b0
-data_ov039_02099714 kind:data(any) addr:0x02099714
-data_ov039_020997c0 kind:data(any) addr:0x020997c0
-data_ov039_0209986c kind:data(any) addr:0x0209986c
-data_ov039_02099918 kind:data(any) addr:0x02099918
-data_ov039_0209991e kind:data(any) addr:0x0209991e
-data_ov039_02099924 kind:data(any) addr:0x02099924
-data_ov039_0209992a kind:data(any) addr:0x0209992a
-Tsk_OtosuGame_obstacle kind:data(any) addr:0x02099930
-data_ov039_0209993c kind:data(any) addr:0x0209993c
-data_ov039_02099948 kind:data(any) addr:0x02099948
-data_ov039_02099958 kind:data(any) addr:0x02099958
-OtosuGame_obstacle_Anim kind:data(any) addr:0x0209996c
-Tsk_OtosuGame_bg kind:data(any) addr:0x02099998
-data_ov039_020999a4 kind:data(any) addr:0x020999a4
-Tsk_OtosuGame_ovbg kind:data(any) addr:0x020999b4
-data_ov039_020999c0 kind:data(any) addr:0x020999c0
-data_ov039_020999d0 kind:data(any) addr:0x020999d0
-data_ov039_02099a18 kind:data(any) addr:0x02099a18
-Tsk_OtosuGame_badgeradar kind:data(any) addr:0x02099a60
-data_ov039_02099a6c kind:data(any) addr:0x02099a6c
-OtosuGame_badgeradar_Anim kind:data(any) addr:0x02099a7c
-data_ov039_02099aa8 kind:data(any) addr:0x02099aa8
-Tsk_OtosuGame_badgecount kind:data(any) addr:0x02099ab0
-data_ov039_02099abc kind:data(any) addr:0x02099abc
-OtosuGame_badgecount_AnimSpriteB kind:data(any) addr:0x02099acc
-OtosuGame_badgecount_AnimSpriteA kind:data(any) addr:0x02099af8
-OtosuGame_badgecount_AnimDigit kind:data(any) addr:0x02099b24
-Tsk_OtosuGame_timer kind:data(any) addr:0x02099b50
-data_ov039_02099b5c kind:data(any) addr:0x02099b5c
-OtosuGame_timer_Anim kind:data(any) addr:0x02099b6c
-Tsk_OtosuGame_specialgauge kind:data(any) addr:0x02099b98
-data_ov039_02099ba4 kind:data(any) addr:0x02099ba4
-OtosuGame_specialgauge_AnimDial kind:data(any) addr:0x02099bb4
-OtosuGame_specialgauge_AnimPlate kind:data(any) addr:0x02099be0
-OtosuGame_specialgauge_AnimCell kind:data(any) addr:0x02099c0c
-OtosuGame_specialgauge_AnimDigit kind:data(any) addr:0x02099c38
-Tsk_OtosuGame_spark kind:data(any) addr:0x02099c64
-data_ov039_02099c70 kind:data(any) addr:0x02099c70
-OtosuGame_spark_Anim kind:data(any) addr:0x02099c80
-Tsk_OtosuGame_slash kind:data(any) addr:0x02099cac
-data_ov039_02099cb8 kind:data(any) addr:0x02099cb8
-OtosuGame_slash_Anim kind:data(any) addr:0x02099cc8
-Tsk_OtosuGame_track kind:data(any) addr:0x02099cf4
-data_ov039_02099d00 kind:data(any) addr:0x02099d00
-OtosuGame_track_Anim kind:data(any) addr:0x02099d10
-data_ov039_02099d3c kind:data(any) addr:0x02099d3c
-Tsk_OtosuGame_point kind:data(any) addr:0x02099d44
-data_ov039_02099d50 kind:data(any) addr:0x02099d50
-OtosuGame_point_Anim kind:data(any) addr:0x02099d60
-Tsk_OtosuGame_entry kind:data(any) addr:0x02099d8c
-data_ov039_02099d98 kind:data(any) addr:0x02099d98
-OtosuGame_entry_Anim kind:data(any) addr:0x02099da8
-Tsk_OtosuGame_dead kind:data(any) addr:0x02099dd4
-data_ov039_02099de0 kind:data(any) addr:0x02099de0
-OtosuGame_dead_Anim kind:data(any) addr:0x02099df0
-Tsk_OtosuGame_gameover kind:data(any) addr:0x02099e1c
-data_ov039_02099e28 kind:data(any) addr:0x02099e28
-OtosuGame_gameover_AnimSprite0 kind:data(any) addr:0x02099e38
-OtosuGame_gameover_AnimSprite1 kind:data(any) addr:0x02099e64
-OtosuGame_gameover_AnimSprite2 kind:data(any) addr:0x02099e90
-Tsk_OtosuGame_wricon kind:data(any) addr:0x02099ebc
-data_ov039_02099ec8 kind:data(any) addr:0x02099ec8
-OtosuGame_wricon_Anim kind:data(any) addr:0x02099ed8
-Tsk_OtosuGame_meteohahen kind:data(any) addr:0x02099f04
-data_ov039_02099f10 kind:data(any) addr:0x02099f10
-OtosuGame_meteohahen_Anim kind:data(any) addr:0x02099f20
-Tsk_OtosuGame_smoke kind:data(any) addr:0x02099f4c
-data_ov039_02099f58 kind:data(any) addr:0x02099f58
-OtosuGame_smoke_Anim kind:data(any) addr:0x02099f68
-Tsk_OtosuGame_warp kind:data(any) addr:0x02099f94
-data_ov039_02099fa0 kind:data(any) addr:0x02099fa0
-OtosuGame_warp_Anim kind:data(any) addr:0x02099fb0
-Tsk_OtosuGame_needlehahen kind:data(any) addr:0x02099fdc
-data_ov039_02099fe8 kind:data(any) addr:0x02099fe8
-OtosuGame_needlehahen_Anim kind:data(any) addr:0x02099ff8
-Tsk_OtosuGame_hammerhahen kind:data(any) addr:0x0209a024
-data_ov039_0209a030 kind:data(any) addr:0x0209a030
-OtosuGame_hammerhahen_Anim kind:data(any) addr:0x0209a040
-Tsk_OtosuGame_wrwait kind:data(any) addr:0x0209a06c
-data_ov039_0209a078 kind:data(any) addr:0x0209a078
-OtosuGame_wrwait_Anim kind:data(any) addr:0x0209a088
+Tsk_OtosuGame_badge kind:data(any) addr:0x0209926c local
+@3237 kind:data(any) addr:0x02099278 local
+OtosuGame_badge_AnimSpriteA kind:data(any) addr:0x02099288 local
+OtosuGame_badge_AnimSpriteB kind:data(any) addr:0x020992b4 local
+OtosuGame_badge_AnimSpriteC kind:data(any) addr:0x020992e0 local
+Tsk_OtosuGame_shadow kind:data(any) addr:0x0209930c local
+@2394 kind:data(any) addr:0x02099318 local
+OtosuGame_shadow_Anim kind:data(any) addr:0x02099328 local
+Tsk_OtosuGame_piyo kind:data(any) addr:0x02099354 local
+@2412 kind:data(any) addr:0x02099360 local
+OtosuGame_piyo_Anim kind:data(any) addr:0x02099370 local
+Tsk_OtosuGame_marker kind:data(any) addr:0x0209939c local
+@2398 kind:data(any) addr:0x020993a8 local
+OtosuGame_marker_Anim kind:data(any) addr:0x020993b8 local
+Tsk_OtosuGame_meteo kind:data(any) addr:0x020993e4 local
+@2423 kind:data(any) addr:0x020993f0 local
+OtosuGame_meteo_Anim kind:data(any) addr:0x02099400 local
+Tsk_OtosuGame_hammer kind:data(any) addr:0x0209942c local
+data_ov039_02099438 kind:data(any) addr:0x02099438 local
+@2561 kind:data(any) addr:0x02099448 local
+data_ov039_02099458 kind:data(any) addr:0x02099458 local
+data_ov039_02099476 kind:data(any) addr:0x02099476 local
+data_ov039_02099494 kind:data(any) addr:0x02099494 local
+data_ov039_020994b4 kind:data(any) addr:0x020994b4 local
+data_ov039_020994d8 kind:data(any) addr:0x020994d8 local
+OtosuGame_hammer_AnimSpriteA kind:data(any) addr:0x02099504 local
+OtosuGame_hammer_AnimSpriteB kind:data(any) addr:0x02099530 local
+Tsk_OtosuGame_needle kind:data(any) addr:0x0209955c local
+@2419 kind:data(any) addr:0x02099568 local
+OtosuGame_needle_Anim kind:data(any) addr:0x02099578 local
+Tsk_OtosuGame_hand kind:data(any) addr:0x020995a4 local
+@2409 kind:data(any) addr:0x020995b0 local
+OtosuGame_hand_Anim kind:data(any) addr:0x020995c0 local
+Tsk_OtosuGame_floor kind:data(any) addr:0x020995ec local
+@2371 kind:data(any) addr:0x020995f8 local
+@2375 kind:data(any) addr:0x02099604 local
+@2471 kind:data(any) addr:0x02099610 local
+data_ov039_02099620 kind:data(any) addr:0x02099620 local
+data_ov039_02099630 kind:data(any) addr:0x02099630 local
+data_ov039_0209964c kind:data(any) addr:0x0209964c local
+data_ov039_0209966c kind:data(any) addr:0x0209966c local
+@2373 kind:data(any) addr:0x0209968c local
+data_ov039_020996b0 kind:data(any) addr:0x020996b0 local
+data_ov039_02099714 kind:data(any) addr:0x02099714 local
+data_ov039_020997c0 kind:data(any) addr:0x020997c0 local
+data_ov039_0209986c kind:data(any) addr:0x0209986c local
+data_ov039_02099918 kind:data(any) addr:0x02099918 local
+data_ov039_0209991e kind:data(any) addr:0x0209991e local
+data_ov039_02099924 kind:data(any) addr:0x02099924 local
+data_ov039_0209992a kind:data(any) addr:0x0209992a local
+Tsk_OtosuGame_obstacle kind:data(any) addr:0x02099930 local
+@2360 kind:data(any) addr:0x0209993c local
+@2392 kind:data(any) addr:0x02099948 local
+data_ov039_02099958 kind:data(any) addr:0x02099958 local
+OtosuGame_obstacle_Anim kind:data(any) addr:0x0209996c local
+Tsk_OtosuGame_bg kind:data(any) addr:0x02099998 local
+@2458 kind:data(any) addr:0x020999a4 local
+Tsk_OtosuGame_ovbg kind:data(any) addr:0x020999b4 local
+@2475 kind:data(any) addr:0x020999c0 local
+data_ov039_020999d0 kind:data(any) addr:0x020999d0 local
+data_ov039_02099a18 kind:data(any) addr:0x02099a18 local
+Tsk_OtosuGame_badgeradar kind:data(any) addr:0x02099a60 local
+@2396 kind:data(any) addr:0x02099a6c local
+OtosuGame_badgeradar_Anim kind:data(any) addr:0x02099a7c local
+@2362 kind:data(any) addr:0x02099aa8 local
+Tsk_OtosuGame_badgecount kind:data(any) addr:0x02099ab0 local
+@2430 kind:data(any) addr:0x02099abc local
+OtosuGame_badgecount_AnimDigit kind:data(any) addr:0x02099acc local
+OtosuGame_badgecount_AnimSpriteA kind:data(any) addr:0x02099af8 local
+OtosuGame_badgecount_AnimSpriteB kind:data(any) addr:0x02099b24 local
+Tsk_OtosuGame_timer kind:data(any) addr:0x02099b50 local
+@2433 kind:data(any) addr:0x02099b5c local
+OtosuGame_timer_Anim kind:data(any) addr:0x02099b6c local
+Tsk_OtosuGame_specialgauge kind:data(any) addr:0x02099b98 local
+@2475 kind:data(any) addr:0x02099ba4 local
+OtosuGame_specialgauge_AnimDial kind:data(any) addr:0x02099bb4 local
+OtosuGame_specialgauge_AnimPlate kind:data(any) addr:0x02099be0 local
+OtosuGame_specialgauge_AnimCell kind:data(any) addr:0x02099c0c local
+OtosuGame_specialgauge_AnimDigit kind:data(any) addr:0x02099c38 local
+Tsk_OtosuGame_spark kind:data(any) addr:0x02099c64 local
+@2402 kind:data(any) addr:0x02099c70 local
+OtosuGame_spark_Anim kind:data(any) addr:0x02099c80 local
+Tsk_OtosuGame_slash kind:data(any) addr:0x02099cac local
+@2423 kind:data(any) addr:0x02099cb8 local
+OtosuGame_slash_Anim kind:data(any) addr:0x02099cc8 local
+Tsk_OtosuGame_track kind:data(any) addr:0x02099cf4 local
+@2394 kind:data(any) addr:0x02099d00 local
+OtosuGame_track_Anim kind:data(any) addr:0x02099d10 local
+data_ov039_02099d3c kind:data(any) addr:0x02099d3c local
+Tsk_OtosuGame_point kind:data(any) addr:0x02099d44 local
+@2435 kind:data(any) addr:0x02099d50 local
+OtosuGame_point_Anim kind:data(any) addr:0x02099d60 local
+Tsk_OtosuGame_entry kind:data(any) addr:0x02099d8c local
+@2398 kind:data(any) addr:0x02099d98 local
+OtosuGame_entry_Anim kind:data(any) addr:0x02099da8 local
+Tsk_OtosuGame_dead kind:data(any) addr:0x02099dd4 local
+@2401 kind:data(any) addr:0x02099de0 local
+OtosuGame_dead_Anim kind:data(any) addr:0x02099df0 local
+Tsk_OtosuGame_gameover kind:data(any) addr:0x02099e1c local
+@2439 kind:data(any) addr:0x02099e28 local
+OtosuGame_gameover_AnimSprite0 kind:data(any) addr:0x02099e38 local
+OtosuGame_gameover_AnimSprite1 kind:data(any) addr:0x02099e64 local
+OtosuGame_gameover_AnimSprite2 kind:data(any) addr:0x02099e90 local
+Tsk_OtosuGame_wricon kind:data(any) addr:0x02099ebc local
+@2386 kind:data(any) addr:0x02099ec8 local
+OtosuGame_wricon_Anim kind:data(any) addr:0x02099ed8 local
+Tsk_OtosuGame_meteohahen kind:data(any) addr:0x02099f04 local
+@2403 kind:data(any) addr:0x02099f10 local
+OtosuGame_meteohahen_Anim kind:data(any) addr:0x02099f20 local
+Tsk_OtosuGame_smoke kind:data(any) addr:0x02099f4c local
+@2410 kind:data(any) addr:0x02099f58 local
+OtosuGame_smoke_Anim kind:data(any) addr:0x02099f68 local
+Tsk_OtosuGame_warp kind:data(any) addr:0x02099f94 local
+@2397 kind:data(any) addr:0x02099fa0 local
+OtosuGame_warp_Anim kind:data(any) addr:0x02099fb0 local
+Tsk_OtosuGame_needlehahen kind:data(any) addr:0x02099fdc local
+@2404 kind:data(any) addr:0x02099fe8 local
+OtosuGame_needlehahen_Anim kind:data(any) addr:0x02099ff8 local
+Tsk_OtosuGame_hammerhahen kind:data(any) addr:0x0209a024 local
+@2406 kind:data(any) addr:0x0209a030 local
+OtosuGame_hammerhahen_Anim kind:data(any) addr:0x0209a040 local
+Tsk_OtosuGame_wrwait kind:data(any) addr:0x0209a06c local
+@2426 kind:data(any) addr:0x0209a078 local
+OtosuGame_wrwait_Anim kind:data(any) addr:0x0209a088 local
 data_ov039_0209a0b4 kind:data(any) addr:0x0209a0b4
 data_ov039_0209a0bc kind:data(any) addr:0x0209a0bc
 data_ov039_0209a0dc kind:data(any) addr:0x0209a0dc
@@ -817,19 +817,19 @@ data_ov039_0209a3e4 kind:data(any) addr:0x0209a3e4
 data_ov039_0209a3e8 kind:data(any) addr:0x0209a3e8
 data_ov039_0209a47c kind:data(any) addr:0x0209a47c
 data_ov039_0209a48c kind:data(any) addr:0x0209a48c
-data_ov039_0209a49c kind:data(any) addr:0x0209a49c
-data_ov039_0209a4b0 kind:data(any) addr:0x0209a4b0
-data_ov039_0209a4f4 kind:data(any) addr:0x0209a4f4
-data_ov039_0209a50c kind:data(any) addr:0x0209a50c
-data_ov039_0209a520 kind:data(any) addr:0x0209a520
-data_ov039_0209a538 kind:data(any) addr:0x0209a538
-data_ov039_0209a54c kind:data(any) addr:0x0209a54c
-data_ov039_0209a594 kind:data(any) addr:0x0209a594
-data_ov039_0209a5ac kind:data(any) addr:0x0209a5ac
-data_ov039_0209a5c4 kind:data(any) addr:0x0209a5c4
-data_ov039_0209a5d8 kind:data(any) addr:0x0209a5d8
-data_ov039_0209a5e4 kind:data(any) addr:0x0209a5e4
-data_ov039_0209a5f8 kind:data(any) addr:0x0209a5f8
+@2349 kind:data(any) addr:0x0209a49c local
+data_ov039_0209a4b0 kind:data(any) addr:0x0209a4b0 local
+@2331 kind:data(any) addr:0x0209a4f4 local
+@2331 kind:data(any) addr:0x0209a50c local
+@2331 kind:data(any) addr:0x0209a520 local
+@2331 kind:data(any) addr:0x0209a538 local
+data_ov039_0209a54c kind:data(any) addr:0x0209a54c local
+@2334 kind:data(any) addr:0x0209a594 local
+@2331 kind:data(any) addr:0x0209a5ac local
+@2331 kind:data(any) addr:0x0209a5c4 local
+data_ov039_0209a5d8 kind:data(any) addr:0x0209a5d8 local
+@2328 kind:data(any) addr:0x0209a5e4 local
+@2331 kind:data(any) addr:0x0209a5f8 local
 data_ov039_0209a610 kind:data(any) addr:0x0209a610
 data_ov039_0209a618 kind:data(any) addr:0x0209a618
 data_ov039_0209a620 kind:data(any) addr:0x0209a620
@@ -838,31 +838,31 @@ data_ov039_0209a664 kind:data(any) addr:0x0209a664
 data_ov039_0209a69c kind:data(any) addr:0x0209a69c
 data_ov039_0209a6d4 kind:data(any) addr:0x0209a6d4
 data_ov039_0209a70c kind:data(any) addr:0x0209a70c
-data_ov039_0209a720 kind:data(any) addr:0x0209a720
-data_ov039_0209a734 kind:data(any) addr:0x0209a734
-data_ov039_0209a750 kind:data(any) addr:0x0209a750
-data_ov039_0209a76c kind:data(any) addr:0x0209a76c
-data_ov039_0209a780 kind:data(any) addr:0x0209a780
-data_ov039_0209a790 kind:data(any) addr:0x0209a790
-data_ov039_0209a7b0 kind:data(any) addr:0x0209a7b0
-data_ov039_0209a7cc kind:data(any) addr:0x0209a7cc
-data_ov039_0209a7e0 kind:data(any) addr:0x0209a7e0
-data_ov039_0209a7f4 kind:data(any) addr:0x0209a7f4
-data_ov039_0209a808 kind:data(any) addr:0x0209a808
-data_ov039_0209a81c kind:data(any) addr:0x0209a81c
-data_ov039_0209a830 kind:data(any) addr:0x0209a830
-data_ov039_0209a8a8 kind:data(any) addr:0x0209a8a8
-data_ov039_0209a938 kind:data(any) addr:0x0209a938
-data_ov039_0209a9e0 kind:data(any) addr:0x0209a9e0
-data_ov039_0209a9f4 kind:data(any) addr:0x0209a9f4
-data_ov039_0209aa0c kind:data(any) addr:0x0209aa0c
-data_ov039_0209aa9c kind:data(any) addr:0x0209aa9c
-data_ov039_0209aab4 kind:data(any) addr:0x0209aab4
-data_ov039_0209aad0 kind:data(any) addr:0x0209aad0
-data_ov039_0209aae4 kind:data(any) addr:0x0209aae4
-data_ov039_0209aaf8 kind:data(any) addr:0x0209aaf8
-data_ov039_0209ab14 kind:data(any) addr:0x0209ab14
-data_ov039_0209ab30 kind:data(any) addr:0x0209ab30
+@2328 kind:data(any) addr:0x0209a720 local
+@2331 kind:data(any) addr:0x0209a734 local
+@2331 kind:data(any) addr:0x0209a750 local
+@2331 kind:data(any) addr:0x0209a76c local
+data_ov039_0209a780 kind:data(any) addr:0x0209a780 local
+data_ov039_0209a790 kind:data(any) addr:0x0209a790 local
+@2331 kind:data(any) addr:0x0209a7b0 local
+@2331 kind:data(any) addr:0x0209a7cc local
+@2331 kind:data(any) addr:0x0209a7e0 local
+@2331 kind:data(any) addr:0x0209a7f4 local
+@2331 kind:data(any) addr:0x0209a808 local
+@2331 kind:data(any) addr:0x0209a81c local
+data_ov039_0209a830 kind:data(any) addr:0x0209a830 local
+data_ov039_0209a8a8 kind:data(any) addr:0x0209a8a8 local
+data_ov039_0209a938 kind:data(any) addr:0x0209a938 local
+@2331 kind:data(any) addr:0x0209a9e0 local
+@2334 kind:data(any) addr:0x0209a9f4 local
+data_ov039_0209aa0c kind:data(any) addr:0x0209aa0c local
+@2331 kind:data(any) addr:0x0209aa9c local
+@2331 kind:data(any) addr:0x0209aab4 local
+@2331 kind:data(any) addr:0x0209aad0 local
+@2331 kind:data(any) addr:0x0209aae4 local
+@2331 kind:data(any) addr:0x0209aaf8 local
+@2331 kind:data(any) addr:0x0209ab14 local
+@2331 kind:data(any) addr:0x0209ab30 local
 data_ov039_0209ab48 kind:data(any) addr:0x0209ab48
 data_ov039_0209ab60 kind:data(any) addr:0x0209ab60
 data_ov039_0209ab78 kind:data(any) addr:0x0209ab78

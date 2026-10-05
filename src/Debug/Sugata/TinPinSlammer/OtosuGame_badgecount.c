@@ -12,14 +12,94 @@ typedef struct {
     s32 hasSpriteA;
 } OtosuGame_badgecount_Args;
 
-extern const SpriteAnimation OtosuGame_badgecount_AnimSpriteB;
-extern const SpriteAnimation OtosuGame_badgecount_AnimSpriteA;
-extern const SpriteAnimation OtosuGame_badgecount_AnimDigit;
+s32              OtosuGame_badgecount_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage);
+SpriteFrameInfo* OtosuGame_badgecount_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+
+static const TaskHandle Tsk_OtosuGame_badgecount = {"Tsk_OtosuGame_badgecount", OtosuGame_badgecount_RunTask,
+                                                    sizeof(OtosuGame_badgecount)};
+
+static const SpriteAnimation OtosuGame_badgecount_AnimSpriteA = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x60,
+    .frameInfoCallback = OtosuGame_badgecount_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 0xA,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static const SpriteAnimation OtosuGame_badgecount_AnimSpriteB = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x60,
+    .frameInfoCallback = OtosuGame_badgecount_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 7,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static const SpriteAnimation OtosuGame_badgecount_AnimDigit = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x60,
+    .frameInfoCallback = OtosuGame_badgecount_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 7,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
 
 /** Four `s16` offsets: the x positions of the counter task's digit sprites. */
-extern const u16        data_ov039_02099aa8[4];
-extern const TaskStages data_ov039_02099abc;
-extern const TaskHandle Tsk_OtosuGame_badgecount;
 
 SpriteFrameInfo* OtosuGame_badgecount_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
@@ -84,13 +164,8 @@ void OtosuGame_badgecount_LoadSpriteB(OtosuGame_badgecount* data, Sprite* sprite
 // guarded position shift and the `_Sprite_Load` tail are all correct and in
 // order.
 void OtosuGame_badgecount_LoadDigit(OtosuGame_badgecount* data, Sprite* sprite, s32 index) {
-    SpriteAnimation anim = OtosuGame_badgecount_AnimDigit;
-    s16             lut[4];
-
-    lut[0] = data_ov039_02099aa8[0];
-    lut[1] = data_ov039_02099aa8[1];
-    lut[2] = data_ov039_02099aa8[2];
-    lut[3] = data_ov039_02099aa8[3];
+    SpriteAnimation anim   = OtosuGame_badgecount_AnimDigit;
+    s16             lut[4] = {0x21, 0x21, 0x21, 0x1D};
 
     anim.owner     = data;
     anim.dataType  = data->dataType;
@@ -119,15 +194,16 @@ void OtosuGame_badgecount_LoadDigit(OtosuGame_badgecount* data, Sprite* sprite, 
  * The digit sprites' visible bitmask at +0x194 is raised to 0xC (bits 2 and 3)
  * here: two of the four digits start showing and two start hidden.
  */
-s32 OtosuGame_badgecount_Init(TaskPool* pool, Task* self, OtosuGame_badgecount_Args* args) {
-    OtosuGame_badgecount* data = (OtosuGame_badgecount*)self->data;
-    s32                   i;
+s32 OtosuGame_badgecount_Init(TaskPool* pool, Task* self, void* args) {
+    OtosuGame_badgecount_Args* taskArgs = args;
+    OtosuGame_badgecount*      data     = (OtosuGame_badgecount*)self->data;
+    s32                        i;
 
-    data->dataType   = args->dataType;
-    data->pinId      = args->pinId;
-    data->index      = args->index;
+    data->dataType   = taskArgs->dataType;
+    data->pinId      = taskArgs->pinId;
+    data->index      = taskArgs->index;
     data->resolved   = 0;
-    data->hasSpriteA = args->hasSpriteA;
+    data->hasSpriteA = taskArgs->hasSpriteA;
     data->visible    = 0xC;
 
     if (data->hasSpriteA != 0) {
@@ -151,7 +227,7 @@ s32 OtosuGame_badgecount_Init(TaskPool* pool, Task* self, OtosuGame_badgecount_A
  * is decided here, and the render stage 02093bc0 does nothing at all while
  * `resolved` is clear.
  */
-s32 OtosuGame_badgecount_Update(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_badgecount_Update(TaskPool* pool, Task* self, void* args) {
     OtosuGame_badgecount* data = (OtosuGame_badgecount*)self->data;
 
     data->resolved = EasyTask_GetTaskData(pool, data->pinId) != NULL;
@@ -178,7 +254,7 @@ s32 OtosuGame_badgecount_Update(TaskPool* pool, Task* self, void* arg) {
  * because that is how the target forms the address, and mwcc keeps the split.
  */
 
-s32 OtosuGame_badgecount_Render(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_badgecount_Render(TaskPool* pool, Task* self, void* args) {
     OtosuGame_badgecount* data = (OtosuGame_badgecount*)self->data;
     s32                   i;
 
@@ -205,7 +281,7 @@ s32 OtosuGame_badgecount_Render(TaskPool* pool, Task* self, void* arg) {
 /**
  * @brief The counter task's cleanup stage, 0x02093c44.
  */
-s32 OtosuGame_badgecount_Destroy(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_badgecount_Destroy(TaskPool* pool, Task* self, void* args) {
     OtosuGame_badgecount* data = (OtosuGame_badgecount*)self->data;
     s32                   i;
 
@@ -224,7 +300,12 @@ s32 OtosuGame_badgecount_Destroy(TaskPool* pool, Task* self, void* arg) {
 
 /** The counter task's stage dispatcher, 0x02093c90. */
 s32 OtosuGame_badgecount_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage) {
-    TaskStages stages = data_ov039_02099abc;
+    TaskStages stages = {
+        .initialize = OtosuGame_badgecount_Init,
+        .update     = OtosuGame_badgecount_Update,
+        .render     = OtosuGame_badgecount_Render,
+        .cleanup    = OtosuGame_badgecount_Destroy,
+    };
 
     return stages.iter[stage](pool, self, arg);
 }

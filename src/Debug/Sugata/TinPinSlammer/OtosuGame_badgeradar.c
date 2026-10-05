@@ -14,10 +14,38 @@ typedef struct {
     s32                    isFirst;
 } OtosuGame_badgeradar_Args;
 
-/* The task's sprite template, stage table and handle. */
-extern const SpriteAnimation OtosuGame_badgeradar_Anim;
-extern const TaskStages      data_ov039_02099a6c;
-extern const TaskHandle      Tsk_OtosuGame_badgeradar;
+s32              OtosuGame_badgeradar_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage);
+SpriteFrameInfo* OtosuGame_badgeradar_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+
+static const TaskHandle Tsk_OtosuGame_badgeradar = {"Tsk_OtosuGame_badgeradar", OtosuGame_badgeradar_RunTask,
+                                                    sizeof(OtosuGame_badgeradar)};
+
+static const SpriteAnimation OtosuGame_badgeradar_Anim = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_badgeradar_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 8,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
 
 SpriteFrameInfo* OtosuGame_badgeradar_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
@@ -87,15 +115,16 @@ void OtosuGame_badgeradar_Load(OtosuGame_badgeradar* data, Sprite* sprite) {
  * block, which is how the cell builder handed to `_Sprite_Load` finds its way
  * back to +0x18/+0x1C/+0x16 when it is called per frame.
  */
-s32 OtosuGame_badgeradar_Init(TaskPool* pool, Task* self, OtosuGame_badgeradar_Args* args) {
-    OtosuGame_badgeradar* data = (OtosuGame_badgeradar*)self->data;
+s32 OtosuGame_badgeradar_Init(TaskPool* pool, Task* self, void* args) {
+    OtosuGame_badgeradar_Args* taskArgs = args;
+    OtosuGame_badgeradar*      data     = (OtosuGame_badgeradar*)self->data;
 
-    data->dataType = args->dataType;
-    data->pinId    = args->pinId;
-    data->index    = args->index;
-    data->board    = args->board;
+    data->dataType = taskArgs->dataType;
+    data->pinId    = taskArgs->pinId;
+    data->index    = taskArgs->index;
+    data->board    = taskArgs->board;
     data->linked   = 0;
-    data->isFirst  = args->isFirst;
+    data->isFirst  = taskArgs->isFirst;
     data->x        = 0;
     data->y        = 0;
 
@@ -144,7 +173,7 @@ s32 OtosuGame_badgeradar_Init(TaskPool* pool, Task* self, OtosuGame_badgeradar_A
 // the `Sprite_Update` block), where the `else if` chain here puts the same
 // store inline ahead of the branch. Same work, different block placement; it
 // was not worth a `goto` to chase two instructions.
-s32 OtosuGame_badgeradar_Update(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_badgeradar_Update(TaskPool* pool, Task* self, void* args) {
     OtosuGame_badgeradar* data  = (OtosuGame_badgeradar*)self->data;
     OtosuGame_badge*      child = (OtosuGame_badge*)EasyTask_GetTaskData(pool, data->pinId);
     OtuPoint              pt;
@@ -181,7 +210,7 @@ s32 OtosuGame_badgeradar_Update(TaskPool* pool, Task* self, void* arg) {
  * tracking whether the tracked child exists, and the render stage does the
  * arithmetic.
  */
-s32 OtosuGame_badgeradar_Render(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_badgeradar_Render(TaskPool* pool, Task* self, void* args) {
     OtosuGame_badgeradar* data = (OtosuGame_badgeradar*)self->data;
 
     if (data->linked != 0) {
@@ -196,7 +225,7 @@ s32 OtosuGame_badgeradar_Render(TaskPool* pool, Task* self, void* arg) {
 /**
  * @brief The radar task's cleanup stage, 0x020937dc.
  */
-s32 OtosuGame_badgeradar_Destroy(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_badgeradar_Destroy(TaskPool* pool, Task* self, void* args) {
     OtosuGame_badgeradar* data = (OtosuGame_badgeradar*)self->data;
 
     Sprite_Release(&data->sprite);
@@ -205,7 +234,12 @@ s32 OtosuGame_badgeradar_Destroy(TaskPool* pool, Task* self, void* arg) {
 
 /** The radar task's stage dispatcher, 0x020937f4. */
 s32 OtosuGame_badgeradar_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage) {
-    TaskStages stages = data_ov039_02099a6c;
+    TaskStages stages = {
+        .initialize = OtosuGame_badgeradar_Init,
+        .update     = OtosuGame_badgeradar_Update,
+        .render     = OtosuGame_badgeradar_Render,
+        .cleanup    = OtosuGame_badgeradar_Destroy,
+    };
 
     return stages.iter[stage](pool, self, arg);
 }

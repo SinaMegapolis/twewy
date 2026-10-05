@@ -10,9 +10,37 @@ typedef struct {
     s32 seconds;
 } OtosuGame_timer_Args;
 
-extern const SpriteAnimation OtosuGame_timer_Anim;
-extern const TaskStages      data_ov039_02099b5c;
-extern const TaskHandle      Tsk_OtosuGame_timer;
+s32              OtosuGame_timer_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* OtosuGame_timer_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+
+static const TaskHandle Tsk_OtosuGame_timer = {"Tsk_OtosuGame_timer", OtosuGame_timer_RunTask, sizeof(OtosuGame_timer)};
+
+static const SpriteAnimation OtosuGame_timer_Anim = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x60,
+    .frameInfoCallback = OtosuGame_timer_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 6,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 0xA,
+};
 
 SpriteFrameInfo* OtosuGame_timer_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
@@ -53,14 +81,15 @@ void OtosuGame_timer_Load(OtosuGame_timer* data, Sprite* sprite, s32 index) {
  * it is set once at construction and the countdown's own state lives at +0xC4
  * and +0xCC.
  */
-s32 OtosuGame_timer_Init(TaskPool* pool, Task* self, OtosuGame_timer_Args* args) {
-    OtosuGame_timer* data = (OtosuGame_timer*)self->data;
-    s32              i;
+s32 OtosuGame_timer_Init(TaskPool* pool, Task* self, void* args) {
+    OtosuGame_timer_Args* taskArgs = args;
+    OtosuGame_timer*      data     = (OtosuGame_timer*)self->data;
+    s32                   i;
 
     data->visible   = 1;
     data->alarmed   = 0;
-    data->dataType  = args->dataType;
-    data->countdown = args->seconds * 0x3C;
+    data->dataType  = taskArgs->dataType;
+    data->countdown = taskArgs->seconds * 0x3C;
 
     for (i = 0; i < 3; i++) {
         OtosuGame_timer_Load(data, &data->digits[i], i);
@@ -117,7 +146,7 @@ s32 OtosuGame_timer_Init(TaskPool* pool, Task* self, OtosuGame_timer_Args* args)
 // palette pointer with `moveq r2, #0` inside the null test, where the `pal =
 // NULL` here hoists a `mov r2, #0` above the test. Both are register choices,
 // not logic.
-s32 OtosuGame_timer_Update(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_timer_Update(TaskPool* pool, Task* self, void* args) {
     OtosuGame_timer* data = (OtosuGame_timer*)self->data;
     s32              before;
     s32              secs;
@@ -194,7 +223,12 @@ s32 OtosuGame_timer_Destroy(TaskPool* pool, Task* task, void* args) {
  * emits the copy for the whole struct and a plain `ldr` of the selected entry.
  */
 s32 OtosuGame_timer_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = data_ov039_02099b5c;
+    TaskStages stages = {
+        .initialize = OtosuGame_timer_Init,
+        .update     = OtosuGame_timer_Update,
+        .render     = OtosuGame_timer_Render,
+        .cleanup    = OtosuGame_timer_Destroy,
+    };
 
     return stages.iter[stage](pool, task, args);
 }

@@ -5,16 +5,84 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern SpriteAnimation OtosuGame_entry_Anim;
+s32              OtosuGame_entry_RunTask(TaskPool* pool, Task* task, void* data, s32 stage);
+SpriteFrameInfo* OtosuGame_entry_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 
-/* The task's handle and stage table. */
-extern const TaskHandle Tsk_OtosuGame_entry;
-extern const TaskStages data_ov039_02099d98;
+static const TaskHandle Tsk_OtosuGame_entry = {"Tsk_OtosuGame_entry", OtosuGame_entry_RunTask, sizeof(OtosuGame_entry)};
+
+static const SpriteAnimation OtosuGame_entry_Anim = {
+    .bits_0_1          = 0,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 2,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 1,
+    .posX              = 0x80,
+    .posY              = 0x57,
+    .frameInfoCallback = OtosuGame_entry_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0ec,
+    .unk_18            = 2,
+    .packIndex         = 1,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static OtuScaleKey data_ov039_0209a830[10] = {
+    {16, 0x1000, 0x1000},
+    { 2, 0x1000,  0x333},
+    { 2, 0x1000,  0x4CD},
+    { 2, 0x1000,  0x666},
+    { 2, 0x1000,  0x800},
+    { 3, 0x1000,  0x99A},
+    { 3, 0x1000,  0xB33},
+    { 3, 0x1000,  0xCCD},
+    { 3, 0x1000,  0xE66},
+    {50, 0x1000, 0x1000},
+};
+
+static OtuScaleKey data_ov039_0209a8a8[12] = {
+    { 1,  0x666,  0x666},
+    { 1,  0x99A,  0x99A},
+    { 2,  0xCCD,  0xCCD},
+    { 8, 0x1000, 0x14CD},
+    { 3,  0xCCD,  0xE66},
+    { 4,  0xF33, 0x1333},
+    { 3,  0xCCD,  0xE66},
+    { 4,  0xFAE, 0x1266},
+    { 3,  0xE66,  0xE66},
+    { 4, 0x1000, 0x119A},
+    { 3,  0xF33,  0xF33},
+    {50, 0x1000, 0x1000},
+};
+
+static OtuScaleKey data_ov039_0209a938[14] = {
+    { 1,  0x666,  0x666},
+    { 1,  0x99A,  0x99A},
+    { 2,  0xCCD,  0xCCD},
+    { 8, 0x1000, 0x14CD},
+    { 3,  0xCCD,  0xE66},
+    { 4,  0xF33, 0x1333},
+    { 3,  0xCCD,  0xE66},
+    { 4,  0xFAE, 0x1266},
+    { 3,  0xF33,  0xF33},
+    {15, 0x1000, 0x1000},
+    { 6, 0x1000, 0x1333},
+    { 1, 0x1000,  0x800},
+    { 1,  0x99A,  0x148},
+    { 3, 0x1000, 0x1000},
+};
 
 /* The scale keyframe tables the entry, dead and gameover tasks animate with. */
-extern const OtuScaleKey data_ov039_0209a830[];
-extern const OtuScaleKey data_ov039_0209a8a8[];
-extern const OtuScaleKey data_ov039_0209a938[];
 
 SpriteFrameInfo* OtosuGame_entry_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, func_ov039_02088400(7, 0, 0));
@@ -96,7 +164,7 @@ s32 OtosuGame_entry_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 OtosuGame_entry_Destroy(void* pool, void* task, void* args) {
+s32 OtosuGame_entry_Destroy(TaskPool* pool, Task* task, void* args) {
     OtosuGame_entry* self = ((Task*)task)->data;
 
     Sprite_Release(&self->sprite);
@@ -105,7 +173,12 @@ s32 OtosuGame_entry_Destroy(void* pool, void* task, void* args) {
 }
 
 s32 OtosuGame_entry_RunTask(TaskPool* pool, Task* task, void* data, s32 stage) {
-    TaskStages stages = data_ov039_02099d98;
+    TaskStages stages = {
+        .initialize = OtosuGame_entry_Init,
+        .update     = OtosuGame_entry_Update,
+        .render     = OtosuGame_entry_Render,
+        .cleanup    = OtosuGame_entry_Destroy,
+    };
 
     return stages.iter[stage](pool, task, data);
 }

@@ -41,29 +41,12 @@ extern const s32 data_ov039_0209a3e0[][4]; // OtuPinTune.accel column
 extern const s32 data_ov039_0209a3e4[][4]; // OtuPinTune.power column
 extern const s32 data_ov039_0209a3e8[][4]; // OtuPinTune.weight column
 
-/**
- * @brief The bin every pin-sprite in the overlay draws its cells from.
- *
- * All four `SpriteAnimation` templates in the overlay name this one record (bin
- * id 39); it is the only thing tying the four sprites' art together. Not
- * identified further -- it is a plain identifier record in the overlay's `.data`.
- */
-extern const BinIdentifier data_ov039_0209a0dc;
-
-/* The task's handle, stage table and three sprite templates. */
-extern const SpriteAnimation OtosuGame_badge_AnimSpriteA;
-extern const SpriteAnimation OtosuGame_badge_AnimSpriteB;
-extern const SpriteAnimation OtosuGame_badge_AnimSpriteC;
-extern const TaskStages      data_ov039_02099278;
-extern const TaskHandle      Tsk_OtosuGame_badge;
-
 /* The fade-manager block the target reaches as `.word gFaders`. Only the
  * word at +8 is read. */
 extern u32 gFaders[];
 
 /* The per-kind dispatch table 0x0208c9cc walks, one function pointer per
  * entry, indexed from 1 to 0x10 inclusive. */
-extern u32 data_ov039_0209a4b0[];
 
 void func_ov039_0208d5dc(OtosuGame_badge* self);
 
@@ -78,6 +61,116 @@ void func_ov039_0208d5dc(OtosuGame_badge* self);
  * rounds to nearest, and dropping it is a one-bit-per-call difference that a
  * match will not forgive.
  */
+
+s32              OtosuGame_badge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* OtosuGame_badge_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov039_0208c218(OtosuGame_badge* self);
+s32              func_ov039_0208c258(OtosuGame_badge* self);
+s32              func_ov039_0208c304(OtosuGame_badge* self);
+s32              func_ov039_0208c3bc(OtosuGame_badge* self);
+s32              func_ov039_0208c45c(OtosuGame_badge* self);
+s32              func_ov039_0208c4ec(OtosuGame_badge* self);
+s32              func_ov039_0208c568(OtosuGame_badge* self);
+s32              func_ov039_0208c5f8(OtosuGame_badge* self);
+s32              func_ov039_0208c688(OtosuGame_badge* self);
+s32              func_ov039_0208c718(OtosuGame_badge* self);
+s32              func_ov039_0208c794(OtosuGame_badge* self);
+s32              func_ov039_0208c84c(OtosuGame_badge* self);
+void             func_ov039_0208c8ac(OtosuGame_badge* self);
+void             func_ov039_0208c8cc(OtosuGame_badge* self);
+void             func_ov039_0208c8ec(OtosuGame_badge* self);
+void             func_ov039_0208c90c(OtosuGame_badge* self);
+s32              func_ov039_0208c92c(OtosuGame_badge* self);
+
+static const TaskHandle Tsk_OtosuGame_badge = {"Tsk_OtosuGame_badge", OtosuGame_badge_RunTask, sizeof(OtosuGame_badge)};
+
+static const SpriteAnimation OtosuGame_badge_AnimSpriteB = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_badge_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0dc,
+    .unk_18            = 2,
+    .packIndex         = 6,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static const SpriteAnimation OtosuGame_badge_AnimSpriteC = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_badge_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0dc,
+    .unk_18            = 2,
+    .packIndex         = 1,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 5,
+};
+
+static const SpriteAnimation OtosuGame_badge_AnimSpriteA = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_badge_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0b4[0],
+    .unk_18            = 2,
+    .packIndex         = 1,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static u32 data_ov039_0209a4b0[17] = {(u32)func_ov039_0208c218, (u32)func_ov039_0208c258, (u32)func_ov039_0208c304,
+                                      (u32)func_ov039_0208c3bc, (u32)func_ov039_0208c45c, (u32)func_ov039_0208c4ec,
+                                      (u32)func_ov039_0208c568, (u32)func_ov039_0208c5f8, (u32)func_ov039_0208c688,
+                                      (u32)func_ov039_0208c718, (u32)func_ov039_0208c794, (u32)func_ov039_0208c84c,
+                                      (u32)func_ov039_0208c8ac, (u32)func_ov039_0208c8cc, (u32)func_ov039_0208c8ec,
+                                      (u32)func_ov039_0208c90c, (u32)func_ov039_0208c92c};
 
 /** Rebuilds the packed state word from the home tile's flag. */
 void func_ov039_0208acc0(OtosuGame_badge* self) {
@@ -1956,26 +2049,27 @@ void func_ov039_0208d5dc(OtosuGame_badge* self) {
  *  `unk_0EC` is the one field read out of the variant pointer: `*(u16*)(unk_0E8 + 4)`
  *  when there is one, zero otherwise -- the `ldrhne`/`strhne`/`strheq` shape.
  */
-s32 OtosuGame_badge_Init(TaskPool* pool, Task* task, OtosuGame_badge_Args* args) {
-    OtosuGame_badge* self = (OtosuGame_badge*)task->data;
-    u8               startX;
-    u8               startY;
+s32 OtosuGame_badge_Init(TaskPool* pool, Task* task, void* args) {
+    OtosuGame_badge_Args* taskArgs = args;
+    OtosuGame_badge*      self     = (OtosuGame_badge*)task->data;
+    u8                    startX;
+    u8                    startY;
 
-    self->dataType    = args->dataType;
+    self->dataType    = taskArgs->dataType;
     self->pool        = pool;
-    self->index       = args->unk_04;
-    self->pad         = args->pad;
-    self->board       = args->board;
-    self->scene       = args->unk_10;
+    self->index       = taskArgs->unk_04;
+    self->pad         = taskArgs->pad;
+    self->board       = taskArgs->board;
+    self->scene       = taskArgs->unk_10;
     self->visible     = 1;
     self->trailIndex  = 0;
     self->pointCursor = 0;
-    self->hasLabel    = args->unk_1C;
+    self->hasLabel    = taskArgs->unk_1C;
     self->score       = 0;
     self->smokeCursor = 0;
-    self->slots       = (OtuBadgeParam*)args->rowTable;
-    self->pinID       = args->pinID;
-    self->chanceTbl   = args->unk_20;
+    self->slots       = (OtuBadgeParam*)taskArgs->rowTable;
+    self->pinID       = taskArgs->pinID;
+    self->chanceTbl   = taskArgs->unk_20;
 
     self->lastKeys = (self->pad != NULL) ? self->pad->sysControl : 0;
 
@@ -2250,7 +2344,12 @@ s32 OtosuGame_badge_Destroy(TaskPool* pool, Task* task, void* args) {
 
 /** The task's entry point: the four-slot stage trampoline. */
 s32 OtosuGame_badge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
-    const TaskStages stages = data_ov039_02099278;
+    TaskStages stages = {
+        .initialize = OtosuGame_badge_Init,
+        .update     = OtosuGame_badge_Update,
+        .render     = OtosuGame_badge_Render,
+        .cleanup    = OtosuGame_badge_Destroy,
+    };
 
     return stages.iter[stage](pool, task, args);
 }

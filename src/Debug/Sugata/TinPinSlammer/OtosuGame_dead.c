@@ -5,11 +5,37 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle Tsk_OtosuGame_dead;
-extern const TaskStages data_ov039_02099de0;
+s32              OtosuGame_dead_RunTask(TaskPool* pool, Task* task, void* data, s32 stage);
+SpriteFrameInfo* OtosuGame_dead_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 
-/* The sprite template the loader copies to the stack. */
-extern const SpriteAnimation OtosuGame_dead_Anim;
+static const TaskHandle Tsk_OtosuGame_dead = {"Tsk_OtosuGame_dead", OtosuGame_dead_RunTask, sizeof(OtosuGame_dead)};
+
+static const SpriteAnimation OtosuGame_dead_Anim = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_dead_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0dc,
+    .unk_18            = 2,
+    .packIndex         = 1,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 4,
+};
 
 SpriteFrameInfo* OtosuGame_dead_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     OtosuGame_dead* owner = sprite->owner;
@@ -27,22 +53,23 @@ void OtosuGame_dead_Load(OtosuGame_dead* self, Sprite* sprite, OtuPinSpriteArgs*
     _Sprite_Load(sprite, &anim);
 }
 
-s32 OtosuGame_dead_Init(void* pool, void* task, OtuPinSpriteArgs* args) {
-    OtosuGame_dead* self = ((Task*)task)->data;
+s32 OtosuGame_dead_Init(TaskPool* pool, Task* task, void* args) {
+    OtuPinSpriteArgs* taskArgs = args;
+    OtosuGame_dead*   self     = ((Task*)task)->data;
 
-    self->pinId    = args->childId;
+    self->pinId    = taskArgs->childId;
     self->origin.x = 0;
     self->origin.y = 0;
     self->pos.x    = 0;
     self->pos.y    = 0;
     self->visible  = 0;
     self->state    = 0;
-    OtosuGame_dead_Load(self, &self->sprite, args);
+    OtosuGame_dead_Load(self, &self->sprite, taskArgs);
     return 1;
 }
 
 /** Follows the pin while playing, and hides once the animation has finished. */
-s32 OtosuGame_dead_Update(void* pool, void* task, void* args) {
+s32 OtosuGame_dead_Update(TaskPool* pool, Task* task, void* args) {
     OtosuGame_dead* self = ((Task*)task)->data;
     void*           pin  = EasyTask_GetTaskData(pool, self->pinId);
 
@@ -73,7 +100,7 @@ s32 OtosuGame_dead_Update(void* pool, void* task, void* args) {
     return 1;
 }
 
-s32 OtosuGame_dead_Render(void* pool, void* task, void* args) {
+s32 OtosuGame_dead_Render(TaskPool* pool, Task* task, void* args) {
     OtosuGame_dead* self = ((Task*)task)->data;
 
     if (self->visible != 0) {
@@ -84,7 +111,7 @@ s32 OtosuGame_dead_Render(void* pool, void* task, void* args) {
     return 1;
 }
 
-s32 OtosuGame_dead_Destroy(void* pool, void* task, void* args) {
+s32 OtosuGame_dead_Destroy(TaskPool* pool, Task* task, void* args) {
     OtosuGame_dead* self = ((Task*)task)->data;
 
     Sprite_Release(&self->sprite);
@@ -92,7 +119,12 @@ s32 OtosuGame_dead_Destroy(void* pool, void* task, void* args) {
 }
 
 s32 OtosuGame_dead_RunTask(TaskPool* pool, Task* task, void* data, s32 stage) {
-    TaskStages stages = data_ov039_02099de0;
+    TaskStages stages = {
+        .initialize = OtosuGame_dead_Init,
+        .update     = OtosuGame_dead_Update,
+        .render     = OtosuGame_dead_Render,
+        .cleanup    = OtosuGame_dead_Destroy,
+    };
 
     return stages.iter[stage](pool, task, data);
 }

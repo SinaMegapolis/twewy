@@ -12,33 +12,82 @@ typedef struct {
     /* 0x08 */ OtosuGame_obstacle_Params* params;
 } OtosuGame_obstacle_Args;                          // Size: 0xC
 
-/** The handle, the stage table and the sprite template are all already in the
- *  overlay's .rodata, so they are referenced rather than redefined. The name
- *  string inside the handle is the ground truth for what this task is. */
-extern const TaskHandle Tsk_OtosuGame_obstacle;
-
-/** The sprite template. Every field Load does not patch is already correct here,
- *  and the five it does patch all hold their kind-0 values, so this is literally
- *  the index-0 case that the table lookups below then re-derive. */
-extern const SpriteAnimation OtosuGame_obstacle_Anim;
-
 /* Five tables of three, indexed by OtosuGame_obstacle_Params.kind. They are separate
  * arrays rather than one array of a struct because the target loads each base
  * address into its own register and indexes them independently. */
-extern const s16 data_ov039_02099918[3];
 
 // -> params.unk_26
-extern const s16 data_ov039_0209991e[3];
 
 // -> params.unk_1C
-extern const s16 data_ov039_02099924[3];
 
 // -> params.unk_28
-extern const s16 data_ov039_0209992a[3];
+
+s32              OtosuGame_obstacle_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* OtosuGame_obstacle_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+
+static const s16 data_ov039_02099918[3] = {
+    0x2,
+    0x2,
+    0x2,
+};
+
+static const s16 data_ov039_02099924[3] = {
+    0x3,
+    0x3,
+    0x3,
+};
+
+static const s16 data_ov039_0209991e[3] = {
+    0x1,
+    0x1,
+    0x1,
+};
+
+static const s16 data_ov039_0209992a[3] = {
+    0x1,
+    0x2,
+    0x3,
+};
+
+static const TaskHandle Tsk_OtosuGame_obstacle = {"Tsk_OtosuGame_obstacle", OtosuGame_obstacle_RunTask,
+                                                  sizeof(OtosuGame_obstacle)};
+
+static const s16 data_ov039_02099958[3][3] = {
+    0x4, 0x5, 0x6, 0x4, 0x5, 0x6, 0x4, 0x5, 0x6,
+};
+
+/** Every field Load does not patch is already correct here, and the five it
+ *  does patch all hold their kind-0 values, so this is the index-0 case the
+ *  table lookups then re-derive. */
+static const SpriteAnimation OtosuGame_obstacle_Anim = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 2,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_obstacle_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a104,
+    .unk_18            = 2,
+    .packIndex         = 1,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
 
 /** Palette slots. A row per kind, a column per OtosuGame_obstacle_Args.slot; all three
  *  rows currently hold the same {4, 5, 6}, so kind does not yet change colour. */
-extern const s16 data_ov039_02099958[3][3];
 
 SpriteFrameInfo* OtosuGame_obstacle_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     OtosuGame_obstacle* owner = sprite->owner;

@@ -18,13 +18,37 @@ typedef struct {
     } bg[2];        // one per display
 } OtosuGame_wrwait; // Size: 0x64
 
-/* The task's handle, stage table and sprite template. */
-extern const TaskHandle      Tsk_OtosuGame_wrwait;
-extern const TaskStages      data_ov039_0209a078;
-extern const SpriteAnimation OtosuGame_wrwait_Anim;
+s32              OtosuGame_wrwait_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* OtosuGame_wrwait_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 
-/** The 0x27-sized bin the loader pulls, plus its three sub-objects. */
-extern const BinIdentifier data_ov039_0209a0e4;
+static const TaskHandle Tsk_OtosuGame_wrwait = {"Tsk_OtosuGame_wrwait", OtosuGame_wrwait_RunTask, sizeof(OtosuGame_wrwait)};
+
+static const SpriteAnimation OtosuGame_wrwait_Anim = {
+    .bits_0_1          = 0,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x60,
+    .frameInfoCallback = OtosuGame_wrwait_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0ec,
+    .unk_18            = 2,
+    .packIndex         = 8,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
 
 SpriteFrameInfo* OtosuGame_wrwait_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallbackSorted(sprite, mode, 3);
@@ -42,13 +66,14 @@ void OtosuGame_wrwait_Load(OtosuGame_wrwait* self, Sprite* sprite) {
  * Shows BG1 on both displays, loads the wait screen's palette, char and screen
  * data into it, loads the sprite and fades both displays in.
  */
-s32 OtosuGame_wrwait_Init(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
+s32 OtosuGame_wrwait_Init(TaskPool* pool, Task* task, void* args) {
+    OtuTaskArgs1*       taskArgs = args;
     DisplayEngineState* state;
     OtosuGame_wrwait*   self = task->data;
     Data*               data;
 
     self->visible  = 1;
-    self->dataType = args->dataType;
+    self->dataType = taskArgs->dataType;
 
     g_DisplaySettings.controls[0].layers = 0x1F;
     g_DisplaySettings.controls[0].layers |= 0x12;
@@ -86,7 +111,7 @@ s32 OtosuGame_wrwait_Init(TaskPool* pool, Task* task, OtuTaskArgs1* args) {
     state->bgOffsets[1].hOffset = 0;
     state->bgOffsets[1].vOffset = 0;
 
-    data       = DatMgr_LoadRawData(args->dataType, NULL, 0, &data_ov039_0209a0e4);
+    data       = DatMgr_LoadRawData(taskArgs->dataType, NULL, 0, &data_ov039_0209a0e4);
     self->data = data;
 
     {
@@ -185,7 +210,12 @@ s32 OtosuGame_wrwait_Destroy(TaskPool* pool, Task* task, void* args) {
 }
 
 s32 OtosuGame_wrwait_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = data_ov039_0209a078;
+    TaskStages stages = {
+        .initialize = OtosuGame_wrwait_Init,
+        .update     = OtosuGame_wrwait_Update,
+        .render     = OtosuGame_wrwait_Render,
+        .cleanup    = OtosuGame_wrwait_Destroy,
+    };
 
     return stages.iter[stage](pool, task, args);
 }

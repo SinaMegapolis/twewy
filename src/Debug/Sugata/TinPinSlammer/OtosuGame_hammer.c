@@ -5,22 +5,124 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskStages data_ov039_02099448;
-extern const TaskHandle Tsk_OtosuGame_hammer;
-
 /* The hammer's keyframe tables. */
-extern OtuFrame4             data_ov039_02099494[];
-extern OtuFrame6             data_ov039_020994b4[];
-extern OtuFrame6             data_ov039_02099476[];
-extern OtuFrame6             data_ov039_020994d8[];
-extern OtuFrame6             data_ov039_02099458[];
-extern OtuFrame4             data_ov039_02099438[];
-extern const SpriteAnimation OtosuGame_hammer_AnimSpriteA;
-extern const SpriteAnimation OtosuGame_hammer_AnimSpriteB;
 
 #define OTU_ANGLE_INDEX(a) (((s32)((a) >> 4)) * 2)
 
 /* OtuCursor: a cursor over a table of s32 keyframes. */
+
+s32              OtosuGame_hammer_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* OtosuGame_hammer_GetFrameInfoSpriteA(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_hammer_GetFrameInfoSpriteB(Sprite* sprite, s32 arg, s32 mode);
+
+static const TaskHandle Tsk_OtosuGame_hammer = {"Tsk_OtosuGame_hammer", OtosuGame_hammer_RunTask, sizeof(OtosuGame_hammer)};
+
+static const OtuFrame4 data_ov039_02099438[4] = {
+    {15, 0x4000},
+    { 3, 0x3800},
+    { 2, 0x2CCD},
+    { 2, 0x1CCD},
+};
+
+static const OtuFrame6 data_ov039_02099476[5] = {
+    {5,    0x0, 0x0},
+    {5, 0x1A4F, 0x0},
+    {5, 0x238E, 0x0},
+    {6, 0x24FA, 0x0},
+    {6, 0x238E, 0x0},
+};
+
+static const OtuFrame6 data_ov039_02099458[5] = {
+    {5, 0x1000,   0x0},
+    {8, 0x1333,   0x3},
+    {3,  0xCCD,  -0x3},
+    {3,  0x99A,  -0x7},
+    {3,  0x19A, -0x10},
+};
+
+static const OtuFrame6 data_ov039_020994b4[6] = {
+    {15,    0x0, 0x0},
+    { 1,   0xCD, 0x0},
+    { 1,  0x4CD, 0x0},
+    { 1,  0x800, 0x0},
+    { 3, 0x1333, 0x1},
+    { 1, 0x1000, 0x0},
+};
+
+static const OtuFrame4 data_ov039_02099494[8] = {
+    {2,  0x800},
+    {1, 0x119A},
+    {1, 0x14CD},
+    {2, 0x1666},
+    {2, 0x3CCD},
+    {2, 0x4000},
+    {3, 0x3CCD},
+    {9, 0x4000},
+};
+
+static const OtuFrame6 data_ov039_020994d8[7] = {
+    {4, -0x5B0,     0x0},
+    {3,    0x0,     0x0},
+    {2, -0x16C, -0x1000},
+    {1,  0x16C,  0x1000},
+    {1, -0x2D8, -0x2000},
+    {2,    0x0,     0x0},
+    {3, -0x16C, -0x1000},
+};
+
+static const SpriteAnimation OtosuGame_hammer_AnimSpriteA = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_hammer_GetFrameInfoSpriteA,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0dc,
+    .unk_18            = 2,
+    .packIndex         = 9,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 2,
+};
+
+static const SpriteAnimation OtosuGame_hammer_AnimSpriteB = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_hammer_GetFrameInfoSpriteB,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0dc,
+    .unk_18            = 2,
+    .packIndex         = 9,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
 
 /** Starts the cursor at entry 0, holding for that entry's duration plus one. */
 void func_ov039_0208ffac(OtuCursor* c, OtuFrame4* table, s16 count) {
@@ -209,13 +311,14 @@ void OtosuGame_hammer_LoadSpriteB(OtosuGame_hammer* self, Sprite* sprite, OtuPin
     _Sprite_Load(sprite, &anim);
 }
 
-s32 OtosuGame_hammer_Init(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
-    OtosuGame_hammer* self = task->data;
+s32 OtosuGame_hammer_Init(TaskPool* pool, Task* task, void* args) {
+    OtuPinSpriteArgs* taskArgs = args;
+    OtosuGame_hammer* self     = task->data;
 
     self->pool = pool;
 
     self->live  = 0;
-    self->pinId = args->childId;
+    self->pinId = taskArgs->childId;
 
     self->origin.x = 0;
     self->origin.y = 0;
@@ -243,8 +346,8 @@ s32 OtosuGame_hammer_Init(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
     self->affineB.unk_0E   = 0;
 
     self->state = 0;
-    OtosuGame_hammer_LoadSpriteA(self, &self->spriteA, args);
-    OtosuGame_hammer_LoadSpriteB(self, &self->spriteB, args);
+    OtosuGame_hammer_LoadSpriteA(self, &self->spriteA, taskArgs);
+    OtosuGame_hammer_LoadSpriteB(self, &self->spriteB, taskArgs);
     return 1;
 }
 
@@ -563,7 +666,12 @@ s32 OtosuGame_hammer_Destroy(TaskPool* pool, Task* task, void* args) {
  * through a four-word copy rather than a switch.
  */
 s32 OtosuGame_hammer_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = data_ov039_02099448;
+    TaskStages stages = {
+        .initialize = OtosuGame_hammer_Init,
+        .update     = OtosuGame_hammer_Update,
+        .render     = OtosuGame_hammer_Render,
+        .cleanup    = OtosuGame_hammer_Destroy,
+    };
 
     return stages.iter[stage](pool, task, args);
 }

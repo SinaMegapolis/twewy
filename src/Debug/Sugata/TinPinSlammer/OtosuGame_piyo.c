@@ -5,9 +5,37 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const SpriteAnimation OtosuGame_piyo_Anim;
-extern const TaskHandle      Tsk_OtosuGame_piyo;
-extern const TaskStages      data_ov039_02099360;
+s32              OtosuGame_piyo_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* OtosuGame_piyo_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+
+static const TaskHandle Tsk_OtosuGame_piyo = {"Tsk_OtosuGame_piyo", OtosuGame_piyo_RunTask, sizeof(OtosuGame_piyo)};
+
+static const SpriteAnimation OtosuGame_piyo_Anim = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x50,
+    .posY              = 0x50,
+    .frameInfoCallback = OtosuGame_piyo_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0dc,
+    .unk_18            = 2,
+    .packIndex         = 2,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
 
 SpriteFrameInfo* OtosuGame_piyo_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     OtosuGame_piyo* owner = sprite->owner;
@@ -28,17 +56,18 @@ void OtosuGame_piyo_Load(OtosuGame_piyo* self, Sprite* sprite, OtuPinSpriteArgs*
     _Sprite_Load(sprite, &anim);
 }
 
-s32 OtosuGame_piyo_Init(TaskPool* pool, Task* task, OtuPinSpriteArgs* args) {
-    OtosuGame_piyo* self = task->data;
+s32 OtosuGame_piyo_Init(TaskPool* pool, Task* task, void* args) {
+    OtuPinSpriteArgs* taskArgs = args;
+    OtosuGame_piyo*   self     = task->data;
 
     self->visible  = 0;
-    self->pinId    = args->childId;
+    self->pinId    = taskArgs->childId;
     self->origin.x = 0;
     self->origin.y = 0;
     self->pos.x    = 0;
     self->pos.y    = 0;
 
-    OtosuGame_piyo_Load(self, &self->sprite, args);
+    OtosuGame_piyo_Load(self, &self->sprite, taskArgs);
     return 1;
 }
 
@@ -110,7 +139,12 @@ s32 OtosuGame_piyo_Destroy(TaskPool* pool, Task* task, void* args) {
 }
 
 s32 OtosuGame_piyo_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
-    const TaskStages stages = data_ov039_02099360;
+    TaskStages stages = {
+        .initialize = OtosuGame_piyo_Init,
+        .update     = OtosuGame_piyo_Update,
+        .render     = OtosuGame_piyo_Render,
+        .cleanup    = OtosuGame_piyo_Destroy,
+    };
 
     return stages.iter[stage](pool, task, args);
 }

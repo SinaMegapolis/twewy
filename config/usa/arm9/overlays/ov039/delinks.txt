@@ -41,93 +41,152 @@ src/Debug/Sugata/TinPinSlammer/OtuPinLogic.c:
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_badge.c:
     .text       start:0x0208acc0 end:0x0208f134
+    .rodata     start:0x0209926c end:0x0209930c
+    .data       start:0x0209a49c end:0x0209a4f4
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_shadow.c:
     .text       start:0x0208f134 end:0x0208f440
+    .rodata     start:0x0209930c end:0x02099354
+    .data       start:0x0209a4f4 end:0x0209a50c
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_piyo.c:
     .text       start:0x0208f440 end:0x0208f7b4
+    .rodata     start:0x02099354 end:0x0209939c
+    .data       start:0x0209a50c end:0x0209a520
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_marker.c:
     .text       start:0x0208f7b4 end:0x0208fa90
+    .rodata     start:0x0209939c end:0x020993e4
+    .data       start:0x0209a520 end:0x0209a538
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_meteo.c:
     .text       start:0x0208fa90 end:0x0208ffac
+    .rodata     start:0x020993e4 end:0x0209942c
+    .data       start:0x0209a538 end:0x0209a594
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_hammer.c:
     .text       start:0x0208ffac end:0x02091118
+    .rodata     start:0x0209942c end:0x0209955c
+    .data       start:0x0209a594 end:0x0209a5ac
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_needle.c:
     .text       start:0x02091118 end:0x020916c4
+    .rodata     start:0x0209955c end:0x020995a4
+    .data       start:0x0209a5ac end:0x0209a5c4
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_hand.c:
     .text       start:0x020916c4 end:0x02091b40
+    .rodata     start:0x020995a4 end:0x020995ec
+    .data       start:0x0209a5c4 end:0x0209a5d8
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_floor.c:
     .text       start:0x02091b40 end:0x020923c8
+    .rodata     start:0x020995ec end:0x02099918
+    .data       start:0x0209a5d8 end:0x0209a5f8
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_obstacle.c:
     .text       start:0x020923c8 end:0x0209276c
+    .rodata     start:0x02099918 end:0x02099998
+    .data       start:0x0209a5f8 end:0x0209a610
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_bg.c:
     .text       start:0x0209276c end:0x02092e30
+    .rodata     start:0x02099998 end:0x020999b4
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_ovbg.c:
     .text       start:0x02092e30 end:0x0209352c
+    .rodata     start:0x020999b4 end:0x02099a60
+    .data       start:0x0209a720 end:0x0209a734
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_badgeradar.c:
     .text       start:0x0209352c end:0x02093884
+    .rodata     start:0x02099a60 end:0x02099aa8
+    .data       start:0x0209a734 end:0x0209a750
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_badgecount.c:
     .text       start:0x02093884 end:0x02093e3c
+    .rodata     start:0x02099aa8 end:0x02099b50
+    .data       start:0x0209a750 end:0x0209a76c
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_timer.c:
     .text       start:0x02093e3c end:0x02094214
+    .rodata     start:0x02099b50 end:0x02099b98
+    .data       start:0x0209a76c end:0x0209a780
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_specialgauge.c:
     .text       start:0x02094214 end:0x02094ae8
+    .rodata     start:0x02099b98 end:0x02099c64
+    .data       start:0x0209a780 end:0x0209a7cc
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_spark.c:
     .text       start:0x02094ae8 end:0x02094ff4
+    .rodata     start:0x02099c64 end:0x02099cac
+    .data       start:0x0209a7cc end:0x0209a7e0
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_slash.c:
     .text       start:0x02094ff4 end:0x0209549c
+    .rodata     start:0x02099cac end:0x02099cf4
+    .data       start:0x0209a7e0 end:0x0209a7f4
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_track.c:
     .text       start:0x0209549c end:0x020958a8
+    .rodata     start:0x02099cf4 end:0x02099d3c
+    .data       start:0x0209a7f4 end:0x0209a808
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_point.c:
     .text       start:0x020958a8 end:0x02095dec
+    .rodata     start:0x02099d3c end:0x02099d8c
+    .data       start:0x0209a808 end:0x0209a81c
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_entry.c:
     .text       start:0x02095dec end:0x02096280
+    .rodata     start:0x02099d8c end:0x02099dd4
+    .data       start:0x0209a81c end:0x0209a9e0
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_dead.c:
     .text       start:0x02096280 end:0x0209659c
+    .rodata     start:0x02099dd4 end:0x02099e1c
+    .data       start:0x0209a9e0 end:0x0209a9f4
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_gameover.c:
     .text       start:0x0209659c end:0x02096c58
+    .rodata     start:0x02099e1c end:0x02099ebc
+    .data       start:0x0209a9f4 end:0x0209aa9c
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_wricon.c:
     .text       start:0x02096c58 end:0x02096e7c
+    .rodata     start:0x02099ebc end:0x02099f04
+    .data       start:0x0209aa9c end:0x0209aab4
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_meteohahen.c:
     .text       start:0x02096e7c end:0x02097398
+    .rodata     start:0x02099f04 end:0x02099f4c
+    .data       start:0x0209aab4 end:0x0209aad0
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_smoke.c:
     .text       start:0x02097398 end:0x020977d0
+    .rodata     start:0x02099f4c end:0x02099f94
+    .data       start:0x0209aad0 end:0x0209aae4
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_warp.c:
     .text       start:0x020977d0 end:0x02097ae0
+    .rodata     start:0x02099f94 end:0x02099fdc
+    .data       start:0x0209aae4 end:0x0209aaf8
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_needlehahen.c:
     .text       start:0x02097ae0 end:0x02097ff4
+    .rodata     start:0x02099fdc end:0x0209a024
+    .data       start:0x0209aaf8 end:0x0209ab14
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_hammerhahen.c:
     .text       start:0x02097ff4 end:0x02098538
+    .rodata     start:0x0209a024 end:0x0209a06c
+    .data       start:0x0209ab14 end:0x0209ab30
 
 src/Debug/Sugata/TinPinSlammer/OtosuGame_wrwait.c:
     .text       start:0x02098538 end:0x02098a20
+    .rodata     start:0x0209a06c end:0x0209a0b4
+    .data       start:0x0209ab30 end:0x0209ab48
 
 src/Debug/Sugata/TinPinSlammer/OtuStageDispatch.c:
     .text       start:0x02098a20 end:0x02098bb0

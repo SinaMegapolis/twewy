@@ -5,12 +5,108 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle      Tsk_OtosuGame_gameover;
-extern const TaskStages      data_ov039_02099e28;
-extern const SpriteAnimation OtosuGame_gameover_AnimSprite0;
-extern const SpriteAnimation OtosuGame_gameover_AnimSprite1;
-extern const SpriteAnimation OtosuGame_gameover_AnimSprite2;
-extern const OtuScaleKey     data_ov039_0209aa0c[];
+s32              OtosuGame_gameover_RunTask(TaskPool* pool, Task* task, void* data, s32 stage);
+SpriteFrameInfo* OtosuGame_gameover_GetFrameInfoSprite0(Sprite* sprite, s32 arg, s32 mode);
+SpriteFrameInfo* OtosuGame_gameover_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+
+static const TaskHandle Tsk_OtosuGame_gameover = {"Tsk_OtosuGame_gameover", OtosuGame_gameover_RunTask,
+                                                  sizeof(OtosuGame_gameover)};
+
+static const SpriteAnimation OtosuGame_gameover_AnimSprite1 = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x57,
+    .frameInfoCallback = OtosuGame_gameover_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0ec,
+    .unk_18            = 2,
+    .packIndex         = 2,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static const SpriteAnimation OtosuGame_gameover_AnimSprite2 = {
+    .bits_0_1          = 2,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x57,
+    .frameInfoCallback = OtosuGame_gameover_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0ec,
+    .unk_18            = 2,
+    .packIndex         = 7,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static const SpriteAnimation OtosuGame_gameover_AnimSprite0 = {
+    .bits_0_1          = 0,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 1,
+    .posX              = 0x80,
+    .posY              = 0x57,
+    .frameInfoCallback = OtosuGame_gameover_GetFrameInfoSprite0,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0ec,
+    .unk_18            = 2,
+    .packIndex         = 6,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static OtuScaleKey data_ov039_0209aa0c[12] = {
+    { 1,  0x666,  0x666},
+    { 1,  0x99A,  0x99A},
+    { 2,  0xCCD,  0xCCD},
+    { 8, 0x1000, 0x14CD},
+    { 3,  0xCCD,  0xE66},
+    { 4,  0xF33, 0x1333},
+    { 3,  0xCCD,  0xE66},
+    { 4,  0xFAE, 0x1266},
+    { 3,  0xE66,  0xE66},
+    { 4, 0x1000, 0x119A},
+    { 3,  0xF33,  0xF33},
+    {50, 0x1000, 0x1000},
+};
 
 SpriteFrameInfo* OtosuGame_gameover_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     OtosuGame_gameover* owner = sprite->owner;
@@ -46,14 +142,15 @@ void OtosuGame_gameover_LoadSprite2(OtosuGame_gameover* self, Sprite* sprite, Ot
     _Sprite_Load(sprite, &anim);
 }
 
-s32 OtosuGame_gameover_Init(void* pool, void* task, OtuTaskArgs1* args) {
-    OtosuGame_gameover* self = ((Task*)task)->data;
+s32 OtosuGame_gameover_Init(TaskPool* pool, Task* task, void* args) {
+    OtuTaskArgs1*       taskArgs = args;
+    OtosuGame_gameover* self     = ((Task*)task)->data;
 
     self->state   = 0;
     self->visible = 0;
-    OtosuGame_gameover_LoadSprite0(self, &self->sprite0, args);
-    OtosuGame_gameover_LoadSprite1(self, &self->sprite1, args);
-    OtosuGame_gameover_LoadSprite2(self, &self->sprite2, args);
+    OtosuGame_gameover_LoadSprite0(self, &self->sprite0, taskArgs);
+    OtosuGame_gameover_LoadSprite1(self, &self->sprite1, taskArgs);
+    OtosuGame_gameover_LoadSprite2(self, &self->sprite2, taskArgs);
     return 1;
 }
 
@@ -62,7 +159,7 @@ s32 OtosuGame_gameover_Init(void* pool, void* task, OtuTaskArgs1* args) {
  * 2 plays the sound, 3 fades both displays and finishes. While visible it steps
  * the scale keyframes and the selected sprite.
  */
-s32 OtosuGame_gameover_Update(void* pool, void* task, void* args) {
+s32 OtosuGame_gameover_Update(TaskPool* pool, Task* task, void* args) {
     OtosuGame_gameover* self = ((Task*)task)->data;
 
     switch (self->state) {
@@ -124,7 +221,7 @@ s32 OtosuGame_gameover_Update(void* pool, void* task, void* args) {
 /** Draws the selected sprite; sprite0 through an affine group for its scale. */
 // Nonmatching: 83%, the scheduling of the OamMgr_AllocAffineGroup call in case
 // 0: the target forms the manager address before storing the stack argument.
-s32 OtosuGame_gameover_Render(void* pool, void* task, void* args) {
+s32 OtosuGame_gameover_Render(TaskPool* pool, Task* task, void* args) {
     OtosuGame_gameover* self = ((Task*)task)->data;
 
     if (self->visible != 0) {
@@ -148,7 +245,7 @@ s32 OtosuGame_gameover_Render(void* pool, void* task, void* args) {
     return 1;
 }
 
-s32 OtosuGame_gameover_Destroy(void* pool, void* task, void* args) {
+s32 OtosuGame_gameover_Destroy(TaskPool* pool, Task* task, void* args) {
     OtosuGame_gameover* self = ((Task*)task)->data;
 
     Sprite_Release(&self->sprite0);
@@ -157,7 +254,12 @@ s32 OtosuGame_gameover_Destroy(void* pool, void* task, void* args) {
 }
 
 s32 OtosuGame_gameover_RunTask(TaskPool* pool, Task* task, void* data, s32 stage) {
-    TaskStages stages = data_ov039_02099e28;
+    TaskStages stages = {
+        .initialize = OtosuGame_gameover_Init,
+        .update     = OtosuGame_gameover_Update,
+        .render     = OtosuGame_gameover_Render,
+        .cleanup    = OtosuGame_gameover_Destroy,
+    };
 
     return stages.iter[stage](pool, task, data);
 }

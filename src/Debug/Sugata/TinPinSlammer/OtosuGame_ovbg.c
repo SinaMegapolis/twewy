@@ -5,16 +5,19 @@
 
 #include "OtuFieldAccessShared.h"
 
-/* The task's stage table and handle. */
-extern const TaskStages data_ov039_020999c0;
-extern const TaskHandle Tsk_OtosuGame_ovbg;
+s32 OtosuGame_ovbg_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage);
 
-/** The table 020934e0 refuses to re-point the animated palette at twice. */
-extern const u16 data_ov039_02099a18[1];
+static const TaskHandle Tsk_OtosuGame_ovbg = {"Tsk_OtosuGame_ovbg", OtosuGame_ovbg_RunTask, sizeof(OtosuGame_ovbg)};
 
-/** The board's bin id and the 0x12-wide frame-slot table. */
-extern const BinIdentifier data_ov039_0209a0f4;
-extern const void*         data_ov039_020999d0;
+static const u16 data_ov039_020999d0[36] = {
+    0x0,  0x32, 0x10, 0x2, 0x20, 0x4, 0x30, 0x4, 0x40, 0x6, 0x50, 0x6, 0x60, 0x8, 0x70, 0x8, 0x80, 0x8,
+    0x90, 0x6,  0x80, 0x8, 0x70, 0x6, 0x60, 0x4, 0x50, 0x4, 0x40, 0x3, 0x30, 0x2, 0x20, 0x2, 0x10, 0x1,
+};
+
+static const u16 data_ov039_02099a18[36] = {
+    0x0,  0xA,  0x10, 0x2, 0x20, 0x2, 0x30, 0x2, 0x40, 0x3, 0x50, 0x3, 0x60, 0x3, 0x70, 0x4, 0x80, 0x5,
+    0x90, 0x28, 0x80, 0x4, 0x70, 0x3, 0x60, 0x2, 0x50, 0x2, 0x40, 0x2, 0x30, 0x2, 0x20, 0x2, 0x10, 0x1,
+};
 
 /**
  * Builds the overlay layer's screen map from the layout: one entry per 2x2
@@ -69,15 +72,16 @@ void func_ov039_02092e30(OtosuGame_ovbg* self) {
  * layer, the occupancy overlay built by func_ov039_02092e30 and a top layer,
  * blended over layers 0/1.
  */
-s32 OtosuGame_ovbg_Init(TaskPool* pool, Task* task, OtuBoardArgs* args) {
-    OtosuGame_ovbg* self = task->data;
+s32 OtosuGame_ovbg_Init(TaskPool* pool, Task* task, void* args) {
+    OtuBoardArgs*   taskArgs = args;
+    OtosuGame_ovbg* self     = task->data;
     Data*           data;
     u8*             pal;
     u8*             chr;
     u8*             scr;
 
-    self->heap   = args->heap;
-    self->layout = args->layout;
+    self->heap   = taskArgs->heap;
+    self->layout = taskArgs->layout;
 
     g_DisplaySettings.controls[1].layers |= 0xF;
     g_DisplaySettings.engineState[1].blendMode   = 1;
@@ -86,7 +90,7 @@ s32 OtosuGame_ovbg_Init(TaskPool* pool, Task* task, OtuBoardArgs* args) {
     g_DisplaySettings.engineState[1].blendCoeff0 = 0xA;
     g_DisplaySettings.engineState[1].blendCoeff1 = 6;
 
-    data           = DatMgr_LoadRawData(args->dataType, NULL, 0, &data_ov039_0209a0f4);
+    data           = DatMgr_LoadRawData(taskArgs->dataType, NULL, 0, &data_ov039_0209a0f4);
     self->fileData = data;
 
     {
@@ -244,7 +248,7 @@ s32 OtosuGame_ovbg_Init(TaskPool* pool, Task* task, OtuBoardArgs* args) {
  * The other three layers are left alone, so this is a per-frame recolour of
  * one BG layer rather than a repaint.
  */
-s32 OtosuGame_ovbg_Update(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_ovbg_Update(TaskPool* pool, Task* self, void* args) {
     OtosuGame_ovbg* data = (OtosuGame_ovbg*)self->data;
 
     PaletteMgr_SetSource(g_PaletteManagers[1], data->palettes[1], func_ov039_02098dbc(&data->paletteAnim));
@@ -269,7 +273,7 @@ s32 OtosuGame_ovbg_Update(TaskPool* pool, Task* self, void* arg) {
  * update slot -- for a task whose render (02096da0) is the one that does the
  * work. Same instruction, different meaning; the four are left independent.
  */
-s32 OtosuGame_ovbg_Render(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_ovbg_Render(TaskPool* pool, Task* self, void* args) {
     return 1;
 }
 
@@ -284,7 +288,7 @@ s32 OtosuGame_ovbg_Render(TaskPool* pool, Task* self, void* arg) {
  * displacement. Written that way deliberately; indexing the arrays as arrays
  * costs an add per access.
  */
-s32 OtosuGame_ovbg_Destroy(TaskPool* pool, Task* self, void* arg) {
+s32 OtosuGame_ovbg_Destroy(TaskPool* pool, Task* self, void* args) {
     OtosuGame_ovbg* data = (OtosuGame_ovbg*)self->data;
     s32             i;
 
@@ -308,7 +312,12 @@ s32 OtosuGame_ovbg_Destroy(TaskPool* pool, Task* self, void* arg) {
  * lifecycle.
  */
 s32 OtosuGame_ovbg_RunTask(TaskPool* pool, Task* self, void* arg, s32 stage) {
-    TaskStages stages = data_ov039_020999c0;
+    TaskStages stages = {
+        .initialize = OtosuGame_ovbg_Init,
+        .update     = OtosuGame_ovbg_Update,
+        .render     = OtosuGame_ovbg_Render,
+        .cleanup    = OtosuGame_ovbg_Destroy,
+    };
 
     return stages.iter[stage](pool, self, arg);
 }

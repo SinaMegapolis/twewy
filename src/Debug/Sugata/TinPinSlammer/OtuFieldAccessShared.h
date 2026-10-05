@@ -630,7 +630,16 @@ extern s32 data_0205e4e0[];
 /** The overlay-global phase byte: 1, 2, 3 or 4, raised by the stage's pollers. */
 extern u8 data_ov039_0209ad00;
 
+/* The overlay's file table: `{0x27, path}` records the tasks load their
+ * resources through. A data-only unit linked after every task, still
+ * gap-filled from the ROM; [0] is Grp_Badge.bin, [1..4] the floors. */
 extern const BinIdentifier data_ov039_0209a0b4[5];
+extern const BinIdentifier data_ov039_0209a0dc; // Grp_baycmnobj.bin, the badge sprites
+extern const BinIdentifier data_ov039_0209a0e4; // Grp_baymenunbg.bin
+extern const BinIdentifier data_ov039_0209a0ec; // Grp_baymenuunobj.bin
+extern const BinIdentifier data_ov039_0209a0f4; // Grp_baymenovbg.bin
+extern const BinIdentifier data_ov039_0209a0fc; // Grp_baymenovobj.bin
+extern const BinIdentifier data_ov039_0209a104; // Grp_baystg2obj.bin
 
 /* Macros */
 

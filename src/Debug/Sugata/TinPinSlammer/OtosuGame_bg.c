@@ -5,9 +5,6 @@
 
 #include "OtuFieldAccessShared.h"
 
-extern const TaskHandle Tsk_OtosuGame_bg;
-extern const TaskStages data_ov039_020999a4;
-
 /* The 7- and 4-argument cell set-up pair func_ov039_0209276c drives. */
 void func_0200d898(void* buf, void* src, s32 w, s32 h);
 void func_0200d858(void* obj, s32 a, s32 b, s32 c);
@@ -29,8 +26,19 @@ typedef struct {
     /* 0x34 */ s32 palCount;
 } OtuResParams;
 
-/* Per layout kind, the bg task's two layers. */
-extern OtuResParams** data_ov039_0209a620[];
+/*
+ * The task's .data -- the per-layout-kind layer tables (0209a610..0209a6d4) and
+ * the "Tsk_OtosuGame_bg" name -- stays gap-filled from the ROM. mwcc places an
+ * object a table points at right after that table, so no set of separate C
+ * objects reproduces the target's order (both pointer pairs, the 0xC table of
+ * them, then the four 0x38 records); see mwcc-emission.md.
+ */
+extern OtuResParams** data_ov039_0209a620[]; // per layout kind, the two layers
+extern const char     data_ov039_0209a70c[]; // "Tsk_OtosuGame_bg"
+
+s32 OtosuGame_bg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+
+static const TaskHandle Tsk_OtosuGame_bg = {data_ov039_0209a70c, OtosuGame_bg_RunTask, sizeof(OtosuGame_bg)};
 
 #define Otu_RES_REF(out, rec, idx)                        \
     do {                                                  \
@@ -42,6 +50,8 @@ extern OtuResParams** data_ov039_0209a620[];
             (out)     = _tbl + *(s32*)(_tbl + (idx) * 8); \
         }                                                 \
     } while (0)
+
+s32 OtosuGame_bg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /**
  * Loads one of the bg task's two layers: its palette, chars and cell data,
@@ -107,13 +117,14 @@ void func_ov039_0209276c(OtosuGame_bg* self, OtuResParams* params) {
  * Loads both layers for the layout's kind, if it has any. The `active` store
  * is predicated in the target, so the kind-0 case is the `else`.
  */
-s32 OtosuGame_bg_Init(TaskPool* pool, Task* task, OtuBoardArgs* args) {
-    OtosuGame_bg* self = task->data;
+s32 OtosuGame_bg_Init(TaskPool* pool, Task* task, void* args) {
+    OtuBoardArgs* taskArgs = args;
+    OtosuGame_bg* self     = task->data;
     s32           i;
 
-    self->dataType = args->dataType;
-    self->heap     = args->heap;
-    self->layout   = args->layout;
+    self->dataType = taskArgs->dataType;
+    self->heap     = taskArgs->heap;
+    self->layout   = taskArgs->layout;
 
     if (self->layout->kind != 0) {
         self->active = 1;
@@ -203,7 +214,7 @@ s32 OtosuGame_bg_Update(TaskPool* pool, Task* task, void* args) {
 }
 
 /** The bg task's render stage: the BG layers draw themselves. */
-s32 OtosuGame_bg_Render(void) {
+s32 OtosuGame_bg_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
@@ -228,7 +239,12 @@ s32 OtosuGame_bg_Destroy(TaskPool* pool, Task* task, void* args) {
 }
 
 s32 OtosuGame_bg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = data_ov039_020999a4;
+    TaskStages stages = {
+        .initialize = OtosuGame_bg_Init,
+        .update     = OtosuGame_bg_Update,
+        .render     = OtosuGame_bg_Render,
+        .cleanup    = OtosuGame_bg_Destroy,
+    };
 
     return stages.iter[stage](pool, task, args);
 }

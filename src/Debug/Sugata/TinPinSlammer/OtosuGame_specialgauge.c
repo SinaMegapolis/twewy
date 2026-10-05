@@ -5,15 +5,6 @@
 
 #include "OtuFieldAccessShared.h"
 
-/* The task's handle, stage table and four sprite templates. They all name
- * data_ov039_0209a0fc as their bin. */
-extern const TaskHandle Tsk_OtosuGame_specialgauge;
-extern const TaskStages data_ov039_02099ba4;
-extern SpriteAnimation  OtosuGame_specialgauge_AnimDial;
-extern SpriteAnimation  OtosuGame_specialgauge_AnimPlate;
-extern SpriteAnimation  OtosuGame_specialgauge_AnimCell;
-extern SpriteAnimation  OtosuGame_specialgauge_AnimDigit;
-
 /** @brief One cell's single-digit position: two halfwords. */
 typedef struct {
     /* 0x00 */ u16 x;
@@ -30,8 +21,6 @@ typedef struct {
  * two-digit table is the one-digit table plus the tens digit, which is exactly
  * the choice the update's `count < 10` / `count >= 10` split makes.
  */
-extern OtuGaugePos data_ov039_0209a780[4];
-extern OtuGaugePos data_ov039_0209a790[4][2]; // [cell][0 = units, 1 = tens]
 
 /**
  * @brief The two words `OtosuGame_specialgauge_CreateTask` packs and the init stage reads.
@@ -100,6 +89,134 @@ typedef struct {
     /* 0x49C */ s16            lastCount[4]; // the count each cell was last drawn for
     /* 0x4A4 */ s32            alive[4];     // the filter's answer for this cell's pin
 } OtosuGame_specialgauge;                    // Size: 0x4B4
+
+s32              OtosuGame_specialgauge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+SpriteFrameInfo* OtosuGame_specialgauge_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
+
+static const TaskHandle Tsk_OtosuGame_specialgauge = {"Tsk_OtosuGame_specialgauge", OtosuGame_specialgauge_RunTask,
+                                                      sizeof(OtosuGame_specialgauge)};
+
+static const SpriteAnimation OtosuGame_specialgauge_AnimDial = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 7,
+    .posX              = 0x20,
+    .posY              = 0x98,
+    .frameInfoCallback = OtosuGame_specialgauge_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 9,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static const SpriteAnimation OtosuGame_specialgauge_AnimPlate = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x60,
+    .frameInfoCallback = OtosuGame_specialgauge_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 5,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 4,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static const SpriteAnimation OtosuGame_specialgauge_AnimCell = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x60,
+    .frameInfoCallback = OtosuGame_specialgauge_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 1,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 5,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 1,
+};
+
+static const SpriteAnimation OtosuGame_specialgauge_AnimDigit = {
+    .bits_0_1          = 1,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 0,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02.raw        = 0,
+    .posX              = 0x80,
+    .posY              = 0x60,
+    .frameInfoCallback = OtosuGame_specialgauge_GetFrameInfo,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov039_0209a0fc,
+    .unk_18            = 2,
+    .packIndex         = 1,
+    .unk_1C            = 1,
+    .unk_1E            = 0,
+    .unk_20            = 5,
+    .unk_22            = 1,
+    .unk_24            = 0,
+    .unk_26            = 2,
+    .unk_28            = 3,
+    .animIndex         = 2,
+};
+
+static OtuGaugePos data_ov039_0209a780[4] = {
+    {0x37, 0x9C},
+    {0x27, 0x83},
+    {0x14, 0x90},
+    {0x1E, 0xA7},
+};
+
+static OtuGaugePos data_ov039_0209a790[4][2] = {
+    {{0x39, 0x9C}, {0x32, 0x9C}},
+    {{0x2A, 0x83}, {0x23, 0x83}},
+    {{0x15, 0x90},  {0xE, 0x90}},
+    {{0x22, 0xA7}, {0x1B, 0xA7}},
+};
 
 /**
  * @brief The palette block inside a loaded sprite resource's buffer.
@@ -529,7 +646,12 @@ s32 OtosuGame_specialgauge_Destroy(TaskPool* pool, Task* task, void* args) {
  * stages return and what the engine's taskFunc signature says.
  */
 s32 OtosuGame_specialgauge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
-    const TaskStages stages = data_ov039_02099ba4;
+    TaskStages stages = {
+        .initialize = OtosuGame_specialgauge_Init,
+        .update     = OtosuGame_specialgauge_Update,
+        .render     = OtosuGame_specialgauge_Render,
+        .cleanup    = OtosuGame_specialgauge_Destroy,
+    };
 
     return stages.iter[stage](pool, task, args);
 }
