@@ -488,7 +488,7 @@ PrcStepResult func_ov002_02090ee8(PrcCtx* ctx, void* arg1) {
     OtosuMenuObj* menuObj = (OtosuMenuObj*)arg1;
 
     PrcCtx_Init(&menuObj->unk_476D0, "OtosuMenu_Icon2", 0x40);
-    PrcCtx_ReplaceFrame(&menuObj->unk_476D0, &data_ov002_020934b0, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->unk_476D0, &OtosuMenu_Icon2_FrameDesc, NULL);
     PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->unk_476D0);
     PrcCtx_AdvanceStep(ctx);
     return PRC_STEP_CONTINUE;

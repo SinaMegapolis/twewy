@@ -324,12 +324,12 @@ func_ov002_020918ec kind:function(arm,size=0x2c) addr:0x020918ec
 func_ov002_02091918 kind:function(arm,size=0x2c) addr:0x02091918
 func_ov002_02091944 kind:function(arm,size=0x2c) addr:0x02091944
 func_ov002_02091970 kind:function(arm,size=0x8) addr:0x02091970
-func_ov002_02091978 kind:function(arm,size=0x9c) addr:0x02091978
-func_ov002_02091a14 kind:function(arm,size=0x58) addr:0x02091a14
-func_ov002_02091a6c kind:function(arm,size=0x10) addr:0x02091a6c
-func_ov002_02091a7c kind:function(arm,size=0x10) addr:0x02091a7c
-func_ov002_02091a8c kind:function(arm,size=0x10) addr:0x02091a8c
-func_ov002_02091a9c kind:function(arm,size=0x8) addr:0x02091a9c
+OtosuMenu_Icon2_GetFrameInfo kind:function(arm,size=0x9c) addr:0x02091978 local
+OtosuMenu_Icon2_Load kind:function(arm,size=0x58) addr:0x02091a14 local
+OtosuMenu_Icon2_Destroy kind:function(arm,size=0x10) addr:0x02091a6c local
+OtosuMenu_Icon2_Update kind:function(arm,size=0x10) addr:0x02091a7c local
+OtosuMenu_Icon2_Render kind:function(arm,size=0x10) addr:0x02091a8c local
+OtosuMenu_Icon2_Step_Continue kind:function(arm,size=0x8) addr:0x02091a9c local
 data_ov002_02091aa4 kind:data(any) addr:0x02091aa4
 data_ov002_02091aac kind:data(any) addr:0x02091aac
 data_ov002_02091ab4 kind:data(any) addr:0x02091ab4
@@ -435,7 +435,7 @@ data_ov002_02092a02 kind:data(any) addr:0x02092a02
 data_ov002_02092a20 kind:data(any) addr:0x02092a20
 data_ov002_02092a4c kind:data(any) addr:0x02092a4c
 data_ov002_02092a78 kind:data(any) addr:0x02092a78
-data_ov002_02092ab8 kind:data(any) addr:0x02092ab8
+OtosuMenu_Icon2_Anim kind:data(any) addr:0x02092ab8 local
 PrcSteps_FadeBrightImmediate kind:data(any) addr:0x02092b00
 PrcSteps_FadeBright kind:data(any) addr:0x02092b0c
 PrcSteps_FadeDark kind:data(any) addr:0x02092b18
@@ -518,8 +518,8 @@ data_ov002_02093474 kind:data(any) addr:0x02093474
 data_ov002_02093484 kind:data(any) addr:0x02093484
 data_ov002_02093494 kind:data(any) addr:0x02093494
 data_ov002_02093498 kind:data(any) addr:0x02093498
-data_ov002_020934ac kind:data(any) addr:0x020934ac
-data_ov002_020934b0 kind:data(any) addr:0x020934b0
+OtosuMenu_Icon2_StepTable kind:data(any) addr:0x020934ac local
+OtosuMenu_Icon2_FrameDesc kind:data(word[5]) addr:0x020934b0
 data_ov002_020934e0 kind:bss addr:0x020934e0
 data_ov002_020934e4 kind:bss addr:0x020934e4
 data_ov002_020934fa kind:bss addr:0x020934fa

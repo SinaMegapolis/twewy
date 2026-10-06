@@ -331,7 +331,7 @@ PrcStepResult func_ov002_0208d154(PrcCtx* ctx, void* object) {
     func_ov002_0208caa8(menuObj);
     func_ov002_02084c84(menuObj, table_sp0.data);
     PrcCtx_Init(&menuObj->unk_47C88, "OtosuMenu_Icon2", 0x40);
-    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &data_ov002_020934b0, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &OtosuMenu_Icon2_FrameDesc, NULL);
     PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->unk_47C88);
     menuObj->unk_474C8 = 60;
     PrcCtx_AdvanceStep(ctx);
@@ -455,7 +455,7 @@ PrcStepResult func_ov002_0208d4cc(PrcCtx* ctx, void* object) {
     menuObj->unk_4198A = 1;
     menuObj->unk_41834 = 1;
     PrcCtx_Init(&menuObj->unk_47C88, "OtosuMenu_Icon2", 0x40);
-    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &data_ov002_020934b0, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &OtosuMenu_Icon2_FrameDesc, NULL);
     PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->unk_47C88);
     PrcCtx_AdvanceStep(ctx);
     return PRC_STEP_CONTINUE;
@@ -755,7 +755,7 @@ PrcStepResult func_ov002_0208de64(PrcCtx* ctx, void* object) {
     SystemStatusFlags;
     SystemStatusFlags.unk_07 = 0;
     PrcCtx_Init(&menuObj->unk_47C88, "OtosuMenu_Icon2", 0x40);
-    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &data_ov002_020934b0, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &OtosuMenu_Icon2_FrameDesc, NULL);
     PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->unk_47C88);
     menuObj->unk_474C8 = 600;
     PrcCtx_AdvanceStep(ctx);

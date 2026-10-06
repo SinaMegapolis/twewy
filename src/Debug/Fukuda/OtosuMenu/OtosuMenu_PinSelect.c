@@ -616,7 +616,7 @@ PrcStepResult func_ov002_02088610(PrcCtx* ctx, void* object) {
     u16          i;
 
     PrcCtx_Init(&menuObj->unk_47C88, data_ov002_02092df4, 0x40);
-    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &data_ov002_020934b0, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &OtosuMenu_Icon2_FrameDesc, NULL);
     PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->unk_47C88);
     menuObj->unk_46078.posX = 0;
     menuObj->unk_46078.posY = 0xC8;
@@ -859,7 +859,7 @@ s32 func_ov002_02088dc0(void* arg0, OtosuMenuObj* menuObj) {
     u16          i;
 
     PrcCtx_Init(&menuObj->unk_47C88, data_ov002_02092df4, 0x40);
-    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &data_ov002_020934b0, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->unk_47C88, &OtosuMenu_Icon2_FrameDesc, NULL);
     PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->unk_47C88);
     menuObj->unk_46078.posX = 0;
     menuObj->unk_46078.posY = 0xC8;

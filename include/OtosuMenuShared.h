@@ -334,7 +334,7 @@ extern PrcFrameDesc        data_ov002_02093438;
 extern PrcFrameDesc        data_ov002_0209344c;
 extern PrcFrameDesc        data_ov002_02093460;
 extern PrcFrameDesc        data_ov002_02093498;
-extern PrcFrameDesc        data_ov002_020934b0;
+extern PrcFrameDesc        OtosuMenu_Icon2_FrameDesc;
 extern u16                 data_ov002_020935c0[0x10];
 extern u16                 data_ov002_020935e0[0x40];
 extern s32                 data_ov002_02093660;
@@ -660,11 +660,5 @@ void             func_ov002_020918ec(s32 arg0, s32 arg1);
 void             func_ov002_02091918(s32 arg0, s32 arg1);
 void             func_ov002_02091944(s32 arg0, s32 arg1);
 PrcStepResult    func_ov002_02091970(PrcCtx* ctx, void* arg1);
-SpriteFrameInfo* func_ov002_02091978(Sprite* sprite, s32 arg, s32 mode);
-void             func_ov002_02091a14(s32 arg0, void* arg1);
-void             func_ov002_02091a6c(s32 arg0, void* arg1);
-void             func_ov002_02091a7c(s32 arg0, void* arg1);
-void             func_ov002_02091a8c(s32 arg0, void* arg1);
-PrcStepResult    func_ov002_02091a9c(PrcCtx* ctx, void* arg1);
 
 #endif // OTOSUMENU_SHARED_H

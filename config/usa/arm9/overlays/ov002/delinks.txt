@@ -89,7 +89,8 @@ src/Debug/Fukuda/OtosuMenu/OtosuMenu_DelDataWin.c:
     .rodata     start:0x02092a4c end:0x02092ab8
     .data       start:0x02093494 end:0x020934ac
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_Icon2.c:
+src/Otosu/Menu/OtosuMenu_Icon2.c:
+    complete
     .text       start:0x02091978 end:0x02091aa4
     .rodata     start:0x02092ab8 end:0x02092ae4
     .data       start:0x020934ac end:0x020934e0
