@@ -68,7 +68,7 @@ TODO: Document
 ## Overlay 02 - Otosu Menu
 
 **Files:**
-[OtosuMenu](../src/Debug/Fukuda/OtosuMenu.c)
+[OtosuMenu](../src/Debug/Fukuda/OtosuMenu/OtosuMenu.c)
 
 TODO: Document
 

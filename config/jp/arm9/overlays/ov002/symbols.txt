@@ -327,6 +327,9 @@ func_ov002_02091f04 kind:function(arm,size=0x8) addr:0x02091f04
 data_ov002_02091f0c kind:data(any) addr:0x02091f0c
 data_ov002_02091f14 kind:data(any) addr:0x02091f14
 data_ov002_02091f1c kind:data(any) addr:0x02091f1c
+data_ov002_02091f24 kind:data(any) addr:0x02091f24
+data_ov002_02091f2c kind:data(any) addr:0x02091f2c
+data_ov002_02091f34 kind:data(any) addr:0x02091f34
 data_ov002_02091f3c kind:data(any) addr:0x02091f3c
 OvlProc_OtosuMenu_RoleSelection kind:data(any) addr:0x02091f44
 OvlProc_OtosuMenu_DataDeletion kind:data(any) addr:0x02091f50
@@ -364,6 +367,7 @@ data_ov002_02092298 kind:data(any) addr:0x02092298
 data_ov002_020922c0 kind:data(any) addr:0x020922c0
 data_ov002_020922f6 kind:data(any) addr:0x020922f6
 data_ov002_0209232c kind:data(any) addr:0x0209232c
+data_ov002_02092374 kind:data(any) addr:0x02092374
 data_ov002_020923d8 kind:data(any) addr:0x020923d8
 data_ov002_0209243c kind:data(any) addr:0x0209243c
 data_ov002_02092442 kind:data(any) addr:0x02092442
@@ -372,6 +376,7 @@ data_ov002_0209246a kind:data(any) addr:0x0209246a
 data_ov002_02092488 kind:data(any) addr:0x02092488
 data_ov002_020924a6 kind:data(any) addr:0x020924a6
 data_ov002_020924c4 kind:data(any) addr:0x020924c4
+data_ov002_020924d0 kind:data(any) addr:0x020924d0
 data_ov002_020924dc kind:data(any) addr:0x020924dc
 data_ov002_020924f0 kind:data(any) addr:0x020924f0
 data_ov002_02092508 kind:data(any) addr:0x02092508

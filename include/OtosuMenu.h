@@ -58,8 +58,7 @@ typedef struct {
     /* 0x419F4 */ char             unk_419F4[0x41E38 - 0x419F4];
     /* 0x41E38 */ s32              unk_41E38;
     /* 0x41E3C */ char             unk_41E3C[0x41EEC - 0x41E3C];
-    /* 0x41EEC */ u16              unk_41EEC;
-    /* 0x41EEE */ char             unk_41EEE[0x41EF0 - 0x41EEE];
+    /* 0x41EEC */ u32              unk_41EEC;
     /* 0x41EF0 */ s32              unk_41EF0;
     /* 0x41EF4 */ char             unk_41EF4[0x41FB6 - 0x41EF4];
     /* 0x41FB6 */ s16              unk_41FB6;
@@ -163,6 +162,7 @@ typedef struct {
     /* 0x474C8 */ u16              unk_474C8;
     /* 0x474CA */ u16              unk_474CA;
     /* 0x474CC */ u16              unk_474CC;
+    /* 0x474CE */ u16              unk_474CE;
     /* 0x474D0 */ u16              unk_474D0;
     /* 0x474D2 */ u16              unk_474D2;
     /* 0x474D4 */ char             unk_474D4[0x474D8 - 0x474D4];
@@ -177,6 +177,7 @@ typedef struct {
     /* 0x47C88 */ PrcCtx           unk_47C88;
     /* 0x47E70 */ char             unk_47E70[0x48058 - 0x47E70];
     /* 0x48058 */ s32              unk_48058;
+    /* 0x4805C */ char             unk_4805C[0x48068 - 0x4805C];
 } OtosuMenuObj; // Size: 0x48068
 
 /**
