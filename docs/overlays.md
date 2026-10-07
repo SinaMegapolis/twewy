@@ -774,7 +774,7 @@ End credits.
 [MenuEquip](../src/Debug/Takami/MenuEquip.c),
 [Shop](../src/Debug/Takami/Shop.c),
 [Depart](../src/Debug/Takami/Depart.c),
-[Save](../src/Debug/Takami/Save.c),
+[Save](../src/Interface/Menu/Save.c),
 [NRep](../src/Debug/Takami/NRep.c)
 
 Several menus, such as the main phone menu, pins, equipment, post-game scenario selection, shops, department stores, and the save screen.
@@ -809,7 +809,7 @@ The results screen displayed at the conclusion of battles. Displays the player's
 **Files:**
 [Tusin](../src/Interface/Menu/Tusin.c),
 [TusinSet](../src/Interface/Menu/TusinSet.c),
-[FriendList](../src/Debug/Takami/FriendList.c)
+[FriendList](../src/Interface/Menu/FriendList.c)
 
 Elements related to Mingle Mode. Includes the UI for configuring Mingle Mode, the Friends menu, and option to launch the game into Mingle Mode.
 

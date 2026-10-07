@@ -19,9 +19,9 @@ void func_0203a96c(u8* macAddress);
 s32  func_020417e0(RTCDate* date, RTCTime* time);
 s64  func_02041f14(RTCDate* date, RTCTime* time);
 void Stats_AddExperience(u32 exp);
-u16  func_02024080(void);
-u16  func_020241b0(void);
-u16  func_02024244(void);
+u16  Inventory_GetNoiseReportCount(void);
+u16  Inventory_GetMasteredPinCount(void);
+u16  Inventory_GetCollectedItemCount(void);
 
 #ifdef REGION_USA
 extern EquippedPin* Tusin_SurePins[6];
@@ -134,13 +134,13 @@ s32 Tusin_ClampMoney(TusinObject* tusin, u8 capLevel) {
 }
 
 s32 Tusin_GetMoneyCapLevel(void) {
-    if (func_02023010(0x284) != 0) {
+    if (Inventory_GetOwnedCount(ITEM_WALLET_FAT_CAT_WALLET) != 0) {
         return 3;
     }
-    if (func_02023010(0x283) != 0) {
+    if (Inventory_GetOwnedCount(ITEM_WALLET_TRENDY_WALLET) != 0) {
         return 2;
     }
-    if (func_02023010(0x282) != 0) {
+    if (Inventory_GetOwnedCount(ITEM_WALLET_MY_FIRST_WALLET) != 0) {
         return 1;
     }
     return 0;
@@ -177,7 +177,7 @@ s64 func_ov044_02085104(s64 a, s64 b) {
 #endif
 
 u8 Tusin_GetBadgeSlotCount(void) {
-    u8 count = func_02023010(0x2A8) + 2;
+    u8 count = Inventory_GetOwnedCount(ITEM_STICKER_EXTRA_SLOT) + 2;
 
     if (count > 6) {
         count = 6;
@@ -214,9 +214,9 @@ void Tusin_WriteLastProfile(void) {
     func_0203a96c(gSaveData.lastMacAddress);
     OS_GetOwnerInfo(&ownerInfo);
     MI_CpuCopyU8(ownerInfo.nickName, gSaveData.lastNickName, sizeof(gSaveData.lastNickName));
-    gSaveData.experience.unk_0_0   = func_02024080();
-    gSaveData.experience.pinCount  = func_020241b0();
-    gSaveData.experience.itemCount = func_02024244();
+    gSaveData.experience.unk_0_0   = Inventory_GetNoiseReportCount();
+    gSaveData.experience.pinCount  = Inventory_GetMasteredPinCount();
+    gSaveData.experience.itemCount = Inventory_GetCollectedItemCount();
     gSaveData.lastExperience       = gSaveData.experience;
 
     func_020417e0(&date, &time);

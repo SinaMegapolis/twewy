@@ -11,9 +11,9 @@
 #include <nitro/math.h>
 
 void func_02047ec8(void* head, u32 num, u32 width, s32 (*compare)(u16*, u16*), void* buffer);
-u16  func_02024080(void);
-u16  func_020241b0(void);
-u16  func_02024244(void);
+u16  Inventory_GetNoiseReportCount(void);
+u16  Inventory_GetMasteredPinCount(void);
+u16  Inventory_GetCollectedItemCount(void);
 
 s32 TusinSet_IsPointInRect(s32 x, s32 y, s32 left, s32 top, s16 width, s16 height) {
     if ((x >= left) && (x <= (left + width)) && (y >= top) && (y <= (top + height))) {
@@ -46,7 +46,7 @@ void TusinSet_LoadTreasureData(RawTreasureData* buffer) {
 }
 
 u8 TusinSet_GetBadgeSlotCount(void) {
-    u8 count = func_02023010(0x2A8) + 2;
+    u8 count = Inventory_GetOwnedCount(ITEM_STICKER_EXTRA_SLOT) + 2;
 
     if (count > 6) {
         count = 6;
@@ -329,9 +329,9 @@ void TusinSet_LoadFromSave(TusinSetObject* tusinSet) {
         }
     }
 
-    gSaveData.experience.unk_0_0   = func_02024080();
-    gSaveData.experience.pinCount  = func_020241b0();
-    gSaveData.experience.itemCount = func_02024244();
+    gSaveData.experience.unk_0_0   = Inventory_GetNoiseReportCount();
+    gSaveData.experience.pinCount  = Inventory_GetMasteredPinCount();
+    gSaveData.experience.itemCount = Inventory_GetCollectedItemCount();
     tusinSet->unk_61DA             = (u32)(gSaveData.experience.unk_2 << 0x14) >> 0x1D;
     tusinSet->esperPoints          = gSaveData.experience.current;
     tusinSet->noiseReportCount     = gSaveData.experience.unk_0_0;
@@ -729,7 +729,7 @@ void TusinSet_LoadBackgrounds(TusinSetObject* tusinSet) {
     }
 
     TusinSet_LoadBgResource(&tusinSet->resources[6], DISPLAY_MAIN, 2, 1, 15, 1);
-    if (func_02023010(0x2AE) == 0 || tusinSet->partner == 0xFF) {
+    if (Inventory_GetOwnedCount(ITEM_STICKER_GAME_CLEARED) == 0 || tusinSet->partner == 0xFF) {
         TusinSet_LoadBgResource(&tusinSet->resources[7], DISPLAY_MAIN, 3, 0, 0, 4);
     } else {
         TusinSet_LoadBgResourceIndexed(&tusinSet->resources[7], DISPLAY_MAIN, 3, 0, 0, 4, 2, 0);
