@@ -57,7 +57,7 @@ static void OtosuMenu_Title_Load(PrcCtx* ctx, OtosuMenuObj* menuObj) {
 }
 
 static void OtosuMenu_Title_IdleLoad(void) {
-    return;
+    return; // do nothing
 }
 
 static void OtosuMenu_Title_Destroy(void) {
@@ -76,11 +76,11 @@ static void OtosuMenu_Title_IdleDestroy(PrcCtx* ctx, OtosuMenuObj* menuObj) {
 }
 
 static void OtosuMenu_Title_Update(void) {
-    return;
+    return; // do nothing
 }
 
 static void OtosuMenu_Title_Render(void) {
-    return;
+    return; // do nothing
 }
 
 static PrcStepResult OtosuMenu_Title_Step_StartDelay(PrcCtx* ctx, void* object) {
@@ -94,7 +94,7 @@ static PrcStepResult OtosuMenu_Title_Step_StartDelay(PrcCtx* ctx, void* object) 
 static PrcStepResult OtosuMenu_Title_Step_Delay(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = object;
 
-    if (TouchInput_WasTouchPressed() != 0) {
+    if (TouchInput_WasTouchPressed()) {
         PrcCtx_ReplaceFrame(ctx, &OtosuMenu_Title_IdleFrameDesc, NULL);
         return PRC_STEP_CONTINUE;
     }
@@ -110,10 +110,9 @@ static PrcStepResult OtosuMenu_Title_Step_Setup(PrcCtx* ctx, void* object) {
     PrcCtx*                enemies[4] = {&menuObj->objCtx[0], &menuObj->objCtx[1], &menuObj->objCtx[2], &menuObj->objCtx[3]};
     OtosuMenu_TitleBossArg bossArg;
     OtosuMenu_TitleEnmArg  enemyArg;
-    u16                    i;
 
     func_ov002_02083a74(menuObj);
-    for (i = 0; i < 4; i++) {
+    for (u16 i = 0; i < 4; i++) {
         enemyArg.index    = 3 - i;
         enemyArg.duration = 120;
         PrcCtx_Init(enemies[i], "OtosuMenu_TitleEnmObj", sizeof(OtosuMenu_TitleEnmObj));
@@ -135,7 +134,7 @@ static PrcStepResult OtosuMenu_Title_Step_Setup(PrcCtx* ctx, void* object) {
 static PrcStepResult OtosuMenu_Title_Step_WaitEntrance(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = object;
 
-    if (TouchInput_WasTouchPressed() != 0) {
+    if (TouchInput_WasTouchPressed()) {
         PrcCtx_ReplaceFrame(ctx, &OtosuMenu_Title_IdleFrameDesc, NULL);
         return PRC_STEP_CONTINUE;
     }
@@ -159,7 +158,7 @@ static PrcStepResult OtosuMenu_Title_Step_StartScroll(PrcCtx* ctx, void* object)
 static PrcStepResult OtosuMenu_Title_Step_Scroll(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = object;
 
-    if ((TouchInput_WasTouchPressed() != 0) || (menuObj->unk_474C8 == 0)) {
+    if ((TouchInput_WasTouchPressed()) || (menuObj->unk_474C8 == 0)) {
         PrcCtx_AdvanceStep(ctx);
         return PRC_STEP_CONTINUE;
     }
@@ -207,10 +206,10 @@ static PrcStepResult OtosuMenu_Title_Step_IdleWait(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = object;
 
     menuObj->unk_474C8--;
-    if (TouchInput_WasTouchPressed() != 0) {
+    if (TouchInput_WasTouchPressed()) {
         SndMgr_StartPlayingSE(SEIDX_SE_BAYBADGE_MENU_EXECUTE);
     }
-    if ((TouchInput_WasTouchPressed() != 0) || (menuObj->unk_474C8 == 0)) {
+    if ((TouchInput_WasTouchPressed()) || (menuObj->unk_474C8 == 0)) {
         PrcCtx_AdvanceStep(ctx);
         return PRC_STEP_CONTINUE;
     }

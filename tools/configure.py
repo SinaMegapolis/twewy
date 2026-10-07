@@ -89,8 +89,6 @@ MSL_CC_FLAGS = " ".join(
 
 MSL_RUNTIME_CC_FLAGS = " ".join((*COMMON_CC_FLAGS, "-char unsigned"))
 
-# CriWare was built without -ipa file: initialized globals share one pooled base,
-# while uninitialized ones are each reached through their own literal.
 CRI_CC_FLAGS = " ".join((*COMMON_CC_FLAGS, "-str noreuse", "-Cpp_exceptions off"))
 
 

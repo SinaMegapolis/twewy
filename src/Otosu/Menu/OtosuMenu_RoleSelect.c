@@ -24,9 +24,7 @@ PrcFrameDesc OtosuMenu_RoleSelect_FrameDesc = {
 };
 
 static void OtosuMenu_RoleSelect_Load(PrcCtx* ctx, OtosuMenuObj* menuObj) {
-    u16 i;
-
-    for (i = 0; i < 4; i++) {
+    for (u16 i = 0; i < 4; i++) {
         gSaveData.otosuScores[i] = 0;
     }
     gSaveData.mabsBasePP = 0;

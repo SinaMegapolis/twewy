@@ -925,7 +925,7 @@ void func_ov002_02085a44(OtosuMenuObj* menuObj) {
     PrcMaster_UnregisterContext(&menuObj->prcMaster, &menuObj->linkLevelCtx);
     PrcCtx_Init(&menuObj->linkLevelCtx, "OtosuMenuLinklevel", sizeof(OtosuMenuObj));
     PrcCtx_SetWorkObject(&menuObj->linkLevelCtx, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->linkLevelCtx, &data_ov002_02093008, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->linkLevelCtx, &OtosuMenu_LinkLevel_FrameDesc, NULL);
     PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->linkLevelCtx);
 }
 
@@ -1117,7 +1117,7 @@ void OtosuMenu_InitForDataDeletion(OtosuMenuObj* menuObj) {
     func_ov002_02085a44(menuObj);
     PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
     PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_0209344c, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &OtosuMenu_SaveData_DeleteFrameDesc, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
@@ -1129,7 +1129,7 @@ void OtosuMenu_InitForDataCorrupted(OtosuMenuObj* menuObj) {
     func_ov002_02085a44(menuObj);
     PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
     PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093460, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &OtosuMenu_SaveData_CorruptedFrameDesc, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
@@ -1141,7 +1141,7 @@ void func_ov002_02086290(OtosuMenuObj* menuObj) {
     func_ov002_02085a44(menuObj);
     PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
     PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093438, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &OtosuMenu_SaveData_InitializeFrameDesc, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
@@ -1153,7 +1153,7 @@ void OtosuMenu_InitForDataLoadFailure(OtosuMenuObj* menuObj) {
     func_ov002_02085a44(menuObj);
     PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
     PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093310, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &OtosuMenu_SaveData_LoadFailureFrameDesc, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
@@ -1165,7 +1165,7 @@ void OtosuMenu_InitForDataSaveFailure(OtosuMenuObj* menuObj) {
     func_ov002_02085a44(menuObj);
     PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
     PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093324, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &OtosuMenu_SaveData_SaveFailureFrameDesc, NULL);
     MainOvlDisp_NextProcessStage();
 }
 

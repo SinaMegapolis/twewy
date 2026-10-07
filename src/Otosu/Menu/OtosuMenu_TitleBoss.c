@@ -8,14 +8,18 @@ static void OtosuMenu_TitleBoss_Load(PrcCtx* ctx, OtosuMenu_TitleBossObj* boss, 
     boss->scrollY  = -0x200000;
 }
 
-static void OtosuMenu_TitleBoss_Destroy(void) {}
+static void OtosuMenu_TitleBoss_Destroy(void) {
+    return; // do nothing
+}
 
 static void OtosuMenu_TitleBoss_Update(PrcCtx* ctx, OtosuMenu_TitleBossObj* boss) {
     Display_SetBGOffset(boss->upper->engineId, boss->upper->bgLayer, 0, boss->scrollY);
     Display_SetBGOffset(boss->lower->engineId, boss->lower->bgLayer, 0, boss->scrollY + 0x100000);
 }
 
-static void OtosuMenu_TitleBoss_Render(void) {}
+static void OtosuMenu_TitleBoss_Render(void) {
+    return; // do nothing
+}
 
 static PrcStepResult OtosuMenu_TitleBoss_Step_Begin(PrcCtx* ctx, void* unused) {
     PrcCtx_AdvanceStep(ctx);
@@ -24,11 +28,9 @@ static PrcStepResult OtosuMenu_TitleBoss_Step_Begin(PrcCtx* ctx, void* unused) {
 
 static PrcStepResult OtosuMenu_TitleBoss_Step_Scroll(PrcCtx* ctx, void* work) {
     OtosuMenu_TitleBossObj* boss = work;
-    u16                     timer;
 
     func_020265d4(&boss->scrollY, 0, boss->timer);
-    timer = boss->timer;
-    if (timer == 0) {
+    if (boss->timer == 0) {
         PrcCtx_AdvanceStep(ctx);
         return PRC_STEP_CONTINUE;
     }
@@ -41,7 +43,7 @@ static PrcStepResult OtosuMenu_TitleBoss_Step_Scroll(PrcCtx* ctx, void* work) {
         PrcCtx_AdvanceStep(ctx);
         return PRC_STEP_CONTINUE;
     }
-    boss->timer = timer - 1;
+    boss->timer--;
     return PRC_STEP_CONTINUE;
 }
 

@@ -664,7 +664,7 @@ PrcStepResult func_ov002_0208aa4c(PrcCtx* ctx, void* object) {
             func_ov040_0209caac(0x400548);
             break;
         case 1:
-            func_ov040_0209ba04(func_ov002_0208a8d4, menuObj, &data_ov002_02092160, 0);
+            func_ov040_0209ba04(func_ov002_0208a8d4, menuObj, &OtosuMenu_BroadcastBssid, 0);
             break;
         case 2:
             PrcCtx_AdvanceStep(ctx);

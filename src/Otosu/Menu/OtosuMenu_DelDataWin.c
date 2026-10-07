@@ -58,6 +58,7 @@ static void OtosuMenu_DelDataWin_Load(PrcCtx* ctx, Sprite* sprites) {
     }
 }
 
+// todo: fix with actual data type
 static void OtosuMenu_DelDataWin_Destroy(s32 arg0, s32 arg1) {
     for (u16 var_r4 = 0; var_r4 < 4; var_r4++) {
         Sprite_Destroy(arg1 + (var_r4 << 6));

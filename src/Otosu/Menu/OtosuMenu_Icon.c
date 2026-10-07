@@ -85,29 +85,31 @@ void func_ov002_0208caa8(OtosuMenuObj* menuObj) {
     PrcMaster_UnregisterContext(&menuObj->prcMaster, &menuObj->objCtx[4]);
 }
 
+// Nonmatching: Several instructions reordered
 void func_ov002_0208cb50(OtosuMenuObj* menuObj) {
-    u16 placed    = 0;
     u16 prevScore = 0xFFFF;
-    u16 place;
-    u16 rank = 0;
+    u16 placed    = 0;
+    u16 place     = 0;
+    u16 rank      = 0;
 
-    menuObj->firstPlaceUnique = FALSE;
+    menuObj->firstPlaceUnique = 0;
     for (place = 0; place < gSaveData.otosuPlayerCount; place++) {
-        u16 i;
         u16 player = 0xFFFF;
         u16 best   = 0;
-
+        u16 i;
         for (i = 0; i < gSaveData.otosuPlayerCount; i++) {
-            if (!(placed & (1 << i)) && best <= gSaveData.otosuScores[i]) {
+            if ((!(placed & (1 << i))) && (best <= gSaveData.otosuScores[i])) {
                 best   = gSaveData.otosuScores[i];
                 player = i;
             }
         }
-        if (prevScore != 0xFFFF && best != prevScore) {
+
+        if ((prevScore != 0xFFFF) && (prevScore != best)) {
             if (place == 1) {
-                menuObj->firstPlaceUnique = TRUE;
+                menuObj->firstPlaceUnique = 1;
             }
             rank++;
+            player = i;
         }
         prevScore                    = best;
         menuObj->placeRanks[place]   = rank;
@@ -157,9 +159,9 @@ void func_ov002_0208cc5c(OtosuMenuObj* menuObj) {
     }
 }
 
-s32 func_ov002_0208cdb0(OtosuMenuObj* menuObj, u16 arg1) {
+u16* func_ov002_0208cdb0(OtosuMenuObj* menuObj, u16 arg1) {
     u8  player    = menuObj->placePlayers[arg1];
     u32 unused[5] = {0, 0, 0, 0, 0};
 
-    return (s32)menuObj->players[player].name;
+    return menuObj->players[player].name;
 }

@@ -4,54 +4,57 @@
     .data       start:0x02092b00 end:0x020934e0 kind:data align:32
     .bss        start:0x020934e0 end:0x02093680 kind:bss align:32
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu.c:
+src/Otosu/Menu/OtosuMenu.c:
     .text       start:0x020824a0 end:0x02086b8c
     .rodata     start:0x02091aa4 end:0x02091c3c
     .data       start:0x02092b00 end:0x02092be4
     .bss        start:0x020934e0 end:0x020935c0
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_Title.c:
+src/Otosu/Menu/OtosuMenu_Title.c:
+    complete
     .text       start:0x02086b8c end:0x02087524
     .data       start:0x02092be4 end:0x02092c9c
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_RoleSelect.c:
+src/Otosu/Menu/OtosuMenu_RoleSelect.c:
+    complete
     .text       start:0x02087524 end:0x020879f8
     .rodata     start:0x02091c3c end:0x02091cc4
     .data       start:0x02092c9c end:0x02092ce0
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_PinSelect.c:
+src/Otosu/Menu/OtosuMenu_PinSelect.c:
     .text       start:0x020879f8 end:0x020894f8
     .rodata     start:0x02091cc4 end:0x02091fe0
     .data       start:0x02092ce0 end:0x02092e18
     .bss        start:0x020935c0 end:0x02093660
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_CommError.c:
+src/Otosu/Menu/OtosuMenu_CommError.c:
     .text       start:0x020894f8 end:0x02089b3c
     .rodata     start:0x02091fe0 end:0x02092068
     .data       start:0x02092e18 end:0x02092f30
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_Lobby.c:
+src/Otosu/Menu/OtosuMenu_Lobby.c:
     .text       start:0x02089b3c end:0x0208c6f8
     .rodata     start:0x02092068 end:0x02092160
     .data       start:0x02092f30 end:0x02093004
     .bss        start:0x02093660 end:0x02093680
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_LinkLevel.c:
+src/Otosu/Menu/OtosuMenu_LinkLevel.c:
+    complete
     .text       start:0x0208c6f8 end:0x0208c92c
     .rodata     start:0x02092160 end:0x0209219c
     .data       start:0x02093004 end:0x0209301c
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_Icon.c:
+src/Otosu/Menu/OtosuMenu_Icon.c:
     .text       start:0x0208c92c end:0x0208ce00
     .rodata     start:0x0209219c end:0x020921c8
     .data       start:0x0209301c end:0x02093034
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_Ranking.c:
+src/Otosu/Menu/OtosuMenu_Ranking.c:
     .text       start:0x0208ce00 end:0x0208e890
     .rodata     start:0x020921c8 end:0x020923f0
     .data       start:0x02093034 end:0x020931dc
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_TitleEnemy.c:
+src/Otosu/Menu/OtosuMenu_TitleEnemy.c:
     .text       start:0x0208e890 end:0x0208ed78
     .rodata     start:0x020923f0 end:0x02092448
     .data       start:0x020931dc end:0x020931fc
@@ -61,7 +64,8 @@ src/Otosu/Menu/OtosuMenu_TitleBoss.c:
     .text       start:0x0208ed78 end:0x0208f020
     .data       start:0x020931fc end:0x0209321c
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_RankBoard.c:
+src/Otosu/Menu/OtosuMenu_RankBoard.c:
+    complete
     .text       start:0x0208f020 end:0x0208f6f8
     .rodata     start:0x02092448 end:0x020924f8
     .data       start:0x0209321c end:0x0209323c
@@ -77,12 +81,13 @@ src/Otosu/Menu/OtosuMenu_Entry.c:
     .text       start:0x0208f860 end:0x0208f9d0
     .data       start:0x02093254 end:0x020932b8
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_FontList.c:
+src/Otosu/Menu/OtosuMenu_FontList.c:
     .text       start:0x0208f9d0 end:0x020901a0
     .rodata     start:0x02092524 end:0x02092870
     .data       start:0x020932b8 end:0x020932e8
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_SaveData.c:
+src/Otosu/Menu/OtosuMenu_SaveData.c:
+    complete
     .text       start:0x020901a0 end:0x02091760
     .rodata     start:0x02092870 end:0x02092a4c
     .data       start:0x020932e8 end:0x02093494

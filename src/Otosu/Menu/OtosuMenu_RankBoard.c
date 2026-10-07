@@ -49,10 +49,6 @@ static const SpriteAnimation OtosuMenu_RankBoard_Anim = {
     .animIndex         = 0x0001,
 };
 
-/*
- * The layout tables are wrapped in structs and copied into locals by assignment just before each use,
- * which is why the copies sit next to the code that reads them rather than at the top of the function.
- */
 typedef struct {
     s16 y[4]; // indexed by the board's place
 } RankBoardRowY;
@@ -69,7 +65,6 @@ typedef struct {
     u16 anim[10]; // indexed by digit value
 } RankBoardDigitAnims;
 
-// Definition order is what places these in .rodata (mwcc sorts same-size objects by creation order).
 static const RankBoardAnims OtosuMenu_RankBoard_RankAnims = {
     {4, 5, 6, 7}
 };
@@ -111,23 +106,7 @@ static const RankBoardDigitAnims OtosuMenu_RankBoard_WinnerDigits = {
 };
 
 static void OtosuMenu_RankBoard_Load(PrcCtx* ctx, OtosuMenu_RankBoardObj* board, OtosuMenu_RankBoardArg* arg) {
-    SpriteAnimation     anim = OtosuMenu_RankBoard_Anim;
-    RankBoardDigitX     digitX;
-    RankBoardDigitAnims digitAnims;
-    RankBoardDigitAnims winnerDigits;
-    RankBoardRowY       boardY;
-    RankBoardRowY       labelY;
-    RankBoardAnims      rankAnims;
-    RankBoardRowY       tagY;
-    RankBoardAnims      winnerTagAnims;
-    RankBoardAnims      tagAnims;
-    RankBoardRowY       unusedY;
-    RankBoardAnims      unusedWinner;
-    RankBoardAnims      unusedAnims;
-    RankBoardRowY       digitY;
-    u16                 score;
-    u16                 count;
-    u16                 i;
+    SpriteAnimation anim = OtosuMenu_RankBoard_Anim;
 
     board->arg = *arg;
 
@@ -138,47 +117,48 @@ static void OtosuMenu_RankBoard_Load(PrcCtx* ctx, OtosuMenu_RankBoardObj* board,
     anim.unk_26   = 0x1E;
     anim.unk_28   = 0x1F;
 
-    boardY             = OtosuMenu_RankBoard_BoardY;
-    anim.posX          = 0x80;
-    anim.posY          = boardY.y[board->arg.place] + 0x60;
-    anim.animIndex     = board->arg.winner ? 2 : 1;
-    anim.unk_02.unk_10 = 2;
+    RankBoardRowY boardY = OtosuMenu_RankBoard_BoardY;
+    anim.posX            = 0x80;
+    anim.posY            = boardY.y[board->arg.place] + 0x60;
+    anim.animIndex       = board->arg.winner ? 2 : 1;
+    anim.unk_02.unk_10   = 2;
     if (_Sprite_Load(&board->board, &anim) == 0) {
         OS_WaitForever();
     }
 
-    labelY             = OtosuMenu_RankBoard_LabelY;
-    anim.posX          = 0x80;
-    anim.posY          = labelY.y[board->arg.place] + 0x60;
-    rankAnims          = OtosuMenu_RankBoard_RankAnims;
-    anim.animIndex     = board->arg.winner ? 3 : rankAnims.anim[board->arg.rank];
-    anim.unk_02.unk_10 = 1;
+    RankBoardRowY labelY     = OtosuMenu_RankBoard_LabelY;
+    anim.posX                = 0x80;
+    anim.posY                = labelY.y[board->arg.place] + 0x60;
+    RankBoardAnims rankAnims = OtosuMenu_RankBoard_RankAnims;
+    anim.animIndex           = board->arg.winner ? 3 : rankAnims.anim[board->arg.rank];
+    anim.unk_02.unk_10       = 1;
     if (_Sprite_Load(&board->rankLabel, &anim) == 0) {
         OS_WaitForever();
     }
 
-    anim.posX          = 0x80;
-    tagY               = OtosuMenu_RankBoard_TagY;
-    anim.posX          = 0x8C;
-    anim.posY          = tagY.y[board->arg.place] + 0x60;
-    winnerTagAnims     = OtosuMenu_RankBoard_WinnerTagAnims;
-    tagAnims           = OtosuMenu_RankBoard_TagAnims;
+    anim.posX                     = 0x80;
+    RankBoardRowY tagY            = OtosuMenu_RankBoard_TagY;
+    anim.posX                     = 0x8C;
+    anim.posY                     = tagY.y[board->arg.place] + 0x60;
+    RankBoardAnims winnerTagAnims = OtosuMenu_RankBoard_WinnerTagAnims;
+    RankBoardAnims tagAnims       = OtosuMenu_RankBoard_TagAnims;
     anim.animIndex     = board->arg.winner != 0 ? winnerTagAnims.anim[board->arg.player] : tagAnims.anim[board->arg.player];
     anim.unk_02.unk_10 = 1;
     if (_Sprite_Load(&board->nameTag, &anim) == 0) {
         OS_WaitForever();
     }
 
-    anim.posX      = 0x80;
-    unusedY        = OtosuMenu_RankBoard_UnusedY;
-    anim.posX      = 0x8C;
-    anim.posY      = unusedY.y[board->arg.place] + 0x60;
-    unusedWinner   = OtosuMenu_RankBoard_UnusedWinner;
-    unusedAnims    = OtosuMenu_RankBoard_UnusedAnims;
+    anim.posX                   = 0x80;
+    RankBoardRowY unusedY       = OtosuMenu_RankBoard_UnusedY;
+    anim.posX                   = 0x8C;
+    anim.posY                   = unusedY.y[board->arg.place] + 0x60;
+    RankBoardAnims unusedWinner = OtosuMenu_RankBoard_UnusedWinner;
+    RankBoardAnims unusedAnims  = OtosuMenu_RankBoard_UnusedAnims;
     anim.animIndex = board->arg.winner != 0 ? unusedWinner.anim[board->arg.rank] : unusedAnims.anim[board->arg.rank];
 
-    score            = board->arg.score;
-    count            = 0;
+    u16 score = board->arg.score;
+    u16 count = 0;
+
     board->digits[0] = 0;
     while (score != 0) {
         board->digits[count] = score % 10;
@@ -190,12 +170,12 @@ static void OtosuMenu_RankBoard_Load(PrcCtx* ctx, OtosuMenu_RankBoardObj* board,
     }
     board->digitCount = count;
 
-    digitX             = OtosuMenu_RankBoard_DigitX;
-    digitY             = OtosuMenu_RankBoard_DigitY;
-    digitAnims         = OtosuMenu_RankBoard_DigitAnims;
-    winnerDigits       = OtosuMenu_RankBoard_WinnerDigits;
-    anim.unk_02.unk_10 = 1;
-    for (i = 0; i < board->digitCount; i++) {
+    RankBoardDigitX     digitX       = OtosuMenu_RankBoard_DigitX;
+    RankBoardRowY       digitY       = OtosuMenu_RankBoard_DigitY;
+    RankBoardDigitAnims digitAnims   = OtosuMenu_RankBoard_DigitAnims;
+    RankBoardDigitAnims winnerDigits = OtosuMenu_RankBoard_WinnerDigits;
+    anim.unk_02.unk_10               = 1;
+    for (u16 i = 0; i < board->digitCount; i++) {
         u8 digit = board->digits[i];
 
         anim.posX      = digitX.x[i] + 0x80;
@@ -208,34 +188,28 @@ static void OtosuMenu_RankBoard_Load(PrcCtx* ctx, OtosuMenu_RankBoardObj* board,
 }
 
 static void OtosuMenu_RankBoard_Destroy(PrcCtx* ctx, OtosuMenu_RankBoardObj* board) {
-    u16 i;
-
     Sprite_Destroy(&board->board);
     Sprite_Destroy(&board->rankLabel);
     Sprite_Destroy(&board->nameTag);
-    for (i = 0; i < board->digitCount; i++) {
+    for (u16 i = 0; i < board->digitCount; i++) {
         Sprite_Destroy(&board->digitSprites[i]);
     }
 }
 
 static void OtosuMenu_RankBoard_Update(PrcCtx* ctx, OtosuMenu_RankBoardObj* board) {
-    u16 i;
-
     Sprite_UpdateAndCheck(&board->board);
     Sprite_UpdateAndCheck(&board->rankLabel);
     Sprite_UpdateAndCheck(&board->nameTag);
-    for (i = 0; i < board->digitCount; i++) {
+    for (u16 i = 0; i < board->digitCount; i++) {
         Sprite_UpdateAndCheck(&board->digitSprites[i]);
     }
 }
 
 static void OtosuMenu_RankBoard_Render(PrcCtx* ctx, OtosuMenu_RankBoardObj* board) {
-    u16 i;
-
     Sprite_Render(&board->board);
     Sprite_Render(&board->rankLabel);
     Sprite_Render(&board->nameTag);
-    for (i = 0; i < board->digitCount; i++) {
+    for (u16 i = 0; i < board->digitCount; i++) {
         Sprite_Render(&board->digitSprites[i]);
     }
 }
