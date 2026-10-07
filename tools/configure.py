@@ -78,11 +78,12 @@ COMMON_CC_FLAGS = (
 )
 
 DEFAULT_CC_FLAGS = " ".join(
-    (*COMMON_CC_FLAGS, "-ipa file", "-str noreuse", "-Cpp_exceptions off")
+    (*COMMON_CC_FLAGS, "-ipa file", "-str reuse", "-Cpp_exceptions off")
 )
 
-STR_REUSE_CC_FLAGS = " ".join(
-    (*COMMON_CC_FLAGS, "-ipa file", "-str reuse", "-Cpp_exceptions off")
+# CriWare is prebuilt middleware: its duplicate string literals are not pooled in the ROM
+CRI_CC_FLAGS = " ".join(
+    (*COMMON_CC_FLAGS, "-ipa file", "-str noreuse", "-Cpp_exceptions off")
 )
 
 OLD_MWCC_CC_FLAGS = " ".join((*COMMON_CC_FLAGS, "-str noreuse", "-Cpp_exceptions off"))
@@ -105,6 +106,11 @@ DEFAULT_COMPILER_CONFIG = CompilerConfig(
     flags=DEFAULT_CC_FLAGS,
 )
 
+CRI_COMPILER_CONFIG = CompilerConfig(
+    version=MWCC_DEFAULT_VERSION,
+    flags=CRI_CC_FLAGS,
+)
+
 MSL_COMPILER_CONFIG = CompilerConfig(
     version=MWCC_DEFAULT_VERSION,
     flags=MSL_CC_FLAGS,
@@ -121,34 +127,7 @@ COMPILER_CONFIGS: dict[Path, CompilerConfig] = {
         version="1.2/sp4",
         flags=OLD_MWCC_CC_FLAGS,
     ),
-    Path("src/Interface/Debug/Field/FieldSelect.c"): CompilerConfig(
-        version=MWCC_DEFAULT_VERSION,
-        flags=STR_REUSE_CC_FLAGS,
-    ),
-    Path("src/Interface/Debug/Field/EventSelect.c"): CompilerConfig(
-        version=MWCC_DEFAULT_VERSION,
-        flags=STR_REUSE_CC_FLAGS,
-    ),
-    Path("src/Interface/Menu/MenuEquip.c"): CompilerConfig(
-        version=MWCC_DEFAULT_VERSION,
-        flags=STR_REUSE_CC_FLAGS,
-    ),
-    Path("src/Interface/Menu/Top.c"): CompilerConfig(
-        version=MWCC_DEFAULT_VERSION,
-        flags=STR_REUSE_CC_FLAGS,
-    ),
-    Path("src/Interface/Menu/MenuBadge.c"): CompilerConfig(
-        version=MWCC_DEFAULT_VERSION,
-        flags=STR_REUSE_CC_FLAGS,
-    ),
-    Path("src/Interface/Menu/Tusin.c"): CompilerConfig(
-        version=MWCC_DEFAULT_VERSION,
-        flags=STR_REUSE_CC_FLAGS,
-    ),
-    Path("src/Interface/Menu/TusinSet.c"): CompilerConfig(
-        version=MWCC_DEFAULT_VERSION,
-        flags=STR_REUSE_CC_FLAGS,
-    ),
+    Path("libs/CriWare"): CRI_COMPILER_CONFIG,
     Path("libs/c"): MSL_COMPILER_CONFIG,
     Path("libs/cpp"): MSL_COMPILER_CONFIG,
     Path("libs/runtime"): MSL_RUNTIME_COMPILER_CONFIG,

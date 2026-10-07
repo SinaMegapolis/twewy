@@ -17,18 +17,18 @@ src/Debug/Fukuda/OtosuMenu/OtosuMenu_Title.c:
 src/Debug/Fukuda/OtosuMenu/OtosuMenu_RoleSelect.c:
     .text       start:0x02087524 end:0x020879f8
     .rodata     start:0x02091c3c end:0x02091cc4
-    .data       start:0x02092c9c end:0x02092cd0
+    .data       start:0x02092c9c end:0x02092ce0
 
 src/Debug/Fukuda/OtosuMenu/OtosuMenu_PinSelect.c:
     .text       start:0x020879f8 end:0x020894f8
     .rodata     start:0x02091cc4 end:0x02091fe0
-    .data       start:0x02092cd0 end:0x02092df4
+    .data       start:0x02092ce0 end:0x02092e18
     .bss        start:0x020935c0 end:0x02093660
 
 src/Debug/Fukuda/OtosuMenu/OtosuMenu_CommError.c:
     .text       start:0x020894f8 end:0x02089b3c
     .rodata     start:0x02091fe0 end:0x02092068
-    .data       start:0x02092df4 end:0x02092f30
+    .data       start:0x02092e18 end:0x02092f30
 
 src/Debug/Fukuda/OtosuMenu/OtosuMenu_Lobby.c:
     .text       start:0x02089b3c end:0x0208c6f8
@@ -56,7 +56,8 @@ src/Debug/Fukuda/OtosuMenu/OtosuMenu_TitleEnemy.c:
     .rodata     start:0x020923f0 end:0x02092448
     .data       start:0x020931dc end:0x020931fc
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_TitleBoss.c:
+src/Otosu/Menu/OtosuMenu_TitleBoss.c:
+    complete
     .text       start:0x0208ed78 end:0x0208f020
     .data       start:0x020931fc end:0x0209321c
 
@@ -65,12 +66,14 @@ src/Debug/Fukuda/OtosuMenu/OtosuMenu_RankBoard.c:
     .rodata     start:0x02092448 end:0x020924f8
     .data       start:0x0209321c end:0x0209323c
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_Daiza.c:
+src/Otosu/Menu/OtosuMenu_Daiza.c:
+    complete
     .text       start:0x0208f6f8 end:0x0208f860
     .rodata     start:0x020924f8 end:0x02092524
     .data       start:0x0209323c end:0x02093254
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_Entry.c:
+src/Otosu/Menu/OtosuMenu_Entry.c:
+    complete
     .text       start:0x0208f860 end:0x0208f9d0
     .data       start:0x02093254 end:0x020932b8
 
@@ -84,7 +87,8 @@ src/Debug/Fukuda/OtosuMenu/OtosuMenu_SaveData.c:
     .rodata     start:0x02092870 end:0x02092a4c
     .data       start:0x020932e8 end:0x02093494
 
-src/Debug/Fukuda/OtosuMenu/OtosuMenu_DelDataWin.c:
+src/Otosu/Menu/OtosuMenu_DelDataWin.c:
+    complete
     .text       start:0x02091760 end:0x02091978
     .rodata     start:0x02092a4c end:0x02092ab8
     .data       start:0x02093494 end:0x020934ac

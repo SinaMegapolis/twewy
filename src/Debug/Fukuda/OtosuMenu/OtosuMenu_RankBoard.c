@@ -1,27 +1,28 @@
 #include "OtosuMenuShared.h"
 
-static PrcStepFn data_ov002_0209321c[] = {func_ov002_0208f6e0, func_ov002_0208f6f0, PrcStep_Continue};
+static void          OtosuMenu_RankBoard_Load(PrcCtx* ctx, OtosuMenu_RankBoardObj* board, OtosuMenu_RankBoardArg* arg);
+static void          OtosuMenu_RankBoard_Destroy(PrcCtx* ctx, OtosuMenu_RankBoardObj* board);
+static void          OtosuMenu_RankBoard_Update(PrcCtx* ctx, OtosuMenu_RankBoardObj* board);
+static void          OtosuMenu_RankBoard_Render(PrcCtx* ctx, OtosuMenu_RankBoardObj* board);
+static PrcStepResult OtosuMenu_RankBoard_Step_Begin(PrcCtx* ctx, void* unused);
+static PrcStepResult OtosuMenu_RankBoard_Step_Continue(PrcCtx* ctx, void* unused);
 
-PrcFrameDesc data_ov002_02093228 = {
-    .enter     = func_ov002_0208f0bc,
-    .stepTable = data_ov002_0209321c,
-    .update    = func_ov002_0208f630,
-    .render    = func_ov002_0208f688,
-    .exit      = func_ov002_0208f5d8,
+static PrcStepFn OtosuMenu_RankBoard_StepTable[] = {OtosuMenu_RankBoard_Step_Begin, OtosuMenu_RankBoard_Step_Continue,
+                                                    PrcStep_Continue};
+
+PrcFrameDesc OtosuMenu_RankBoard_FrameDesc = {
+    .enter     = OtosuMenu_RankBoard_Load,
+    .stepTable = OtosuMenu_RankBoard_StepTable,
+    .update    = OtosuMenu_RankBoard_Update,
+    .render    = OtosuMenu_RankBoard_Render,
+    .exit      = OtosuMenu_RankBoard_Destroy,
 };
 
-static const Ov002_U16_10 data_ov002_020924a4 = {
-    0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017, 0x0018, 0x0019, 0x001A, 0x001B,
-}; /* const */
-static const Ov002_U16_10 data_ov002_020924b8 = {
-    0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F, 0x0010, 0x0011,
-}; /* const */
-
-SpriteFrameInfo* func_ov002_0208f020(Sprite* sprite, s32 arg, s32 mode) {
+static SpriteFrameInfo* OtosuMenu_RankBoard_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallback(sprite, mode);
 }
 
-static const SpriteAnimation data_ov002_020924cc = {
+static const SpriteAnimation OtosuMenu_RankBoard_Anim = {
     .bits_0_1          = 1,
     .dataType          = 0,
     .bit_6             = 0,
@@ -32,7 +33,7 @@ static const SpriteAnimation data_ov002_020924cc = {
     .unk_02            = 0x0000,
     .posX              = -13,
     .posY              = 0x000C,
-    .frameInfoCallback = func_ov002_0208f020,
+    .frameInfoCallback = OtosuMenu_RankBoard_GetFrameInfo,
     .callbackArg       = 0,
     .owner             = NULL,
     .binIden           = (BinIdentifier*)&data_ov002_02091acc,
@@ -48,36 +49,87 @@ static const SpriteAnimation data_ov002_020924cc = {
     .animIndex         = 0x0001,
 };
 
-void func_ov002_0208f0bc(PrcCtx* ctx, void* arg1, void* arg2) {
-    SpriteAnimation anim           = data_ov002_020924cc;
-    const u16       table_10[4]    = {0x0013, 0x0014, 0x0015, 0x0016};
-    const u16       table_20[4]    = {0x0009, 0x000A, 0x000B, 0x000C};
-    const u16       table_18[4]    = {0xFFEC, 0x0014, 0x003C, 0x0064};
-    const u16       table_8[4]     = {0x0009, 0x000A, 0x000B, 0x000C};
-    const u16       table_unk18[4] = {0x0000, 0x0028, 0x0050, 0x0078};
-    const u16       table_30[4]    = {0xFFE8, 0x0010, 0x0038, 0x0060};
-    const u16       table_40[4]    = {0x0000, 0x0028, 0x0050, 0x0078};
-    const u16       table_28[4]    = {0x0013, 0x0014, 0x0015, 0x0016};
-    const u16       table_38[4]    = {0x0004, 0x0005, 0x0006, 0x0007};
-    const u16       table_48[4]    = {0x0000, 0x0028, 0x0050, 0x0078};
-    const u16       table_78[6]    = {0x0000, 0xFFFA, 0xFFF4, 0xFFEE, 0xFFE8, 0xFFE2};
-    Ov002_U16_10    table_64       = data_ov002_020924b8;
-    Ov002_U16_10    table_50       = data_ov002_020924a4;
-    s32             temp_hi;
-    s32             var_r0;
-    s32             var_r2;
-    s32             var_r4;
-    u16             temp_r0_4;
-    u16             temp_r2_3;
-    u16             temp_r3_2;
-    u16             var_r0_5;
-    u16             var_r1;
-    u16             var_r9;
-    u32             temp_r5_3;
-    u8              temp_r0_3;
-    OVMGR_S32(arg1, 0xC)  = (s32)OVMGR_U32(arg2, 0x0);
-    OVMGR_S32(arg1, 0x10) = (s32)OVMGR_U32(arg2, 0x4);
-    OVMGR_S32(arg1, 0x14) = (s32)OVMGR_U32(arg2, 0x8);
+/*
+ * The layout tables are wrapped in structs and copied into locals by assignment just before each use,
+ * which is why the copies sit next to the code that reads them rather than at the top of the function.
+ */
+typedef struct {
+    s16 y[4]; // indexed by the board's place
+} RankBoardRowY;
+
+typedef struct {
+    u16 anim[4];
+} RankBoardAnims;
+
+typedef struct {
+    s16 x[6]; // indexed by digit position, least significant first
+} RankBoardDigitX;
+
+typedef struct {
+    u16 anim[10]; // indexed by digit value
+} RankBoardDigitAnims;
+
+// Definition order is what places these in .rodata (mwcc sorts same-size objects by creation order).
+static const RankBoardAnims OtosuMenu_RankBoard_RankAnims = {
+    {4, 5, 6, 7}
+};
+static const RankBoardRowY OtosuMenu_RankBoard_TagY = {
+    {-24, 16, 56, 96}
+};
+static const RankBoardAnims OtosuMenu_RankBoard_WinnerTagAnims = {
+    {19, 20, 21, 22}
+};
+static const RankBoardAnims OtosuMenu_RankBoard_TagAnims = {
+    {9, 10, 11, 12}
+};
+static const RankBoardRowY OtosuMenu_RankBoard_UnusedY = {
+    {-20, 20, 60, 100}
+};
+static const RankBoardRowY OtosuMenu_RankBoard_BoardY = {
+    {0, 40, 80, 120}
+};
+static const RankBoardAnims OtosuMenu_RankBoard_UnusedAnims = {
+    {9, 10, 11, 12}
+};
+static const RankBoardRowY OtosuMenu_RankBoard_LabelY = {
+    {0, 40, 80, 120}
+};
+static const RankBoardRowY OtosuMenu_RankBoard_DigitY = {
+    {0, 40, 80, 120}
+};
+static const RankBoardAnims OtosuMenu_RankBoard_UnusedWinner = {
+    {19, 20, 21, 22}
+};
+static const RankBoardDigitX OtosuMenu_RankBoard_DigitX = {
+    {0, -6, -12, -18, -24, -30}
+};
+static const RankBoardDigitAnims OtosuMenu_RankBoard_DigitAnims = {
+    {8, 9, 10, 11, 12, 13, 14, 15, 16, 17}
+};
+static const RankBoardDigitAnims OtosuMenu_RankBoard_WinnerDigits = {
+    {18, 19, 20, 21, 22, 23, 24, 25, 26, 27}
+};
+
+static void OtosuMenu_RankBoard_Load(PrcCtx* ctx, OtosuMenu_RankBoardObj* board, OtosuMenu_RankBoardArg* arg) {
+    SpriteAnimation     anim = OtosuMenu_RankBoard_Anim;
+    RankBoardDigitX     digitX;
+    RankBoardDigitAnims digitAnims;
+    RankBoardDigitAnims winnerDigits;
+    RankBoardRowY       boardY;
+    RankBoardRowY       labelY;
+    RankBoardAnims      rankAnims;
+    RankBoardRowY       tagY;
+    RankBoardAnims      winnerTagAnims;
+    RankBoardAnims      tagAnims;
+    RankBoardRowY       unusedY;
+    RankBoardAnims      unusedWinner;
+    RankBoardAnims      unusedAnims;
+    RankBoardRowY       digitY;
+    u16                 score;
+    u16                 count;
+    u16                 i;
+
+    board->arg = *arg;
 
     anim.bits_0_1 = 1;
     anim.unk_1C   = 0x1D;
@@ -86,148 +138,113 @@ void func_ov002_0208f0bc(PrcCtx* ctx, void* arg1, void* arg2) {
     anim.unk_26   = 0x1E;
     anim.unk_28   = 0x1F;
 
-    anim.posX       = 0x80;
-    anim.posY       = (s16)table_48[OVMGR_U8(arg1, 0x10)] + 0x60;
-    anim.unk_02.raw = (u16)((anim.unk_02.raw & ~0xC00) | 0x800);
-    anim.animIndex  = (OVMGR_S32(arg1, 0xC) != 0) ? 2 : 1;
-    if (_Sprite_Load((Sprite*)((u8*)arg1 + 0x20), &anim) == 0) {
+    boardY             = OtosuMenu_RankBoard_BoardY;
+    anim.posX          = 0x80;
+    anim.posY          = boardY.y[board->arg.place] + 0x60;
+    anim.animIndex     = board->arg.winner ? 2 : 1;
+    anim.unk_02.unk_10 = 2;
+    if (_Sprite_Load(&board->board, &anim) == 0) {
         OS_WaitForever();
     }
 
-    anim.posX       = 0x80;
-    anim.posY       = (s16)table_40[OVMGR_U8(arg1, 0x10)] + 0x60;
-    anim.unk_02.raw = (u16)((anim.unk_02.raw & ~0xC00) | 0x400);
-    anim.animIndex  = (OVMGR_S32(arg1, 0xC) != 0) ? 3 : table_38[OVMGR_U8(arg1, 0x11)];
-    if (_Sprite_Load((Sprite*)((u8*)arg1 + 0x60), &anim) == 0) {
+    labelY             = OtosuMenu_RankBoard_LabelY;
+    anim.posX          = 0x80;
+    anim.posY          = labelY.y[board->arg.place] + 0x60;
+    rankAnims          = OtosuMenu_RankBoard_RankAnims;
+    anim.animIndex     = board->arg.winner ? 3 : rankAnims.anim[board->arg.rank];
+    anim.unk_02.unk_10 = 1;
+    if (_Sprite_Load(&board->rankLabel, &anim) == 0) {
         OS_WaitForever();
     }
 
-    anim.posX       = 0x8C;
-    anim.posY       = (s16)table_30[OVMGR_U8(arg1, 0x10)] + 0x60;
-    anim.unk_02.raw = (u16)((anim.unk_02.raw & ~0xC00) | 0x400);
-    if (OVMGR_S32(arg1, 0xC) == 0) {
-        anim.animIndex = table_20[OVMGR_U8(arg1, 0x12)];
-    } else {
-        anim.animIndex = table_28[OVMGR_U8(arg1, 0x12)];
-    }
-    if (_Sprite_Load((Sprite*)((u8*)arg1 + 0xA0), &anim) == 0) {
+    anim.posX          = 0x80;
+    tagY               = OtosuMenu_RankBoard_TagY;
+    anim.posX          = 0x8C;
+    anim.posY          = tagY.y[board->arg.place] + 0x60;
+    winnerTagAnims     = OtosuMenu_RankBoard_WinnerTagAnims;
+    tagAnims           = OtosuMenu_RankBoard_TagAnims;
+    anim.animIndex     = board->arg.winner != 0 ? winnerTagAnims.anim[board->arg.player] : tagAnims.anim[board->arg.player];
+    anim.unk_02.unk_10 = 1;
+    if (_Sprite_Load(&board->nameTag, &anim) == 0) {
         OS_WaitForever();
     }
 
-    anim.posX = 0x8C;
-    anim.posY = (s16)table_18[OVMGR_U8(arg1, 0x10)] + 0x60;
-    if (OVMGR_S32(arg1, 0xC) == 0) {
-        anim.animIndex = table_8[OVMGR_U8(arg1, 0x11)];
-    } else {
-        anim.animIndex = table_10[OVMGR_U8(arg1, 0x11)];
-    }
+    anim.posX      = 0x80;
+    unusedY        = OtosuMenu_RankBoard_UnusedY;
+    anim.posX      = 0x8C;
+    anim.posY      = unusedY.y[board->arg.place] + 0x60;
+    unusedWinner   = OtosuMenu_RankBoard_UnusedWinner;
+    unusedAnims    = OtosuMenu_RankBoard_UnusedAnims;
+    anim.animIndex = board->arg.winner != 0 ? unusedWinner.anim[board->arg.rank] : unusedAnims.anim[board->arg.rank];
 
-    var_r0_5                   = OVMGR_U16(arg1, 0x14);
-    var_r1                     = 0;
-    *((s8*)((u8*)arg1 + 0x1A)) = 0;
-    if (var_r0_5 != 0) {
-        do {
-            temp_r5_3                           = var_r0_5 >> 0x1F;
-            *((s8*)((u8*)arg1 + 0x1A + var_r1)) = (s8)(var_r0_5 - (0xA * (temp_r5_3 + (var_r0_5 / 10))));
-            var_r0_5                            = temp_r5_3 + (var_r0_5 / 10);
-            var_r1 += 1;
-        } while (var_r0_5 != 0);
+    score            = board->arg.score;
+    count            = 0;
+    board->digits[0] = 0;
+    while (score != 0) {
+        board->digits[count] = score % 10;
+        score /= 10;
+        count++;
     }
-    if (var_r1 == 0) {
-        var_r1 = 1;
+    if (count == 0) {
+        count = 1;
     }
-    OVMGR_U16(arg1, 0x18) = var_r1;
-    var_r9                = 0;
-    anim.unk_02.raw       = (u16)((anim.unk_02.raw & ~0xC00) | 0x400);
-    if ((u32)OVMGR_U16(arg1, 0x18) <= 0U) {
-        return;
+    board->digitCount = count;
+
+    digitX             = OtosuMenu_RankBoard_DigitX;
+    digitY             = OtosuMenu_RankBoard_DigitY;
+    digitAnims         = OtosuMenu_RankBoard_DigitAnims;
+    winnerDigits       = OtosuMenu_RankBoard_WinnerDigits;
+    anim.unk_02.unk_10 = 1;
+    for (i = 0; i < board->digitCount; i++) {
+        u8 digit = board->digits[i];
+
+        anim.posX      = digitX.x[i] + 0x80;
+        anim.posY      = digitY.y[board->arg.place] + 0x60;
+        anim.animIndex = board->arg.winner != 0 ? winnerDigits.anim[digit] : digitAnims.anim[digit];
+        if (_Sprite_Load(&board->digitSprites[i], &anim) == 0) {
+            OS_WaitForever();
+        }
     }
-loop_36:
-    temp_r0_3 = *((u8*)arg1 + 0x1A + var_r9);
-    anim.posX = (s16)table_78[var_r9] + 0x80;
-    anim.posY = (s16)table_unk18[OVMGR_U8(arg1, 0x10)] + 0x60;
-    if (OVMGR_S32(arg1, 0xC) != 0) {
-        anim.animIndex = table_50.data[temp_r0_3];
-    } else {
-        anim.animIndex = table_64.data[temp_r0_3];
-    }
-    if (_Sprite_Load((Sprite*)((u8*)arg1 + 0xE0 + (var_r9 << 6)), &anim) == 0) {
-        OS_WaitForever();
-    }
-    temp_r0_4 = var_r9 + 1;
-    temp_hi   = (u32)OVMGR_U16(arg1, 0x18) > (u32)temp_r0_4;
-    var_r9    = temp_r0_4;
-    if (!temp_hi) {
-        return;
-    }
-    goto loop_36;
 }
 
-void func_ov002_0208f5d8(PrcCtx* ctx, void* arg1) {
-    u16 temp_r0_2;
-    u16 var_r5;
-    u32 temp_r0;
+static void OtosuMenu_RankBoard_Destroy(PrcCtx* ctx, OtosuMenu_RankBoardObj* board) {
+    u16 i;
 
-    Sprite_Destroy(arg1 + 0x20);
-    Sprite_Destroy(arg1 + 0x60);
-    Sprite_Destroy(arg1 + 0xA0);
-    var_r5 = 0;
-    if ((u32)OVMGR_U16(arg1, 0x18) <= 0U) {
-        return;
+    Sprite_Destroy(&board->board);
+    Sprite_Destroy(&board->rankLabel);
+    Sprite_Destroy(&board->nameTag);
+    for (i = 0; i < board->digitCount; i++) {
+        Sprite_Destroy(&board->digitSprites[i]);
     }
-    do {
-        Sprite_Destroy(arg1 + 0xE0 + (var_r5 << 6));
-        temp_r0_2 = var_r5 + 1;
-        temp_r0   = temp_r0_2 << 0x10;
-        var_r5    = temp_r0_2;
-    } while ((u32)OVMGR_U16(arg1, 0x18) > (u32)(temp_r0 >> 0x10));
 }
 
-void func_ov002_0208f630(PrcCtx* ctx, void* arg1) {
-    u16 temp_r0_2;
-    u16 var_r5;
-    u32 temp_r0;
+static void OtosuMenu_RankBoard_Update(PrcCtx* ctx, OtosuMenu_RankBoardObj* board) {
+    u16 i;
 
-    Sprite_UpdateAndCheck(arg1 + 0x20);
-    Sprite_UpdateAndCheck(arg1 + 0x60);
-    Sprite_UpdateAndCheck(arg1 + 0xA0);
-    var_r5 = 0;
-    if ((u32)OVMGR_U16(arg1, 0x18) <= 0U) {
-        return;
+    Sprite_UpdateAndCheck(&board->board);
+    Sprite_UpdateAndCheck(&board->rankLabel);
+    Sprite_UpdateAndCheck(&board->nameTag);
+    for (i = 0; i < board->digitCount; i++) {
+        Sprite_UpdateAndCheck(&board->digitSprites[i]);
     }
-    do {
-        Sprite_UpdateAndCheck(arg1 + 0xE0 + (var_r5 << 6));
-        temp_r0_2 = var_r5 + 1;
-        temp_r0   = temp_r0_2 << 0x10;
-        var_r5    = temp_r0_2;
-    } while ((u32)OVMGR_U16(arg1, 0x18) > (u32)(temp_r0 >> 0x10));
 }
 
-void func_ov002_0208f688(PrcCtx* ctx, void* arg1) {
-    u16 temp_r0_2;
-    u16 var_r5;
-    u32 temp_r0;
+static void OtosuMenu_RankBoard_Render(PrcCtx* ctx, OtosuMenu_RankBoardObj* board) {
+    u16 i;
 
-    Sprite_Render(arg1 + 0x20);
-    Sprite_Render(arg1 + 0x60);
-    Sprite_Render(arg1 + 0xA0);
-    var_r5 = 0;
-    if ((u32)OVMGR_U16(arg1, 0x18) <= 0U) {
-        return;
+    Sprite_Render(&board->board);
+    Sprite_Render(&board->rankLabel);
+    Sprite_Render(&board->nameTag);
+    for (i = 0; i < board->digitCount; i++) {
+        Sprite_Render(&board->digitSprites[i]);
     }
-    do {
-        Sprite_Render(arg1 + 0xE0 + (var_r5 << 6));
-        temp_r0_2 = var_r5 + 1;
-        temp_r0   = temp_r0_2 << 0x10;
-        var_r5    = temp_r0_2;
-    } while ((u32)OVMGR_U16(arg1, 0x18) > (u32)(temp_r0 >> 0x10));
 }
 
-PrcStepResult func_ov002_0208f6e0(PrcCtx* ctx, void* unused) {
+static PrcStepResult OtosuMenu_RankBoard_Step_Begin(PrcCtx* ctx, void* unused) {
     PrcCtx_AdvanceStep(ctx);
     return PRC_STEP_REPEAT;
 }
 
-PrcStepResult func_ov002_0208f6f0(PrcCtx* ctx, void* unused) {
+static PrcStepResult OtosuMenu_RankBoard_Step_Continue(PrcCtx* ctx, void* unused) {
     return PRC_STEP_CONTINUE;
 }

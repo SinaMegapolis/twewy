@@ -57,7 +57,7 @@ static PrcStepFn data_ov002_02092f58[] = {
 };
 
 static const Ov002_U16_6 data_ov002_02092074 = {0x0002, 0x0002, 0x009D, 0x0002, 0x00A4, 0x009D}; /* const */
-s32                      data_ov002_02093660;
+BOOL                     OtosuMenu_TitleSkipped;
 static s16               data_ov002_02093664[0xE];
 static const Ov002_U16_6 data_ov002_02092068 = {0x0002, 0x0002, 0x009D, 0x0002, 0x002A, 0x0054}; /* const */
 PrcFrameDesc             data_ov002_02092ff0 = {
@@ -67,30 +67,56 @@ PrcFrameDesc             data_ov002_02092ff0 = {
                 .render    = func_ov002_02089bac,
                 .exit      = func_ov002_02089b80,
 };
-static const Ov002_U16_10 data_ov002_02092080 = {0x0000, 0x0008, 0x00A0, 0x0058, 0x00B8,
-                                                 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}; /* const */
-static const Ov002_U16_25 data_ov002_0209212e = {
-    0,    8,    0xA0, 0x58, 0xB8, 1,    0x48, 0x40,   0xB6,   0x58,   2,      0x48,   0x60,
-    0xB6, 0x78, 3,    0x48, 0x80, 0xB6, 0x98, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
-}; /* const */
-static const Ov002_U16_12 data_ov002_02092094 = {0x0002, 0x0002, 0x009D, 0x0004, 0x0040, 0x003E,
-                                                 0x0004, 0x0040, 0x005E, 0x0004, 0x0040, 0x007E}; /* const */
-static const Ov002_U16_15 data_ov002_020920ac = {
-    0x23F4, 8, 8, 0xF8, 0x40, 0x23EB, 0x18, 0xA6, 0x58, 0xB6, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0,
-}; /* const */
-static const Ov002_U16_15 data_ov002_020920e8 = {
-    0, 8, 0xA0, 0x58, 0xB8, 1, 0xA5, 0xA0, 0xF5, 0xB8, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
-}; /* const */
-static const Ov002_U16_20 data_ov002_02092106 = {0x23F6, 0x0008, 0x0008, 0x00F8, 0x0040, 0x23F7, 0x00C5,
-                                                 0x00A6, 0x00F5, 0x00B6, 0x23EB, 0x0018, 0x00A6, 0x0058,
-                                                 0x00B6, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0000}; /* const */
-static const Ov002_U16_15 data_ov002_020920ca = {
-    0x23F5, 8, 8, 0xF8, 0x40, 0x23EB, 0x18, 0xA6, 0x58, 0xB6, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0,
-}; /* const */
+static const OtosuMenuRectList2 data_ov002_02092080 = {
+    {
+     {0x0000, 0x0008, 0x00A0, 0x0058, 0x00B8},
+     {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF},
+     }
+};
+static const OtosuMenuRectList5 data_ov002_0209212e = {
+    {
+     {0, 8, 0xA0, 0x58, 0xB8},
+     {1, 0x48, 0x40, 0xB6, 0x58},
+     {2, 0x48, 0x60, 0xB6, 0x78},
+     {3, 0x48, 0x80, 0xB6, 0x98},
+     {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF},
+     }
+};
+static const Ov002_U16_12       data_ov002_02092094 = {0x0002, 0x0002, 0x009D, 0x0004, 0x0040, 0x003E,
+                                                       0x0004, 0x0040, 0x005E, 0x0004, 0x0040, 0x007E}; /* const */
+static const OtosuMenuRectList3 data_ov002_020920ac = {
+    {
+     {0x23F4, 8, 8, 0xF8, 0x40},
+     {0x23EB, 0x18, 0xA6, 0x58, 0xB6},
+     {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0},
+     }
+};
+static const OtosuMenuRectList3 data_ov002_020920e8 = {
+    {
+     {0, 8, 0xA0, 0x58, 0xB8},
+     {1, 0xA5, 0xA0, 0xF5, 0xB8},
+     {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF},
+     }
+};
+static const OtosuMenuRectList4 data_ov002_02092106 = {
+    {
+     {0x23F6, 0x0008, 0x0008, 0x00F8, 0x0040},
+     {0x23F7, 0x00C5, 0x00A6, 0x00F5, 0x00B6},
+     {0x23EB, 0x0018, 0x00A6, 0x0058, 0x00B6},
+     {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0000},
+     }
+};
+static const OtosuMenuRectList3 data_ov002_020920ca = {
+    {
+     {0x23F5, 8, 8, 0xF8, 0x40},
+     {0x23EB, 0x18, 0xA6, 0x58, 0xB6},
+     {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0},
+     }
+};
 
 void func_ov002_02089b3c(PrcCtx* ctx, OtosuMenuObj* menuObj) {
-    menuObj->unk_46078.posX = 0;
-    menuObj->unk_46078.posY = 0xC8;
+    menuObj->cursor.posX = 0;
+    menuObj->cursor.posY = 0xC8;
 }
 
 void func_ov002_02089b54(void) {
@@ -103,8 +129,8 @@ void func_ov002_02089b54(void) {
 
 void func_ov002_02089b80(void* arg0, OtosuMenuObj* menuObj) {
     func_ov002_02085710(menuObj);
-    menuObj->unk_46078.posX = 0;
-    menuObj->unk_46078.posY = 0xC8;
+    menuObj->cursor.posX = 0;
+    menuObj->cursor.posY = 0xC8;
 }
 
 void func_ov002_02089ba8(void) {}
@@ -136,13 +162,13 @@ s32 func_ov002_02089bd8(void* arg0, OtosuMenuObj* menuObj) {
     if ((u32)temp_r2 >= 4U) {
         return 0;
     }
-    MI_CpuCopyU8((s32)((u8*)msg + 0x14), (s16*)((temp_r2 * 0x30) + ((u8*)menuObj->unk_41838)), 0x16);
-    MI_CpuCopyU8((s32)((u8*)msg + 0x0A), (s16*)((msg->unk10 * 0x30) + ((u8*)menuObj->unk_41862)), 6);
+    MI_CpuCopyU8((s32)((u8*)msg + 0x14), menuObj->players[temp_r2].name, 0x16);
+    MI_CpuCopyU8((s32)((u8*)msg + 0x0A), menuObj->players[msg->unk10].bssid, 6);
 
-    menuObj->unk_41834 = (u16)(menuObj->unk_41834 | (1 << msg->unk10));
-    menuObj->unk_41836 = (u16)(menuObj->unk_41836 | (1 << msg->unk10));
+    menuObj->playerMask = (u16)(menuObj->playerMask | (1 << msg->unk10));
+    menuObj->unk_41836  = (u16)(menuObj->unk_41836 | (1 << msg->unk10));
 
-    *(u16*)((u8*)menuObj->unk_4195A + (msg->unk10 * 2)) = 0;
+    menuObj->unk_4195A[msg->unk10] = 0;
     return 1;
 }
 
@@ -158,8 +184,8 @@ void func_ov002_02089c88(void* arg0, OtosuMenuObj* menuObj) {
     if ((u32)temp_r3 >= 4U) {
         return;
     }
-    menuObj->unk_41834 = (u16)(menuObj->unk_41834 & ~(1 << temp_r3));
-    menuObj->unk_41836 = (u16)(menuObj->unk_41836 | (1 << msg->unk10));
+    menuObj->playerMask = (u16)(menuObj->playerMask & ~(1 << temp_r3));
+    menuObj->unk_41836  = (u16)(menuObj->unk_41836 | (1 << msg->unk10));
 }
 
 void func_ov002_02089cd0(void* arg0, OtosuMenuObj* menuObj) {
@@ -194,24 +220,24 @@ PrcStepResult func_ov002_02089d40(PrcCtx* ctx, void* object) {
 
     s32 temp_r0;
 
-    menuObj->unk_41834 = 0;
-    menuObj->unk_41836 = 0;
-    menuObj->unk_4198C = 0;
-    menuObj->unk_41990 = 0;
-    menuObj->unk_41994 = 1;
-    menuObj->unk_41950 = 0;
-    menuObj->unk_41954 = 0;
-    menuObj->unk_41958 = 0;
-    MI_CpuSet((u8*)menuObj->unk_4195A, 0, 8);
-    MI_CpuSet((u8*)menuObj->unk_41962, 0, 8);
-    menuObj->unk_4196A = 0;
-    menuObj->unk_4198A = 1;
-    menuObj->unk_41834 = 1;
-    temp_r0            = SysFont_GetOwnerName();
+    menuObj->playerMask = 0;
+    menuObj->unk_41836  = 0;
+    menuObj->unk_4198C  = 0;
+    menuObj->unk_41990  = 0;
+    menuObj->unk_41994  = 1;
+    menuObj->unk_41950  = 0;
+    menuObj->unk_41954  = 0;
+    menuObj->unk_41958  = 0;
+    MI_CpuSet(menuObj->unk_4195A, 0, 8);
+    MI_CpuSet(menuObj->unk_41962, 0, 8);
+    menuObj->unk_4196A  = 0;
+    menuObj->unk_4198A  = 1;
+    menuObj->playerMask = 1;
+    temp_r0             = SysFont_GetOwnerName();
     MI_CpuCopyU8(temp_r0, (u8*)menuObj->unk_4196E, 0x16);
-    MI_CpuCopyU8(temp_r0, (u8*)menuObj->unk_41838, 0x16);
+    MI_CpuCopyU8(temp_r0, menuObj->players[0].name, 0x16);
     Mem_Free(&gDebugHeap, temp_r0);
-    func_0203a96c((u8*)menuObj->unk_41862);
+    func_0203a96c(menuObj->players[0].bssid);
     PrcCtx_AdvanceStep(ctx);
     return PRC_STEP_CONTINUE;
 }
@@ -258,17 +284,17 @@ void func_ov002_02089f3c(OtosuMenuObj* menuObj, s32 arg1) {
     u8* var_r0;
     u8* var_r0_2;
 
-    pack = (u8*)menuObj->unk_462F0;
+    pack = (u8*)menuObj->packs[0];
     if (arg1 != 0) {
         var_r0                                                = Data_GetPackEntryData((Data*)pack, 23);
-        menuObj->unk_474B0                                    = (void*)(var_r0 + 4);
+        menuObj->mainScreens[1][0]                            = (void*)(var_r0 + 4);
         g_DisplaySettings.engineState[0].window0              = 0x1F;
         g_DisplaySettings.engineState[0].windowOutsideEffects = 1;
         g_DisplaySettings.engineState[0].windowOutside        = 0x1F;
         g_DisplaySettings.engineState[0].window0Effects       = 1;
     } else {
         var_r0_2                                              = Data_GetPackEntryData((Data*)pack, 24);
-        menuObj->unk_474B0                                    = (void*)(var_r0_2 + 4);
+        menuObj->mainScreens[1][0]                            = (void*)(var_r0_2 + 4);
         g_DisplaySettings.engineState[0].window0Left          = 688128;
         g_DisplaySettings.engineState[0].window0Top           = 655360;
         g_DisplaySettings.engineState[0].window0Right         = 1015808;
@@ -280,7 +306,7 @@ void func_ov002_02089f3c(OtosuMenuObj* menuObj, s32 arg1) {
         g_DisplaySettings.controls[0].windows |= 1;
     }
     Display_Commit();
-    func_0200d1d8((u8*)menuObj->unk_47410, 0, 1, 0, (u8*)menuObj->unk_474B0, 1, 1);
+    func_0200d1d8((u8*)menuObj->mainMaps[1].engineId, 0, 1, 0, (u8*)menuObj->mainScreens[1][0], 1, 1);
 }
 
 PrcStepResult func_ov002_0208a050(PrcCtx* ctx, void* object) {
@@ -294,10 +320,10 @@ PrcStepResult func_ov002_0208a050(PrcCtx* ctx, void* object) {
 PrcStepResult func_ov002_0208a070(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
 
-    Ov002_U16_20 table_sp0 = data_ov002_02092106;
-    u16          i;
+    OtosuMenuRectList4 table_sp0 = data_ov002_02092106;
+    u16                i;
 
-    func_ov002_02082f18(menuObj, 0x18, 0x16, table_sp0.data);
+    func_ov002_02082f18(menuObj, 0x18, 0x16, table_sp0.rects);
     func_ov002_02089f3c(menuObj, 0);
     menuObj->unk_474C8 = 0xFFFF;
     PrcCtx_AdvanceStep(ctx);
@@ -314,9 +340,9 @@ void func_ov002_0208a0f8(OtosuMenuObj* menuObj) {
     menuObj->unk_41990 = 1;
     menuObj->unk_41954 = 1;
     irq                = OS_DisableIRQ();
-    mask               = menuObj->unk_41834 & menuObj->unk_41836;
+    mask               = menuObj->playerMask & menuObj->unk_41836;
     menuObj->unk_41836 = 0;
-    src                = (u8*)menuObj->unk_41838;
+    src                = (u8*)menuObj->players;
     for (i = 0; i < 4; i++) {
         if (mask & (1 << i)) {
             MI_CpuCopyU8(src, names[i], 0x16);
@@ -332,7 +358,7 @@ void func_ov002_0208a198(OtosuMenuObj* menuObj) {
     u16 temp_r0;
 
     menuObj->unk_41990 = 0;
-    menuObj->unk_4198A = func_02047e84(menuObj->unk_41834);
+    menuObj->unk_4198A = func_02047e84(menuObj->playerMask);
     var_ip             = 1;
     menuObj->unk_4198C = 1;
     if (menuObj->unk_41994 != 0) {
@@ -352,7 +378,7 @@ void func_ov002_0208a198(OtosuMenuObj* menuObj) {
 PrcStepResult func_ov002_0208a250(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
 
-    Ov002_U16_15       layout = data_ov002_020920e8;
+    OtosuMenuRectList3 layout = data_ov002_020920e8;
     Ov002_U16_6        anims  = data_ov002_02092074;
     s32                sp4;
     s32                temp_r4;
@@ -374,40 +400,40 @@ PrcStepResult func_ov002_0208a250(PrcCtx* ctx, void* object) {
     void*              temp_r9;
 
     var_r5   = 0;
-    var_r4_2 = func_ov002_0208597c(layout.data);
+    var_r4_2 = func_ov002_0208597c(layout.rects);
     if ((var_r4_2 == 1) && (menuObj->unk_4198A == 1)) {
         var_r4_2 = 0xFFFF;
     }
     if (var_r4_2 == 0xFFFE) {
-        var_r4_2                = 0xFFFF;
-        menuObj->unk_474C8      = 0xFFFF;
-        menuObj->unk_46078.posX = 0U;
-        menuObj->unk_46078.posY = 0xC8U;
+        var_r4_2             = 0xFFFF;
+        menuObj->unk_474C8   = 0xFFFF;
+        menuObj->cursor.posX = 0U;
+        menuObj->cursor.posY = 0xC8U;
     }
     if ((menuObj->unk_474C8 == 1) && (menuObj->unk_4198A == 1)) {
-        menuObj->unk_474C8      = 0xFFFF;
-        menuObj->unk_46078.posX = 0U;
-        menuObj->unk_46078.posY = 0xC8U;
+        menuObj->unk_474C8   = 0xFFFF;
+        menuObj->cursor.posX = 0U;
+        menuObj->cursor.posY = 0xC8U;
     }
     if (var_r4_2 != 0xFFFF) {
         if (menuObj->unk_474C8 == var_r4_2) {
             switch (var_r4_2) { /* irregular */
                 case 0:
                     SndMgr_StartPlayingSE(SEIDX_SE_BAYBADGE_MENU_CANCEL);
-                    PrcCtx_ReplaceFrame(ctx, &data_ov002_02092c9c, NULL);
-                    menuObj->unk_460C0.posX = 0;
-                    menuObj->unk_460C0.posY = 0xC8;
+                    PrcCtx_ReplaceFrame(ctx, &OtosuMenu_RoleSelect_FrameDesc, NULL);
+                    menuObj->linkLevelIcon.posX = 0;
+                    menuObj->linkLevelIcon.posY = 0xC8;
                     PrcCtx_PushStepTable(ctx, data_ov002_02092f38);
                     PrcCtx_PushStepTable(ctx, PrcSteps_FadeBrightImmediate);
                     return 0;
                 case 1:
                     temp_r4 = OS_DisableIRQ();
                     SndMgr_StartPlayingSE(SEIDX_SE_BAYBADGE_MENU_EXECUTE);
-                    if (((u32)func_02047e84(menuObj->unk_41834) >= 2U) && (menuObj->unk_41950 == 0)) {
+                    if (((u32)func_02047e84(menuObj->playerMask) >= 2U) && (menuObj->unk_41950 == 0)) {
                         var_r0 = 1;
                     loop_25:
                         if (var_r0 < 4) {
-                            temp_r8 = menuObj->unk_41834;
+                            temp_r8 = menuObj->playerMask;
                             if (!(temp_r8 & (1 << var_r0)) ||
                                 ((temp_r9 = (u8*)menuObj + (var_r0 * 2), (temp_r8 == ((u16*)temp_r9)[0x4195A / 2])) &&
                                  (menuObj->unk_41958 == ((u16*)temp_r9)[0x41962 / 2])))
@@ -434,11 +460,11 @@ PrcStepResult func_ov002_0208a250(PrcCtx* ctx, void* object) {
             if ((var_r4_2 != 0) && (var_r4_2 != 1)) {
 
             } else {
-                temp_r1_2               = &anims.data[var_r4_2 * 3];
-                menuObj->unk_46078.posX = ((u16*)temp_r1_2)[1];
-                menuObj->unk_46078.posY = ((u16*)temp_r1_2)[2];
-                Sprite_ChangeAnimation(&menuObj->unk_46078, menuObj->unk_46078.animData, (s16)((u16*)temp_r1_2)[0],
-                                       menuObj->unk_46078.cellTable);
+                temp_r1_2            = &anims.data[var_r4_2 * 3];
+                menuObj->cursor.posX = ((u16*)temp_r1_2)[1];
+                menuObj->cursor.posY = ((u16*)temp_r1_2)[2];
+                Sprite_ChangeAnimation(&menuObj->cursor, menuObj->cursor.animData, (s16)((u16*)temp_r1_2)[0],
+                                       menuObj->cursor.cellTable);
             }
             goto block_33;
         }
@@ -450,7 +476,7 @@ PrcStepResult func_ov002_0208a250(PrcCtx* ctx, void* object) {
         if ((menuObj->unk_41990 != 0) && (menuObj->unk_4198C == 0)) {
             func_ov002_0208a198(menuObj);
         }
-        if ((menuObj->unk_41834 != 1) && (menuObj->unk_41950 == 0)) {
+        if ((menuObj->playerMask != 1) && (menuObj->unk_41950 == 0)) {
             if (menuObj->unk_41954 != 0) {
                 menuObj->unk_41954 = 0;
                 var_r5             = 1;
@@ -459,7 +485,7 @@ PrcStepResult func_ov002_0208a250(PrcCtx* ctx, void* object) {
                 var_r9 = 1;
             loop_49:
                 if (var_r9 < 4) {
-                    temp_r6_2 = menuObj->unk_41834;
+                    temp_r6_2 = menuObj->playerMask;
                     if (temp_r6_2 & (1 << var_r9)) {
                         temp_r7 = (u8*)menuObj + (var_r9 * 2);
                         if (temp_r6_2 != ((u16*)temp_r7)[0x4195A / 2]) {
@@ -482,14 +508,14 @@ PrcStepResult func_ov002_0208a250(PrcCtx* ctx, void* object) {
             data_ov002_020935e0[0] = menuObj->unk_4196A;
             if (menuObj->unk_4196A == 0) {
                 var_r9_2                  = 0;
-                data_ov002_020935e0[1]    = menuObj->unk_41834;
+                data_ov002_020935e0[1]    = menuObj->playerMask;
                 data_ov002_020935e0[0x3A] = menuObj->unk_41958;
             loop_56:
                 if (var_r9_2 < 4) {
-                    if (menuObj->unk_41834 & (1 << var_r9_2)) {
-                        MI_CpuCopyU8((var_r9_2 * 0x30) + (s32)((u8*)menuObj->unk_41838),
-                                     (s16*)((var_r9_2 * 0x16) + (s32)&data_ov002_020935e0[2]), 0x16);
-                        MI_CpuCopyU8((var_r9_2 * 0x30) + (s32)((u8*)menuObj->unk_41862),
+                    if (menuObj->playerMask & (1 << var_r9_2)) {
+                        MI_CpuCopyU8(menuObj->players[var_r9_2].name, (s16*)((var_r9_2 * 0x16) + (s32)&data_ov002_020935e0[2]),
+                                     0x16);
+                        MI_CpuCopyU8(menuObj->players[var_r9_2].bssid,
                                      (s16*)((var_r9_2 * 6) + (s32)&data_ov002_020935e0[0x2E]), 6);
                     }
                     var_r9_2 += 1;
@@ -503,7 +529,7 @@ PrcStepResult func_ov002_0208a250(PrcCtx* ctx, void* object) {
             }
         }
         if (menuObj->unk_4196A == 2) {
-            menuObj->unk_41FD0 = (s32)func_02047e84(menuObj->unk_41834);
+            menuObj->unk_41FD0 = (s32)func_02047e84(menuObj->playerMask);
             PrcCtx_AdvanceStep(ctx);
         }
         return 0;
@@ -648,10 +674,10 @@ PrcStepResult func_ov002_0208aa4c(PrcCtx* ctx, void* object) {
 }
 
 PrcStepResult func_ov002_0208aabc(PrcCtx* ctx, void* object) {
-    OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
-    Ov002_U16_15  layout  = data_ov002_020920ac;
+    OtosuMenuObj*      menuObj = (OtosuMenuObj*)object;
+    OtosuMenuRectList3 layout  = data_ov002_020920ac;
 
-    func_ov002_02082f18(menuObj, 0x1A, 0x19, layout.data);
+    func_ov002_02082f18(menuObj, 0x1A, 0x19, layout.rects);
     menuObj->unk_474C8 = 0xFFFF;
     menuObj->unk_41EEC = 0xFFFF;
     menuObj->unk_41998 = 0;
@@ -662,36 +688,36 @@ PrcStepResult func_ov002_0208aabc(PrcCtx* ctx, void* object) {
 PrcStepResult func_ov002_0208ab58(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
 
-    Ov002_U16_25 table_sp18 = data_ov002_0209212e;
-    Ov002_U16_12 table_anim = data_ov002_02092094;
-    s32          temp_r0_4;
-    s32          temp_r1_3;
-    s32          temp_r2;
-    s32          temp_r3;
-    s32          temp_r5;
-    s32          temp_r5_2;
-    s32          temp_r6;
-    s32          temp_r7;
-    s32          temp_r9;
-    s32          var_r1;
-    s32          var_r2;
-    s32          var_r2_2;
-    s32          var_r2_4;
-    s32          var_r5_2;
-    u16*         var_r3_3;
-    u16          temp_r0_3;
-    u16          temp_r7_2;
-    void*        var_r2_3;
-    void*        var_r5_3;
-    void*        var_r7_2;
-    void*        var_r8;
-    u16          i;
+    OtosuMenuRectList5 table_sp18 = data_ov002_0209212e;
+    Ov002_U16_12       table_anim = data_ov002_02092094;
+    s32                temp_r0_4;
+    s32                temp_r1_3;
+    s32                temp_r2;
+    s32                temp_r3;
+    s32                temp_r5;
+    s32                temp_r5_2;
+    s32                temp_r6;
+    s32                temp_r7;
+    s32                temp_r9;
+    s32                var_r1;
+    s32                var_r2;
+    s32                var_r2_2;
+    s32                var_r2_4;
+    s32                var_r5_2;
+    u16*               var_r3_3;
+    u16                temp_r0_3;
+    u16                temp_r7_2;
+    void*              var_r2_3;
+    void*              var_r5_3;
+    void*              var_r7_2;
+    void*              var_r8;
+    u16                i;
 
-    temp_r0_3 = func_ov002_0208597c(table_sp18.data);
+    temp_r0_3 = func_ov002_0208597c(table_sp18.rects);
     if (temp_r0_3 == 0xFFFE) {
-        menuObj->unk_474C8      = 0xFFFF;
-        menuObj->unk_46078.posX = 0U;
-        menuObj->unk_46078.posY = 0xC8U;
+        menuObj->unk_474C8   = 0xFFFF;
+        menuObj->cursor.posX = 0U;
+        menuObj->cursor.posY = 0xC8U;
         return 0;
     }
     if ((temp_r0_3 != 0xFFFF) && (temp_r0_3 != 0)) {
@@ -706,9 +732,9 @@ PrcStepResult func_ov002_0208ab58(PrcCtx* ctx, void* object) {
                     goto block_36;
                 case 0:          /* switch 2 */
                     SndMgr_StartPlayingSE(SEIDX_SE_BAYBADGE_MENU_CANCEL);
-                    PrcCtx_ReplaceFrame(ctx, &data_ov002_02092c9c, NULL);
-                    menuObj->unk_460C0.posX = 0;
-                    menuObj->unk_460C0.posY = 0xC8;
+                    PrcCtx_ReplaceFrame(ctx, &OtosuMenu_RoleSelect_FrameDesc, NULL);
+                    menuObj->linkLevelIcon.posX = 0;
+                    menuObj->linkLevelIcon.posY = 0xC8;
                     PrcCtx_PushStepTable(ctx, data_ov002_02092f30);
                     PrcCtx_PushStepTable(ctx, PrcSteps_FadeBrightImmediate);
                     return PRC_STEP_CONTINUE;
@@ -753,11 +779,11 @@ PrcStepResult func_ov002_0208ab58(PrcCtx* ctx, void* object) {
                 case 1:          /* switch 3 */
                 case 2:          /* switch 3 */
                 case 3:          /* switch 3 */
-                    temp_r6                 = temp_r0_3 * 3;
-                    menuObj->unk_46078.posX = table_anim.data[temp_r6 + 1];
-                    menuObj->unk_46078.posY = table_anim.data[temp_r6 + 2];
-                    Sprite_ChangeAnimation(&menuObj->unk_46078, menuObj->unk_46078.animData, (s16)table_anim.data[temp_r6],
-                                           menuObj->unk_46078.cellTable);
+                    temp_r6              = temp_r0_3 * 3;
+                    menuObj->cursor.posX = table_anim.data[temp_r6 + 1];
+                    menuObj->cursor.posY = table_anim.data[temp_r6 + 2];
+                    Sprite_ChangeAnimation(&menuObj->cursor, menuObj->cursor.animData, (s16)table_anim.data[temp_r6],
+                                           menuObj->cursor.cellTable);
                     break;
             }
             goto block_36;
@@ -803,10 +829,10 @@ block_36:
         OS_RestoreIRQ(irqState);
         temp_r5_2 = menuObj->unk_41EEC;
         if ((temp_r5_2 != 0xFFFF) && !(menuObj->unk_41998 & (1 << temp_r5_2))) {
-            menuObj->unk_41EEC      = 0xFFFF;
-            menuObj->unk_474C8      = 0xFFFF;
-            menuObj->unk_46078.posX = 0U;
-            menuObj->unk_46078.posY = 0xC8U;
+            menuObj->unk_41EEC   = 0xFFFF;
+            menuObj->unk_474C8   = 0xFFFF;
+            menuObj->cursor.posX = 0U;
+            menuObj->cursor.posY = 0xC8U;
         }
         func_ov002_0208a780(menuObj);
     }
@@ -864,8 +890,8 @@ void func_ov002_0208afc4(void* arg1, void* arg2, OtosuMenuObj* menuObj) {
             return;
         case 0:
             var_r6 = (u8*)msg + 4;
-            var_r5 = ((u8*)menuObj->unk_41838);
-            var_r7 = ((u8*)menuObj->unk_41862);
+            var_r5 = (u8*)menuObj->players[0].name;
+            var_r7 = menuObj->players[0].bssid;
             var_r8 = (u8*)msg + 0x5C;
             var_r4 = 0;
             do {
@@ -879,21 +905,21 @@ void func_ov002_0208afc4(void* arg1, void* arg2, OtosuMenuObj* menuObj) {
                 var_r7 += 0x30;
                 var_r8 += 6;
             } while (var_r4 < 4);
-            menuObj->unk_41834 = msg->unk2;
-            menuObj->unk_41836 = 0xF;
-            menuObj->unk_41958 = msg->unk74;
+            menuObj->playerMask = msg->unk2;
+            menuObj->unk_41836  = 0xF;
+            menuObj->unk_41958  = msg->unk74;
             return;
     }
 }
 
 PrcStepResult func_ov002_0208b0a4(PrcCtx* ctx, void* object) {
-    OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
-    Ov002_U16_15  layout  = data_ov002_020920ca;
+    OtosuMenuObj*      menuObj = (OtosuMenuObj*)object;
+    OtosuMenuRectList3 layout  = data_ov002_020920ca;
 
     s32 temp_r0_2;
-    menuObj->unk_46078.posX = 0;
-    menuObj->unk_46078.posY = 0xC8;
-    func_ov002_02082f18(object, 0x18, 0x16, layout.data);
+    menuObj->cursor.posX = 0;
+    menuObj->cursor.posY = 0xC8;
+    func_ov002_02082f18(object, 0x18, 0x16, layout.rects);
     temp_r0_2 = SysFont_GetOwnerName();
     MI_CpuCopyU8(temp_r0_2, object + 0x4181C, 0x16);
     Mem_Free(&gDebugHeap, temp_r0_2);
@@ -940,32 +966,32 @@ PrcStepResult func_ov002_0208b240(PrcCtx* ctx, void* object) {
 PrcStepResult func_ov002_0208b270(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
 
-    u8           sp1E[0xC0];
-    u16          spA;
-    u16          sp8;
-    u16          sp6;
-    u16          sp4;
-    s32          sp0;
-    s32          temp_r1_2;
-    s32          temp_r5;
-    s32          var_r2;
-    s32          var_r8;
-    u16          temp_r0_3;
-    u16          temp_r4;
-    u16          temp_r5_2;
-    u16          var_r4_2;
-    Ov002_U16_10 table_spA = data_ov002_02092080;
-    u16          i;
+    u8                 sp1E[0xC0];
+    u16                spA;
+    u16                sp8;
+    u16                sp6;
+    u16                sp4;
+    s32                sp0;
+    s32                temp_r1_2;
+    s32                temp_r5;
+    s32                var_r2;
+    s32                var_r8;
+    u16                temp_r0_3;
+    u16                temp_r4;
+    u16                temp_r5_2;
+    u16                var_r4_2;
+    OtosuMenuRectList2 table_spA = data_ov002_02092080;
+    u16                i;
 
     sp4      = data_ov002_02092068.unk0;
     sp6      = data_ov002_02092068.unk2;
     sp8      = data_ov002_02092068.unk4;
-    var_r4_2 = func_ov002_0208597c(table_spA.data);
+    var_r4_2 = func_ov002_0208597c(table_spA.rects);
     if (var_r4_2 == 0xFFFE) {
-        var_r4_2                = 0xFFFF;
-        menuObj->unk_474C8      = 0xFFFF;
-        menuObj->unk_46078.posX = 0U;
-        menuObj->unk_46078.posY = 0xC8U;
+        var_r4_2             = 0xFFFF;
+        menuObj->unk_474C8   = 0xFFFF;
+        menuObj->cursor.posX = 0U;
+        menuObj->cursor.posY = 0xC8U;
     }
     if (var_r4_2 != 0xFFFF) {
         if (menuObj->unk_474C8 == var_r4_2) {
@@ -983,16 +1009,16 @@ PrcStepResult func_ov002_0208b270(PrcCtx* ctx, void* object) {
             SndMgr_StartPlayingSE(SEIDX_SE_BAYBADGE_MENU_CANCEL);
             temp_r5 = var_r4_2 * 6;
             (void)temp_r5;
-            menuObj->unk_46078.posX = sp6;
-            menuObj->unk_46078.posY = sp8;
-            Sprite_ChangeAnimation(&menuObj->unk_46078, menuObj->unk_46078.animData, (s16)sp4, menuObj->unk_46078.cellTable);
+            menuObj->cursor.posX = sp6;
+            menuObj->cursor.posY = sp8;
+            Sprite_ChangeAnimation(&menuObj->cursor, menuObj->cursor.animData, (s16)sp4, menuObj->cursor.cellTable);
         }
         goto block_10;
     }
 block_10:
     if (menuObj->unk_41836 != 0) {
         sp0                = OS_DisableIRQ();
-        temp_r4            = menuObj->unk_41834;
+        temp_r4            = menuObj->playerMask;
         temp_r5_2          = menuObj->unk_41836;
         menuObj->unk_4198A = func_02047e84(temp_r4);
         var_r8             = 0;
@@ -1001,7 +1027,7 @@ block_10:
         if (var_r8 < 4) {
             if (temp_r4 & temp_r5_2 & (1 << var_r8)) {
                 temp_r1_2 = var_r8 * 0x30;
-                MI_CpuCopyU8((s32)((u8*)menuObj->unk_41838 + temp_r1_2), sp1E + temp_r1_2, 0x16);
+                MI_CpuCopyU8((u8*)menuObj->players + temp_r1_2, sp1E + temp_r1_2, 0x16);
             }
             var_r8 += 1;
             goto loop_15;
@@ -1011,7 +1037,7 @@ block_10:
     }
     if (menuObj->unk_41950 == 0) {
         u32 irqState1          = OS_DisableIRQ();
-        data_ov002_020935c0[0] = menuObj->unk_41834;
+        data_ov002_020935c0[0] = menuObj->playerMask;
         data_ov002_020935c0[1] = menuObj->unk_41958;
         OS_RestoreIRQ(irqState1);
         func_0203a96c((u8*)&data_ov002_020935c0[2]);
@@ -1023,13 +1049,13 @@ block_10:
     temp_r0_3 = menuObj->unk_4196A;
     if (temp_r0_3 != 2) {
         if (temp_r0_3 == 3) {
-            PrcCtx_ReplaceFrame(ctx, &data_ov002_02092c9c, NULL);
+            PrcCtx_ReplaceFrame(ctx, &OtosuMenu_RoleSelect_FrameDesc, NULL);
             PrcCtx_PushStepTable(ctx, data_ov002_02092ec8);
             PrcCtx_PushStepTable(ctx, data_ov002_02092f30);
         }
     } else {
         SndMgr_StartPlayingSE(SEIDX_SE_BAYBADGE_MENU_EXECUTE);
-        menuObj->unk_41FD0 = (s32)func_02047e84(menuObj->unk_41834);
+        menuObj->unk_41FD0 = (s32)func_02047e84(menuObj->playerMask);
         PrcCtx_AdvanceStep(ctx);
     }
     return PRC_STEP_CONTINUE;

@@ -46,9 +46,9 @@ static const SpriteAnimation data_ov002_02092170 = {
 void func_ov002_0208c794(PrcCtx* ctx, OtosuMenuObj* menuObj, s32 arg2) {
     SpriteAnimation anim = data_ov002_02092170;
 
-    anim.dataType  = (u16)menuObj->unk_1158C;
-    anim.animIndex = 1;
+    anim.dataType  = menuObj->unk_1158C;
     anim.bits_0_1  = 1;
+    anim.animIndex = 1;
     anim.posX      = 0x80;
     anim.posY      = 0x60;
     anim.unk_1C    = 0x11;
@@ -56,25 +56,25 @@ void func_ov002_0208c794(PrcCtx* ctx, OtosuMenuObj* menuObj, s32 arg2) {
     anim.unk_22    = 2;
     anim.unk_26    = 0x12;
     anim.unk_28    = 0x13;
-    if (_Sprite_Load(&menuObj->unk_460C0, &anim) != 0) {
+    if (_Sprite_Load(&menuObj->linkLevelIcon, &anim) != 0) {
         return;
     }
     OS_WaitForever();
 }
 
 void func_ov002_0208c864(PrcCtx* ctx, OtosuMenuObj* menuObj) {
-    Sprite_Destroy(&menuObj->unk_460C0);
+    Sprite_Destroy(&menuObj->linkLevelIcon);
 }
 
 void func_ov002_0208c878(PrcCtx* ctx, OtosuMenuObj* menuObj) {
-    Sprite_UpdateAndCheck(&menuObj->unk_460C0);
+    Sprite_UpdateAndCheck(&menuObj->linkLevelIcon);
 }
 
 void func_ov002_0208c88c(PrcCtx* ctx, OtosuMenuObj* menuObj) {
     if (menuObj->unk_462E8 == 0) {
         return;
     }
-    Sprite_Render(&menuObj->unk_460C0);
+    Sprite_Render(&menuObj->linkLevelIcon);
 }
 
 static const u16 data_ov002_02092168[4] = {5, 4, 3, 2};
@@ -90,6 +90,7 @@ PrcStepResult func_ov002_0208c8b0(PrcCtx* ctx, void* object) {
     if ((index < 0) || (index > 3)) {
         OS_WaitForever();
     }
-    Sprite_ChangeAnimation(&menuObj->unk_460C0, menuObj->unk_460C0.animData, options[index], menuObj->unk_460C0.cellTable);
+    Sprite_ChangeAnimation(&menuObj->linkLevelIcon, menuObj->linkLevelIcon.animData, options[index],
+                           menuObj->linkLevelIcon.cellTable);
     return PRC_STEP_CONTINUE;
 }

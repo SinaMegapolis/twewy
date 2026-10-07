@@ -1,10 +1,14 @@
 #include "OtosuMenuShared.h"
 
-static char data_ov002_02092bb0[32] = "Apl_Kit/GRP_FldDownScreen.bin";
-
-static const Ov002_U16_20 data_ov002_02091b64 = {0x23FB, 0x0017, 0x0049, 0x0049, 0x0055, 0x23FC, 0x0067,
-                                                 0x0049, 0x0098, 0x0055, 0x23FD, 0x00B7, 0x0049, 0x00E9,
-                                                 0x0055, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0000}; /* const */
+static char                     data_ov002_02092bb0[32] = "Apl_Kit/GRP_FldDownScreen.bin";
+static const OtosuMenuRectList4 data_ov002_02091b64     = {
+    {
+     {0x23FB, 0x0017, 0x0049, 0x0049, 0x0055},
+     {0x23FC, 0x0067, 0x0049, 0x0098, 0x0055},
+     {0x23FD, 0x00B7, 0x0049, 0x00E9, 0x0055},
+     {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0000},
+     }
+};
 
 static const OverlayProcess OvlProc_OtosuMenu_MultiplayerRanking = {
     .init = OtosuMenu_InitForMultiplayerRankings,
@@ -18,7 +22,9 @@ static const OverlayProcess OvlProc_OtosuMenu_SinglePlayerRanking = {
     .exit = OtosuMenu_Destroy,
 };
 
-static const Ov002_U16_4     data_ov002_02091ac4 = {0x0010, 0x0011, 0x0012, 0x0013};
+static const OtosuMenuBoardEntries data_ov002_02091ac4 = {
+    {0x10, 0x11, 0x12, 0x13}
+};
 static const SpriteAnimation data_ov002_02091b8c = {
     .bits_0_1          = 0,
     .dataType          = 0,
@@ -45,10 +51,14 @@ static const SpriteAnimation data_ov002_02091b8c = {
     .unk_28            = 0x0017,
     .animIndex         = 0x0001,
 };
-static u8        data_ov002_020934fa[0xC6];
-static const u16 data_ov002_02091ab4[4] = {0x0004, 0x0018, 0x002C, 0x0040};
+static u8                          data_ov002_020934fa[0xC6];
+static const OtosuMenuBoardEntries data_ov002_02091ab4 = {
+    {0x04, 0x18, 0x2C, 0x40}
+};
 
-static const Ov002_U16_4 data_ov002_02091abc = {0x0001, 0x0002, 0x0003, 0x0004};
+static const OtosuMenuBoardEntries data_ov002_02091abc = {
+    {1, 2, 3, 4}
+};
 
 const BinIdentifier         data_ov002_02091aac                 = {0x02, "Apl_Fuk/Grp_OtosuMenu.bin"};
 static const OverlayProcess OvlProc_OtosuMenu_SinglePlayerEnter = {
@@ -56,17 +66,27 @@ static const OverlayProcess OvlProc_OtosuMenu_SinglePlayerEnter = {
     .main = OtosuMenu_Update,
     .exit = OtosuMenu_Destroy,
 };
-static const Ov002_U16_4 data_ov002_02091aa4 = {0x000C, 0x000D, 0x000E, 0x000F}; /* const */
+static const OtosuMenuBoardEntries data_ov002_02091aa4 = {
+    {0xC, 0xD, 0xE, 0xF}
+};
 
-const BinIdentifier data_ov002_02091acc = {2, "Apl_Fuk/Grp_OtosuMenuObj.bin"};
+const BinIdentifier              data_ov002_02091acc = {2, "Apl_Fuk/Grp_OtosuMenuObj.bin"};
+static const OtosuMenuRectList10 data_ov002_02091bb8 = {
+    {
+     {0x23FE, 0x0010, 0x0062, 0x0050, 0x0072},
+     {0x23FF, 0x0010, 0x0082, 0x0050, 0x0092},
+     {0x2400, 0x0010, 0x00A2, 0x0050, 0x00B2},
+     {0x2401, 0x0060, 0x0062, 0x00A0, 0x0072},
+     {0x2402, 0x0060, 0x0082, 0x00A0, 0x0092},
+     {0x2403, 0x0060, 0x00A2, 0x00A0, 0x00B2},
+     {0x2404, 0x00B0, 0x0062, 0x00F0, 0x0072},
+     {0x2405, 0x00B0, 0x0082, 0x00F0, 0x0092},
+     {0x2406, 0x00B0, 0x00A2, 0x00F0, 0x00B2},
+     {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0000},
+     }
+};
 
-static const Ov002_U16_50 data_ov002_02091bb8 = {
-    0x23FE, 0x0010, 0x0062, 0x0050, 0x0072, 0x23FF, 0x0010, 0x0082, 0x0050, 0x0092, 0x2400, 0x0010, 0x00A2,
-    0x0050, 0x00B2, 0x2401, 0x0060, 0x0062, 0x00A0, 0x0072, 0x2402, 0x0060, 0x0082, 0x00A0, 0x0092, 0x2403,
-    0x0060, 0x00A2, 0x00A0, 0x00B2, 0x2404, 0x00B0, 0x0062, 0x00F0, 0x0072, 0x2405, 0x00B0, 0x0082, 0x00F0,
-    0x0092, 0x2406, 0x00B0, 0x00A2, 0x00F0, 0x00B2, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0000}; /* const */
-
-static u8                   data_ov002_020934e4[0x16];
+static u16                  data_ov002_020934e4[11];
 const BinIdentifier         data_ov002_02091c1c             = {0x02, "Apl_Fuk/Grp_DelMenu.bin"}; /* const */
 static const OverlayProcess OvlProc_OtosuMenu_RoleSelection = {
     .init = OtosuMenu_InitForRoleSelection,
@@ -107,70 +127,65 @@ void func_ov002_02082548(OtosuMenuObj* menuObj) {
     anim.unk_26    = 0x16;
     anim.unk_28    = 0x17;
 
-    if (_Sprite_Load(&menuObj->unk_46078, &anim) == 0) {
+    if (_Sprite_Load(&menuObj->cursor, &anim) == 0) {
         OS_WaitForever();
     }
-    menuObj->unk_460B8 = 1;
+    menuObj->cursorActive = 1;
 }
 
 void func_ov002_02082610(OtosuMenuObj* menuObj) {
-    menuObj->unk_460B8 = 0;
-    Sprite_Destroy(&menuObj->unk_46078);
-    PrcMaster_UnregisterContext(&menuObj->prcMaster, &menuObj->unk_46100);
+    menuObj->cursorActive = 0;
+    Sprite_Destroy(&menuObj->cursor);
+    PrcMaster_UnregisterContext(&menuObj->prcMaster, &menuObj->linkLevelCtx);
 }
 
 void func_ov002_0208264c(OtosuMenuObj* menuObj) {
-    menuObj->unk_460B8 = 0;
-    Sprite_Destroy(&menuObj->unk_46078);
+    menuObj->cursorActive = 0;
+    Sprite_Destroy(&menuObj->cursor);
 }
 
 PrcStepResult func_ov002_0208266c(PrcCtx* ctx, void* object) {
     OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
 
-    ((u8*)&data_02074d10)[0x40A] = func_ov002_02082bec(menuObj);
+    gSaveData.otosuGameKey = func_ov002_02082bec(menuObj);
     PrcCtx_AdvanceStep(ctx);
     return PRC_STEP_REPEAT;
 }
 
 PrcStepResult func_ov002_02082698(PrcCtx* ctx, void* object) {
-    OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
+    OtosuMenuObj* menuObj = object;
+    u16           i;
 
-    MI_CpuCopyU8(&menuObj->unk_41862, &data_020750fc, 6);
-    MI_CpuCopyU8(&menuObj->unk_41862, &menuObj->unk_41FB6, 6);
+    MI_CpuCopyU8(menuObj->players[0].bssid, gSaveData.otosuParentBssid, 6);
+    MI_CpuCopyU8(menuObj->players[0].bssid, menuObj->connectedBssids, 6);
     func_ov002_02082d44(menuObj);
-
-    data_02074d10.unk_40B = menuObj->unk_4198A;
-    data_02074d10.unk_40C = menuObj->unk_4196C;
-
-    for (int i = 0; i < 4; i++) {
-        MI_CpuCopyU8(&menuObj->unk_41862 + i * 0x30, (u8*)&data_02075102 + i * 6, 6);
+    gSaveData.otosuPlayerCount = menuObj->unk_4198A;
+    gSaveData.otosuBoard       = menuObj->unk_4196C;
+    for (i = 0; i < 4; i++) {
+        MI_CpuCopyU8(menuObj->players[i].bssid, gSaveData.otosuPlayerBssids[i], 6);
     }
-
     PrcCtx_AdvanceStep(ctx);
     return PRC_STEP_REPEAT;
 }
 
 PrcStepResult func_ov002_0208275c(PrcCtx* ctx, void* object) {
-    OtosuMenuObj* menuObj = (OtosuMenuObj*)object;
+    OtosuMenuObj* menuObj = object;
+    u16           i;
+    SysCode*      ownerName;
 
     func_ov002_020824a0();
-    MI_CpuCopyU8(&data_020750fc, &menuObj->unk_41862, 6);
-
-    menuObj->unk_4198A = data_02074d10.unk_40B;
-    menuObj->unk_4196C = data_02074d10.unk_40C;
-
-    for (int i = 0; i < 4; i++) {
-        MI_CpuFillU16(-1, (u8*)menuObj->unk_41838 + i * 0x30, 0x16);
+    MI_CpuCopyU8(gSaveData.otosuParentBssid, menuObj->players[0].bssid, 6);
+    menuObj->unk_4198A = gSaveData.otosuPlayerCount;
+    menuObj->unk_4196C = gSaveData.otosuBoard;
+    for (i = 0; i < 4; i++) {
+        MI_CpuFillU16(0xFFFF, menuObj->players[i].name, 0x16);
     }
-
-    void* paletteData = SysFont_GetOwnerName();
-    MI_CpuCopyU8(paletteData, &menuObj->unk_4196E, 0x16);
-    MI_CpuCopyU8(paletteData, (u8*)menuObj->unk_41838 + (data_02074d10.unk_40A * 0x30), 0x16);
-    MI_CpuCopyU8(paletteData, &menuObj->unk_4181C, 0x16);
-
-    menuObj->unk_41832 = data_02074d10.unk_40A;
-    Mem_Free(&gDebugHeap, paletteData);
-
+    ownerName = SysFont_GetOwnerName();
+    MI_CpuCopyU8(ownerName, &menuObj->unk_4196E, 0x16);
+    MI_CpuCopyU8(ownerName, menuObj->players[gSaveData.otosuGameKey].name, 0x16);
+    MI_CpuCopyU8(ownerName, menuObj->ownName, 0x16);
+    menuObj->ownPlayer = gSaveData.otosuGameKey;
+    Mem_Free(&gDebugHeap, ownerName);
     PrcCtx_AdvanceStep(ctx);
     return PRC_STEP_REPEAT;
 }
@@ -276,59 +291,48 @@ void func_ov002_02082a44(PrcCtx*, void*) {
 }
 
 void func_ov002_02082ab4(OtosuMenuObj* menuObj) {
-    u16 temp_values[4];
-    temp_values = data_ov002_02091ab4;
+    OtosuMenuBoardEntries rowY = data_ov002_02091ab4;
+    u16                   i;
 
     MI_CpuFillU16(0, menuObj->unk_41FF4, 0x2800);
     MI_CpuFillU16(0, data_ov002_020934e4, 22);
-
-    for (u16 i = 0; i < 4; i++) {
-        if ((menuObj->unk_41834 & (1 << i)) == 0) {
-            *(u16*)((u8*)&data_ov002_020934e0 + 4) = 0xFFFF;
-            continue;
+    for (i = 0; i < 4; i++) {
+        if (menuObj->playerMask & (1 << i)) {
+            SysFont_SetMsgPtr(&menuObj->font, menuObj->players[i].name);
+            SysFont_SetPos(&menuObj->font, 0, rowY.entry[i]);
+            SysFont_SetHAlign(&menuObj->font, 0, 256);
+            SysFont_SetVAlign(&menuObj->font, 3, 80);
+            SysFont_DrawCurrentToChar(&menuObj->font, menuObj->unk_41FF4, 32, 10);
+        } else {
+            data_ov002_020934e4[0] = 0xFFFF;
         }
-
-        SysFont_SetMsgPtr(&menuObj->font, menuObj->unk_41838 + i * 48);
-        SysFont_SetPos(&menuObj->font, 0, temp_values[i]);
-        SysFont_SetHAlign(&menuObj->font, 0, 256);
-        SysFont_SetVAlign(&menuObj->font, 3, 80);
-        SysFont_DrawCurrentToChar(&menuObj->font, menuObj->unk_41FF4, 32, 10);
     }
-
     func_0203abec(3, menuObj->unk_41FF4, (u8*)G2_GetBG0CharPtr() + 0x2400, 0x2800);
 }
 
+static inline BOOL OtosuMenu_IsSameBssid(const u8* a, const u8* b) {
+    return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3] && a[4] == b[4] && a[5] == b[5];
+}
+
 u8 func_ov002_02082bec(OtosuMenuObj* menuObj) {
-    u8 keys[6];
-    u8 match_index = 0xFF;
+    u8 bssid[6];
+    u8 player = 0xFF;
     u8 i;
 
-    func_0203a96c(keys);
+    func_0203a96c(bssid);
     if (menuObj->unk_462EC != 0) {
         return 0;
     }
-
     for (i = 0; i < 4; i++) {
-        u8* entry;
-
-        if ((menuObj->unk_41834 & (1 << i)) == 0) {
-            continue;
+        if ((menuObj->playerMask & (1 << i)) && OtosuMenu_IsSameBssid(bssid, menuObj->players[i].bssid) == TRUE) {
+            player = i;
+            break;
         }
-
-        entry = (u8*)menuObj->unk_41862 + i * 0x30;
-        if (keys[0] != entry[0] || keys[1] != entry[1] || keys[2] != entry[2] || keys[3] != entry[3] || keys[4] != entry[4] ||
-            keys[5] != entry[5])
-        {
-            continue;
-        }
-        match_index = i;
-        break;
     }
-
-    if (match_index == 0xFF) {
+    if (player == 0xFF) {
         OS_WaitForever();
     }
-    return match_index;
+    return player;
 }
 
 void func_ov002_02082d44(OtosuMenuObj* menuObj) {
@@ -336,27 +340,27 @@ void func_ov002_02082d44(OtosuMenuObj* menuObj) {
     u16 write_index = 0;
 
     for (i = 0; i < 4; i++) {
-        if ((menuObj->unk_41834 & (1 << i)) != 0) {
-            MI_CpuCopyU8(&menuObj->unk_41FB6 + (i * 6), &menuObj->unk_41862 + (write_index * 0x30), 6);
+        if ((menuObj->playerMask & (1 << i)) != 0) {
+            MI_CpuCopyU8(menuObj->connectedBssids[i], menuObj->players[write_index].bssid, 6);
             write_index++;
         }
     }
 }
 
-void func_ov002_02082dbc(void* arg0, const Ov002_U16_5* arg1, void* arg2, void* arg3) {
-    const Ov002_U16_5* entry = arg1;
+void func_ov002_02082dbc(SysFont* font, const OtosuMenuRect* texts, void* chars, void* screen) {
+    const OtosuMenuRect* text = texts;
 
-    if (entry->unk0 == 0xFFFF) {
+    if (text->id == 0xFFFF) {
         return;
     }
     do {
-        SysFont_SetMsg(arg0, entry->unk0);
-        SysFont_SetPos(arg0, entry->unk2, entry->unk4);
-        SysFont_SetHAlign(arg0, 0, (u16)(entry->unk6 - entry->unk2));
-        SysFont_SetVAlign(arg0, 0, (u16)(entry->unk8 - entry->unk4));
-        SysFont_DrawCurrentToScreen(arg0, arg3, arg2, 0);
-        entry++;
-    } while (entry->unk0 != 0xFFFF);
+        SysFont_SetMsg(font, text->id);
+        SysFont_SetPos(font, text->left, text->top);
+        SysFont_SetHAlign(font, 0, (u16)(text->right - text->left));
+        SysFont_SetVAlign(font, 0, (u16)(text->bottom - text->top));
+        SysFont_DrawCurrentToScreen(font, screen, chars, 0);
+        text++;
+    } while (text->id != 0xFFFF);
 }
 
 void func_ov002_02082e70(void* arg0, s32* arg1, void* arg2, void* arg3) {
@@ -377,140 +381,140 @@ void func_ov002_02082e70(void* arg0, s32* arg1, void* arg2, void* arg3) {
     } while (*entry != 0);
 }
 
-void func_ov002_02082f18(OtosuMenuObj* menuObj, s32 arg1, s32 arg2, void* arg3) {
+void func_ov002_02082f18(OtosuMenuObj* menuObj, s32 arg1, s32 arg2, const OtosuMenuRect* texts) {
     func_ov002_02085710(menuObj);
     g_DisplaySettings.engineState[1].bgSettings[0].priority = 0;
     g_DisplaySettings.engineState[1].bgSettings[1].priority = 1;
     g_DisplaySettings.engineState[1].bgSettings[2].priority = 2;
     g_DisplaySettings.engineState[1].bgSettings[3].priority = 3;
 
-    menuObj->unk_462F0 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
+    menuObj->packs[0] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
 
     Display_SetMainLayers(LAYER_BG0 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
     Display_SetSubLayers(LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
 
-    menuObj->unk_47340 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->unk_462F0, 4), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->unk_47340);
+    menuObj->subPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->packs[0], 4), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->subPalette);
 
-    menuObj->unk_4732C = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F0, 10),
-                                              g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
+    menuObj->subChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[0], 10),
+                                                g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
 
-    menuObj->unk_474A0 = Data_GetPackEntryData(menuObj->unk_462F0, 13) + 4;
-    func_0200d1d8(&menuObj->unk_473C0, 1, 3, 0, &menuObj->unk_474A0, 1, 1);
+    menuObj->subScreens[3][0] = Data_GetPackEntryData(menuObj->packs[0], 13) + 4;
+    func_0200d1d8(&menuObj->subMaps[3], 1, 3, 0, menuObj->subScreens[3], 1, 1);
 
-    menuObj->unk_47328 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F0, 11),
-                                              g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x4D20);
+    menuObj->subChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[0], 11),
+                                                g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x4D20);
 
-    menuObj->unk_47498 = Data_GetPackEntryData(menuObj->unk_462F0, 14) + 4;
-    func_0200d1d8(&menuObj->unk_47398, 1, 2, 0, &menuObj->unk_47498, 1, 1);
+    menuObj->subScreens[2][0] = Data_GetPackEntryData(menuObj->packs[0], 14) + 4;
+    func_0200d1d8(&menuObj->subMaps[2], 1, 2, 0, menuObj->subScreens[2], 1, 1);
 
-    menuObj->unk_47344 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->unk_462F0, 3), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->unk_47344);
+    menuObj->mainPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->packs[0], 3), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->mainPalette);
 
-    menuObj->unk_4733C = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F0, 16),
-                                              g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
+    menuObj->mainChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[0], 16),
+                                                 g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
 
-    menuObj->unk_474C0 = Data_GetPackEntryData(menuObj->unk_462F0, 19) + 4;
-    func_0200d1d8(&menuObj->unk_47460, 0, 3, 0, &menuObj->unk_474C0, 1, 1);
+    menuObj->mainScreens[3][0] = Data_GetPackEntryData(menuObj->packs[0], 19) + 4;
+    func_0200d1d8(&menuObj->mainMaps[3], 0, 3, 0, menuObj->mainScreens[3], 1, 1);
 
-    menuObj->unk_47338 = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F0, 17),
-                                              g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
+    menuObj->mainChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[0], 17),
+                                                 g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
 
-    menuObj->unk_474B8 = Data_GetPackEntryData(menuObj->unk_462F0, arg2) + 4;
-    func_0200d1d8(&menuObj->unk_47438, 0, 2, 0, &menuObj->unk_474B8, 1, 1);
+    menuObj->mainScreens[2][0] = Data_GetPackEntryData(menuObj->packs[0], arg2) + 4;
+    func_0200d1d8(&menuObj->mainMaps[2], 0, 2, 0, menuObj->mainScreens[2], 1, 1);
 
     if (arg1 != 0xFFFF) {
-        menuObj->unk_474B0 = Data_GetPackEntryData(menuObj->unk_462F0, arg1) + 4;
-        func_0200d1d8(&menuObj->unk_47410, 0, 1, 0, &menuObj->unk_474B0, 1, 1);
+        menuObj->mainScreens[1][0] = Data_GetPackEntryData(menuObj->packs[0], arg1) + 4;
+        func_0200d1d8(&menuObj->mainMaps[1], 0, 1, 0, menuObj->mainScreens[1], 1, 1);
         g_DisplaySettings.controls[0].layers |= 2;
     } else {
         g_DisplaySettings.controls[0].layers &= ~2;
     }
 
-    void* ptr          = Data_GetPackEntryData(menuObj->unk_462F0, 7);
-    menuObj->unk_474A8 = Data_GetPackEntryData(menuObj->unk_462F0, 8) + 4;
+    void* ptr                  = Data_GetPackEntryData(menuObj->packs[0], 7);
+    menuObj->mainScreens[0][0] = Data_GetPackEntryData(menuObj->packs[0], 8) + 4;
 
     SysFont_SetColor(&menuObj->font, 1);
-    func_ov002_02082dbc(&menuObj->font, (const Ov002_U16_5*)arg3, ptr + 4, menuObj->unk_474A8);
+    func_ov002_02082dbc(&menuObj->font, texts, ptr + 4, menuObj->mainScreens[0][0]);
 
-    menuObj->unk_47330 =
+    menuObj->mainChars[0] =
         BgResMgr_AllocChar32(g_BgResourceManagers[0], ptr, g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
-    func_0200d1d8(&menuObj->unk_473E8, 0, 0, 0, &menuObj->unk_474A8, 1, 1);
+    func_0200d1d8(&menuObj->mainMaps[0], 0, 0, 0, menuObj->mainScreens[0], 1, 1);
     Display_Commit();
 }
 
-void func_ov002_02083484(OtosuMenuObj* menuObj, u16* arg1) {
+void func_ov002_02083484(OtosuMenuObj* menuObj, const OtosuMenuRect* texts) {
     g_DisplaySettings.engineState[1].bgSettings[0].priority = 0;
     g_DisplaySettings.engineState[1].bgSettings[1].priority = 1;
     g_DisplaySettings.engineState[1].bgSettings[2].priority = 2;
     g_DisplaySettings.engineState[1].bgSettings[3].priority = 3;
 
-    menuObj->unk_462F0 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
-    menuObj->unk_462F4 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 5, 0);
+    menuObj->packs[0] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
+    menuObj->packs[1] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 5, 0);
 
     Display_SetMainLayers(LAYER_NONE);
     Display_SetSubLayers(LAYER_BG1);
 
-    menuObj->unk_47340 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 6), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->unk_47340);
+    menuObj->subPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->packs[1], 6), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->subPalette);
 
-    void* table_ptr    = Data_GetPackEntryData(menuObj->unk_462F0, 5);
-    menuObj->unk_47490 = Data_GetPackEntryData(menuObj->unk_462F0, 6) + 4;
+    void* table_ptr           = Data_GetPackEntryData(menuObj->packs[0], 5);
+    menuObj->subScreens[1][0] = Data_GetPackEntryData(menuObj->packs[0], 6) + 4;
 
     SysFont_SetColor(&menuObj->font, 1);
     SysFont_SetLineSpacing(&menuObj->font, 4);
     SysFont_SetSpacing(&menuObj->font, TRUE, 0);
-    func_ov002_02082dbc(&menuObj->font, (const Ov002_U16_5*)arg1, table_ptr + 4, menuObj->unk_47490);
+    func_ov002_02082dbc(&menuObj->font, texts, table_ptr + 4, menuObj->subScreens[1][0]);
     SysFont_SetLineSpacing(&menuObj->font, 2);
     SysFont_SetSpacing(&menuObj->font, TRUE, 0);
 
-    menuObj->unk_47324 = BgResMgr_AllocChar32(g_BgResourceManagers[1], table_ptr,
-                                              g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0, 0x6000);
-    func_0200d1d8(&menuObj->unk_47370, 1, 1, 0, &menuObj->unk_47490, 1, 1);
+    menuObj->subChars[1] = BgResMgr_AllocChar32(g_BgResourceManagers[1], table_ptr,
+                                                g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0, 0x6000);
+    func_0200d1d8(&menuObj->subMaps[1], 1, 1, 0, menuObj->subScreens[1], 1, 1);
     Display_Commit();
 }
 
 void func_ov002_02083694(OtosuMenuObj* menuObj) {
     func_ov002_02085710(menuObj);
 
-    menuObj->unk_462F0 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
-    menuObj->unk_462F4 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 2, 0);
+    menuObj->packs[0] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
+    menuObj->packs[1] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 2, 0);
 
-    menuObj->unk_47340 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 1), 0, 0, 0x10);
+    menuObj->subPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->packs[1], 1), 0, 0, 0x10);
 
-    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->unk_47340);
+    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->subPalette);
 
-    menuObj->unk_4732C = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 4),
-                                              g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x5800);
+    menuObj->subChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 4),
+                                                g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x5800);
 
-    menuObj->unk_474A0 = Data_GetPackEntryData(menuObj->unk_462F4, 5) + 4;
-    func_0200d1d8(&menuObj->unk_473C0, 1, 3, 0, &menuObj->unk_474A0, 1, 1);
+    menuObj->subScreens[3][0] = Data_GetPackEntryData(menuObj->packs[1], 5) + 4;
+    func_0200d1d8(&menuObj->subMaps[3], 1, 3, 0, menuObj->subScreens[3], 1, 1);
 
-    menuObj->unk_47328 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 2),
-                                              g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x8000);
+    menuObj->subChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 2),
+                                                g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x8000);
 
-    menuObj->unk_47498 = Data_GetPackEntryData(menuObj->unk_462F4, 3) + 4;
-    func_0200d1d8(&menuObj->unk_47398, 1, 2, 0, &menuObj->unk_47498, 1, 1);
+    menuObj->subScreens[2][0] = Data_GetPackEntryData(menuObj->packs[1], 3) + 4;
+    func_0200d1d8(&menuObj->subMaps[2], 1, 2, 0, menuObj->subScreens[2], 1, 1);
 
-    menuObj->unk_47344 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 6), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->unk_47344);
+    menuObj->mainPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->packs[1], 6), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->mainPalette);
 
-    menuObj->unk_4733C = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 9),
-                                              g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
+    menuObj->mainChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 9),
+                                                 g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
 
-    menuObj->unk_474C0 = Data_GetPackEntryData(menuObj->unk_462F4, 10) + 4;
-    func_0200d1d8(&menuObj->unk_47460, 0, 3, 0, &menuObj->unk_474C0, 1, 1);
+    menuObj->mainScreens[3][0] = Data_GetPackEntryData(menuObj->packs[1], 10) + 4;
+    func_0200d1d8(&menuObj->mainMaps[3], 0, 3, 0, menuObj->mainScreens[3], 1, 1);
 
-    menuObj->unk_47338 = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 7),
-                                              g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
+    menuObj->mainChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 7),
+                                                 g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
 
-    menuObj->unk_474B8 = Data_GetPackEntryData(menuObj->unk_462F4, 8) + 4;
-    func_0200d1d8(&menuObj->unk_47438, 0, 2, 0, &menuObj->unk_474B8, 1, 1);
+    menuObj->mainScreens[2][0] = Data_GetPackEntryData(menuObj->packs[1], 8) + 4;
+    func_0200d1d8(&menuObj->mainMaps[2], 0, 2, 0, menuObj->mainScreens[2], 1, 1);
 
     Display_SetMainLayers(LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
     Display_SetSubLayers(LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
@@ -520,88 +524,88 @@ void func_ov002_02083694(OtosuMenuObj* menuObj) {
 void func_ov002_02083a74(OtosuMenuObj* menuObj) {
     func_ov002_02085710(menuObj);
 
-    menuObj->unk_462F0 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
-    menuObj->unk_462F4 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 3, 0);
+    menuObj->packs[0] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
+    menuObj->packs[1] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 3, 0);
 
-    menuObj->unk_47340 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 1), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->unk_47340);
+    menuObj->subPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->packs[1], 1), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->subPalette);
 
-    menuObj->unk_4732C = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F0, 9),
-                                              g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
+    menuObj->subChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[0], 9),
+                                                g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
 
-    menuObj->unk_474A0 = Data_GetPackEntryData(menuObj->unk_462F0, 12) + 4;
-    func_0200d1d8(&menuObj->unk_473C0, 1, 3, 0, &menuObj->unk_474A0, 1, 1);
+    menuObj->subScreens[3][0] = Data_GetPackEntryData(menuObj->packs[0], 12) + 4;
+    func_0200d1d8(&menuObj->subMaps[3], 1, 3, 0, menuObj->subScreens[3], 1, 1);
 
-    menuObj->unk_47328 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 3),
-                                              g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x8000);
+    menuObj->subChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 3),
+                                                g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x8000);
 
-    menuObj->unk_47498 = Data_GetPackEntryData(menuObj->unk_462F4, 5) + 4;
-    menuObj->unk_4749C = Data_GetPackEntryData(menuObj->unk_462F4, 12) + 4;
+    menuObj->subScreens[2][0] = Data_GetPackEntryData(menuObj->packs[1], 5) + 4;
+    menuObj->subScreens[2][1] = Data_GetPackEntryData(menuObj->packs[1], 12) + 4;
 
-    func_0200d1d8(&menuObj->unk_47398, 1, 2, 0, &menuObj->unk_47498, 1, 2);
-    func_0200d858(&menuObj->unk_47398, 0, 0, 0);
+    func_0200d1d8(&menuObj->subMaps[2], 1, 2, 0, menuObj->subScreens[2], 1, 2);
+    func_0200d858(&menuObj->subMaps[2], 0, 0, 0);
 
-    Display_SetBGOffset(menuObj->unk_47398, menuObj->unk_4739C, 0x200000, 0x200000);
+    Display_SetBGOffset(menuObj->subMaps[2].engineId, menuObj->subMaps[2].bgLayer, 0x200000, 0x200000);
 
-    menuObj->unk_47324 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F0, 11),
-                                              g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0, 0x4D20);
+    menuObj->subChars[1] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[0], 11),
+                                                g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0, 0x4D20);
 
-    menuObj->unk_47490 = Data_GetPackEntryData(menuObj->unk_462F0, 14) + 4;
-    func_0200d1d8(&menuObj->unk_47370, 1, 1, 0, &menuObj->unk_47490, 1, 1);
-    func_0200d858(&menuObj->unk_47370, 0, 0, 0);
+    menuObj->subScreens[1][0] = Data_GetPackEntryData(menuObj->packs[0], 14) + 4;
+    func_0200d1d8(&menuObj->subMaps[1], 1, 1, 0, menuObj->subScreens[1], 1, 1);
+    func_0200d858(&menuObj->subMaps[1], 0, 0, 0);
 
-    Display_SetBGOffset(menuObj->unk_47370, menuObj->unk_47374, 0x200000, 0x200000);
+    Display_SetBGOffset(menuObj->subMaps[1].engineId, menuObj->subMaps[1].bgLayer, 0x200000, 0x200000);
 
-    void* var_r1_5     = Data_GetPackEntryData(menuObj->unk_462F4, 2);
-    menuObj->unk_47488 = Data_GetPackEntryData(menuObj->unk_462F4, 4) + 4;
-    menuObj->unk_47320 = BgResMgr_AllocChar32(g_BgResourceManagers[1], var_r1_5,
-                                              g_DisplaySettings.engineState[1].bgSettings[0].charBase, 0, 0x11A0);
-    func_0200d1d8(&menuObj->unk_47348, 1, 0, 0, &menuObj->unk_47488, 1, 1);
-    func_0200d858(&menuObj->unk_47348, 0, 0, 0);
+    void* var_r1_5            = Data_GetPackEntryData(menuObj->packs[1], 2);
+    menuObj->subScreens[0][0] = Data_GetPackEntryData(menuObj->packs[1], 4) + 4;
+    menuObj->subChars[0]      = BgResMgr_AllocChar32(g_BgResourceManagers[1], var_r1_5,
+                                                     g_DisplaySettings.engineState[1].bgSettings[0].charBase, 0, 0x11A0);
+    func_0200d1d8(&menuObj->subMaps[0], 1, 0, 0, menuObj->subScreens[0], 1, 1);
+    func_0200d858(&menuObj->subMaps[0], 0, 0, 0);
 
-    Display_SetBGOffset(menuObj->unk_47348, menuObj->unk_4734C, 0x200000, 0x200000);
+    Display_SetBGOffset(menuObj->subMaps[0].engineId, menuObj->subMaps[0].bgLayer, 0x200000, 0x200000);
 
-    menuObj->unk_47344 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 6), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->unk_47344);
+    menuObj->mainPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->packs[1], 6), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->mainPalette);
 
-    menuObj->unk_4733C = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F0, 15),
-                                              g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
+    menuObj->mainChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[0], 15),
+                                                 g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
 
-    menuObj->unk_474C0 = Data_GetPackEntryData(menuObj->unk_462F0, 18) + 4;
-    func_0200d1d8(&menuObj->unk_47460, 0, 3, 0, &menuObj->unk_474C0, 1, 1);
+    menuObj->mainScreens[3][0] = Data_GetPackEntryData(menuObj->packs[0], 18) + 4;
+    func_0200d1d8(&menuObj->mainMaps[3], 0, 3, 0, menuObj->mainScreens[3], 1, 1);
 
-    menuObj->unk_47338 = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 3),
-                                              g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
+    menuObj->mainChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 3),
+                                                 g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
 
-    menuObj->unk_474B8 = Data_GetPackEntryData(menuObj->unk_462F4, 5) + 4;
-    menuObj->unk_474BC = Data_GetPackEntryData(menuObj->unk_462F4, 12) + 4;
-    func_0200d1d8(&menuObj->unk_47438, 0, 2, 0, &menuObj->unk_474B8, 1, 2);
-    func_0200d858(&menuObj->unk_47438, 0, 0, 0);
+    menuObj->mainScreens[2][0] = Data_GetPackEntryData(menuObj->packs[1], 5) + 4;
+    menuObj->mainScreens[2][1] = Data_GetPackEntryData(menuObj->packs[1], 12) + 4;
+    func_0200d1d8(&menuObj->mainMaps[2], 0, 2, 0, menuObj->mainScreens[2], 1, 2);
+    func_0200d858(&menuObj->mainMaps[2], 0, 0, 0);
 
-    Display_SetBGOffset(menuObj->unk_47438, menuObj->unk_4743C, 0x200000, 0x200000);
+    Display_SetBGOffset(menuObj->mainMaps[2].engineId, menuObj->mainMaps[2].bgLayer, 0x200000, 0x200000);
 
-    menuObj->unk_47334 = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 8),
-                                              g_DisplaySettings.engineState[0].bgSettings[1].charBase, 0, 0x3EA0);
+    menuObj->mainChars[1] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 8),
+                                                 g_DisplaySettings.engineState[0].bgSettings[1].charBase, 0, 0x3EA0);
 
-    menuObj->unk_474B0 = Data_GetPackEntryData(menuObj->unk_462F4, 11) + 4;
-    func_0200d1d8(&menuObj->unk_47410, 0, 1, 0, &menuObj->unk_474B0, 1, 1);
-    func_0200d858(&menuObj->unk_47410, 0, 0, 0);
+    menuObj->mainScreens[1][0] = Data_GetPackEntryData(menuObj->packs[1], 11) + 4;
+    func_0200d1d8(&menuObj->mainMaps[1], 0, 1, 0, menuObj->mainScreens[1], 1, 1);
+    func_0200d858(&menuObj->mainMaps[1], 0, 0, 0);
 
-    Display_SetBGOffset(menuObj->unk_47410, menuObj->unk_47414, 0x200000, 0x200000);
+    Display_SetBGOffset(menuObj->mainMaps[1].engineId, menuObj->mainMaps[1].bgLayer, 0x200000, 0x200000);
 
-    void* var_r1_10 = Data_GetPackEntryData(menuObj->unk_462F4, 7);
+    void* var_r1_10 = Data_GetPackEntryData(menuObj->packs[1], 7);
 
-    menuObj->unk_474A8 = Data_GetPackEntryData(menuObj->unk_462F4, 9) + 4;
-    menuObj->unk_474AC = Data_GetPackEntryData(menuObj->unk_462F4, 10) + 4;
+    menuObj->mainScreens[0][0] = Data_GetPackEntryData(menuObj->packs[1], 9) + 4;
+    menuObj->mainScreens[0][1] = Data_GetPackEntryData(menuObj->packs[1], 10) + 4;
 
-    menuObj->unk_47330 = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r1_10,
-                                              g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x8000);
-    func_0200d1d8(&menuObj->unk_473E8, 0, 0, 0, &menuObj->unk_474A8, 2, 1);
-    func_0200d858(&menuObj->unk_473E8, 0, 0, 0);
+    menuObj->mainChars[0] = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r1_10,
+                                                 g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x8000);
+    func_0200d1d8(&menuObj->mainMaps[0], 0, 0, 0, menuObj->mainScreens[0], 2, 1);
+    func_0200d858(&menuObj->mainMaps[0], 0, 0, 0);
 
-    Display_SetBGOffset(menuObj->unk_473E8, menuObj->unk_473EC, 0x200000, 0x200000);
+    Display_SetBGOffset(menuObj->mainMaps[0].engineId, menuObj->mainMaps[0].bgLayer, 0x200000, 0x200000);
 
     Display_SetMainLayers(LAYER_BG0 | LAYER_BG1 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
     Display_SetSubLayers(LAYER_BG0 | LAYER_BG1 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
@@ -609,12 +613,12 @@ void func_ov002_02083a74(OtosuMenuObj* menuObj) {
     Display_Commit();
 }
 
-void func_ov002_02084494(OtosuMenuObj* menuObj, u8 arg1, u16* arg2) {
-    Ov002_U16_20 header = data_ov002_02091b64;
-    u16          subPal[4];
-    Ov002_U16_50 slots = data_ov002_02091bb8;
-    u16          subBg1[4];
-    u16          mainPal[4];
+void func_ov002_02084494(OtosuMenuObj* menuObj, u8 arg1, const OtosuMenuRect* texts) {
+    OtosuMenuRectList4    header = data_ov002_02091b64;
+    OtosuMenuBoardEntries subPalettes;
+    OtosuMenuRectList10   slots = data_ov002_02091bb8;
+    OtosuMenuBoardEntries subScreens;
+    OtosuMenuBoardEntries mainPalettes;
 
     func_ov002_02085710(menuObj);
 
@@ -623,298 +627,246 @@ void func_ov002_02084494(OtosuMenuObj* menuObj, u8 arg1, u16* arg2) {
     g_DisplaySettings.engineState[1].bgSettings[2].priority = 1;
     g_DisplaySettings.engineState[1].bgSettings[3].priority = 2;
 
-    menuObj->unk_462F0 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
-    menuObj->unk_462F4 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 4, 0);
+    menuObj->packs[0] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
+    menuObj->packs[1] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 4, 0);
 
-    subPal[0]   = data_ov002_02091abc.data[0];
-    subPal[1]   = data_ov002_02091abc.data[1];
-    subPal[3]   = data_ov002_02091abc.data[3];
-    subPal[2]   = data_ov002_02091abc.data[2];
-    u16 temp_r2 = subPal[arg1];
+    subPalettes = data_ov002_02091abc;
 
-    menuObj->unk_47340 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, temp_r2), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->unk_47340);
+    menuObj->subPalette = PaletteMgr_AllocPalette(
+        g_PaletteManagers[1], Data_GetPackEntryData(menuObj->packs[1], subPalettes.entry[arg1]), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->subPalette);
 
-    menuObj->unk_4732C = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 6),
-                                              g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x8000);
+    menuObj->subChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 6),
+                                                g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x8000);
 
-    menuObj->unk_474A0 = Data_GetPackEntryData(menuObj->unk_462F4, 10) + 4;
-    func_0200d1d8(&menuObj->unk_473C0, 1, 3, 0, &menuObj->unk_474A0, 1, 1);
+    menuObj->subScreens[3][0] = Data_GetPackEntryData(menuObj->packs[1], 10) + 4;
+    func_0200d1d8(&menuObj->subMaps[3], 1, 3, 0, menuObj->subScreens[3], 1, 1);
 
-    menuObj->unk_47328 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 7),
-                                              g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x6000);
+    menuObj->subChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 7),
+                                                g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x6000);
 
-    menuObj->unk_47498 = Data_GetPackEntryData(menuObj->unk_462F4, 11) + 4;
-    func_0200d1d8(&menuObj->unk_47398, 1, 2, 0, &menuObj->unk_47498, 1, 1);
+    menuObj->subScreens[2][0] = Data_GetPackEntryData(menuObj->packs[1], 11) + 4;
+    func_0200d1d8(&menuObj->subMaps[2], 1, 2, 0, menuObj->subScreens[2], 1, 1);
 
-    menuObj->unk_47324 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 9),
-                                              g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0, 0x8000);
+    menuObj->subChars[1] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 9),
+                                                g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0, 0x8000);
 
-    subBg1[3]     = data_ov002_02091aa4.data[3];
-    subBg1[0]     = data_ov002_02091aa4.data[0];
-    subBg1[1]     = data_ov002_02091aa4.data[1];
-    subBg1[2]     = data_ov002_02091aa4.data[2];
-    u16 temp_r2_2 = subBg1[arg1];
+    subScreens = data_ov002_02091aa4;
 
-    menuObj->unk_47490 = Data_GetPackEntryData(menuObj->unk_462F4, temp_r2_2) + 4;
-    func_0200d1d8(&menuObj->unk_47370, 1, 1, 0, &menuObj->unk_47490, 1, 1);
+    menuObj->subScreens[1][0] = Data_GetPackEntryData(menuObj->packs[1], subScreens.entry[arg1]) + 4;
+    func_0200d1d8(&menuObj->subMaps[1], 1, 1, 0, menuObj->subScreens[1], 1, 1);
 
-    menuObj->unk_47320 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 8),
-                                              g_DisplaySettings.engineState[1].bgSettings[0].charBase, 0, 0x200);
+    menuObj->subChars[0] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 8),
+                                                g_DisplaySettings.engineState[1].bgSettings[0].charBase, 0, 0x200);
 
     Display_SetSubLayers(LAYER_BG0 | LAYER_BG1 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
 
-    mainPal[3]    = data_ov002_02091ac4.data[3];
-    mainPal[0]    = data_ov002_02091ac4.data[0];
-    mainPal[1]    = data_ov002_02091ac4.data[1];
-    mainPal[2]    = data_ov002_02091ac4.data[2];
-    u16 temp_r2_3 = mainPal[arg1];
+    mainPalettes = data_ov002_02091ac4;
 
-    menuObj->unk_47344 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, temp_r2_3), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->unk_47344);
+    menuObj->mainPalette = PaletteMgr_AllocPalette(
+        g_PaletteManagers[0], Data_GetPackEntryData(menuObj->packs[1], mainPalettes.entry[arg1]), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->mainPalette);
 
-    menuObj->unk_4733C = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 20),
-                                              g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
+    menuObj->mainChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 20),
+                                                 g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
 
-    menuObj->unk_474C0 = Data_GetPackEntryData(menuObj->unk_462F4, 21) + 4;
-    func_0200d1d8(&menuObj->unk_47460, 0, 3, 0, &menuObj->unk_474C0, 1, 1);
+    menuObj->mainScreens[3][0] = Data_GetPackEntryData(menuObj->packs[1], 21) + 4;
+    func_0200d1d8(&menuObj->mainMaps[3], 0, 3, 0, menuObj->mainScreens[3], 1, 1);
 
-    menuObj->unk_47338 = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 9),
-                                              g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
+    menuObj->mainChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 9),
+                                                 g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
 
-    menuObj->unk_474B8 = Data_GetPackEntryData(menuObj->unk_462F0, 28) + 4;
-    func_0200d1d8(&menuObj->unk_47438, 0, 2, 0, &menuObj->unk_474B8, 1, 1);
+    menuObj->mainScreens[2][0] = Data_GetPackEntryData(menuObj->packs[0], 28) + 4;
+    func_0200d1d8(&menuObj->mainMaps[2], 0, 2, 0, menuObj->mainScreens[2], 1, 1);
 
-    void* var_r1_9 = Data_GetPackEntryData(menuObj->unk_462F4, 9);
+    void* var_r1_9 = Data_GetPackEntryData(menuObj->packs[1], 9);
 
-    menuObj->unk_474B0 = Data_GetPackEntryData(menuObj->unk_462F4, 22) + 4;
-    menuObj->unk_47334 = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r1_9,
-                                              g_DisplaySettings.engineState[0].bgSettings[1].charBase, 0, 0x8000);
-    func_0200d1d8(&menuObj->unk_47410, 0, 1, 0, &menuObj->unk_474B0, 1, 1);
+    menuObj->mainScreens[1][0] = Data_GetPackEntryData(menuObj->packs[1], 22) + 4;
+    menuObj->mainChars[1]      = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r1_9,
+                                                      g_DisplaySettings.engineState[0].bgSettings[1].charBase, 0, 0x8000);
+    func_0200d1d8(&menuObj->mainMaps[1], 0, 1, 0, menuObj->mainScreens[1], 1, 1);
 
-    void* var_r4 = Data_GetPackEntryData(menuObj->unk_462F0, 7);
+    void* var_r4 = Data_GetPackEntryData(menuObj->packs[0], 7);
 
-    menuObj->unk_474A8 = Data_GetPackEntryData(menuObj->unk_462F0, 8) + 4;
+    menuObj->mainScreens[0][0] = Data_GetPackEntryData(menuObj->packs[0], 8) + 4;
     SysFont_SetColor(&menuObj->font, 1U);
-    func_ov002_02082dbc(&menuObj->font, (const Ov002_U16_5*)slots.data, var_r4 + 4, menuObj->unk_474A8);
-    func_ov002_02082dbc(&menuObj->font, (const Ov002_U16_5*)arg2, var_r4 + 4, menuObj->unk_474A8);
+    func_ov002_02082dbc(&menuObj->font, slots.rects, var_r4 + 4, menuObj->mainScreens[0][0]);
+    func_ov002_02082dbc(&menuObj->font, texts, var_r4 + 4, menuObj->mainScreens[0][0]);
     SysFont_SetColor(&menuObj->font, 3U);
-    func_ov002_02082dbc(&menuObj->font, (const Ov002_U16_5*)header.data, var_r4 + 4, menuObj->unk_474A8);
+    func_ov002_02082dbc(&menuObj->font, header.rects, var_r4 + 4, menuObj->mainScreens[0][0]);
     SysFont_SetColor(&menuObj->font, 1U);
-    menuObj->unk_47330 = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r4,
-                                              g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
-    func_0200d1d8(&menuObj->unk_473E8, 0, 0, 0, &menuObj->unk_474A8, 1, 1);
+    menuObj->mainChars[0] = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r4,
+                                                 g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
+    func_0200d1d8(&menuObj->mainMaps[0], 0, 0, 0, menuObj->mainScreens[0], 1, 1);
     Display_SetMainLayers(LAYER_BG0 | LAYER_BG1 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
     Display_Commit();
 }
 
-void func_ov002_02084c84(OtosuMenuObj* menuObj, u16* arg1) {
-    void* temp_r0;
-    void* temp_r0_2;
-    void* temp_r0_3;
-    void* temp_r0_4;
-    void* temp_r0_5;
-    void* temp_r0_6;
-    void* temp_r0_7;
-    void* temp_r0_8;
-    void* temp_r1;
-    void* temp_r1_10;
-    void* temp_r1_2;
-    void* temp_r1_3;
-    void* temp_r1_4;
-    void* temp_r1_5;
-    void* temp_r1_6;
-    void* temp_r1_7;
-    void* temp_r1_8;
-    void* temp_r1_9;
-    void* temp_r2;
-    void* var_r0;
-    void* var_r0_2;
-    void* var_r0_3;
-    void* var_r1;
-    void* var_r1_2;
-    void* var_r1_3;
-    void* var_r1_4;
-    void* var_r1_5;
-    void* var_r1_6;
-    void* var_r4;
+void func_ov002_02084c84(OtosuMenuObj* menuObj, const OtosuMenuRect* texts) {
+    void* textChars;
 
     func_ov002_02085710(menuObj);
     g_DisplaySettings.engineState[1].bgSettings[0].priority = 0;
     g_DisplaySettings.engineState[1].bgSettings[1].priority = 1;
     g_DisplaySettings.engineState[1].bgSettings[2].priority = 2;
     g_DisplaySettings.engineState[1].bgSettings[3].priority = 3;
-    menuObj->unk_462F0                                      = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
-    temp_r0                                                 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 5, 0);
-    menuObj->unk_462F4                                      = temp_r0;
-    var_r1                                                  = Data_GetPackEntryData(temp_r0, 1);
-    menuObj->unk_47340 = PaletteMgr_AllocPalette(g_PaletteManagers[1], var_r1, 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->unk_47340);
-    temp_r0_2          = menuObj->unk_462F4;
-    var_r1_2           = Data_GetPackEntryData(temp_r0_2, 2);
-    menuObj->unk_4732C = BgResMgr_AllocChar32(g_BgResourceManagers[1], var_r1_2,
-                                              g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
-    temp_r0_3          = menuObj->unk_462F4;
-    var_r0             = Data_GetPackEntryData(temp_r0_3, 4);
-    menuObj->unk_474A0 = (void*)(var_r0 + 4);
-    func_0200d1d8(&menuObj->unk_473C0, 1, 3, 0, &menuObj->unk_474A0, 1, 1);
-    var_r1_3 = NULL;
+
+    menuObj->packs[0] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
+    menuObj->packs[1] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 5, 0);
+
+    menuObj->subPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->packs[1], 1), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->subPalette);
+
+    menuObj->subChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 2),
+                                                g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
+
+    menuObj->subScreens[3][0] = Data_GetPackEntryData(menuObj->packs[1], 4) + 4;
+    func_0200d1d8(&menuObj->subMaps[3], 1, 3, 0, menuObj->subScreens[3], 1, 1);
+
     Display_SetSubLayers(LAYER_BG3 | LAYER_OBJ);
-    temp_r0_4 = menuObj->unk_462F4;
-    if (temp_r0_4 != NULL) {
-        var_r1_3 = Data_GetPackEntryData(temp_r0_4, 6);
+
+    menuObj->mainPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->packs[1], 6), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->mainPalette);
+
+    menuObj->mainChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 7),
+                                                 g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
+
+    menuObj->mainScreens[3][0] = Data_GetPackEntryData(menuObj->packs[1], 8) + 4;
+    func_0200d1d8(&menuObj->mainMaps[3], 0, 3, 0, menuObj->mainScreens[3], 1, 1);
+
+    menuObj->mainChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 3),
+                                                 g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
+
+    menuObj->mainScreens[2][0] = Data_GetPackEntryData(menuObj->packs[1], 11) + 4;
+    func_0200d1d8(&menuObj->mainMaps[2], 0, 2, 0, menuObj->mainScreens[2], 1, 1);
+
+    textChars                  = Data_GetPackEntryData(menuObj->packs[0], 7);
+    menuObj->mainScreens[0][0] = Data_GetPackEntryData(menuObj->packs[0], 8) + 4;
+    SysFont_SetColor(&menuObj->font, 1);
+    if (texts != NULL) {
+        func_ov002_02082dbc(&menuObj->font, texts, textChars + 4, menuObj->mainScreens[0][0]);
     }
-    menuObj->unk_47344 = PaletteMgr_AllocPalette(g_PaletteManagers[0], var_r1_3, 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->unk_47344);
-    temp_r0_5          = menuObj->unk_462F4;
-    var_r1_4           = Data_GetPackEntryData(temp_r0_5, 7);
-    menuObj->unk_4733C = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r1_4,
-                                              g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
-    temp_r0_6          = menuObj->unk_462F4;
-    var_r0_2           = Data_GetPackEntryData(temp_r0_6, 8);
-    menuObj->unk_474C0 = (void*)(var_r0_2 + 4);
-    func_0200d1d8(&menuObj->unk_47460, 0, 3, 0, &menuObj->unk_474C0, 1, 1);
-    temp_r0_7          = menuObj->unk_462F4;
-    var_r1_5           = Data_GetPackEntryData(temp_r0_7, 3);
-    menuObj->unk_47338 = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r1_5,
-                                              g_DisplaySettings.engineState[0].bgSettings[2].charBase, 0, 0x8000);
-    temp_r0_8          = menuObj->unk_462F4;
-    var_r0_3           = Data_GetPackEntryData(temp_r0_8, 11);
-    menuObj->unk_474B8 = (void*)(var_r0_3 + 4);
-    func_0200d1d8(&menuObj->unk_47438, 0, 2, 0, &menuObj->unk_474B8, 1, 1);
-    temp_r2 = menuObj->unk_462F0;
-    var_r4  = Data_GetPackEntryData(temp_r2, 7);
-    if (temp_r2 == NULL) {
-        var_r1_6 = NULL;
-    } else {
-        var_r1_6 = Data_GetPackEntryData(temp_r2, 8);
-    }
-    menuObj->unk_474A8 = (void*)(var_r1_6 + 4);
-    SysFont_SetColor(&menuObj->font, 1U);
-    if (arg1 != NULL) {
-        func_ov002_02082dbc(&menuObj->font, (const Ov002_U16_5*)arg1, var_r4 + 4, menuObj->unk_474A8);
-    }
-    menuObj->unk_47330 = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r4,
-                                              g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
-    func_0200d1d8(&menuObj->unk_473E8, 0, 0, 0, &menuObj->unk_474A8, 1, 1);
+    menuObj->mainChars[0] = BgResMgr_AllocChar32(g_BgResourceManagers[0], textChars,
+                                                 g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
+    func_0200d1d8(&menuObj->mainMaps[0], 0, 0, 0, menuObj->mainScreens[0], 1, 1);
     Display_SetMainLayers(LAYER_BG0 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
     Display_Commit();
 }
 
-void func_ov002_020850c0(OtosuMenuObj* menuObj, s32 arg1, s32 arg2, s32* arg3, u16* arg4) {
+void func_ov002_020850c0(OtosuMenuObj* menuObj, s32 arg1, s32 arg2, s32* arg3, const OtosuMenuRect* texts) {
+    void* chars;
+
     func_ov002_02085710(menuObj);
 
-    menuObj->unk_462F0 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
-    menuObj->unk_462F4 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 5, 0);
+    menuObj->packs[0] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
+    menuObj->packs[1] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 5, 0);
 
-    menuObj->unk_47340 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 1), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->unk_47340);
+    menuObj->subPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[1], Data_GetPackEntryData(menuObj->packs[1], 1), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->subPalette);
 
-    menuObj->unk_4732C = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 2),
-                                              g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
+    menuObj->subChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 2),
+                                                g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
 
-    menuObj->unk_474A0 = Data_GetPackEntryData(menuObj->unk_462F4, 4) + 4;
-    func_0200d1d8(&menuObj->unk_473C0, 1, 3, 0, &menuObj->unk_474A0, 1, 1);
+    menuObj->subScreens[3][0] = Data_GetPackEntryData(menuObj->packs[1], 4) + 4;
+    func_0200d1d8(&menuObj->subMaps[3], 1, 3, 0, menuObj->subScreens[3], 1, 1);
 
-    menuObj->unk_47328 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F4, 3),
-                                              g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x8000);
+    menuObj->subChars[2] = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->packs[1], 3),
+                                                g_DisplaySettings.engineState[1].bgSettings[2].charBase, 0, 0x8000);
 
-    menuObj->unk_47498 = Data_GetPackEntryData(menuObj->unk_462F4, 5) + 4;
-    func_0200d1d8(&menuObj->unk_47398, 1, 2, 0, &menuObj->unk_47498, 1, 1);
+    menuObj->subScreens[2][0] = Data_GetPackEntryData(menuObj->packs[1], 5) + 4;
+    func_0200d1d8(&menuObj->subMaps[2], 1, 2, 0, menuObj->subScreens[2], 1, 1);
 
-    menuObj->unk_47324 = BgResMgr_AllocChar32(g_BgResourceManagers[1], Data_GetPackEntryData(menuObj->unk_462F0, 5),
-                                              g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0, 0x6000);
-
-    menuObj->unk_47490 = Data_GetPackEntryData(menuObj->unk_462F0, 6) + 4;
+    chars                     = Data_GetPackEntryData(menuObj->packs[0], 5);
+    menuObj->subScreens[1][0] = Data_GetPackEntryData(menuObj->packs[0], 6) + 4;
     SysFont_SetColor(&menuObj->font, 1);
-    func_ov002_02082e70(&menuObj->font, arg3, menuObj->unk_47490 + 4, menuObj->unk_47490);
-    func_0200d1d8(&menuObj->unk_47370, 1, 1, 0, &menuObj->unk_47490, 1, 1);
+    func_ov002_02082e70(&menuObj->font, arg3, chars + 4, menuObj->subScreens[1][0]);
+    menuObj->subChars[1] = BgResMgr_AllocChar32(g_BgResourceManagers[1], chars,
+                                                g_DisplaySettings.engineState[1].bgSettings[1].charBase, 0, 0x6000);
+    func_0200d1d8(&menuObj->subMaps[1], 1, 1, 0, menuObj->subScreens[1], 1, 1);
 
     Display_SetSubLayers(LAYER_BG1 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ);
     Display_SetMainLayers(LAYER_NONE);
 
-    menuObj->unk_47344 =
-        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 6), 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->unk_47344);
+    menuObj->mainPalette =
+        PaletteMgr_AllocPalette(g_PaletteManagers[0], Data_GetPackEntryData(menuObj->packs[1], 6), 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->mainPalette);
 
-    menuObj->unk_4733C = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 7),
-                                              g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
+    menuObj->mainChars[3] = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->packs[1], 7),
+                                                 g_DisplaySettings.engineState[0].bgSettings[3].charBase, 0, 0x6000);
 
-    menuObj->unk_474C0 = Data_GetPackEntryData(menuObj->unk_462F4, 8) + 4;
-    func_0200d1d8(&menuObj->unk_47460, 0, 3, 0, &menuObj->unk_474C0, 1, 1);
+    menuObj->mainScreens[3][0] = Data_GetPackEntryData(menuObj->packs[1], 8) + 4;
+    func_0200d1d8(&menuObj->mainMaps[3], 0, 3, 0, menuObj->mainScreens[3], 1, 1);
 
-    menuObj->unk_474B8 = Data_GetPackEntryData(menuObj->unk_462F4, arg2) + 4;
-    func_0200d1d8(&menuObj->unk_47438, 0, 2, 0, &menuObj->unk_474B8, 1, 1);
+    menuObj->mainScreens[2][0] = Data_GetPackEntryData(menuObj->packs[1], arg2) + 4;
+    func_0200d1d8(&menuObj->mainMaps[2], 0, 2, 0, menuObj->mainScreens[2], 1, 1);
 
     if (arg1 != 0xFFFF) {
-        menuObj->unk_47334 = BgResMgr_AllocChar32(g_BgResourceManagers[0], Data_GetPackEntryData(menuObj->unk_462F4, 3),
-                                                  g_DisplaySettings.engineState[0].bgSettings[1].charBase, 0, 0x8000);
-
-        menuObj->unk_474B0 = Data_GetPackEntryData(menuObj->unk_462F4, arg1) + 4;
-        func_0200d1d8(&menuObj->unk_47410, 0, 1, 0, &menuObj->unk_474B0, 1, 1);
+        chars                      = Data_GetPackEntryData(menuObj->packs[1], 3);
+        menuObj->mainScreens[1][0] = Data_GetPackEntryData(menuObj->packs[1], arg1) + 4;
+        menuObj->mainChars[1]      = BgResMgr_AllocChar32(g_BgResourceManagers[0], chars,
+                                                          g_DisplaySettings.engineState[0].bgSettings[1].charBase, 0, 0x8000);
+        func_0200d1d8(&menuObj->mainMaps[1], 0, 1, 0, menuObj->mainScreens[1], 1, 1);
         g_DisplaySettings.controls[0].layers |= 2;
-    } else if ((menuObj->unk_474B0 == 0) && (menuObj->unk_47334 == NULL)) {
+    } else if ((menuObj->mainScreens[1][0] == 0) && (menuObj->mainChars[1] == NULL)) {
     } else {
         OS_WaitForever();
     }
 
-    void* ptr          = Data_GetPackEntryData(menuObj->unk_462F0, 7);
-    menuObj->unk_474A8 = Data_GetPackEntryData(menuObj->unk_462F0, 8);
-    menuObj->unk_474A8 = menuObj->unk_474A8 + 4;
+    chars                      = Data_GetPackEntryData(menuObj->packs[0], 7);
+    menuObj->mainScreens[0][0] = Data_GetPackEntryData(menuObj->packs[0], 8) + 4;
     SysFont_SetColor(&menuObj->font, 1);
-    func_ov002_02082dbc(&menuObj->font, (const Ov002_U16_5*)arg4, ptr + 4, menuObj->unk_474A8);
-
-    menuObj->unk_47330 =
-        BgResMgr_AllocChar32(g_BgResourceManagers[0], ptr, g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
-    func_0200d1d8(&menuObj->unk_473E8, 0, 0, 0, &menuObj->unk_474A8, 1, 1);
+    func_ov002_02082dbc(&menuObj->font, texts, chars + 4, menuObj->mainScreens[0][0]);
+    menuObj->mainChars[0] = BgResMgr_AllocChar32(g_BgResourceManagers[0], chars,
+                                                 g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
+    func_0200d1d8(&menuObj->mainMaps[0], 0, 0, 0, menuObj->mainScreens[0], 1, 1);
     g_DisplaySettings.controls[0].layers |= 0x1D;
     Display_Commit();
 }
 
 void func_ov002_02085710(OtosuMenuObj* menuObj) {
-    if (menuObj->unk_47344 != NULL) {
-        PaletteMgr_ReleaseResource(g_PaletteManagers[0], menuObj->unk_47344);
-        menuObj->unk_47344 = NULL;
+    if (menuObj->mainPalette != NULL) {
+        PaletteMgr_ReleaseResource(g_PaletteManagers[0], menuObj->mainPalette);
+        menuObj->mainPalette = NULL;
     }
-    if (menuObj->unk_47330 != NULL) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[0], menuObj->unk_47330);
-        menuObj->unk_47330 = NULL;
+    if (menuObj->mainChars[0] != NULL) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[0], menuObj->mainChars[0]);
+        menuObj->mainChars[0] = NULL;
     }
-    if (menuObj->unk_47334 != NULL) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[0], menuObj->unk_47334);
-        menuObj->unk_47334 = NULL;
+    if (menuObj->mainChars[1] != NULL) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[0], menuObj->mainChars[1]);
+        menuObj->mainChars[1] = NULL;
     }
-    if (menuObj->unk_47338 != NULL) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[0], menuObj->unk_47338);
-        menuObj->unk_47338 = NULL;
+    if (menuObj->mainChars[2] != NULL) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[0], menuObj->mainChars[2]);
+        menuObj->mainChars[2] = NULL;
     }
-    if (menuObj->unk_4733C != NULL) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[0], menuObj->unk_4733C);
-        menuObj->unk_4733C = NULL;
+    if (menuObj->mainChars[3] != NULL) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[0], menuObj->mainChars[3]);
+        menuObj->mainChars[3] = NULL;
     }
 
-    if (menuObj->unk_47340 != NULL) {
-        PaletteMgr_ReleaseResource(g_PaletteManagers[1], menuObj->unk_47340);
-        menuObj->unk_47340 = NULL;
+    if (menuObj->subPalette != NULL) {
+        PaletteMgr_ReleaseResource(g_PaletteManagers[1], menuObj->subPalette);
+        menuObj->subPalette = NULL;
     }
-    if (menuObj->unk_47320 != NULL) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[1], menuObj->unk_47320);
-        menuObj->unk_47320 = NULL;
+    if (menuObj->subChars[0] != NULL) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[1], menuObj->subChars[0]);
+        menuObj->subChars[0] = NULL;
     }
-    if (menuObj->unk_47324 != NULL) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[1], menuObj->unk_47324);
-        menuObj->unk_47324 = NULL;
+    if (menuObj->subChars[1] != NULL) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[1], menuObj->subChars[1]);
+        menuObj->subChars[1] = NULL;
     }
-    if (menuObj->unk_47328 != NULL) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[1], menuObj->unk_47328);
-        menuObj->unk_47328 = NULL;
+    if (menuObj->subChars[2] != NULL) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[1], menuObj->subChars[2]);
+        menuObj->subChars[2] = NULL;
     }
-    if (menuObj->unk_4732C != NULL) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[1], menuObj->unk_4732C);
-        menuObj->unk_4732C = NULL;
+    if (menuObj->subChars[3] != NULL) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[1], menuObj->subChars[3]);
+        menuObj->subChars[3] = NULL;
     }
 
     func_0200d954(1, 0);
@@ -924,48 +876,45 @@ void func_ov002_02085710(OtosuMenuObj* menuObj) {
     func_0200d954(0, 2);
     func_0200d954(0, 3);
 
-    if (menuObj->unk_462F0 != NULL) {
-        DatMgr_ReleaseData(menuObj->unk_462F0);
-        menuObj->unk_462F0 = NULL;
+    if (menuObj->packs[0] != NULL) {
+        DatMgr_ReleaseData(menuObj->packs[0]);
+        menuObj->packs[0] = NULL;
     }
-    if (menuObj->unk_462F4 != NULL) {
-        DatMgr_ReleaseData(menuObj->unk_462F4);
-        menuObj->unk_462F4 = NULL;
+    if (menuObj->packs[1] != NULL) {
+        DatMgr_ReleaseData(menuObj->packs[1]);
+        menuObj->packs[1] = NULL;
     }
-    if (menuObj->unk_462F8 != NULL) {
-        DatMgr_ReleaseData(menuObj->unk_462F8);
-        menuObj->unk_462F8 = NULL;
+    if (menuObj->packs[2] != NULL) {
+        DatMgr_ReleaseData(menuObj->packs[2]);
+        menuObj->packs[2] = NULL;
     }
-    if (menuObj->unk_462FC != NULL) {
-        DatMgr_ReleaseData(menuObj->unk_462FC);
-        menuObj->unk_462FC = NULL;
+    if (menuObj->packs[3] != NULL) {
+        DatMgr_ReleaseData(menuObj->packs[3]);
+        menuObj->packs[3] = NULL;
     }
 }
 
-u16 func_ov002_0208597c(u16* arg0) {
-    s32 x;
-    s32 y;
-    u16 index  = 0;
-    u16 result = 0xFFFF;
-
+u16 func_ov002_0208597c(const OtosuMenuRect* buttons) {
+    const u16* table = (const u16*)buttons; // walked as raw halfwords, five per rect
+    TouchCoord touch;
     TouchCoord coords;
+    u16        index  = 0;
+    u16        result = 0xFFFF;
 
     TouchInput_GetCoord(&coords);
-
+    touch = coords;
     if (TouchInput_WasTouchPressed() != 0) {
         result = 0xFFFE;
-        if (arg0[0] != 0xFFFF) {
+        if (table[0] != 0xFFFF) {
             do {
-                u16* entry = arg0 + index * 5;
-
-                if ((coords.x >= (s32)entry[1]) && (coords.x <= (s32)entry[3]) && (coords.y >= (s32)entry[2]) &&
-                    (coords.y <= (s32)entry[4]))
+                if (touch.x >= table[index * 5 + 1] && touch.x <= table[index * 5 + 3] && touch.y >= table[index * 5 + 2] &&
+                    touch.y <= table[index * 5 + 4])
                 {
-                    result = entry[0];
+                    result = table[index * 5];
                     break;
                 }
                 index++;
-            } while (arg0[index * 5] != 0xFFFF);
+            } while (table[index * 5] != 0xFFFF);
         }
     }
     return result;
@@ -973,11 +922,11 @@ u16 func_ov002_0208597c(u16* arg0) {
 
 void func_ov002_02085a44(OtosuMenuObj* menuObj) {
     func_ov002_02082548(menuObj);
-    PrcMaster_UnregisterContext(&menuObj->prcMaster, &menuObj->unk_46100);
-    PrcCtx_Init(&menuObj->unk_46100, "OtosuMenuLinklevel", sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_46100, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_46100, &data_ov002_02093008, NULL);
-    PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->unk_46100);
+    PrcMaster_UnregisterContext(&menuObj->prcMaster, &menuObj->linkLevelCtx);
+    PrcCtx_Init(&menuObj->linkLevelCtx, "OtosuMenuLinklevel", sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->linkLevelCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->linkLevelCtx, &data_ov002_02093008, NULL);
+    PrcMaster_RegisterContext(&menuObj->prcMaster, &menuObj->linkLevelCtx);
 }
 
 void func_ov002_02085ac4(OtosuMenuObj* menuObj) {
@@ -995,26 +944,26 @@ void func_ov002_02085ac4(OtosuMenuObj* menuObj) {
             break;
     }
 
-    if (PrcCtx_GetStepTable(&menuObj->unk_4161C) != data_ov002_02092efc &&
-        PrcCtx_GetStepTable(&menuObj->unk_4161C) != data_ov002_02092e68 &&
-        PrcCtx_GetStepTable(&menuObj->unk_4161C) != data_ov002_02092ec8 &&
-        PrcCtx_GetStepTable(&menuObj->unk_4161C) != data_ov002_02092e98)
+    if (PrcCtx_GetStepTable(&menuObj->mainCtx) != data_ov002_02092efc &&
+        PrcCtx_GetStepTable(&menuObj->mainCtx) != data_ov002_02092e68 &&
+        PrcCtx_GetStepTable(&menuObj->mainCtx) != data_ov002_02092ec8 &&
+        PrcCtx_GetStepTable(&menuObj->mainCtx) != data_ov002_02092e98)
     {
         switch (result) {
             case 10:
-                PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02092e40, NULL);
+                PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02092e40, NULL);
                 break;
             case 8:
             case 9:
                 switch (menuObj->unk_41FE9) {
                     case 0:
-                        PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02092e54, NULL);
+                        PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02092e54, NULL);
                         break;
                     case 1:
-                        PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02092e18, NULL);
+                        PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02092e18, NULL);
                         break;
                     case 2:
-                        PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02092e2c, NULL);
+                        PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02092e2c, NULL);
                         break;
                 }
                 break;
@@ -1028,7 +977,7 @@ OtosuMenuObj* OtosuMenu_Init(void) {
     FS_LoadOverlay(0, &OVERLAY_31_ID);
 
     OtosuMenuObj* obj = Mem_AllocHeapTail(&gMainHeap, sizeof(OtosuMenuObj));
-    Mem_SetSequence(&gMainHeap, obj, data_ov002_02092be4);
+    Mem_SetSequence(&gMainHeap, obj, OtosuMenu_ObjName);
     MI_CpuFill(0, obj, sizeof(OtosuMenuObj));
     MainOvlDisp_SetCbArg(obj);
     Mem_InitializeHeap(&obj->heap, obj->heapBuffer, sizeof(obj->heapBuffer));
@@ -1064,9 +1013,9 @@ OtosuMenuObj* func_ov002_02085df8(void) {
 void OtosuMenu_InitForSinglePlayerEnter(OtosuMenuObj* menuObj) {
     func_ov002_0208b860();
     menuObj = func_ov002_02085df8();
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02093268, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &OtosuMenu_Entry_SinglePlayerFrameDesc, NULL);
     menuObj->unk_41FE9 = 0;
     MainOvlDisp_NextProcessStage();
 }
@@ -1077,9 +1026,9 @@ void OtosuMenu_InitForMultiplayerEnter(OtosuMenuObj* menuObj) {
     menuObj = func_ov002_02085df8();
 
     menuObj->unk_460BC = 1;
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02093254, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &OtosuMenu_Entry_MultiplayerFrameDesc, NULL);
     menuObj->unk_41FE9 = 0;
     MainOvlDisp_NextProcessStage();
 }
@@ -1093,13 +1042,13 @@ void OtosuMenu_InitForMultiplayerRankings(OtosuMenuObj* menuObj) {
     func_ov040_0209d990();
     menuObj->unk_41FF0 = 1;
     menuObj->unk_460BC = 1;
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
     menuObj->unk_462EC = 0;
-    if (data_02074d10.unk_40A == 0) {
-        PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02093034, NULL);
+    if (gSaveData.otosuGameKey == 0) {
+        PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093034, NULL);
     } else {
-        PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_0209305c, NULL);
+        PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_0209305c, NULL);
     }
     func_ov002_02085a44(menuObj);
     CriSndMgr_PlayFile(ADX_B11);
@@ -1109,10 +1058,10 @@ void OtosuMenu_InitForMultiplayerRankings(OtosuMenuObj* menuObj) {
 void OtosuMenu_InitForSinglePlayerRankings(OtosuMenuObj* menuObj) {
     func_ov002_0208bd40();
     menuObj = func_ov002_02085df8();
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
     menuObj->unk_462EC = 1;
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02093048, NULL);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093048, NULL);
     func_ov002_02085a44(menuObj);
     CriSndMgr_PlayFile(ADX_B11);
     MainOvlDisp_NextProcessStage();
@@ -1128,9 +1077,9 @@ void OtosuMenu_InitForConnectionError(OtosuMenuObj* menuObj) {
     SystemStatusFlags.unk_06 = 1;
     SystemStatusFlags;
     SystemStatusFlags.unk_07 = 1;
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02092e18, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02092e18, NULL);
     func_ov002_02085a44(menuObj);
     MainOvlDisp_NextProcessStage();
 }
@@ -1141,9 +1090,9 @@ void OtosuMenu_InitForRoleSelection(OtosuMenuObj* menuObj) {
     menuObj = func_ov002_02085df8();
 
     menuObj->unk_460BC = 1;
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02092c9c, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &OtosuMenu_RoleSelect_FrameDesc, NULL);
     func_ov002_02085a44(menuObj);
     MainOvlDisp_NextProcessStage();
 }
@@ -1153,9 +1102,9 @@ void OtosuMenu_InitForFontList(OtosuMenuObj* menuObj) {
 
     menuObj = func_ov002_02085df8();
 
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_020932b8, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_020932b8, NULL);
     func_ov002_02085a44(menuObj);
     MainOvlDisp_NextProcessStage();
 }
@@ -1166,9 +1115,9 @@ void OtosuMenu_InitForDataDeletion(OtosuMenuObj* menuObj) {
     menuObj = func_ov002_02085df8();
 
     func_ov002_02085a44(menuObj);
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_0209344c, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_0209344c, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
@@ -1178,9 +1127,9 @@ void OtosuMenu_InitForDataCorrupted(OtosuMenuObj* menuObj) {
     menuObj = func_ov002_02085df8();
 
     func_ov002_02085a44(menuObj);
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02093460, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093460, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
@@ -1190,9 +1139,9 @@ void func_ov002_02086290(OtosuMenuObj* menuObj) {
     menuObj = func_ov002_02085df8();
 
     func_ov002_02085a44(menuObj);
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02093438, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093438, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
@@ -1202,9 +1151,9 @@ void OtosuMenu_InitForDataLoadFailure(OtosuMenuObj* menuObj) {
     menuObj = func_ov002_02085df8();
 
     func_ov002_02085a44(menuObj);
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02093310, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093310, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
@@ -1214,15 +1163,19 @@ void OtosuMenu_InitForDataSaveFailure(OtosuMenuObj* menuObj) {
     menuObj = func_ov002_02085df8();
 
     func_ov002_02085a44(menuObj);
-    PrcCtx_Init(&menuObj->unk_4161C, data_ov002_02092be4, sizeof(OtosuMenuObj));
-    PrcCtx_SetWorkObject(&menuObj->unk_4161C, menuObj);
-    PrcCtx_ReplaceFrame(&menuObj->unk_4161C, &data_ov002_02093324, NULL);
+    PrcCtx_Init(&menuObj->mainCtx, OtosuMenu_ObjName, sizeof(OtosuMenuObj));
+    PrcCtx_SetWorkObject(&menuObj->mainCtx, menuObj);
+    PrcCtx_ReplaceFrame(&menuObj->mainCtx, &data_ov002_02093324, NULL);
     MainOvlDisp_NextProcessStage();
 }
 
+static inline BOOL OtosuMenu_IsResetting(void) {
+    return SystemStatusFlags.reset != 0;
+}
+
 void OtosuMenu_Update(OtosuMenuObj* menuObj) {
-    if (SystemStatusFlags.reset && menuObj->unk_460BC) {
-        PrcCtx_ReplaceCurrentUpdateCallback(&menuObj->unk_4161C, func_ov002_02082a44);
+    if (OtosuMenu_IsResetting() && menuObj->unk_460BC) {
+        PrcCtx_ReplaceCurrentUpdateCallback(&menuObj->mainCtx, func_ov002_02082a44);
     }
 
     TouchInput_Update();
@@ -1231,23 +1184,23 @@ void OtosuMenu_Update(OtosuMenuObj* menuObj) {
     OamMgr_ResetCommandQueues(&g_OamMgr[DISPLAY_MAIN]);
     OamMgr_ResetCommandQueues(&g_OamMgr[DISPLAY_SUB]);
 
-    if (SystemStatusFlags.reset || (menuObj->unk_460BC == 0)) {
+    if (!OtosuMenu_IsResetting() || (menuObj->unk_460BC == 0)) {
         PrcMaster_RunAllCtxSteps(&menuObj->prcMaster);
         EasyTask_ProcessPendingTasks(&menuObj->taskPool);
-        if (PrcCtx_RunSteps(&menuObj->unk_4161C) == 0) {
+        if (PrcCtx_RunSteps(&menuObj->mainCtx) == 0) {
             OverlayTag tag;
             MainOvlDisp_Pop(&tag);
             return;
         }
-        if (menuObj->unk_460B8 != 0) {
-            Sprite_UpdateAndCheck(&menuObj->unk_46078);
+        if (menuObj->cursorActive != 0) {
+            Sprite_UpdateAndCheck(&menuObj->cursor);
         }
     }
 
     PrcMaster_UpdateAllContexts(&menuObj->prcMaster);
-    PrcCtx_Update(&menuObj->unk_4161C);
+    PrcCtx_Update(&menuObj->mainCtx);
 
-    switch (menuObj->unk_46074) {
+    switch (menuObj->nextScene) {
 
         case 1: {
             SystemStatusFlags;
@@ -1313,9 +1266,9 @@ void OtosuMenu_Update(OtosuMenuObj* menuObj) {
         case 0: {
             PrcMaster_RenderAllContexts(&menuObj->prcMaster);
             EasyTask_UpdateActiveTasks(&menuObj->taskPool);
-            PrcCtx_Render(&menuObj->unk_4161C);
-            if (menuObj->unk_460B8 != 0) {
-                Sprite_Render(&menuObj->unk_46078);
+            PrcCtx_Render(&menuObj->mainCtx);
+            if (menuObj->cursorActive != 0) {
+                Sprite_Render(&menuObj->cursor);
             }
             OamMgr_FlushCommands(&g_OamMgr[DISPLAY_MAIN]);
             OamMgr_FlushCommands(&g_OamMgr[DISPLAY_SUB]);
@@ -1331,11 +1284,11 @@ void OtosuMenu_Update(OtosuMenuObj* menuObj) {
 
 void OtosuMenu_Destroy(OtosuMenuObj* menuObj) {
     CriSndMgr_Pause(ADX_B11, 1);
-    if (menuObj->unk_460B8 != 0) {
+    if (menuObj->cursorActive != 0) {
         func_ov002_0208264c(menuObj);
     }
     EasyTask_DestroyPool(&menuObj->taskPool);
-    PrcCtx_Destroy(&menuObj->unk_4161C);
+    PrcCtx_Destroy(&menuObj->mainCtx);
     PrcMaster_Destroy(&menuObj->prcMaster);
     ResourceMgr_ReinitManagers(NULL);
     DatMgr_ClearSlot(menuObj->unk_11584);

@@ -11,12 +11,14 @@
 #include "Engine/File/DatMgr.h"
 #include "Engine/IO/TouchInput.h"
 #include "Engine/Overlay/OverlayDispatcher.h"
+#include "Engine/Resources/ScreenMapper.h"
 #include "OtosuMenu.h"
 #include "Save.h"
 #include "SndMgr.h"
 #include "SpriteMgr.h"
 #include "Util/SysFont.h"
 
+#include <nitro/fx.h>
 #include <nitro/mi/cpumem.h>
 
 extern void func_0200d8f0(void);
@@ -144,25 +146,143 @@ typedef struct {
     u16 data[18][2];
 } Ov002_U16_18x2;
 
-/** @brief A BG layer reference held by the H2 scroll task: which engine/layer, plus flag bits. */
-typedef struct {
-    /* 0x0 */ DisplayEngine  engine;
-    /* 0x4 */ DisplayBGLayer layer;
-    /* 0x8 */ s32            flags;
-} Ov002_BgRef;
+/// MARK: Screen layouts
 
-/** @brief Enter argument of a title-screen enemy object (H1). */
+/**
+ * @brief A screen rectangle tagged with an id. Text layouts use the id as a message index
+ * (func_ov002_02082dbc draws each one into its box); touch layouts use it as a button id
+ * (func_ov002_0208597c returns the id of the touched box). Lists end at an id of 0xFFFF.
+ */
 typedef struct {
-    /* 0x0 */ u16 index;
-    /* 0x2 */ u16 posX;
-} Ov002_TitleEnmArg;
+    /* 0x0 */ u16 id;
+    /* 0x2 */ u16 left;
+    /* 0x4 */ u16 top;
+    /* 0x6 */ u16 right;
+    /* 0x8 */ u16 bottom;
+} OtosuMenuRect; // Size: 0xA
 
-/** @brief Enter argument of the title-screen boss object (H2): start X and the two BG layers it scrolls. */
+/*
+ * Screens keep their layouts in const tables and copy them into locals by struct assignment
+ * (the copies land right where each table is used), so each list length has its own wrapper.
+ */
 typedef struct {
-    /* 0x0 */ u16          posX;
-    /* 0x4 */ Ov002_BgRef* upper;
-    /* 0x8 */ Ov002_BgRef* lower;
-} Ov002_TitleBossArg;
+    OtosuMenuRect rects[1];
+} OtosuMenuRectList1;
+
+typedef struct {
+    OtosuMenuRect rects[2];
+} OtosuMenuRectList2;
+
+typedef struct {
+    OtosuMenuRect rects[3];
+} OtosuMenuRectList3;
+
+typedef struct {
+    OtosuMenuRect rects[4];
+} OtosuMenuRectList4;
+
+typedef struct {
+    OtosuMenuRect rects[5];
+} OtosuMenuRectList5;
+
+typedef struct {
+    OtosuMenuRect rects[6];
+} OtosuMenuRectList6;
+
+typedef struct {
+    OtosuMenuRect rects[10];
+} OtosuMenuRectList10;
+
+/** @brief A pack entry index for each of the four boards (or player slots). */
+typedef struct {
+    u16 entry[4];
+} OtosuMenuBoardEntries;
+
+/** @brief Where the selection cursor sits over a button, and which animation it plays there. */
+typedef struct {
+    /* 0x0 */ s16 anim;
+    /* 0x2 */ u16 x;
+    /* 0x4 */ u16 y;
+} OtosuMenuCursor; // Size: 0x6
+
+/// MARK: Wireless lobby
+
+/** @brief What the wireless layer reports about a console that joined or left the lobby. */
+typedef struct {
+    /* 0x00 */ u8  unk_00[0xA];
+    /* 0x0A */ u8  bssid[6];
+    /* 0x10 */ u16 aid; // the console's slot in the session (0-3)
+    /* 0x12 */ u8  unk_12[2];
+    /* 0x14 */ u16 name[11];
+    /* 0x2A */ u8  unk_2A;
+} OtosuMenuChildInfo;
+
+/** @brief The small packet each child sends the parent while waiting in the lobby. */
+typedef struct {
+    /* 0x0 */ u16 unk_0;
+    /* 0x2 */ u16 unk_2;
+} OtosuMenuChildPacket;
+
+/// MARK: Result-screen objects
+
+/** @brief Enter argument of a rank board: one finishing place on the results screen. */
+typedef struct {
+    /* 0x0 */ BOOL winner; // sole first place: gold board and labels
+    /* 0x4 */ u8   place;  // row on screen, best score first
+    /* 0x5 */ u8   rank;   // shared by players with equal scores
+    /* 0x6 */ u8   player;
+    /* 0x8 */ u16  score;
+} OtosuMenu_RankBoardArg; // Size: 0xC
+
+/** @brief Work object of a rank board ("OtosuMenu_RankBoardObj"). */
+typedef struct {
+    /* 0x000 */ u8                     unk_000[0xC];
+    /* 0x00C */ OtosuMenu_RankBoardArg arg;
+    /* 0x018 */ u16                    digitCount;
+    /* 0x01A */ u8                     digits[6]; // score digits, least significant first
+    /* 0x020 */ Sprite                 board;
+    /* 0x060 */ Sprite                 rankLabel;
+    /* 0x0A0 */ Sprite                 nameTag;
+    /* 0x0E0 */ Sprite                 digitSprites[5];
+} OtosuMenu_RankBoardObj; // Size: 0x220
+
+/// MARK: Title-screen objects
+
+/** @brief Enter argument of a title-screen enemy object. */
+typedef struct {
+    /* 0x0 */ u16 index;    // which enemy (0-3): picks its cells and palette
+    /* 0x2 */ u16 duration; // frames its entrance slide takes
+} OtosuMenu_TitleEnmArg;
+
+/** @brief Work object of a title-screen enemy ("OtosuMenu_TitleEnmObj"). */
+typedef struct {
+    /* 0x000 */ u16    index;
+    /* 0x004 */ Sprite mainSprites[2]; // upper and lower half on the main screen
+    /* 0x084 */ Sprite subSprites[2];  // the same two halves on the sub screen
+    /* 0x104 */ fx32   x;
+    /* 0x108 */ fx32   y;
+    /* 0x10C */ fx32   progress; // eased towards 1.0 alongside the slide
+    /* 0x110 */ u16    duration;
+    /* 0x112 */ u16    timer;    // frames left in the slide
+} OtosuMenu_TitleEnmObj;         // Size: 0x114
+
+/** @brief Enter argument of the title-screen boss object: slide length and the two BG maps it scrolls. */
+typedef struct {
+    /* 0x0 */ u16             duration;
+    /* 0x4 */ ScreenMapEntry* upper;
+    /* 0x8 */ ScreenMapEntry* lower;
+} OtosuMenu_TitleBossArg;
+
+/** @brief Work object of the title-screen boss ("OtosuMenu_TitleBossObj"). */
+typedef struct {
+    /* 0x000 */ u8              unk_000[0x104];
+    /* 0x104 */ ScreenMapEntry* upper;
+    /* 0x108 */ ScreenMapEntry* lower;
+    /* 0x10C */ u8              unk_10C[0x110 - 0x10C];
+    /* 0x110 */ fx32            scrollY;
+    /* 0x114 */ u16             duration;
+    /* 0x116 */ u16             timer;
+} OtosuMenu_TitleBossObj; // Size: 0x118
 
 typedef struct {
     u16 data[25];
@@ -262,30 +382,6 @@ typedef struct {
     void* unkC;
 } Ov002_Config91cc4;
 
-typedef struct {
-    u8  filler14[0x14];
-    u16 unk14;
-} Data_02075110;
-
-typedef struct {
-    u8  fillerD84[0xD84];
-    u8  unkD84;
-    u8  fillerD85[0xD88 - 0xD85];
-    u32 unkD88;
-} Data_02072d10;
-
-typedef struct {
-    u8  filler3414[0x3414];
-    u16 unk3414[4];
-} Data_02071d10;
-
-extern u8            data_020750fc[];
-extern u8            data_02075102[];
-extern Data_02075110 data_02075110;
-extern u16           data_02075124[];
-extern Data_02072d10 data_02072d10;
-extern Data_02071d10 data_02071d10;
-
 /// MARK: Data shared between the Otosu menu TUs
 
 extern const BinIdentifier data_ov002_02091aac;
@@ -298,14 +394,11 @@ extern const Ov002_U16_4   data_ov002_02092160;
 extern PrcStepFn           PrcSteps_FadeBrightImmediate[];
 extern PrcStepFn           PrcSteps_FadeBright[];
 extern PrcStepFn           PrcSteps_FadeDark[];
-extern char                data_ov002_02092be4[];
-extern PrcFrameDesc        data_ov002_02092c58;
-extern PrcFrameDesc        data_ov002_02092c9c;
-extern char                data_ov002_02092cd0[];
+extern char                OtosuMenu_ObjName[];
+extern PrcFrameDesc        OtosuMenu_Title_FrameDesc;
+extern PrcFrameDesc        OtosuMenu_RoleSelect_FrameDesc;
 extern PrcFrameDesc        data_ov002_02092ce0;
 extern PrcFrameDesc        data_ov002_02092cf4;
-extern char                data_ov002_02092df4[];
-extern char                data_ov002_02092e04[];
 extern PrcFrameDesc        data_ov002_02092e18;
 extern PrcFrameDesc        data_ov002_02092e2c;
 extern PrcFrameDesc        data_ov002_02092e40;
@@ -317,27 +410,28 @@ extern PrcStepFn           data_ov002_02092efc[];
 extern PrcFrameDesc        data_ov002_02092f44;
 extern PrcFrameDesc        data_ov002_02092ff0;
 extern PrcFrameDesc        data_ov002_02093008;
-extern PrcFrameDesc        data_ov002_02093020;
+extern PrcFrameDesc        OtosuMenu_Icon_FrameDesc;
 extern PrcFrameDesc        data_ov002_02093034;
 extern PrcFrameDesc        data_ov002_02093048;
 extern PrcFrameDesc        data_ov002_0209305c;
-extern PrcFrameDesc        data_ov002_020931e8;
-extern PrcFrameDesc        data_ov002_02093208;
-extern PrcFrameDesc        data_ov002_02093228;
-extern PrcFrameDesc        data_ov002_02093240;
-extern PrcFrameDesc        data_ov002_02093254;
-extern PrcFrameDesc        data_ov002_02093268;
+extern PrcFrameDesc        OtosuMenu_TitleEnemy_FrameDesc;
+extern PrcFrameDesc        OtosuMenu_TitleBoss_FrameDesc;
+extern PrcFrameDesc        OtosuMenu_RankBoard_FrameDesc;
+extern PrcFrameDesc        OtosuMenu_Daiza_FrameDesc;
+extern PrcFrameDesc        OtosuMenu_Entry_MultiplayerFrameDesc;
+extern PrcFrameDesc        OtosuMenu_Entry_SinglePlayerFrameDesc;
 extern PrcFrameDesc        data_ov002_020932b8;
 extern PrcFrameDesc        data_ov002_02093310;
 extern PrcFrameDesc        data_ov002_02093324;
 extern PrcFrameDesc        data_ov002_02093438;
 extern PrcFrameDesc        data_ov002_0209344c;
 extern PrcFrameDesc        data_ov002_02093460;
-extern PrcFrameDesc        data_ov002_02093498;
+extern PrcFrameDesc        OtosuMenu_DelDataWin_FrameDesc;
 extern PrcFrameDesc        OtosuMenu_Icon2_FrameDesc;
 extern u16                 data_ov002_020935c0[0x10];
 extern u16                 data_ov002_020935e0[0x40];
-extern s32                 data_ov002_02093660;
+extern BOOL
+    OtosuMenu_TitleSkipped; // set once the title has jumped to its idle screen; title objects snap to their end positions
 
 /// MARK: Functions
 
@@ -365,17 +459,17 @@ void             func_ov002_02082a44(PrcCtx*, void*);
 void             func_ov002_02082ab4(OtosuMenuObj* menuObj);
 u8               func_ov002_02082bec(OtosuMenuObj* menuObj);
 void             func_ov002_02082d44(OtosuMenuObj* menuObj);
-void             func_ov002_02082dbc(void* arg0, const Ov002_U16_5* arg1, void* arg2, void* arg3);
+void             func_ov002_02082dbc(SysFont* font, const OtosuMenuRect* texts, void* chars, void* screen);
 void             func_ov002_02082e70(void* arg0, s32* arg1, void* arg2, void* arg3);
-void             func_ov002_02082f18(OtosuMenuObj* menuObj, s32 arg1, s32 arg2, void* arg3);
-void             func_ov002_02083484(OtosuMenuObj* menuObj, u16* arg1);
+void             func_ov002_02082f18(OtosuMenuObj* menuObj, s32 arg1, s32 arg2, const OtosuMenuRect* texts);
+void             func_ov002_02083484(OtosuMenuObj* menuObj, const OtosuMenuRect* texts);
 void             func_ov002_02083694(OtosuMenuObj* menuObj);
 void             func_ov002_02083a74(OtosuMenuObj* menuObj);
-void             func_ov002_02084494(OtosuMenuObj* menuObj, u8 arg1, u16* arg2);
-void             func_ov002_02084c84(OtosuMenuObj* menuObj, u16* arg1);
-void             func_ov002_020850c0(OtosuMenuObj* menuObj, s32 arg1, s32 arg2, s32* arg3, u16* arg4);
+void             func_ov002_02084494(OtosuMenuObj* menuObj, u8 arg1, const OtosuMenuRect* texts);
+void             func_ov002_02084c84(OtosuMenuObj* menuObj, const OtosuMenuRect* texts);
+void             func_ov002_020850c0(OtosuMenuObj* menuObj, s32 arg1, s32 arg2, s32* arg3, const OtosuMenuRect* texts);
 void             func_ov002_02085710(OtosuMenuObj* menuObj);
-u16              func_ov002_0208597c(u16* arg0);
+u16              func_ov002_0208597c(const OtosuMenuRect* buttons);
 void             func_ov002_02085a44(OtosuMenuObj* menuObj);
 void             func_ov002_02085ac4(OtosuMenuObj* menuObj);
 OtosuMenuObj*    OtosuMenu_Init(void);
@@ -399,29 +493,6 @@ void             ProcessOverlay_OtosuMenu_DataCorrupted(void* menuObj);
 void             func_ov002_02086acc(void* menuObj);
 void             ProcessOverlay_OtosuMenu_DataLoadFailure(void* menuObj);
 void             ProcessOverlay_OtosuMenu_DataSaveFailure(void* menuObj);
-void             func_ov002_02086b8c(s32 arg0, OtosuMenuObj* menuObj);
-void             func_ov002_02086bac(void);
-void             func_ov002_02086bb0(void);
-void             func_ov002_02086bc4(s32 arg0, OtosuMenuObj* menuObj);
-void             func_ov002_02086c5c(void);
-void             func_ov002_02086c60(void);
-PrcStepResult    func_ov002_02086c64(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_02086c84(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_02086cec(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_02086e4c(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_02086eb4(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_02086ee8(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_020870ac(PrcCtx* ctx, void* unused);
-PrcStepResult    func_ov002_020870c8(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_0208749c(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_02087508(PrcCtx* ctx, void* unused);
-void             func_ov002_02087524(PrcCtx* ctx, OtosuMenuObj* menuObj);
-void             func_ov002_0208757c(PrcCtx* ctx, void* arg1);
-void             func_ov002_020875c0(void);
-void             func_ov002_020875c4(void);
-PrcStepResult    func_ov002_020875c8(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_02087728(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_020878f8(PrcCtx* ctx, void* object);
 PrcStepResult    func_ov002_020879f8(PrcCtx* ctx, void* object);
 void             func_ov002_02087a18(PrcCtx* ctx, OtosuMenuObj* menuObj);
 void             func_ov002_02087a40(PrcCtx* ctx, OtosuMenuObj* menuObj);
@@ -434,8 +505,8 @@ void             func_ov002_0208800c(OtosuMenuObj* menuObj);
 PrcStepResult    func_ov002_020880a0(PrcCtx* ctx, void* unused);
 PrcStepResult    func_ov002_02088230(PrcCtx* ctx, void* object);
 void             func_ov002_0208824c(void* arg0, OtosuMenuObj* menuObj);
-s32              func_ov002_0208825c(void* arg0, OtosuMenuObj* menuObj);
-void             func_ov002_02088310(void* arg0, OtosuMenuObj* menuObj);
+s32              func_ov002_0208825c(OtosuMenuChildInfo* child, OtosuMenuObj* menuObj);
+void             func_ov002_02088310(OtosuMenuChildInfo* child, OtosuMenuObj* menuObj);
 void             func_ov002_02088358(void* arg0, OtosuMenuObj* menuObj);
 void             func_ov002_02088368(s32 arg0, void* arg1, void* arg2, OtosuMenuObj* menuObj);
 void             func_ov002_020883a4(OtosuMenuObj* menuObj);
@@ -580,40 +651,6 @@ PrcStepResult    func_ov002_0208e6f8(PrcCtx* ctx, void* object);
 PrcStepResult    func_ov002_0208e750(PrcCtx* ctx, void* object);
 PrcStepResult    func_ov002_0208e7d8(PrcCtx* ctx, void* object);
 PrcStepResult    func_ov002_0208e838(PrcCtx* ctx, void* object);
-SpriteFrameInfo* func_ov002_0208e890(Sprite* sprite, s32 arg, s32 mode);
-void             func_ov002_0208e92c(PrcCtx* ctx, void* arg1, Ov002_TitleEnmArg* arg);
-void             func_ov002_0208eb04(PrcCtx* ctx, s32 arg1);
-void             func_ov002_0208eb3c(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208ebe4(PrcCtx* ctx, s32 arg1);
-PrcStepResult    func_ov002_0208ec1c(PrcCtx* ctx, void* arg1);
-PrcStepResult    func_ov002_0208ec34(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208ed78(PrcCtx* ctx, void* arg1, void* arg2);
-void             func_ov002_0208edac(void);
-void             func_ov002_0208edb0(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208ee98(void);
-PrcStepResult    func_ov002_0208ee9c(PrcCtx* ctx, void* unused);
-PrcStepResult    func_ov002_0208eeac(PrcCtx* ctx, void* arg1);
-SpriteFrameInfo* func_ov002_0208f020(Sprite* sprite, s32 arg, s32 mode);
-void             func_ov002_0208f0bc(PrcCtx* ctx, void* arg1, void* arg2);
-void             func_ov002_0208f5d8(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208f630(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208f688(PrcCtx* ctx, void* arg1);
-PrcStepResult    func_ov002_0208f6e0(PrcCtx* ctx, void* unused);
-PrcStepResult    func_ov002_0208f6f0(PrcCtx* ctx, void* unused);
-SpriteFrameInfo* func_ov002_0208f6f8(Sprite* sprite, s32 arg, s32 mode);
-void             func_ov002_0208f794(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208f828(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208f838(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208f848(PrcCtx* ctx, void* arg1);
-PrcStepResult    func_ov002_0208f858(PrcCtx* ctx, void* unused);
-void             func_ov002_0208f860(void);
-void             func_ov002_0208f864(PrcCtx* ctx, void* arg1);
-void             func_ov002_0208f874(void);
-void             func_ov002_0208f878(void);
-PrcStepResult    func_ov002_0208f87c(PrcCtx* ctx, void* arg1);
-PrcStepResult    func_ov002_0208f89c(PrcCtx* ctx, void* arg0);
-PrcStepResult    func_ov002_0208f918(PrcCtx* ctx, void* object);
-PrcStepResult    func_ov002_0208f92c(PrcCtx* ctx, void* object);
 void             func_ov002_0208f9d0(void);
 void             func_ov002_0208f9d4(PrcCtx* ctx, void* arg1);
 void             func_ov002_0208f9e4(void);
@@ -633,7 +670,7 @@ void             func_ov002_02090310(s32 arg0, OtosuMenuObj* menuObj);
 void             func_ov002_0209034c(void);
 void             func_ov002_02090350(void);
 void             func_ov002_02090354(OtosuMenuObj* menuObj);
-void             func_ov002_020904cc(OtosuMenuObj* menuObj, u16* arg1, u16* arg2);
+void             func_ov002_020904cc(OtosuMenuObj* menuObj, const OtosuMenuRect* subTexts, const OtosuMenuRect* mainTexts);
 PrcStepResult    func_ov002_0209095c(PrcCtx* ctx, void* arg1);
 PrcStepResult    func_ov002_02090b30(PrcCtx* ctx, void*);
 PrcStepResult    func_ov002_02090b44(PrcCtx* ctx, void* arg1);
@@ -654,11 +691,5 @@ PrcStepResult    func_ov002_02091608(PrcCtx* ctx, void* arg1);
 PrcStepResult    func_ov002_02091700(PrcCtx* ctx, void* arg1);
 PrcStepResult    func_ov002_02091710(PrcCtx* ctx, void* arg1);
 PrcStepResult    func_ov002_02091720(PrcCtx* ctx, void* arg1);
-SpriteFrameInfo* func_ov002_02091760(Sprite* sprite, s32 arg, s32 mode);
-void             func_ov002_020917fc(PrcCtx* ctx, Sprite* sprites);
-void             func_ov002_020918ec(s32 arg0, s32 arg1);
-void             func_ov002_02091918(s32 arg0, s32 arg1);
-void             func_ov002_02091944(s32 arg0, s32 arg1);
-PrcStepResult    func_ov002_02091970(PrcCtx* ctx, void* arg1);
 
 #endif // OTOSUMENU_SHARED_H

@@ -2,7 +2,7 @@
 
 static PrcStepFn data_ov002_0209301c[] = {func_ov002_0208caa0};
 
-PrcFrameDesc data_ov002_02093020 = {
+PrcFrameDesc OtosuMenu_Icon_FrameDesc = {
     .enter     = func_ov002_0208c9c8,
     .stepTable = data_ov002_0209301c,
     .update    = func_ov002_0208ca80,
@@ -76,163 +76,90 @@ PrcStepResult func_ov002_0208caa0(PrcCtx* ctx, void* unused) {
 }
 
 void func_ov002_0208caa8(OtosuMenuObj* menuObj) {
-    u16 temp_r0_2;
-    u16 var_r8;
-    u32 temp_r0;
+    PrcCtx* icons[4] = {&menuObj->objCtx[0], &menuObj->objCtx[1], &menuObj->objCtx[2], &menuObj->objCtx[3]};
+    u16     i;
 
-    PrcCtx* options[4];
-    options[0] = &menuObj->unk_474E8;
-    options[1] = &menuObj->unk_476D0;
-    options[2] = &menuObj->unk_478B8;
-    options[3] = &menuObj->unk_47AA0;
-
-    var_r8 = 0;
-    if ((s32)data_02074d10.unk_40B > 0) {
-        do {
-            PrcMaster_UnregisterContext(&menuObj->prcMaster, options[var_r8]);
-            temp_r0_2 = var_r8 + 1;
-            temp_r0   = temp_r0_2 << 0x10;
-            var_r8    = temp_r0_2;
-        } while ((s32)data_02074d10.unk_40B > (s32)(temp_r0 >> 0x10));
+    for (i = 0; i < gSaveData.otosuPlayerCount; i++) {
+        PrcMaster_UnregisterContext(&menuObj->prcMaster, icons[i]);
     }
-    PrcMaster_UnregisterContext(&menuObj->prcMaster, &menuObj->unk_47C88);
+    PrcMaster_UnregisterContext(&menuObj->prcMaster, &menuObj->objCtx[4]);
 }
 
 void func_ov002_0208cb50(OtosuMenuObj* menuObj) {
-    s32 temp_gt;
-    u16 temp_r11;
-    u16 temp_r11_2;
-    u16 temp_r7;
-    u16 var_lr;
-    u16 var_r4;
-    u16 var_r7;
-    u16 var_r5;
-    u32 temp_r7_2;
-    u32 var_r6;
-    u32 var_r8;
-    u32 var_r9;
-    u8* temp_r10;
+    u16 placed    = 0;
+    u16 prevScore = 0xFFFF;
+    u16 place;
+    u16 rank = 0;
 
-    var_r9             = 0;
-    menuObj->unk_41FE4 = 0;
-    var_r6             = 0xFFFF;
-    var_r5             = 0;
-    var_r4             = 0;
-    if ((s32)data_02074d10.unk_40B <= 0) {
-        return;
-    }
-loop_3:
-    var_r8 = 0;
-    var_r7 = 0xFFFF;
-    var_lr = 0;
-    if ((s32)data_02074d10.unk_40B > 0) {
-        do {
-            if (!(var_r9 & (1 << var_lr))) {
-                temp_r11 = data_02071d10.unk3414[var_lr];
-                if (var_r8 <= (u32)temp_r11) {
-                    var_r8 = (u32)temp_r11;
-                    var_r7 = var_lr;
-                }
+    menuObj->firstPlaceUnique = FALSE;
+    for (place = 0; place < gSaveData.otosuPlayerCount; place++) {
+        u16 i;
+        u16 player = 0xFFFF;
+        u16 best   = 0;
+
+        for (i = 0; i < gSaveData.otosuPlayerCount; i++) {
+            if (!(placed & (1 << i)) && best <= gSaveData.otosuScores[i]) {
+                best   = gSaveData.otosuScores[i];
+                player = i;
             }
-            temp_r11_2 = var_lr + 1;
-            temp_gt    = (s32)data_02074d10.unk_40B > (s32)temp_r11_2;
-            var_lr     = temp_r11_2;
-        } while (temp_gt);
-    }
-    if ((var_r6 != 0xFFFF) && (var_r8 != var_r6)) {
-        var_r5 = (u16)(var_r5 + 1);
-        if (var_r4 == 1) {
-            menuObj->unk_41FE4 = 1;
         }
+        if (prevScore != 0xFFFF && best != prevScore) {
+            if (place == 1) {
+                menuObj->firstPlaceUnique = TRUE;
+            }
+            rank++;
+        }
+        prevScore                    = best;
+        menuObj->placeRanks[place]   = rank;
+        menuObj->playerRanks[player] = rank;
+        placed |= 1 << player;
+        menuObj->placePlayers[place] = player;
     }
-    temp_r10                                 = (u8*)menuObj + var_r4;
-    var_r6                                   = var_r8;
-    *(u8*)(temp_r10 + 0x41FD9)               = (u8)var_r5;
-    *(u8*)((u8*)menuObj->unk_41FDD + var_r7) = (u8)var_r5;
-    menuObj->unk_41FD5                       = (s8)var_r7;
-    temp_r7                                  = var_r4 + 1;
-    temp_r7_2                                = temp_r7 << 0x10;
-    var_r9 |= 1 << var_r7;
-    var_r4 = temp_r7;
-    if ((s32)data_02074d10.unk_40B <= (s32)(temp_r7_2 >> 0x10)) {
-        return;
-    }
-    goto loop_3;
 }
 
 void func_ov002_0208cc5c(OtosuMenuObj* menuObj) {
-    s32 temp_gt;
-    s32 temp_gt_2;
-    u16 temp_r2_2;
-    u16 temp_r8;
-    u16 temp_r8_2;
-    u16 var_ip;
-    u16 var_r3;
-    u16 var_r4;
-    u16 var_r9;
-    u32 var_r6;
-    u32 var_lr;
-    u32 var_r5;
-    u8  temp_r5;
-    u8* temp_r2;
+    u16 placed    = 0;
+    u16 place     = 0;
+    u16 rank      = 0;
+    u16 prevScore = 0xFFFF;
+    u8  winner;
 
-    menuObj->unk_41FE4 = 1;
-    var_r6             = 0;
-    var_ip             = 0;
-    var_r3             = 0;
-    var_lr             = 0xFFFF;
-    if ((s32)data_02074d10.unk_40B > 0) {
-    loop_1:
-        var_r5 = 0;
-        var_r9 = 0;
-        var_r4 = 0xFFFF;
-        if ((s32)data_02074d10.unk_40B > 0) {
-            do {
-                if (!(var_r6 & (1 << var_r9))) {
-                    temp_r8 = data_02071d10.unk3414[var_r9];
-                    if (var_r5 <= (u32)temp_r8) {
-                        var_r5 = (u32)temp_r8;
-                        var_r4 = var_r9;
-                    }
-                }
-                temp_r8_2 = var_r9 + 1;
-                temp_gt   = (s32)data_02074d10.unk_40B > (s32)temp_r8_2;
-                var_r9    = temp_r8_2;
-            } while (temp_gt);
+    menuObj->firstPlaceUnique = TRUE;
+    for (place = 0; place < gSaveData.otosuPlayerCount; place++) {
+        u16 i      = 0;
+        u16 player = 0xFFFF;
+        u16 best   = 0;
+
+        for (i = 0; i < gSaveData.otosuPlayerCount; i++) {
+            if (!(placed & (1 << i)) && best <= gSaveData.otosuScores[i]) {
+                best   = gSaveData.otosuScores[i];
+                player = i;
+            }
         }
-        if ((var_lr != 0xFFFF) && (var_r5 != var_lr)) {
-            var_ip = (u16)(var_ip + 1);
-        } else if ((var_r3 == 1) && (var_r4 == 0)) {
-            var_ip = (u16)(var_ip + 1);
+        if (prevScore != 0xFFFF && best != prevScore) {
+            rank++;
+        } else if (place == 1 && player == 0) {
+            rank++;
         }
-        temp_r2                                  = (u8*)menuObj + var_r3;
-        temp_r2_2                                = var_r3 + 1;
-        *(u8*)(temp_r2 + 0x41FD9)                = (u8)var_ip;
-        *(u8*)((u8*)menuObj->unk_41FDD + var_r4) = (u8)var_ip;
-        *(s8*)(temp_r2 + 0x41FD5)                = (s8)var_r4;
-        var_lr                                   = var_r5;
-        var_r6 |= 1 << var_r4;
-        temp_gt_2 = (s32)data_02074d10.unk_40B > (s32)temp_r2_2;
-        var_r3    = temp_r2_2;
-        if (!temp_gt_2) {
-            goto block_16;
-        }
-        goto loop_1;
+        menuObj->placeRanks[place]   = rank;
+        menuObj->playerRanks[player] = rank;
+        menuObj->placePlayers[place] = player;
+        prevScore                    = best;
+        placed |= 1 << player;
     }
-block_16:
-    if (menuObj->unk_41FD6 != 0) {
+    if (menuObj->placePlayers[1] != 0) {
         return;
     }
-    temp_r5 = menuObj->unk_41FD5;
-    if (data_02075110.unk14 == data_02075124[temp_r5]) {
-        menuObj->unk_41FD6 = temp_r5;
-        menuObj->unk_41FD5 = 0U;
+    winner = menuObj->placePlayers[0];
+    if (gSaveData.otosuScores[0] == gSaveData.otosuScores[winner]) {
+        menuObj->placePlayers[1] = winner;
+        menuObj->placePlayers[0] = 0;
     }
 }
 
 s32 func_ov002_0208cdb0(OtosuMenuObj* menuObj, u16 arg1) {
-    u8* name      = &menuObj->unk_41838[(&menuObj->unk_41FD5)[arg1] * 0x30];
+    u8  player    = menuObj->placePlayers[arg1];
     u32 unused[5] = {0, 0, 0, 0, 0};
 
-    return (s32)name;
+    return (s32)menuObj->players[player].name;
 }

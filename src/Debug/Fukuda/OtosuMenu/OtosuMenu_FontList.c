@@ -64,9 +64,9 @@ void func_ov002_0208f9ec(OtosuMenuObj* menuObj, void* arg1, void* arg2) {
 }
 
 void func_ov002_0208fa6c(OtosuMenuObj* menuObj, void* arg1, void* arg2) {
+    u16      table_upper[3]   = {0x20A4, 0x20A3, 0x20A5};
     u16      table_sp14[0xC8] = {0xFFFF};
     u16      table_lower[3]   = {0x20A7, 0x20A8, 0x20A9};
-    u16      table_upper[3]   = {0x20A4, 0x20A3, 0x20A5};
     SysCode* lowerText;
     SysCode* upperText;
     SysCode* fmt;
@@ -116,11 +116,11 @@ void func_ov002_0208fbf4(OtosuMenuObj* menuObj) {
     void* var_r4_4;
 
     func_ov002_02085710(menuObj);
-    menuObj->unk_462F0 = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
+    menuObj->packs[0] = DatMgr_LoadPackEntry(1, 0, 0, &data_ov002_02091aac, 1, 0);
     Display_SetMainLayers(LAYER_BG0);
     Display_SetSubLayers(LAYER_BG3);
     temp_r1 = SysFont_GetAllocPal(0);
-    var_r4  = Data_GetPackEntryData(menuObj->unk_462F0, 4);
+    var_r4  = Data_GetPackEntryData(menuObj->packs[0], 4);
     var_ip  = 0;
     do {
         temp_r3                         = var_ip * 2;
@@ -130,17 +130,17 @@ void func_ov002_0208fbf4(OtosuMenuObj* menuObj) {
     } while ((u32)var_ip < 0x10U);
     Mem_Free(&gDebugHeap, temp_r1);
     DC_PurgeAll();
-    menuObj->unk_47340 = PaletteMgr_AllocPalette(g_PaletteManagers[1], var_r4, 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->unk_47340);
-    var_r4_2           = Data_GetPackEntryData(menuObj->unk_462F0, 5);
-    menuObj->unk_4732C = BgResMgr_AllocChar32(g_BgResourceManagers[1], var_r4_2,
-                                              g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
-    temp_r0_2          = menuObj->unk_462F0;
-    var_r0             = Data_GetPackEntryData(temp_r0_2, 6);
-    menuObj->unk_474A0 = (void*)(var_r0 + 4);
-    func_ov002_0208f9ec(menuObj, var_r4_2 + 4, &menuObj->unk_474A0);
-    func_0200d1d8(&menuObj->unk_473C0, 1, 3, 0, &menuObj->unk_474A0, 1, 1);
-    temp_r2_4 = menuObj->unk_462F0;
+    menuObj->subPalette = PaletteMgr_AllocPalette(g_PaletteManagers[1], var_r4, 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[1], menuObj->subPalette);
+    var_r4_2                  = Data_GetPackEntryData(menuObj->packs[0], 5);
+    menuObj->subChars[3]      = BgResMgr_AllocChar32(g_BgResourceManagers[1], var_r4_2,
+                                                     g_DisplaySettings.engineState[1].bgSettings[3].charBase, 0, 0x6000);
+    temp_r0_2                 = menuObj->packs[0];
+    var_r0                    = Data_GetPackEntryData(temp_r0_2, 6);
+    menuObj->subScreens[3][0] = (void*)(var_r0 + 4);
+    func_ov002_0208f9ec(menuObj, var_r4_2 + 4, menuObj->subScreens[3]);
+    func_0200d1d8(&menuObj->subMaps[3], 1, 3, 0, menuObj->subScreens[3], 1, 1);
+    temp_r2_4 = menuObj->packs[0];
     temp_r1_4 = SysFont_GetAllocPal(0);
     var_r4_3  = Data_GetPackEntryData(temp_r2_4, 3);
     var_ip_2  = 0;
@@ -152,19 +152,19 @@ void func_ov002_0208fbf4(OtosuMenuObj* menuObj) {
     } while ((u32)var_ip_2 < 0x10U);
     Mem_Free(&gDebugHeap, temp_r1_4);
     DC_PurgeAll();
-    menuObj->unk_47344 = PaletteMgr_AllocPalette(g_PaletteManagers[0], var_r4_3, 0, 0, 0x10);
-    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->unk_47344);
-    var_r4_4 = Data_GetPackEntryData(menuObj->unk_462F0, 7);
-    if (menuObj->unk_462F0 == NULL) {
+    menuObj->mainPalette = PaletteMgr_AllocPalette(g_PaletteManagers[0], var_r4_3, 0, 0, 0x10);
+    PaletteMgr_Flush(g_PaletteManagers[0], menuObj->mainPalette);
+    var_r4_4 = Data_GetPackEntryData(menuObj->packs[0], 7);
+    if (menuObj->packs[0] == NULL) {
         var_r0_2 = NULL;
     } else {
-        var_r0_2 = Data_GetPackEntryData(menuObj->unk_462F0, 8);
+        var_r0_2 = Data_GetPackEntryData(menuObj->packs[0], 8);
     }
-    menuObj->unk_474A8 = (void*)(var_r0_2 + 4);
-    menuObj->unk_47330 = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r4_4,
-                                              g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
-    func_ov002_0208fa6c(menuObj, var_r4_4 + 4, &menuObj->unk_474A8);
-    func_0200d1d8(&menuObj->unk_473E8, 0, 0, 0, &menuObj->unk_474A8, 1, 1);
+    menuObj->mainScreens[0][0] = (void*)(var_r0_2 + 4);
+    menuObj->mainChars[0]      = BgResMgr_AllocChar32(g_BgResourceManagers[0], var_r4_4,
+                                                      g_DisplaySettings.engineState[0].bgSettings[0].charBase, 0, 0x6000);
+    func_ov002_0208fa6c(menuObj, var_r4_4 + 4, menuObj->mainScreens[0]);
+    func_0200d1d8(&menuObj->mainMaps[0], 0, 0, 0, menuObj->mainScreens[0], 1, 1);
     Display_Commit();
 }
 
