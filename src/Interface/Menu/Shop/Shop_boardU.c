@@ -51,7 +51,42 @@ static SpriteFrameInfo* Shop_boardU_GetFrameInfo(Sprite* sprite, s32 arg, s32 mo
 }
 
 static void func_ov043_020bca50(Shop_boardU* board, Sprite* sprite, Shop_boardU_Args* args, s32 packIndex) {
-    // Not yet implemented
+    s32   dataType = args->dataType;
+    Data*  data;
+
+    if (BinMgr_FindById((s32)&data_ov043_020ca1f8) == NULL) {
+        data = DatMgr_LoadPackEntry(dataType, NULL, 0, &data_ov043_020ca1f8, packIndex, FALSE);
+    } else {
+        data = DatMgr_LoadPackEntryDirect(dataType, &data_ov043_020ca1f8, packIndex, 0);
+    }
+
+    u8*   src        = (u8*)Data_GetPackEntryData(data, 1) + 4;
+    void* paletteSrc = Data_GetPackEntryData(data, 4);
+    u8*   dest       = (u8*)sprite->unk34 + 4;
+    MI_CpuCopyU8(paletteSrc, sprite->unk3C, 0x20);
+
+    s32 outer = 0;
+    while (outer < 4) {
+        s32 copyCount;
+        s32 x;
+        s32 y = 0;
+        while (y < 4) {
+            x = 0;
+            while (x < 8) {
+                copyCount = 0;
+                while (copyCount < 4) {
+                    *dest = *(src + outer * 0x80 + y * 4 + x * 0x10 + copyCount);
+                    dest++;
+                    copyCount++;
+                }
+                x++;
+            }
+            y++;
+        }
+        outer++;
+    }
+
+    DatMgr_ReleaseData(data);
 }
 
 static void Shop_boardU_Load(Shop_boardU* board, Sprite* sprite, Shop_boardU_Args* args) {

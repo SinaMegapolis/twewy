@@ -40,9 +40,11 @@ typedef struct {
 typedef struct {
     /* 0x000 */ ShopItemSlot        slots[42];
     /* 0x738 */ ShopItemTableEntry* unk_738[12];
-    /* 0x768 */ char                unk_768[0x76E - 0x768];
+    /* 0x768 */ u16                 unk_768;
+    /* 0x76A */ char                unk_76A[0x76E - 0x76A];
     /* 0x76E */ u16                 unk_76E;
-    /* 0x770 */ char                unk_770[0x776 - 0x770];
+    /* 0x770 */ char                unk_770[0x774 - 0x770];
+    /* 0x774 */ u16                 unk_774;
     /* 0x776 */ u16                 unk_776;
     /* 0x778 */ u16                 unk_778;
     /* 0x77A */ char                unk_77A[0x788 - 0x77A];
