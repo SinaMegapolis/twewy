@@ -31,7 +31,7 @@ typedef struct FieldEventManager {
     /* 0x2162C */ s32                     unk_2162C;
     /* 0x21630 */ s32                     unk_21630;
     /* 0x21634 */ char                    unk_21634[0x216B0 - 0x21634];
-    /* 0x216B0 */ s32                     unk_216B0;
+    /* 0x216B0 */ s32                     talkWindowTaskId;
     /* 0x216B4 */ s32                     unk_216B4;
     /* 0x216B8 */ s32                     taskId_KeywordMenu;
     /* 0x216BC */ s32                     unk_216BC;
@@ -146,11 +146,11 @@ typedef struct FieldEventManager {
     /* 0x21B36 */ char                    unk_21B36[2];
     /* 0x21B38 */ s32                     unk_21B38;
     /* 0x21B3C */ s32                     unk_21B3C[32];
-    /* 0x21BBC */ u32                     unk_21BBC[35];
-    /* 0x21C48 */ u32                     unk_21C48[32];
+    /* 0x21BBC */ u32                     bustShotSlotTaskIds[35];
+    /* 0x21C48 */ u32                     windowSlotTaskIds[32];
     /* 0x21CC8 */ char                    unk_21CC8[0x21CD0 - 0x21CC8];
-    /* 0x21CD0 */ u32*                    unk_21CD0;
-    /* 0x21CD4 */ s32                     unk_21CD4;
+    /* 0x21CD0 */ u32*                    activeBustShotSlotPtr;
+    /* 0x21CD4 */ s32                     activeWindowSlotIndex;
     /* 0x21CD8 */ s32                     unk_21CD8;
     /* 0x21CDC */ s32                     unk_21CDC;
     /* 0x21CE0 */ s32                     unk_21CE0;
@@ -162,21 +162,21 @@ typedef struct FieldEventManager {
     /* 0x21CF4 */ s32                     unk_21CF4;
     /* 0x21CF8 */ s32                     unk_21CF8;
     /* 0x21CFC */ s32                     unk_21CFC;
-    /* 0x21D00 */ s32                     unk_21D00;
+    /* 0x21D00 */ s32                     talkBustShotResourceId;
     /* 0x21D04 */ s16                     unk_21D04;
     /* 0x21D06 */ s16                     unk_21D06;
-    /* 0x21D08 */ void (*unk_21D08)(void*);
+    /* 0x21D08 */ s32 (*keywordSelectedCallback)(struct FieldEventManager*);
     /* 0x21D0C */ s32 unk_21D0C;
     /* 0x21D10 */ s16 targetBrightness; // Target fade brightness
     /* 0x21D12 */ s16 unk_21D12;
     /* 0x21D14 */ s32 unk_21D14;
-    /* 0x21D18 */ s32 unk_21D18;
+    /* 0x21D18 */ s32 postScriptState;
     /* 0x21D1C */ s16 unk_21D1C;
     /* 0x21D1E */ s16 unk_21D1E;
     /* 0x21D20 */ s16 unk_21D20;
     /* 0x21D22 */ s16 unk_21D22;
-    /* 0x21D24 */ s32 (*unk_21D24)(struct FieldEventManager*);
-    /* 0x21D28 */ s16          unk_21D28;
+    /* 0x21D24 */ s32 (*postScriptChoiceCallback)(struct FieldEventManager*);
+    /* 0x21D28 */ s16          postScriptMessageId;
     /* 0x21D2A */ s16          unk_21D2A;
     /* 0x21D2C */ struct Data* unk_21D2C;
     /* 0x21D30 */ s32          unk_21D30;
@@ -188,7 +188,7 @@ typedef struct FieldEventManager {
     /* 0x22E1E */ char         unk_22E1E[2];
     /* 0x22E20 */ s32          unk_22E20;
     /* 0x22E24 */ char         unk_22E24[0x22E2C - 0x22E24];
-    /* 0x22E2C */ s32          unk_22E2C;
+    /* 0x22E2C */ s32          nextRingSlotId;
     /* 0x22E30 */ char         unk_22E30[4];
     /* 0x22E34 */ s32          unk_22E34;
     /* 0x22E38 */ s32          unk_22E38;
@@ -198,8 +198,8 @@ typedef struct FieldEventManager {
 // The running field's event manager.
 extern FieldEventManager* data_ov030_02109d60;
 
-typedef s32 (*FieldEventRewardFunc)(FieldEventManager*);
-extern const FieldEventRewardFunc data_ov030_020da618[44];
+typedef s32 (*FieldEventScriptEndFunc)(FieldEventManager*);
+extern const FieldEventScriptEndFunc gFieldEventScriptEndHandlers[44];
 
 typedef struct {
     /* 0x0 */ u8 completedStars[4];
@@ -402,6 +402,6 @@ void func_ov030_020aec38(s32 arg0);
 s32 func_ov030_020aeca4(s32 arg0);
 
 // Creates a choice window from count promoted integer message IDs.
-s32 func_ov030_020a9f54(FieldEventManager* eventMgr, s32 (*callback)(FieldEventManager*), s32 mesNo, u16 count, ...);
+s32 FldEvent_CreateChoiceWindow(FieldEventManager* eventMgr, s32 (*callback)(FieldEventManager*), s32 mesNo, u16 count, ...);
 
 #endif // FIELD_EVENTS_H

@@ -14,9 +14,7 @@ typedef struct {
 
 s32 Shop_textScrU_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-static const TaskHandle Tsk_Shop_textScrU = {"Tsk_Shop_textScrU", Shop_textScrU_RunTask, sizeof(Shop_textScrU)};
-
-const u16 data_ov043_020cac70[6] = {36, 8, 36, 21, 36, 153};
+static const TaskHandle Tsk_Shop_textScrU;
 
 void func_ov043_020bc098(Shop_textScrU* textScr) {
     for (s32 i = 0; i < 3; i++) {
@@ -26,7 +24,34 @@ void func_ov043_020bc098(Shop_textScrU* textScr) {
 }
 
 void func_ov043_020bc0d8(Shop_textScrU* textScr) {
-    // Not yet implemented
+    s32         i;
+    ShopObject* shop = textScr->shop;
+    Point       positions[3] = {
+        {36,   8},
+        {36,  21},
+        {36, 153},
+    };
+
+    u16*        map      = shop->resources[1].screenMap;
+    u16*        charData = shop->resources[1].charData;
+
+    if (map == NULL || charData == NULL) {
+        OS_WaitForever();
+    }
+
+    SysFont_SetMsg(&textScr->fonts[0], shop->unk_768 + 0x2FE7);
+    SysFont_SetMsg(&textScr->fonts[1], shop->unk_768 + 0x2FB8);
+    SysFont_SetMsg(&textScr->fonts[2], shop->unk_774 + 0x3016);
+
+    SysFont_SetHAlign(&textScr->fonts[0], 0, 108);
+    SysFont_SetHAlign(&textScr->fonts[1], 0, 108);
+    SysFont_SetHAlign(&textScr->fonts[2], 0, 107);
+
+    for (i = 0; i < 3; i++) {
+        SysFont_SetColor(&textScr->fonts[i], 14);
+        SysFont_SetPos(&textScr->fonts[i], positions[i].x, positions[i].y);
+        SysFont_DrawCurrentToScreen(&textScr->fonts[i], map + 2, charData + 2, 0);
+    }
 }
 
 s32 Shop_textScrU_Init(TaskPool* pool, Task* task, void* args) {
@@ -72,3 +97,5 @@ s32 Shop_textScrU_CreateTask(TaskPool* pool, s32 dataType, ShopObject* shop) {
     args.shop     = shop;
     return EasyTask_CreateTask(pool, &Tsk_Shop_textScrU, NULL, 0, NULL, &args);
 }
+
+static const TaskHandle Tsk_Shop_textScrU = {"Tsk_Shop_textScrU", Shop_textScrU_RunTask, sizeof(Shop_textScrU)};

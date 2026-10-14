@@ -191,7 +191,7 @@ void func_ov030_020af6d4(s32 mode) {
 }
 
 void func_ov030_020af6f0(s32 arg0) {
-    data_ov030_02109d60->unk_21D18 = arg0;
+    data_ov030_02109d60->postScriptState = arg0;
 }
 
 void func_ov030_020af708(s16 arg0) {
@@ -235,10 +235,10 @@ void func_ov030_020af7f0(void) {
     FieldEventManager* mgr = data_ov030_02109d60;
 
     func_ov030_020831f4(mgr);
-    if (mgr->unk_216B0 == -1) {
+    if (mgr->talkWindowTaskId == -1) {
         return;
     }
-    func_ov030_020b4598(EasyTask_GetTaskById(&mgr->taskPool, mgr->unk_216B0), 3);
+    func_ov030_020b4598(EasyTask_GetTaskById(&mgr->taskPool, mgr->talkWindowTaskId), 3);
 }
 
 s32 func_ov030_020af834(s32 arg0, s32 arg1) {
@@ -424,7 +424,7 @@ void func_ov030_020afab8(FieldEventManager* mgr) {
                 EasyFade_FadeBothDisplays(FADER_LINEAR, 0x10, 0x1000);
                 return;
             }
-            if (func_ov030_020c0d28(&mgr->taskPool, mgr->unk_21B30, mgr->unk_216B0) == 0) {
+            if (func_ov030_020c0d28(&mgr->taskPool, mgr->unk_21B30, mgr->talkWindowTaskId) == 0) {
                 return;
             }
             {
@@ -461,7 +461,7 @@ void func_ov030_020afab8(FieldEventManager* mgr) {
             g_DisplaySettings.engineState[DISPLAY_MAIN].bgSettings[1].priority = 3;
             EasyTask_DeleteTask(&mgr->taskPool, mgr->unk_21B24);
             func_ov030_020ad1ac(mgr);
-            func_ov030_020b458c(EasyTask_GetTaskById(&mgr->taskPool, mgr->unk_216B0), 0);
+            func_ov030_020b458c(EasyTask_GetTaskById(&mgr->taskPool, mgr->talkWindowTaskId), 0);
             for (s32 i = 0; i < mgr->unk_21918; i++) {
                 EasyTask_DeleteTask(&mgr->taskPool, mgr->unk_21788[i]);
             }

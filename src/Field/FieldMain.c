@@ -16,7 +16,7 @@ extern void func_ov030_020bd298(Task*);
 extern void func_ov030_020ab554(void*);
 extern s32  func_ov030_02082fe4(FieldEventManager*);
 extern void func_ov030_02083024(FieldEventManager*);
-extern void func_ov030_020a6a68(FieldEventManager*);
+extern void FldEvent_ReleaseWindowSlotsUpper(FieldEventManager*);
 extern void func_ov030_020ad278(FieldEventManager*);
 extern void func_ov030_020ad3a8(FieldEventManager*);
 extern void func_ov030_020ad48c(FieldEventManager*);
@@ -298,7 +298,7 @@ void func_ov030_02082c04(FieldEventManager* mgr) {
 }
 
 void func_ov030_02082c68(FieldEventManager* mgr) {
-    func_ov030_020a6a68(mgr);
+    FldEvent_ReleaseWindowSlotsUpper(mgr);
     if (mgr->unk_216C8 != -1) {
         EasyTask_DeleteTask(&mgr->taskPool, mgr->unk_216C8);
         mgr->unk_216C8 = -1;
@@ -331,7 +331,7 @@ void func_ov030_02082d64(FieldEventManager* mgr) {
     if (func_ov030_020c0770() != 0) {
         return;
     }
-    func_ov030_020a6a68(mgr);
+    FldEvent_ReleaseWindowSlotsUpper(mgr);
     if (mgr->unk_216C8 != -1) {
         EasyTask_DeleteTask(&mgr->taskPool, mgr->unk_216C8);
         mgr->unk_216C8 = -1;

@@ -99,7 +99,7 @@ void func_ov030_02084944(s32 arg0, s32 arg1);
 void func_ov030_0208496c(void);
 s32  func_ov030_02084970(FieldEventManager* mgr);
 s32  func_ov030_02084978(FieldEventManager* mgr);
-void func_ov030_02084980(void);
+void FldEvent_InitChapter_ShikiDay1(void);
 
 s32 func_ov030_02082fe4(FieldEventManager* mgr) {
     if (mgr->unk_216D0 == -1) {
@@ -651,11 +651,11 @@ s32 func_ov030_02084788(FieldEventManager* mgr) {
     if (TouchInput_WasTouchPressed() == 0) {
         return 0;
     }
-    return func_ov030_020b4514(EasyTask_GetTaskById(&mgr->taskPool, mgr->unk_216B0)) != 0;
+    return func_ov030_020b4514(EasyTask_GetTaskById(&mgr->taskPool, mgr->talkWindowTaskId)) != 0;
 }
 
 s32 func_ov030_020847c8(FieldEventManager* mgr) {
-    return func_ov030_020b4500(EasyTask_GetTaskById(&mgr->taskPool, mgr->unk_216B0)) != 0;
+    return func_ov030_020b4500(EasyTask_GetTaskById(&mgr->taskPool, mgr->talkWindowTaskId)) != 0;
 }
 
 s32 func_ov030_020847f4(FieldEventManager* mgr) {
@@ -740,7 +740,7 @@ s32 func_ov030_02084978(FieldEventManager* mgr) {
     return 0;
 }
 
-void func_ov030_02084980(void) {
+void FldEvent_InitChapter_ShikiDay1(void) {
     if (Inventory_HasRequiredQuantity(0x2AE, 1, 0) != 0) {
         FldGate_Set(0);
     }

@@ -37,7 +37,7 @@ extern s32        func_ov030_020c8a0c(TaskPool* pool, s32 arg1);
 extern void       func_ov030_020c8a3c(Task* task);
 extern void       func_ov030_020d1d08(void* arg0);
 extern void       func_ov030_020aec38(s32 arg0);
-extern void       func_ov030_020a7b50(FieldEventManager* mgr);
+extern void       FldEvent_RunOpcode(FieldEventManager* mgr);
 extern s32        func_ov030_020847f4(FieldEventManager* mgr);
 extern void       func_ov030_020826a4(FieldEventManager* mgr);
 extern void       func_ov030_02082788(FieldEventManager* mgr);
@@ -120,7 +120,7 @@ typedef struct {
 extern FldEncounterRanges         data_ov030_020da8de[]; // by area
 extern FldEncounterRanges         data_ov030_020d9f2a[]; // by brand group
 extern FldEncounterRanges         data_ov030_020d9904[]; // by chapter group
-extern const FieldEventRewardFunc data_ov030_020da6c8[];
+extern const FieldEventScriptEndFunc data_ov030_020da6c8[];
 extern s32 (*const data_ov030_020da568[])(FieldEventManager*);
 extern s32 data_ov030_020d98ec[][2];
 extern s32 data_ov030_021002c0;
@@ -200,7 +200,7 @@ void func_ov030_020aac84(FieldEventManager* mgr) {
     if (gSaveData.unk_24A0[gSaveData.unk_249C] != 0x48) {
         return;
     }
-    func_ov030_020a7b50(mgr);
+    FldEvent_RunOpcode(mgr);
 }
 
 // Nonmatching: register allocation only (loop index/manager in r10/r7 vs
@@ -213,8 +213,8 @@ s32 func_ov030_020aacb0(void) {
     s32                i;
 
     for (i = 0; i < 0x23; i++) {
-        if (mgr->unk_21BBC[i] != -1) {
-            if (func_ov030_020b38ec(EasyTask_GetTaskById(&mgr->taskPool, mgr->unk_21BBC[i])) < 0x80) {
+        if (mgr->bustShotSlotTaskIds[i] != -1) {
+            if (func_ov030_020b38ec(EasyTask_GetTaskById(&mgr->taskPool, mgr->bustShotSlotTaskIds[i])) < 0x80) {
                 found_lo = 1;
             } else {
                 found_hi = 1;
@@ -604,7 +604,7 @@ void func_ov030_020ab554(FieldEventManager* mgr) {
 }
 
 void func_ov030_020ab924(FieldEventManager* mgr) {
-    func_ov030_020a7b50(mgr);
+    FldEvent_RunOpcode(mgr);
     if (mgr->unk_21ABC != 0) {
         mgr->unk_21630 = 2;
         SndMgr_StartPlayingSE(0);
@@ -678,10 +678,10 @@ void func_ov030_020aba1c(FieldEventManager* mgr) {
     mgr->unk_21A54 = 0;
     mgr->unk_21D14 = 0;
     mgr->unk_22E14 = 0;
-    mgr->unk_21D18 = 0;
+    mgr->postScriptState = 0;
     mgr->unk_21ABC = 0;
     mgr->unk_22E38 = 0;
-    mgr->unk_22E2C = 3;
+    mgr->nextRingSlotId = 3;
     mgr->unk_22E3C = 0x1F;
     FldEvent_InitState(mgr);
     mgr->unk_21AC4 = 0;
@@ -1368,7 +1368,7 @@ void func_ov030_020ad278(FieldEventManager* mgr) {
     mgr->unk_21A2C = dst;
     mgr->unk_21A30 = PaletteMgr_AcquireContiguous(g_PaletteManagers[2], dst, 5, 1);
     func_ov030_020ad044(mgr);
-    mgr->unk_216B0          = func_ov030_020b44b8(&mgr->taskPool, mgr->unk_21614, 0xF0, 0xB0, 0, 0);
+    mgr->talkWindowTaskId          = func_ov030_020b44b8(&mgr->taskPool, mgr->unk_21614, 0xF0, 0xB0, 0, 0);
     mgr->taskId_KeywordMenu = -1;
     mgr->unk_216BC          = -1;
     mgr->unk_216C0          = -1;
@@ -1384,8 +1384,8 @@ void func_ov030_020ad3a8(FieldEventManager* mgr) {
     EasyTask_DeleteTask(&mgr->taskPool, mgr->unk_216D4);
     EasyTask_DeleteTask(&mgr->taskPool, mgr->unk_216D8);
     PaletteMgr_ReleaseResource(g_PaletteManagers[2], mgr->unk_21A30);
-    EasyTask_DeleteTask(&mgr->taskPool, mgr->unk_216B0);
-    mgr->unk_216B0 = -1;
+    EasyTask_DeleteTask(&mgr->taskPool, mgr->talkWindowTaskId);
+    mgr->talkWindowTaskId = -1;
     func_ov030_020ad1ac(mgr);
     func_ov030_020ad428(mgr);
 }
@@ -1508,7 +1508,7 @@ void func_ov030_020ad730(FieldEventManager* mgr) {
     func_ov030_020c0760(0);
     if (mgr->unk_21D22 == 3) {
         mgr->unk_21A90 = func_ov030_020ccb48(&mgr->taskPool, mgr->unk_21614);
-        mgr->unk_21A94 = func_ov030_020bff30(&mgr->taskPool, mgr->unk_21614, mgr->unk_21D28, 0);
+        mgr->unk_21A94 = func_ov030_020bff30(&mgr->taskPool, mgr->unk_21614, mgr->postScriptMessageId, 0);
         return;
     }
     if ((u16)(s16)(mgr->unk_21D22 - 4) <= 1) {
