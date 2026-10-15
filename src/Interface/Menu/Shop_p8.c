@@ -1,18 +1,19 @@
 #include "ShopPart.h"
 
+// Views of the read-only SE tables data_ov043_020ca2c0 / data_ov043_020ca2a8.
+typedef struct {
+    /* 0x00 */ s32 v[4];
+} ShopSeRow; // Size: 0x10
+
+typedef struct {
+    /* 0x00 */ ShopSeRow rows[10];
+} ShopSeTable; // Size: 0xA0
+
+typedef struct {
+    /* 0x00 */ s32 v[6];
+} ShopSeList; // Size: 0x18
+
 void func_ov043_020b1fc4(void *arg0, u8 arg1, s32 arg2) {
-    typedef struct {
-        /* 0x00 */ s32 v[4];
-    } ShopSeRow; // Size: 0x10
-
-    typedef struct {
-        /* 0x00 */ ShopSeRow rows[10];
-    } ShopSeTable; // Size: 0xA0
-
-    typedef struct {
-        /* 0x00 */ s32 v[6];
-    } ShopSeList; // Size: 0x18
-
     ShopSeTable table = *(ShopSeTable *)&data_ov043_020ca2c0;
     ShopSeList  list  = *(ShopSeList *)&data_ov043_020ca2a8;
     u16         idx;
@@ -249,19 +250,23 @@ void func_ov043_020b2934(ShopObject *shop) {
     }
     func_ov043_020b2514(&shop->resources[6], shop->resources[7].data, 0, 2, 9);
     func_ov043_020b2100(&shop->resources[1], 1, 1, 6, 0xF, 1);
-    func_ov043_020b25c0(&shop->resources[3], 1, 3, 7, *(u16 *)((u8 *)shop + 0x76A), 0, 0xE);
+    func_ov043_020b25c0(&shop->resources[3], 1, 3, 7, (u16)shop->unk_76A, 0, 0xE);
 }
 
 void func_ov043_020b2af0(void) {
 
 }
 
+// NOTE: the ShopPart.h prototype is `func_ov043_020b2af4(s32)`, and the header is out
+// of scope for this cleanup, so the definition cannot take `ShopObject *` directly.
 void func_ov043_020b2af4(s32 arg0) {
-    func_ov043_020b27cc((MenuBgResource *)(arg0 + 0x900), 0);
-    func_ov043_020b2854((MenuBgResource *)(arg0 + 0x91C), 0);
-    func_ov043_020b27cc((MenuBgResource *)(arg0 + 0x938), 0);
-    func_ov043_020b27cc((MenuBgResource *)(arg0 + 0x890), 1);
-    func_ov043_020b27cc((MenuBgResource *)(arg0 + 0x8C8), 1);
+    ShopObject *shop = (ShopObject *)arg0;
+
+    func_ov043_020b27cc(&shop->resources[5], 0);
+    func_ov043_020b2854(&shop->resources[6], 0);
+    func_ov043_020b27cc(&shop->resources[7], 0);
+    func_ov043_020b27cc(&shop->resources[1], 1);
+    func_ov043_020b27cc(&shop->resources[3], 1);
 }
 /* Warning: struct OamCellPiece is not defined (only forward-declared) */
 /* Warning: struct OSMutex is not defined (only forward-declared) */

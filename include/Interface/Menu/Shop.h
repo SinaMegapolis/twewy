@@ -112,16 +112,17 @@ typedef struct {
     /* 0x874 */ MenuBgResource      resources[8]; // [0]-[3]: sub BG0-BG3, [4]-[7]: main BG0-BG3
 } ShopObject;                                     // Size: 0x954
 
-extern BinIdentifier data_ov043_020ca1b0;
-extern BinIdentifier data_ov043_020ca1b8;
-extern BinIdentifier data_ov043_020ca1c0;
-extern BinIdentifier data_ov043_020ca1d8;
-extern BinIdentifier data_ov043_020ca1e0;
-extern BinIdentifier data_ov043_020ca1e8;
-extern BinIdentifier data_ov043_020ca1f0;
-extern BinIdentifier data_ov043_020ca1f8;
-extern BinIdentifier data_ov043_020ca200;
-extern BinIdentifier data_ov043_020ca208;
+extern const u32 data_ov043_020ca1b0;
+extern char* const data_ov043_020ca1b4;
+extern const BinIdentifier data_ov043_020ca1b8;
+extern const BinIdentifier data_ov043_020ca1c0[3];
+extern const BinIdentifier data_ov043_020ca1d8;
+extern const BinIdentifier data_ov043_020ca1e0;
+extern const BinIdentifier data_ov043_020ca1e8;
+extern const BinIdentifier data_ov043_020ca1f0;
+extern const BinIdentifier data_ov043_020ca1f8;
+extern const BinIdentifier data_ov043_020ca200;
+extern const BinIdentifier data_ov043_020ca208;
 
 s32 Shop_nameD_CreateTask(TaskPool* pool, s32 dataType, ShopObject* shop);
 s32 Shop_textScr_CreateTask(TaskPool* pool, s32 dataType, ShopObject* shop);
