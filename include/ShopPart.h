@@ -95,7 +95,7 @@ extern s8 data_ov043_020cc870;
 extern s8 data_ov043_020cc880;
 extern int func_ov043_020bd414;
 
-// Prototypes for the part files currently included in Shop.c: Shop_p2.c, Shop_p4.c, Shop_p5.c, Shop_p8.c
+// Prototypes for the part files currently included in Shop.c: Shop_p2.c, Shop_p3.c, Shop_p4.c, Shop_p5.c, Shop_p8.c
 void func_ov043_020adaa4(ShopState *arg0);
 void func_ov043_020adaf4(ShopState *arg0);
 void func_ov043_020adbb0(ShopState *arg0);
@@ -111,6 +111,21 @@ void func_ov043_020ae24c(ShopState *arg0);
 void func_ov043_020ae284(ShopState *arg0);
 void func_ov043_020ae580(ShopState *arg0);
 void func_ov043_020ae614(ShopState *arg0);
+void func_ov043_020ae670(ShopState *arg0, ShopObject *shop);
+void func_ov043_020ae798(ShopState *arg0);
+void func_ov043_020ae86c(ShopState *arg0);
+void func_ov043_020ae950(ShopState *arg0);
+void func_ov043_020ae9d8(ShopState *arg0);
+void func_ov043_020aea58(ShopState *arg0);
+void func_ov043_020aeaec(ShopState *arg0);
+void func_ov043_020aeb14(ShopState *arg0);
+void func_ov043_020aec98(ShopState *arg0);
+void func_ov043_020aee2c(ShopState *arg0);
+void func_ov043_020aeee0(ShopState *arg0);
+void func_ov043_020aef20(ShopState *arg0);
+void func_ov043_020af2d8(ShopState *arg0);
+void func_ov043_020af3c0(ShopState *arg0);
+void func_ov043_020af3dc(ShopState *arg0);
 BOOL func_ov043_020af3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5);
 void func_ov043_020af42c(Sprite *sprite, s16 animFrame);
 void func_ov043_020af478(Sprite *sprite, s16 animFrame);

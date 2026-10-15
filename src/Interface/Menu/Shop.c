@@ -9,7 +9,7 @@
 
 //#include "Shop_p1.c"
 #include "Shop_p2.c"
-//#include "Shop_p3.c"
+#include "Shop_p3.c"
 #include "Shop_p4.c"
 #include "Shop_p5.c"
 //#include "Shop_p6.c"
