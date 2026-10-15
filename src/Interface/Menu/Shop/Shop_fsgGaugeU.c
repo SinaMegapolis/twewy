@@ -22,7 +22,6 @@ SpriteFrameInfo* Shop_fsgGaugeU_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 
 static const TaskHandle Tsk_Shop_fsgGaugeU = {"Tsk_Shop_fsgGaugeU", Shop_fsgGaugeU_RunTask, 0xF0};
 
-extern BinIdentifier data_ov043_020ca1d8;
 
 static const SpriteAnimation data_ov043_020cac38 = {
     .bits_0_1          = 1,

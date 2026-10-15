@@ -48,6 +48,22 @@ func_ov043_020b1830  identical   func_ov043_020b1bd4  identical
 Register allocation and instruction scheduling are per-function, and `-ipa file` does not rewrite
 the code of these non-`static` functions, so moving the TU boundary changes nothing.
 
+## Data ownership
+
+`Shop.c`'s `.rodata` (0x020ca18c-0x020ca360), `.data` (0x020cc5bc-0x020cc890) and `.bss`
+(0x020cd288) are now defined by the unit itself in `src/Interface/Menu/Shop_data.c` (included by
+`Shop.c`) instead of being `extern`:
+
+- `.data`: the bin path/name string objects plus the `Seq_Shop()` pointer.
+- `.rodata`: the `OverlayCB[3]` reload-callback table, the 25-entry `BinIdentifier[]` bin table
+  (the delinker split it at reference points; the address labels are reproduced as separate objects),
+  the menu layout table (0x020ca260) and the two sound-effect tables (0x020ca2a8 / 0x020ca2c0).
+  All are `const`, which is what puts them in `.rodata` (the previous non-const `extern`s resolved to
+  `.data`).
+- `.bss`: the Shop root `ShopState*` (`data_ov043_020cd288`).
+
+With those definitions the unit's `.rodata`, `.data` and `.bss` all match the target 100%.
+
 ## Conclusion
 
 - Keep `src/Interface/Menu/Shop.c` as one TU; there is no evidence for splitting it and splitting

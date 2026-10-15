@@ -33,8 +33,6 @@ extern void func_ov043_020af548(RawTreasureData* treasureData, u16 categorizedIn
 static SpriteFrameInfo* Shop_item2_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 static s32              Shop_item2_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-extern BinIdentifier data_ov043_020ca198[];
-extern BinIdentifier data_ov043_020ca258;
 
 static const TaskHandle Tsk_Shop_item2 = {"Tsk_Shop_item2", Shop_item2_RunTask, sizeof(Shop_item2)};
 
@@ -71,7 +69,7 @@ static SpriteFrameInfo* Shop_item2_GetFrameInfo(Sprite* sprite, s32 arg, s32 mod
 
 void func_ov043_020b6e80(Shop_item2* item, Sprite* sprite, Shop_item2_Args* args, s32 resourceIndex, u16 packIndex) {
     s32            dataType = args->dataType;
-    BinIdentifier* binIden  = &data_ov043_020ca198[resourceIndex];
+    const BinIdentifier* binIden = &data_ov043_020ca198[resourceIndex];
 
     Data* data;
     if (BinMgr_FindById((s32)binIden) == NULL) {

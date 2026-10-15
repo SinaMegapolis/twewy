@@ -112,8 +112,9 @@ typedef struct {
     /* 0x874 */ MenuBgResource      resources[8]; // [0]-[3]: sub BG0-BG3, [4]-[7]: main BG0-BG3
 } ShopObject;                                     // Size: 0x954
 
-extern const u32 data_ov043_020ca1b0;
-extern char* const data_ov043_020ca1b4;
+extern const BinIdentifier data_ov043_020ca198[];
+extern const BinIdentifier data_ov043_020ca258;
+extern const BinIdentifier data_ov043_020ca1b0;
 extern const BinIdentifier data_ov043_020ca1b8;
 extern const BinIdentifier data_ov043_020ca1c0[3];
 extern const BinIdentifier data_ov043_020ca1d8;
