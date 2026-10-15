@@ -37,24 +37,44 @@ typedef struct {
     /* 0x26 */ u8  unk_26[0x06];
 } ShopItemSlot; // Size: 0x2C
 
+// One entry of the ShopObject.unk_7BC table (an item's "owned" record).
+typedef struct {
+    /* 0x0 */ u16 unk_00;
+    /* 0x2 */ u8  unk_02;
+    /* 0x3 */ u8  unk_03;
+} ShopObjectEntry; // Size: 0x4
+
 typedef struct {
     /* 0x000 */ ShopItemSlot        slots[42];
     /* 0x738 */ ShopItemTableEntry* unk_738[12];
     /* 0x768 */ u16                 unk_768;
-    /* 0x76A */ char                unk_76A[0x76E - 0x76A];
+    /* 0x76A */ s16                 unk_76A;
+    /* 0x76C */ s16                 unk_76C;
     /* 0x76E */ u16                 unk_76E;
-    /* 0x770 */ char                unk_770[0x774 - 0x770];
+    /* 0x770 */ u16                 unk_770;
+    /* 0x772 */ u16                 unk_772;
     /* 0x774 */ u16                 unk_774;
     /* 0x776 */ u16                 unk_776;
     /* 0x778 */ u16                 unk_778;
-    /* 0x77A */ char                unk_77A[0x788 - 0x77A];
+    /* 0x77A */ u16                 unk_77A;
+    /* 0x77C */ u32                 unk_77C;
+    /* 0x780 */ s32                 unk_780;
+    /* 0x784 */ u32                 unk_784;
     /* 0x788 */ u16                 unk_788;
     /* 0x78A */ u16                 unk_78A;
-    /* 0x78C */ char                unk_78C[0x7B4 - 0x78C];
+    /* 0x78C */ s16                 unk_78C;
+    /* 0x78E */ u16                 unk_78E;
+    /* 0x790 */ u16                 unk_790[9];
+    /* 0x7A2 */ u16                 unk_7A2[9];
     /* 0x7B4 */ u8                  unk_7B4;
     /* 0x7B5 */ u8                  unk_7B5;
     /* 0x7B6 */ u8                  unk_7B6;
-    /* 0x7B7 */ char                unk_7B7[0x800 - 0x7B7];
+    /* 0x7B7 */ u8                  unk_7B7;
+    /* 0x7B8 */ u8                  unk_7B8;
+    /* 0x7B9 */ u8                  unk_7B9;
+    /* 0x7BA */ u8                  unk_7BA;
+    /* 0x7BB */ u8                  unk_7BB;
+    /* 0x7BC */ ShopObjectEntry     unk_7BC[17];
     /* 0x800 */ u16                 unk_800;
     /* 0x802 */ char                unk_802[0x834 - 0x802];
     /* 0x834 */ u16                 unk_834;
@@ -62,7 +82,9 @@ typedef struct {
     /* 0x837 */ u8                  unk_837;
     /* 0x838 */ u8                  unk_838;
     /* 0x839 */ u8                  unk_839;
-    /* 0x83A */ char                unk_83A[0x840 - 0x83A];
+    /* 0x83A */ u16                 unk_83A;
+    /* 0x83C */ s16                 unk_83C;
+    /* 0x83E */ u16                 unk_83E;
     /* 0x840 */ s16                 unk_840;
     /* 0x842 */ s16                 unk_842;
     /* 0x844 */ u16                 unk_844;
@@ -72,15 +94,19 @@ typedef struct {
     /* 0x84C */ u16                 unk_84C;
     /* 0x84E */ u16                 unk_84E;
     /* 0x850 */ u16                 unk_850;
-    /* 0x852 */ char                unk_852[0x854 - 0x852];
+    /* 0x852 */ u16                 unk_852;
     /* 0x854 */ u8                  unk_854;
-    /* 0x855 */ char                unk_855[0x858 - 0x855];
+    /* 0x855 */ u8                  unk_855;
+    /* 0x856 */ u16                 unk_856;
     /* 0x858 */ u32                 unk_858;
-    /* 0x85C */ char                unk_85C[0x85E - 0x85C];
+    /* 0x85C */ u16                 unk_85C;
     /* 0x85E */ u16                 unk_85E;
-    /* 0x860 */ char                unk_860[0x864 - 0x860];
+    /* 0x860 */ u16                 unk_860;
+    /* 0x862 */ u16                 unk_862;
     /* 0x864 */ u8                  unk_864[3];
-    /* 0x867 */ char                unk_867[0x870 - 0x867];
+    /* 0x867 */ u8                  unk_867;
+    /* 0x868 */ u32                 unk_868;
+    /* 0x86C */ s32                 unk_86C;
     /* 0x870 */ u16                 unk_870;
     /* 0x872 */ u16                 unk_872;
     /* 0x874 */ MenuBgResource      resources[8]; // [0]-[3]: sub BG0-BG3, [4]-[7]: main BG0-BG3

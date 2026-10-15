@@ -24,8 +24,14 @@ DEF = re.compile(r'^(?:[A-Za-z_][A-Za-z0-9_ \*]*?)\s*(func_ov043_[0-9a-f]+)\([^)
 
 def blocks(text):
     ms = list(DEF.finditer(text))
+    # Everything before the first function definition is the file-scope prelude
+    # (includes, shared typedefs).  prepend it so probe sees file-scope types.
+    prelude = text[:ms[0].start()] if ms else ''
+    # if probing the folded Shop.c, drop the part includes (they would pull in
+    # every function and collide with the one we extract).
+    prelude = re.sub(r'(?m)^\s*#include\s+"Shop_p\d+\.c"\s*$', '', prelude)
     edges = [m.start() for m in ms] + [len(text)]
-    return [(ms[i].group(1), text[edges[i]:edges[i + 1]].rstrip() + '\n') for i in range(len(ms))]
+    return [(ms[i].group(1), prelude + text[edges[i]:edges[i + 1]].rstrip() + '\n') for i in range(len(ms))]
 
 
 def fn_match_percent(json_path, fn):
@@ -47,7 +53,7 @@ def main():
     nmatch = 0
     for name, blk in bl:
         f = TMP / (name + '.c')
-        f.write_text(INC + blk)
+        f.write_text(blk)
         obj = TMP / (name + '.o')
         r = subprocess.run(['pwsh', '-NoProfile', '-File', 'tools/mwcc.ps1',
                             '-src', str(f.relative_to(ROOT)), '-obj', str(obj.relative_to(ROOT))],
