@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """probe.py -- compile individual functions from a source file in isolation and
-diff each against the target Shop.o.  Faster than partdiff for iterating on one
-function while a sibling in the same file is still broken.
+score each with objdiff against the target Shop.o.  Works even while sibling
+functions in the same file are still broken.
 
 Usage:
     python tools/probe.py <src.c> [fn ...]
     python tools/probe.py src/Interface/Menu/Shop_p5.c func_ov043_020af6b4
     python tools/probe.py src/Interface/Menu/Shop_p5.c            # all in file
 """
+import json
 import re
 import subprocess
 import sys
@@ -24,27 +25,16 @@ DEF = re.compile(r'^(?:[A-Za-z_][A-Za-z0-9_ \*]*?)\s*(func_ov043_[0-9a-f]+)\([^)
 def blocks(text):
     ms = list(DEF.finditer(text))
     edges = [m.start() for m in ms] + [len(text)]
-    out = []
-    for i in range(len(ms)):
-        out.append((ms[i].group(1), text[edges[i]:edges[i + 1]].rstrip() + '\n'))
-    return out
+    return [(ms[i].group(1), text[edges[i]:edges[i + 1]].rstrip() + '\n') for i in range(len(ms))]
 
 
-def norm(obj, fn):
-    out = subprocess.run(['arm-none-eabi-objdump', '-dr', str(obj), '--disassemble=' + fn],
-                         capture_output=True, text=True).stdout
-    lines = []
-    for line in out.splitlines():
-        m = re.match(r'^\s+[0-9a-f]+:\s*(.*)$', line)
-        if not m:
-            continue
-        l = m.group(1).rstrip()
-        l = re.sub(r'@\s*[0-9a-f]+.*$', '', l).rstrip()
-        l = re.sub(r'<[^>]*>', '<sym>', l)
-        l = re.sub(r'\b(b\w*|blx?)\s+[0-9a-f]+\s+<sym>', r'\1 <sym>', l)
-        l = re.sub(r'^eb[0-9a-f]{6}\s+bl\s+<sym>$', 'bl <sym>', l)
-        lines.append(l.rstrip())
-    return lines
+def fn_match_percent(json_path, fn):
+    d = json.load(open(json_path))
+    for side in ('left', 'right'):
+        for sym in d.get(side, {}).get('symbols', []):
+            if sym.get('name') == fn and 'match_percent' in sym:
+                return float(sym['match_percent'])
+    return None
 
 
 def main():
@@ -66,18 +56,17 @@ def main():
             em = re.search(re.escape(name) + r'\.c:(\d+): (.*)', r.stdout + r.stderr)
             print('%-22s COMPILE FAIL%s' % (name, (' @' + em.group(1) + ' ' + em.group(2)) if em else ''))
             continue
-        a = norm(TGT, name)
-        b = norm(obj, name)
-        if not a:
-            print('%-22s NO-TARGET' % name)
-            continue
-        diffs = sum(1 for i in range(max(len(a), len(b)))
-                    if (a[i] if i < len(a) else '') != (b[i] if i < len(b) else ''))
-        if diffs == 0:
+        dj = TMP / (name + '.json')
+        subprocess.run([str(ROOT / 'objdiff-cli.exe'), 'diff', '-1', str(TGT), '-2', str(obj),
+                        name, '-o', str(dj), '--format', 'json'], capture_output=True, cwd=ROOT)
+        pct = fn_match_percent(dj, name)
+        if pct is None:
+            print('%-22s ?' % name)
+        elif pct >= 100.0:
             nmatch += 1
             print('%-22s MATCH' % name)
         else:
-            print('%-22s %d/%d rows differ' % (name, diffs, len(a)))
+            print('%-22s %.2f%%' % (name, pct))
     print('---')
     print('%d / %d match' % (nmatch, len(bl)))
 
