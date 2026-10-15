@@ -69,9 +69,9 @@ void func_ov043_020ac5d8(ShopState *arg0) {
     shop->unk_84C = 0xFFFF;
     shop->unk_84E = 0xFFFF;
     if (gSaveData.unk_1AB4 & 4) {
-        func_ov043_020b1404(shop);
+        func_ov043_020b1404((ShopObject *) shop);
     } else {
-        func_ov043_020b0d1c(shop);
+        func_ov043_020b0d1c((ShopObject *) shop);
     }
     shop->unk_844 = 0;
     shop->unk_848 = 0;
