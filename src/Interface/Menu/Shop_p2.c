@@ -111,7 +111,7 @@ void func_ov043_020adbb0(ShopState *arg0) {
     arg0->unk_217B0 = 0xA;
     if ((u32) ((ShopP2 *) ((u8 *) shop + (shop->unk_778 - 2) * 2))->unk_7A2 >= 0x3D4U) {
         shop->unk_7B8 += 1;
-        shop->unk_7B5 = (u8) func_ov043_020afb14(shop);
+        shop->unk_7B5 = (u8) func_ov043_020afb14((ShopObject *) shop);
         shop->unk_84E = 0xFFFF;
     } else {
         func_ov043_020afd6c(shop);
