@@ -50,10 +50,13 @@ typedef struct {
     /* 0x77A */ char                unk_77A[0x788 - 0x77A];
     /* 0x788 */ u16                 unk_788;
     /* 0x78A */ u16                 unk_78A;
-    /* 0x78C */ char                unk_78C[0x7B5 - 0x78C];
+    /* 0x78C */ char                unk_78C[0x7B4 - 0x78C];
+    /* 0x7B4 */ u8                  unk_7B4;
     /* 0x7B5 */ u8                  unk_7B5;
     /* 0x7B6 */ u8                  unk_7B6;
-    /* 0x7B7 */ char                unk_7B7[0x834 - 0x7B7];
+    /* 0x7B7 */ char                unk_7B7[0x800 - 0x7B7];
+    /* 0x800 */ u16                 unk_800;
+    /* 0x802 */ char                unk_802[0x834 - 0x802];
     /* 0x834 */ u16                 unk_834;
     /* 0x836 */ u8                  unk_836;
     /* 0x837 */ u8                  unk_837;

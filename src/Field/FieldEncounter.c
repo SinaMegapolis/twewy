@@ -117,9 +117,9 @@ typedef struct {
     /* 0x6 */ u16 hi2;
 } FldEncounterRanges;
 
-extern FldEncounterRanges         data_ov030_020da8de[]; // by area
-extern FldEncounterRanges         data_ov030_020d9f2a[]; // by brand group
-extern FldEncounterRanges         data_ov030_020d9904[]; // by chapter group
+extern FldEncounterRanges            data_ov030_020da8de[]; // by area
+extern FldEncounterRanges            data_ov030_020d9f2a[]; // by brand group
+extern FldEncounterRanges            data_ov030_020d9904[]; // by chapter group
 extern const FieldEventScriptEndFunc data_ov030_020da6c8[];
 extern s32 (*const data_ov030_020da568[])(FieldEventManager*);
 extern s32 data_ov030_020d98ec[][2];
@@ -665,24 +665,24 @@ void func_ov030_020aba1c(FieldEventManager* mgr) {
     mgr->unk_21A24     = -1;
     mgr->taskId_Choice = -1;
     func_ov030_020c0760(0);
-    mgr->unk_21AF0 = 0;
-    mgr->unk_21AF4 = 0;
-    mgr->unk_21630 = 0;
-    mgr->unk_21D22 = 0;
-    mgr->unk_21AAE = 0;
-    mgr->unk_21AAC = 0;
-    mgr->unk_21AB0 = 0;
-    mgr->unk_21620 = DatMgr_LoadPackEntry(mgr->unk_21614, NULL, 0, &data_ov030_020d9944, 6, FALSE);
-    mgr->unk_22E34 = 0;
-    mgr->unk_21B10 = 0;
-    mgr->unk_21A54 = 0;
-    mgr->unk_21D14 = 0;
-    mgr->unk_22E14 = 0;
+    mgr->unk_21AF0       = 0;
+    mgr->unk_21AF4       = 0;
+    mgr->unk_21630       = 0;
+    mgr->unk_21D22       = 0;
+    mgr->unk_21AAE       = 0;
+    mgr->unk_21AAC       = 0;
+    mgr->unk_21AB0       = 0;
+    mgr->unk_21620       = DatMgr_LoadPackEntry(mgr->unk_21614, NULL, 0, &data_ov030_020d9944, 6, FALSE);
+    mgr->unk_22E34       = 0;
+    mgr->unk_21B10       = 0;
+    mgr->unk_21A54       = 0;
+    mgr->unk_21D14       = 0;
+    mgr->unk_22E14       = 0;
     mgr->postScriptState = 0;
-    mgr->unk_21ABC = 0;
-    mgr->unk_22E38 = 0;
-    mgr->nextRingSlotId = 3;
-    mgr->unk_22E3C = 0x1F;
+    mgr->unk_21ABC       = 0;
+    mgr->unk_22E38       = 0;
+    mgr->nextRingSlotId  = 3;
+    mgr->unk_22E3C       = 0x1F;
     FldEvent_InitState(mgr);
     mgr->unk_21AC4 = 0;
     mgr->unk_21A28 = DatMgr_LoadPackEntry(mgr->unk_21614, NULL, 0, &data_ov030_020d95a4, 0x4A, FALSE);
@@ -1368,7 +1368,7 @@ void func_ov030_020ad278(FieldEventManager* mgr) {
     mgr->unk_21A2C = dst;
     mgr->unk_21A30 = PaletteMgr_AcquireContiguous(g_PaletteManagers[2], dst, 5, 1);
     func_ov030_020ad044(mgr);
-    mgr->talkWindowTaskId          = func_ov030_020b44b8(&mgr->taskPool, mgr->unk_21614, 0xF0, 0xB0, 0, 0);
+    mgr->talkWindowTaskId   = func_ov030_020b44b8(&mgr->taskPool, mgr->unk_21614, 0xF0, 0xB0, 0, 0);
     mgr->taskId_KeywordMenu = -1;
     mgr->unk_216BC          = -1;
     mgr->unk_216C0          = -1;

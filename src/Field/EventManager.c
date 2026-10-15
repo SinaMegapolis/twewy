@@ -21,7 +21,7 @@ extern s16 data_ov030_020d9588[];
 extern s16 data_ov030_020d958a[];
 extern s32 data_ov030_020da264;
 
-extern u8    gFieldEventOpcodeOperandWidths[88];
+extern u8   gFieldEventOpcodeOperandWidths[88];
 extern s16* gFieldEventScripts[2207];
 
 extern s32  func_02023be8(u16 itemID, s32 arg1);
@@ -163,9 +163,8 @@ s32 FldEvent_AllocRingSlot(FieldEventManager* eventMgr, s32 arg1) {
 }
 
 s32 func_ov030_020a68f4(s32 progress) {
-    s32 thresholds[35] = {
-        17, 35, 49, 65, 78, 83, 91, 99, 108, 120, 130, 136, 146, 154, 162, 169, 176, 183, 190, 196, 202, 208, 215, 222, 223, 224, 230, 234, 241, 248, 251, 254, 257, 260, 280
-    };
+    s32 thresholds[35] = {17,  35,  49,  65,  78,  83,  91,  99,  108, 120, 130, 136, 146, 154, 162, 169, 176, 183,
+                          190, 196, 202, 208, 215, 222, 223, 224, 230, 234, 241, 248, 251, 254, 257, 260, 280};
 
     for (unsigned int i = 0; i < 35; i++) {
         if (progress < thresholds[i]) {
@@ -222,7 +221,9 @@ BOOL FldEvent_PollWindowSlots(FieldEventManager* eventMgr) {
     BOOL found = FALSE;
 
     for (i = 0; i < 32; i++) {
-        if ((eventMgr->windowSlotTaskIds[i] != -1) && (EasyTask_ValidateTaskId(&eventMgr->taskPool, &eventMgr->windowSlotTaskIds[i]))) {
+        if ((eventMgr->windowSlotTaskIds[i] != -1) &&
+            (EasyTask_ValidateTaskId(&eventMgr->taskPool, &eventMgr->windowSlotTaskIds[i])))
+        {
             if (func_ov030_020b0454() != 0) {
                 if (eventMgr->activeWindowSlotIndex == i) {
                     func_ov030_020b4038(EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[i]));
@@ -314,19 +315,19 @@ void FldEvent_InitState(FieldEventManager* eventMgr) {
         eventMgr->windowSlotTaskIds[i] = -1;
     }
 
-    eventMgr->unk_21CEA = 0;
-    eventMgr->activeWindowSlotIndex = -1;
+    eventMgr->unk_21CEA              = 0;
+    eventMgr->activeWindowSlotIndex  = -1;
     eventMgr->talkBustShotResourceId = 280;
-    eventMgr->unk_21CEC = 0;
-    eventMgr->unk_21CF0 = 1;
-    eventMgr->unk_21AD8 = 0;
-    eventMgr->unk_21ADC = 1;
-    eventMgr->unk_21AE0 = 0;
-    eventMgr->unk_21CF8 = 0;
-    eventMgr->unk_21CFC = 0;
-    eventMgr->unk_21758 = 0;
-    eventMgr->unk_2176A = 0;
-    eventMgr->unk_21D22 = 0;
+    eventMgr->unk_21CEC              = 0;
+    eventMgr->unk_21CF0              = 1;
+    eventMgr->unk_21AD8              = 0;
+    eventMgr->unk_21ADC              = 1;
+    eventMgr->unk_21AE0              = 0;
+    eventMgr->unk_21CF8              = 0;
+    eventMgr->unk_21CFC              = 0;
+    eventMgr->unk_21758              = 0;
+    eventMgr->unk_2176A              = 0;
+    eventMgr->unk_21D22              = 0;
 }
 
 s32 FldEvent_IsKeywordLayerVisible(void) {
@@ -335,7 +336,9 @@ s32 FldEvent_IsKeywordLayerVisible(void) {
 
 // Nonmatching
 void FldEvent_ClearBustShotStateIfKeywordLayerVisible(FieldEventManager* eventMgr, u32 arg1, Task* arg2) {
-    if (FldEvent_IsKeywordLayerVisible() != 0 && *FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId) == arg1) {
+    if (FldEvent_IsKeywordLayerVisible() != 0 &&
+        *FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId) == arg1)
+    {
         func_ov030_020b3cd4(arg2, 0);
     }
 }
@@ -374,7 +377,8 @@ s32 FldEvent_PollKeywordMenu(FieldEventManager* eventMgr) {
         } else {
             SndMgr_StartPlayingSE(SEIDX_MENU_MSYSTEM_EXECUTE);
 
-            Task* task = EasyTask_GetTaskById(&eventMgr->taskPool, *FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId));
+            Task* task = EasyTask_GetTaskById(&eventMgr->taskPool,
+                                              *FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId));
             func_ov030_020b3cd4(task, 1);
 
             s32 temp_r4        = func_ov030_020b3cc8(task);
@@ -646,7 +650,9 @@ void FldEvent_SetupBrightnessRamp(FieldEventManager* eventMgr, s32 arg1, s16 arg
 
 s32 FldEvent_WaitForAdvance(FieldEventManager* eventMgr) {
     if (eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex] != -1) {
-        if (func_ov030_020b40e8(EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex])) != 0) {
+        if (func_ov030_020b40e8(
+                EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex])) != 0)
+        {
             return 0;
         }
     }
@@ -728,36 +734,36 @@ void FldEvent_RunOpcode(FieldEventManager* eventMgr) {
             FldEvent_AdvanceScript(eventMgr);
             return;
         case 0xB:
-            FldEvent_SpawnBustShot(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)), 0x14, -0x3F3, -0x3F1, -0x3F6,
-                                -0x3F1);
+            FldEvent_SpawnBustShot(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)), 0x14, -0x3F3, -0x3F1,
+                                   -0x3F6, -0x3F1);
             FldEvent_AdvanceScript(eventMgr);
             func_ov030_020aac84(eventMgr);
             return;
         case 0xC:
-            FldEvent_SpawnBustShot(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)), 0x14, -0x3FD, -0x3F1, -0x3FA,
-                                -0x3F1);
+            FldEvent_SpawnBustShot(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)), 0x14, -0x3FD, -0x3F1,
+                                   -0x3FA, -0x3F1);
             FldEvent_AdvanceScript(eventMgr);
             func_ov030_020aac84(eventMgr);
             return;
         case 0xD:
             FldEvent_SpawnBustShot(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)),
-                                *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)), -0x3F3, -0x3F1, -0x3F6, -0x3F1);
+                                   *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)), -0x3F3, -0x3F1, -0x3F6, -0x3F1);
             FldEvent_AdvanceScript(eventMgr);
             func_ov030_020aac84(eventMgr);
             return;
         case 0xE:
             FldEvent_SpawnBustShot(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)),
-                                *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)), -0x3FD, -0x3F1, -0x3FA, -0x3F1);
+                                   *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)), -0x3FD, -0x3F1, -0x3FA, -0x3F1);
             FldEvent_AdvanceScript(eventMgr);
             func_ov030_020aac84(eventMgr);
             return;
         case 0xF:
             FldEvent_SpawnBustShot(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)),
-                                *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)),
-                                (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 3) * 2)),
-                                (s16)(s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 4) * 2)),
-                                (s16)(s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 5) * 2)),
-                                (s16)(s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 6) * 2)));
+                                   *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)),
+                                   (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 3) * 2)),
+                                   (s16)(s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 4) * 2)),
+                                   (s16)(s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 5) * 2)),
+                                   (s16)(s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 6) * 2)));
             FldEvent_AdvanceScript(eventMgr);
             func_ov030_020aac84(eventMgr);
             return;
@@ -769,9 +775,10 @@ void FldEvent_RunOpcode(FieldEventManager* eventMgr) {
             return;
         case 0x11:
             if (eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex] != -1) {
-                func_ov030_020b40ac(EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex]),
-                                    *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)),
-                                    *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
+                func_ov030_020b40ac(
+                    EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex]),
+                    *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)),
+                    *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
             }
             FldEvent_AdvanceScript(eventMgr);
             return;
@@ -874,8 +881,8 @@ void FldEvent_RunOpcode(FieldEventManager* eventMgr) {
             s16  var_r2    = gSaveData.unk_24A0[gSaveData.unk_249C + 3];
             if (var_r6 != 2) {
                 var_r6 = 0x5D;
-                var_r0 = func_ov030_020b3cc8(
-                    EasyTask_GetTaskById(&eventMgr->taskPool, *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId)));
+                var_r0 = func_ov030_020b3cc8(EasyTask_GetTaskById(
+                    &eventMgr->taskPool, *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId)));
                 var_r2 = var_r0;
             }
             *temp_r7_7 = func_ov030_020b3d88(&eventMgr->taskPool, eventMgr->unk_21614, var_r2, 0xD0, var_r0, 0xD0,
@@ -967,13 +974,13 @@ void FldEvent_RunOpcode(FieldEventManager* eventMgr) {
             return;
         case 0x33:
             FldEvent_SetupBrightnessRamp(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)),
-                                *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)),
-                                (u16) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 3) * 2)));
+                                         *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)),
+                                         (u16) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 3) * 2)));
             FldEvent_AdvanceScript(eventMgr);
             return;
         case 0x34:
             FldEvent_SetupBrightnessRamp(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)),
-                                *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)), 0x14U);
+                                         *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)), 0x14U);
             FldEvent_AdvanceScript(eventMgr);
             return;
         case 0x35:
@@ -1030,7 +1037,8 @@ void FldEvent_RunOpcode(FieldEventManager* eventMgr) {
             return;
         case 0x39:
             if (eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex] != -1) {
-                func_ov030_020b411c(EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex]));
+                func_ov030_020b411c(
+                    EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex]));
             }
             FldEvent_AdvanceScript(eventMgr);
             return;
@@ -1151,8 +1159,8 @@ void FldEvent_RunOpcode(FieldEventManager* eventMgr) {
         case 0x47:
 
             if (func_ov030_020b38d4(EasyTask_GetTaskById(
-                    &eventMgr->taskPool,
-                    *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2))))) == 0)
+                    &eventMgr->taskPool, *(u32*)FldEvent_GetBustShotSlotPtr(
+                                             eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2))))) == 0)
             {
                 return;
             }
@@ -1166,47 +1174,47 @@ void FldEvent_RunOpcode(FieldEventManager* eventMgr) {
             return;
         case 0x49:
             func_ov030_020b38f8(
-                EasyTask_GetTaskById(
-                    &eventMgr->taskPool,
-                    *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
+                EasyTask_GetTaskById(&eventMgr->taskPool,
+                                     *(u32*)FldEvent_GetBustShotSlotPtr(
+                                         eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
                 *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
             FldEvent_AdvanceScript(eventMgr);
             return;
         case 0x4A:
             func_ov030_020b3934(
-                EasyTask_GetTaskById(
-                    &eventMgr->taskPool,
-                    *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
+                EasyTask_GetTaskById(&eventMgr->taskPool,
+                                     *(u32*)FldEvent_GetBustShotSlotPtr(
+                                         eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
                 *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
             FldEvent_AdvanceScript(eventMgr);
             return;
         case 0x4B:
             func_ov030_020b3b64(
-                EasyTask_GetTaskById(
-                    &eventMgr->taskPool,
-                    *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
+                EasyTask_GetTaskById(&eventMgr->taskPool,
+                                     *(u32*)FldEvent_GetBustShotSlotPtr(
+                                         eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
                 *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
             FldEvent_AdvanceScript(eventMgr);
             return;
         case 0x4C:
             func_ov030_020b3b70(
-                EasyTask_GetTaskById(
-                    &eventMgr->taskPool,
-                    *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
+                EasyTask_GetTaskById(&eventMgr->taskPool,
+                                     *(u32*)FldEvent_GetBustShotSlotPtr(
+                                         eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
                 *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)), *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 3) * 2)),
                 *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 4) * 2)));
             FldEvent_AdvanceScript(eventMgr);
             return;
         case 0x4F:
             FldEvent_CrossfadeBustShotPose(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)), 1,
-                                (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
+                                           (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
             return;
         case 0x4D:
             FldEvent_SwapBustShotPose(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)), 1);
             return;
         case 0x4E:
             FldEvent_SwapBustShotPose(eventMgr, *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)),
-                                *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
+                                      *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
             return;
         case 0x50:
             func_ov030_020b3ca0(EasyTask_GetTaskById(
@@ -1245,17 +1253,17 @@ void FldEvent_RunOpcode(FieldEventManager* eventMgr) {
             return;
         case 0x2B:
             func_ov030_020b37cc(
-                EasyTask_GetTaskById(
-                    &eventMgr->taskPool,
-                    *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
+                EasyTask_GetTaskById(&eventMgr->taskPool,
+                                     *(u32*)FldEvent_GetBustShotSlotPtr(
+                                         eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
                 *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)), 1);
             FldEvent_AdvanceScript(eventMgr);
             return;
         case 0x2C:
             func_ov030_020b3b3c(
-                EasyTask_GetTaskById(
-                    &eventMgr->taskPool,
-                    *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
+                EasyTask_GetTaskById(&eventMgr->taskPool,
+                                     *(u32*)FldEvent_GetBustShotSlotPtr(
+                                         eventMgr, (s32) * (gSaveData.unk_24A0 + ((gSaveData.unk_249C + 1) * 2)))),
                 *(gSaveData.unk_24A0 + ((gSaveData.unk_249C + 2) * 2)));
             FldEvent_AdvanceScript(eventMgr);
             return;
@@ -1492,8 +1500,9 @@ void FldEvent_BeginScriptWithOverlays(FieldEventManager* eventMgr, FieldEvent ev
 }
 
 void FldEvent_ShowScanPrompt(FieldEventManager* eventMgr) {
-    Task* task    = EasyTask_GetTaskById(&eventMgr->taskPool, *FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId));
-    s32   temp_r0 = func_ov030_020b3cc8(task);
+    Task* task =
+        EasyTask_GetTaskById(&eventMgr->taskPool, *FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId));
+    s32 temp_r0 = func_ov030_020b3cc8(task);
 
     eventMgr->unk_216BC = func_ov030_020b44b8(&eventMgr->taskPool, eventMgr->unk_21614, temp_r0, 0x78, 0, 1);
     SndMgr_PlaySEWithPan(0x122, temp_r0);
@@ -1544,12 +1553,13 @@ s32 FldEvent_CreateChoiceWindow(FieldEventManager* eventMgr, s32 (*callback)(Fie
 s32 FldEvent_RunScanPrompt(FieldEventManager* eventMgr, s32 arg1, s16 arg2, s16 arg3, s32 (*arg4)(FieldEventManager*)) {
     s32 temp_r4;
 
-    eventMgr->talkBustShotResourceId = arg1;
-    eventMgr->unk_21D04 = arg2;
-    eventMgr->unk_21D06 = arg3;
+    eventMgr->talkBustShotResourceId  = arg1;
+    eventMgr->unk_21D04               = arg2;
+    eventMgr->unk_21D06               = arg3;
     eventMgr->keywordSelectedCallback = arg4;
     if ((eventMgr->unk_21AD8 == 0) && (eventMgr->unk_216CC == -1)) {
-        Task* task = EasyTask_GetTaskById(&eventMgr->taskPool, *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId));
+        Task* task          = EasyTask_GetTaskById(&eventMgr->taskPool,
+                                                   *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId));
         eventMgr->unk_216CC = func_ov030_020c4810(&eventMgr->taskPool, eventMgr->unk_21614, func_ov030_020b3cc8(task), 0x78);
     } else if ((eventMgr->unk_21AD8 == 0) && (EasyTask_ValidateTaskId(&eventMgr->taskPool, &eventMgr->unk_216CC) == 0)) {
         eventMgr->unk_21AD8 = 1;
@@ -1559,18 +1569,21 @@ s32 FldEvent_RunScanPrompt(FieldEventManager* eventMgr, s32 arg1, s16 arg2, s16 
         if ((eventMgr->unk_21AD8 != 0) && (eventMgr->unk_216BC == -1U)) {
             FldEvent_ShowScanPrompt(eventMgr);
         } else if ((eventMgr->unk_21AD8 != 0) && (FldEvent_PollAdvanceInput(eventMgr) != 0)) {
-            func_ov030_020b3cd4(
-                EasyTask_GetTaskById(&eventMgr->taskPool, *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId)), 1);
+            func_ov030_020b3cd4(EasyTask_GetTaskById(&eventMgr->taskPool, *(u32*)FldEvent_GetBustShotSlotPtr(
+                                                                              eventMgr, eventMgr->talkBustShotResourceId)),
+                                1);
 
             if ((TouchInput_WasTouchPressed() != 0) &&
                 (func_ov030_020b4514(EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->unk_216BC)) != 0))
             {
                 SndMgr_StartPlayingSE(SEIDX_SE_SCANS_OPEN);
-                Task* temp_r0 =
-                    EasyTask_GetTaskById(&eventMgr->taskPool, *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId));
+                Task* temp_r0 = EasyTask_GetTaskById(
+                    &eventMgr->taskPool, *(u32*)FldEvent_GetBustShotSlotPtr(eventMgr, eventMgr->talkBustShotResourceId));
                 func_ov030_020b3cd4(temp_r0, 0);
                 temp_r4 = func_ov030_020b3cc8(temp_r0);
-                func_ov030_020b400c(EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex]), 2);
+                func_ov030_020b400c(
+                    EasyTask_GetTaskById(&eventMgr->taskPool, eventMgr->windowSlotTaskIds[eventMgr->activeWindowSlotIndex]),
+                    2);
                 if ((eventMgr->keywordSelectedCallback != 0) && (func_ov030_020b0418() != 0)) {
                     eventMgr->taskId_KeywordMenu =
                         Fld_TalkEventKeywordMenu_CreateTask(&eventMgr->taskPool, eventMgr->unk_21614, temp_r4);
@@ -1676,10 +1689,10 @@ s32 FldEvent_HandleScriptEnd(FieldEventManager* eventMgr) {
         if (FldEvent_BeginScriptAfterFade(eventMgr, 5) == 0) {
             return 1;
         }
-        eventMgr->unk_21D22 = 3;
+        eventMgr->unk_21D22                = 3;
         eventMgr->postScriptChoiceCallback = FldEvent_OnPostScriptChoice;
-        eventMgr->postScriptMessageId = 0x5DCC;
-        eventMgr->postScriptState = 0;
+        eventMgr->postScriptMessageId      = 0x5DCC;
+        eventMgr->postScriptState          = 0;
         DebugOvlDisp_Push(func_ov030_020824a0, eventMgr, PROCESS_STAGE_INIT);
         DebugOvlDisp_Push(func_ov030_02082c04, eventMgr, PROCESS_STAGE_INIT);
         DebugOvlDisp_Push(func_ov030_02082bf0, eventMgr, PROCESS_STAGE_INIT);
@@ -1690,9 +1703,9 @@ s32 FldEvent_HandleScriptEnd(FieldEventManager* eventMgr) {
         if (FldEvent_BeginScriptAfterFade(eventMgr, 5) == 0) {
             return 1;
         }
-        eventMgr->unk_21D1E = 0x83;
-        eventMgr->unk_21D20 = 0x83;
-        eventMgr->unk_21D22 = 1;
+        eventMgr->unk_21D1E                = 0x83;
+        eventMgr->unk_21D20                = 0x83;
+        eventMgr->unk_21D22                = 1;
         eventMgr->postScriptChoiceCallback = NULL;
 
         if (eventMgr->unk_21D22 == 1) {
@@ -1720,9 +1733,9 @@ s32 FldEvent_HandleScriptEnd(FieldEventManager* eventMgr) {
         if (FldEvent_BeginScriptAfterFade(eventMgr, 5) == 0) {
             return 1;
         }
-        eventMgr->unk_21D1E = 0x83;
-        eventMgr->unk_21D20 = 0x83;
-        eventMgr->unk_21D22 = 5;
+        eventMgr->unk_21D1E                = 0x83;
+        eventMgr->unk_21D20                = 0x83;
+        eventMgr->unk_21D22                = 5;
         eventMgr->postScriptChoiceCallback = NULL;
 
         if (eventMgr->unk_21D22 == 1) {

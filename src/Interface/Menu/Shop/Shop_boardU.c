@@ -52,7 +52,7 @@ static SpriteFrameInfo* Shop_boardU_GetFrameInfo(Sprite* sprite, s32 arg, s32 mo
 
 static void func_ov043_020bca50(Shop_boardU* board, Sprite* sprite, Shop_boardU_Args* args, s32 packIndex) {
     s32   dataType = args->dataType;
-    Data*  data;
+    Data* data;
 
     if (BinMgr_FindById((s32)&data_ov043_020ca1f8) == NULL) {
         data = DatMgr_LoadPackEntry(dataType, NULL, 0, &data_ov043_020ca1f8, packIndex, FALSE);

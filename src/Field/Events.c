@@ -519,10 +519,12 @@ s32 FldEvent_OnScriptEnd_ShikiDay2(FieldEventManager* arg0) {
         case 0x73:
         case 0x74:
             if ((FldGate_Get(0x23) != 0) && (FldGate_Get(0x24) != 0) && (FldGate_Get(37) != 0) && (FldGate_Get(38) != 0)) {
-                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay2_01, 0x35EE, 5, 0x35EF, 0x35F0, 0x35F3, 0x35F1, 0x35F2);
+                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay2_01, 0x35EE, 5, 0x35EF, 0x35F0, 0x35F3,
+                                                   0x35F1, 0x35F2);
             }
             if (FldGate_Get(0x24) != 0) {
-                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay2_01, 0x35EE, 4, 0x35EF, 0x35F0, 0x35F3, 0x35F1);
+                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay2_01, 0x35EE, 4, 0x35EF, 0x35F0, 0x35F3,
+                                                   0x35F1);
             }
             if (FldGate_Get(0x24) == 0) {
                 return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay2_01, 0x35EE, 3, 0x35EF, 0x35F0, 0x35F3);
@@ -588,9 +590,9 @@ s32 FldEvent_OnScriptEnd_ShikiDay2(FieldEventManager* arg0) {
             if (FldEvent_BeginScriptAfterFade(arg0, 0x44B) == 0) {
                 return 1;
             }
-            arg0->unk_21D1E = 0x7B;
-            arg0->unk_21D20 = 0x7B;
-            arg0->unk_21D22 = 5;
+            arg0->unk_21D1E                = 0x7B;
+            arg0->unk_21D20                = 0x7B;
+            arg0->unk_21D22                = 5;
             arg0->postScriptChoiceCallback = 0;
             if (arg0->unk_21D22 == 1) {
                 func_ov030_020aec1c(3);
@@ -624,9 +626,9 @@ s32 FldEvent_OnScriptEnd_ShikiDay2(FieldEventManager* arg0) {
             if (FldEvent_BeginScriptAfterFade(arg0, 0x44C) == 0) {
                 return 1;
             }
-            arg0->unk_21D1E = 0x83;
-            arg0->unk_21D20 = 0x83;
-            arg0->unk_21D22 = 4;
+            arg0->unk_21D1E                = 0x83;
+            arg0->unk_21D20                = 0x83;
+            arg0->unk_21D22                = 4;
             arg0->postScriptChoiceCallback = 0;
             if (arg0->unk_21D22 == 1) {
                 func_ov030_020aec1c(3);
@@ -1268,9 +1270,11 @@ s32 FldEvent_OnScriptEnd_ShikiDay3(FieldEventManager* arg0) {
         case 0xA4:
         case 0xA6:
             if ((FldGate_Get(0x36) != 0) && (FldGate_Get(0x37) != 0) && (FldGate_Get(56) != 0) && (FldGate_Get(0x39) != 0)) {
-                return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_ShikiDay3_07, 0x3608, 5, 0x3609, 0x360A, 0x360B, 0x360C, 0x360D);
+                return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_ShikiDay3_07, 0x3608, 5, 0x3609, 0x360A, 0x360B,
+                                                   0x360C, 0x360D);
             }
-            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_ShikiDay3_07, 0x3608, 4, 0x3609, 0x360A, 0x360B, 0x360C);
+            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_ShikiDay3_07, 0x3608, 4, 0x3609, 0x360A, 0x360B,
+                                               0x360C);
         case 0xA5:
             FldEvent_SetCurrent(0x4CA);
             FldEvent_AdvanceScript(arg0);
@@ -1405,7 +1409,8 @@ s32 FldEvent_OnScriptEnd_ShikiDay3(FieldEventManager* arg0) {
         case 0x3D4:
         case 0x3D7:
         case 0x3D5:
-            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_ShikiDay3_10, 0x3614, 5, 0x3615, 0x3616, 0x3617, 0x3618, 0x3619);
+            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_ShikiDay3_10, 0x3614, 5, 0x3615, 0x3616, 0x3617,
+                                               0x3618, 0x3619);
         case 0xAE:
             arg0->unk_21630 = 5;
             DebugOvlDisp_Pop();
@@ -1859,10 +1864,12 @@ s32 FldEvent_OnScriptEnd_ShikiDay4(FieldEventManager* arg0) {
         case 0xCC:
         case 0xCD:
             if ((FldGate_Get(0x22) != 0) && (FldGate_Get(0x23) != 0) && (FldGate_Get(0x24) != 0) && (FldGate_Get(37) != 0)) {
-                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay4_03, 0x361A, 5, 0x361B, 0x361C, 0x361D, 0x361E, 0x361F);
+                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay4_03, 0x361A, 5, 0x361B, 0x361C, 0x361D,
+                                                   0x361E, 0x361F);
             }
             if (FldGate_Get(0x23) != 0) {
-                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay4_02, 0x361A, 4, 0x361B, 0x361C, 0x361D, 0x361E);
+                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay4_02, 0x361A, 4, 0x361B, 0x361C, 0x361D,
+                                                   0x361E);
             }
             return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_ShikiDay4_01, 0x361A, 2, 0x361B, 0x361C);
         case 0x43D:
@@ -2515,10 +2522,10 @@ s32 FldEvent_OnScriptEnd_ShikiDay5(FieldEventManager* arg0) {
             if (FldEvent_BeginScriptAfterFade(arg0, 0x44D) == 0) {
                 return 1;
             }
-            arg0->unk_21D22 = 3;
+            arg0->unk_21D22                = 3;
             arg0->postScriptChoiceCallback = FldEvent_OnChoiceTrade_ShikiDay5_01;
-            arg0->postScriptMessageId = 0x5ED4;
-            arg0->postScriptState = 0;
+            arg0->postScriptMessageId      = 0x5ED4;
+            arg0->postScriptState          = 0;
             DebugOvlDisp_Push(&func_ov030_020824a0, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082c04, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082bf0, arg0, 0);
@@ -2576,10 +2583,10 @@ s32 FldEvent_OnScriptEnd_ShikiDay5(FieldEventManager* arg0) {
             if (FldEvent_BeginScriptAfterFade(arg0, 0x463) == 0) {
                 return 1;
             }
-            arg0->unk_21D22 = 3;
+            arg0->unk_21D22                = 3;
             arg0->postScriptChoiceCallback = FldEvent_OnChoiceTrade_ShikiDay5_02;
-            arg0->postScriptMessageId = 0x5F1F;
-            arg0->postScriptState = 0;
+            arg0->postScriptMessageId      = 0x5F1F;
+            arg0->postScriptState          = 0;
             DebugOvlDisp_Push(&func_ov030_020824a0, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082c04, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082bf0, arg0, 0);
@@ -2605,10 +2612,10 @@ s32 FldEvent_OnScriptEnd_ShikiDay5(FieldEventManager* arg0) {
             if (FldEvent_BeginScriptAfterFade(arg0, 0x478) == 0) {
                 return 1;
             }
-            arg0->unk_21D22 = 3;
+            arg0->unk_21D22                = 3;
             arg0->postScriptChoiceCallback = FldEvent_OnChoiceTrade_ShikiDay5_03;
-            arg0->postScriptMessageId = 0x5F76;
-            arg0->postScriptState = 0;
+            arg0->postScriptMessageId      = 0x5F76;
+            arg0->postScriptState          = 0;
             DebugOvlDisp_Push(&func_ov030_020824a0, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082c04, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082bf0, arg0, 0);
@@ -2634,10 +2641,10 @@ s32 FldEvent_OnScriptEnd_ShikiDay5(FieldEventManager* arg0) {
             if (FldEvent_BeginScriptAfterFade(arg0, 0x48D) == 0) {
                 return 1;
             }
-            arg0->unk_21D22 = 3;
+            arg0->unk_21D22                = 3;
             arg0->postScriptChoiceCallback = FldEvent_OnChoiceTrade_ShikiDay5_04;
-            arg0->postScriptMessageId = 0x5FB1;
-            arg0->postScriptState = 0;
+            arg0->postScriptMessageId      = 0x5FB1;
+            arg0->postScriptState          = 0;
             DebugOvlDisp_Push(&func_ov030_020824a0, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082c04, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082bf0, arg0, 0);
@@ -5224,9 +5231,11 @@ s32 FldEvent_OnScriptEnd_JoshuaDay3(FieldEventManager* arg0) {
         case 0x163:
         case 0x164:
             if ((FldGate_Get(38) != 0) && (FldGate_Get(39) != 0) && (FldGate_Get(0x28) != 0) && (FldGate_Get(41) != 0)) {
-                return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay3_02, 0x3650, 5, 0x3651, 0x3652, 0x3653, 0x3654, 0x3655);
+                return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay3_02, 0x3650, 5, 0x3651, 0x3652, 0x3653,
+                                                   0x3654, 0x3655);
             }
-            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay3_01, 0x3650, 4, 0x3651, 0x3652, 0x3653, 0x3654);
+            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay3_01, 0x3650, 4, 0x3651, 0x3652, 0x3653,
+                                               0x3654);
         case 0x165:
             FldGate_Set(0x45);
             break;
@@ -5264,7 +5273,8 @@ s32 FldEvent_OnScriptEnd_JoshuaDay3(FieldEventManager* arg0) {
             break;
         case 0x16D:
             FldGate_Set(0x16);
-            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay3_03, 0x3656, 4, 0x3657, 0x3658, 0x3659, 0x365A);
+            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay3_03, 0x3656, 4, 0x3657, 0x3658, 0x3659,
+                                               0x365A);
         case 0x16E:
         case 0x16F:
         case 0x170:
@@ -5395,7 +5405,8 @@ s32 FldEvent_OnScriptEnd_JoshuaDay3(FieldEventManager* arg0) {
         case 0x52:
         case 0x53:
         case 0x54:
-            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay3_08, 0x36EA, 5, 0x36EB, 0x36EC, 0x36ED, 0x36EE, 0x36EF);
+            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay3_08, 0x36EA, 5, 0x36EB, 0x36EC, 0x36ED,
+                                               0x36EE, 0x36EF);
         case 0x7D9:
             if (FldGate_Get(0x45) != 0) {
                 FldEvent_SetCurrent(0x7DA);
@@ -6056,7 +6067,8 @@ s32 FldEvent_OnScriptEnd_JoshuaDay4(FieldEventManager* arg0) {
         case 0x1A4:
         case 0x1A5:
             if ((FldGate_Get(42) != 0) && (FldGate_Get(43) != 0) && (FldGate_Get(0x2C) != 0)) {
-                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_JoshuaDay4_04, 0x366D, 4, 0x366E, 0x366F, 0x3670, 0x3671);
+                return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_JoshuaDay4_04, 0x366D, 4, 0x366E, 0x366F, 0x3670,
+                                                   0x3671);
             }
             if (FldGate_Get(43) != 0) {
                 return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_JoshuaDay4_03, 0x366D, 3, 0x366E, 0x366F, 0x3670);
@@ -6139,7 +6151,8 @@ s32 FldEvent_OnScriptEnd_JoshuaDay4(FieldEventManager* arg0) {
             return 1;
         case 0x1C4:
         case 0x1C5:
-            return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_JoshuaDay4_10, 0x3685, 4, 0x3686, 0x3687, 0x3688, 0x3689);
+            return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_JoshuaDay4_10, 0x3685, 4, 0x3686, 0x3687, 0x3688,
+                                               0x3689);
         case 0x1C6:
             if (FldEvent_ReleaseWindowsAndPollBustShots(arg0) != 0) {
                 return 1;
@@ -7406,7 +7419,8 @@ s32 FldEvent_OnScriptEnd_JoshuaDay6(FieldEventManager* arg0) {
             FldGate_Set(46);
             FldGate_Set(47);
         case 0x222:
-            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay6_04, 0x36B4, 4, 0x36B5, 0x36B6, 0x36B7, 0x36B8);
+            return FldEvent_CreateChoiceWindow(arg0, &FldEvent_OnChoice_JoshuaDay6_04, 0x36B4, 4, 0x36B5, 0x36B6, 0x36B7,
+                                               0x36B8);
         case 0x21F:
             arg0->unk_21630    = 6;
             gSaveData.unk_24C0 = 0x220;
@@ -8595,10 +8609,10 @@ s32 FldEvent_OnScriptEnd_BeatDay3(FieldEventManager* arg0) {
             if (FldEvent_BeginScriptAfterFade(arg0, 0x4A2) == 0) {
                 return 1;
             }
-            arg0->unk_21D22 = 3;
+            arg0->unk_21D22                = 3;
             arg0->postScriptChoiceCallback = FldEvent_OnChoiceTrade_BeatDay3_01;
-            arg0->postScriptMessageId = 0x5FEA;
-            arg0->postScriptState = 0;
+            arg0->postScriptMessageId      = 0x5FEA;
+            arg0->postScriptState          = 0;
             DebugOvlDisp_Push(&func_ov030_020824a0, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082c04, arg0, 0);
             DebugOvlDisp_Push(&func_ov030_02082bf0, arg0, 0);
@@ -8748,7 +8762,8 @@ s32 FldEvent_OnScriptEnd_BeatDay3(FieldEventManager* arg0) {
             return 1;
 
         case 0x834:
-            return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_BeatDay3_04, 0x36CE, 5, 0x36CF, 0x36D0, 0x36D1, 0x36D2, 0x36D3);
+            return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_BeatDay3_04, 0x36CE, 5, 0x36CF, 0x36D0, 0x36D1, 0x36D2,
+                                               0x36D3);
         case 0x837:
             if ((FldGate_Get(0x31) != 0) && (FldGate_Get(0x35) != 0) && (FldGate_Get(0x39) != 0)) {
                 FldEvent_SetCurrent(0x838);
@@ -10307,7 +10322,8 @@ s32 func_ov030_0209f0e8(FieldEventManager* arg0) {
         case 0x52:
         case 0x53:
         case 0x54:
-            return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_JoshuaDay3_08, 0x36EA, 5, 0x36EB, 0x36EC, 0x36ED, 0x36EE, 0x36EF);
+            return FldEvent_CreateChoiceWindow(arg0, FldEvent_OnChoice_JoshuaDay3_08, 0x36EA, 5, 0x36EB, 0x36EC, 0x36ED,
+                                               0x36EE, 0x36EF);
         case 0x317:
             gSaveData.unk_24B4          = 0;
             gSaveData.unk_24B8          = 1;
@@ -11865,10 +11881,10 @@ s32 func_ov030_020a2c20(FieldEventManager* arg0) {
         if (FldEvent_BeginScriptAfterFade(arg0, 0x44D) == 0) {
             return 1;
         }
-        arg0->unk_21D22 = 3;
+        arg0->unk_21D22                = 3;
         arg0->postScriptChoiceCallback = func_ov030_020a2a8c;
-        arg0->postScriptMessageId = 0x5ED6;
-        arg0->postScriptState = 0;
+        arg0->postScriptMessageId      = 0x5ED6;
+        arg0->postScriptState          = 0;
         DebugOvlDisp_Push(&func_ov030_020824a0, arg0, 0);
         DebugOvlDisp_Push(&func_ov030_02082c04, arg0, 0);
         DebugOvlDisp_Push(&func_ov030_02082bf0, arg0, 0);
@@ -13133,13 +13149,48 @@ s32 func_ov030_020a65f4(void) {
 }
 
 const FieldEventScriptEndFunc gFieldEventScriptEndHandlers[44] = {
-    FldEvent_OnScriptEnd_ShikiDay1, FldEvent_OnScriptEnd_ShikiDay2, FldEvent_OnScriptEnd_ShikiDay3, FldEvent_OnScriptEnd_ShikiDay4, FldEvent_OnScriptEnd_ShikiDay5,
-    FldEvent_OnScriptEnd_ShikiDay6, FldEvent_OnScriptEnd_ShikiDay7, FldEvent_OnScriptEnd_JoshuaDay1, FldEvent_OnScriptEnd_JoshuaDay2, FldEvent_OnScriptEnd_JoshuaDay3,
-    FldEvent_OnScriptEnd_JoshuaDay4, FldEvent_OnScriptEnd_JoshuaDay5, FldEvent_OnScriptEnd_JoshuaDay6, FldEvent_OnScriptEnd_JoshuaDay7, FldEvent_OnScriptEnd_BeatDay1,
-    FldEvent_OnScriptEnd_BeatDay2, FldEvent_OnScriptEnd_BeatDay3, FldEvent_OnScriptEnd_BeatDay4, FldEvent_OnScriptEnd_BeatDay5, FldEvent_OnScriptEnd_BeatDay6,
-    FldEvent_OnScriptEnd_BeatDay7, func_ov030_0209f0e8, func_ov030_020a206c, func_ov030_020a21a4, func_ov030_020a2628,
-    func_ov030_020a2c20, func_ov030_020a2de8, func_ov030_020a306c, func_ov030_020a30d4, func_ov030_020a317c,
-    func_ov030_020a31bc, func_ov030_020a333c, func_ov030_020a3718, func_ov030_020a3750, func_ov030_020a3788,
-    func_ov030_020a37c0, func_ov030_020a37f8, func_ov030_020a3830, func_ov030_020a3858, func_ov030_020a3890,
-    func_ov030_020a38c8, func_ov030_020a3900, func_ov030_020a3938, func_ov030_02084978,
+    FldEvent_OnScriptEnd_ShikiDay1,
+    FldEvent_OnScriptEnd_ShikiDay2,
+    FldEvent_OnScriptEnd_ShikiDay3,
+    FldEvent_OnScriptEnd_ShikiDay4,
+    FldEvent_OnScriptEnd_ShikiDay5,
+    FldEvent_OnScriptEnd_ShikiDay6,
+    FldEvent_OnScriptEnd_ShikiDay7,
+    FldEvent_OnScriptEnd_JoshuaDay1,
+    FldEvent_OnScriptEnd_JoshuaDay2,
+    FldEvent_OnScriptEnd_JoshuaDay3,
+    FldEvent_OnScriptEnd_JoshuaDay4,
+    FldEvent_OnScriptEnd_JoshuaDay5,
+    FldEvent_OnScriptEnd_JoshuaDay6,
+    FldEvent_OnScriptEnd_JoshuaDay7,
+    FldEvent_OnScriptEnd_BeatDay1,
+    FldEvent_OnScriptEnd_BeatDay2,
+    FldEvent_OnScriptEnd_BeatDay3,
+    FldEvent_OnScriptEnd_BeatDay4,
+    FldEvent_OnScriptEnd_BeatDay5,
+    FldEvent_OnScriptEnd_BeatDay6,
+    FldEvent_OnScriptEnd_BeatDay7,
+    func_ov030_0209f0e8,
+    func_ov030_020a206c,
+    func_ov030_020a21a4,
+    func_ov030_020a2628,
+    func_ov030_020a2c20,
+    func_ov030_020a2de8,
+    func_ov030_020a306c,
+    func_ov030_020a30d4,
+    func_ov030_020a317c,
+    func_ov030_020a31bc,
+    func_ov030_020a333c,
+    func_ov030_020a3718,
+    func_ov030_020a3750,
+    func_ov030_020a3788,
+    func_ov030_020a37c0,
+    func_ov030_020a37f8,
+    func_ov030_020a3830,
+    func_ov030_020a3858,
+    func_ov030_020a3890,
+    func_ov030_020a38c8,
+    func_ov030_020a3900,
+    func_ov030_020a3938,
+    func_ov030_02084978,
 };

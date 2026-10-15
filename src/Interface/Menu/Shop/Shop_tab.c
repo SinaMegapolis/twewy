@@ -102,13 +102,13 @@ void func_ov043_020b4af8(ShopObject* arg0, u32 arg1, u16 arg2) {
     func_ov043_020b28d4(&arg0->resources[7], arg0->resources[7].data, DISPLAY_MAIN, 3, arg1 + 2);
 }
 
-// Nonmatching
 s32 func_ov043_020b4b80(u32 arg0, u16 arg1, s32 arg2) {
     if (data_ov043_020cc920[arg1][arg0] != 0) {
-        if (arg0 != 4) {
-            return 1;
-        }
-        if (arg2 == 1) {
+        if (arg0 == 4) {
+            if (arg2 == 1) {
+                return 1;
+            }
+        } else {
             return 1;
         }
     }
@@ -120,18 +120,18 @@ SpriteFrameInfo* func_ov043_020b4bc8(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallback(sprite, mode);
 }
 
-// Nonmatching
+// Nonmatching: register allocation (the compiler keeps the `slot->unk_04`/constant operands in
+// different registers and folds the `data_ov043_020ca5a0` reads into immediates instead of loads)
 void func_ov043_020b4c64(Shop_tab* arg0, Sprite* arg1, Shop_tab_Args* arg2) {
-    ShopObject* sp0;
-    s16         xPos[5];
-    const u8*   tabEntry;
-    const s16*  frameData;
-    s32         canUseFifth;
-    u16         currentTab;
+    SpriteAnimation anim;
+    s16             xPos[5];
+    ShopObject*     sp0;
+    const s16*      frameData;
+    s32             canUseFifth;
 
     sp0 = arg0->shop;
 
-    SpriteAnimation anim = data_ov043_020ca5c8;
+    anim = data_ov043_020ca5c8;
 
     xPos[0] = data_ov043_020ca5a0[0];
     xPos[1] = data_ov043_020ca5a0[1];
@@ -141,35 +141,37 @@ void func_ov043_020b4c64(Shop_tab* arg0, Sprite* arg1, Shop_tab_Args* arg2) {
 
     anim.dataType = arg2->unk_00;
 
-    currentTab  = sp0->unk_848;
-    tabEntry    = (const u8*)sp0 + (currentTab * 0x2C);
-    canUseFifth = *(s32*)(tabEntry + 0x10);
+    ShopItemSlot* slot = &sp0->slots[sp0->unk_848];
+    u16           tabRow = slot->unk_04;
+    canUseFifth         = slot->unk_10;
 
-    if (*(u16*)(tabEntry + 0x00) == 0xFFFF) {
+    if (slot->itemID == 0xFFFF) {
         for (u16 i = 0; i < 5; i++) {
-            anim.animIndex   = 0x30;
-            anim.posX        = xPos[i];
-            anim.posY        = 0xBB;
-            arg0->unk_140[i] = FALSE;
+            anim.animIndex = 0x30;
+            anim.posX      = xPos[i];
+            anim.posY      = 0xBB;
             _Sprite_Load(&arg1[i], &anim);
+            arg0->unk_140[i] = FALSE;
         }
     } else {
-        frameData = data_ov043_020cc920[*(u16*)(tabEntry + 0x04)];
+        frameData = data_ov043_020cc920[tabRow];
 
         for (u16 i = 0; i < 5; i++) {
             if (frameData[i] == 0) {
                 anim.animIndex   = 0x30;
+                anim.posX        = xPos[i];
+                anim.posY        = 0xBB;
                 arg0->unk_140[i] = FALSE;
             } else {
                 anim.animIndex   = frameData[i] + (i != 0);
+                anim.posX        = xPos[i];
+                anim.posY        = 0xBB;
                 arg0->unk_140[i] = TRUE;
                 if ((i == 4) && (canUseFifth == 0)) {
                     arg0->unk_140[4] = FALSE;
                 }
             }
 
-            anim.posX = xPos[i];
-            anim.posY = 0xBB;
             _Sprite_Load(&arg1[i], &anim);
         }
     }
@@ -186,7 +188,8 @@ s32 func_ov043_020b4e50(TaskPool* arg0, Task* arg1, void* arg2) {
     return 1;
 }
 
-// Nonmatching
+// Nonmatching: register allocation (the compiler puts the `tab` pointer in r10 instead of r9,
+// which pushes the loop counter into r9 instead of r10)
 s32 func_ov043_020b4e70(TaskPool* pool, Task* task, void* args) {
     Shop_tab*   tab     = task->data;
     ShopObject* temp_r5 = tab->shop;
@@ -198,9 +201,9 @@ s32 func_ov043_020b4e70(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
 
-    const u8* temp_r0 = (const u8*)temp_r5 + (temp_r5->unk_848 * 0x2C);
-    u16       temp_r7 = *(u16*)(temp_r0 + 0x04);
-    s32       temp_r6 = *(s32*)(temp_r0 + 0x10);
+    ShopItemSlot* slot = &temp_r5->slots[temp_r5->unk_848];
+    u16           temp_r7 = slot->unk_04;
+    s32           temp_r6 = slot->unk_10;
 
     if (TouchInput_WasTouchPressed()) {
         TouchCoord coord;
@@ -231,10 +234,10 @@ s32 func_ov043_020b4e70(TaskPool* pool, Task* task, void* args) {
         func_ov043_020b4af8(temp_r5, temp_r5->unk_854, temp_r7);
     }
 
+    tab->unk_158       = temp_r5->unk_848;
+    Sprite*    var_r7  = &tab->unk_000[0];
     const s16* temp_r8 = data_ov043_020cc920[temp_r7];
     s32        var_r10 = 0;
-    Sprite*    var_r7  = &tab->unk_000[0];
-    tab->unk_158       = temp_r5->unk_848;
 
     do {
         if (var_r10 == 4) {

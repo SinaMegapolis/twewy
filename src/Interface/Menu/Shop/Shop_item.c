@@ -161,7 +161,6 @@ static s32 Shop_item_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) 
     return stages.iter[stage](pool, task, args);
 }
 
-// Nonmatching
 s32 Shop_item_CreateTask(TaskPool* pool, s32 dataType, u16 itemIndex, ShopObject* shop) {
     Shop_item_Args args;
     args.dataType  = dataType;

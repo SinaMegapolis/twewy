@@ -224,7 +224,7 @@ static s32 Shop_item2_Update(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-// Nonmatching
+// Nonmatching: pure register-allocation mismatch (item/i/sprite/affine rotate r4-r7)
 static s32 Shop_item2_Render(TaskPool* pool, Task* task, void* args) {
     Shop_item2* item   = task->data;
     u32         affine = (u16)OamMgr_AllocAffineGroup(g_OamMgr, 0, item->affineScaleX, item->affineScaleY, 0) << 0x1B;
