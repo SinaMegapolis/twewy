@@ -167,6 +167,7 @@ void func_ov043_020acb08(ShopState *arg0) {
     arg0->taskId_BrdLogo = Shop_brdLogo_CreateTask((TaskPool *) (&(arg0)->base.taskPool), arg0->base.dataType, shop);
 }
 
+// Nonmatching: register allocation: target keeps the running index and re-multiplies
 void func_ov043_020acbd0(ShopObject *shop, u32 arg1) {
     ShopState *state;
     s16        var_r5;
@@ -1452,6 +1453,7 @@ void func_ov043_020aeaec(ShopState *arg0) {
     DebugOvlDisp_Pop();
 }
 
+// Nonmatching: register allocation + overlay-id literal-pool entry
 void func_ov043_020aeb14(ShopState *arg0) {
     void func_ov043_020aeaec(ShopState *arg0);
     void func_ov043_020ad354(ShopState *arg0);
@@ -1499,6 +1501,7 @@ void func_ov043_020aeb14(ShopState *arg0) {
     CriSndMgr_PlayFile(((ShopP3ViewB14 *) shop)->unk_76C);
 }
 
+// Nonmatching: overlay-id literal-pool entry (byte-identical when linked)
 void func_ov043_020aec98(ShopState *arg0) {
     ShopObject *shop;
     OverlayTag tag1;
@@ -1551,6 +1554,7 @@ void func_ov043_020aec98(ShopState *arg0) {
     }
 }
 
+// Nonmatching: overlay-id literal-pool entry (byte-identical when linked)
 void func_ov043_020aee2c(ShopState *arg0) {
     ShopObject *shop;
 
@@ -1585,6 +1589,7 @@ void func_ov043_020aeee0(ShopState *arg0) {
     ((OverlayCB *) &data_ov043_020ca18c)[temp_r0](arg0);
 }
 
+// Nonmatching: register scheduling in the Display_Init*BG* block
 void func_ov043_020aef20(ShopState *arg0) {
     Interrupts_Init();
     HBlank_Init();
@@ -2183,6 +2188,7 @@ s32 func_ov043_020afcb0(ShopObject *arg0) {
     return 0;
 }
 
+// Nonmatching: register allocation: arg register and push set differ
 void func_ov043_020afd6c(ShopObject *arg0) {
     typedef struct {
         /* 0x00 */ u16 unk_00;
@@ -2441,6 +2447,7 @@ u16 func_ov043_020b02ac(u16 arg0) {
     return (u16) ((((s32) arg0 / 6) + 1) * 6);
 }
 
+// Nonmatching: register/spill allocation across the 2.5 KB body
 void func_ov043_020b02fc(ShopObject *arg0) {
     typedef struct {
         /* 0x00 */ u16 unk_00;
@@ -2834,6 +2841,7 @@ void func_ov043_020b02fc(ShopObject *arg0) {
 void func_ov043_020b0d18(void) {
 }
 
+// Nonmatching: if-conversion vs branch on the unk_834 flag update
 void func_ov043_020b0d1c(ShopObject *arg0) {
     typedef struct {
         /* 0x00 */ u16 unk_00;
@@ -2998,6 +3006,7 @@ void func_ov043_020b0d1c(ShopObject *arg0) {
     func_ov043_020b0d18();
 }
 
+// Nonmatching: register/spill allocation through the item-table build
 void func_ov043_020b0f20(ShopObject *arg0) {
     typedef struct {
         /* 0x00 */ u16 unk_00;
@@ -3249,6 +3258,7 @@ void func_ov043_020b0f20(ShopObject *arg0) {
     Mem_Free(&gDebugHeap, pinInfo);
 }
 
+// Nonmatching: if-conversion vs branch on the unk_834 flag update
 void func_ov043_020b1404(ShopObject *arg0) {
     typedef struct {
         /* 0x00 */ u16 unk_00;
@@ -3426,6 +3436,7 @@ void func_ov043_020b15d0(ShopObject *arg0) {
     }
 }
 
+// Nonmatching: pure register permutation
 void func_ov043_020b1618(ShopObject *arg0) {
     typedef struct {
         /* 0x000 */ char pad_000[0x834];
