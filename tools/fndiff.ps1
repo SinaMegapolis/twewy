@@ -34,15 +34,20 @@ function Get-Norm($path) {
 $a = Get-Norm "build/$region/delinks/src/$unit.o"
 $b = Get-Norm "build/$region/src/$unit.o"
 
-$d = Compare-Object $a $b
-if (-not $d) {
-    Write-Output "MATCH $fn"
-    exit 0
-}
+# NOTE: Compare-Object has *set* semantics (it silently ignores reordering), so the
+# MATCH check must be a positional comparison of the two arrays.
+$diffs = @()
 $max = [Math]::Max($a.Count, $b.Count)
 for ($i = 0; $i -lt $max; $i++) {
     $t = if ($i -lt $a.Count) { $a[$i] } else { '' }
     $c = if ($i -lt $b.Count) { $b[$i] } else { '' }
-    $m = if ($t -eq $c) { ' ' } else { '*' }
-    Write-Output ("{0} {1,-46} | {2}" -f $m, $t, $c)
+    if ($t -ne $c) { $diffs += , @($i, $t, $c) }
+}
+if ($diffs.Count -eq 0) {
+    Write-Output "MATCH $fn"
+    exit 0
+}
+Write-Output ("{0} differing rows (target left, current right):" -f $diffs.Count)
+foreach ($d in $diffs) {
+    Write-Output ("* {0,-3} {1,-46} | {2}" -f $d[0], $d[1], $d[2])
 }
