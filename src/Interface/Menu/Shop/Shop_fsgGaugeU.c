@@ -117,6 +117,8 @@ static s32 Shop_fsgGaugeU_Update(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
+// Nonmatching: register allocation (mwcc keeps the narrowed `affine` value in r0 and folds the OAM
+// attribute read-modify-write into r1; this build rotates them to r3/r0)
 static s32 Shop_fsgGaugeU_Render(TaskPool* pool, Task* task, void* args) {
     Shop_fsgGaugeU* gauge = task->data;
 

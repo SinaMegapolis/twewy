@@ -33,7 +33,7 @@ s32              Shop_window1_Render(TaskPool* arg0, Task* arg1, void* arg2);
 s32              Shop_window1_Destroy(TaskPool* arg0, Task* arg1, void* arg2);
 s32              Shop_window1_RunTask(TaskPool* arg0, Task* arg1, void* arg2, s32 arg3);
 
-static const TaskHandle Tsk_Shop_window1 = {"Tsk_Shop_window1", Shop_window1_RunTask, sizeof(Shop_window1)};
+const TaskHandle Tsk_Shop_window1 = {"Tsk_Shop_window1", Shop_window1_RunTask, sizeof(Shop_window1)};
 
 static const Point data_ov043_020caa48[3] = {
     {0, 0x06},
@@ -102,7 +102,6 @@ void func_ov043_020ba2f0(Shop_window1* window) {
     }
 }
 
-// Nonmatching: register allocation in the price-formatting branches
 void func_ov043_020ba33c(Shop_window1* window) {
     ShopObject* shop       = window->shop;
     const Point fontPos[3] = {data_ov043_020caa48[0], data_ov043_020caa48[1], data_ov043_020caa48[2]};
@@ -139,32 +138,36 @@ void func_ov043_020ba33c(Shop_window1* window) {
             SysFont_Format(window->textBuf, fmt, itemCost);
         } else if (itemCost < 1000000) {
             u32 remainder = itemCost;
-            u32 thousands = remainder / 1000;
             remainder %= 1000;
             u32 hundreds = remainder / 100;
             remainder %= 100;
             u32 tens = remainder / 10;
-            u32 ones = remainder - tens * 10;
+            remainder %= 10;
 
             fmt = SysFont_GetMsgBuf(&window->fonts[1], SYSMSG_SHOP_PRICE_THOUSANDS_FMT);
-            SysFont_Format(window->textBuf, fmt, thousands, hundreds, tens, ones);
+            SysFont_Format(window->textBuf, fmt, itemCost / 1000, hundreds, tens, remainder);
         } else {
+            u32 thousands;
+            u32 hundreds;
+            u32 tens;
             u32 remainder = itemCost;
-            u32 millions  = remainder / 1000000;
+            u32 hundredThousands;
+            u32 tenThousands;
+
             remainder %= 1000000;
-            u32 hundredThousands = remainder / 100000;
+            hundredThousands = remainder / 100000;
             remainder %= 100000;
-            u32 tenThousands = remainder / 10000;
+            tenThousands = remainder / 10000;
             remainder %= 10000;
-            u32 thousands = remainder / 1000;
+            thousands = remainder / 1000;
             remainder %= 1000;
-            u32 hundreds = remainder / 100;
+            hundreds = remainder / 100;
             remainder %= 100;
-            u32 tens = remainder / 10;
-            u32 ones = remainder - tens * 10;
+            tens = remainder / 10;
+            remainder %= 10;
 
             fmt = SysFont_GetMsgBuf(&window->fonts[1], SYSMSG_SHOP_PRICE_MILLIONS_FMT);
-            SysFont_Format(window->textBuf, fmt, millions, hundredThousands, tenThousands, thousands, hundreds, tens, ones);
+            SysFont_Format(window->textBuf, fmt, itemCost / 1000000, hundredThousands, tenThousands, thousands, hundreds, tens, remainder);
         }
 #else
         fmt = SysFont_GetMsgBuf(&window->fonts[1], SYSMSG_SHOP_PRICE_FMT);

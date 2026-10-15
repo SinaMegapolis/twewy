@@ -16,11 +16,6 @@ typedef struct {
 
 extern void func_ov043_020af42c(Sprite* sprite, s16 frame);
 
-SpriteFrameInfo* func_ov043_020b3684(Sprite* sprite, s32 arg, s32 mode);
-s32              func_ov043_020b394c(TaskPool* arg0, Task* arg1, void* arg2, s32 arg3);
-
-static const TaskHandle Tsk_Shop_numMoneyNek = {"Tsk_Shop_numMoneyNek", func_ov043_020b394c, 0x2B0};
-
 static const Point data_ov043_020ca42c[5] = {
     {-10,  0},
     { 10, 16},
@@ -28,6 +23,12 @@ static const Point data_ov043_020ca42c[5] = {
     { 38, 44},
     {  5, 27},
 };
+
+SpriteFrameInfo* func_ov043_020b3684(Sprite* sprite, s32 arg, s32 mode);
+s32              func_ov043_020b394c(TaskPool* arg0, Task* arg1, void* arg2, s32 arg3);
+
+static const TaskHandle Tsk_Shop_numMoneyNek = {"Tsk_Shop_numMoneyNek", func_ov043_020b394c, 0x2B0};
+
 static const SpriteAnimation data_ov043_020ca440 = {
     .bits_0_1          = 0,
     .dataType          = 0,
@@ -55,22 +56,22 @@ static const SpriteAnimation data_ov043_020ca440 = {
     .animIndex         = 1,
 };
 
-// Nonmatching
 void func_ov043_020b34a0(Shop_numMoneyNek* arg0, u32 arg1, u32* arg2) {
-    u16 i;
+    u32 temp = arg1;
+    s32 i;
 
-    arg2[0] = arg1 / 1000000;
-    arg1 %= 1000000;
-    arg2[1] = arg1 / 100000;
-    arg1 %= 100000;
-    arg2[2] = arg1 / 10000;
-    arg1 %= 10000;
-    arg2[3] = arg1 / 1000;
-    arg1 %= 1000;
-    arg2[4] = arg1 / 100;
-    arg1 %= 100;
-    arg2[5] = arg1 / 10;
-    arg2[6] = arg1 % 10;
+    arg2[0] = temp / 1000000;
+    temp %= 1000000;
+    arg2[1] = temp / 100000;
+    temp %= 100000;
+    arg2[2] = temp / 10000;
+    temp %= 10000;
+    arg2[3] = temp / 1000;
+    temp %= 1000;
+    arg2[4] = temp / 100;
+    temp %= 100;
+    arg2[5] = temp / 10;
+    arg2[6] = temp % 10;
 
     for (i = 0; i < 10; i++) {
         arg0->unk_280[i] = TRUE;
@@ -85,9 +86,9 @@ void func_ov043_020b34a0(Shop_numMoneyNek* arg0, u32 arg1, u32* arg2) {
         arg0->unk_2AC--;
     }
 
-    if (arg2[0] == 0) {
+    if (arg1 < 1000000) {
         arg0->unk_280[8] = FALSE;
-        if (arg2[0] == 0 && arg2[1] == 0 && arg2[2] == 0 && arg2[3] == 0) {
+        if (arg1 < 1000) {
             arg0->unk_280[9] = FALSE;
         }
     }
@@ -103,41 +104,46 @@ void func_ov043_020b3628(Shop_numMoneyNek* arg0) {
     }
 }
 
-SpriteFrameInfo* func_ov043_020b3684(Sprite* sprite, s32 arg, s32 mode) {
-    Sprite_FrameInfoCallback(sprite, mode);
-}
-
-// Nonmatching
 void func_ov043_020b3720(Shop_numMoneyNek* arg0, Sprite* arg1, Shop_numMoneyNek_Args* arg2) {
     SpriteAnimation anim = data_ov043_020ca440;
+    Point           positions[5] = {
+        {-10,  0},
+        { 10, 16},
+        { 22, 32},
+        { 38, 44},
+        {  5, 27},
+    };
     u32             digits[7];
-    const s16*      positions = &data_ov043_020ca42c[0].y;
     u16             i;
 
     anim.dataType = arg2->dataType;
     func_ov043_020b34a0(arg0, arg2->unk_8, digits);
 
     anim.animIndex = 0x27;
-    anim.posX      = data_ov043_020ca42c[0].x + 0x93;
+    anim.posX      = positions[0].x + 0x93;
     anim.posY      = 9;
     _Sprite_Load(&arg1[0], &anim);
 
     for (i = 0; i < 7; i++) {
         anim.animIndex = (s16)(digits[i] + 0x1D);
-        anim.posX      = positions[i] + 0x93;
+        anim.posX      = ((s16*)positions)[i + 1] + 0x93;
         anim.posY      = 9;
         _Sprite_Load(&arg1[i + 1], &anim);
     }
 
     anim.animIndex = 0x45;
-    anim.posX      = data_ov043_020ca42c[4].x + 0x93;
+    anim.posX      = positions[4].x + 0x93;
     anim.posY      = 9;
     _Sprite_Load(&arg1[8], &anim);
 
     anim.animIndex = 0x45;
-    anim.posX      = data_ov043_020ca42c[4].y + 0x93;
+    anim.posX      = positions[4].y + 0x93;
     anim.posY      = 9;
     _Sprite_Load(&arg1[9], &anim);
+}
+
+SpriteFrameInfo* func_ov043_020b3684(Sprite* sprite, s32 arg, s32 mode) {
+    Sprite_FrameInfoCallback(sprite, mode);
 }
 
 s32 func_ov043_020b388c(TaskPool* arg0, Task* arg1, void* arg2) {

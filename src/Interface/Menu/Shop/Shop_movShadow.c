@@ -48,16 +48,15 @@ static SpriteFrameInfo* Shop_movShadow_GetFrameInfo(Sprite* sprite, s32 arg, s32
     Sprite_FrameInfoCallbackSorted(sprite, mode, 0x3D4000);
 }
 
-// Nonmatching
 static void Shop_movShadow_Load(Shop_movShadow* shadow, Sprite* sprite, Shop_movShadow_Args* args) {
     ShopObject*     shop = shadow->shop;
     SpriteAnimation anim = data_ov043_020ca960;
 
-    anim.animIndex = 36;
-    anim.dataType  = args->dataType;
-    anim.posX      = shop->unk_840 + 4;
-    anim.posY      = shop->unk_842 + 6;
-
+    anim.dataType    = args->dataType;
+    anim.animIndex   = 36;
+    anim.posX        = shop->unk_840 + 4;
+    anim.posY        = shop->unk_842 + 6;
+    anim.unk_02.unk_02 = 1;
     data_0206a890.unk_0C = 20;
     _Sprite_Load(sprite, &anim);
     shadow->unk_40 = 1;
