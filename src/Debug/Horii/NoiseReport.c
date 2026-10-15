@@ -24,9 +24,15 @@ s32 func_ov028_020ea6ac(TaskPool* pool, Task* task, void* arg2, s32 arg3);
 s32 func_ov028_020ea21c(TaskPool* pool, Task* task, void* arg2, s32 arg3);
 s32 func_ov028_020e8d50(TaskPool* pool, Task* task, void* arg2, s32 arg3);
 
-NoiseReport* data_ov028_020ed3e0 = NULL;
+extern NoiseReport* data_ov028_020ed3e0;
 
 s16 data_ov028_020ed3a4[4] = {21, 95, 96, 0};
+
+const TaskHandle data_ov028_020ecf38 = {"Tsk_NrepBG", func_ov028_020e8d50, sizeof(NrepBG)};
+const TaskHandle data_ov028_020ed030 = {"Tsk_Font", func_ov028_020ea21c, sizeof(NrepFont)};
+const TaskHandle data_ov028_020ed204 = {"Tsk_NrepIcon", func_ov028_020ea6ac, sizeof(NrepIcon)};
+const TaskHandle data_ov028_020ed254 = {"Tsk_NrepInterD", func_ov028_020eb760, sizeof(NrepInterD)};
+const TaskHandle Tsk_NrepSeal = {"Tsk_NrepSeal", func_ov028_020ecd08, sizeof(NrepSealTaskData)};
 
 extern void ProcessOverlay_MenuTop(void* state);
 extern void func_ov030_020ae92c();
@@ -928,7 +934,6 @@ void func_ov028_020e8b68(NoiseReportState* state) {
 // Spawns the background management task (Tsk_NrepBG).
 // Suggested name: NrepBG_CreateTask
 void func_ov028_020e8bb0(void) {
-    static const TaskHandle data_ov028_020ecf38 = {"Tsk_NrepBG", func_ov028_020e8d50, sizeof(NrepBG)};
 
     EasyTask_CreateTask(data_ov028_020ed3e0->pool, &data_ov028_020ecf38, NULL, 0, NULL, 0);
 }
@@ -1021,9 +1026,8 @@ s32 func_ov028_020e8d50(TaskPool* pool, Task* task, void* arg2, s32 arg3) {
 // Spawns the text rendering task (Tsk_Font).
 // Suggested name: NrepFont_CreateTask
 void func_ov028_020e8da0(void) {
-    static const TaskHandle data_ov028_020ed41c = {"Tsk_Font", func_ov028_020ea21c, sizeof(NrepFont)};
 
-    EasyTask_CreateTask(data_ov028_020ed3e0->pool, &data_ov028_020ed41c, NULL, 0, NULL, 0);
+    EasyTask_CreateTask(data_ov028_020ed3e0->pool, &data_ov028_020ed030, NULL, 0, NULL, 0);
 }
 
 // Draws a static label message from the font item config directly to the screen buffer.
@@ -1596,9 +1600,9 @@ void func_ov028_020e9f44(NrepFont* arg0) {
 // Initializes Tsk_Font: sets up the 6 upper and 20 lower SysFont instances and performs initial text rendering.
 // Suggested name: NrepFont_Init
 s32 func_ov028_020ea058(NrepFont* arg0, void* arg1) {
-    const NrepFontItemConfig* src;
-    SysFont*                  dst;
     s32                       i;
+    SysFont*                  dst;
+    const NrepFontItemConfig* src;
 
     MI_CpuSet(arg0, 0, sizeof(NrepFont));
 
@@ -1694,7 +1698,6 @@ s32 func_ov028_020ea21c(TaskPool* pool, Task* task, void* arg2, s32 arg3) {
 // Spawns the top-right corner icon buttons task (Tsk_NrepIcon).
 // Suggested name: NrepIcon_CreateTask
 void func_ov028_020ea26c(void) {
-    static const TaskHandle data_ov028_020ed204 = {"Tsk_NrepIcon", func_ov028_020ea6ac, sizeof(NrepIcon)};
 
     EasyTask_CreateTask(data_ov028_020ed3e0->pool, &data_ov028_020ed204, NULL, 0, NULL, 0);
 }
@@ -1767,7 +1770,11 @@ s32 func_ov028_020ea4ec(TaskPool* arg0, Task* arg1, void* arg2) {
     if (data_ov028_020ed3e0->unk_2C != 0 && data_ov028_020ed3e0->unk_0C == 0) {
         s16 result = func_ov028_020ea2a8((s16)data_ov028_020ed3e0->touchCoord.x, (s16)data_ov028_020ed3e0->touchCoord.y);
         if (result != -1) {
-            r4->pressed[result] = (r4->pressed[result] == 1) ? 0 : 1;
+            if (r4->pressed[result] == 1) {
+                r4->pressed[result] = 0;
+            } else {
+                r4->pressed[result] = 1;
+            }
             if (result == 1) {
                 data_ov028_020ed520->exitFlag = 1;
                 func_ov028_020e81fc(&r4->sprites[result], (r4->pressed[result] == 1) ? 6 : 5);
@@ -1833,7 +1840,6 @@ s32 func_ov028_020ea6ac(TaskPool* pool, Task* task, void* arg2, s32 arg3) {
 // Spawns the lower-screen button/cursor task (Tsk_NrepInterD).
 // Suggested name: NrepInterD_CreateTask
 void func_ov028_020ea6f4(void) {
-    static const TaskHandle data_ov028_020ed254 = {"Tsk_NrepInterD", func_ov028_020eb760, sizeof(NrepInterD)};
 
     EasyTask_CreateTask(data_ov028_020ed3e0->pool, &data_ov028_020ed254, NULL, 0, NULL, 0);
 }
@@ -2820,7 +2826,6 @@ s32 func_ov028_020ec4a8(TaskPool* pool, Task* task, void* arg2, s32 arg3) {
 // Suggested name: NrepSeal_CreateTask
 void func_ov028_020ec4f8(const BinIdentifier* arg0) {
     s32                     stack[1];
-    static const TaskHandle Tsk_NrepSeal = {"Tsk_NrepSeal", func_ov028_020ecd08, sizeof(NrepSealTaskData)};
 
     MI_CpuSet(&stack, 0, 4);
     stack[0] = (s32)arg0;
