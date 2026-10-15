@@ -3,9 +3,6 @@
 // NOTE: mirrors for the data_ov043_020ca260 layout table are declared locally in
 // each function that reads it (the header only exposes it as a bare `int`).
 
-s32  func_ov043_020af3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5);
-void func_ov043_020b01d8(void *arg0, s32 arg1);
-u16  func_ov043_020b0088(u16 itemID);
 s32  func_02023d88(u32 arg0);
 
 s32 func_ov043_020b16c4(ShopObject *arg0, s32 arg1) {

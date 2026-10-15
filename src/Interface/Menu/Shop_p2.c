@@ -114,7 +114,7 @@ void func_ov043_020adbb0(ShopState *arg0) {
         shop->unk_7B5 = (u8) func_ov043_020afb14((ShopObject *) shop);
         shop->unk_84E = 0xFFFF;
     } else {
-        func_ov043_020afd6c(shop);
+        func_ov043_020afd6c((ShopObject *) shop);
         if (shop->unk_860 == 0xD) {
             EasyTask_DeleteTask((TaskPool *) (&(arg0)->base.taskPool), (u32) arg0->taskId_Sbar);
             arg0->taskId_Sbar = Shop_sbar_CreateTask(&(arg0)->base.taskPool, arg0->base.dataType, shop);
