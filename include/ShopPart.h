@@ -95,7 +95,7 @@ extern s8 data_ov043_020cc870;
 extern s8 data_ov043_020cc880;
 extern int func_ov043_020bd414;
 
-// Prototypes for the part files currently included in Shop.c.
+// Prototypes for the part files currently included in Shop.c: Shop_p2.c, Shop_p4.c, Shop_p5.c, Shop_p8.c
 void func_ov043_020adaa4(ShopState *arg0);
 void func_ov043_020adaf4(ShopState *arg0);
 void func_ov043_020adbb0(ShopState *arg0);
@@ -141,5 +141,18 @@ u16 func_ov043_020afa68(ShopObject *arg0);
 u16 func_ov043_020afabc(ShopObject *arg0);
 u16 func_ov043_020afb14(ShopObject *arg0);
 void func_ov043_020afb60(ShopObject *arg0);
+void func_ov043_020b1fc4(void *arg0, u8 arg1, s32 arg2);
+void func_ov043_020b2100(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, s32 start, u32 count);
+void func_ov043_020b2300(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, s32 screenIndex, s32 start, u32 count);
+void func_ov043_020b2514(MenuBgResource *res, Data *data, s32 engine, s32 layer, s32 screenIndex);
+void func_ov043_020b25c0(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, u16 packIndex, s32 start, u32 count);
+void func_ov043_020b27cc(MenuBgResource *res, s32 engine);
+void func_ov043_020b2854(MenuBgResource *res, s32 engine);
+void func_ov043_020b288c(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, s32 start, u32 count);
+void func_ov043_020b28d4(MenuBgResource *res, Data *data, s32 engine, s32 layer, s32 screenIndex);
+void func_ov043_020b2910(MenuBgResource *res);
+void func_ov043_020b2934(ShopObject *shop);
+void func_ov043_020b2af0(void);
+void func_ov043_020b2af4(s32 arg0);
 
 #endif // INTERFACE_MENU_SHOPPART_H

@@ -52,16 +52,15 @@ static SpriteFrameInfo* func_ov043_020b4838(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallback(sprite, mode);
 }
 
-// Nonmatching
+// Nonmatching: register allocation (animIndex value lands in r4 instead of r2)
 void func_ov043_020b48d4(Shop_check* check, Sprite* sprite, Shop_check_Args* args) {
     ShopObject*     shop = check->shop;
     SpriteAnimation anim = data_ov043_020ca574;
 
     anim.dataType  = args->dataType;
     anim.animIndex = 47;
-    _Sprite_Load(sprite, &anim);
-
     check->visible = (shop->unk_834 & 4) ? TRUE : FALSE;
+    _Sprite_Load(sprite, &anim);
 }
 
 s32 func_ov043_020b4964(TaskPool* pool, Task* task, void* args) {
