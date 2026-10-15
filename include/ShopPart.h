@@ -95,7 +95,7 @@ extern s8 data_ov043_020cc870;
 extern s8 data_ov043_020cc880;
 extern int func_ov043_020bd414;
 
-// Prototypes for the part files currently included in Shop.c: Shop_p1.c, Shop_p2.c, Shop_p3.c, Shop_p4.c, Shop_p5.c, Shop_p8.c
+// Prototypes for the part files currently included in Shop.c: Shop_p1.c, Shop_p2.c, Shop_p3.c, Shop_p4.c, Shop_p5.c, Shop_p7.c, Shop_p8.c
 void func_ov043_020ac5d8(ShopState *arg0);
 void func_ov043_020ac6a0(ShopState *arg0, u16 arg1, u16 arg2, s32 arg3);
 void func_ov043_020ac6f4(ShopState *arg0);
@@ -171,6 +171,21 @@ u16 func_ov043_020afa68(ShopObject *arg0);
 u16 func_ov043_020afabc(ShopObject *arg0);
 u16 func_ov043_020afb14(ShopObject *arg0);
 void func_ov043_020afb60(ShopObject *arg0);
+s32 func_ov043_020b16c4(ShopObject *arg0, s32 arg1);
+s32 func_ov043_020b1780(ShopObject *arg0, s32 arg1);
+s32 func_ov043_020b17d0(s16 arg0, s16 arg1);
+s32 func_ov043_020b1830(s16 arg0, s16 arg1);
+s32 func_ov043_020b18e4(s16 arg0, s16 arg1);
+s32 func_ov043_020b1944(s16 arg0, s16 arg1);
+s32 func_ov043_020b1a1c(ShopObject *arg0, s32 arg1);
+s32 func_ov043_020b1a70(ShopObject *arg0, s16 arg1);
+s32 func_ov043_020b1b14(s16 arg0, s16 arg1);
+s32 func_ov043_020b1b74(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
+s32 func_ov043_020b1bd4(s16 arg0, s16 arg1);
+s32 func_ov043_020b1c7c(s16 arg0, s16 arg1);
+s32 func_ov043_020b1d24(u8 arg0);
+s32 func_ov043_020b1e2c(ShopObject *arg0);
+s32 func_ov043_020b1ecc(void *arg0, u32 arg1);
 void func_ov043_020b1fc4(void *arg0, u8 arg1, s32 arg2);
 void func_ov043_020b2100(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, s32 start, u32 count);
 void func_ov043_020b2300(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, s32 screenIndex, s32 start, u32 count);

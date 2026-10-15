@@ -232,15 +232,15 @@ void func_ov043_020adef8(ShopState *arg0) {
     ShopP2 *shop = (ShopP2 *) &arg0->shop;
 
     if (shop->unk_834 & 4) {
-        if (func_ov043_020b1780(shop, shop->unk_844) == 1) {
-            func_ov043_020b16c4(shop, shop->unk_844);
+        if (func_ov043_020b1780((ShopObject *) shop, shop->unk_844) == 1) {
+            func_ov043_020b16c4((ShopObject *) shop, shop->unk_844);
             func_ov043_020acd90(arg0, (ShopObject *) shop);
             return;
         }
         DebugOvlDisp_ReplaceTop((OverlayCB)func_ov043_020ae138, arg0, 0);
         return;
     }
-    if (func_ov043_020b1780(shop, shop->unk_844) == 1) {
+    if (func_ov043_020b1780((ShopObject *) shop, shop->unk_844) == 1) {
         arg0->unk_21778 = Shop_window1_CreateTask((TaskPool *) (&(arg0)->base.taskPool), arg0->base.dataType, (ShopObject *) shop);
         g_DisplaySettings.controls[0].layers |= 4;
         DebugOvlDisp_ReplaceTop((OverlayCB)func_ov043_020adfcc, arg0, 0);
@@ -276,7 +276,7 @@ void func_ov043_020adfcc(ShopState *arg0) {
     shop->unk_839 = 0xC;
     shop->unk_864[2] = (u8) idx;
     if (idx == 0) {
-        func_ov043_020b16c4(shop, shop->unk_844);
+        func_ov043_020b16c4((ShopObject *) shop, shop->unk_844);
         SndMgr_StartPlayingSE(0x11C);
         shop->unk_83A = 0x14;
         DebugOvlDisp_ReplaceTop((OverlayCB)func_ov043_020ae0b0, arg0, 0);
@@ -457,7 +457,7 @@ void func_ov043_020ae284(ShopState *arg0) {
             shop->unk_844 = (u16) temp_r3;
             shop->unk_848 = shop->unk_850 + shop->unk_844;
             func_ov043_020acb08(arg0);
-            if (func_ov043_020b1a70(shop, shop->unk_83C) != 1) {
+            if (func_ov043_020b1a70((ShopObject *) shop, shop->unk_83C) != 1) {
                 return;
             }
             SndMgr_StartPlayingSE(0x128);

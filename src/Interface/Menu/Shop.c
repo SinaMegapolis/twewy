@@ -13,5 +13,5 @@
 #include "Shop_p4.c"
 #include "Shop_p5.c"
 //#include "Shop_p6.c"
-//#include "Shop_p7.c"
+#include "Shop_p7.c"
 #include "Shop_p8.c"
