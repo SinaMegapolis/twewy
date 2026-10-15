@@ -3,8 +3,9 @@
 // Shop.c is the main Shop menu dispatcher (overlay ov043).
 //
 // The shared context (includes, the root `ShopState` type, data externs and the
-// inter-function prototypes) lives in include/ShopPart.h; the functions below
-// are grouped in address order.
+// inter-function prototypes) lives in include/ShopPart.h.  The functions are
+// grouped in address order in Shop_p1.c … Shop_p8.c, and the unit's own
+// .rodata/.data/.bss live in Shop_data.c.
 
 #include "Shop_p1.c"
 #include "Shop_p2.c"

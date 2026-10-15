@@ -18,8 +18,6 @@ typedef struct {
 static SpriteFrameInfo* Shop_item_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 static s32              Shop_item_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-extern BinIdentifier data_ov043_020ca1f0;
-extern BinIdentifier data_ov043_020ca1f8;
 
 static const TaskHandle Tsk_Shop_item = {"Tsk_Shop_item", Shop_item_RunTask, sizeof(Shop_item)};
 

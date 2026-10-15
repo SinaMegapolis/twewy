@@ -35,7 +35,6 @@ char data_ov043_020cc7d4[28] = "Apl_Tak/Grp_Shop_OBU00.bin";
 char data_ov043_020cc7f0[28] = "Apl_Fuk/Grp_FldMessWin.bin";
 char data_ov043_020cc80c[32] = "Apl_Tak/Grp_Menu_fontSCR.bin";
 
-
 char data_ov043_020cc82c[12] = "badge_data";
 char data_ov043_020cc838[12] = "item_data";
 char data_ov043_020cc844[12] = "food_data";
@@ -69,8 +68,7 @@ const BinIdentifier data_ov043_020ca198[3] = {
     { 0x2b, data_ov043_020cc764 },
     { 0x2b, data_ov043_020cc6d8 },
 };
-const u32 data_ov043_020ca1b0 = 0x2B;
-char* const data_ov043_020ca1b4 = data_ov043_020cc780;
+const BinIdentifier data_ov043_020ca1b0 = { 0x2b, data_ov043_020cc780 };
 const BinIdentifier data_ov043_020ca1b8 = { 0x2b, data_ov043_020cc79c };
 const BinIdentifier data_ov043_020ca1c0[3] = {
     { 0x2b, data_ov043_020cc7b8 },
