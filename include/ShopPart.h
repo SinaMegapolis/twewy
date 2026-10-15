@@ -95,7 +95,51 @@ extern s8 data_ov043_020cc870;
 extern s8 data_ov043_020cc880;
 extern int func_ov043_020bd414;
 
-// Function prototypes are intentionally omitted: this unit is worked in
-// parallel per-block, and mwcc accepts implicit declarations.
+// Prototypes for the part files currently included in Shop.c.
+void func_ov043_020adaa4(ShopState *arg0);
+void func_ov043_020adaf4(ShopState *arg0);
+void func_ov043_020adbb0(ShopState *arg0);
+void func_ov043_020add48(ShopState *arg0);
+void func_ov043_020ade08(ShopState *arg0);
+void func_ov043_020ade9c(ShopState *arg0);
+void func_ov043_020adef8(ShopState *arg0);
+void func_ov043_020adfcc(ShopState *arg0);
+void func_ov043_020ae0b0(ShopState *arg0);
+void func_ov043_020ae138(ShopState *arg0);
+void func_ov043_020ae1b8(ShopState *arg0);
+void func_ov043_020ae24c(ShopState *arg0);
+void func_ov043_020ae284(ShopState *arg0);
+void func_ov043_020ae580(ShopState *arg0);
+void func_ov043_020ae614(ShopState *arg0);
+BOOL func_ov043_020af3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5);
+void func_ov043_020af42c(Sprite *sprite, s16 animFrame);
+void func_ov043_020af478(Sprite *sprite, s16 animFrame);
+void func_ov043_020af4c4(void *arg0, s32 arg1);
+void func_ov043_020af4f0(void *arg0, s32 arg1);
+void func_ov043_020af51c(void *arg0, s32 arg1);
+void func_ov043_020af548(void *arg0, s32 arg1);
+void func_ov043_020af574(void *arg0, s32 arg1);
+void func_ov043_020af5a0(void *arg0, s32 arg1);
+void func_ov043_020af5cc(void *arg0, s32 arg1);
+void func_ov043_020af5f8(void *arg0, s32 arg1);
+void func_ov043_020af624(void *arg0, s32 arg1);
+void func_ov043_020af648(void *arg0, s32 arg1);
+void func_ov043_020af66c(void *arg0, s32 arg1);
+void func_ov043_020af690(void *arg0, s32 arg1);
+void func_ov043_020af6b4(void *arg0, s32 arg1);
+void func_ov043_020af6dc(void *arg0, s32 arg1);
+void func_ov043_020af700(void *arg0, s32 arg1);
+void func_ov043_020af724(ShopObject *arg0);
+u16 func_ov043_020af770(u16 arg0, u32 arg1);
+u16 func_ov043_020af8a8(ShopObject *arg0, u32 arg1, u32 arg2);
+u16 func_ov043_020af8e4(ShopObject *arg0);
+u16 func_ov043_020af950(ShopObject *arg0);
+u32 func_ov043_020af994(ShopObject *arg0);
+u16 func_ov043_020af9e8(ShopObject *arg0);
+void func_ov043_020afa20(ShopObject *arg0);
+u16 func_ov043_020afa68(ShopObject *arg0);
+u16 func_ov043_020afabc(ShopObject *arg0);
+u16 func_ov043_020afb14(ShopObject *arg0);
+void func_ov043_020afb60(ShopObject *arg0);
 
 #endif // INTERFACE_MENU_SHOPPART_H

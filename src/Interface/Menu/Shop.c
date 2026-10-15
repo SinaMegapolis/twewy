@@ -1,4 +1,4 @@
-#include "Interface/Menu/ShopPart.h"
+#include "ShopPart.h"
 
 // Shop.c is the main Shop menu dispatcher (overlay ov043).
 //
@@ -11,7 +11,7 @@
 #include "Shop_p2.c"
 //#include "Shop_p3.c"
 #include "Shop_p4.c"
-//#include "Shop_p5.c"
+#include "Shop_p5.c"
 //#include "Shop_p6.c"
 //#include "Shop_p7.c"
 //#include "Shop_p8.c"
