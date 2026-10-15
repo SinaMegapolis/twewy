@@ -1,55 +1,51 @@
 #include "ShopPart.h"
 
-void func_ov043_020af3f0(ShopState *arg0, s16 arg4, s16 arg5) {
-    if (((s32) arg0 >= (s32) M2C_ERROR(/* Read from unset register $r2 */)) && ((s32) arg0 <= (s32) (M2C_ERROR(/* Read from unset register $r2 */) + arg4)) && ((s32) M2C_ERROR(/* Read from unset register $r1 */) >= (s32) M2C_ERROR(/* Read from unset register $r3 */)) && ((s32) M2C_ERROR(/* Read from unset register $r1 */) <= (s32) (M2C_ERROR(/* Read from unset register $r3 */) + arg5))) {
-
-    }
+BOOL func_ov043_020af3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg5) {
+    return arg0 >= arg2 && arg0 <= arg2 + arg4 && arg1 >= arg3 && arg1 <= arg3 + arg5;
 }
 
-void func_ov043_020af42c(ShopState *arg0) {
-    SpriteCell *var_r3;
-    void *temp_ip;
-    void *temp_ip_2;
-    void *temp_r3;
-    void *var_r1;
+void func_ov043_020af42c(Sprite *sprite, s16 animFrame) {
+    Data *data;
+    u8 *base;
+    void *animData;
+    SpriteCell *cellTable;
 
-    temp_ip = arg0->unk_28;
-    if (temp_ip == NULL) {
-        var_r1 = NULL;
+    data = sprite->resourceData;
+    if (data == NULL) {
+        animData = NULL;
     } else {
-        temp_r3 = temp_ip->unk_8 + 0x20;
-        var_r1 = temp_r3 + temp_r3->unk_18;
+        base = (u8 *) data->buffer + 0x20;
+        animData = base + *(s32 *) (base + 0x18);
     }
-    if (temp_ip == NULL) {
-        var_r3 = NULL;
+    if (data == NULL) {
+        cellTable = NULL;
     } else {
-        temp_ip_2 = temp_ip->unk_8 + 0x20;
-        var_r3 = temp_ip_2 + temp_ip_2->unk_10;
+        base = (u8 *) data->buffer + 0x20;
+        cellTable = (SpriteCell *) (base + *(s32 *) (base + 0x10));
     }
-    Sprite_ChangeAnimation((Sprite *) arg0, var_r1, M2C_ERROR(/* Read from unset register $r1 */), var_r3);
+    Sprite_ChangeAnimation(sprite, animData, animFrame, cellTable);
 }
 
-void func_ov043_020af478(ShopState *arg0) {
-    SpriteCell *var_r3;
-    void *temp_ip;
-    void *temp_ip_2;
-    void *temp_r3;
-    void *var_r1;
+void func_ov043_020af478(Sprite *sprite, s16 animFrame) {
+    Data *data;
+    u8 *base;
+    void *animData;
+    SpriteCell *cellTable;
 
-    temp_ip = arg0->unk_28;
-    if (temp_ip == NULL) {
-        var_r1 = NULL;
+    data = sprite->resourceData;
+    if (data == NULL) {
+        animData = NULL;
     } else {
-        temp_r3 = temp_ip->unk_8 + 0x20;
-        var_r1 = temp_r3 + temp_r3->unk_20;
+        base = (u8 *) data->buffer + 0x20;
+        animData = base + *(s32 *) (base + 0x20);
     }
-    if (temp_ip == NULL) {
-        var_r3 = NULL;
+    if (data == NULL) {
+        cellTable = NULL;
     } else {
-        temp_ip_2 = temp_ip->unk_8 + 0x20;
-        var_r3 = temp_ip_2 + temp_ip_2->unk_18;
+        base = (u8 *) data->buffer + 0x20;
+        cellTable = (SpriteCell *) (base + *(s32 *) (base + 0x18));
     }
-    Sprite_ChangeAnimation((Sprite *) arg0, var_r1, M2C_ERROR(/* Read from unset register $r1 */), var_r3);
+    Sprite_ChangeAnimation(sprite, animData, animFrame, cellTable);
 }
 
 void func_ov043_020af4c4(void *arg0, s32 arg1) {
