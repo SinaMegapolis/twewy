@@ -31,37 +31,37 @@ s16 data_ov028_020ed3a4[4] = {21, 95, 96, 0};
 extern void ProcessOverlay_MenuTop(void* state);
 extern void func_ov030_020ae92c();
 
-extern NrepEnemyData** data_ov003_020e70ac[];
-extern s32 data_ov028_020ecdc0[][2];
-extern s32 data_ov028_020ecdc4[][2];
-extern s32 data_ov028_020ecd58[][2];
-extern s32 data_ov028_020ecd5c[][2];
+extern NrepEnemyData**     data_ov003_020e70ac[];
+extern s32                 data_ov028_020ecdc0[][2];
+extern s32                 data_ov028_020ecdc4[][2];
+extern s32                 data_ov028_020ecd58[][2];
+extern s32                 data_ov028_020ecd5c[][2];
 extern NoiseReportPending* data_ov028_020ed520;
-extern NrepNoiseRecord data_ov028_020ed524[];
+extern NrepNoiseRecord     data_ov028_020ed524[];
 
 typedef struct {
     s32 (*f[4])(TaskPool*, Task*, void*);
 } NrepTaskFuncs;
-extern NrepTaskFuncs data_ov028_020ed210;
-extern NrepIconLayout data_ov028_020ed1f0;
-extern const BinIdentifier data_ov028_020ed1f4;
-extern const BinIdentifier data_ov028_020ed24c;
-extern const BinIdentifier data_ov028_020ed318;
-extern const BinIdentifier data_ov028_020ed3ac;
-extern const BinIdentifier data_ov028_020ed3c0;
-extern NrepBgConfig data_ov028_020ecf44[];
-extern NrepBgConfig data_ov028_020ed0a8[];
-extern u16 data_ov028_020ecff4[];
-extern const u16 data_ov028_020ed04c[];
+extern NrepTaskFuncs            data_ov028_020ed210;
+extern NrepIconLayout           data_ov028_020ed1f0;
+extern const BinIdentifier      data_ov028_020ed1f4;
+extern const BinIdentifier      data_ov028_020ed24c;
+extern const BinIdentifier      data_ov028_020ed318;
+extern const BinIdentifier      data_ov028_020ed3ac;
+extern const BinIdentifier      data_ov028_020ed3c0;
+extern NrepBgConfig             data_ov028_020ecf44[];
+extern NrepBgConfig             data_ov028_020ed0a8[];
+extern u16                      data_ov028_020ecff4[];
+extern const u16                data_ov028_020ed04c[];
 extern const NrepFontItemConfig data_ov028_020ed060[];
 extern const NrepFontItemConfig data_ov028_020ed100[];
 extern const NrepFontItemConfig data_ov028_020ed1cc;
 extern const NrepFontItemConfig data_ov028_020ed1d8;
 extern const NrepFontItemConfig data_ov028_020ed1e4;
-extern const NrepInterDHitbox data_ov028_020ed260[];
-extern const NrepInterUEntry data_ov028_020ed32c[];
-extern SpriteAnimation data_ov028_020ed220;
-extern SpriteAnimation data_ov028_020ecef8;
+extern const NrepInterDHitbox   data_ov028_020ed260[];
+extern const NrepInterUEntry    data_ov028_020ed32c[];
+extern SpriteAnimation          data_ov028_020ed220;
+extern SpriteAnimation          data_ov028_020ecef8;
 
 void func_ov028_020e73a4(s32 arg0, s32* arg1, s16* arg2);
 void func_ov028_020e776c(NrepBgLayer* param_1, const NrepBgConfig* param_2);
@@ -70,71 +70,72 @@ void func_ov028_020e7888(NrepBgLayer* arg0, const NrepBgConfig* arg1);
 void func_ov028_020e7970(NrepBgLayer* arg0, const NrepBgConfig* arg1);
 void func_ov028_020e7a50(NrepBgLayer* arg0);
 void func_ov028_020e7be8(NrepBgLayer* arg0);
-s32 func_ov028_020e7c80(s32 param_1);
-s32 func_ov028_020e7cc4(s32 param_1);
+s32  func_ov028_020e7c80(s32 param_1);
+s32  func_ov028_020e7cc4(s32 param_1);
 void func_ov028_020e7d08(TaskPool* pool, NoiseReport* arg1);
-s32 func_ov028_020e7dbc(TaskPool* pool, NoiseReport* arg1);
+s32  func_ov028_020e7dbc(TaskPool* pool, NoiseReport* arg1);
 void func_ov028_020e7f00(TaskPool* pool, NoiseReport* arg1);
 void func_ov028_020eb7b0(void);
 void func_ov028_020ea6f4(void);
 void func_ov028_020ea26c(void);
 void func_ov028_020e8bb0(void);
-s32 func_ov028_020e8220(void);
+s32  func_ov028_020e8220(void);
 void func_ov028_020e8278(void* arg0);
 void func_ov028_020e8da0(void);
 
-void func_ov028_020e7fc8(SpriteAnimation* arg0, s32 arg1, s32 arg2, const BinIdentifier* arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7);
+void func_ov028_020e7fc8(SpriteAnimation* arg0, s32 arg1, s32 arg2, const BinIdentifier* arg3, s16 arg4, s16 arg5, s16 arg6,
+                         s16 arg7);
 SpriteFrameInfo* func_ov028_020e7f2c(void* arg0, s32 arg1, s32 arg2);
-void func_ov028_020e80a0(Sprite* arg0, s16 arg1, u32 arg2, s16 arg3, s32 arg4);
-BOOL func_ov028_020e8158(s32 param_1, s32 param_2, s32 param_3, s32 param_4, s16 param_5, s16 param_6);
-void func_ov028_020e8194(Sprite* arg0, s16 arg1, s32 arg2, s32 arg3);
-void func_ov028_020e81fc(Sprite* arg0, s16 arg1);
+void             func_ov028_020e80a0(Sprite* arg0, s16 arg1, u32 arg2, s16 arg3, s32 arg4);
+BOOL             func_ov028_020e8158(s32 param_1, s32 param_2, s32 param_3, s32 param_4, s16 param_5, s16 param_6);
+void             func_ov028_020e8194(Sprite* arg0, s16 arg1, s32 arg2, s32 arg3);
+void             func_ov028_020e81fc(Sprite* arg0, s16 arg1);
 NrepNoiseRecord* func_ov028_020e8230(s32 arg0);
-s32 func_ov028_020e8240(s32 arg0);
-void func_ov028_020e8ddc(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
-void func_ov028_020e8e18(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
-void func_ov028_020e8f0c(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
-void func_ov028_020e8fe0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
-void func_ov028_020e90b0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
-void func_ov028_020e9160(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
+s32              func_ov028_020e8240(s32 arg0);
+void             func_ov028_020e8ddc(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
+void             func_ov028_020e8e18(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
+void             func_ov028_020e8f0c(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
+void             func_ov028_020e8fe0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
+void             func_ov028_020e90b0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
+void             func_ov028_020e9160(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
 void func_ov028_020e91cc(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4, s32 arg5);
 void func_ov028_020e9464(NrepFont* arg0, SysFont* arg1, u16* arg2, s32 arg3);
-s32 func_ov028_020e957c(NrepFont* arg0, s32 arg1, s32 arg2);
+s32  func_ov028_020e957c(NrepFont* arg0, s32 arg1, s32 arg2);
 void func_ov028_020e9650(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4, s32 arg5);
 void func_ov028_020e9704(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4, s32 arg5);
 void func_ov028_020e9808(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
 void func_ov028_020e99a4(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
 void func_ov028_020e9a1c(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
 void func_ov028_020e9ac0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4);
-s32 func_ov028_020e9b38(NrepFont* arg0);
-s32 func_ov028_020e9b64(NrepFont* arg0);
+s32  func_ov028_020e9b38(NrepFont* arg0);
+s32  func_ov028_020e9b64(NrepFont* arg0);
 void func_ov028_020e9bcc(NrepFont* arg0, s32 arg1);
 void func_ov028_020e9cd8(NrepFont* arg0);
 void func_ov028_020e9f44(NrepFont* arg0);
-s32 func_ov028_020ea058(NrepFont* arg0, void* arg1);
-s32 func_ov028_020ea15c(NrepFont* arg0);
-s32 func_ov028_020ea1a0(NrepFont* arg0);
-s32 func_ov028_020ea1a8(NrepFont* arg0);
-s16 func_ov028_020ea2a8(s16 arg0, s16 arg1);
+s32  func_ov028_020ea058(NrepFont* arg0, void* arg1);
+s32  func_ov028_020ea15c(NrepFont* arg0);
+s32  func_ov028_020ea1a0(NrepFont* arg0);
+s32  func_ov028_020ea1a8(NrepFont* arg0);
+s16  func_ov028_020ea2a8(s16 arg0, s16 arg1);
 void func_ov028_020ea3ec(NrepIcon* arg0);
-s32 func_ov028_020ea730(NrepInterD* arg0);
+s32  func_ov028_020ea730(NrepInterD* arg0);
 void func_ov028_020ea888(NrepInterD* arg0, s32 arg1);
 void func_ov028_020ea960(NrepInterD* arg0);
 void func_ov028_020eaa00(NrepInterD* arg0, s32 arg1);
 void func_ov028_020eaa90(NrepInterD* arg0, s32 arg1);
 void func_ov028_020eab04(NrepInterD* arg0, s32 arg1);
-s16 func_ov028_020eaba4(NrepInterD* arg0);
+s16  func_ov028_020eaba4(NrepInterD* arg0);
 void func_ov028_020eacf8(NrepInterD* arg0);
 void func_ov028_020eb054(NrepInterD* arg0);
-s16 func_ov028_020eb0d4(NrepInterD* arg0);
-s32 func_ov028_020eb174(NrepInterD* param_1, void* param_2);
-s32 func_ov028_020eb3e8(NrepInterD* param_1);
-s32 func_ov028_020eb654(NrepInterD* param_1);
-s32 func_ov028_020eb718(NrepInterD* param_1);
-s32 func_ov028_020eb7ec(NrepInterU* param_1, void* param_2);
-s32 func_ov028_020eb8ec(NrepInterU* arg0);
-s32 func_ov028_020eb918(NrepInterU* param_1);
-s32 func_ov028_020eb9b0(NrepInterU* arg0);
+s16  func_ov028_020eb0d4(NrepInterD* arg0);
+s32  func_ov028_020eb174(NrepInterD* param_1, void* param_2);
+s32  func_ov028_020eb3e8(NrepInterD* param_1);
+s32  func_ov028_020eb654(NrepInterD* param_1);
+s32  func_ov028_020eb718(NrepInterD* param_1);
+s32  func_ov028_020eb7ec(NrepInterU* param_1, void* param_2);
+s32  func_ov028_020eb8ec(NrepInterU* arg0);
+s32  func_ov028_020eb918(NrepInterU* param_1);
+s32  func_ov028_020eb9b0(NrepInterU* arg0);
 void func_ov028_020ec590(NrepSealTaskData* arg0);
 void func_ov028_020ec4f8(const BinIdentifier* arg0);
 void func_ov028_020eba2c(const BinIdentifier* arg0);
@@ -226,11 +227,20 @@ void func_ov028_020e73a4(s32 arg0, s32* arg1, s16* arg2) {
         switch (*arg1) {
             case 1:
                 switch (*arg2) {
-                    case 5: *arg2 = 6; break;
-                    case 6: *arg2 = 7; break;
-                    case 7: *arg2 = 8; break;
-                    case 8: *arg2 = 5; break;
-                    default: break;
+                    case 5:
+                        *arg2 = 6;
+                        break;
+                    case 6:
+                        *arg2 = 7;
+                        break;
+                    case 7:
+                        *arg2 = 8;
+                        break;
+                    case 8:
+                        *arg2 = 5;
+                        break;
+                    default:
+                        break;
                 }
                 break;
             case 6:
@@ -341,10 +351,9 @@ void func_ov028_020e7798(NrepBgLayer* arg0, const NrepBgConfig* arg1) {
     if (arg0->screenRes != NULL) {
         return;
     }
-    arg0->screenRes = BgResMgr_AllocScreen(
-        g_BgResourceManagers[arg0->engine], screenData,
-        g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].screenBase,
-        g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].screenSizeText);
+    arg0->screenRes = BgResMgr_AllocScreen(g_BgResourceManagers[arg0->engine], screenData,
+                                           g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].screenBase,
+                                           g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].screenSizeText);
 }
 
 // Loads the archive data if needed and allocates the BG character tile resource for a layer.
@@ -363,10 +372,9 @@ void func_ov028_020e7888(NrepBgLayer* arg0, const NrepBgConfig* arg1) {
     if (arg0->charRes != NULL) {
         return;
     }
-    arg0->charRes = BgResMgr_AllocChar32(
-        g_BgResourceManagers[arg0->engine], charData,
-        g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].charBase,
-        0, arg1->charSize);
+    arg0->charRes =
+        BgResMgr_AllocChar32(g_BgResourceManagers[arg0->engine], charData,
+                             g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].charBase, 0, arg1->charSize);
 }
 
 // Loads the archive data if needed and allocates and flushes the palette resource for a layer.
@@ -385,8 +393,7 @@ void func_ov028_020e7970(NrepBgLayer* arg0, const NrepBgConfig* arg1) {
     if (arg0->palRes != NULL) {
         return;
     }
-    arg0->palRes = PaletteMgr_AllocPaletteNoProto(
-        g_PaletteManagers[arg0->engine], palData, 0, arg1->palStart, arg1->palCount);
+    arg0->palRes = PaletteMgr_AllocPaletteNoProto(g_PaletteManagers[arg0->engine], palData, 0, arg1->palStart, arg1->palCount);
     PaletteMgr_Flush(g_PaletteManagers[arg0->engine], arg0->palRes);
 }
 
@@ -396,7 +403,7 @@ void func_ov028_020e7a50(NrepBgLayer* arg0) {
     Display_SetBGOffset(arg0->engine, arg0->layer, arg0->hOffset, arg0->vOffset);
 
     if (arg0->visible != 0) {
-        s32 mask = func_ov028_020e7cc4(arg0->layer);
+        s32                     mask     = func_ov028_020e7cc4(arg0->layer);
         DisplayControlSettings* controls = &g_DisplaySettings.controls[arg0->engine];
         if (mask < 0) {
             controls->layers = LAYER_BG0 | LAYER_BG1 | LAYER_BG2 | LAYER_BG3 | LAYER_OBJ;
@@ -404,7 +411,7 @@ void func_ov028_020e7a50(NrepBgLayer* arg0) {
             controls->layers |= mask;
         }
     } else {
-        s32 mask = func_ov028_020e7cc4(arg0->layer);
+        s32                     mask     = func_ov028_020e7cc4(arg0->layer);
         DisplayControlSettings* controls = &g_DisplaySettings.controls[arg0->engine];
         if (mask < 0) {
             controls->layers = LAYER_NONE;
@@ -415,7 +422,7 @@ void func_ov028_020e7a50(NrepBgLayer* arg0) {
 
     g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].priority = arg0->priority;
     if (arg0->blendLayer1 != 0) {
-        g_DisplaySettings.engineState[arg0->engine].blendMode = 1;
+        g_DisplaySettings.engineState[arg0->engine].blendMode   = 1;
         g_DisplaySettings.engineState[arg0->engine].blendLayer0 = func_ov028_020e7c80(arg0->layer);
         g_DisplaySettings.engineState[arg0->engine].blendLayer1 = arg0->blendLayer1;
         g_DisplaySettings.engineState[arg0->engine].blendCoeff0 = arg0->blendCoeff0;
@@ -487,7 +494,7 @@ void func_ov028_020e7d08(TaskPool* pool, NoiseReport* arg1) {
     OvlMgr_LoadOverlay(3, 3);
     OvlMgr_LoadOverlay(4, 0x1F);
     func_ov028_020e8278(arg1);
-    arg1->pool = pool;
+    arg1->pool   = pool;
     arg1->unk_00 = DatMgr_AllocateSlot();
     func_ov028_020ea26c();
     func_ov028_020e8bb0();
@@ -497,7 +504,7 @@ void func_ov028_020e7d08(TaskPool* pool, NoiseReport* arg1) {
         arg1->unk_38 = 0x1E;
     }
     data_ov028_020ed520->helpPage = 1;
-    arg1->unk_10 = 1;
+    arg1->unk_10                  = 1;
     CriSndMgr_PlayFile(gSaveData.bgmFile);
 }
 
@@ -505,15 +512,15 @@ void func_ov028_020e7d08(TaskPool* pool, NoiseReport* arg1) {
 // Suggested name: NoiseReport_UpdateController
 s32 func_ov028_020e7dbc(TaskPool* pool, NoiseReport* arg1) {
     if (EasyFade_IsFading()) {
-        arg1->unk_28 = 0;
-        arg1->unk_2A = 0;
-        arg1->unk_2C = 0;
+        arg1->unk_28       = 0;
+        arg1->unk_2A       = 0;
+        arg1->unk_2C       = 0;
         arg1->touchCoord.x = 0;
         arg1->touchCoord.y = 0;
     } else if (arg1->unk_38 > 0) {
-        arg1->unk_28 = 0;
-        arg1->unk_2A = 0;
-        arg1->unk_2C = 0;
+        arg1->unk_28       = 0;
+        arg1->unk_2A       = 0;
+        arg1->unk_2C       = 0;
         arg1->touchCoord.x = 0;
         arg1->touchCoord.y = 0;
         arg1->unk_38--;
@@ -521,7 +528,7 @@ s32 func_ov028_020e7dbc(TaskPool* pool, NoiseReport* arg1) {
             if (func_ov028_020e8220() == 0) {
                 data_ov028_020ed520->helpOpen = 1;
                 data_ov028_020ed520->helpPage = 1;
-                arg1->unk_10 = 1;
+                arg1->unk_10                  = 1;
                 SndMgr_StartPlayingSE(0x11C);
             }
         }
@@ -563,21 +570,22 @@ SpriteFrameInfo* func_ov028_020e7f2c(void* arg0, s32 arg1, s32 arg2) {
 
 // Initializes a SpriteAnimation descriptor from the default template and sets resource/entry indices.
 // Suggested name: NoiseReport_InitSpriteAnim
-void func_ov028_020e7fc8(SpriteAnimation* arg0, s32 arg1, s32 arg2, const BinIdentifier* arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7) {
+void func_ov028_020e7fc8(SpriteAnimation* arg0, s32 arg1, s32 arg2, const BinIdentifier* arg3, s16 arg4, s16 arg5, s16 arg6,
+                         s16 arg7) {
     SpriteAnimation anim = data_ov028_020ecef8;
 
     MI_CpuCopyU8(&anim, arg0, sizeof(SpriteAnimation));
-    arg0->bits_0_1 = arg1 & 3;
-    arg0->dataType = arg2 & 0xF;
-    arg0->binIden = arg3;
-    arg0->unk_18 = 0;
+    arg0->bits_0_1  = arg1 & 3;
+    arg0->dataType  = arg2 & 0xF;
+    arg0->binIden   = arg3;
+    arg0->unk_18    = 0;
     arg0->packIndex = 0;
-    arg0->unk_1C = arg4;
-    arg0->unk_26 = arg5;
-    arg0->unk_28 = arg6;
-    arg0->unk_20 = arg7;
-    arg0->unk_22 = 1;
-    arg0->bits_7_9 = 5;
+    arg0->unk_1C    = arg4;
+    arg0->unk_26    = arg5;
+    arg0->unk_28    = arg6;
+    arg0->unk_20    = arg7;
+    arg0->unk_22    = 1;
+    arg0->bits_7_9  = 5;
 }
 
 // Updates an array of digit sprites to display an unsigned integer in base 10.
@@ -614,8 +622,8 @@ BOOL func_ov028_020e8158(s32 param_1, s32 param_2, s32 param_3, s32 param_4, s16
 // Changes a sprite's animation and cell table by looking up pack entries arg2 and arg3 in its loaded Data.
 // Suggested name: NoiseReport_ChangeSpritePackAnim
 void func_ov028_020e8194(Sprite* arg0, s16 arg1, s32 arg2, s32 arg3) {
-    Data* data = arg0->resourceData;
-    void* animData = Data_GetPackEntryData(data, arg2);
+    Data*       data      = arg0->resourceData;
+    void*       animData  = Data_GetPackEntryData(data, arg2);
     SpriteCell* cellTable = (SpriteCell*)Data_GetPackEntryData(data, arg3);
 
     Sprite_ChangeAnimation(arg0, animData, arg1, cellTable);
@@ -646,7 +654,7 @@ NrepNoiseRecord* func_ov028_020e8230(s32 arg0) {
 // Suggested name: NoiseReport_IsNoiseLocked
 s32 func_ov028_020e8240(s32 arg0) {
     extern s16 data_ov028_020ed526[];
-    s16 val = data_ov028_020ed526[arg0 * 4];
+    s16        val = data_ov028_020ed526[arg0 * 4];
     if (val == 0 || arg0 >= 0x60 || arg0 < 0) {
         return 1;
     }
@@ -659,11 +667,11 @@ void func_ov028_020e8278(void* arg0) {
     // gSaveData keeps the three small entry fields in a 4-byte-stride table at 0x1FCA,
     // and the best times in a separate 4-byte-stride table at 0x214C.
     for (s32 i = 0; i < 0x60; i++) {
-        u8* src = (u8*)&gSaveData + i * 4;
+        u8* src                          = (u8*)&gSaveData + i * 4;
         data_ov028_020ed524[i].killCount = *(s8*)(src + 0x1FCA);
         data_ov028_020ed524[i].dropFlags = *(s8*)(src + 0x1FCB);
-        data_ov028_020ed524[i].seenFlag = *(s16*)(src + 0x1FCC);
-        data_ov028_020ed524[i].bestTime = *(u32*)(src + 0x214C);
+        data_ov028_020ed524[i].seenFlag  = *(s16*)(src + 0x1FCC);
+        data_ov028_020ed524[i].bestTime  = *(u32*)(src + 0x214C);
     }
 }
 
@@ -929,16 +937,16 @@ void func_ov028_020e8bb0(void) {
 // Suggested name: NrepBG_Init
 s32 func_ov028_020e8bec(NrepBG* arg0, s32 arg1) {
     const NrepBgConfig* src = data_ov028_020ecf44;
-    NrepBgLayer* dst = arg0->layers;
+    NrepBgLayer*        dst = arg0->layers;
 
     MI_CpuSet(arg0, 0, sizeof(NrepBG));
     for (s32 i = 0; i < 4; i++) {
-        dst->engine = src->engine;
-        dst->layer = src->layer;
+        dst->engine   = src->engine;
+        dst->layer    = src->layer;
         dst->priority = src->priority;
-        dst->hOffset = 0;
-        dst->vOffset = 0;
-        dst->visible = 1;
+        dst->hOffset  = 0;
+        dst->vOffset  = 0;
+        dst->visible  = 1;
         func_ov028_020e776c(dst, src);
         dst++;
         src++;
@@ -957,17 +965,17 @@ s32 func_ov028_020e8bec(NrepBG* arg0, s32 arg1) {
 // Suggested name: NrepBG_Update
 s32 func_ov028_020e8c94(NrepBG* arg0) {
     if (data_ov028_020ed3e0->unk_0C != 0) {
-        arg0->layers[3].priority = 1;
-        arg0->layers[1].visible = 1;
+        arg0->layers[3].priority    = 1;
+        arg0->layers[1].visible     = 1;
         arg0->layers[2].blendCoeff0 = 6;
         arg0->layers[2].blendCoeff1 = 0;
-        arg0->layers[2].priority = 1;
+        arg0->layers[2].priority    = 1;
     } else {
-        arg0->layers[3].priority = 3;
-        arg0->layers[1].visible = 0;
+        arg0->layers[3].priority    = 3;
+        arg0->layers[1].visible     = 0;
         arg0->layers[2].blendCoeff0 = 0x1F;
         arg0->layers[2].blendCoeff1 = 0x1F;
-        arg0->layers[2].priority = 2;
+        arg0->layers[2].priority    = 2;
     }
     return 1;
 }
@@ -1052,11 +1060,11 @@ void func_ov028_020e8e18(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 // Formats and draws the 1-based Noise entry number ("No. XX") to the screen buffer.
 // Suggested name: NrepFont_DrawNoiseNumber
 void func_ov028_020e8f0c(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4) {
-    u16 fmt[3];
-    u16 buf[21];
-    s16 idx = data_ov028_020ed3e0->unk_16;
+    u16  fmt[3];
+    u16  buf[21];
+    s16  idx    = data_ov028_020ed3e0->unk_16;
     u16* msgBuf = SysFont_GetMsgBuf(arg1, (u16)arg2->msgId);
-    s16 num = idx + 1;
+    s16  num    = idx + 1;
 
     if (num >= 0x61) {
         fmt[0] = data_ov028_020ecff4[4];
@@ -1076,11 +1084,11 @@ void func_ov028_020e8f0c(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 // Formats and draws the selected Noise's kill count centered at the configured position.
 // Suggested name: NrepFont_DrawKillCount
 void func_ov028_020e8fe0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4) {
-    u16 fmt[2];
-    u16 buf[20];
-    s16 idx = data_ov028_020ed3e0->unk_16;
+    u16              fmt[2];
+    u16              buf[20];
+    s16              idx = data_ov028_020ed3e0->unk_16;
     NrepNoiseRecord* entry;
-    s32 val;
+    s32              val;
 
     fmt[0] = data_ov028_020ecff4[0];
     fmt[1] = data_ov028_020ecff4[1];
@@ -1105,17 +1113,17 @@ void func_ov028_020e8fe0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 // Formats and draws the selected Noise's seen/total encounter count centered at the configured position.
 // Suggested name: NrepFont_DrawSeenCount
 void func_ov028_020e90b0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4) {
-    u16 fmt[2];
-    u16 buf[20];
-    s16 idx = data_ov028_020ed3e0->unk_16;
+    u16              fmt[2];
+    u16              buf[20];
+    s16              idx = data_ov028_020ed3e0->unk_16;
     NrepNoiseRecord* entry;
-    s32 width;
+    s32              width;
 
     if (idx >= 0x60) {
         return;
     }
 
-    entry = func_ov028_020e8230(idx);
+    entry  = func_ov028_020e8230(idx);
     fmt[0] = data_ov028_020ecff4[2];
     fmt[1] = data_ov028_020ecff4[3];
     SysFont_Format(buf, fmt, entry->seenFlag);
@@ -1138,27 +1146,27 @@ void func_ov028_020e9160(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
     SysFont_DrawCurrentToScreen(arg1, arg3 + 2, arg4 + 2, 0);
 }
 
-// Draws the dropped pin name for one of the four difficulty slots (Easy, Normal, Hard, Ultimate), or placeholder if unobtained.
-// Suggested name: NrepFont_DrawDropPinName
+// Draws the dropped pin name for one of the four difficulty slots (Easy, Normal, Hard, Ultimate), or placeholder if
+// unobtained. Suggested name: NrepFont_DrawDropPinName
 void func_ov028_020e91cc(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4, s32 arg5) {
-    u16 buf[22];
+    u16              buf[22];
     NrepNoiseRecord* entry;
-    NrepEnemyData* p;
-    u16* msgBuf = NULL;
-    s16 idx = data_ov028_020ed3e0->unk_16;
-    s32 v;
+    NrepEnemyData*   p;
+    u16*             msgBuf = NULL;
+    s16              idx    = data_ov028_020ed3e0->unk_16;
+    s32              v;
 
     if (idx >= 0x60) {
         return;
     }
 
     entry = func_ov028_020e8230(idx);
-    p = func_ov028_020e7360((s16)idx);
+    p     = func_ov028_020e7360((s16)idx);
 
     switch (arg5) {
         case 4: {
             s32 m = 0x2E28;
-            v = p->drops[3];
+            v     = p->drops[3];
             if (entry->dropFlags & 1) {
                 if ((v >= 0 && v < 0x130) || (v >= 0x3E8 && v < 0x518)) {
                     if (v >= 0x3E8) {
@@ -1172,7 +1180,7 @@ void func_ov028_020e91cc(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
         }
         case 7: {
             s32 m = 0x2E28;
-            v = p->drops[2];
+            v     = p->drops[2];
             if (entry->dropFlags & 2) {
                 if ((v >= 0 && v < 0x130) || (v >= 0x3E8 && v < 0x518)) {
                     if (v >= 0x3E8) {
@@ -1186,7 +1194,7 @@ void func_ov028_020e91cc(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
         }
         case 10: {
             s32 m = 0x2E28;
-            v = p->drops[1];
+            v     = p->drops[1];
             if (entry->dropFlags & 4) {
                 if ((v >= 0 && v < 0x130) || (v >= 0x3E8 && v < 0x518)) {
                     if (v >= 0x3E8) {
@@ -1200,7 +1208,7 @@ void func_ov028_020e91cc(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
         }
         case 13: {
             s32 m = 0x2E28;
-            v = p->drops[0];
+            v     = p->drops[0];
             if (entry->dropFlags & 8) {
                 if ((v >= 0 && v < 0x130) || (v >= 0x3E8 && v < 0x518)) {
                     if (v >= 0x3E8) {
@@ -1254,7 +1262,7 @@ void func_ov028_020e9464(NrepFont* arg0, SysFont* arg1, u16* arg2, s32 arg3) {
 // Computes the effective drop rate (in hundredths of a percent, clamped to 0..10000) for a Noise and difficulty slot.
 // Suggested name: NrepFont_GetEffectiveDropRate
 s32 func_ov028_020e957c(NrepFont* arg0, s32 arg1, s32 arg2) {
-    s32 r4;
+    s32            r4;
     NrepEnemyData* p;
 
     if (func_ov028_020e8240(arg1) != 0) {
@@ -1298,7 +1306,7 @@ s32 func_ov028_020e957c(NrepFont* arg0, s32 arg1, s32 arg2) {
 void func_ov028_020e9650(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4, s32 arg5) {
     u16 buf[22];
     s16 idx = data_ov028_020ed3e0->unk_16;
-    u8 val;
+    u8  val;
     s32 r;
 
     if (idx >= 0x60) {
@@ -1324,7 +1332,7 @@ void func_ov028_020e9704(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
     u16 fmt[5];
     u16 buf[22];
     s16 idx = data_ov028_020ed3e0->unk_16;
-    u8 val;
+    u8  val;
     s32 r;
 
     fmt[0] = data_ov028_020ecff4[19];
@@ -1353,11 +1361,11 @@ void func_ov028_020e9704(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 // Formats and draws the best clear time (MM'SS"CS) for the selected Boss Noise entry if non-zero.
 // Suggested name: NrepFont_DrawBestTime
 void func_ov028_020e9808(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4) {
-    u16 buf[21];
-    u16 fmt[9];
-    s32 i;
-    u32 t;
-    u32 hours, minutes, seconds, rem;
+    u16  buf[21];
+    u16  fmt[9];
+    s32  i;
+    u32  t;
+    u32  hours, minutes, seconds, rem;
     u16* src = data_ov028_020ed04c;
     u16* dst = fmt;
 
@@ -1379,20 +1387,19 @@ void func_ov028_020e9808(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
         return;
     }
 
-    hours = t / 3600;
-    rem = t - hours * 3600;
+    hours   = t / 3600;
+    rem     = t - hours * 3600;
     minutes = rem / 60;
     seconds = (rem - minutes * 60) * 100 / 60;
 
     // The display is MM'SS"CC; anything over 99 minutes is clamped to a "time up" value.
     if (hours > 0x63) {
-        hours = 0x63;
+        hours   = 0x63;
         minutes = 0x3B;
         seconds = 0x63;
     }
 
-    SysFont_Format(buf, fmt, hours / 10, hours % 10, minutes / 10, minutes % 10,
-                   seconds / 10, seconds % 10);
+    SysFont_Format(buf, fmt, hours / 10, hours % 10, minutes / 10, minutes % 10, seconds / 10, seconds % 10);
     SysFont_DrawToScreen(arg1, buf, arg3 + 2, arg4 + 2, 0);
 }
 
@@ -1408,7 +1415,7 @@ void func_ov028_020e99a4(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 // Formats and draws the help page indicator ("page/5") right-aligned on the lower screen.
 // Suggested name: NrepFont_DrawHelpPageNum
 void func_ov028_020e9a1c(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4) {
-    u16 buf[30];
+    u16  buf[30];
     u16* fmt;
     SysFont_SetSpacing(arg1, 1, 0);
     fmt = SysFont_GetMsgBuf(arg1, (u16)arg2->msgId);
@@ -1444,47 +1451,47 @@ s32 func_ov028_020e9b38(NrepFont* arg0) {
 s32 func_ov028_020e9b64(NrepFont* arg0) {
     s16 b = data_ov028_020ed3e0->unk_12;
 
-    if (arg0->prevDropRateMode == b &&
-        arg0->prevHelpPage == data_ov028_020ed3e0->unk_10 &&
-        arg0->prevHelpOpen == data_ov028_020ed3e0->unk_0C) {
+    if (arg0->prevDropRateMode == b && arg0->prevHelpPage == data_ov028_020ed3e0->unk_10 &&
+        arg0->prevHelpOpen == data_ov028_020ed3e0->unk_0C)
+    {
         return 0;
     }
     arg0->prevDropRateMode = b;
-    arg0->prevHelpPage = data_ov028_020ed3e0->unk_10;
-    arg0->prevHelpOpen = data_ov028_020ed3e0->unk_0C;
+    arg0->prevHelpPage     = data_ov028_020ed3e0->unk_10;
+    arg0->prevHelpOpen     = data_ov028_020ed3e0->unk_0C;
     return 1;
 }
 
 // Reloads one of the two text canvas BG layers (0 = upper screen, 1 = lower screen) and caches its screen/char pointers.
 // Suggested name: NrepFont_ReloadCanvasLayer
 void func_ov028_020e9bcc(NrepFont* arg0, s32 arg1) {
-    NrepBgLayer* dst = &arg0->bgLayers[arg1];
+    NrepBgLayer*        dst = &arg0->bgLayers[arg1];
     const NrepBgConfig* src = &data_ov028_020ed0a8[arg1];
 
     if (dst->data != NULL) {
         func_ov028_020e7be8(dst);
         arg0->screenBuf[arg1] = NULL;
-        arg0->charBuf[arg1] = NULL;
+        arg0->charBuf[arg1]   = NULL;
     }
-    dst->engine = src->engine;
-    dst->layer = src->layer;
+    dst->engine   = src->engine;
+    dst->layer    = src->layer;
     dst->priority = src->priority;
-    dst->vOffset = 0;
-    dst->hOffset = 0;
-    dst->visible = 1;
+    dst->vOffset  = 0;
+    dst->hOffset  = 0;
+    dst->visible  = 1;
     func_ov028_020e776c(dst, src);
 
     arg0->screenBuf[arg1] = Data_GetPackEntryData(dst->data, data_ov028_020ed0a8[arg1].screenEntry);
-    arg0->charBuf[arg1] = Data_GetPackEntryData(dst->data, data_ov028_020ed0a8[arg1].charEntry);
+    arg0->charBuf[arg1]   = Data_GetPackEntryData(dst->data, data_ov028_020ed0a8[arg1].charEntry);
 }
 
 // Redraws all text on the lower screen (either the help page text or the 20 Noise detail fields).
 // Suggested name: NrepFont_RedrawLowerScreen
 void func_ov028_020e9cd8(NrepFont* arg0) {
-    s16 idx = data_ov028_020ed3e0->unk_16;
-    SysFont* ptr;
+    s16                       idx = data_ov028_020ed3e0->unk_16;
+    SysFont*                  ptr;
     const NrepFontItemConfig* tab;
-    s32 i;
+    s32                       i;
 
     func_ov028_020e9bcc(arg0, 1);
 
@@ -1550,9 +1557,9 @@ void func_ov028_020e9cd8(NrepFont* arg0) {
 // Redraws all 6 text fields on the upper screen for the currently selected Noise entry.
 // Suggested name: NrepFont_RedrawUpperScreen
 void func_ov028_020e9f44(NrepFont* arg0) {
-    s16 idx = data_ov028_020ed3e0->unk_16;
-    s32 i;
-    SysFont* ptr;
+    s16                       idx = data_ov028_020ed3e0->unk_16;
+    s32                       i;
+    SysFont*                  ptr;
     const NrepFontItemConfig* tab;
 
     func_ov028_020e9bcc(arg0, 0);
@@ -1590,8 +1597,8 @@ void func_ov028_020e9f44(NrepFont* arg0) {
 // Suggested name: NrepFont_Init
 s32 func_ov028_020ea058(NrepFont* arg0, void* arg1) {
     const NrepFontItemConfig* src;
-    SysFont* dst;
-    s32 i;
+    SysFont*                  dst;
+    s32                       i;
 
     MI_CpuSet(arg0, 0, sizeof(NrepFont));
 
@@ -1647,7 +1654,7 @@ s32 func_ov028_020ea1a0(NrepFont* arg0) {
 // Cleans up Tsk_Font by destroying all 26 SysFont instances and releasing both text canvas BG layers.
 // Suggested name: NrepFont_Destroy
 s32 func_ov028_020ea1a8(NrepFont* arg0) {
-    s32 i;
+    s32      i;
     SysFont* ptr = arg0->lowerFonts;
     for (i = 0; i < 0x14; i++) {
         SysFont_Destroy(ptr);
@@ -1725,14 +1732,14 @@ SpriteFrameInfo* func_ov028_020ea350(void* arg0, s32 arg1, s32 arg2) {
 void func_ov028_020ea3ec(NrepIcon* arg0) {
     SpriteAnimation anim = data_ov028_020ed220;
 
-    anim.dataType = data_ov028_020ed3e0->unk_00 & 0xF;
+    anim.dataType  = data_ov028_020ed3e0->unk_00 & 0xF;
     anim.animIndex = 3;
-    anim.posX = 0xDA;
-    anim.posY = 0x0C;
+    anim.posX      = 0xDA;
+    anim.posY      = 0x0C;
     _Sprite_Load(&arg0->sprites[0], &anim);
     anim.animIndex = 5;
-    anim.posX = 0xF3;
-    anim.posY = 0x0C;
+    anim.posX      = 0xF3;
+    anim.posY      = 0x0C;
     _Sprite_Load(&arg0->sprites[1], &anim);
 }
 
@@ -1796,7 +1803,7 @@ s32 func_ov028_020ea4ec(TaskPool* arg0, Task* arg1, void* arg2) {
 // Suggested name: NrepIcon_Render
 s32 func_ov028_020ea654(TaskPool* arg0, Task* arg1, void* arg2) {
     NrepIcon* icon = (NrepIcon*)arg1->data;
-    Sprite* r5 = icon->sprites;
+    Sprite*   r5   = icon->sprites;
     for (s32 i = 0; i < 2; i++) {
         Sprite_RenderFrame(r5);
         r5++;
@@ -1808,7 +1815,7 @@ s32 func_ov028_020ea654(TaskPool* arg0, Task* arg1, void* arg2) {
 // Suggested name: NrepIcon_Destroy
 s32 func_ov028_020ea680(TaskPool* arg0, Task* arg1, void* arg2) {
     NrepIcon* icon = (NrepIcon*)arg1->data;
-    Sprite* r5 = icon->sprites;
+    Sprite*   r5   = icon->sprites;
     for (s32 i = 0; i < 2; i++) {
         Sprite_Release(r5);
         r5++;
@@ -1835,16 +1842,17 @@ void func_ov028_020ea6f4(void) {
 // Suggested name: NrepInterD_DragScrollKnob
 s32 func_ov028_020ea730(NrepInterD* arg0) {
     if (arg0->draggingScroll == 0) {
-        if (func_ov028_020e8158((s16)data_ov028_020ed3e0->touchCoord.x, (s16)data_ov028_020ed3e0->touchCoord.y,
-                                0xF5, 0x31, 0x28, 0x5E) == 0) {
+        if (func_ov028_020e8158((s16)data_ov028_020ed3e0->touchCoord.x, (s16)data_ov028_020ed3e0->touchCoord.y, 0xF5, 0x31,
+                                0x28, 0x5E) == 0)
+        {
             return 0;
         }
     }
 
     if (arg0->draggingScroll == 0) {
         if (func_ov028_020e8158((s16)data_ov028_020ed3e0->touchCoord.x, (s16)data_ov028_020ed3e0->touchCoord.y,
-                                arg0->sprites[9].posX - 3,
-                                arg0->sprites[9].posY - 0x25, 0x28, 0x25) != 0) {
+                                arg0->sprites[9].posX - 3, arg0->sprites[9].posY - 0x25, 0x28, 0x25) != 0)
+        {
             arg0->scrollDragOffset = (s16)(data_ov028_020ed3e0->touchCoord.y - (arg0->sprites[9].posY - 0x13));
             if (arg0->scrollDragOffset == 0) {
                 arg0->scrollDragOffset = 1;
@@ -1853,7 +1861,7 @@ s32 func_ov028_020ea730(NrepInterD* arg0) {
     }
 
     if (arg0->draggingScroll == 0 && arg0->scrollDragOffset == 0) {
-        arg0->scrollKnobY = (s16)(data_ov028_020ed3e0->touchCoord.y + 0x12);
+        arg0->scrollKnobY      = (s16)(data_ov028_020ed3e0->touchCoord.y + 0x12);
         arg0->scrollDragOffset = 1;
     }
 
@@ -1976,18 +1984,19 @@ void func_ov028_020eab04(NrepInterD* arg0, s32 arg1) {
 // Suggested name: NrepInterD_SelectEntryAtTouch
 s16 func_ov028_020eaba4(NrepInterD* arg0) {
     s32 boxX = 0x26;
-    s32 s10 = 0;
+    s32 s10  = 0;
     s32 row;
     s32 col;
 
     for (row = 0; row < 3; row++) {
         for (col = 0; col < 8; col++) {
-            if (func_ov028_020e8158((s16)data_ov028_020ed3e0->touchCoord.x, (s16)data_ov028_020ed3e0->touchCoord.y,
-                                    (s16)boxX, (s16)(5 + col * 0x1E), 0x1B, 0x1B) != 0) {
+            if (func_ov028_020e8158((s16)data_ov028_020ed3e0->touchCoord.x, (s16)data_ov028_020ed3e0->touchCoord.y, (s16)boxX,
+                                    (s16)(5 + col * 0x1E), 0x1B, 0x1B) != 0)
+            {
                 s16 idx = (s16)(arg0->scrollRow * 8 + col + s10);
                 func_ov028_020e8230(idx);
                 if (func_ov028_020e8240(idx) == 0) {
-                    s16 old = arg0->cursorCol;
+                    s16 old         = arg0->cursorCol;
                     arg0->cursorCol = (s16)(col + s10);
                     if (old != arg0->cursorCol) {
                         SndMgr_StartPlayingSE(0x11A);
@@ -2008,7 +2017,7 @@ s16 func_ov028_020eaba4(NrepInterD* arg0) {
 void func_ov028_020eacf8(NrepInterD* arg0) {
     s16 oldX = arg0->cursorCol;
     s16 oldY = arg0->scrollRow;
-    u16 pad = data_ov028_020ed3e0->unk_2A;
+    u16 pad  = data_ov028_020ed3e0->unk_2A;
     u16 keys;
 
     if ((pad & 0xC03) == 0 && (pad & 0xF0) == 0) {
@@ -2017,8 +2026,7 @@ void func_ov028_020eacf8(NrepInterD* arg0) {
 
     keys = data_ov028_020ed3e0->unk_28;
     if ((keys & 0x200) || (keys & 0x100)) {
-        data_ov028_020ed520->dropRateMode =
-            (data_ov028_020ed3e0->unk_12 == 0) ? 1 : 0;
+        data_ov028_020ed520->dropRateMode = (data_ov028_020ed3e0->unk_12 == 0) ? 1 : 0;
         SndMgr_StartPlayingSE(0x11A);
     } else if (arg0->keyRepeatTimer > 0) {
         arg0->keyRepeatTimer = (s16)(arg0->keyRepeatTimer - 1);
@@ -2026,8 +2034,7 @@ void func_ov028_020eacf8(NrepInterD* arg0) {
     } else {
         if ((keys & 0xC03) || (keys & 0xF0)) {
             arg0->keyRepeatTimer = 0x14;
-        } else if ((data_ov028_020ed3e0->unk_2A & 0xC03) ||
-                   (data_ov028_020ed3e0->unk_2A & 0xF0)) {
+        } else if ((data_ov028_020ed3e0->unk_2A & 0xC03) || (data_ov028_020ed3e0->unk_2A & 0xF0)) {
             arg0->keyRepeatTimer = 1;
         }
 
@@ -2105,8 +2112,8 @@ void func_ov028_020eacf8(NrepInterD* arg0) {
 void func_ov028_020eb054(NrepInterD* arg0) {
     s16 val16 = data_ov028_020ed3e0->unk_16;
     s16 val14 = data_ov028_020ed3e0->unk_14;
-    s32 a = val16 % 8;
-    s32 b = (val16 / 8) - val14;
+    s32 a     = val16 % 8;
+    s32 b     = (val16 / 8) - val14;
 
     if (b < 0 || b > 2) {
         b = 5;
@@ -2120,13 +2127,14 @@ void func_ov028_020eb054(NrepInterD* arg0) {
 // Suggested name: NrepInterD_HitTestButtons
 s16 func_ov028_020eb0d4(NrepInterD* arg0) {
     const NrepInterDHitbox* table = data_ov028_020ed260;
-    s32 i;
+    s32                     i;
 
     for (i = 0; i < 0xD; i++) {
         s16 w = (s16)(table[i].posX + table[i].hitOffsetX);
         s16 h = (s16)(table[i].posY + table[i].hitOffsetY);
-        if (func_ov028_020e8158((s16)data_ov028_020ed3e0->touchCoord.x, (s16)data_ov028_020ed3e0->touchCoord.y,
-                                w, h, table[i].hitWidth, table[i].hitHeight) != 0) {
+        if (func_ov028_020e8158((s16)data_ov028_020ed3e0->touchCoord.x, (s16)data_ov028_020ed3e0->touchCoord.y, w, h,
+                                table[i].hitWidth, table[i].hitHeight) != 0)
+        {
             return i;
         }
     }
@@ -2136,24 +2144,24 @@ s16 func_ov028_020eb0d4(NrepInterD* arg0) {
 // Initializes Tsk_NrepInterD: loads the button sprites, restores the cursor/row from the save, and spawns Tsk_NrepSeal.
 // Suggested name: NrepInterD_Init
 s32 func_ov028_020eb174(NrepInterD* param_1, void* param_2) {
-    NrepInterD* base = param_1;
-    SpriteAnimation anim;
-    Sprite* sp;
+    NrepInterD*             base = param_1;
+    SpriteAnimation         anim;
+    Sprite*                 sp;
     const NrepInterDHitbox* tbl;
-    s32 i;
+    s32                     i;
 
     func_ov028_020e7fc8(&anim, 0, data_ov028_020ed3e0->unk_00, &data_ov028_020ed24c, 1, 2, 3, 0xA);
     anim.unk_22 = 2;
     MI_CpuSet(base, 0, sizeof(NrepInterD));
 
     tbl = data_ov028_020ed260;
-    sp = base->sprites;
+    sp  = base->sprites;
     for (i = 0; i < 0xD; i++) {
         if (i != 0xA && i != 0xB && i != 0xC) {
             _Sprite_Load(sp, &anim);
             func_ov028_020e81fc(sp, tbl->animIndex);
-            sp->posX = tbl->posX;
-            sp->posY = tbl->posY;
+            sp->posX       = tbl->posX;
+            sp->posY       = tbl->posY;
             sp->unk_0A.raw = (sp->unk_0A.raw & ~0xC00) | 0x400;
         }
         sp++;
@@ -2167,7 +2175,7 @@ s32 func_ov028_020eb174(NrepInterD* param_1, void* param_2) {
     anim.unk_22 = 2;
 
     tbl = data_ov028_020ed260;
-    sp = base->sprites;
+    sp  = base->sprites;
     for (i = 0; i < 0xD; i++) {
         if (i == 0xA || i == 0xB || i == 0xC) {
             _Sprite_Load(sp, &anim);
@@ -2179,15 +2187,15 @@ s32 func_ov028_020eb174(NrepInterD* param_1, void* param_2) {
         tbl++;
     }
 
-    base->selectedNoise = gSaveData.unk_243A;
-    base->scrollRow = gSaveData.unk_243C;
+    base->selectedNoise            = gSaveData.unk_243A;
+    base->scrollRow                = gSaveData.unk_243C;
     data_ov028_020ed520->scrollRow = base->scrollRow;
     func_ov028_020ec4f8(&data_ov028_020ed24c);
 
     base->selectedNoise = (s16)(base->selectedNoise + (base->scrollRow << 3));
     func_ov028_020eb054(base);
 
-    base->scrollKnobY = (s16)(((s32)base->scrollRow * 100 / 9) * 57 / 200 + 0x56);
+    base->scrollKnobY     = (s16)(((s32)base->scrollRow * 100 / 9) * 57 / 200 + 0x56);
     base->sprites[9].posY = base->scrollKnobY;
 
     sp = base->sprites;
@@ -2204,14 +2212,14 @@ s32 func_ov028_020eb174(NrepInterD* param_1, void* param_2) {
 // Suggested name: NrepInterD_Update
 s32 func_ov028_020eb3e8(NrepInterD* param_1) {
     NrepInterD* base = param_1;
-    s32 active;
+    s32         active;
 
     base->sprites[9].posY = base->scrollKnobY;
 
     if (data_ov028_020ed3e0->unk_0C == 0) {
         if (TouchInput_WasTouchReleased()) {
             base->scrollDragOffset = 0;
-            base->draggingScroll = 0;
+            base->draggingScroll   = 0;
         }
         if (data_ov028_020ed3e0->unk_2C != 0 && base->draggingScroll == 0) {
             s32 which = func_ov028_020eb0d4(base);
@@ -2243,7 +2251,7 @@ s32 func_ov028_020eb3e8(NrepInterD* param_1) {
                 func_ov028_020e81fc(&base->sprites[11], 3);
                 func_ov028_020e81fc(&base->sprites[12], 5);
                 if (base->closingHelp != 0) {
-                    base->closingHelp = 0;
+                    base->closingHelp             = 0;
                     data_ov028_020ed520->helpOpen = 0;
                 }
             }
@@ -2253,7 +2261,7 @@ s32 func_ov028_020eb3e8(NrepInterD* param_1) {
                 func_ov028_020eab04(base, which);
                 base->helpBtnTimer = 0xC;
             } else if (which == 0xC) {
-                base->closingHelp = 1;
+                base->closingHelp  = 1;
                 base->helpBtnTimer = 0xC;
                 func_ov028_020e81fc(&base->sprites[which], 6);
                 SndMgr_StartPlayingSE(0x11B);
@@ -2267,7 +2275,7 @@ s32 func_ov028_020eb3e8(NrepInterD* param_1) {
         TouchInput_GetCoord(&coord);
         *(s16*)(base + 0xC) = coord.x;
         *(s16*)(base + 0xE) = coord.y;
-        active = 1;
+        active              = 1;
     } else {
         active = 0;
     }
@@ -2275,14 +2283,14 @@ s32 func_ov028_020eb3e8(NrepInterD* param_1) {
     base->touchActive = active;
     {
         Sprite* sp = base->sprites;
-        s32 i;
+        s32     i;
         for (i = 0; i < 0xD; i++) {
             Sprite_Update(sp);
             sp++;
         }
     }
 
-    data_ov028_020ed520->scrollRow = base->scrollRow;
+    data_ov028_020ed520->scrollRow     = base->scrollRow;
     data_ov028_020ed520->selectedNoise = base->selectedNoise;
     return 1;
 }
@@ -2291,8 +2299,8 @@ s32 func_ov028_020eb3e8(NrepInterD* param_1) {
 // Suggested name: NrepInterD_Render
 s32 func_ov028_020eb654(NrepInterD* param_1) {
     NrepInterD* base = param_1;
-    s32 r5;
-    Sprite* r6;
+    s32         r5;
+    Sprite*     r6;
 
     if (base->touchActive == 1) {
         Sprite_RenderFrame(&base->sprites[0]);
@@ -2375,11 +2383,11 @@ void func_ov028_020eb7b0(void) {
 // Initializes Tsk_NrepInterU: loads the 15 upper-screen sprites from the layout table and spawns Tsk_NrepPreview.
 // Suggested name: NrepInterU_Init
 s32 func_ov028_020eb7ec(NrepInterU* param_1, void* param_2) {
-    NrepInterU* base = param_1;
-    SpriteAnimation anim;
+    NrepInterU*            base = param_1;
+    SpriteAnimation        anim;
     const NrepInterUEntry* tbl = data_ov028_020ed32c;
-    Sprite* sp;
-    s32 i;
+    Sprite*                sp;
+    s32                    i;
 
     func_ov028_020e7fc8(&anim, 0, data_ov028_020ed3e0->unk_00, &data_ov028_020ed318, 1, 2, 3, 4);
     MI_CpuSet(base, 0, sizeof(NrepInterU));
@@ -2388,8 +2396,8 @@ s32 func_ov028_020eb7ec(NrepInterU* param_1, void* param_2) {
     for (i = 0; i < 0xF; i++) {
         _Sprite_Load(sp, &anim);
         func_ov028_020e81fc(sp, (s16)tbl->animIndex);
-        sp->posX = tbl->posX;
-        sp->posY = tbl->posY;
+        sp->posX       = tbl->posX;
+        sp->posY       = tbl->posY;
         sp->unk_0A.raw = (sp->unk_0A.raw & ~0xC00) | 0x800;
         sp++;
         tbl++;
@@ -2416,7 +2424,7 @@ s32 func_ov028_020eb8ec(NrepInterU* arg0) {
 // Suggested name: NrepInterU_Render
 s32 func_ov028_020eb918(NrepInterU* param_1) {
     NrepInterU* base = param_1;
-    Sprite* sp = base->sprites;
+    Sprite*     sp   = base->sprites;
 
     for (s32 i = 0; i < 0xF; i++) {
         if ((u32)(i - 0xD) <= 1) {
@@ -2482,10 +2490,10 @@ void func_ov028_020eba2c(const BinIdentifier* arg0) {
 // Lays out the Tsk_NrepPreview sprite rows: the stat readouts, the drop-rate digits, the body icons, and the boss-time banner.
 // Suggested name: NrepPreview_LoadSprites
 void func_ov028_020eba84(NrepPreview* arg0, Sprite* arg1, s32* arg2) {
-    Sprite* base = arg1;
+    Sprite*         base = arg1;
     SpriteAnimation anim;
-    Sprite* s;
-    s32 i;
+    Sprite*         s;
+    s32             i;
 
     func_ov028_020e7fc8(&anim, 0, data_ov028_020ed3e0->unk_00, (const BinIdentifier*)arg2[0], 1, 2, 3, 4);
 
@@ -2612,8 +2620,8 @@ void func_ov028_020ebe9c(NrepPreview* arg0) {
         func_ov028_020e81fc(&arg0->sprites[27], 0);
         func_ov028_020e81fc(&arg0->sprites[28], 0);
     } else {
-        NrepNoiseRecord* iVar1 = func_ov028_020e8230(iVar6);
-        NrepEnemyData* iVar6e = func_ov028_020e7360(iVar6);
+        NrepNoiseRecord* iVar1  = func_ov028_020e8230(iVar6);
+        NrepEnemyData*   iVar6e = func_ov028_020e7360(iVar6);
 
         s32 iVar2 = 200 - iVar6e->resistPos;
         s32 iVar7 = 200 - iVar6e->resistNeg;
@@ -2826,11 +2834,11 @@ void func_ov028_020ec550(s16* arg0, s16* arg1, s32 arg2) {
     *arg1 = (s16)((arg2 / 8) * 0x2C + 0x26);
 }
 
-// Rebuilds the 24 Noise seal tiles whenever the visible row changes; releases the old sprites and reloads them from the seal pack.
-// Suggested name: NrepSeal_RebuildTiles
+// Rebuilds the 24 Noise seal tiles whenever the visible row changes; releases the old sprites and reloads them from the seal
+// pack. Suggested name: NrepSeal_RebuildTiles
 void func_ov028_020ec590(NrepSealTaskData* arg0) {
     NrepSeal* seals = arg0->seals;
-    s32 i;
+    s32       i;
 
     if (arg0->loadedRow == data_ov028_020ed3e0->unk_14) {
         return;
@@ -2848,7 +2856,7 @@ void func_ov028_020ec590(NrepSealTaskData* arg0) {
 
     {
         SpriteAnimation anim;
-        s32 j;
+        s32             j;
 
         func_ov028_020e7fc8(&anim, 0, data_ov028_020ed3e0->unk_00, &data_ov028_020ed3c0, 1, 2, 3, 4);
         anim.animIndex = 2;
@@ -2859,8 +2867,8 @@ void func_ov028_020ec590(NrepSealTaskData* arg0) {
             if (seals->unk_004.resourceData == NULL) {
                 s16 idx;
 
-                anim.bits_7_9 = (j < 0xF) ? 5 : 6;
-                idx = (s16)(data_ov028_020ed3e0->unk_14 * 8 + j) + 1;
+                anim.bits_7_9  = (j < 0xF) ? 5 : 6;
+                idx            = (s16)(data_ov028_020ed3e0->unk_14 * 8 + j) + 1;
                 anim.packIndex = idx;
                 if (idx >= 0x61) {
                     seals->unk_000 = 0;
@@ -2886,11 +2894,11 @@ void func_ov028_020ec590(NrepSealTaskData* arg0) {
 // Suggested name: NrepSeal_Init
 s32 func_ov028_020ec73c(NrepSealTaskData* arg0, u32* arg1) {
     SpriteAnimation anim;
-    NrepSeal* seals = arg0->seals;
-    s16 sx;
-    s16 rowY;
-    s16 sy;
-    s32 i;
+    NrepSeal*       seals = arg0->seals;
+    s16             sx;
+    s16             rowY;
+    s16             sy;
+    s32             i;
 
     func_ov028_020e7fc8(&anim, 2, data_ov028_020ed3e0->unk_00, (const BinIdentifier*)*arg1, 4, 5, 6, 0xA);
     MI_CpuSet(arg0, 0, sizeof(NrepSealTaskData));
@@ -2965,8 +2973,8 @@ s32 func_ov028_020eca54(NrepSealTaskData* arg0) {
     func_ov028_020ec590(arg0);
 
     for (s32 i = 0; i < 24; i++) {
-        s16   iVar3  = (data_ov028_020ed3e0->unk_14 * 8 + (s16)i);
-        NrepNoiseRecord* rec = func_ov028_020e8230(iVar3);
+        s16              iVar3 = (data_ov028_020ed3e0->unk_14 * 8 + (s16)i);
+        NrepNoiseRecord* rec   = func_ov028_020e8230(iVar3);
 
         if (func_ov028_020e8240(iVar3) != 0) {
             seal->unk_000 = 0;

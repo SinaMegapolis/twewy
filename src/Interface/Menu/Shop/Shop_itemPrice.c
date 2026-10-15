@@ -52,10 +52,9 @@ static SpriteFrameInfo* Shop_itemPrice_GetFrameInfo(Sprite* sprite, s32 arg, s32
     Sprite_FrameInfoCallbackSorted(sprite, mode, 0x398000);
 }
 
-// Nonmatching
 static void Shop_itemPrice_Load(Shop_itemPrice* taskData, Sprite* sprites, Shop_itemPrice_Args* args) {
-    SpriteAnimation anim = data_ov043_020ca768;
     u32             digits[7];
+    SpriteAnimation anim = data_ov043_020ca768;
     s16             x;
     s16             y;
 
@@ -73,9 +72,14 @@ static void Shop_itemPrice_Load(Shop_itemPrice* taskData, Sprite* sprites, Shop_
     y = (s16)((args->unk_08 / 6) * 0x29 + 0x27);
 
     if (args->unk_14 == 1) {
-        anim.posX      = x;
-        anim.posY      = y;
-        anim.animIndex = (args->unk_10 == 1) ? 13 : 14;
+        anim.posX = x;
+        anim.posY = y;
+
+        if (args->unk_10 == 1) {
+            anim.animIndex = 13;
+        } else {
+            anim.animIndex = 14;
+        }
 
         taskData->unk_1C0[0] = TRUE;
         for (s32 i = 1; i < 7; i++) {
@@ -116,11 +120,15 @@ static void Shop_itemPrice_Load(Shop_itemPrice* taskData, Sprite* sprites, Shop_
         taskData->unk_1C0[i] = FALSE;
     }
 
-    for (s32 i = 0; i < 7; i++) {
-        anim.animIndex = (u16)(digits[i] + 1);
-        anim.posX      = (u16)(x - 0xC + (i * 4));
-        anim.posY      = (u16)(y + 0x14);
-        _Sprite_Load(&sprites[i], &anim);
+    {
+        s32 posX = x - 0xC;
+        for (s32 i = 0; i < 7; i++) {
+            anim.animIndex = (u16)(digits[i] + 1);
+            anim.posX      = posX;
+            anim.posY      = y + 0x14;
+            _Sprite_Load(&sprites[i], &anim);
+            posX += 4;
+        }
     }
 }
 
@@ -173,14 +181,13 @@ static s32 Shop_itemPrice_RunTask(TaskPool* pool, Task* task, void* args, s32 st
     return stages.iter[stage](pool, task, args);
 }
 
-// Nonmatching
-s32 Shop_itemPrice_CreateTask(TaskPool* arg0, s32 dataType, s16 arg2, ShopObject* shop) {
+s32 Shop_itemPrice_CreateTask(TaskPool* arg0, s32 dataType, u16 arg2, ShopObject* shop) {
     Shop_itemPrice_Args args;
 
     args.dataType = dataType;
     args.shop     = shop;
+    args.unk_08   = arg2;
 
-    args.unk_08 = shop->slots[arg2].cost;
     args.unk_0A = shop->unk_738[arg2]->unk_00;
     args.unk_0C = shop->unk_738[arg2]->unk_08;
     args.unk_10 = shop->unk_738[arg2]->unk_0C;

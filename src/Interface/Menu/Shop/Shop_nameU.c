@@ -14,21 +14,6 @@ typedef struct {
 static SpriteFrameInfo* Shop_nameU_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 static s32              Shop_nameU_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-static const s16 data_ov043_020caad8[6] = {
-    6, 7, 8, 9, 1, 3,
-};
-
-static const TaskHandle Tsk_Shop_nameU = {"Tsk_Shop_nameU", Shop_nameU_RunTask, sizeof(Shop_nameU)};
-
-static const Point data_ov043_020cab00[6] = {
-    { 8, 159},
-    { 8, 171},
-    { 8, 183},
-    {51, 183},
-    {80,  19},
-    {75, 171},
-};
-
 static const SpriteAnimation data_ov043_020cab18 = {
     .bits_0_1          = 1,
     .dataType          = 0,
@@ -60,18 +45,33 @@ static SpriteFrameInfo* Shop_nameU_GetFrameInfo(Sprite* sprite, s32 arg, s32 mod
     Sprite_FrameInfoCallback(sprite, mode);
 }
 
-// Nonmatching
 static void Shop_nameU_Load(Sprite* sprites, Shop_nameU_Args* args) {
     SpriteAnimation anim = data_ov043_020cab18;
+    Point positions[6] = {
+        { 8, 159},
+        { 8, 171},
+        { 8, 183},
+        {51, 183},
+        {80,  19},
+        {75, 171},
+    };
+    s16 frameIndex[6] = {6, 7, 8, 9, 1, 3};
 
     anim.dataType = args->dataType;
     for (s16 i = 0; i < 6; i++) {
-        anim.animIndex = data_ov043_020caad8[i];
-        anim.posX      = data_ov043_020cab00[i].x;
-        anim.posY      = data_ov043_020cab00[i].y;
+        anim.animIndex = frameIndex[i];
+        anim.posX      = positions[i].x;
+        anim.posY      = positions[i].y;
         _Sprite_Load(&sprites[i], &anim);
     }
 }
+
+// clang-format off
+// Declared after Shop_nameU_Load on purpose: the local array templates created in Load must
+// precede this object so the 12-byte .rodata tie puts the frame-index template first (see
+// mwcc-section-order-heapsort).
+// clang-format on
+static const TaskHandle Tsk_Shop_nameU = {"Tsk_Shop_nameU", Shop_nameU_RunTask, sizeof(Shop_nameU)};
 
 static s32 Shop_nameU_Init(TaskPool* pool, Task* task, void* args) {
     Shop_nameU*      name     = task->data;

@@ -19,49 +19,37 @@ s32              Shop_nameD_CreateTask(TaskPool* pool, s32 dataType, ShopObject*
 
 static const TaskHandle Tsk_Shop_nameD = {"Tsk_Shop_nameD", func_ov043_020b31f0, sizeof(Shop_nameD)};
 
-static const Point data_ov043_020ca37c[8] = {
-    { 8, 159},
-    { 8, 171},
-    { 8, 183},
-    {51, 183},
-    {80,  19},
-    {75, 171},
-    {75, 183},
-    {75, 195},
-};
-
 static const SpriteAnimation data_ov043_020ca39c = {
-    .bits_0_1          = 1,
+    .bits_0_1          = 0,
     .dataType          = 0,
     .bit_6             = 0,
     .bits_7_9          = 5,
     .bits_10_11        = 0,
     .bits_12_13        = 1,
     .bits_14_15        = 0,
-    .unk_02.raw        = 0x800,
+    .unk_02.raw        = 0xC00,
     .posX              = 0x50,
     .posY              = 0x50,
     .frameInfoCallback = func_ov043_020b2e70,
     .callbackArg       = 0,
     .owner             = NULL,
-    .binIden           = &data_ov043_020ca1d8,
+    .binIden           = &data_ov043_020ca1b0,
     .unk_18            = 0,
     .packIndex         = 0,
     .unk_1C            = 1,
     .unk_1E            = 0,
     .unk_20            = 4,
-    .unk_22            = 2,
+    .unk_22            = 3,
     .unk_24            = 0,
     .unk_26            = 2,
     .unk_28            = 3,
     .animIndex         = 1,
 };
 
-// Nonmatching
 void func_ov043_020b2b48(Shop_nameD* name) {
     ShopObject* shop = name->shop;
 
-    u16 state = shop->unk_738[shop->unk_848]->unk_04;
+    u16 state = shop->slots[shop->unk_848].unk_04;
 
     if (state == 0) {
         if (shop->unk_854 == 0) {
@@ -179,14 +167,21 @@ SpriteFrameInfo* func_ov043_020b2e70(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallback(sprite, mode);
 }
 
-// Nonmatching
 void func_ov043_020b2f0c(Shop_nameD* name, Sprite* sprites, Shop_nameD_Args* args) {
     ShopObject* shop = name->shop;
 
-    SpriteAnimation anim          = data_ov043_020ca39c;
-    s16             frameIndex[8] = {1, 1, 4, 1, 1, 1, 1, 1};
-
-    u16 state = shop->unk_738[shop->unk_848]->unk_04;
+    SpriteAnimation anim = data_ov043_020ca39c;
+    u16 coords[8][2] = {
+        { 81,  10},
+        {  6, 119},
+        {  6, 134},
+        {235,  64},
+        {120, 137},
+        {120, 149},
+        {120, 161},
+        {120, 173},
+    };
+    s16 frameIndex[8];
 
     anim.dataType = args->dataType;
 
@@ -194,14 +189,36 @@ void func_ov043_020b2f0c(Shop_nameD* name, Sprite* sprites, Shop_nameD_Args* arg
         name->visible[i] = TRUE;
     }
 
-    if (state <= 1) {
+    frameIndex[0] = 1;
+    frameIndex[1] = 2;
+    // Read in place: the store to name->visible[2] may alias shop, so mwcc re-reads the
+    // slot state instead of caching it for the chain below.
+    if (shop->slots[0].unk_04 <= 1) {
+        frameIndex[2]    = 1;
         name->visible[2] = FALSE;
+    } else {
+        frameIndex[2] = 4;
     }
+    frameIndex[3] = 11;
 
-    if (state == 0) {
+    if (shop->slots[0].unk_04 == 0) {
+        frameIndex[4]    = 15;
+        frameIndex[5]    = 1;
         name->visible[5] = FALSE;
-    } else if (state >= 2) {
-        for (s16 i = 4; i < 8; i++) {
+        frameIndex[6]    = 16;
+        frameIndex[7]    = 17;
+    } else if (shop->slots[0].unk_04 == 1) {
+        frameIndex[4] = 64;
+        frameIndex[5] = 12;
+        frameIndex[6] = 13;
+        frameIndex[7] = 14;
+    } else if (shop->slots[0].unk_04 == 2) {
+        for (s16 i = 4; i <= 7; i++) {
+            frameIndex[i]    = 1;
+            name->visible[i] = FALSE;
+        }
+    } else {
+        for (s16 i = 4; i <= 7; i++) {
             frameIndex[i]    = 1;
             name->visible[i] = FALSE;
         }
@@ -209,9 +226,9 @@ void func_ov043_020b2f0c(Shop_nameD* name, Sprite* sprites, Shop_nameD_Args* arg
 
     for (s16 i = 0; i < 8; i++) {
         anim.animIndex = frameIndex[i];
-        anim.posX      = data_ov043_020ca37c[i].x;
-        anim.posY      = data_ov043_020ca37c[i].y;
-        _Sprite_Load(&name->sprites[i], &anim);
+        anim.posX      = coords[i][0];
+        anim.posY      = coords[i][1];
+        _Sprite_Load(&sprites[i], &anim);
     }
 }
 

@@ -91,8 +91,8 @@ typedef struct {
 } NrepFontItemConfig; // Size: 0x0C
 
 typedef struct {
-    /* 0x000 */ u16*         screenBuf[2];
-    /* 0x008 */ u16*         charBuf[2];
+    /* 0x000 */ u16*        screenBuf[2];
+    /* 0x008 */ u16*        charBuf[2];
     /* 0x010 */ NrepBgLayer bgLayers[2];
     /* 0x078 */ SysFont     lowerFonts[20];
     /* 0xA28 */ SysFont     upperFonts[6];
@@ -175,8 +175,8 @@ typedef struct {
 
 typedef struct {
     /* 0x000 */ NrepSeal seals[24];
-    /* 0x3660 */ s16      loadedRow;
-    /* 0x3662 */ s16      unk_3662;
+    /* 0x3660 */ s16     loadedRow;
+    /* 0x3662 */ s16     unk_3662;
 } NrepSealTaskData; // Size: 0x3664
 
 typedef struct {
@@ -200,4 +200,4 @@ typedef struct {
     /* 0x34 */ s16 dropRates[4];
 } NrepEnemyData; // Size: 0x3C
 
-#endif      // DEBUG_NOISEREPORT_H
+#endif           // DEBUG_NOISEREPORT_H

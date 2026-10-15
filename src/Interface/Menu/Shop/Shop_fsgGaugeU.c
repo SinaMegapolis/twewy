@@ -1,5 +1,5 @@
-#include "Interface/Menu/Shop.h"
 #include "Engine/Core/OamMgr.h"
+#include "Interface/Menu/Shop.h"
 
 typedef struct {
     /* 0x00 */ Sprite      sprites[3];
@@ -17,6 +17,8 @@ typedef struct {
 } Shop_fsgGaugeU_Args;
 
 static s32 Shop_fsgGaugeU_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+
+SpriteFrameInfo* Shop_fsgGaugeU_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 
 static const TaskHandle Tsk_Shop_fsgGaugeU = {"Tsk_Shop_fsgGaugeU", Shop_fsgGaugeU_RunTask, 0xF0};
 
@@ -67,11 +69,11 @@ static void Shop_fsgGaugeU_Load(Shop_fsgGaugeU* gauge, Sprite* sprite, Shop_fsgG
     ShopObject*     shop = gauge->shop;
     SpriteAnimation anim = data_ov043_020cac38;
 
-    anim.dataType    = args->unk_0;
+    anim.dataType = args->unk_0;
     anim.unk_02.raw |= 2;
-    anim.posX        = 40;
-    anim.posY        = 171;
-    anim.animIndex   = 25;
+    anim.posX      = 40;
+    anim.posY      = 171;
+    anim.animIndex = 25;
     _Sprite_Load(&sprite[0], &anim);
 
     anim.posX      = 41;
@@ -120,8 +122,8 @@ static s32 Shop_fsgGaugeU_Render(TaskPool* pool, Task* task, void* args) {
 
     for (s32 i = 0; i < 3; i++) {
         Sprite* sprite = &gauge->sprites[i];
-        u16     affine = (u16)OamMgr_AllocAffineGroup(&g_OamMgr[DISPLAY_SUB], gauge->rotation[i], gauge->scaleX[i],
-                                                      gauge->scaleY[i], 0);
+        u16     affine =
+            (u16)OamMgr_AllocAffineGroup(&g_OamMgr[DISPLAY_SUB], gauge->rotation[i], gauge->scaleX[i], gauge->scaleY[i], 0);
 
         sprite->unk_0A.raw = (sprite->unk_0A.raw & ~1) | 1;
         sprite->unk_0A.raw = (sprite->unk_0A.raw & ~0x3E0) | ((affine & 0x1F) << 5);

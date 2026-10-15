@@ -52,7 +52,7 @@ static SpriteFrameInfo* func_ov043_020b4838(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallback(sprite, mode);
 }
 
-// Nonmatching: Instruction reordering
+// Nonmatching: instruction reordering (the compiler schedules `mov r2,#47` late and reuses r2 for the flag)
 void func_ov043_020b48d4(Shop_check* check, Sprite* sprite, Shop_check_Args* args) {
     ShopObject*     shop = check->shop;
     SpriteAnimation anim = data_ov043_020ca574;

@@ -25,15 +25,15 @@ void func_ov043_020bc098(Shop_textScrU* textScr) {
 
 void func_ov043_020bc0d8(Shop_textScrU* textScr) {
     s32         i;
-    ShopObject* shop = textScr->shop;
+    ShopObject* shop         = textScr->shop;
     Point       positions[3] = {
         {36,   8},
         {36,  21},
         {36, 153},
     };
 
-    u16*        map      = shop->resources[1].screenMap;
-    u16*        charData = shop->resources[1].charData;
+    u16* map      = shop->resources[1].screenMap;
+    u16* charData = shop->resources[1].charData;
 
     if (map == NULL || charData == NULL) {
         OS_WaitForever();
