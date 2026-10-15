@@ -7,7 +7,7 @@
 // also compiles standalone (see tools/partdiff.ps1) so blocks can be worked
 // on in parallel.  Once a part fully matches it is folded back into this file.
 
-//#include "Shop_p1.c"
+#include "Shop_p1.c"
 #include "Shop_p2.c"
 #include "Shop_p3.c"
 #include "Shop_p4.c"
