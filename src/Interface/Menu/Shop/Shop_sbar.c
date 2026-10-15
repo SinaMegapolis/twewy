@@ -54,7 +54,6 @@ static const SpriteAnimation data_ov043_020ca4e4 = {
     .animIndex         = 1,
 };
 
-// Nonmatching: register allocation (the compiler puts the scaled value in r2 instead of reusing r0)
 u16 func_ov043_020b3f68(ShopObject* shop, u16 arg1) {
     u32 y = arg1;
     if (y < 56) {
@@ -63,7 +62,7 @@ u16 func_ov043_020b3f68(ShopObject* shop, u16 arg1) {
 
     u32 tmp    = FX_Divide((y - 0x38) << 0xC, 0x27000 / (shop->unk_870 + 1));
     u32 scaled = tmp * 0x10;
-    u32 scroll = (shop->unk_870 < scaled >> 0x10) ? shop->unk_870 : scaled >> 0x10;
+    u32 scroll = (scaled >> 0x10 <= shop->unk_870) ? scaled >> 0x10 : shop->unk_870;
 
     return scroll * 6;
 }

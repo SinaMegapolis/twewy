@@ -33,11 +33,14 @@ static s16 data_ov043_020cc920[4][5] = {
     {0x32, 0x00, 0x00, 0x00, 0x3E},
 };
 
-static const s16 data_ov043_020ca5a0[6] = {
-    0x1F, 0x50, 0x81, 0xB2, 0xE3, 0x00,
-};
-
 static const TaskHandle Tsk_Shop_tab = {"Tsk_Shop_tab", func_ov043_020b511c, sizeof(Shop_tab)};
+
+static const TaskStages data_ov043_020ca5b8 = {
+    .initialize = func_ov043_020b4e50,
+    .update     = func_ov043_020b4e70,
+    .render     = func_ov043_020b50b0,
+    .cleanup    = func_ov043_020b50f0,
+};
 
 static const SpriteAnimation data_ov043_020ca5c8 = {
     .bits_0_1          = 0,
@@ -120,24 +123,16 @@ SpriteFrameInfo* func_ov043_020b4bc8(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallback(sprite, mode);
 }
 
-// Nonmatching: register allocation (the compiler keeps the `slot->unk_04`/constant operands in
-// different registers and folds the `data_ov043_020ca5a0` reads into immediates instead of loads)
 void func_ov043_020b4c64(Shop_tab* arg0, Sprite* arg1, Shop_tab_Args* arg2) {
     SpriteAnimation anim;
-    s16             xPos[5];
     ShopObject*     sp0;
-    const s16*      frameData;
     s32             canUseFifth;
+    const s16*      frameData;
 
     sp0 = arg0->shop;
 
     anim = data_ov043_020ca5c8;
-
-    xPos[0] = data_ov043_020ca5a0[0];
-    xPos[1] = data_ov043_020ca5a0[1];
-    xPos[2] = data_ov043_020ca5a0[2];
-    xPos[3] = data_ov043_020ca5a0[3];
-    xPos[4] = data_ov043_020ca5a0[4];
+    s16             xPos[5] = {0x1F, 0x50, 0x81, 0xB2, 0xE3};
 
     anim.dataType = arg2->unk_00;
 
@@ -163,7 +158,7 @@ void func_ov043_020b4c64(Shop_tab* arg0, Sprite* arg1, Shop_tab_Args* arg2) {
                 anim.posY        = 0xBB;
                 arg0->unk_140[i] = FALSE;
             } else {
-                anim.animIndex   = frameData[i] + (i != 0);
+                anim.animIndex   = frameData[i] + (s16)(i != 0);
                 anim.posX        = xPos[i];
                 anim.posY        = 0xBB;
                 arg0->unk_140[i] = TRUE;
@@ -189,7 +184,7 @@ s32 func_ov043_020b4e50(TaskPool* arg0, Task* arg1, void* arg2) {
 }
 
 // Nonmatching: register allocation (the compiler puts the `tab` pointer in r10 instead of r9,
-// which pushes the loop counter into r9 instead of r10)
+// which pushes the do-while loop counter into r9 instead of r10)
 s32 func_ov043_020b4e70(TaskPool* pool, Task* task, void* args) {
     Shop_tab*   tab     = task->data;
     ShopObject* temp_r5 = tab->shop;
@@ -296,12 +291,7 @@ s32 func_ov043_020b50f0(TaskPool* arg0, Task* arg1, void* arg2) {
 }
 
 s32 func_ov043_020b511c(TaskPool* arg0, Task* arg1, void* arg2, s32 arg3) {
-    TaskStages stages = {
-        .initialize = func_ov043_020b4e50,
-        .update     = func_ov043_020b4e70,
-        .render     = func_ov043_020b50b0,
-        .cleanup    = func_ov043_020b50f0,
-    };
+    TaskStages stages = data_ov043_020ca5b8;
     return stages.iter[arg3](arg0, arg1, arg2);
 }
 

@@ -16,28 +16,26 @@ typedef struct {
 SpriteFrameInfo* Shop_numAblU_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 s32              Shop_numAblU_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-static const TaskHandle Tsk_Shop_numAblU = {"Tsk_Shop_numAblU", Shop_numAblU_RunTask, sizeof(Shop_numAblU)};
+const TaskHandle Tsk_Shop_numAblU = {"Tsk_Shop_numAblU", Shop_numAblU_RunTask, sizeof(Shop_numAblU)};
 
 static void func_ov043_020bb2f0(Shop_numAblU* num) {
     ShopObject* shop = num->shop;
-    u32         value[2];
-    u32         digit[4];
+    u32         digitL[2];
+    u32         digitR[2];
+    s32         offsetX2;
     s32         offsetX;
     u16         i;
 
-    value[0] = shop->unk_7B4;
-    value[1] = shop->unk_7B5;
-
-    digit[1] = value[1] / 10;
-    digit[0] = value[1] % 10;
-    digit[3] = value[0] / 10;
-    digit[2] = value[0] % 10;
+    digitL[0] = (u32)shop->unk_7B4 / 10;
+    digitL[1] = (u32)shop->unk_7B4 % 10;
+    digitR[0] = (u32)shop->unk_7B5 / 10;
+    digitR[1] = (u32)shop->unk_7B5 % 10;
 
     for (i = 0; i < 5; i++) {
         num->visible[i] = TRUE;
     }
 
-    if (digit[2] == 0) {
+    if (digitL[0] == 0) {
         num->visible[0] = FALSE;
         num->visible[1] = TRUE;
         offsetX         = -3;
@@ -47,20 +45,20 @@ static void func_ov043_020bb2f0(Shop_numAblU* num) {
         offsetX         = 0;
     }
 
-    if (digit[0] == 0) {
+    if (digitR[0] == 0) {
         num->visible[3] = FALSE;
         num->visible[4] = TRUE;
-        offsetX         = -3;
+        offsetX2        = -3;
     } else {
         num->visible[3] = TRUE;
         num->visible[4] = TRUE;
-        offsetX         = 0;
+        offsetX2        = 0;
     }
 
     for (i = 0; i < 2; i++) {
         num->sprites[i].posX = offsetX + (i * 6 + 110);
         num->sprites[i].posY = 183;
-        func_ov043_020af42c(&num->sprites[i], digit[i + 2] + 10);
+        func_ov043_020af42c(&num->sprites[i], digitL[i] + 10);
     }
 
     num->sprites[2].posX = 122;
@@ -68,9 +66,9 @@ static void func_ov043_020bb2f0(Shop_numAblU* num) {
     func_ov043_020af42c(&num->sprites[2], 22);
 
     for (i = 0; i < 2; i++) {
-        num->sprites[i + 3].posX = offsetX + ((i + 3) * 6 + 110);
+        num->sprites[i + 3].posX = offsetX2 + ((i + 3) * 6 + 110);
         num->sprites[i + 3].posY = 183;
-        func_ov043_020af42c(&num->sprites[i + 3], digit[i] + 10);
+        func_ov043_020af42c(&num->sprites[i + 3], digitR[i] + 10);
     }
 }
 
@@ -78,7 +76,7 @@ SpriteFrameInfo* Shop_numAblU_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallback(sprite, mode);
 }
 
-static const SpriteAnimation data_ov043_020caba8 = {
+const SpriteAnimation data_ov043_020caba8 = {
     .bits_0_1          = 1,
     .dataType          = 0,
     .bit_6             = 0,
@@ -107,27 +105,25 @@ static const SpriteAnimation data_ov043_020caba8 = {
 
 static void Shop_numAblU_Load(Shop_numAblU* num, Sprite* sprites, Shop_numAblU_Args* numArgs) {
     ShopObject*     shop = num->shop;
-    SpriteAnimation anim = data_ov043_020caba8;
-    u32             value[2];
-    u32             digit[4];
+    SpriteAnimation anim  = data_ov043_020caba8;
+    u32             digitL[2];
+    u32             digitR[2];
+    s32             offsetX2;
     s32             offsetX;
     u16             i;
 
     anim.dataType = numArgs->dataType;
 
-    value[0] = shop->unk_7B4;
-    value[1] = shop->unk_7B5;
-
-    digit[0] = value[1] / 10;
-    digit[1] = value[1] % 10;
-    digit[2] = value[0] / 10;
-    digit[3] = value[0] % 10;
+    digitL[0] = (u32)shop->unk_7B4 / 10;
+    digitL[1] = (u32)shop->unk_7B4 % 10;
+    digitR[0] = (u32)shop->unk_7B5 / 10;
+    digitR[1] = (u32)shop->unk_7B5 % 10;
 
     for (i = 0; i < 5; i++) {
         num->visible[i] = TRUE;
     }
 
-    if (digit[2] == 0) {
+    if (digitL[0] == 0) {
         num->visible[0] = FALSE;
         num->visible[1] = TRUE;
         offsetX         = -3;
@@ -137,8 +133,18 @@ static void Shop_numAblU_Load(Shop_numAblU* num, Sprite* sprites, Shop_numAblU_A
         offsetX         = 0;
     }
 
+    if (digitR[0] == 0) {
+        num->visible[3] = FALSE;
+        num->visible[4] = TRUE;
+        offsetX2        = -3;
+    } else {
+        num->visible[3] = TRUE;
+        num->visible[4] = TRUE;
+        offsetX2        = 0;
+    }
+
     for (i = 0; i < 2; i++) {
-        anim.animIndex = digit[i] + 10;
+        anim.animIndex = digitL[i] + 10;
         anim.posX      = offsetX + (i * 6 + 110);
         anim.posY      = 183;
         _Sprite_Load(&sprites[i], &anim);
@@ -149,19 +155,9 @@ static void Shop_numAblU_Load(Shop_numAblU* num, Sprite* sprites, Shop_numAblU_A
     anim.posY      = 183;
     _Sprite_Load(&sprites[2], &anim);
 
-    if (digit[3] == 0) {
-        num->visible[3] = FALSE;
-        num->visible[4] = TRUE;
-        offsetX         = -4;
-    } else {
-        num->visible[3] = TRUE;
-        num->visible[4] = TRUE;
-        offsetX         = 0;
-    }
-
     for (i = 0; i < 2; i++) {
-        anim.animIndex = digit[i + 1] + 10;
-        anim.posX      = offsetX + ((i + 3) * 6 + 110);
+        anim.animIndex = digitR[i] + 10;
+        anim.posX      = offsetX2 + ((i + 3) * 6 + 110);
         anim.posY      = 183;
         _Sprite_Load(&sprites[i + 3], &anim);
     }
@@ -206,13 +202,15 @@ s32 Shop_numAblU_Destroy(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
+const TaskStages data_ov043_020cab98 = {
+    .initialize = Shop_numAblU_Init,
+    .update     = Shop_numAblU_Update,
+    .render     = Shop_numAblU_Render,
+    .cleanup    = Shop_numAblU_Destroy,
+};
+
 s32 Shop_numAblU_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = {
-        .initialize = Shop_numAblU_Init,
-        .update     = Shop_numAblU_Update,
-        .render     = Shop_numAblU_Render,
-        .cleanup    = Shop_numAblU_Destroy,
-    };
+    TaskStages stages = data_ov043_020cab98;
     return stages.iter[stage](pool, task, args);
 }
 
