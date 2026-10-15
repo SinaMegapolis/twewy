@@ -1,15 +1,5 @@
 #include "ShopPart.h"
 
-// Mirror of the ShopObject fields this part needs that Shop.h currently exposes
-// as raw byte arrays (or omits entirely).  Defined locally inside each function
-// so that the file also compiles function-by-function under tools/probe.py.
-// Keep in sync with include/Interface/Menu/Shop.h.
-//
-//   0x76C u16   (CriSndMgr_PlayFile arg)
-//   0x78C u16
-//   0x83A u16
-//   0x868 u32
-
 void func_ov043_020ae284(ShopState *arg0);
 void func_ov043_020ae580(ShopState *arg0);
 void func_ov043_020ade08(ShopState *arg0);
@@ -31,32 +21,19 @@ void func_ov043_020af3c0(ShopState *arg0);
 void func_ov043_020af3dc();
 
 void func_ov043_020ae670(ShopState *arg0, ShopObject *shop) {
-    typedef struct {
-        /* 0x000 */ char pad_000[0x76C];
-        /* 0x76C */ u16  unk_76C;
-        /* 0x76E */ char pad_76E[0x78C - 0x76E];
-        /* 0x78C */ u16  unk_78C;
-        /* 0x78E */ char pad_78E[0x83A - 0x78E];
-        /* 0x83A */ u16  unk_83A;
-        /* 0x83C */ char pad_83C[0x868 - 0x83C];
-        /* 0x868 */ u32  unk_868;
-    } ShopP3View;
-    ShopP3View *sv;
-
-    sv = (ShopP3View *) shop;
     shop->unk_858 -= shop->unk_738[shop->unk_844]->unk_08;
-    sv->unk_868 = sv->unk_868 + shop->unk_738[shop->unk_844]->unk_08;
-    if (sv->unk_868 > 0x98967FU) {
-        sv->unk_868 = 0x98967FU;
+    shop->unk_868 = shop->unk_868 + shop->unk_738[shop->unk_844]->unk_08;
+    if (shop->unk_868 > 0x98967FU) {
+        shop->unk_868 = 0x98967FU;
     }
     if (shop->unk_738[shop->unk_844]->unk_08 >= 0x2710U) {
         Stats_AddExperience(1);
     }
     EasyTask_DeleteTask(&arg0->base.taskPool, arg0->taskId_WindowU);
     EasyTask_DeleteTask(&arg0->base.taskPool, arg0->taskId_ItemTotalNum);
-    func_ov043_020ac6a0(arg0, shop->unk_774, sv->unk_78C, 2);
+    func_ov043_020ac6a0(arg0, shop->unk_774, shop->unk_78C, 2);
     arg0->taskId_ItemTotalNum = Shop_itemTotalNum_CreateTask(&arg0->base.taskPool, arg0->base.dataType, shop);
-    sv->unk_83A = 0x12C;
+    shop->unk_83A = 0x12C;
     shop->unk_834 |= 8;
     if (shop->unk_834 & 4) {
         SndMgr_StartPlayingSE(0x11C);
@@ -91,16 +68,6 @@ void func_ov043_020ae798(ShopState *arg0) {
 
 void func_ov043_020ae86c(ShopState *arg0) {
     void func_ov043_020ae950(ShopState *arg0);
-    typedef struct {
-        /* 0x000 */ char pad_000[0x76C];
-        /* 0x76C */ u16  unk_76C;
-        /* 0x76E */ char pad_76E[0x78C - 0x76E];
-        /* 0x78C */ u16  unk_78C;
-        /* 0x78E */ char pad_78E[0x83A - 0x78E];
-        /* 0x83A */ u16  unk_83A;
-        /* 0x83C */ char pad_83C[0x868 - 0x83C];
-        /* 0x868 */ u32  unk_868;
-    } ShopP3View;
     ShopObject *shop;
     TouchCoord coord;
     s32 r;
@@ -120,33 +87,23 @@ void func_ov043_020ae86c(ShopState *arg0) {
     if (r == 0) {
         func_ov043_020b16c4(shop, shop->unk_844);
         SndMgr_StartPlayingSE(0x11C);
-        ((ShopP3View *) shop)->unk_83A = 0x14;
+        shop->unk_83A = 0x14;
         DebugOvlDisp_ReplaceTop((OverlayCB) func_ov043_020ae950, arg0, 0);
         return;
     }
     SndMgr_StartPlayingSE(0x11B);
-    ((ShopP3View *) shop)->unk_83A = 0x14;
+    shop->unk_83A = 0x14;
     DebugOvlDisp_ReplaceTop((OverlayCB) func_ov043_020ae950, arg0, 0);
 }
 
 void func_ov043_020ae950(ShopState *arg0) {
-    typedef struct {
-        /* 0x000 */ char pad_000[0x76C];
-        /* 0x76C */ u16  unk_76C;
-        /* 0x76E */ char pad_76E[0x78C - 0x76E];
-        /* 0x78C */ u16  unk_78C;
-        /* 0x78E */ char pad_78E[0x83A - 0x78E];
-        /* 0x83A */ u16  unk_83A;
-        /* 0x83C */ char pad_83C[0x868 - 0x83C];
-        /* 0x868 */ u32  unk_868;
-    } ShopP3View;
     ShopObject *shop;
     u16 temp_r1;
 
     shop = &arg0->shop;
-    temp_r1 = ((ShopP3View *) shop)->unk_83A;
+    temp_r1 = shop->unk_83A;
     if (temp_r1 != 0) {
-        ((ShopP3View *) shop)->unk_83A = temp_r1 - 1;
+        shop->unk_83A = temp_r1 - 1;
         return;
     }
     EasyTask_DeleteTask(&arg0->base.taskPool, arg0->unk_21778);
@@ -205,10 +162,6 @@ void func_ov043_020aeaec(ShopState *arg0) {
 void func_ov043_020aeb14(ShopState *arg0) {
     void func_ov043_020aeaec(ShopState *arg0);
     void func_ov043_020ad354(ShopState *arg0);
-    typedef struct {
-        /* 0x000 */ char pad_000[0x76C];
-        /* 0x76C */ u16  unk_76C;
-    } ShopP3ViewB14;
     ShopState *var_r5;
     ShopObject *shop;
     s32 temp_r0;
@@ -246,7 +199,7 @@ void func_ov043_020aeb14(ShopState *arg0) {
     }
     DebugOvlDisp_Push((OverlayCB) func_ov043_020ad354, var_r5, 0);
     MainOvlDisp_NextProcessStage();
-    CriSndMgr_PlayFile(((ShopP3ViewB14 *) shop)->unk_76C);
+    CriSndMgr_PlayFile((u16) shop->unk_76C);
 }
 
 // Nonmatching: overlay-id literal-pool entry (byte-identical when linked)

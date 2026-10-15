@@ -14,3 +14,4 @@
 #include "Shop_p6.c"
 #include "Shop_p7.c"
 #include "Shop_p8.c"
+#include "Shop_data.c"
