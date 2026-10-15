@@ -1,379 +1,255 @@
 #include "ShopPart.h"
 
 void func_ov043_020b1fc4(void *arg0, u8 arg1, s32 arg2) {
-    ? sp18;
-    ? *var_lr;
-    ? *var_r6;
-    s32 temp_r0;
-    s32 temp_r1;
-    s32 temp_r2;
-    s32 temp_r3;
-    s32 var_ip;
-    s32 var_r4;
-    u16 var_r1;
-    u32 temp_r0_2;
-    u32 temp_r0_3;
-    u32 temp_r0_4;
-    u32 temp_r1_2;
-    u32 temp_r1_3;
-    u32 temp_ret;
+    typedef struct {
+        /* 0x00 */ s32 v[4];
+    } ShopSeRow; // Size: 0x10
 
-    var_r6 = &data_ov043_020ca2c0;
-    var_lr = &sp18;
-    var_r4 = arg2;
-    var_ip = 0xA;
-    do {
-        temp_r0 = var_r6->unk_0;
-        temp_r1 = var_r6->unk_4;
-        temp_r2 = var_r6->unk_8;
-        temp_r3 = var_r6->unk_C;
-        var_r6 += 0x10;
-        var_lr->unk_0 = temp_r0;
-        var_lr->unk_4 = temp_r1;
-        var_lr->unk_8 = temp_r2;
-        var_lr->unk_C = temp_r3;
-        var_lr += 0x10;
-        var_ip -= 1;
-    } while (var_ip != 0);
-    sp0[0].unk_0 = data_ov043_020ca2a8.unk_0;
-    sp0[0].unk_4 = (s32) data_ov043_020ca2a8.unk_4;
-    sp0[0].unk_8 = (s32) data_ov043_020ca2a8.unk_8;
-    sp0[0].unk_C = (s32) data_ov043_020ca2a8.unk_C;
-    sp0[0].unk_10 = (s32) data_ov043_020ca2a8.unk_10;
-    (&sp0[0] + 0x10)->unk_4 = (s32) (&data_ov043_020ca2a8 + 0x10)->unk_4;
+    typedef struct {
+        /* 0x00 */ ShopSeRow rows[10];
+    } ShopSeTable; // Size: 0xA0
+
+    typedef struct {
+        /* 0x00 */ s32 v[6];
+    } ShopSeList; // Size: 0x18
+
+    ShopSeTable table = *(ShopSeTable *)&data_ov043_020ca2c0;
+    ShopSeList  list  = *(ShopSeList *)&data_ov043_020ca2a8;
+    u16         idx;
+
     if (arg1 == 0xB) {
         return;
     }
     if (arg1 == 0xA) {
-        if ((u32) var_r4 > 5U) {
+        if ((u32)arg2 > 5U) {
             OS_WaitForever();
         }
-        if (var_r4 == 0) {
-            temp_ret = RNG_Next(0xFFFF);
-            temp_r0_2 = temp_ret;
-            var_r1 = temp_r0_2 - (3 * ((temp_ret / 3) + (temp_r0_2 >> 0x1F)));
-        } else if (var_r4 != 2) {
-            var_r1 = var_r4 + 2;
+        if (arg2 == 0) {
+            idx = RNG_Next(0xFFFF) % 3;
+        } else if (arg2 == 2) {
+            idx = (u16)((RNG_Next(0xFFFF) % 2) + 4);
         } else {
-            temp_r0_3 = RNG_Next(0xFFFF);
-            temp_r1_2 = temp_r0_3 >> 0x1F;
-            var_r1 = temp_r1_2 + ROTATE_RIGHT((temp_r0_3 << 0x1F) - temp_r1_2, 0x1F) + 4;
+            idx = (u16)(arg2 + 2);
         }
-        SndMgr_StartPlayingSE((&sp0[0])[var_r1]);
+        SndMgr_StartPlayingSE((SndMgrSeIdx)list.v[idx]);
         return;
     }
-    if ((u32) var_r4 > 3U) {
+    if ((u32)arg2 > 3U) {
         OS_WaitForever();
     }
-    if (var_r4 == 2) {
-        temp_r0_4 = RNG_Next(0xFFFF);
-        temp_r1_3 = temp_r0_4 >> 0x1F;
-        var_r4 = (s32) (u16) (var_r4 + (temp_r1_3 + ROTATE_RIGHT((temp_r0_4 << 0x1F) - temp_r1_3, 0x1F)));
+    if (arg2 == 2) {
+        arg2 = (u16)(arg2 + RNG_Next(0xFFFF) % 2);
     }
-    SndMgr_StartPlayingSE(*(&sp18 + (arg1 * 0x10) + (var_r4 * 4)));
+    SndMgr_StartPlayingSE((SndMgrSeIdx)table.rows[arg1].v[arg2]);
 }
 
-void func_ov043_020b2100(void *arg0, s32 arg4, u32 arg5) {
-    Data *temp_r0;
-    Data *temp_r0_2;
-    Data *temp_r0_3;
-    s32 *temp_r1_4;
-    s32 *var_r0;
-    s32 temp_r2;
-    s32 temp_r4;
-    s32 temp_r4_2;
-    s32 temp_r5;
-    u32 var_r2;
-    u32 var_r2_2;
-    void *temp_r1;
-    void *temp_r1_2;
-    void *temp_r1_3;
-    void *var_r0_2;
-    void *var_r0_3;
+void func_ov043_020b2100(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, s32 start, u32 count) {
+    res->data        = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier *)((u8 *)&data_ov043_020ca198 + binIndex * 8));
+    res->charData    = Data_GetPackEntryData(res->data, 1);
+    res->screenMap   = Data_GetPackEntryData(res->data, 2);
+    res->paletteData = Data_GetPackEntryData(res->data, 3);
 
-    temp_r5 = M2C_ERROR(/* Read from unset register $r2 */);
-    temp_r0 = DatMgr_LoadRawData(1, NULL, 0, &data_ov043_020ca198 + (M2C_ERROR(/* Read from unset register $r3 */) * 8));
-    arg0->unk_0 = temp_r0;
-    if (temp_r0 == NULL) {
-        var_r0 = NULL;
-    } else {
-        temp_r1 = temp_r0->buffer + 0x20;
-        var_r0 = temp_r1 + temp_r1->unk_8;
-    }
-    arg0->unk_10 = var_r0;
-    temp_r0_2 = arg0->unk_0;
-    if (temp_r0_2 == NULL) {
-        var_r0_2 = NULL;
-    } else {
-        temp_r1_2 = temp_r0_2->buffer + 0x20;
-        var_r0_2 = temp_r1_2 + temp_r1_2->unk_10;
-    }
-    arg0->unk_14 = var_r0_2;
-    temp_r0_3 = arg0->unk_0;
-    if (temp_r0_3 == NULL) {
-        var_r0_3 = NULL;
-    } else {
-        temp_r1_3 = temp_r0_3->buffer + 0x20;
-        var_r0_3 = temp_r1_3 + temp_r1_3->unk_18;
-    }
-    arg0->unk_18 = var_r0_3;
-    temp_r1_4 = arg0->unk_10;
-    temp_r2 = *temp_r1_4;
-    if (M2C_ERROR(/* Read from unset register $r1 */) == 0) {
-        var_r2 = (u32) (temp_r2 & ~0xFF) >> 8;
-        temp_r4 = temp_r5 * 0x3C;
-        if (!((u8) *temp_r1_4 & 0xF0)) {
-            var_r2 -= 4;
+    if (engine == 0) {
+        u32 charSize = (*(u32 *)res->charData & ~0xFF) >> 8;
+        if ((*(u8 *)res->charData & 0xF0) == 0) {
+            charSize -= 4;
         }
-        arg0->unk_8 = BgResMgr_AllocChar32(g_BgResourceManagers->unk_0, temp_r1_4, *(&g_DisplaySettings.engineState[0].bgSettings[0].charBase + temp_r4), 0U, var_r2);
-        arg0->unk_4 = BgResMgr_AllocScreen(g_BgResourceManagers->unk_0, arg0->unk_14, *(&g_DisplaySettings.engineState[0].bgSettings[0].screenBase + temp_r4), *(&g_DisplaySettings.engineState[0].bgSettings[0].screenSizeText + temp_r4));
-        arg0->unk_C = PaletteMgr_AllocPalette(g_PaletteManagers->unk_0, arg0->unk_18, 0U, (s16) arg4, arg5);
-        PaletteMgr_Flush(g_PaletteManagers->unk_0, arg0->unk_C);
-        return;
-    }
-    var_r2_2 = (u32) (temp_r2 & ~0xFF) >> 8;
-    temp_r4_2 = temp_r5 * 0x3C;
-    if (!((u8) *temp_r1_4 & 0xF0)) {
-        var_r2_2 -= 4;
-    }
-    arg0->unk_8 = BgResMgr_AllocChar32(g_BgResourceManagers[1], temp_r1_4, *(&g_DisplaySettings.engineState[1].bgSettings[0].charBase + temp_r4_2), 0U, var_r2_2);
-    arg0->unk_4 = BgResMgr_AllocScreen(g_BgResourceManagers[1], arg0->unk_14, *(&g_DisplaySettings.engineState[1].bgSettings[0].screenBase + temp_r4_2), *(&g_DisplaySettings.engineState[1].bgSettings[0].screenSizeText + temp_r4_2));
-    arg0->unk_C = PaletteMgr_AllocPalette(g_PaletteManagers[1], arg0->unk_18, 0U, (s16) arg4, arg5);
-    PaletteMgr_Flush(g_PaletteManagers[1], arg0->unk_C);
-}
-
-void func_ov043_020b2300(void *arg0, s32 arg4, s32 arg5, u32 arg6) {
-    Data *temp_r0;
-    Data *temp_r0_2;
-    Data *temp_r1_2;
-    s32 *temp_r1_5;
-    s32 *var_r0;
-    s32 temp_r2;
-    s32 temp_r2_2;
-    s32 temp_r4;
-    s32 temp_r4_2;
-    s32 temp_r5;
-    u32 var_r2;
-    u32 var_r2_2;
-    void *temp_r1;
-    void *temp_r1_3;
-    void *temp_r1_4;
-    void *var_r0_2;
-    void *var_r0_3;
-
-    temp_r5 = M2C_ERROR(/* Read from unset register $r2 */);
-    temp_r0 = DatMgr_LoadRawData(1, NULL, 0, &data_ov043_020ca198 + (M2C_ERROR(/* Read from unset register $r3 */) * 8));
-    arg0->unk_0 = temp_r0;
-    if (temp_r0 == NULL) {
-        var_r0 = NULL;
+        res->charResource = BgResMgr_AllocChar32(g_BgResourceManagers[0], res->charData,
+                                                 g_DisplaySettings.engineState[0].bgSettings[layer].charBase, 0, charSize);
+        res->screenResource =
+            BgResMgr_AllocScreen(g_BgResourceManagers[0], res->screenMap,
+                                 g_DisplaySettings.engineState[0].bgSettings[layer].screenBase,
+                                 g_DisplaySettings.engineState[0].bgSettings[layer].screenSizeText);
+        res->paletteResource = PaletteMgr_AllocPaletteNoProto(g_PaletteManagers[0], res->paletteData, 0, start, count);
+        PaletteMgr_Flush(g_PaletteManagers[0], res->paletteResource);
     } else {
-        temp_r1 = temp_r0->buffer + 0x20;
-        var_r0 = temp_r1 + temp_r1->unk_8;
-    }
-    arg0->unk_10 = var_r0;
-    temp_r1_2 = arg0->unk_0;
-    if ((temp_r1_2 == NULL) || (temp_r2 = arg4 + 2, (temp_r2 <= 0))) {
-        var_r0_2 = NULL;
-    } else {
-        temp_r1_3 = temp_r1_2->buffer + 0x20;
-        var_r0_2 = temp_r1_3 + *(temp_r1_3 + (temp_r2 * 8));
-    }
-    arg0->unk_14 = var_r0_2;
-    temp_r0_2 = arg0->unk_0;
-    if (temp_r0_2 == NULL) {
-        var_r0_3 = NULL;
-    } else {
-        temp_r1_4 = temp_r0_2->buffer + 0x20;
-        var_r0_3 = temp_r1_4 + temp_r1_4->unk_18;
-    }
-    arg0->unk_18 = var_r0_3;
-    temp_r1_5 = arg0->unk_10;
-    temp_r2_2 = *temp_r1_5;
-    if (M2C_ERROR(/* Read from unset register $r1 */) == 0) {
-        var_r2 = (u32) (temp_r2_2 & ~0xFF) >> 8;
-        temp_r4 = temp_r5 * 0x3C;
-        if (!((u8) *temp_r1_5 & 0xF0)) {
-            var_r2 -= 4;
+        u32 charSize = (*(u32 *)res->charData & ~0xFF) >> 8;
+        if ((*(u8 *)res->charData & 0xF0) == 0) {
+            charSize -= 4;
         }
-        arg0->unk_8 = BgResMgr_AllocChar32(g_BgResourceManagers->unk_0, temp_r1_5, *(&g_DisplaySettings.engineState[0].bgSettings[0].charBase + temp_r4), 0U, var_r2);
-        arg0->unk_4 = BgResMgr_AllocScreen(g_BgResourceManagers->unk_0, arg0->unk_14, *(&g_DisplaySettings.engineState[0].bgSettings[0].screenBase + temp_r4), *(&g_DisplaySettings.engineState[0].bgSettings[0].screenSizeText + temp_r4));
-        arg0->unk_C = PaletteMgr_AllocPalette(g_PaletteManagers->unk_0, arg0->unk_18, 0U, (s16) arg5, arg6);
-        PaletteMgr_Flush(g_PaletteManagers->unk_0, arg0->unk_C);
-        return;
+        res->charResource = BgResMgr_AllocChar32(g_BgResourceManagers[1], res->charData,
+                                                 g_DisplaySettings.engineState[1].bgSettings[layer].charBase, 0, charSize);
+        res->screenResource =
+            BgResMgr_AllocScreen(g_BgResourceManagers[1], res->screenMap,
+                                 g_DisplaySettings.engineState[1].bgSettings[layer].screenBase,
+                                 g_DisplaySettings.engineState[1].bgSettings[layer].screenSizeText);
+        res->paletteResource = PaletteMgr_AllocPaletteNoProto(g_PaletteManagers[1], res->paletteData, 0, start, count);
+        PaletteMgr_Flush(g_PaletteManagers[1], res->paletteResource);
     }
-    var_r2_2 = (u32) (temp_r2_2 & ~0xFF) >> 8;
-    temp_r4_2 = temp_r5 * 0x3C;
-    if (!((u8) *temp_r1_5 & 0xF0)) {
-        var_r2_2 -= 4;
-    }
-    arg0->unk_8 = BgResMgr_AllocChar32(g_BgResourceManagers[1], temp_r1_5, *(&g_DisplaySettings.engineState[1].bgSettings[0].charBase + temp_r4_2), 0U, var_r2_2);
-    arg0->unk_4 = BgResMgr_AllocScreen(g_BgResourceManagers[1], arg0->unk_14, *(&g_DisplaySettings.engineState[1].bgSettings[0].screenBase + temp_r4_2), *(&g_DisplaySettings.engineState[1].bgSettings[0].screenSizeText + temp_r4_2));
-    arg0->unk_C = PaletteMgr_AllocPalette(g_PaletteManagers[1], arg0->unk_18, 0U, (s16) arg5, arg6);
-    PaletteMgr_Flush(g_PaletteManagers[1], arg0->unk_C);
 }
 
-void func_ov043_020b2514(void *arg0, s32 arg4) {
-    s32 temp_ip;
-    s32 temp_r1;
-    void *var_r0;
+void func_ov043_020b2300(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, s32 screenIndex, s32 start, u32 count) {
+    s32  index;
+    u16 *screenMap;
 
-    if ((M2C_ERROR(/* Read from unset register $r1 */) == 0) || (arg4 <= 0)) {
-        var_r0 = NULL;
-    } else {
-        temp_r1 = M2C_ERROR(/* Read from unset register $r1 */)->unk_8 + 0x20;
-        var_r0 = temp_r1 + *(temp_r1 + (arg4 * 8));
-    }
-    arg0->unk_14 = var_r0;
-    temp_ip = M2C_ERROR(/* Read from unset register $r3 */) * 0x3C;
-    if (M2C_ERROR(/* Read from unset register $r2 */) == 0) {
-        arg0->unk_4 = BgResMgr_AllocScreen(g_BgResourceManagers->unk_0, arg0->unk_14, *(&g_DisplaySettings.engineState[0].bgSettings[0].screenBase + temp_ip), *(&g_DisplaySettings.engineState[0].bgSettings[0].screenSizeText + temp_ip));
-        return;
-    }
-    arg0->unk_4 = BgResMgr_AllocScreen(g_BgResourceManagers[1], arg0->unk_14, *(&g_DisplaySettings.engineState[1].bgSettings[0].screenBase + temp_ip), *(&g_DisplaySettings.engineState[1].bgSettings[0].screenSizeText + temp_ip));
-}
+    res->data     = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier *)((u8 *)&data_ov043_020ca198 + binIndex * 8));
+    res->charData = Data_GetPackEntryData(res->data, 1);
 
-void func_ov043_020b25c0(void *arg0, u16 arg4, s32 arg5, u32 arg6) {
-    Data *temp_r0;
-    Data *temp_r0_2;
-    Data *temp_r0_3;
-    s32 *temp_r1_4;
-    s32 *var_r0;
-    s32 temp_r2;
-    s32 temp_r4;
-    s32 temp_r4_2;
-    s32 temp_r5;
-    u32 var_r2;
-    u32 var_r2_2;
-    void *temp_r1;
-    void *temp_r1_2;
-    void *temp_r1_3;
-    void *var_r0_2;
-    void *var_r0_3;
+    if (res->data == NULL || (index = screenIndex + 2) <= 0) {
+        screenMap = NULL;
+    } else {
+        u8 *base  = (u8 *)res->data->buffer + 0x20;
+        screenMap = (u16 *)(base + *(s32 *)(base + index * 8));
+    }
+    res->screenMap = screenMap;
 
-    temp_r5 = M2C_ERROR(/* Read from unset register $r2 */);
-    temp_r0 = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov043_020ca198 + (M2C_ERROR(/* Read from unset register $r3 */) * 8), (s32) arg4, 0);
-    arg0->unk_0 = temp_r0;
-    if (temp_r0 == NULL) {
-        var_r0 = NULL;
-    } else {
-        temp_r1 = temp_r0->buffer + 0x20;
-        var_r0 = temp_r1 + temp_r1->unk_8;
-    }
-    arg0->unk_10 = var_r0;
-    temp_r0_2 = arg0->unk_0;
-    if (temp_r0_2 == NULL) {
-        var_r0_2 = NULL;
-    } else {
-        temp_r1_2 = temp_r0_2->buffer + 0x20;
-        var_r0_2 = temp_r1_2 + temp_r1_2->unk_10;
-    }
-    arg0->unk_14 = var_r0_2;
-    temp_r0_3 = arg0->unk_0;
-    if (temp_r0_3 == NULL) {
-        var_r0_3 = NULL;
-    } else {
-        temp_r1_3 = temp_r0_3->buffer + 0x20;
-        var_r0_3 = temp_r1_3 + temp_r1_3->unk_18;
-    }
-    arg0->unk_18 = var_r0_3;
-    temp_r1_4 = arg0->unk_10;
-    temp_r2 = *temp_r1_4;
-    if (M2C_ERROR(/* Read from unset register $r1 */) == 0) {
-        var_r2 = (u32) (temp_r2 & ~0xFF) >> 8;
-        temp_r4 = temp_r5 * 0x3C;
-        if (!((u8) *temp_r1_4 & 0xF0)) {
-            var_r2 -= 4;
+    res->paletteData = Data_GetPackEntryData(res->data, 3);
+
+    if (engine == 0) {
+        u32 charSize = (*(u32 *)res->charData & ~0xFF) >> 8;
+        if ((*(u8 *)res->charData & 0xF0) == 0) {
+            charSize -= 4;
         }
-        arg0->unk_8 = BgResMgr_AllocChar32(g_BgResourceManagers->unk_0, temp_r1_4, *(&g_DisplaySettings.engineState[0].bgSettings[0].charBase + temp_r4), 0U, var_r2);
-        arg0->unk_4 = BgResMgr_AllocScreen(g_BgResourceManagers->unk_0, arg0->unk_14, *(&g_DisplaySettings.engineState[0].bgSettings[0].screenBase + temp_r4), *(&g_DisplaySettings.engineState[0].bgSettings[0].screenSizeText + temp_r4));
-        arg0->unk_C = PaletteMgr_AllocPalette(g_PaletteManagers->unk_0, arg0->unk_18, 0U, (s16) arg5, arg6);
-        PaletteMgr_Flush(g_PaletteManagers->unk_0, arg0->unk_C);
+        res->charResource = BgResMgr_AllocChar32(g_BgResourceManagers[0], res->charData,
+                                                 g_DisplaySettings.engineState[0].bgSettings[layer].charBase, 0, charSize);
+        res->screenResource =
+            BgResMgr_AllocScreen(g_BgResourceManagers[0], res->screenMap,
+                                 g_DisplaySettings.engineState[0].bgSettings[layer].screenBase,
+                                 g_DisplaySettings.engineState[0].bgSettings[layer].screenSizeText);
+        res->paletteResource = PaletteMgr_AllocPaletteNoProto(g_PaletteManagers[0], res->paletteData, 0, start, count);
+        PaletteMgr_Flush(g_PaletteManagers[0], res->paletteResource);
+    } else {
+        u32 charSize = (*(u32 *)res->charData & ~0xFF) >> 8;
+        if ((*(u8 *)res->charData & 0xF0) == 0) {
+            charSize -= 4;
+        }
+        res->charResource = BgResMgr_AllocChar32(g_BgResourceManagers[1], res->charData,
+                                                 g_DisplaySettings.engineState[1].bgSettings[layer].charBase, 0, charSize);
+        res->screenResource =
+            BgResMgr_AllocScreen(g_BgResourceManagers[1], res->screenMap,
+                                 g_DisplaySettings.engineState[1].bgSettings[layer].screenBase,
+                                 g_DisplaySettings.engineState[1].bgSettings[layer].screenSizeText);
+        res->paletteResource = PaletteMgr_AllocPaletteNoProto(g_PaletteManagers[1], res->paletteData, 0, start, count);
+        PaletteMgr_Flush(g_PaletteManagers[1], res->paletteResource);
+    }
+}
+
+void func_ov043_020b2514(MenuBgResource *res, Data *data, s32 engine, s32 layer, s32 screenIndex) {
+    u16 *screenMap;
+
+    if (data == NULL || screenIndex <= 0) {
+        screenMap = NULL;
+    } else {
+        u8 *base   = (u8 *)data->buffer + 0x20;
+        screenMap = (u16 *)(base + *(s32 *)(base + screenIndex * 8));
+    }
+    res->screenMap = screenMap;
+
+    if (engine == 0) {
+        res->screenResource =
+            BgResMgr_AllocScreen(g_BgResourceManagers[0], res->screenMap,
+                                 g_DisplaySettings.engineState[0].bgSettings[layer].screenBase,
+                                 g_DisplaySettings.engineState[0].bgSettings[layer].screenSizeText);
         return;
     }
-    var_r2_2 = (u32) (temp_r2 & ~0xFF) >> 8;
-    temp_r4_2 = temp_r5 * 0x3C;
-    if (!((u8) *temp_r1_4 & 0xF0)) {
-        var_r2_2 -= 4;
-    }
-    arg0->unk_8 = BgResMgr_AllocChar32(g_BgResourceManagers[1], temp_r1_4, *(&g_DisplaySettings.engineState[1].bgSettings[0].charBase + temp_r4_2), 0U, var_r2_2);
-    arg0->unk_4 = BgResMgr_AllocScreen(g_BgResourceManagers[1], arg0->unk_14, *(&g_DisplaySettings.engineState[1].bgSettings[0].screenBase + temp_r4_2), *(&g_DisplaySettings.engineState[1].bgSettings[0].screenSizeText + temp_r4_2));
-    arg0->unk_C = PaletteMgr_AllocPalette(g_PaletteManagers[1], arg0->unk_18, 0U, (s16) arg5, arg6);
-    PaletteMgr_Flush(g_PaletteManagers[1], arg0->unk_C);
+    res->screenResource = BgResMgr_AllocScreen(g_BgResourceManagers[1], res->screenMap,
+                                               g_DisplaySettings.engineState[1].bgSettings[layer].screenBase,
+                                               g_DisplaySettings.engineState[1].bgSettings[layer].screenSizeText);
 }
 
-void func_ov043_020b27cc(void *arg0, s32 arg1) {
-    if (arg1 == 0) {
-        BgResMgr_ReleaseChar(g_BgResourceManagers->unk_0, arg0->unk_8);
-        BgResMgr_ReleaseScreen(g_BgResourceManagers->unk_0, arg0->unk_4);
-        PaletteMgr_ReleaseResource(g_PaletteManagers->unk_0, arg0->unk_C);
+void func_ov043_020b25c0(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, u16 packIndex, s32 start, u32 count) {
+    res->data        = DatMgr_LoadPackEntry(1, NULL, 0, (BinIdentifier *)((u8 *)&data_ov043_020ca198 + binIndex * 8), packIndex, FALSE);
+    res->charData    = Data_GetPackEntryData(res->data, 1);
+    res->screenMap   = Data_GetPackEntryData(res->data, 2);
+    res->paletteData = Data_GetPackEntryData(res->data, 3);
+
+    if (engine == 0) {
+        u32 charSize = (*(u32 *)res->charData & ~0xFF) >> 8;
+        if ((*(u8 *)res->charData & 0xF0) == 0) {
+            charSize -= 4;
+        }
+        res->charResource = BgResMgr_AllocChar32(g_BgResourceManagers[0], res->charData,
+                                                 g_DisplaySettings.engineState[0].bgSettings[layer].charBase, 0, charSize);
+        res->screenResource =
+            BgResMgr_AllocScreen(g_BgResourceManagers[0], res->screenMap,
+                                 g_DisplaySettings.engineState[0].bgSettings[layer].screenBase,
+                                 g_DisplaySettings.engineState[0].bgSettings[layer].screenSizeText);
+        res->paletteResource = PaletteMgr_AllocPaletteNoProto(g_PaletteManagers[0], res->paletteData, 0, start, count);
+        PaletteMgr_Flush(g_PaletteManagers[0], res->paletteResource);
     } else {
-        BgResMgr_ReleaseChar(g_BgResourceManagers[1], arg0->unk_8);
-        BgResMgr_ReleaseScreen(g_BgResourceManagers[1], arg0->unk_4);
-        PaletteMgr_ReleaseResource(g_PaletteManagers[1], arg0->unk_C);
+        u32 charSize = (*(u32 *)res->charData & ~0xFF) >> 8;
+        if ((*(u8 *)res->charData & 0xF0) == 0) {
+            charSize -= 4;
+        }
+        res->charResource = BgResMgr_AllocChar32(g_BgResourceManagers[1], res->charData,
+                                                 g_DisplaySettings.engineState[1].bgSettings[layer].charBase, 0, charSize);
+        res->screenResource =
+            BgResMgr_AllocScreen(g_BgResourceManagers[1], res->screenMap,
+                                 g_DisplaySettings.engineState[1].bgSettings[layer].screenBase,
+                                 g_DisplaySettings.engineState[1].bgSettings[layer].screenSizeText);
+        res->paletteResource = PaletteMgr_AllocPaletteNoProto(g_PaletteManagers[1], res->paletteData, 0, start, count);
+        PaletteMgr_Flush(g_PaletteManagers[1], res->paletteResource);
     }
-    DatMgr_ReleaseData(arg0->unk_0);
 }
 
-void func_ov043_020b2854(void *arg0, s32 arg1) {
-    if (arg1 == 0) {
-        BgResMgr_ReleaseScreen(g_BgResourceManagers->unk_0, arg0->unk_4);
+void func_ov043_020b27cc(MenuBgResource *res, s32 engine) {
+    if (engine == 0) {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[0], res->charResource);
+        BgResMgr_ReleaseScreen(g_BgResourceManagers[0], res->screenResource);
+        PaletteMgr_ReleaseResource(g_PaletteManagers[0], res->paletteResource);
+    } else {
+        BgResMgr_ReleaseChar(g_BgResourceManagers[1], res->charResource);
+        BgResMgr_ReleaseScreen(g_BgResourceManagers[1], res->screenResource);
+        PaletteMgr_ReleaseResource(g_PaletteManagers[1], res->paletteResource);
+    }
+    DatMgr_ReleaseData(res->data);
+}
+
+void func_ov043_020b2854(MenuBgResource *res, s32 engine) {
+    if (engine == 0) {
+        BgResMgr_ReleaseScreen(g_BgResourceManagers[0], res->screenResource);
         return;
     }
-    BgResMgr_ReleaseScreen(g_BgResourceManagers[1], arg0->unk_4);
+    BgResMgr_ReleaseScreen(g_BgResourceManagers[1], res->screenResource);
 }
 
-void func_ov043_020b288c(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u32 arg5) {
-    func_ov043_020b27cc(arg0, arg1);
-    func_ov043_020b2100(arg0, /* extra? */ arg4, /* extra? */ arg5);
+void func_ov043_020b288c(MenuBgResource *res, s32 engine, s32 layer, s32 binIndex, s32 start, u32 count) {
+    func_ov043_020b27cc(res, engine);
+    func_ov043_020b2100(res, engine, layer, binIndex, start, count);
 }
 
-void func_ov043_020b28d4(void *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4) {
-    func_ov043_020b2854(arg0, arg2);
-    func_ov043_020b2514(arg0, /* extra? */ arg4);
+void func_ov043_020b28d4(MenuBgResource *res, Data *data, s32 engine, s32 layer, s32 screenIndex) {
+    func_ov043_020b2854(res, engine);
+    func_ov043_020b2514(res, data, engine, layer, screenIndex);
 }
 
-void func_ov043_020b2910(void *arg0) {
-    arg0->unk_0 = 0;
-    arg0->unk_4 = 0;
-    arg0->unk_8 = 0;
-    arg0->unk_C = 0;
-    arg0->unk_14 = 0;
-    arg0->unk_10 = 0;
-    arg0->unk_18 = 0;
+void func_ov043_020b2910(MenuBgResource *res) {
+    res->data            = 0;
+    res->screenResource  = 0;
+    res->charResource    = 0;
+    res->paletteResource = 0;
+    res->screenMap       = 0;
+    res->charData        = 0;
+    res->paletteData     = 0;
 }
 
-void func_ov043_020b2934(void *arg0) {
-    s16 temp_r0;
-    s32 var_r5;
-    void *var_r6;
-    void *var_r7;
+void func_ov043_020b2934(ShopObject *shop) {
+    s32             i;
+    MenuBgResource *sub  = &shop->resources[0];
+    MenuBgResource *main = &shop->resources[4];
 
-    var_r6 = arg0 + 0x874;
-    var_r7 = arg0 + 0x8E4;
-    var_r5 = 0;
-    do {
-        func_ov043_020b2910(var_r6);
-        func_ov043_020b2910(var_r7);
-        var_r5 += 1;
-        var_r6 += 0x1C;
-        var_r7 += 0x1C;
-    } while (var_r5 < 4);
-    func_ov043_020b2100(arg0 + 0x900, /* extra? */ 0xF, /* extra? */ 1);
-    if (*(arg0 + (arg0->unk_848 * 0x2C)) == 0xFFFF) {
-        func_ov043_020b2300(arg0 + 0x938, /* extra? */ 0, /* extra? */ 0, /* extra? */ 6);
+    for (i = 0; i < 4; i++) {
+        func_ov043_020b2910(sub);
+        func_ov043_020b2910(main);
+        sub++;
+        main++;
+    }
+    func_ov043_020b2100(&shop->resources[5], 0, 1, 0, 0xF, 1);
+    if (shop->slots[shop->unk_848].itemID == 0xFFFF) {
+        func_ov043_020b2300(&shop->resources[7], 0, 3, 1, 0, 0, 6);
     } else {
-        temp_r0 = Inventory_GetCategory();
-        if (temp_r0 == 0) {
-            func_ov043_020b2300(arg0 + 0x938, /* extra? */ 8, /* extra? */ 0, /* extra? */ 6);
-        } else if (temp_r0 == 1) {
-            func_ov043_020b2300(arg0 + 0x938, /* extra? */ 0, /* extra? */ 0, /* extra? */ 6);
+        s32 category = Inventory_GetCategory(shop->slots[shop->unk_848].itemID);
+        if (category == 0) {
+            func_ov043_020b2300(&shop->resources[7], 0, 3, 1, 8, 0, 6);
+        } else if (category == 1) {
+            func_ov043_020b2300(&shop->resources[7], 0, 3, 1, 0, 0, 6);
         } else {
-            func_ov043_020b2300(arg0 + 0x938, /* extra? */ 2, /* extra? */ 0, /* extra? */ 6);
+            func_ov043_020b2300(&shop->resources[7], 0, 3, 1, 2, 0, 6);
         }
     }
-    func_ov043_020b2514(arg0 + 0x91C, /* extra? */ 9);
-    func_ov043_020b2100(arg0 + 0x890, /* extra? */ 0xF, /* extra? */ 1);
-    func_ov043_020b25c0(arg0 + 0x8C8, /* extra? */ (s32) arg0->unk_76A, /* extra? */ 0, /* extra? */ 0xE);
+    func_ov043_020b2514(&shop->resources[6], shop->resources[7].data, 0, 2, 9);
+    func_ov043_020b2100(&shop->resources[1], 1, 1, 6, 0xF, 1);
+    func_ov043_020b25c0(&shop->resources[3], 1, 3, 7, *(u16 *)((u8 *)shop + 0x76A), 0, 0xE);
 }
 
 void func_ov043_020b2af0(void) {
@@ -381,11 +257,11 @@ void func_ov043_020b2af0(void) {
 }
 
 void func_ov043_020b2af4(s32 arg0) {
-    func_ov043_020b27cc(arg0 + 0x900, 0);
-    func_ov043_020b2854(arg0 + 0x91C, 0);
-    func_ov043_020b27cc(arg0 + 0x938, 0);
-    func_ov043_020b27cc(arg0 + 0x890, 1);
-    func_ov043_020b27cc(arg0 + 0x8C8, 1);
+    func_ov043_020b27cc((MenuBgResource *)(arg0 + 0x900), 0);
+    func_ov043_020b2854((MenuBgResource *)(arg0 + 0x91C), 0);
+    func_ov043_020b27cc((MenuBgResource *)(arg0 + 0x938), 0);
+    func_ov043_020b27cc((MenuBgResource *)(arg0 + 0x890), 1);
+    func_ov043_020b27cc((MenuBgResource *)(arg0 + 0x8C8), 1);
 }
 /* Warning: struct OamCellPiece is not defined (only forward-declared) */
 /* Warning: struct OSMutex is not defined (only forward-declared) */
