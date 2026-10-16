@@ -609,18 +609,17 @@ void func_ov043_020b0d1c(ShopObject *arg0) {
     ShopObject   *shop = arg0;
     ShopP6Scratch sp;
     s32           var_ip;
-    s32           var_r2;
     s16           var_r1;
     ShopItemSlot *var_r1_2;
+    s32           var_r2;
 
     func_ov043_020af724(arg0);
     shop->unk_858 = gSaveData.playerStats.money;
     if (gSaveData.playerStats.unk_19_6 == 1) {
-        var_r1 = shop->unk_834 | 4;
+        shop->unk_834 = shop->unk_834 | 4;
     } else {
-        var_r1 = 0;
+        shop->unk_834 = 0;
     }
-    shop->unk_834 = var_r1;
     shop->unk_768 = gSaveData.unk_1AB2;
     func_ov043_020af574(&sp.menu2C, (s32) shop->unk_768);
     shop->unk_76A = (s16) (sp.menu2C.unk_02 + 0x3F);
@@ -643,7 +642,6 @@ void func_ov043_020b0d1c(ShopObject *arg0) {
     shop->unk_788 = func_ov043_020af8a8(arg0, shop->unk_77C, shop->unk_784);
     shop->unk_778 = func_ov043_020af8e4(arg0);
     shop->unk_77A = func_ov043_020af950(arg0);
-    func_ov043_020af994(arg0);
     shop->unk_780 = func_ov043_020af994(arg0);
     shop->unk_78C = func_ov043_020af9e8(arg0);
     shop->unk_78A = func_ov043_020af8a8(arg0, shop->unk_780, shop->unk_784);
@@ -657,8 +655,8 @@ void func_ov043_020b0d1c(ShopObject *arg0) {
     shop->unk_7B8 = (s8) func_ov043_020afa68(arg0);
     shop->unk_7B4 = (s8) func_ov043_020afabc(arg0);
     shop->unk_7B5 = (s8) func_ov043_020afb14(arg0);
-    var_r1_2 = shop->slots;
     var_r2 = 0;
+    var_r1_2 = shop->slots;
     do {
         shop->unk_738[var_r2] = (ShopItemTableEntry *) var_r1_2;
         var_r2 += 1;
@@ -823,17 +821,16 @@ void func_ov043_020b1404(ShopObject *arg0) {
     ShopObject   *shop = arg0;
     ShopP6Scratch sp;
     s32           var_ip;
-    s32           var_r2;
     s16           var_r1;
     ShopItemSlot *var_r1_2;
+    s32           var_r2;
 
     shop->unk_858 = gSaveData.playerStats.money;
     if (gSaveData.playerStats.unk_19_6 == 1) {
-        var_r1 = shop->unk_834 | 4;
+        shop->unk_834 = shop->unk_834 | 4;
     } else {
-        var_r1 = 0;
+        shop->unk_834 = 0;
     }
-    shop->unk_834 = var_r1;
     shop->unk_768 = (u16) (((u32) gSaveData.unk_1AF2.shopId));
     func_ov043_020af574(&sp.menu2C, (s32) shop->unk_768);
     shop->unk_76A = (s16) (sp.menu2C.unk_02 + 0x3F);
@@ -853,7 +850,6 @@ void func_ov043_020b1404(ShopObject *arg0) {
     shop->unk_788 = func_ov043_020af8a8(arg0, shop->unk_77C, shop->unk_784);
     shop->unk_778 = func_ov043_020af8e4(arg0);
     shop->unk_77A = func_ov043_020af950(arg0);
-    func_ov043_020af994(arg0);
     shop->unk_780 = func_ov043_020af994(arg0);
     shop->unk_78C = func_ov043_020af9e8(arg0);
     shop->unk_78A = func_ov043_020af8a8(arg0, shop->unk_780, shop->unk_784);
@@ -862,8 +858,8 @@ void func_ov043_020b1404(ShopObject *arg0) {
     shop->unk_7B6 = 0;
     shop->unk_7B7 = (s8) func_ov043_020b1ecc(arg0, shop->unk_774);
     func_ov043_020b0f20(arg0);
-    var_r1_2 = shop->slots;
     var_r2 = 0;
+    var_r1_2 = shop->slots;
     do {
         shop->unk_738[var_r2] = (ShopItemTableEntry *) var_r1_2;
         var_r2 += 1;
