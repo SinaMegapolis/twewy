@@ -166,11 +166,17 @@ if __name__ == "__main__":
             print(f"warning: no source file owns {func}; leaving base.c empty")
             base_c.touch(exist_ok=True)
 
+        # decomp-permuter compiles each candidate from a temp file under /tmp
+        # (not from this repo), so the script must run inside WSL and hand the
+        # paths straight to wibo (a Linux-side PE loader, which accepts POSIX
+        # paths).  A Windows-path/`cmd.exe` based script silently fails there:
+        # winpath() turns "/tmp/permuterXXXX.c" into "\\tmp\\permuterXXXX.c" and
+        # mwccarm exits with "Operating system error".
+        wsl_root = "/mnt/" + str(REPO_ROOT.drive).rstrip(":").lower() + \
+            REPO_ROOT.as_posix()[2:]
         compilesh_data = f"""#!/usr/bin/env bash
-INPUT="$(realpath "$1")"
-OUTPUT="$(realpath "$3")"
-cd {REPO_ROOT}
-./wibo {COMPILER} {CC_FLAGS} {CC_INCLUDES} -lang=c99 -d {version} -c "$INPUT" -o "$OUTPUT"
+cd {wsl_root} || exit 1
+./wibo {COMPILER} {CC_FLAGS} {CC_INCLUDES} -lang=c99 -d REGION_{version.upper()} -c "$1" -o "$3"
 """
         compilesh = out_dir / "compile.sh"
         compilesh.write_text(compilesh_data)
@@ -219,6 +225,9 @@ compiler_type = "mwcc"
         settings = out_dir / "settings.toml"
         settings.write_text(settings_data)
 
+    # GNU as chokes on the disassembler's trailing "; jump table" / "; case N"
+    # comments (it treats ';' as a statement separator), so drop them first.
+    target_s.write_text(re.sub(r"(?m)[ \t]*;[^\n]*$", "", target_s.read_text()))
     result = subprocess.run(["arm-none-eabi-as", "-mlittle-endian", "-march=armv5te", str(target_s), "-o", str(target_s.with_suffix(".o"))])
     result.check_returncode()
     print(f"permuter nonmatchings/{func} --best-only -j8")
