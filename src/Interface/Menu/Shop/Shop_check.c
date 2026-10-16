@@ -57,10 +57,15 @@ void func_ov043_020b48d4(Shop_check* check, Sprite* sprite, Shop_check_Args* arg
     ShopObject*     shop = check->shop;
     SpriteAnimation anim = data_ov043_020ca574;
 
-    anim.dataType  = args->dataType;
     anim.animIndex = 47;
-    check->visible = (shop->unk_834 & 4) ? TRUE : FALSE;
+    anim.dataType  = args->dataType;
+    if (shop->unk_834 & 4) {
+        check->visible = TRUE;
+    } else {
+        check->visible = FALSE;
+    }
     _Sprite_Load(sprite, &anim);
+
 }
 
 s32 func_ov043_020b4964(TaskPool* pool, Task* task, void* args) {
