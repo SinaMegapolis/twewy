@@ -162,8 +162,8 @@ static s32 Shop_item_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) 
 s32 Shop_item_CreateTask(TaskPool* pool, s32 dataType, u16 itemIndex, ShopObject* shop) {
     Shop_item_Args args;
     args.dataType  = dataType;
-    args.itemIndex = itemIndex;
     args.shop      = shop;
+    args.itemIndex = itemIndex;
 
     args.itemFrame  = shop->unk_738[itemIndex]->unk_00;
     args.badgeFrame = shop->unk_738[itemIndex]->unk_02;
