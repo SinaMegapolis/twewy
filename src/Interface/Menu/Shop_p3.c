@@ -185,8 +185,8 @@ void func_ov043_020aeb14(ShopState *arg0) {
     Mem_InitializeHeap(&var_r5->base.heap, &var_r5->base.heapBuffer, 0x10000U);
     EasyTask_InitializePool(&var_r5->base.taskPool, &var_r5->base.heap, 0x100U, NULL, NULL);
     FS_LoadOverlay(0, (u32) &OVERLAY_31_ID);
-    data_02066aec = 0;
     data_02066eec = 0;
+    data_02066aec = 0;
     func_ov043_020ac5d8(var_r5);
     func_ov043_020b2934(shop);
     func_ov043_020ac6f4(var_r5);
