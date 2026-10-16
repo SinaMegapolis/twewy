@@ -569,7 +569,6 @@ void func_ov043_020b02fc(ShopObject *arg0) {
         } while ((s32) (shop->unk_778 - 1) > (s32) var_r5);
     }
     shop->unk_860 = var_r7;
-    func_ov043_020b02ac(shop->unk_860);
     shop->unk_862 = (u16) func_ov043_020b02ac(shop->unk_860);
     shop->unk_870 = (u16) ((shop->unk_862 / 6) - 2);
     shop->unk_872 = shop->unk_870;
@@ -804,7 +803,6 @@ void func_ov043_020b0f20(ShopObject *arg0) {
     } while ((u32) var_r8 < 0x10U);
 
     shop->unk_860 = var_r5;
-    func_ov043_020b02ac(shop->unk_860);
     shop->unk_862 = (u16) func_ov043_020b02ac(shop->unk_860);
     shop->unk_870 = (u16) ((shop->unk_862 / 6) - 2);
     shop->unk_872 = shop->unk_870;
