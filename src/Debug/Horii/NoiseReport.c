@@ -2404,21 +2404,17 @@ s32 func_ov028_020eb7ec(NrepInterU* param_1, void* param_2) {
     NrepInterU*            base = param_1;
     SpriteAnimation        anim;
     const NrepInterUEntry* tbl = data_ov028_020ed32c;
-    Sprite*                sp;
     s32                    i;
 
     func_ov028_020e7fc8(&anim, 0, data_ov028_020ed3e0->unk_00, &data_ov028_020ed318, 1, 2, 3, 4);
     MI_CpuSet(base, 0, sizeof(NrepInterU));
 
-    sp = base->sprites;
     for (i = 0; i < 0xF; i++) {
-        _Sprite_Load(sp, &anim);
-        func_ov028_020e81fc(sp, (s16)tbl->animIndex);
-        sp->posX       = tbl->posX;
-        sp->posY       = tbl->posY;
-        sp->unk_0A.raw = (sp->unk_0A.raw & ~0xC00) | 0x800;
-        sp++;
-        tbl++;
+        _Sprite_Load(&base->sprites[i], &anim);
+        func_ov028_020e81fc(&base->sprites[i], (s16)tbl[i].animIndex);
+        base->sprites[i].posX       = tbl[i].posX;
+        base->sprites[i].posY       = tbl[i].posY;
+        base->sprites[i].unk_0A.raw = (base->sprites[i].unk_0A.raw & ~0xC00) | 0x800;
     }
 
     base->sprites[13].unk_0A.raw = (base->sprites[13].unk_0A.raw & ~0xC00) | 0x400;
