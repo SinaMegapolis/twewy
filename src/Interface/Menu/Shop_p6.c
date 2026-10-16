@@ -895,13 +895,13 @@ void func_ov043_020b1618(ShopObject *arg0) {
     if (temp_r4 != 0) {
         p = &gSaveData.mingleFriends[idx].unk_8;
         temp_r2 = *p;
-        var_r3 = (temp_r2 & ~0xFF000000) + temp_r4;
-        if (var_r3 > 0x98967FU) {
-            var_r3 = 0x98967F;
-        }
         var_r2 = ((u32) (temp_r2 & 0xFF000000) >> 0x18) + 1;
         if (var_r2 > 0xFFU) {
             var_r2 = 0;
+        }
+        var_r3 = (temp_r2 & ~0xFF000000) + temp_r4;
+        if (var_r3 > 0x98967FU) {
+            var_r3 = 0x98967F;
         }
         *p = (var_r3 & ~0xFF000000) + (var_r2 << 0x18);
     }
