@@ -242,11 +242,7 @@ void func_ov043_020b52ac(Shop_textScr* textScr, u16* charData, u16* map) {
     }
 }
 
-// Nonmatching: prologue spill ordering + literal-pool template reloc
-// The prologue keeps itemIndex in r3 longer than the target (which stores its spill slot immediately),
-// and the SysFont fmt templates are anonymous .rodata objects here, so the pool entry relocates against
-// .rodata + 0 instead of the target's data_ov043_020ca5f4 + 0 (the same address, so the ROM matches).
-void func_ov043_020b55a4(Shop_textScr* textScr, u16* charData, u16* map, s32 itemIndex) {
+void func_ov043_020b55a4(Shop_textScr* textScr, u16* charData, u16* map, u8 itemIndex) {
     SysCode pinBuffer[40];
     SysCode lastsBuffer[40];
     ShopObject* shop = textScr->owner;
@@ -410,11 +406,7 @@ void func_ov043_020b55a4(Shop_textScr* textScr, u16* charData, u16* map, s32 ite
     SysFont_DrawCurrentToScreen(&textScr->fonts[0], map + 2, charData + 2, 0);
 }
 
-// Nonmatching: prologue spill ordering + literal-pool template reloc
-// Same two blockers as func_ov043_020b55a4: the itemIndex spill store lands late in the prologue and the
-// SysFont fmt templates are anonymous .rodata objects, so the pool entry relocates against .rodata + 0
-// instead of the target's data_ov043_020ca5f4 + 0 (the same address, so the ROM still matches).
-void func_ov043_020b5d18(Shop_textScr* textScr, u16* charData, u16* map, s32 itemIndex) {
+void func_ov043_020b5d18(Shop_textScr* textScr, u16* charData, u16* map, s16 itemIndex) {
     ShopObject*             shop = textScr->owner;
     Shop_textScr_ThreadData raw;
 
