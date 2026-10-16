@@ -32,7 +32,7 @@ const TaskHandle data_ov028_020ecf38 = {"Tsk_NrepBG", func_ov028_020e8d50, sizeo
 const TaskHandle data_ov028_020ed030 = {"Tsk_Font", func_ov028_020ea21c, sizeof(NrepFont)};
 const TaskHandle data_ov028_020ed204 = {"Tsk_NrepIcon", func_ov028_020ea6ac, sizeof(NrepIcon)};
 const TaskHandle data_ov028_020ed254 = {"Tsk_NrepInterD", func_ov028_020eb760, sizeof(NrepInterD)};
-const TaskHandle Tsk_NrepSeal = {"Tsk_NrepSeal", func_ov028_020ecd08, sizeof(NrepSealTaskData)};
+const TaskHandle Tsk_NrepSeal        = {"Tsk_NrepSeal", func_ov028_020ecd08, sizeof(NrepSealTaskData)};
 
 extern void ProcessOverlay_MenuTop(void* state);
 extern void func_ov030_020ae92c();
@@ -165,6 +165,8 @@ NrepEnemyData* func_ov028_020e7360(s32 arg0) {
 
 // Maps a Noise Report entry index to its enemy group and variant indices in the combat enemy table.
 // Suggested name: NoiseReport_MapNoiseToEnemyIndices
+// Nonmatching: block layout - the == 0x23 leaf is inlined here but out of line in the
+// target; 6 shape trials (polarity, switch, >/ >= chain) all lost to the current form
 void func_ov028_020e73a4(s32 arg0, s32* arg1, s16* arg2) {
     s32 i;
     s32 j;
@@ -178,8 +180,129 @@ void func_ov028_020e73a4(s32 arg0, s32* arg1, s16* arg2) {
         }
         *arg1 = data_ov028_020ecdc4[i][0];
         *arg2 = arg0 - data_ov028_020ecdc0[i][0];
-
-        if (*arg1 > 0x23) {
+        if (*arg1 <= 0x23) {
+            if (*arg1 == 0x23) {
+                *arg2 = 0;
+                return;
+            }
+            if (*arg1 > 0x1E) {
+                if (*arg1 > 0x21) {
+                    if (*arg1 == 0x22) {
+                        *arg2 = 0;
+                    }
+                } else if (*arg1 == 0x21) {
+                    *arg2 = arg0 - 0x57;
+                }
+                return;
+            }
+            if (*arg1 == 0x1E) {
+                *arg2 = arg0 - 0x4C;
+                return;
+            }
+            if (*arg1 > 0x11) {
+                return;
+            }
+            switch (*arg1) {
+                case 1:
+                    switch (*arg2) {
+                        case 5:
+                            *arg2 = 6;
+                            break;
+                        case 6:
+                            *arg2 = 7;
+                            break;
+                        case 7:
+                            *arg2 = 8;
+                            break;
+                        case 8:
+                            *arg2 = 5;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 6:
+                    if (*arg2 == 2) {
+                        *arg2 = 3;
+                    } else if (*arg2 == 3) {
+                        *arg2 = 2;
+                    }
+                    break;
+                case 8:
+                    if (*arg2 == 3) {
+                        *arg2 = 4;
+                    }
+                    break;
+                case 9:
+                    if (*arg2 == 4) {
+                        *arg2 = 5;
+                    } else if (*arg2 == 5) {
+                        *arg2 = 4;
+                    }
+                    break;
+                case 10:
+                    if (*arg2 == 2) {
+                        *arg2 = 3;
+                    } else if (*arg2 == 3) {
+                        *arg2 = 2;
+                    }
+                    break;
+                case 11:
+                    if (*arg2 == 1) {
+                        *arg2 = 2;
+                    } else if (*arg2 == 2) {
+                        *arg2 = 1;
+                    }
+                    break;
+                case 12:
+                    if (*arg2 == 2) {
+                        *arg2 = 1;
+                    } else if (*arg2 == 1) {
+                        *arg2 = 2;
+                    }
+                    break;
+                case 17:
+                    for (j = 0; j < 0xD; j++) {
+                        if (arg0 == data_ov028_020ecd58[j][0]) {
+                            *arg1 = data_ov028_020ecd5c[j][0];
+                            *arg2 = 0;
+                            break;
+                        }
+                    }
+                    switch (*arg1 - 0x11) {
+                        case 0:
+                        case 1:
+                            *arg2 = 1;
+                            break;
+                        case 4:
+                            *arg2 = 5;
+                            break;
+                        case 6:
+                            *arg2 = 0;
+                            break;
+                        case 7:
+                            *arg2 = 1;
+                            break;
+                        case 8:
+                            *arg2 = 0;
+                            break;
+                        case 9:
+                        case 10:
+                            *arg2 = 1;
+                            break;
+                        case 11:
+                        case 12:
+                            *arg2 = 0;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return;
+        } else {
             if (*arg1 > 0x2C) {
                 if (*arg1 > 0x30) {
                     switch (*arg1) {
@@ -208,128 +331,6 @@ void func_ov028_020e73a4(s32 arg0, s32* arg1, s16* arg2) {
             }
             return;
         }
-        if (*arg1 == 0x23) {
-            *arg2 = 0;
-            return;
-        }
-        if (*arg1 > 0x1E) {
-            if (*arg1 > 0x21) {
-                if (*arg1 == 0x22) {
-                    *arg2 = 0;
-                }
-            } else if (*arg1 == 0x21) {
-                *arg2 = arg0 - 0x57;
-            }
-            return;
-        }
-        if (*arg1 == 0x1E) {
-            *arg2 = arg0 - 0x4C;
-            return;
-        }
-        if (*arg1 > 0x11) {
-            return;
-        }
-
-        switch (*arg1) {
-            case 1:
-                switch (*arg2) {
-                    case 5:
-                        *arg2 = 6;
-                        break;
-                    case 6:
-                        *arg2 = 7;
-                        break;
-                    case 7:
-                        *arg2 = 8;
-                        break;
-                    case 8:
-                        *arg2 = 5;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case 6:
-                if (*arg2 == 2) {
-                    *arg2 = 3;
-                } else if (*arg2 == 3) {
-                    *arg2 = 2;
-                }
-                break;
-            case 8:
-                if (*arg2 == 3) {
-                    *arg2 = 4;
-                }
-                break;
-            case 9:
-                if (*arg2 == 4) {
-                    *arg2 = 5;
-                } else if (*arg2 == 5) {
-                    *arg2 = 4;
-                }
-                break;
-            case 10:
-                if (*arg2 == 2) {
-                    *arg2 = 3;
-                } else if (*arg2 == 3) {
-                    *arg2 = 2;
-                }
-                break;
-            case 11:
-                if (*arg2 == 1) {
-                    *arg2 = 2;
-                } else if (*arg2 == 2) {
-                    *arg2 = 1;
-                }
-                break;
-            case 12:
-                if (*arg2 == 2) {
-                    *arg2 = 1;
-                } else if (*arg2 == 1) {
-                    *arg2 = 2;
-                }
-                break;
-            case 17:
-                for (j = 0; j < 0xD; j++) {
-                    if (arg0 == data_ov028_020ecd58[j][0]) {
-                        *arg1 = data_ov028_020ecd5c[j][0];
-                        *arg2 = 0;
-                        break;
-                    }
-                }
-                switch (*arg1 - 0x11) {
-                    case 0:
-                    case 1:
-                        *arg2 = 1;
-                        break;
-                    case 4:
-                        *arg2 = 5;
-                        break;
-                    case 6:
-                        *arg2 = 0;
-                        break;
-                    case 7:
-                        *arg2 = 1;
-                        break;
-                    case 8:
-                        *arg2 = 0;
-                        break;
-                    case 9:
-                    case 10:
-                        *arg2 = 1;
-                        break;
-                    case 11:
-                    case 12:
-                        *arg2 = 0;
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            default:
-                break;
-        }
-        return;
     }
 }
 
@@ -341,6 +342,8 @@ void func_ov028_020e776c(NrepBgLayer* param_1, const NrepBgConfig* param_2) {
     func_ov028_020e7970(param_1, param_2);
 }
 
+// Nonmatching: regalloc - 0x220/0x3C stride constants land in swapped registers;
+// named-local, engine/layer-extraction and declaration-order variants were all inert
 // Loads the archive data if needed and allocates the BG screen resource for a layer.
 // Suggested name: NrepBg_LoadScreen
 void func_ov028_020e7798(NrepBgLayer* arg0, const NrepBgConfig* arg1) {
@@ -362,6 +365,7 @@ void func_ov028_020e7798(NrepBgLayer* arg0, const NrepBgConfig* arg1) {
                                            g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].screenSizeText);
 }
 
+// Nonmatching: regalloc - same template mismatch as NrepBg_LoadScreen
 // Loads the archive data if needed and allocates the BG character tile resource for a layer.
 // Suggested name: NrepBg_LoadChar
 void func_ov028_020e7888(NrepBgLayer* arg0, const NrepBgConfig* arg1) {
@@ -383,6 +387,7 @@ void func_ov028_020e7888(NrepBgLayer* arg0, const NrepBgConfig* arg1) {
                              g_DisplaySettings.engineState[arg0->engine].bgSettings[arg0->layer].charBase, 0, arg1->charSize);
 }
 
+// Nonmatching: regalloc - same template mismatch as NrepBg_LoadScreen
 // Loads the archive data if needed and allocates and flushes the palette resource for a layer.
 // Suggested name: NrepBg_LoadPalette
 void func_ov028_020e7970(NrepBgLayer* arg0, const NrepBgConfig* arg1) {
@@ -581,8 +586,8 @@ void func_ov028_020e7fc8(SpriteAnimation* arg0, s32 arg1, s32 arg2, const BinIde
     SpriteAnimation anim = data_ov028_020ecef8;
 
     MI_CpuCopyU8(&anim, arg0, sizeof(SpriteAnimation));
-    arg0->bits_0_1  = arg1 & 3;
-    arg0->dataType  = arg2 & 0xF;
+    arg0->bits_0_1  = arg1;
+    arg0->dataType  = arg2;
     arg0->binIden   = arg3;
     arg0->unk_18    = 0;
     arg0->packIndex = 0;
@@ -594,6 +599,8 @@ void func_ov028_020e7fc8(SpriteAnimation* arg0, s32 arg1, s32 arg2, const BinIde
     arg0->bits_7_9  = 5;
 }
 
+// Nonmatching: scheduling - the arg2 %% 10 / / 10 expansion block sits on the other
+// side of the Sprite_SetAnimation call; statement order did not move it
 // Updates an array of digit sprites to display an unsigned integer in base 10.
 // Suggested name: NoiseReport_SetNumberSprites
 void func_ov028_020e80a0(Sprite* arg0, s16 arg1, u32 arg2, s16 arg3, s32 arg4) {
@@ -716,6 +723,8 @@ void func_ov028_020e8310(void) {
 }
 
 // Initializes hardware graphics, VRAM banks, BG layers, OAM managers, and VBlank callback for Noise Report.
+// Nonmatching: regalloc - 3 constant-materialisation orderings differ across a large
+// global-initialisation sequence
 // Suggested name: NoiseReport_InitHardware
 // Nonmatching
 void func_ov028_020e83f8(void) {
@@ -1051,12 +1060,12 @@ void func_ov028_020e8e18(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
     if (func_ov028_020e8240(idx) != 0) {
         SysFont_SetMsg(arg1, (u16)arg2->msgId);
         width = SysFont_MeasureCurrentWidth(arg1);
-        SysFont_SetPos(arg1, arg2->x - (width >> 1), arg2->y);
+        SysFont_SetPos(arg1, (s16)(arg2->x - (width >> 1)), arg2->y);
         SysFont_DrawCurrentToScreen(arg1, arg3 + 2, arg4 + 2, 0);
     } else {
         SysFont_SetMsg(arg1, (u16)(idx + 0x2DC5));
         width = SysFont_MeasureCurrentWidth(arg1);
-        SysFont_SetPos(arg1, arg2->x - (width >> 1), arg2->y);
+        SysFont_SetPos(arg1, (s16)(arg2->x - (width >> 1)), arg2->y);
         SysFont_DrawCurrentToScreen(arg1, arg3 + 2, arg4 + 2, 0);
     }
 }
@@ -1110,7 +1119,7 @@ void func_ov028_020e8fe0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 
     SysFont_Format(buf, fmt, (u16)val);
     val = SysFont_MeasureWidth(arg1, buf);
-    SysFont_SetPos(arg1, arg2->x - (val >> 1), arg2->y);
+    SysFont_SetPos(arg1, (s16)(arg2->x - (val >> 1)), arg2->y);
     SysFont_DrawToScreen(arg1, buf, arg3 + 2, arg4 + 2, 0);
 }
 
@@ -1132,7 +1141,7 @@ void func_ov028_020e90b0(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
     fmt[1] = data_ov028_020ecff4[3];
     SysFont_Format(buf, fmt, entry->seenFlag);
     width = SysFont_MeasureWidth(arg1, buf);
-    SysFont_SetPos(arg1, arg2->x - (width >> 1), arg2->y);
+    SysFont_SetPos(arg1, (s16)(arg2->x - (width >> 1)), arg2->y);
     SysFont_DrawToScreen(arg1, buf, arg3 + 2, arg4 + 2, 0);
 }
 
@@ -1228,20 +1237,22 @@ void func_ov028_020e91cc(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 
     SysFont_Format(buf, msgBuf);
     v = SysFont_MeasureWidth(arg1, buf);
-    SysFont_SetPos(arg1, arg2->x - (v >> 1), arg2->y);
+    SysFont_SetPos(arg1, (s16)(arg2->x - (v >> 1)), arg2->y);
     SysFont_DrawToScreen(arg1, buf, arg3 + 2, arg4 + 2, 0);
     Mem_Free(&gDebugHeap, msgBuf);
 }
 
+// Nonmatching: scheduling - mwcc interleaves the five fmt[] loads/stores itself;
+// all 12 store-orderings scored identically
 // Formats the integer portion of a drop rate percentage (100, 10..99, or 0..9) into the output buffer.
 // Suggested name: NrepFont_FormatDropRateInt
 void func_ov028_020e9464(NrepFont* arg0, SysFont* arg1, u16* arg2, s32 arg3) {
     if (arg3 >= 100) {
         u16 fmt[5];
-        fmt[0] = data_ov028_020ecff4[14];
         fmt[1] = data_ov028_020ecff4[15];
-        fmt[2] = data_ov028_020ecff4[16];
+        fmt[0] = data_ov028_020ecff4[14];
         fmt[3] = data_ov028_020ecff4[17];
+        fmt[2] = data_ov028_020ecff4[16];
         fmt[4] = data_ov028_020ecff4[18];
         SysFont_Format(arg2, fmt, 1, 0, 0);
     } else if (arg3 >= 10) {
@@ -1308,9 +1319,9 @@ s32 func_ov028_020e957c(NrepFont* arg0, s32 arg1, s32 arg2) {
 // Draws the integer portion of a difficulty slot's drop rate percentage.
 // Suggested name: NrepFont_DrawDropRateInt
 void func_ov028_020e9650(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4, s32 arg5) {
-    u16 buf[22];
+    u16 buf[20];
     s16 idx = data_ov028_020ed3e0->unk_16;
-    u8  val;
+    s32 val;
     s32 r;
 
     if (idx >= 0x60) {
@@ -1325,7 +1336,7 @@ void func_ov028_020e9650(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 
     r = func_ov028_020e957c(arg0, idx, arg5);
     func_ov028_020e9464(arg0, arg1, buf, r / 100);
-    SysFont_SetColor(arg1, val);
+    SysFont_SetColor(arg1, (u8)val);
     SysFont_SetSpacing(arg1, 1, 1);
     SysFont_DrawToScreen(arg1, buf, arg3 + 2, arg4 + 2, 0);
 }
@@ -1333,10 +1344,9 @@ void func_ov028_020e9650(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 // Draws the two-digit fractional portion of a difficulty slot's drop rate percentage.
 // Suggested name: NrepFont_DrawDropRateFrac
 void func_ov028_020e9704(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig* arg2, u16* arg3, u16* arg4, s32 arg5) {
+    u16 buf[21];
     u16 fmt[5];
-    u16 buf[22];
-    s16 idx = data_ov028_020ed3e0->unk_16;
-    u8  val;
+    s32 val;
     s32 r;
 
     fmt[0] = data_ov028_020ecff4[19];
@@ -1344,6 +1354,8 @@ void func_ov028_020e9704(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
     fmt[2] = data_ov028_020ecff4[21];
     fmt[3] = data_ov028_020ecff4[22];
     fmt[4] = data_ov028_020ecff4[23];
+
+    s16 idx = data_ov028_020ed3e0->unk_16;
 
     if (idx >= 0x60) {
         return;
@@ -1357,7 +1369,7 @@ void func_ov028_020e9704(NrepFont* arg0, SysFont* arg1, const NrepFontItemConfig
 
     r = func_ov028_020e957c(arg0, idx, arg5);
     SysFont_Format(buf, fmt, (r / 10) % 10, r % 10);
-    SysFont_SetColor(arg1, val);
+    SysFont_SetColor(arg1, (u8)val);
     SysFont_SetSpacing(arg1, 1, 1);
     SysFont_DrawToScreen(arg1, buf, arg3 + 2, arg4 + 2, 0);
 }
@@ -1735,7 +1747,7 @@ SpriteFrameInfo* func_ov028_020ea350(void* arg0, s32 arg1, s32 arg2) {
 void func_ov028_020ea3ec(NrepIcon* arg0) {
     SpriteAnimation anim = data_ov028_020ed220;
 
-    anim.dataType  = data_ov028_020ed3e0->unk_00 & 0xF;
+    anim.dataType  = data_ov028_020ed3e0->unk_00;
     anim.animIndex = 3;
     anim.posX      = 0xDA;
     anim.posY      = 0x0C;
@@ -2498,8 +2510,8 @@ void func_ov028_020eba2c(const BinIdentifier* arg0) {
 void func_ov028_020eba84(NrepPreview* arg0, Sprite* arg1, s32* arg2) {
     Sprite*         base = arg1;
     SpriteAnimation anim;
-    Sprite*         s;
     s32             i;
+    Sprite*         s;
 
     func_ov028_020e7fc8(&anim, 0, data_ov028_020ed3e0->unk_00, (const BinIdentifier*)arg2[0], 1, 2, 3, 4);
 
@@ -2697,7 +2709,7 @@ void func_ov028_020ec194(NrepPreview* arg0) {
 
 // Checks whether the current entry is one of the three entries whose preview art differs from the default.
 // Suggested name: NrepPreview_HasAlternateArt
-s32 func_ov028_020ec1bc(void) {
+s32 func_ov028_020ec1bc(NrepPreview* arg0) {
     s32 iVar1 = 0;
     while (TRUE) {
         if (data_ov028_020ed3a4[iVar1] == 96) {
@@ -2716,7 +2728,6 @@ s32 func_ov028_020ec1bc(void) {
 // Suggested name: NrepPreview_LoadBanners
 void func_ov028_020ec204(NrepPreview* arg0) {
     SpriteAnimation anim;
-    short           sStack_1e;
 
     if (arg0->unk_7C4 == data_ov028_020ed3e0->unk_16) {
         return;
@@ -2730,14 +2741,16 @@ void func_ov028_020ec204(NrepPreview* arg0) {
         Sprite_Release(&arg0->unk_044);
     }
     func_ov028_020e7fc8(&anim, 1, data_ov028_020ed3e0->unk_00, &data_ov028_020ed3ac, 1, 2, 3, 4);
-    sStack_1e = data_ov028_020ed3e0->unk_16 + 1;
-    if (sStack_1e < 0x61) {
+    anim.unk_18    = 2;
+    anim.unk_22    = 2;
+    anim.packIndex = data_ov028_020ed3e0->unk_16 + 1;
+    if (anim.packIndex < 0x61) {
         _Sprite_Load(&arg0->unk_004, &anim);
         func_ov028_020e81fc(&arg0->unk_004, 1);
         arg0->unk_004.posX       = 190;
         arg0->unk_004.posY       = 88;
         arg0->unk_004.unk_0A.raw = arg0->unk_004.unk_0A.raw & ~0xC00 | 0x800;
-        if (func_ov028_020ec1bc()) {
+        if (func_ov028_020ec1bc(arg0)) {
             _Sprite_Load(&arg0->unk_044, &anim);
             func_ov028_020e81fc(&arg0->unk_044, 2);
             arg0->unk_044.posX       = 190;
@@ -2825,7 +2838,7 @@ s32 func_ov028_020ec4a8(TaskPool* pool, Task* task, void* arg2, s32 arg3) {
 // Spawns the Noise seal task (Tsk_NrepSeal).
 // Suggested name: NrepSeal_CreateTask
 void func_ov028_020ec4f8(const BinIdentifier* arg0) {
-    s32                     stack[1];
+    s32 stack[1];
 
     MI_CpuSet(&stack, 0, 4);
     stack[0] = (s32)arg0;
@@ -2997,7 +3010,7 @@ s32 func_ov028_020eca54(NrepSealTaskData* arg0) {
             func_ov028_020e81fc(&seal->unk_204, 0);
         } else {
             func_ov028_020e81fc(&seal->unk_144, 1);
-            func_ov028_020e80a0(&seal->unk_184, 2, (u32)(u8)rec->killCount, 3, 0);
+            func_ov028_020e80a0(&seal->unk_184, 2, rec->killCount, 3, 0);
         }
 
         Sprite_Update(&seal->unk_004);

@@ -163,7 +163,7 @@ void SysFont_Destroy(SysFont* font);
 void SysFont_SetPos(SysFont* font, s32 x, s32 y);
 
 /// @brief Sets the text colour: a palette index added to each source pixel. Defaults to 0xE.
-void SysFont_SetColor(SysFont* font, s32 color);
+void SysFont_SetColor(SysFont* font, u8 color);
 
 /**
  * @brief Sets horizontal alignment within a box of @p boxWidth pixels.
