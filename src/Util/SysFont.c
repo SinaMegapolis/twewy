@@ -953,8 +953,8 @@ void SysFont_SetPos(SysFont* font, s32 x, s32 y) {
     font->y = y;
 }
 
-void SysFont_SetColor(SysFont* font, s32 color) {
-    font->color = (u8)color;
+void SysFont_SetColor(SysFont* font, u8 color) {
+    font->color = color;
 }
 
 void SysFont_SetHAlign(SysFont* font, s32 align, s32 boxWidth) {
