@@ -73,7 +73,13 @@ typedef struct {
     /* 0x06C */ u16   unk_6C;
     /* 0x06E */ u16   unk_6E;
     /* 0x070 */ u16*  unk_70;
-    /* 0x074 */ char  unk_74[0x1C];
+    /* 0x074 */ s32   unk_74;
+    /* 0x078 */ s32   unk_78;
+    /* 0x07C */ s32   unk_7C;
+    /* 0x080 */ s32   unk_80;
+    /* 0x084 */ s32   unk_84;
+    /* 0x088 */ s32   unk_88;
+    /* 0x08C */ void* unk_8C;
     /* 0x090 */ u32   unk_90;
     /* 0x094 */ u32   unk_94;
     /* 0x098 */ u32   unk_98;
