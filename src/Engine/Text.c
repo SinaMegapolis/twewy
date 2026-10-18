@@ -1,6 +1,45 @@
 #include "Engine/Text.h"
 #include "Engine/Core/OamMgr.h"
+
+typedef struct {
+    u16 unk_00;
+    u16 unk_02;
+} UnkTextPair;
+typedef struct {
+    u16 half0;
+    u16 half1;
+    u16 half2;
+    u16 half3;
+} UnkQuad;
 #include "Engine/File/BinMgr.h"
+
+typedef struct {
+    /* 0x00 */ BinIdentifier* bin;
+    /* 0x04 */ s32            packIndex;
+    /* 0x08 */ s32            loadMode;
+    /* 0x0C */ TextU16Pair    glyphSize;
+    /* 0x10 */ TextU16Pair    dimensions;
+    /* 0x14 */ s32            dataOffset;
+    /* 0x18 */ s32            paletteOffset;
+    /* 0x1C */ s32            mappingOffset;
+    /* 0x20 */ u16            flags;
+    /* 0x22 */ u16            padding;
+} TextFontEntry;
+
+typedef struct {
+    /* 0x00 */ s32         screen;
+    /* 0x04 */ s32         pack;
+    /* 0x08 */ s32         mode;
+    /* 0x0C */ TextU16Pair tileOrigin;
+    /* 0x10 */ TextU16Pair tileSize;
+    /* 0x14 */ TextU16Pair spacing;
+    /* 0x18 */ s32         tilemap;
+    /* 0x1C */ s32         pixels;
+    /* 0x20 */ s32         buffer;
+    /* 0x24 */ s32         fonts;
+    /* 0x28 */ s32         fontIndex;
+    /* 0x2C */ u16         controls[16];
+} TextInitArgs;
 
 s32 func_020107a4(TextObject* obj, s32 param_2, s32 param_3);
 
@@ -18,7 +57,6 @@ void  func_020105d4(TextObject* obj, u32 arg1, u32 arg2);
 void  func_02011bec(TextObject* obj);
 BOOL  func_02011c04(TextObject* obj);
 void  func_02011c1c(TextObject* obj, u16 arg1);
-void  func_02011d48(void);
 void  func_02011494(TextObject* obj);
 void* func_02011d8c(TextObject* obj, u8* arg1);
 void  func_02011e94(TextObject* obj, s32 arg1, s32 arg2, u8* arg3);
@@ -42,37 +80,170 @@ const FuncPtr data_0205aea4[20] = {
     func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa28,
 };
 
-s32 data_0205ae64[0x10]  = {0xF};
-s32 data_0205b454[0x100] = {
-    0,          0,          1,          1,          0,          0,          -1,         -1,         0,          0,
-    0,          0,          0,          0,          2,          1,          1,          0,          -1,         -1,
-    0,          0,          0,          0,          0,          0,          4,          1,          1,          1,
-    -1,         -1,         0,          0,          0,          0,          0,          0,          4,          1,
-    1,          1,          4,          0,          4,          1,          1,          1,          0,          0,
-    1,          2,          2,          0,          -1,         -1,         0,          0,          0,          0,
-    0,          0,          2,          2,          0,          1,          -1,         -1,         0,          0,
-    0,          0,          0,          0,          4,          2,          1,          2,          -1,         -1,
-    0,          0,          0,          0,          0,          0,          4,          2,          1,          2,
-    4,          0,          4,          2,          1,          2,          0,          0,          1,          4,
-    2,          1,          -1,         -1,         0,          0,          0,          0,          0,          0,
-    2,          4,          2,          2,          -1,         -1,         0,          0,          0,          0,
-    0,          0,          4,          4,          0,          2,          -1,         -1,         0,          0,
-    0,          0,          0,          0,          8,          4,          1,          3,          -1,         -1,
-    0,          0,          0,          0,          0,          0,          1,          4,          2,          1,
-    0,          4,          1,          4,          2,          1,          0,          0,          2,          4,
-    2,          2,          0,          4,          2,          4,          2,          2,          0,          0,
-    4,          8,          2,          3,          -1,         -1,         0,          0,          0,          0,
-    0,          0,          8,          8,          0,          3,          -1,         -1,         0,          0,
-    0,          0,          1075920923, 1076576293, 1077887025, 1078280259, 1080115293, 1080901735, 1083261063, 1084833955,
-    1085751473, 1088110781, 1089159391, 1090076919, 1091256585, 1091911953, 1093878049, 1094402357, 1096368447, 1097548133,
-    1098596727, 1101742483, 1102922167, 1103839679, 1106199015, 1106854387, 1107771909, 1109344793, 1110000163, 1111704111,
-    1112883795, 1113670235, 1115505267, 1116029571, 1116816009, 1117602455, 1120223925, 1121141451, 1122190045, 1124549361,
-    1126122255, 1126646565, 1127695155, 1129268025, 1130971991, 1133331339, 1134904211, 1135559593, 1136477109, 1137656775,
-    1139229665, 1139622891, 1140409329, 1141589001, 1143161879, 1144734761, 1145390143, 1146176587, 1146700883, 1148142693,
-    1150239875, 1151681697, 1152205995, 1153385661, 1154958537, 1157186779,
+const s32 data_0205ae64[0x10] = {0xF};
+typedef struct {
+    s32 x;
+    s32 y;
+    s32 width;
+    s32 height;
+    s32 shape;
+    s32 size;
+} TextOamRegion;
+typedef struct {
+    s32 bytes;
+    s32 tiles;
+} TextOamAllocation;
+const TextOamRegion data_0205b454[4][4][2] = {
+    {
+     {
+     {0, 0, 1, 1, 0, 0},
+     {-1, -1, 0, 0, 0, 0},
+     }, {
+ {0, 0, 2, 1, 1, 0},
+ {-1, -1, 0, 0, 0, 0},
+ }, {
+ {0, 0, 4, 1, 1, 1},
+ {-1, -1, 0, 0, 0, 0},
+ }, {
+ {0, 0, 4, 1, 1, 1},
+ {4, 0, 4, 1, 1, 1},
+ }, },
+    {
+     {
+     {0, 0, 1, 2, 2, 0},
+     {-1, -1, 0, 0, 0, 0},
+     }, {
+ {0, 0, 2, 2, 0, 1},
+ {-1, -1, 0, 0, 0, 0},
+ }, {
+ {0, 0, 4, 2, 1, 2},
+ {-1, -1, 0, 0, 0, 0},
+ }, {
+ {0, 0, 4, 2, 1, 2},
+ {4, 0, 4, 2, 1, 2},
+ }, },
+    {
+     {
+     {0, 0, 1, 4, 2, 1},
+     {-1, -1, 0, 0, 0, 0},
+     }, {
+ {0, 0, 2, 4, 2, 2},
+ {-1, -1, 0, 0, 0, 0},
+ }, {
+ {0, 0, 4, 4, 0, 2},
+ {-1, -1, 0, 0, 0, 0},
+ }, {
+ {0, 0, 8, 4, 1, 3},
+ {-1, -1, 0, 0, 0, 0},
+ }, },
+    {
+     {
+     {0, 0, 1, 4, 2, 1},
+     {0, 4, 1, 4, 2, 1},
+     }, {
+ {0, 0, 2, 4, 2, 2},
+ {0, 4, 2, 4, 2, 2},
+ }, {
+ {0, 0, 4, 8, 2, 3},
+ {-1, -1, 0, 0, 0, 0},
+ }, {
+ {0, 0, 8, 8, 0, 3},
+ {-1, -1, 0, 0, 0, 0},
+ }, },
 };
-s32 data_0205ae24;
-s32 data_0205b0f4;
+extern const u32 data_0205ae24[8][2];
+const u32        data_0205b0f4[9][8][3] = {
+    {
+     {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
+     {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
+     {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
+     {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
+     {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
+     {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
+     {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
+     {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
+     },
+    {
+     {0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFF0},
+     {0xFFFFFF0F, 0xFFFFFFFF, 0xFFFFFF00},
+     {0xFFFFF0FF, 0xFFFFFFFF, 0xFFFFF000},
+     {0xFFFF0FFF, 0xFFFFFFFF, 0xFFFF0000},
+     {0xFFF0FFFF, 0xFFFFFFFF, 0xFFF00000},
+     {0xFF0FFFFF, 0xFFFFFFFF, 0xFF000000},
+     {0xF0FFFFFF, 0xFFFFFFFF, 0xF0000000},
+     {0x0FFFFFFF, 0xFFFFFFFF, 0x00000000},
+     },
+    {
+     {0xFFFFFF00, 0xFFFFFFFF, 0xFFFFFF00},
+     {0xFFFFF00F, 0xFFFFFFFF, 0xFFFFF000},
+     {0xFFFF00FF, 0xFFFFFFFF, 0xFFFF0000},
+     {0xFFF00FFF, 0xFFFFFFFF, 0xFFF00000},
+     {0xFF00FFFF, 0xFFFFFFFF, 0xFF000000},
+     {0xF00FFFFF, 0xFFFFFFFF, 0xF0000000},
+     {0x00FFFFFF, 0xFFFFFFFF, 0x00000000},
+     {0x0FFFFFFF, 0xFFFFFFF0, 0x00000000},
+     },
+    {
+     {0xFFFFF000, 0xFFFFFFFF, 0xFFFFF000},
+     {0xFFFF000F, 0xFFFFFFFF, 0xFFFF0000},
+     {0xFFF000FF, 0xFFFFFFFF, 0xFFF00000},
+     {0xFF000FFF, 0xFFFFFFFF, 0xFF000000},
+     {0xF000FFFF, 0xFFFFFFFF, 0xF0000000},
+     {0x000FFFFF, 0xFFFFFFFF, 0x00000000},
+     {0x00FFFFFF, 0xFFFFFFF0, 0x00000000},
+     {0x0FFFFFFF, 0xFFFFFF00, 0x00000000},
+     },
+    {
+     {0xFFFF0000, 0xFFFFFFFF, 0xFFFF0000},
+     {0xFFF0000F, 0xFFFFFFFF, 0xFFF00000},
+     {0xFF0000FF, 0xFFFFFFFF, 0xFF000000},
+     {0xF0000FFF, 0xFFFFFFFF, 0xF0000000},
+     {0x0000FFFF, 0xFFFFFFFF, 0x00000000},
+     {0x000FFFFF, 0xFFFFFFF0, 0x00000000},
+     {0x00FFFFFF, 0xFFFFFF00, 0x00000000},
+     {0x0FFFFFFF, 0xFFFFF000, 0x00000000},
+     },
+    {
+     {0xFFF00000, 0xFFFFFFFF, 0xFFF00000},
+     {0xFF00000F, 0xFFFFFFFF, 0xFF000000},
+     {0xF00000FF, 0xFFFFFFFF, 0xF0000000},
+     {0x00000FFF, 0xFFFFFFFF, 0x00000000},
+     {0x0000FFFF, 0xFFFFFFF0, 0x00000000},
+     {0x000FFFFF, 0xFFFFFF00, 0x00000000},
+     {0x00FFFFFF, 0xFFFFF000, 0x00000000},
+     {0x0FFFFFFF, 0xFFFF0000, 0x00000000},
+     },
+    {
+     {0xFF000000, 0xFFFFFFFF, 0xFF000000},
+     {0xF000000F, 0xFFFFFFFF, 0xF0000000},
+     {0x000000FF, 0xFFFFFFFF, 0x00000000},
+     {0x00000FFF, 0xFFFFFFF0, 0x00000000},
+     {0x0000FFFF, 0xFFFFFF00, 0x00000000},
+     {0x000FFFFF, 0xFFFFF000, 0x00000000},
+     {0x00FFFFFF, 0xFFFF0000, 0x00000000},
+     {0x0FFFFFFF, 0xFFF00000, 0x00000000},
+     },
+    {
+     {0xF0000000, 0xFFFFFFFF, 0xF0000000},
+     {0x0000000F, 0xFFFFFFFF, 0x00000000},
+     {0x000000FF, 0xFFFFFFF0, 0x00000000},
+     {0x00000FFF, 0xFFFFFF00, 0x00000000},
+     {0x0000FFFF, 0xFFFFF000, 0x00000000},
+     {0x000FFFFF, 0xFFFF0000, 0x00000000},
+     {0x00FFFFFF, 0xFFF00000, 0x00000000},
+     {0x0FFFFFFF, 0xFF000000, 0x00000000},
+     },
+    {
+     {0x00000000, 0xFFFFFFFF, 0x00000000},
+     {0x0000000F, 0xFFFFFFF0, 0x00000000},
+     {0x000000FF, 0xFFFFFF00, 0x00000000},
+     {0x00000FFF, 0xFFFFF000, 0x00000000},
+     {0x0000FFFF, 0xFFFF0000, 0x00000000},
+     {0x000FFFFF, 0xFFF00000, 0x00000000},
+     {0x00FFFFFF, 0xFF000000, 0x00000000},
+     {0x0FFFFFFF, 0xF0000000, 0x00000000},
+     },
+};
 
 const u16 data_0205aef4[256] = {
     0x0,    0x1,    0x2,    0x3,    0x4,    0x5,    0x6,    0x7,    0x8,    0x9,    0xA,    0xB,    0xC,    0xD,    0xE,
@@ -138,258 +309,281 @@ void func_0200fa28(u32*, u8*, u32*, s32, s32, u32, u32*, u32*) {
     return;
 }
 
-void func_0200fa2c(u32* arg0, u8* arg1, u32* arg2, s32 arg3, s32 arg4, u32 arg5, u32* arg6, u32* arg7) {
-    s32 temp_r3 = arg3 * 4;
-    s32 var_r7  = 0;
-    if (arg4 <= 0) {
+void func_0200fa2c(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
+                   u32* shifts) {
+    u32 pixels;
+    s32 row;
+    s32 packed;
+    s32 bit;
+    u32 sourceOffset;
+
+    width *= 4;
+    row = 0;
+    if (height <= 0) {
         return;
     }
-    u32 var_r9 = 0;
+    sourceOffset = 0;
     do {
-        u32 var_r6 = 0;
-        s32 var_r8 = 0;
-        s32 var_r5 = arg1[var_r9];
-        if (temp_r3 > 0) {
+        pixels = 0;
+        bit    = 0;
+        packed = source[sourceOffset];
+        if (width > 0) {
             do {
-                u32 temp_r11 = arg2[var_r5 & 1];
-                var_r5       = var_r5 >> 1;
-                var_r6 |= temp_r11 << var_r8;
-                var_r8 += 4;
-            } while (var_r8 < temp_r3);
+                u32 decodedPixel = palette[packed & 1];
+                packed           = packed >> 1;
+                pixels |= decodedPixel << bit;
+                bit += 4;
+            } while (bit < width);
         }
-        u32 temp_r11_2 = arg0[var_r7] & arg6[0];
-        arg0[var_r7]   = temp_r11_2;
-        var_r9 += arg5;
-        arg0[var_r7]   = temp_r11_2 | (var_r6 << arg7[0]);
-        u32 temp_r11_3 = arg0[var_r7 + 8];
-        var_r7 += 1;
-        u32 temp_r11_4       = temp_r11_3 & arg6[1];
-        arg0[var_r7 - 1 + 8] = temp_r11_4;
-        arg0[var_r7 - 1 + 8] = temp_r11_4 | (var_r6 >> arg7[1]);
-    } while (var_r7 < arg4);
+        destination[row] &= masks[0];
+        sourceOffset += sourceStride;
+        destination[row] |= pixels << shifts[0];
+        u32 rightPixels      = destination[row + 8];
+        u32 rightMasked      = rightPixels & masks[1];
+        destination[row + 8] = rightMasked;
+        destination[row + 8] = rightMasked | (pixels >> shifts[1]);
+        row += 1;
+    } while (row < height);
 }
 
-void func_0200fad4(u32* arg0, u8* arg1, u32* arg2, s32 arg3, s32 arg4, u32 arg5, u32* arg6, u32* arg7) {
-    s32 temp_r3 = arg3 * 4;
-    s32 var_r7  = 0;
-    if (arg4 <= 0) {
+void func_0200fad4(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
+                   u32* shifts) {
+    u32 pixels;
+    s32 row;
+    s32 packed;
+    s32 bit;
+    u32 sourceOffset;
+
+    width *= 4;
+    row = 0;
+    if (height <= 0) {
         return;
     }
-    u32 var_r9 = 0;
+    sourceOffset = 0;
     do {
-        u32 var_r6 = 0;
-        s32 var_r8 = 0;
-        s32 var_r5 = arg1[var_r9] | (arg1[var_r9 + 1] << 8);
-        if (temp_r3 > 0) {
+        pixels = 0;
+        bit    = 0;
+        packed = (source[sourceOffset + 1] << 8) | source[sourceOffset];
+        if (width > 0) {
             do {
-                u32 temp_r11 = arg2[var_r5 & 3];
-                var_r5       = var_r5 >> 2;
-                var_r6 |= temp_r11 << var_r8;
-                var_r8 += 4;
-            } while (var_r8 < temp_r3);
+                u32 decodedPixel = palette[packed & 3];
+                packed           = packed >> 2;
+                pixels |= decodedPixel << bit;
+                bit += 4;
+            } while (bit < width);
         }
-        u32 temp_r11_2 = arg0[var_r7] & arg6[0];
-        arg0[var_r7]   = temp_r11_2;
-        var_r9 += arg5;
-        arg0[var_r7]   = temp_r11_2 | (var_r6 << arg7[0]);
-        u32 temp_r11_3 = arg0[var_r7 + 8];
-        var_r7 += 1;
-        u32 temp_r11_4       = temp_r11_3 & arg6[1];
-        arg0[var_r7 - 1 + 8] = temp_r11_4;
-        arg0[var_r7 - 1 + 8] = temp_r11_4 | (var_r6 >> arg7[1]);
-    } while (var_r7 < arg4);
+        destination[row] &= masks[0];
+        sourceOffset += sourceStride;
+        destination[row] |= pixels << shifts[0];
+        u32 rightPixels      = destination[row + 8];
+        u32 rightMasked      = rightPixels & masks[1];
+        destination[row + 8] = rightMasked;
+        destination[row + 8] = rightMasked | (pixels >> shifts[1]);
+        row += 1;
+    } while (row < height);
 }
 
-void func_0200fb88(u32* arg0, u8* arg1, u32* arg2, s32 arg3, s32 arg4, u32 arg5, u32* arg6, u32* arg7) {
-    s32 temp_r3 = arg3 * 4;
-    s32 var_r5  = 0;
-    if (arg4 <= 0) {
+void func_0200fb88(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
+                   u32* shifts) {
+    u32 pixels;
+    u32 preserveMask;
+    s32 packed;
+    u32 sourceOffset;
+    s32 row;
+    s32 bit;
+    width *= 4;
+    row = 0;
+    if (height <= 0)
         return;
-    }
-    s32 var_r11 = 0;
+    sourceOffset = 0;
     do {
-        u32 var_ip = 0;
-        u32 var_lr = 0;
-        s32 var_r6 = 0;
-        s32 var_r4 = arg1[var_r11];
-        if (temp_r3 > 0) {
+        pixels       = 0;
+        preserveMask = 0;
+        bit          = 0;
+        packed       = source[sourceOffset];
+        if (width > 0) {
             do {
-                s32 temp_r8 = var_r4 & 1;
-                var_ip |= arg2[temp_r8] << var_r6;
-                var_lr |= data_0205ae64[temp_r8] << var_r6;
-                var_r4 = var_r4 >> 1;
-                var_r6 += 4;
-            } while (var_r6 < temp_r3);
+                s32 paletteIndex = packed & 1;
+                pixels |= palette[paletteIndex] << bit;
+                preserveMask |= data_0205ae64[paletteIndex] << bit;
+                packed >>= 1;
+                bit += 4;
+            } while (bit < width);
         }
-        u32* temp_r6   = arg0 + var_r5;
-        u32  temp_r8_2 = temp_r6[0] & (arg6[0] | (var_lr << arg7[0]));
-        temp_r6[0]     = temp_r8_2;
-        var_r11 += arg5;
-        temp_r6[0]  = temp_r8_2 | (var_ip << arg7[0]);
-        u32 temp_r4 = temp_r6[8];
-        var_r5 += 1;
-        u32 temp_r8_3 = temp_r4 & (arg6[1] | (var_lr >> arg7[1]));
-        temp_r6[8]    = temp_r8_3;
-        temp_r6[8]    = temp_r8_3 | (var_ip >> arg7[1]);
-    } while (var_r5 < arg4);
+        destination[row] &= masks[0] | (preserveMask << shifts[0]);
+        sourceOffset += sourceStride;
+        destination[row] |= pixels << shifts[0];
+        u32 rightPixels      = destination[row + 8];
+        u32 rightMasked      = rightPixels & (masks[1] | (preserveMask >> shifts[1]));
+        destination[row + 8] = rightMasked;
+        destination[row + 8] = rightMasked | (pixels >> shifts[1]);
+        row++;
+    } while (row < height);
 }
 
-void func_0200fc70(u32* arg0, u8* arg1, u32* arg2, s32 arg3, s32 arg4, u32 arg5, u32* arg6, u32* arg7) {
-    s32 temp_r3 = arg3 * 4;
-    s32 var_r5  = 0;
-    if (arg4 <= 0) {
+void func_0200fc70(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
+                   u32* shifts) {
+    u32 pixels;
+    u32 preserveMask;
+    s32 packed;
+    s32 row;
+    s32 bit;
+    u32 sourceOffset;
+    width *= 4;
+    row = 0;
+    if (height <= 0)
         return;
-    }
-    s32 var_r7 = 0;
+    sourceOffset = 0;
     do {
-        u32 var_ip = 0;
-        u32 var_lr = 0;
-        s32 var_r4 = arg1[var_r7] | (arg1[var_r7 + 1] << 8);
-        s32 var_r6 = 0;
-        if (temp_r3 > 0) {
+        pixels       = 0;
+        preserveMask = 0;
+        bit          = 0;
+        packed       = (source[sourceOffset + 1] << 8) | source[sourceOffset];
+        if (width > 0) {
             do {
-                s32 temp_r9 = var_r4 & 3;
-                var_ip |= arg2[temp_r9] << var_r6;
-                var_lr |= data_0205ae64[temp_r9] << var_r6;
-                var_r4 = var_r4 >> 2;
-                var_r6 += 4;
-            } while (var_r6 < temp_r3);
+                s32 paletteIndex = packed & 3;
+                pixels |= palette[paletteIndex] << bit;
+                preserveMask |= data_0205ae64[paletteIndex] << bit;
+                packed >>= 2;
+                bit += 4;
+            } while (bit < width);
         }
-        u32* temp_r6   = arg0 + var_r5;
-        u32  temp_r9_2 = temp_r6[0] & (arg6[0] | (var_lr << arg7[0]));
-        temp_r6[0]     = temp_r9_2;
-        var_r7 += arg5;
-        temp_r6[0]  = temp_r9_2 | (var_ip << arg7[0]);
-        u32 temp_r4 = temp_r6[8];
-        var_r5 += 1;
-        u32 temp_r9_3 = temp_r4 & (arg6[1] | (var_lr >> arg7[1]));
-        temp_r6[8]    = temp_r9_3;
-        temp_r6[8]    = temp_r9_3 | (var_ip >> arg7[1]);
-    } while (var_r5 < arg4);
+        destination[row] &= masks[0] | (preserveMask << shifts[0]);
+        sourceOffset += sourceStride;
+        destination[row] |= pixels << shifts[0];
+        u32 rightPixels      = destination[row + 8];
+        u32 rightMasked      = rightPixels & (masks[1] | (preserveMask >> shifts[1]));
+        destination[row + 8] = rightMasked;
+        destination[row + 8] = rightMasked | (pixels >> shifts[1]);
+        row++;
+    } while (row < height);
 }
 
-s32 func_0200fd64(UnkMedText* arg0) {
-    s32 temp_r5;
-    s32 var_ip;
+s32 func_0200fd64(UnkMedText* glyph) {
+    s32 width;
+    s32 height;
+    s32 pixelOffset;
 
-    s32 var_r4 = arg0->unk_10;
-    if (var_r4 > 8) {
-        var_r4 = 8;
+    width = glyph->unk_10;
+    if (width > 8) {
+        width = 8;
     }
-    var_ip  = arg0->unk_14;
-    temp_r5 = arg0->unk_0C;
-    if (var_ip > 8) {
-        var_ip = 8;
-    }
-    data_0205aea4[(arg0->unk_04 + (arg0->unk_02 * 4))](arg0->unk_1C, arg0->unk_18, arg0->unk_20, var_r4, var_ip, arg0->unk_08,
-                                                       ((var_r4 * 0x60) + (s32)&data_0205b0f4) + (temp_r5 * 0xC),
-                                                       (u8*)&data_0205ae24 + (temp_r5 * 8));
+    height      = (s32)glyph->unk_14 > 8 ? 8 : (s32)glyph->unk_14;
+    pixelOffset = glyph->unk_0C;
 
-    return ((var_r4 + temp_r5 + 7) & ~7) >> 3;
+    data_0205aea4[(glyph->unk_02 << 2) + glyph->unk_04](glyph->unk_1C, glyph->unk_18, glyph->unk_20, width, height,
+                                                        glyph->unk_08, data_0205b0f4[width][pixelOffset],
+                                                        data_0205ae24[pixelOffset]);
+
+    return ((pixelOffset + width + 7) & ~7) >> 3;
 }
 
-s32 func_0200fe08(TextObject* obj, s32 xOffset, s32 yOffset, s32 arg3, s32 arg4, s32 arg5) {
-    s32 sp0 = xOffset;
-    s32 sp4 = yOffset;
-    s32 sp8 = arg3;
-    s32 spC;
-    s32 sp10;
-    s32 sp14;
-    u16 temp_r4 = obj->unk_20;
-    if ((s32)(xOffset + arg4) > (s32)temp_r4) {
-        arg4 = temp_r4 - xOffset;
+s32 func_0200fe08(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s32 width, s32 height) {
+    void* tileCache;
+    s32   columnsDrawn;
+    u16*  currentTile;
+    u16*  nextTile;
+    void* nextPixels;
+
+    void* currentPixels;
+    s32   clippedX  = xOffset;
+    s32   clippedY  = yOffset;
+    s32   glyphData = glyphSource;
+    s32   rowsDrawn;
+    s32   tileSpan;
+    s32   firstTile;
+    u16   clipWidth = obj->unk_20;
+    if ((s32)(xOffset + width) > (s32)clipWidth) {
+        width = clipWidth - xOffset;
     }
-    u16 temp_r2 = obj->unk_22;
-    if ((s32)(sp4 + arg5) > (s32)temp_r2) {
-        arg5 = (s32)temp_r2 - sp4;
+    u16 clipHeight = obj->unk_22;
+    if ((s32)(clippedY + height) > (s32)clipHeight) {
+        height = (s32)clipHeight - clippedY;
     }
-    if (arg4 <= 0 || arg5 <= 0) {
+    if (width <= 0 || height <= 0) {
         return 0;
     }
     {
-        spC             = (s32)(u16)(obj->unk_36 + (((sp4 >> 3) * obj->unk_18[0]) + (sp0 >> 3)));
-        s32   temp_r2_2 = sp4 & 7;
-        void* temp_r4_2 = (u8*)obj + 0x310;
-        obj->unk_88     = (void*)((u8*)temp_r4_2 + (temp_r2_2 * 4));
-        obj->unk_78     = sp0 & 7;
-        obj->unk_80     = 8 - temp_r2_2;
-        sp14            = 0;
-        if (arg5 > 0) {
+        firstTile             = (s32)(u16)(obj->unk_36 + (((clippedY >> 3) * obj->unk_18[0]) + (clippedX >> 3)));
+        s32 rowOffset         = clippedY & 7;
+        tileCache             = (u8*)obj + 0x310;
+        obj->primaryRowPixels = (void*)((u8*)tileCache + (rowOffset * 4));
+        obj->unk_78           = clippedX & 7;
+        obj->unk_80           = 8 - rowOffset;
+        rowsDrawn             = 0;
+        if (height > 0) {
             do {
-                u16*  var_r6 = (u16*)func_020107a4(obj, sp0, sp4 + sp14);
-                void* var_r7 = (void*)func_02010808(obj, sp0, sp4 + sp14);
-                if (var_r6 == NULL && var_r7 == NULL) {
+                currentTile   = (u16*)func_020107a4(obj, clippedX, clippedY + rowsDrawn);
+                currentPixels = (void*)func_02010808(obj, clippedX, clippedY + rowsDrawn);
+                if (currentTile == NULL && currentPixels == NULL) {
                     goto block_14;
                 }
-                if (var_r6 != NULL && *var_r6 == obj->unk_34) {
+                if (currentTile != NULL && *currentTile == obj->unk_34) {
                 block_14:
-                    MI_CpuFill(obj->unk_30, temp_r4_2, 0x20);
+                    MI_CpuFill(obj->unk_30, tileCache, 0x20);
                 } else {
-                    MI_CpuCopy(var_r7, temp_r4_2, 0x20);
+                    MI_CpuCopy(currentPixels, tileCache, 0x20);
                 }
-                s32 var_r5  = 0;
-                obj->unk_84 = (sp14 * obj->unk_74) + sp8;
-                obj->unk_7C = arg4;
-                if (arg4 > 0) {
-                    s32 var_r11 = 0;
+                columnsDrawn = 0;
+                obj->unk_84  = (rowsDrawn * obj->unk_74) + glyphData;
+                obj->unk_7C  = width;
+                if (obj->unk_7C > 0) {
+                    s32 tileColumn = 0;
                     do {
-                        u16*  var_r8;
-                        void* var_r9;
-                        if (var_r6 != NULL) {
-                            var_r8 = var_r6 + 2;
+                        if (currentTile != NULL) {
+                            nextTile = currentTile + 1;
                         } else {
-                            var_r8 = (u16*)func_020107a4(obj, sp0 + var_r5 + 8, sp4 + sp14);
+                            nextTile = (u16*)func_020107a4(obj, clippedX + columnsDrawn + 8, clippedY + rowsDrawn);
                         }
-                        if (var_r7 != NULL) {
-                            var_r9 = (void*)((u8*)var_r7 + 0x20);
+                        if (currentPixels != NULL) {
+                            nextPixels = (void*)((u8*)currentPixels + 0x20);
                         } else {
-                            var_r9 = (void*)func_02010808(obj, sp0 + var_r5 + 8, sp4 + sp14);
+                            nextPixels = (void*)func_02010808(obj, clippedX + columnsDrawn + 8, clippedY + rowsDrawn);
                         }
-                        if (var_r8 == NULL && var_r9 == NULL) {
+                        if (nextTile == NULL && nextPixels == NULL) {
                             goto block_29;
                         }
-                        if (var_r8 != NULL && *var_r8 == obj->unk_34) {
+                        if (nextTile != NULL && *nextTile == obj->unk_34) {
                         block_29:
-                            MI_CpuFill(obj->unk_30, (u8*)temp_r4_2 + 0x20, 0x20);
+                            MI_CpuFill(obj->unk_30, (u8*)tileCache + 0x20, 0x20);
                         } else {
-                            MI_CpuCopy(var_r9, (u8*)temp_r4_2 + 0x20, 0x20);
+                            MI_CpuCopy(nextPixels, (u8*)tileCache + 0x20, 0x20);
                         }
-                        sp10 = func_0200fd64((UnkMedText*)((u8*)obj + 0x6C));
-                        if (var_r6 != NULL) {
-                            *var_r6 = (u16)(spC + var_r11);
+                        tileSpan = func_0200fd64((UnkMedText*)((u8*)obj + 0x6C));
+                        if (currentTile != NULL) {
+                            *currentTile = (u16)(firstTile + tileColumn);
                         }
-                        if (var_r7 != NULL) {
-                            MI_CpuCopy(temp_r4_2, var_r7, 0x20);
+                        if (currentPixels != NULL) {
+                            MI_CpuCopy(tileCache, currentPixels, 0x20);
                         }
-                        if (sp10 > 1) {
-                            if (var_r8 != NULL) {
-                                *var_r8 = (u16)(spC + var_r11 + 1);
+                        if (tileSpan > 1) {
+                            if (nextTile != NULL) {
+                                *nextTile = (u16)(firstTile + tileColumn + 1);
                             }
-                            if (var_r9 != NULL) {
-                                MI_CpuCopy((u8*)temp_r4_2 + 0x20, var_r9, 0x20);
+                            if (nextPixels != NULL) {
+                                MI_CpuCopy((u8*)tileCache + 0x20, nextPixels, 0x20);
                             }
                         }
-                        var_r6 = var_r8;
-                        var_r7 = var_r9;
-                        MI_CpuCopy((u8*)temp_r4_2 + 0x20, temp_r4_2, 0x20);
-                        var_r11 += 1;
+                        currentTile   = nextTile;
+                        currentPixels = nextPixels;
+                        MI_CpuCopy((u8*)tileCache + 0x20, tileCache, 0x20);
+                        tileColumn += 1;
                         obj->unk_84 = obj->unk_84 + obj->unk_6E;
-                        var_r5 += 8;
+                        columnsDrawn += 8;
                         obj->unk_7C = obj->unk_7C - 8;
                     } while (obj->unk_7C > 0);
                 }
-                obj->unk_88   = temp_r4_2;
-                s32 temp_r0_2 = sp14 + obj->unk_80;
-                sp14          = temp_r0_2;
-                s32 temp_r1   = (s32)arg5 - temp_r0_2;
-                obj->unk_80   = temp_r1;
-                spC           = (s32)(u16)(spC + obj->unk_18[0]);
-                if (temp_r1 > 8) {
+                firstTile             = (s32)(u16)(firstTile + obj->unk_18[0]);
+                obj->primaryRowPixels = tileCache;
+                rowsDrawn += obj->unk_80;
+                s32 remainingRows = height - rowsDrawn;
+                obj->unk_80       = remainingRows;
+                if (remainingRows > 8) {
                     obj->unk_80 = 8;
                 }
-            } while (sp14 < arg5);
+            } while (rowsDrawn < height);
         }
-        return (s32)(((sp0 + (s32)arg4 + 6) - (sp0 & ~7)) & ~7) >> 3;
+        return (s32)(((clippedX + (s32)width + 6) - (clippedX & ~7)) & ~7) >> 3;
     }
     return 0;
 }
@@ -523,9 +717,9 @@ void func_020105b8(TextObject* obj) {
 }
 
 void func_020105d4(TextObject* obj, u32 arg1, u32 arg2) {
-    obj->unk_38   = (s32)arg1;
-    void* var_r0  = obj->data;
-    void* temp_r4 = (void*)((u8*)(u32)arg1 + arg2 * 0x24);
+    obj->unk_38                  = (s32)arg1;
+    void*                var_r0  = obj->data;
+    const TextFontEntry* temp_r4 = (const TextFontEntry*)arg1 + arg2;
     if (var_r0 == NULL) {
         if (var_r0 != NULL) {
             DatMgr_ReleaseData((Data*)var_r0);
@@ -547,10 +741,7 @@ void func_020105d4(TextObject* obj, u32 arg1, u32 arg2) {
     obj->data     = (Data*)var_r0;
     obj->unk_44   = (u16) * (u16*)((u8*)temp_r4 + 12);
     obj->unk_46   = (u16) * (u16*)((u8*)temp_r4 + 14);
-    u16 temp_w2   = *(u16*)((u8*)temp_r4 + 16);
-    u16 temp_w1   = *(u16*)((u8*)temp_r4 + 18);
-    obj->unk_4C   = temp_w2;
-    obj->unk_4E   = temp_w1;
+    obj->fontSize = temp_r4->dimensions;
     s32   temp_r3 = *(s32*)((u8*)temp_r4 + 20);
     void* var_r1  = NULL;
     if (var_r0 == NULL || temp_r3 <= 0) {
@@ -593,13 +784,13 @@ void func_020105d4(TextObject* obj, u32 arg1, u32 arg2) {
     obj->yOffset = temp_y;
 }
 
-s32 func_020107a4(TextObject* obj, s32 param_2, s32 param_3) {
-    if (param_2 < 0 || param_2 >= obj->unk_20 || param_3 < 0 || param_3 >= obj->unk_22) {
+s32 func_020107a4(TextObject* obj, s32 x, s32 y) {
+    if (x < 0 || x >= obj->unk_20 || y < 0 || y >= obj->unk_22)
         return 0;
-    }
-    s32 row = ((int)(param_3 + obj->unk_1E) >> 3) * obj->unk_04;
-    s32 col = (int)(param_2 + obj->unk_1C) >> 3;
-    return obj->unk_28 + row * 2 + col * 2;
+    s32 row     = (y + obj->unk_1E) >> 3;
+    s32 address = obj->unk_28 + (row * obj->unk_04) * 2;
+    x += obj->unk_1C;
+    return address + (x >> 3) * 2;
 }
 
 s32 func_02010808(TextObject* arg0, s32 arg1, s32 arg2) {
@@ -638,51 +829,44 @@ void func_020108a0(TextObject* obj, u16 param_2) {
     obj->unk_64 &= 0xff;
 }
 
-s32 func_020108cc(TextObject* arg0) {
-    u16 var_r2;
-    u32 temp_r0;
-    s32 temp_r5;
-
-loop:
-    s32 val = func_02010170(arg0);
-    if (val == 0x40) {
-        temp_r5 = func_02010170(arg0);
-        temp_r0 = func_02010170(arg0);
-
-        if ((temp_r0 >= 0x30) && (temp_r0 <= 0x39)) {
-            var_r2 = temp_r0 - 0x30;
-        } else if ((temp_r0 >= 0x61) && (temp_r0 <= 0x66)) {
-            var_r2 = temp_r0 - 0x57;
-        } else if ((temp_r0 >= 0x41) && (temp_r0 <= 0x46)) {
-            var_r2 = temp_r0 - 0x37;
-        } else {
-            var_r2 = 0x10;
+s32 func_020108cc(TextObject* obj) {
+    u16 value;
+    s32 command;
+    s32 character;
+    for (;;) {
+        character = func_02010170(obj);
+        if (character != 0x40) {
+            return character;
         }
-
-        if (temp_r5 <= 0x46) {
-            if (temp_r5 != 0x46) {
-            } else {
-                func_020105d4(arg0, arg0->unk_38, var_r2);
-            }
+        command = func_02010170(obj);
+        value   = func_02010170(obj);
+        if (value >= 0x30U && value <= 0x39U) {
+            value -= 0x30;
+        } else if (value >= 0x61U && value <= 0x66U) {
+            value -= 0x57;
+        } else if (value >= 0x41U && value <= 0x46U) {
+            value -= 0x37;
         } else {
-            switch (temp_r5 - 0x61) {
-                case 1:
-                    arg0->unk_90 = var_r2;
-                    break;
-                case 5:
-                    arg0->unk_94 = var_r2;
-                    break;
-                case 0:
-                    arg0->unk_98 = var_r2;
-                    break;
-                case 4:
-                    arg0->unk_9C = var_r2;
-                    break;
-            }
+            value = 0x10;
         }
-        goto loop;
+        switch (command) {
+            case 0x46:
+                func_020105d4(obj, obj->unk_38, value);
+                break;
+            case 0x62:
+                obj->unk_90 = value;
+                break;
+            case 0x66:
+                obj->unk_94 = value;
+                break;
+            case 0x61:
+                obj->unk_98 = value;
+                break;
+            case 0x65:
+                obj->unk_9C = value;
+                break;
+        }
     }
-    return val;
 }
 
 s32 func_020109d0(TextObject* arg0) {
@@ -773,210 +957,227 @@ void func_02010b50(TextObject* obj) {
     obj->yOffset = 0;
 }
 
-void func_02010b84(TextObject* obj, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    s32 sp8 = arg1;
-    s32 spC = arg2;
-    s32 sp10;
-    s32 sp14;
-    s32 sp18;
-    s32 sp1C;
-    s32 sp20;
-    s32 sp24;
-    s32 sp28;
-    s32 sp2C;
-    s32 sp30;
-    s32 sp34;
-    s32 sp38;
-    s32 var_r3 = arg3;
-    if (arg1 < 0) {
-        var_r3 += arg1;
-        sp8 = 0;
+// Nonmatching: pixelX and the strength-reduced (pixelX >> 3) tile counter swap registers (r5/r9)
+void func_02010b84(TextObject* obj, s32 xOffset, s32 yOffset, s32 width, s32 height) {
+    s32   clippedX = xOffset;
+    s32   clippedY = yOffset;
+    u16*  savedControls;
+    s32   pixelLeftRemainder;
+    s32   pixelLeftWidth;
+    s32   pixelRightRemainder;
+    s32   pixelLeftTileX;
+    s32   mapLeftRemainder;
+    s32   right;
+    s32   bottom;
+    s32   alignedBottom;
+    s32   clippedWidth;
+    u16   clipWidth;
+    u16   clipHeight;
+    s32   topRemainder;
+    s32   topLeftRemainder;
+    s32   topX;
+    s32   topRightTileX;
+    s32   topRightRemainder;
+    void* pixels;
+    s32   pixelX;
+    s32   rightTileX;
+    s32   mapLeftWidth;
+    s32   mapRightRemainder;
+    s32   mapLeftTileX;
+    u16*  tileMap;
+    s32   mapX;
+    s32   leftAligned;
+    s32   rowY;
+    s32   bottomRemainder;
+    s32   bottomLeftRemainder;
+    s32   bottomRightRemainder;
+    clippedWidth = width;
+    if (xOffset < 0) {
+        clippedWidth += xOffset;
+        clippedX = 0;
     }
-    s32 var_r0 = arg4;
-    if (spC < 0) {
-        var_r0 += spC;
-        spC = 0;
+    if (clippedY < 0) {
+        height += clippedY;
+        clippedY = 0;
     }
-    u16 temp_r2 = obj->unk_20;
-    if ((s32)(sp8 + var_r3) > (s32)temp_r2) {
-        var_r3 = temp_r2 - sp8;
+    clipWidth = obj->unk_20;
+    if ((s32)(clippedX + clippedWidth) > (s32)clipWidth) {
+        clippedWidth = clipWidth - clippedX;
     }
-    u16 temp_r2_2 = obj->unk_22;
-    if ((s32)(spC + var_r0) > (s32)temp_r2_2) {
-        var_r0 = temp_r2_2 - spC;
+    clipHeight = obj->unk_22;
+    if ((s32)(clippedY + height) > (s32)clipHeight) {
+        height = clipHeight - clippedY;
     }
-    if ((var_r3 > 0) && (var_r0 > 0)) {
-        sp30         = (s32)obj->unk_70;
-        obj->unk_70  = NULL;
-        s32 temp_r1  = sp8 + var_r3;
-        sp18         = temp_r1;
-        obj->xOffset = temp_r1;
-        s32 temp_r0v = spC + var_r0;
-        sp14         = temp_r0v;
-        obj->yOffset = temp_r0v;
-        s32 temp_r4  = spC & 7;
-        if (temp_r4 != 0) {
-            s32 temp_r0_2 = sp8 & 7;
-            if (temp_r0_2 != 0) {
-                func_0200fe08(obj, sp8, spC, obj->unk_2C, 8 - temp_r0_2, 8 - temp_r4);
+    if ((clippedWidth > 0) && (height > 0)) {
+        savedControls = obj->unk_70;
+        obj->unk_70   = NULL;
+        right         = clippedX + clippedWidth;
+        obj->xOffset  = right;
+        bottom        = clippedY + height;
+        obj->yOffset  = bottom;
+        topRemainder  = clippedY & 7;
+        if (topRemainder != 0) {
+            topLeftRemainder = clippedX & 7;
+            if (topLeftRemainder != 0) {
+                func_0200fe08(obj, clippedX, clippedY, obj->unk_2C, 8 - topLeftRemainder, 8 - topRemainder);
             }
-            s32 var_r7  = (sp8 + 7) & ~7;
-            s32 temp_r5 = sp18 & ~7;
-            if (var_r7 < temp_r5) {
+            topX          = (clippedX + 7) & ~7;
+            topRightTileX = right & ~7;
+            if (topX < topRightTileX) {
                 do {
-                    func_0200fe08(obj, var_r7, spC, obj->unk_2C, 8, 8 - temp_r4);
-                    var_r7 += 8;
-                } while (var_r7 < temp_r5);
+                    func_0200fe08(obj, topX, clippedY, obj->unk_2C, 8, 8 - topRemainder);
+                    topX += 8;
+                } while (topX < topRightTileX);
             }
-            s32 temp_r1_2 = sp18 & 7;
-            if ((temp_r1_2 != 0) && ((s32)(sp8 & ~7) < temp_r5)) {
-                func_0200fe08(obj, temp_r5, spC, obj->unk_2C, temp_r1_2, 8 - temp_r4);
+            topRightRemainder = right & 7;
+            if ((topRightRemainder != 0) && ((s32)(clippedX & ~7) < topRightTileX)) {
+                func_0200fe08(obj, topRightTileX, clippedY, obj->unk_2C, topRightRemainder, 8 - topRemainder);
             }
         }
-        s32 var_r8   = (spC + 7) & ~7;
-        s32 temp_r6  = sp18 & ~7;
-        s32 var_r7_2 = (sp8 + 7) & ~7;
-        sp10         = sp14 & ~7;
+        leftAligned   = (clippedX + 7) & ~7;
+        rowY          = (clippedY + 7) & ~7;
+        rightTileX    = right & ~7;
+        alignedBottom = bottom & ~7;
         if (func_020107a4(obj, 0, 0) != 0) {
-            if (var_r8 < sp10) {
-                s32 temp_r0_3 = sp8 & 7;
-                sp1C          = temp_r0_3;
-                s32 temp_r5_2 = sp18 & 7;
-                sp34          = var_r7_2 >> 3;
+            if (rowY < alignedBottom) {
+                mapLeftRemainder  = clippedX & 7;
+                mapLeftWidth      = 8 - mapLeftRemainder;
+                mapRightRemainder = right & 7;
+                mapLeftTileX      = clippedX & ~7;
                 do {
-                    if (sp1C != 0) {
-                        func_0200fe08(obj, sp8, var_r8, obj->unk_2C, 8 - temp_r0_3, 8);
+                    if (mapLeftRemainder != 0) {
+                        func_0200fe08(obj, clippedX, rowY, obj->unk_2C, mapLeftWidth, 8);
                     }
-                    u16* temp_r0_4 = (u16*)func_020107a4(obj, 0, var_r8);
-                    s32  var_r3_2  = var_r7_2;
-                    if (var_r7_2 < temp_r6) {
-                        s32 var_r11 = sp34;
+                    tileMap = (u16*)func_020107a4(obj, 0, rowY);
+                    mapX    = leftAligned;
+                    if (leftAligned < rightTileX) {
                         do {
-                            s32 temp_r1_3 = var_r11 * 2;
-                            var_r11 += 1;
-                            temp_r0_4[temp_r1_3] = obj->unk_34;
-                            var_r3_2 += 8;
-                        } while (var_r3_2 < temp_r6);
+                            tileMap[mapX >> 3] = obj->unk_34;
+                            mapX += 8;
+                        } while (mapX < rightTileX);
                     }
-                    if ((temp_r5_2 != 0) && ((s32)(sp8 & ~7) < temp_r6)) {
-                        func_0200fe08(obj, temp_r6, var_r8, obj->unk_2C, temp_r5_2, 8);
+                    if ((mapRightRemainder != 0) && (mapLeftTileX < rightTileX)) {
+                        func_0200fe08(obj, rightTileX, rowY, obj->unk_2C, mapRightRemainder, 8);
                     }
-                    var_r8 += 8;
-                } while (var_r8 < sp10);
+                    rowY += 8;
+                } while (rowY < alignedBottom);
             }
-        } else if (var_r8 < sp10) {
-            s32 temp_r0_5 = sp8 & 7;
-            sp2C          = temp_r0_5;
-            sp28          = 8 - temp_r0_5;
-            sp24          = sp18 & 7;
-            sp20          = sp8 & ~7;
-            sp38          = var_r7_2 >> 3;
+        } else if (rowY < alignedBottom) {
+            pixelLeftRemainder  = clippedX & 7;
+            pixelLeftWidth      = 8 - pixelLeftRemainder;
+            pixelRightRemainder = right & 7;
+            pixelLeftTileX      = clippedX & ~7;
             do {
-                if (sp2C != 0) {
-                    func_0200fe08(obj, var_r7_2, var_r8, obj->unk_2C, sp28, 8);
+                if (pixelLeftRemainder != 0) {
+                    func_0200fe08(obj, leftAligned, rowY, obj->unk_2C, pixelLeftWidth, 8);
                 }
-                void* temp_r4_2 = (void*)func_02010808(obj, var_r7_2, var_r8);
-                s32   var_r9    = var_r7_2;
-                if (var_r7_2 < temp_r6) {
-                    s32 var_r5 = sp38;
+                pixels = (void*)func_02010808(obj, leftAligned, rowY);
+                pixelX = leftAligned;
+                if (leftAligned < rightTileX) {
                     do {
-                        MI_CpuFill(obj->unk_30, (u8*)temp_r4_2 + (var_r5 << 5), 0x20);
-                        var_r5 += 1;
-                        var_r9 += 8;
-                    } while (var_r9 < temp_r6);
+                        MI_CpuFill(obj->unk_30, (u8*)pixels + ((pixelX >> 3) << 5), 0x20);
+                        pixelX += 8;
+                    } while (pixelX < rightTileX);
                 }
-                if ((sp24 != 0) && (sp20 < temp_r6)) {
-                    func_0200fe08(obj, temp_r6, var_r8, obj->unk_2C, sp24, 8);
+                if ((pixelRightRemainder != 0) && (pixelLeftTileX < rightTileX)) {
+                    func_0200fe08(obj, rightTileX, rowY, obj->unk_2C, pixelRightRemainder, 8);
                 }
-                var_r8 += 8;
-            } while (var_r8 < sp10);
+                rowY += 8;
+            } while (rowY < alignedBottom);
         }
-        s32 temp_r4_3 = sp14 & 7;
-        if ((temp_r4_3 != 0) && ((s32)(spC & ~7) < sp10)) {
-            s32 temp_r0_6 = sp8 & 7;
-            if (temp_r0_6 != 0) {
-                func_0200fe08(obj, sp8, sp10, obj->unk_2C, 8 - temp_r0_6, temp_r4_3);
+        bottomRemainder = bottom & 7;
+        if ((bottomRemainder != 0) && ((s32)(clippedY & ~7) < alignedBottom)) {
+            bottomLeftRemainder = clippedX & 7;
+            if (bottomLeftRemainder != 0) {
+                func_0200fe08(obj, clippedX, alignedBottom, obj->unk_2C, 8 - bottomLeftRemainder, bottomRemainder);
             }
-            if (var_r7_2 < temp_r6) {
+            if (leftAligned < rightTileX) {
                 do {
-                    func_0200fe08(obj, var_r7_2, sp10, obj->unk_2C, 8, temp_r4_3);
-                    var_r7_2 += 8;
-                } while (var_r7_2 < temp_r6);
+                    func_0200fe08(obj, leftAligned, alignedBottom, obj->unk_2C, 8, bottomRemainder);
+                    leftAligned += 8;
+                } while (leftAligned < rightTileX);
             }
-            s32 temp_r1_4 = sp18 & 7;
-            if ((temp_r1_4 != 0) && ((s32)(sp8 & ~7) < temp_r6)) {
-                func_0200fe08(obj, temp_r6, sp10, obj->unk_2C, temp_r1_4, temp_r4_3);
+            bottomRightRemainder = right & 7;
+            if ((bottomRightRemainder != 0) && ((s32)(clippedX & ~7) < rightTileX)) {
+                func_0200fe08(obj, rightTileX, alignedBottom, obj->unk_2C, bottomRightRemainder, bottomRemainder);
             }
         }
-        obj->unk_70 = (u16*)sp30;
+        obj->unk_70 = savedControls;
     }
 }
 
-s32 func_02010fd8(TextObject* obj, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
-    s32 sp0     = arg2;
-    s32 sp4     = arg3;
-    u16 temp_r1 = obj->unk_20;
-    u16 temp_r2 = obj->unk_22;
-    if ((s32)(arg1 + arg4) > (s32)temp_r1) {
-        arg4 = temp_r1 - arg1;
+s32 func_02010fd8(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s32 width, s32 height) {
+    void* tileCache;
+    s32   rowsDrawn;
+    s32   columnsDrawn;
+    s32   tileSpan;
+    void* currentPixels;
+
+    void* nextPixels;
+    s32   clippedY   = yOffset;
+    s32   glyphData  = glyphSource;
+    u16   clipWidth  = obj->unk_20;
+    u16   clipHeight = obj->unk_22;
+    if ((s32)(xOffset + width) > (s32)clipWidth) {
+        width = clipWidth - xOffset;
     }
-    if ((s32)(sp0 + arg5) > (s32)temp_r2) {
-        arg5 = temp_r2 - sp0;
+    if ((s32)(clippedY + height) > (s32)clipHeight) {
+        height = clipHeight - clippedY;
     }
-    if (arg4 <= 0 || arg5 <= 0) {
+    if (width <= 0 || height <= 0) {
         return 0;
     }
     {
-        void* temp_r4   = (u8*)obj + 0x318;
-        s32   temp_r1_2 = sp0 & 7;
-        obj->unk_90     = (void*)((u8*)temp_r4 + (temp_r1_2 * 4));
-        obj->unk_80     = arg1 & 7;
-        obj->unk_88     = 8 - temp_r1_2;
-        s32 var_r5      = 0;
-        if (arg5 > 0) {
+        tileCache               = (u8*)obj + 0x318;
+        s32 rowOffset           = clippedY & 7;
+        obj->secondaryRowPixels = (void*)((u8*)tileCache + (rowOffset * 4));
+        obj->unk_80             = xOffset & 7;
+        obj->unk_88             = 8 - rowOffset;
+        rowsDrawn               = 0;
+        if (height > 0) {
             do {
-                void* temp_r0 = func_02011b7c(obj, arg1, sp0 + var_r5);
-                void* var_r8  = temp_r0;
-                if (var_r8 == NULL) {
-                    MI_CpuFill(*(void**)((u8*)obj + 0x34), temp_r4, 0x20);
+                void* firstPixels = func_02011b7c(obj, xOffset, clippedY + rowsDrawn);
+                currentPixels     = firstPixels;
+                if (currentPixels == NULL) {
+                    MI_CpuFill(*(void**)((u8*)obj + 0x34), tileCache, 0x20);
                 } else {
-                    MI_CpuCopy(temp_r0, temp_r4, 0x20);
+                    MI_CpuCopy(firstPixels, tileCache, 0x20);
                 }
-                s32 var_r6  = 0;
-                obj->unk_8C = (var_r5 * obj->unk_7C) + sp4;
-                obj->unk_84 = arg4;
-                if (arg4 > 0) {
+                columnsDrawn = 0;
+                obj->unk_8C  = (rowsDrawn * obj->unk_7C) + glyphData;
+                obj->unk_84  = width;
+                if (obj->unk_84 > 0) {
                     do {
-                        void* temp_r0_3 = func_02011b7c(obj, arg1 + var_r6 + 8, sp0 + var_r5);
-                        if (temp_r0_3 == NULL) {
-                            MI_CpuFill(*(void**)((u8*)obj + 0x34), (u8*)temp_r4 + 0x20, 0x20);
+                        nextPixels = func_02011b7c(obj, xOffset + columnsDrawn + 8, clippedY + rowsDrawn);
+                        if (nextPixels == NULL) {
+                            MI_CpuFill(*(void**)((u8*)obj + 0x34), (u8*)tileCache + 0x20, 0x20);
                         } else {
-                            MI_CpuCopy(temp_r0_3, (u8*)temp_r4 + 0x20, 0x20);
+                            MI_CpuCopy(nextPixels, (u8*)tileCache + 0x20, 0x20);
                         }
-                        s32 temp_r7 = func_0200fd64((UnkMedText*)((u8*)obj + 0x74));
-                        if (var_r8 != NULL) {
-                            MI_CpuCopy(temp_r4, var_r8, 0x20);
+                        tileSpan = func_0200fd64((UnkMedText*)((u8*)obj + 0x74));
+                        if (currentPixels != NULL) {
+                            MI_CpuCopy(tileCache, currentPixels, 0x20);
                         }
-                        if ((temp_r7 > 1) && (temp_r0_3 != NULL)) {
-                            MI_CpuCopy((u8*)temp_r4 + 0x20, temp_r0_3, 0x20);
+                        if ((tileSpan > 1) && (nextPixels != NULL)) {
+                            MI_CpuCopy((u8*)tileCache + 0x20, nextPixels, 0x20);
                         }
-                        var_r8 = temp_r0_3;
-                        MI_CpuCopy((u8*)temp_r4 + 0x20, temp_r4, 0x20);
-                        var_r6 += 8;
+                        currentPixels = nextPixels;
+                        MI_CpuCopy((u8*)tileCache + 0x20, tileCache, 0x20);
+                        columnsDrawn += 8;
                         obj->unk_8C = obj->unk_8C + *(u16*)((u8*)obj + 0x76);
                         obj->unk_84 = obj->unk_84 - 8;
                     } while (obj->unk_84 > 0);
                 }
-                obj->unk_90 = temp_r4;
-                var_r5 += obj->unk_88;
-                s32 temp_r0_4 = arg5 - var_r5;
-                obj->unk_88   = temp_r0_4;
-                if (temp_r0_4 > 8) {
+                obj->secondaryRowPixels = tileCache;
+                rowsDrawn += obj->unk_88;
+                s32 remainingRows = height - rowsDrawn;
+                obj->unk_88       = remainingRows;
+                if (remainingRows > 8) {
                     obj->unk_88 = 8;
                 }
-            } while (var_r5 < arg5);
+            } while (rowsDrawn < height);
         }
-        return (s32)(((arg1 + arg4 + 6) - (arg1 & ~7)) & ~7) >> 3;
+        return (s32)(((xOffset + width + 6) - (xOffset & ~7)) & ~7) >> 3;
     }
     return 0;
 }
@@ -1028,8 +1229,9 @@ s32 func_02011358(TextObject* obj, s32 arg1, s32 arg2) {
             break;
         case 10:
             if (*(s32*)((u8*)obj + 0x04) == 0) {
-                *(s32*)((u8*)obj + 0x08) = 0;
-                obj->yOffset             = obj->yOffset + (*(u16*)((u8*)obj + 0x56) + obj->unk_10[1]);
+                s32 nextY    = obj->yOffset + (*(u16*)((u8*)obj + 0x56) + obj->unk_10[1]);
+                obj->xOffset = 0;
+                obj->yOffset = nextY;
             } else {
                 s32 temp_r1  = *(u16*)((u8*)obj + 0x54) + obj->unk_10[0];
                 obj->xOffset = obj->xOffset - temp_r1;
@@ -1068,140 +1270,131 @@ void func_02011494(TextObject* obj) {
     MI_CpuFill(*(s32*)((u8*)obj + 0x34), func_02011b7c(obj, 0, 0), obj->unk_24);
 }
 
-void func_020114d4(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
-    /* arg2 = width (sp6C), arg3 = height (sp6E) */
-    s32  sp6C = arg2;
-    s32  sp6E = arg3;
-    s32* sp0  = (s32*)arg0;
-    s32  sp4  = ((sp6C * sp6E * 2) + 0x1F) & ~0x1F;
-    s32* sp18 = *(s32**)((u8*)&g_OamMgr + 8 + (arg1 * 0x108C));
-    MI_CpuSet((void*)arg4, 0xFF, (u32)sp4);
-    s32 var_r8 = 0;
-    s32 sp1C   = 0;
-    s32 var_r6 = 0;
-    if (sp6E > 0) {
-        s32 sp14 = 0;
-        s32 sp2C = arg6;
+// Nonmatching: target keeps a dead per-tile counter in r11, shifting registers and two stack slots
+TextOamAllocation func_020114d4(s32 screen, UnkQuad area, u16* tileMap, OamCellPiece* pieces, s32 palette) {
+    TextOamAllocation    allocation;
+    s32                  widthPower;
+    s32                  heightPower;
+    s32                  regionIndex;
+    s32                  pieceIndex;
+    OamCharConfig*       mapping;
+    s32                  rowBase;
+    s32                  remainingHeight;
+    s32                  height;
+    s32                  column;
+    s32                  tileMapBytes;
+    s32                  row;
+    s32                  regionColumn;
+    s32                  tile;
+    s32                  tileCount;
+    s32                  remainingWidth;
+    const TextOamRegion* region;
+    s32                  regionRow;
+    s32                  width;
+
+    width        = area.half2;
+    height       = area.half3;
+    tileMapBytes = (width * height * 2 + 31) & ~31;
+    mapping      = g_OamMgr[screen].charBases[0];
+    MI_CpuSet(tileMap, 0xFF, tileMapBytes);
+    tileCount  = 0;
+    pieceIndex = 0;
+    row        = 0;
+    if (height > 0) {
+        rowBase = 0;
         do {
-            s32 sp8 = 0;
-            if (sp6C > 0) {
-                s32 sp10 = sp6E - var_r6;
-                s32 sp30 = arg4 + (sp14 * 2);
+            column = 0;
+            if (width > 0) {
+                remainingHeight = height - row;
                 do {
-                    if (*(s16*)((u8*)sp30 + (sp8 * 2)) == (s16)0xFFFF) {
-                        s32 temp_r0_2 = sp6C - sp8;
-                        s32 sp28;
-                        if (temp_r0_2 >= 8)
-                            sp28 = 3;
-                        else if (temp_r0_2 >= 4)
-                            sp28 = 2;
-                        else if (temp_r0_2 >= 2)
-                            sp28 = 1;
-                        else if (temp_r0_2 >= 1)
-                            sp28 = 0;
-                        s32 sp24;
-                        if (sp10 >= 8)
-                            sp24 = 3;
-                        else if (sp10 >= 4)
-                            sp24 = 2;
-                        else if (sp10 >= 2)
-                            sp24 = 1;
-                        else if (sp10 >= 1)
-                            sp24 = 0;
-                        /* var_r9 = (sp28*0x30) + (sp24*0xC0) + &data_0205b454 */
-                        s32 var_r9 = (sp28 * 0x30) + (sp24 * 0xC0) + (s32)data_0205b454;
-                        s32 sp20   = 0;
+                    if (tileMap[rowBase + column] == 0xFFFF) {
+                        remainingWidth = width - column;
+                        if (remainingWidth >= 8)
+                            widthPower = 3;
+                        else if (remainingWidth >= 4)
+                            widthPower = 2;
+                        else if (remainingWidth >= 2)
+                            widthPower = 1;
+                        else if (remainingWidth >= 1)
+                            widthPower = 0;
+                        if (remainingHeight >= 8)
+                            heightPower = 3;
+                        else if (remainingHeight >= 4)
+                            heightPower = 2;
+                        else if (remainingHeight >= 2)
+                            heightPower = 1;
+                        else if (remainingHeight >= 1)
+                            heightPower = 0;
+                        region      = data_0205b454[heightPower][widthPower];
+                        regionIndex = 0;
                         do {
-                            s32 var_r1 = 0;
-                            s32 var_r7 = 0;
-                            /* var_r9->unkC */
-                            s32 unkC = *(s32*)(var_r9 + 12);
-                            if (unkC > 0) {
-                                s16 var_r2 = (s16)(var_r8 << 5);
+                            tile      = tileCount;
+                            regionRow = 0;
+                            if (region->height > 0) {
                                 do {
-                                    var_r7   = 0;
-                                    s32 unk8 = *(s32*)(var_r9 + 8);
-                                    if (unk8 > 0) {
-                                        s32 unk0 = *(s32*)(var_r9 + 0);
-                                        s32 unk4 = *(s32*)(var_r9 + 4);
+                                    regionColumn = 0;
+                                    if (region->width > 0) {
                                         do {
-                                            /* write to arg4 buffer */
-                                            s32 idx = ((sp6C * (unk4 + (var_r6 + var_r1))) + (unk0 + var_r7)) * 2;
-                                            *(s16*)((u8*)arg4 + (sp8 * 2) + idx) = var_r2;
-                                            var_r7 += 1;
-                                            var_r2 = (s16)(var_r2 + 0x20);
-                                        } while (var_r7 < unk8);
+                                            tileMap[(region->x + regionColumn) + width * (region->y + (row + regionRow)) +
+                                                    column] = tile << 5;
+                                            tile++;
+                                            regionColumn++;
+                                        } while (regionColumn < region->width);
                                     }
-                                    var_r1 += 1;
-                                } while (var_r1 < unkC);
+                                    regionRow++;
+                                } while (regionRow < region->height);
                             }
-                            if (var_r1 > 0) {
-                                *(s16*)((u8*)arg5 + (sp1C * 2)) = (s16)(var_r8 | 0x8000);
-                                void* temp_r3                   = (u8*)arg5 + (sp1C * 2);
-                                s32   unk4v                     = *(s32*)(var_r9 + 4);
-                                s32   unk0v                     = *(s32*)(var_r9 + 0);
-                                s32   unk10                     = *(s32*)(var_r9 + 16);
-                                s32   unk14                     = *(s32*)(var_r9 + 20);
-                                *(s16*)((u8*)temp_r3 + 2)       = (s16)(((var_r6 + unk4v) * 8) | (unk10 << 14));
-                                *(s16*)((u8*)temp_r3 + 4)       = (s16)(((sp8 + unk0v) * 8) | (unk14 << 14));
-                                *(s16*)((u8*)temp_r3 + 6)       = (s16)(var_r8 | (sp2C << 12));
-                                s32 temp_r11                    = *sp18 >> 5;
-                                s32 var_r1v                     = var_r1;
-                                s32 var_r7v                     = var_r7;
-                                var_r8 += temp_r11 * (((var_r1v * var_r7v) + (temp_r11 - 1)) / temp_r11);
-                                sp1C += 4;
+                            if (regionRow > 0) {
+                                ((u16*)pieces)[pieceIndex]     = tileCount | 0x8000;
+                                ((u16*)pieces)[pieceIndex + 1] = ((row + region->y) * 8) | (region->shape << 14);
+                                ((u16*)pieces)[pieceIndex + 2] = ((column + region->x) * 8) | (region->size << 14);
+                                ((u16*)pieces)[pieceIndex + 3] = tileCount | (palette << 12);
+                                tileCount +=
+                                    (mapping->unk_00 >> 5) *
+                                    (((regionRow * regionColumn) + ((mapping->unk_00 >> 5) - 1)) / (mapping->unk_00 >> 5));
+                                pieceIndex += 4;
                             }
-                            var_r9 += 0x18;
-                            sp20 = sp20 + 1;
-                        } while (sp20 < 2);
+                            region++;
+                            regionIndex++;
+                        } while (regionIndex < 2);
                     }
-                    sp8 = sp8 + 1;
-                } while (sp8 < sp6C);
+                    column++;
+                } while (column < width);
             }
-            var_r6 += 1;
-            sp14 += sp6C;
-        } while (var_r6 < sp6E);
+            rowBase += width;
+            row++;
+        } while (row < height);
     }
-    s32 sp38                        = var_r8;
-    s32 temp_r1                     = (((((sp1C >> 2) + 1) * 8) + 0x1F) & ~0x1F) + sp4;
-    s32 sp34                        = temp_r1;
-    *(s16*)((u8*)arg5 + (sp1C * 2)) = (s16)0xFFFF;
-    sp0[0]                          = temp_r1;
-    sp0[1]                          = var_r8;
+    allocation.tiles           = tileCount;
+    ((u16*)pieces)[pieceIndex] = 0xFFFF;
+    allocation.bytes           = ((((pieceIndex >> 2) + 1) * 8 + 31) & ~31) + tileMapBytes;
+    return allocation;
 }
 
 void func_02011810(TextObject* obj) {
-    s32 spC[2];
-    func_020114d4(spC, obj->unk_00, (s32)(obj->unk_14[0] | (obj->unk_14[1] << 16)),
-                  (s32)(obj->unk_18[0] | (obj->unk_18[1] << 16)), obj->unk_38, obj->unk_3C, obj->unk_2C);
-    obj->unk_24 = (s32)(spC[1] << 5);
+    obj->unk_24 = func_020114d4(obj->unk_00, *(UnkQuad*)(void*)&obj->unk_14[0], (u16*)obj->unk_38, (OamCellPiece*)obj->unk_3C,
+                                obj->unk_2C)
+                      .tiles
+                  << 5;
 }
 
 void func_0201187c(TextObject* obj, void* arg1) {
-    *(s32*)((u8*)obj + 0x04)   = *(s32*)((u8*)arg1 + 8);
-    obj->unk_00                = *(s32*)arg1;
-    *(s32*)((u8*)obj + 0x44)   = *(s32*)((u8*)arg1 + 4);
-    *(Data**)((u8*)obj + 0x48) = NULL;
-    u16 temp_wA0               = *(u16*)((u8*)arg1 + 20);
-    u16 temp_wA1               = *(u16*)((u8*)arg1 + 22);
-    obj->unk_10[0]             = temp_wA0;
-    obj->unk_10[1]             = temp_wA1;
-    u16 temp_wB0               = *(u16*)((u8*)arg1 + 12);
-    u16 temp_wB1               = *(u16*)((u8*)arg1 + 14);
-    obj->unk_14[0]             = temp_wB0;
-    obj->unk_14[1]             = temp_wB1;
-    u16 temp_wC0               = *(u16*)((u8*)arg1 + 16);
-    u16 temp_wC1               = *(u16*)((u8*)arg1 + 18);
-    obj->unk_18[0]             = temp_wC0;
-    obj->unk_18[1]             = temp_wC1;
-    obj->unk_1C                = (u16)(*(u16*)((u8*)arg1 + 12) * 8);
-    obj->unk_1E                = (u16)(*(u16*)((u8*)arg1 + 14) * 8);
-    obj->unk_20                = (u16)(*(u16*)((u8*)arg1 + 16) * 8);
-    obj->unk_22                = (u16)(*(u16*)((u8*)arg1 + 18) * 8);
-    obj->unk_28                = *(s32*)((u8*)arg1 + 24);
-    obj->unk_2C                = *(s32*)((u8*)arg1 + 28);
-    obj->unk_38                = *(s32*)((u8*)arg1 + 32);
-    obj->unk_3C                = *(s32*)((u8*)arg1 + 32) + (((obj->unk_18[0] * obj->unk_18[1] * 2) + 0x1F) & ~0x1F);
+    const TextInitArgs* initArgs = arg1;
+    *(s32*)((u8*)obj + 0x04)     = *(s32*)((u8*)arg1 + 8);
+    obj->unk_00                  = *(s32*)arg1;
+    *(s32*)((u8*)obj + 0x44)     = *(s32*)((u8*)arg1 + 4);
+    *(Data**)((u8*)obj + 0x48)   = NULL;
+    obj->spacing                 = initArgs->spacing;
+    obj->tileOrigin              = initArgs->tileOrigin;
+    obj->tileSize                = initArgs->tileSize;
+    obj->unk_1C                  = (u16)(*(u16*)((u8*)arg1 + 12) * 8);
+    obj->unk_1E                  = (u16)(*(u16*)((u8*)arg1 + 14) * 8);
+    obj->unk_20                  = (u16)(*(u16*)((u8*)arg1 + 16) * 8);
+    obj->unk_22                  = (u16)(*(u16*)((u8*)arg1 + 18) * 8);
+    obj->unk_28                  = *(s32*)((u8*)arg1 + 24);
+    obj->unk_2C                  = *(s32*)((u8*)arg1 + 28);
+    obj->unk_38                  = *(s32*)((u8*)arg1 + 32);
+    obj->unk_3C                  = *(s32*)((u8*)arg1 + 32) + (((obj->unk_18[0] * obj->unk_18[1] * 2) + 0x1F) & ~0x1F);
     func_020119b0(obj, *(s32*)((u8*)arg1 + 36), *(s32*)((u8*)arg1 + 40));
     *(s32*)((u8*)obj + 0x40) = *(s32*)((u8*)arg1 + 36);
     obj->unk_30              = func_0200fa10(0x8140, obj->unk_58, obj->unk_5C, obj->unk_4E);
@@ -1216,9 +1409,9 @@ void func_02011994(TextObject* obj) {
 }
 
 void func_020119b0(TextObject* obj, s32 arg1, s32 arg2) {
-    *(s32*)((u8*)obj + 0x40) = arg1;
-    Data* var_r0             = *(Data**)((u8*)obj + 0x48);
-    void* temp_r4            = (void*)((u8*)(u32)arg1 + arg2 * 0x24);
+    *(s32*)((u8*)obj + 0x40)     = arg1;
+    Data*                var_r0  = *(Data**)((u8*)obj + 0x48);
+    const TextFontEntry* temp_r4 = (const TextFontEntry*)arg1 + arg2;
     if (var_r0 != NULL) {
         DatMgr_ReleaseData(var_r0);
     }
@@ -1238,10 +1431,7 @@ void func_020119b0(TextObject* obj, s32 arg1, s32 arg2) {
     *(Data**)((u8*)obj + 0x48) = var_r0;
     obj->unk_4C                = (u16) * (u16*)((u8*)temp_r4 + 12);
     obj->unk_4E                = (u16) * (u16*)((u8*)temp_r4 + 14);
-    u16 temp_w1                = *(u16*)((u8*)temp_r4 + 18);
-    u16 temp_w2                = *(u16*)((u8*)temp_r4 + 16);
-    *(u16*)((u8*)obj + 0x54)   = temp_w2;
-    *(u16*)((u8*)obj + 0x56)   = temp_w1;
+    obj->secondaryFontSize     = temp_r4->dimensions;
     s32   temp_r3              = *(s32*)((u8*)temp_r4 + 20);
     void* var_r1               = NULL;
     if (var_r0 == NULL || temp_r3 <= 0) {
@@ -1315,51 +1505,44 @@ void func_02011c1c(TextObject* obj, u16 arg1) {
 }
 
 s32 func_02011c48(TextObject* obj) {
-    s32 val;
-    s32 temp_r5;
-    u16 var_r2;
-    u32 temp_r0;
-
-    val = 0;
-    do {
-        val = func_020111f0(obj);
-        if (val != 0x40) {
-            break;
+    u16 value;
+    s32 command;
+    s32 character;
+    for (;;) {
+        character = func_020111f0(obj);
+        if (character != 0x40) {
+            return character;
         }
-        temp_r5 = func_020111f0(obj);
-        temp_r0 = (u32)func_020111f0(obj);
-        if ((temp_r0 >= 0x30U) && (temp_r0 <= 0x39U)) {
-            var_r2 = (u16)(temp_r0 - 0x30);
-        } else if ((temp_r0 >= 0x61U) && (temp_r0 <= 0x66U)) {
-            var_r2 = (u16)(temp_r0 - 0x57);
-        } else if ((temp_r0 >= 0x41U) && (temp_r0 <= 0x46U)) {
-            var_r2 = (u16)(temp_r0 - 0x37);
+        command = func_020111f0(obj);
+        value   = func_020111f0(obj);
+        if (value >= 0x30U && value <= 0x39U) {
+            value -= 0x30;
+        } else if (value >= 0x61U && value <= 0x66U) {
+            value -= 0x57;
+        } else if (value >= 0x41U && value <= 0x46U) {
+            value -= 0x37;
         } else {
-            var_r2 = 0x10;
+            value = 0x10;
         }
-        if (temp_r5 > 0x46) {
-            switch (temp_r5 - 0x61) {
-                case 1:
-                    obj->unk_98 = (s32)var_r2;
-                    break;
-                case 5:
-                    obj->unk_9C = (s32)var_r2;
-                    break;
-                case 0:
-                    *(s32*)((u8*)obj + 0xA0) = (s32)var_r2;
-                    break;
-                case 4:
-                    *(s32*)((u8*)obj + 0xA4) = (s32)var_r2;
-                    break;
-            }
-        } else if (temp_r5 == 0x46) {
-            func_020119b0(obj, (s32)obj->data, var_r2);
+        switch (command) {
+            case 0x46:
+                func_020119b0(obj, (s32)obj->data, value);
+                break;
+            case 0x62:
+                obj->unk_98 = value;
+                break;
+            case 0x66:
+                obj->unk_9C = value;
+                break;
+            case 0x61:
+                *(s32*)((u8*)obj + 0xa0) = value;
+                break;
+            case 0x65:
+                *(s32*)((u8*)obj + 0xa4) = value;
+                break;
         }
-    } while (1);
-    return val;
+    }
 }
-
-void func_02011d48(void) {}
 
 u16 func_02011d4c(TextObject* obj) {
     u16 temp_r4 = obj->unk_6C;
