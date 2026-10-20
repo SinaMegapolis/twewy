@@ -14,6 +14,14 @@
 #define SYSFONT_CODEMAP_MAX_PROBES 0x1C
 #define SYSFONT_CODEMAP_NOT_FOUND  (-1)
 
+// These are system-font slots, not Unicode/Shift-JIS ranges. The bitmap audit
+// confirms the ASCII, extended Latin, and trailing Latin-letter runs.
+#define SYSFONT_PROP_ASCII_LAST    0x05E
+#define SYSFONT_PROP_LATIN_FIRST   0x155
+#define SYSFONT_PROP_LATIN_LAST    0x1AA
+#define SYSFONT_PROP_LETTERS_FIRST 0x1D4
+#define SYSFONT_PROP_LETTERS_LAST  0x207
+
 // sysCode 4 is substituted on lookup; see SysFont_DsCodesToSysCodes.
 #ifdef REGION_USA
     #define SYSFONT_SYSCODE_SUBST_FROM 4
@@ -51,7 +59,7 @@
 typedef struct {
     u16     dsCode;
     SysCode sysCode;
-} Ov031DsCodeMap;
+} SysFontDsCodeMapEntry;
 
 typedef struct {
     void* dst;
@@ -117,7 +125,10 @@ static SysFontInfo sFontInfo_10x10 = SYSFONT_INFO_10X10;
 static SysFontInfo sFontInfo_12x12 = SYSFONT_INFO_12X12;
 #endif
 
-static Ov031DsCodeMap SysFontDsCodeMap[0x209] = {
+// This base-character table is separate from Engine/Text.c's Shift-JIS font
+// pages (FontData/Font_Funakosi). Messages already contain system-font slots;
+// the extended 10x10 range 0x234..0x8EA needs no conversion at draw time.
+static SysFontDsCodeMapEntry SysFontDsCodeMap[0x209] = {
     {0x006C, 0x004C},
     {0xE00A, 0x01B5},
     {0x0035, 0x0015},
@@ -1019,7 +1030,10 @@ void SysFont_DecodeGlyph(SysFont* font, u8* dst, s32 glyph) {
     u8                 byteValue;
     const SysFontInfo* info;
 
-    info          = font->info;
+    info = font->info;
+    // For the 10x10 message font this is 25 * 25 = 625 slots per bank.
+    // The four banks include the base characters, extended glyphs and padding;
+    // their indices are not a standard Japanese character-code order.
     glyphsPerRow  = info->glyphsPerRow;
     glyphsPerBank = glyphsPerRow * info->glyphRows;
     bankIndex     = (u16)(glyph / (s32)glyphsPerBank);
@@ -1072,6 +1086,10 @@ void SysFont_DecodeGlyph(SysFont* font, u8* dst, s32 glyph) {
                             (((s32)(srcRow + ((u32)(srcRow >> 2) >> 0x1D)) >> 3) << 5))
                            << 5) +
                           ((s32)(colMod8 + (colMod8 >> 0x1F)) >> 1);
+                // The unsigned 32-bit shift is (srcRow & 7) * 4: the row
+                // inside an 8x8, 4bpp tile. Preserve the expression for matching.
+                // Retail artwork uses 0 for transparency, 14 for shadow and
+                // 15 for foreground; blitting remaps these through font->color.
                 byteValue = *(srcByte + ((u32)(srcRow << 0x1D) >> 0x1B));
                 col += 2;
                 dstRow[0] = (s8)(byteValue & 0xF);
@@ -1785,7 +1803,9 @@ SysCode* SysFont_GetMsgAt(SysCode* msg, s32 msgIndex) {
 
 BOOL SysFont_IsProportionalGlyph(u32 glyph) {
     BOOL result = FALSE;
-    if ((glyph <= 94) || ((glyph >= 341) && (glyph <= 426)) || ((glyph >= 468) && (glyph <= 519))) {
+    if ((glyph <= SYSFONT_PROP_ASCII_LAST) || ((glyph >= SYSFONT_PROP_LATIN_FIRST) && (glyph <= SYSFONT_PROP_LATIN_LAST)) ||
+        ((glyph >= SYSFONT_PROP_LETTERS_FIRST) && (glyph <= SYSFONT_PROP_LETTERS_LAST)))
+    {
         result = TRUE;
     }
     if (glyph & 0xF000) {
@@ -1812,6 +1832,8 @@ u16 SysFont_GetGlyphWidth(SysFont* font, s32 glyph) {
         case SYSFONT_GLYPH_WIDE_SPACE:
             return info->cellWidth;
     }
+    // In particular, extended Kanji use cellWidth even if a width-table byte
+    // exists for that slot. Different-looking slots are not width variants.
     if (SysFont_IsProportionalGlyph(glyph) == FALSE) {
         return info->cellWidth;
     }

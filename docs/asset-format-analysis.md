@@ -252,8 +252,8 @@ dic = {
     "4100": "a",  "4200": "b", "4300": "c", "4400": "d",
 
     # Japanese Hiragana (2 bytes)
-    "5F00": "��", "6000": "��", "6100": "��", "6200": "��",
-    "8800": "��", "8900": "��", "8A00": "��", "8B00": "��",
+    "5F00": "��", "6000": "��", "6100": "��", "6200": "��",
+    "8800": "��", "8900": "��", "8A00": "��", "8B00": "��",
 
     # Japanese Katakana (2 bytes)
     "B200": "�@", "B300": "�A", "B400": "�B", "B500": "�C",
@@ -312,6 +312,105 @@ def pack():
         with open("mestxt.bin", "wb") as file3:
             file3.write(bytes.fromhex(res))
 ```
+
+### Message code space
+
+`mestxt.bin` stores glyph numbers, not characters: each `u16` is an index into
+the 10x10 sheet in `Apl_Fuk/Grp_Font.bin`.  What a number means is fixed by
+the engine, and the engine says so in two places.
+
+`SysFontDsCodeMap` in `src/Util/SysFont.c` is the DS-code -> glyph table the
+game uses to render the owner's name.  It is a 521-slot open-addressed hash
+table: `SysFont_HashDsCode` mixes a DS character code into a slot and
+`SysFont_FindDsCodeSlot` probes forward from there.  The table in the source
+is byte-for-byte identical to the one in the retail USA ROM, so it can be
+used as ground truth - pair a DS character code with the character set the DS
+defines, and the glyph the table points at is that character.
+
+The other place is `SysFont_IsProportionalGlyph`, which decides from the code
+alone whether a glyph is narrow: `code <= 94`, `341 <= code <= 426` or
+`468 <= code <= 519`, and never when `code & 0xF000`.  Those ranges hold the
+half-width letters and digits.
+
+`tools/asset/mesdump.py` keeps the character map that turns those glyph
+numbers into text, and `tools/asset/verify_charmap.py` checks it against the
+retail ROM:
+
+```sh
+python tools/asset/verify_charmap.py
+```
+
+The tool reports three kinds of problem: a slot of the table in
+`src/Util/SysFont.c` that differs from the ROM's, a glyph the character map
+names differently from the ROM, and a glyph the ROM names that the map leaves
+unnamed.  Glyphs the ROM's table does not reach - the half-width letters and
+digits at `0x1CA` and the minus sign at `0x208` - are the sheet's own, and
+the tool lists them separately.
+
+The DS character set places a few characters outside the range the table
+covers, so the sheet's own artwork is the only evidence for them.  The
+twelve glyphs at `0xA6`-`0xB1` are the kana the DS character set has no code
+for (ぁ ぃ ぅ ぇ ぉ っ ゃ ゅ ょ ゎ ゐ ゑ) and the fifteen at
+`0xF9`-`0x107` are the katakana the same way (ヨ ラ リ ル レ ロ ワ ヲ ン
+ア ウ イ ヴ ヵ ヶ); reading the sheet settles both blocks.
+
+### The Japanese release has its own code space
+
+The Japanese messages are not in the USA code space.  The JP sheet
+(`extract/jp/.../Grp_Font.bin`) draws the same glyphs as the USA sheet, but
+the message tables number the kana in Unicode order: the hiragana from
+`0x5F` (ぁ あ ぃ い … ん) and the katakana from `0xB2` (ァ ア ィ イ … リ),
+with the small kana ャ ュ ョ at `0xFC`-`0xFE` and the run ending
+レ ル ロ ワ ヲ ン ヴ ヵ ヶ at `0xFF`-`0x107`.  The ASCII and the symbol
+block are the same in both, so `mesdump.py` keeps one map and swaps the kana
+for the Japanese release (`load_charmap("jp")`).
+
+Reading the JP text with the USA map gives gibberish where the JP map gives
+"むちゃ-chaけだ…", "な、なんだと？" and "コントョ−ャにさえ", so this is not a
+cosmetic difference: the codes were right and the map was wrong.
+
+The order of the Japanese kana is not guesswork: the Japanese corpus is
+Japanese, so the letter frequencies of the whole message table fix the
+start of the runs (the most frequent code is い and the second is の, which
+puts the hiragana run at `0x5F` in Unicode order), and the sentences
+themselves confirm every code - "ウルサ", "ルビのシャシ", "ライヴハウス",
+"バッジヲ…" and "1ヶ月" name the codes the Unicode order alone would not.
+
+The kana order is now settled by two independent proofs rather than by
+frequency.  The ROM's own DS-code table lists the kana in contiguous runs
+(`glyph 0x5F` -> DS `0x3041` ぁ, `0x60` -> `0x3042` あ, and so on), and the
+ink coverage of the 10x10 sheet alternates small/large exactly as
+`ぁあぃいぅうぇえぉお` does (`0x5F` covers 40 pixels in an 8x7 box, `0x60`
+covers 64 in a 10x9 box, …).  Both agree with plain Unicode order.
+
+The kanji the Japanese messages use start at `0x234`.  They are the same
+codes the USA release uses for the Japanese strings it left in: the two
+sheets differ on only 173 glyphs and all of them are `<= 0x22C` (ASCII,
+half-width and symbol spacing), so every kanji slot from `0x234` up is
+byte-identical between releases and a single label set serves both.  They
+are not in the JIS X 0208 order: reading the corpus with the kanji in that
+order gives "叱をかばって" and "吜こう！" instead of Japanese, so the game's
+font lists them in its own order.
+
+`tools/asset/kanjihunt.py` prints the sentences that use a code, which is
+how the kanji are named:
+
+```sh
+python tools/asset/kanjihunt.py 0x02BB
+```
+
+The recovered labels live in `tools/asset/glyph_names.py` (one
+`<hex code> <character>` pair per line, merged into the character map by
+`mesdump.load_charmap`).  A code with no label still decodes as `{0xNNN}`
+so that missing work is visible rather than silently wrong.
+
+Duplicate slots are real and expected.  The sheet has 2500 slots for roughly
+1800 kanji, and some characters appear more than once at different widths
+(神 at `0x23F` and `0x294`, 日 at `0x70F` and `0x898`, 持 at `0x313`,
+`0x4D3` and `0x733`).  Do not discard a candidate label just because another
+code already carries that character.  The mirror-image trap is a look-alike
+character: `0x36A` is 識 (意識, 認識) while 強 is `0x73A`, and `0x736` is 意
+(意味) while 勉 is `0x4C5`.
 
 ### Text Table (mestable.bin)
 
@@ -388,8 +487,8 @@ Example:
 ```
 2100?8?A
 4100?7?a
-6000?12?��
-B300?12?�A
+6000?12?��
+B300?12?�A
 ```
 
 ### Packing Font Data

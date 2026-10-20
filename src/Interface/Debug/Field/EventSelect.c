@@ -13,7 +13,6 @@
 
 #include "Save.h"
 
-extern void func_02010b50(TextObject* textObj);
 extern void func_02025b68(void* textObj, UnkStruct_usedby_02025b68* params);
 extern void func_02025e30(void* textObj);
 
@@ -1919,7 +1918,7 @@ void func_ov030_020b1028(EventSelectObject* object) {
 }
 
 void func_ov030_020b10b0(EventSelectObject* object) {
-    func_02010b50(&object->text);
+    Text_ClearAndResetPosition(&object->text);
     Text_RenderToScreen(&object->text, 0, 0, "Event select");
     Text_RenderToScreen(&object->text, 8, 0x10, Str_SPrintf("%s", data_ov030_020de334[gSaveData.unk_26E6].name));
     Text_RenderToScreen(&object->text, 8, 0x18,

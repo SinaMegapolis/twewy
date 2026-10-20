@@ -71,10 +71,10 @@ s32 func_02025e74(CellText* cellText, CellTextArgs* arg1) {
     cellText->unk_42C = sp12;
     sp18              = ((s32*)g_ObjResourceManagers[sp0])[2] + (*(s16*)((s32)cellText + 0x18) << 5);
     sp1C              = *(s32*)((s32)cellText + 0x1C);
-    func_0201187c(&cellText->unk_010, &sp0);
-    func_02011ecc(&cellText->unk_010);
+    TextSprite_Init(&cellText->unk_010, &sp0);
+    TextSprite_ClearAndResetPosition(&cellText->unk_010);
     if (arg1->unk_24 != 0) {
-        func_02011e94(&cellText->unk_010, arg1->unk_1C, arg1->unk_20);
+        TextSprite_Render(&cellText->unk_010, arg1->unk_1C, arg1->unk_20);
     }
     return 1;
 }
@@ -92,7 +92,7 @@ void CellText_Draw(CellText* cellText) {
 void CellText_Free(CellText* cellText) {
     ObjResMgr_ReleaseResource(g_ObjResourceManagers[cellText->unk_000], cellText->unk_008);
     PaletteMgr_ReleaseResource(g_PaletteManagers[cellText->unk_000], cellText->unk_00C);
-    func_02011994(&cellText->unk_010);
+    TextSprite_ReleaseFont(&cellText->unk_010);
     Mem_Free(&gMainHeap, cellText->unk_004);
 }
 

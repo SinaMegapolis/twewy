@@ -18,82 +18,169 @@ typedef struct {
     /* 0x11580 */ ResourceManager* unk_11580;
     /* 0x11584 */ s32              unk_11584;
     /* 0x11588 */ char             unk_11588[0x10428];
-    /* 0x219B0 */ SysFont          font;
-    /* 0x21A2C */ s32              unk_21A2C;
-    /* 0x21A30 */ char             unk_21A30[0x78];
-    /* 0x21AA8 */ void*            unk_21AA8;
-    /* 0x21AAC */ s32              unk_21AAC;
-    /* 0x21AB0 */ Sprite           unk_21AB0;
-    /* 0x21AF0 */ Sprite           unk_21AF0;
-    /* 0x21B30 */ char             unk_21B30[0xC];
-    /* 0x21B3C */ s32              unk_21B3C;
-    /* 0x21B40 */ s32              unk_21B40;
+    /* 0x219B0 */ SysFont          screenFont;
+    /* 0x21A2C */ SysFont          spriteFont;
+    /* 0x21AA8 */ void*            fontPalette;
+    /* 0x21AAC */ PaletteResource* paletteResource;
+    /* 0x21AB0 */ Sprite           windowSprite;
+    /* 0x21AF0 */ Sprite           textSprite;
+    /* 0x21B30 */ s16              unk_21B30;
+    /* 0x21B32 */ char             unk_21B32[0xA];
+    /* 0x21B3C */ u8*              screenMapEntry;
+    /* 0x21B40 */ u8*              characterEntry;
 } FontState; // Size: 0x21B44
 
 const BinIdentifier data_ov001_02082f98 = {1, "Apl_Fuk/Grp_FldMessWin.bin"};
 const BinIdentifier data_ov001_02082f90 = {1, "Apl_Fuk/Grp_ForTest.bin"};
 
-void FontTest_RegisterVBlank(void);
+void             FontTest_RegisterVBlank(void);
+SpriteFrameInfo* func_ov001_020826e4(Sprite* sprite, s32 arg, s32 mode);
+
+static const SpriteAnimation data_ov001_02082ff0 = {
+    .bits_0_1          = 0,
+    .dataType          = 0,
+    .bit_6             = 0,
+    .bits_7_9          = 5,
+    .bits_10_11        = 1,
+    .bits_12_13        = 1,
+    .bits_14_15        = 0,
+    .unk_02            = {.raw = 0},
+    .posX              = 50,
+    .posY              = 50,
+    .frameInfoCallback = func_ov001_020826e4,
+    .callbackArg       = 0,
+    .owner             = NULL,
+    .binIden           = &data_ov001_02082f98,
+    .unk_18            = 2,
+    .packIndex         = 0,
+    .unk_1C            = 0,
+    .unk_1E            = 0,
+    .unk_20            = 0,
+    .unk_22            = 3,
+    .unk_24            = 0,
+    .unk_26            = 0,
+    .unk_28            = 0,
+    .animIndex         = 1,
+};
 
 void func_ov001_020824a0(FontState* arg0) {
-    data_02066eec = 0;
-    SysFont_InitWithFont(&arg0->font, 1, TRUE);
-    SysFont_SetPos(&arg0->font, 0, 0);
-    arg0->font.widthScale = 1;
-    SysFont_SetPos(&arg0->font, 0, 0);
-    SysFont_SetMsg(&arg0->font, SYSMSG_FONT_CHECK_TEXT);
-    SysFont_DrawCurrentToScreen(&arg0->font, arg0->unk_21B3C + 4, arg0->unk_21B40 + 4, 0);
-    SysFont_Destroy(&arg0->font);
+    // Unused retail test vectors still occupy the shared constant pool.
+    SysCode glyphOrder[] = {1, 2, 4, 6, 3, 5, 22, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
+    s32     origin[2]    = {-64, -64};
+    data_02066eec        = 0;
+    SysFont_InitWithFont(&arg0->screenFont, 1, TRUE);
+    SysFont_SetPos(&arg0->screenFont, 0, 0);
+    arg0->screenFont.widthScale = 1;
+    SysFont_SetPos(&arg0->screenFont, 0, 0);
+    SysFont_SetMsg(&arg0->screenFont, SYSMSG_FONT_CHECK_TEXT);
+    // Grp_ForTest entries include a four-byte graphics header before their payloads.
+    SysFont_DrawCurrentToScreen(&arg0->screenFont, arg0->screenMapEntry + 4, arg0->characterEntry + 4, 0);
+    SysFont_Destroy(&arg0->screenFont);
 }
 
 void func_ov001_0208254c(FontState* arg0) {
-    // Not yet implemented
+    // Preserve the second retail sample initializer even though it is unused.
+    SysCode unusedSample[] = {4, SYSFONT_CODE_LINEBREAK, 5, 6, 7, SYSFONT_CODE_STR_END};
+    SysFont_InitWithFont(&arg0->spriteFont, 1, TRUE);
+    SysCode sample[] = {4, SYSFONT_CODE_LINEBREAK, 5, 6, 7, SYSFONT_CODE_STR_END};
+    SysFont_SetPos(&arg0->spriteFont, 20, 10);
+    SysFont_SetMsgPtr(&arg0->spriteFont, sample);
+    SysFont_DrawCurrentToSprite(&arg0->spriteFont, &arg0->textSprite, TRUE);
+    SysFont_Destroy(&arg0->spriteFont);
 }
 
 void func_ov001_020825f4(FontState* arg0) {
-    PaletteMgr_ReleaseResource(g_PaletteManagers[1], arg0->unk_21AAC);
-    Mem_Free(&gDebugHeap, arg0->unk_21AA8);
+    PaletteMgr_ReleaseResource(g_PaletteManagers[1], arg0->paletteResource);
+    Mem_Free(&gDebugHeap, arg0->fontPalette);
 }
 
 void func_ov001_0208262c(FontState* arg0) {
-    // Not yet implemented
+    s32   dataSlot = DatMgr_AllocateSlot();
+    Data* graphics;
+    u8*   characters;
+    u8*   screenMap;
+
+    arg0->fontPalette = SysFont_GetAllocPal(0);
+    // The retail routine discards this return value; preserve that behavior.
+    PaletteMgr_AllocPalette(g_PaletteManagers[1], arg0->fontPalette, 0, 0, 1);
+    graphics             = DatMgr_LoadPackEntry(dataSlot, NULL, 0, &data_ov001_02082f90, 1, TRUE);
+    characters           = Data_GetPackEntryData(graphics, 1);
+    screenMap            = Data_GetPackEntryData(graphics, 2);
+    arg0->characterEntry = characters;
+    arg0->screenMapEntry = screenMap;
 }
 
-func_ov001_020826e4() {}
+SpriteFrameInfo* func_ov001_020826e4(Sprite* sprite, s32 arg, s32 mode) {
+    SpriteFrameInfo* result = NULL;
+    switch (mode) {
+        case SPRITE_FRAME_UPDATE:
+            g_SpriteFrameInfo.updateSteps = 1;
+            return &g_SpriteFrameInfo;
+        case SPRITE_FRAME_RENDER: {
+            SpriteFrameInfo* info = &g_SpriteFrameInfo;
+            Sprite_FillFrameInfo(info, sprite);
+            result = info;
+        } break;
+    }
+    return result;
+}
 
-func_ov001_02082780(FontState* arg0) {}
+void func_ov001_02082780(FontState* arg0) {
+    SpriteAnimation animation = data_ov001_02082ff0;
+
+    animation.packIndex = 22;
+    animation.unk_1C    = 2;
+    animation.unk_20    = 1;
+    animation.unk_26    = 3;
+    animation.unk_28    = 4;
+    animation.animIndex = 1;
+    animation.dataType  = DatMgr_AllocateSlot();
+    _Sprite_Load(&arg0->windowSprite, &animation);
+
+    animation.packIndex = 1;
+    animation.animIndex = 1;
+    animation.posX      = 200;
+    _Sprite_Load(&arg0->textSprite, &animation);
+
+    arg0->windowSprite.cellIndex = 1;
+    arg0->textSprite.cellIndex   = 1;
+    // Both retail stores address the same field; the second overwrites the first.
+    arg0->unk_21B30 = arg0->windowSprite.charData->bitmapIndex / 4;
+    arg0->unk_21B30 = arg0->textSprite.charData->bitmapIndex / 4;
+}
 
 void func_ov001_0208288c(FontState* arg0) {
     FS_LoadOverlay(0, &OVERLAY_31_ID);
     func_ov001_0208262c(arg0);
     func_ov001_02082780(arg0);
-    Sprite_Update(&arg0->unk_21AB0);
-    Sprite_RenderFrame(&arg0->unk_21AB0);
-    Sprite_Update(&arg0->unk_21AF0);
-    Sprite_RenderAltPalette(&arg0->unk_21AF0, 0, 0, 2);
+    Sprite_Update(&arg0->windowSprite);
+    Sprite_RenderFrame(&arg0->windowSprite);
+    Sprite_Update(&arg0->textSprite);
+    Sprite_RenderAltPalette(&arg0->textSprite, 0, 0, 2);
     OamMgr_CommitMain();
     func_ov001_020824a0(arg0);
     DC_PurgeAll();
 
-    s32 val = arg0->unk_21B3C + 4;
+    s32 val = (s32)arg0->screenMapEntry + 4;
     func_0203ab7c(3, val, G2S_GetBG0ScrPtr(), 0x800);
 
-    val = arg0->unk_21B40 + 4;
+    val = (s32)arg0->characterEntry + 4;
     func_0203ab7c(3, val, G2S_GetBG0CharPtr(), 0x8000);
 
     PaletteMgr_Flush(g_PaletteManagers[0], 0);
     PaletteMgr_Flush(g_PaletteManagers[1], 0);
 }
 
-func_ov001_02082984(FontState* arg0) {
+void func_ov001_02082984(FontState* arg0) {
     FS_UnloadOverlay(0, &OVERLAY_31_ID);
-    Sprite_Release(&arg0->unk_21AB0);
-    Sprite_Release(&arg0->unk_21AF0);
+    Sprite_Release(&arg0->windowSprite);
+    Sprite_Release(&arg0->textSprite);
     func_ov001_020825f4(arg0);
 }
 
 static const char* data_ov001_02083020 = "Seq_Text()";
 
+// Nonmatching: the display and sub-palette literal-pool entries are reversed.
 void FontTest_Init(FontState* arg0) {
     char* sequence = data_ov001_02083020;
     arg0           = Mem_AllocHeapTail(&gDebugHeap, sizeof(FontState));
@@ -104,10 +191,10 @@ void FontTest_Init(FontState* arg0) {
     FontTest_RegisterVBlank();
     arg0->unk_11580 = ResourceMgr_ReinitManagers(&arg0->unk_00000);
 
-    data_02066aec                                       = 0;
-    data_02066eec                                       = 0;
-    g_DisplaySettings.controls[DISPLAY_MAIN].brightness = 0;
-    g_DisplaySettings.controls[DISPLAY_SUB].brightness  = 0;
+    *(volatile u16*)&data_02066aec                                       = 0;
+    data_02066eec                                                        = 0;
+    *(volatile s32*)&g_DisplaySettings.controls[DISPLAY_MAIN].brightness = 0;
+    g_DisplaySettings.controls[DISPLAY_SUB].brightness                   = 0;
 
     func_ov001_0208288c(arg0);
     MainOvlDisp_NextProcessStage();
@@ -224,12 +311,13 @@ void func_ov001_02082b74(void) {
     g_DisplaySettings.engineState[1].bgSettings[0].mosaic = 0;
     g_DisplaySettings.engineState[1].bgSettings[1].mosaic = 0;
     g_DisplaySettings.engineState[1].bgSettings[2].mosaic = 0;
-    g_DisplaySettings.engineState[1].bgSettings[3].mosaic = 0;
+    // Carry the cleared value into the layer mask to preserve retail code generation.
+    u32 emptyLayers = (g_DisplaySettings.engineState[1].bgSettings[3].mosaic = 0);
 
     g_DisplaySettings.controls[DISPLAY_SUB].objTileMode = GX_OBJTILEMODE_1D_128K;
     g_DisplaySettings.controls[DISPLAY_SUB].objBmpMode  = GX_OBJBMPMODE_1D_128K;
 
-    Display_SetSubLayers(LAYER_BG0 | LAYER_OBJ);
+    g_DisplaySettings.controls[DISPLAY_SUB].layers = emptyLayers | LAYER_BG0 | LAYER_OBJ;
 
     REG_POWER_CNT &= ~0x8000;
     OamMgr_Init3DSpritePipeline();

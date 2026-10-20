@@ -1,86 +1,174 @@
 #include "Engine/Text.h"
 #include "Engine/Core/OamMgr.h"
-
-typedef struct {
-    u16 unk_00;
-    u16 unk_02;
-} UnkTextPair;
-typedef struct {
-    u16 half0;
-    u16 half1;
-    u16 half2;
-    u16 half3;
-} UnkQuad;
 #include "Engine/File/BinMgr.h"
 
+typedef struct {
+    u16 x;
+    u16 y;
+    u16 width;
+    u16 height;
+} TextTileArea;
+
+// FontData.bin and Font_Funakosi.bin use these 0x24-byte face descriptors.
+// Entry indices address the nested PACK; glyph bitmaps store linear 1/2bpp rows.
 typedef struct {
     /* 0x00 */ BinIdentifier* bin;
     /* 0x04 */ s32            packIndex;
     /* 0x08 */ s32            loadMode;
-    /* 0x0C */ TextU16Pair    glyphSize;
+    /* 0x0C */ u16            bitsPerPixel;
+    /* 0x0E */ u16            glyphStrideBytes;
     /* 0x10 */ TextU16Pair    dimensions;
-    /* 0x14 */ s32            dataOffset;
-    /* 0x18 */ s32            paletteOffset;
-    /* 0x1C */ s32            mappingOffset;
-    /* 0x20 */ u16            flags;
+    /* 0x14 */ s32            codeMapEntry;
+    /* 0x18 */ s32            bitmapEntry;
+    /* 0x1C */ s32            advanceWidthsEntry;
+    /* 0x20 */ u16            defaultAdvance;
     /* 0x22 */ u16            padding;
 } TextFontEntry;
 
 typedef struct {
     /* 0x00 */ s32         screen;
-    /* 0x04 */ s32         pack;
-    /* 0x08 */ s32         mode;
+    /* 0x04 */ s32         datSlot;
+    /* 0x08 */ s32         vertical;
     /* 0x0C */ TextU16Pair tileOrigin;
     /* 0x10 */ TextU16Pair tileSize;
     /* 0x14 */ TextU16Pair spacing;
-    /* 0x18 */ s32         tilemap;
-    /* 0x1C */ s32         pixels;
+    /* 0x18 */ s32         pixels;
+    /* 0x1C */ s32         paletteIndex;
     /* 0x20 */ s32         buffer;
     /* 0x24 */ s32         fonts;
     /* 0x28 */ s32         fontIndex;
     /* 0x2C */ u16         controls[16];
-} TextInitArgs;
+} TextSpriteInitArgs;
 
-s32 func_020107a4(TextObject* obj, s32 param_2, s32 param_3);
+typedef struct {
+    /* 0x00 */ u8          reserved[8];
+    /* 0x08 */ u32         datSlot;
+    /* 0x0C */ u32         vertical;
+    /* 0x10 */ TextU16Pair tileOrigin;
+    /* 0x14 */ TextU16Pair tileSize;
+    /* 0x18 */ TextU16Pair spacing;
+    /* 0x1C */ u32         pixels;
+    /* 0x20 */ u32         tilemap;
+    /* 0x24 */ u32         fonts;
+    /* 0x28 */ u32         fontIndex;
+    /* 0x2C */ u16         blankTile;
+    /* 0x2E */ u16         firstTile;
+    /* 0x30 */ u16         controls[16];
+} TextScreenInitArgs;
 
-void func_02010870(TextObject* obj);
+// The blitter accepts this view at BG offset 0x6C or OBJ offset 0x74.
+typedef struct {
+    u16   reserved;
+    u16   bitsPerPixel;
+    u32   mode;
+    u32   sourceRowBytes;
+    u32   destinationX;
+    u32   width;
+    u32   height;
+    void* source;
+    void* destination;
+    u32   palette;
+} TextGlyphBlit;
 
-void  func_0200fa28(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
-void  func_0200fa2c(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
-void  func_0200fb88(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
-void  func_0200fad4(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
-void  func_0200fc70(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
-s32   func_02010808(TextObject* arg0, s32 arg1, s32 arg2);
-void  func_020105b8(TextObject* obj);
-void  func_02010adc(TextObject* obj, u16* arg1);
-void  func_020105d4(TextObject* obj, u32 arg1, u32 arg2);
-void  func_02011bec(TextObject* obj);
-BOOL  func_02011c04(TextObject* obj);
-void  func_02011c1c(TextObject* obj, u16 arg1);
-void  func_02011494(TextObject* obj);
-void* func_02011d8c(TextObject* obj, u8* arg1);
-void  func_02011e94(TextObject* obj, s32 arg1, s32 arg2, u8* arg3);
-void  func_02011e58(TextObject* obj, u16* arg1);
-void  func_02011ecc(TextObject* obj);
-void  func_02011df8(TextObject* obj);
-u16   func_02011d4c(TextObject* obj);
-s32   func_02011c48(TextObject* obj);
-void  func_020119b0(TextObject* obj, s32 arg1, s32 arg2);
-u16   func_020111f0(TextObject* obj);
-s32   func_0201122c(TextObject*, s32);
-s32   func_02011358(TextObject*, s32, s32);
-void  func_02011474(TextObject*, u32, s32);
-void  func_020119b0(TextObject* obj, s32 arg1, s32 arg2);
-void* func_02011b7c(TextObject* obj, s32 arg1, s32 arg2);
+typedef struct {
+    /* 0x000 */ u32         screen;
+    /* 0x004 */ s32         vertical;
+    /* 0x008 */ s32         xOffset;
+    /* 0x00C */ s32         yOffset;
+    /* 0x010 */ TextU16Pair spacing;
+    /* 0x014 */ TextU16Pair tileOrigin;
+    /* 0x018 */ TextU16Pair tileSize;
+    /* 0x01C */ u16         pixelOriginX;
+    /* 0x01E */ u16         pixelOriginY;
+    /* 0x020 */ u16         pixelWidth;
+    /* 0x022 */ u16         pixelHeight;
+    /* 0x024 */ u32         pixelBytes;
+    /* 0x028 */ u32         pixels;
+    /* 0x02C */ u32         paletteIndex;
+    /* 0x030 */ u32         blankGlyph;
+    /* 0x034 */ u32         backgroundFill;
+    /* 0x038 */ u32         tileOffsets;
+    /* 0x03C */ u32         pieces;
+    /* 0x040 */ u32         fonts;
+    /* 0x044 */ s32         datSlot;
+    /* 0x048 */ Data*       data;
+    /* 0x04C */ u16         bitsPerPixel;
+    /* 0x04E */ u16         glyphStrideBytes;
+    /* 0x050 */ s16         glyphTileWidth;
+    /* 0x052 */ s16         glyphTileHeight;
+    /* 0x054 */ TextU16Pair fontSize;
+    /* 0x058 */ u8*         codeMap;
+    /* 0x05C */ u32         bitmap;
+    /* 0x060 */ u32         advanceWidths;
+    /* 0x064 */ s32         advanceWidthCount;
+    /* 0x068 */ u16         defaultAdvance;
+    /* 0x06A */ u16         padding6A;
+    /* 0x06C */ u16         queueWrite;
+    /* 0x06E */ u16         queueRead;
+    /* 0x070 */ u16*        queue;
+    /* 0x074 */ u16         blitReserved;
+    /* 0x076 */ u16         blitBitsPerPixel;
+    /* 0x078 */ s32         blitMode;
+    /* 0x07C */ s32         sourceRowBytes;
+    /* 0x080 */ s32         destinationX;
+    /* 0x084 */ s32         blitWidth;
+    /* 0x088 */ s32         blitHeight;
+    /* 0x08C */ void*       sourcePixels;
+    /* 0x090 */ void*       rowPixels;
+    /* 0x094 */ void*       blitPalette;
+    /* 0x098 */ u32         palette[16];
+    /* 0x0D8 */ u32         savedPalette[16];
+    /* 0x118 */ u16         queueStorage[256];
+    /* 0x318 */ u32         tileCache[16];
+} SpriteTextObject;
 
-typedef void (*FuncPtr)(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
-const FuncPtr data_0205aea4[20] = {
-    func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa2c, func_0200fb88, func_0200fa28,
-    func_0200fa28, func_0200fad4, func_0200fc70, func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa28,
-    func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa28, func_0200fa28,
+s32 Text_GetTilemapAddress(TextObject* obj, s32 x, s32 y);
+
+void Text_ResetQueue(TextObject* obj);
+
+void  Text_BlitTileNoop(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
+void  Text_BlitTile1bpp(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
+void  Text_BlitTile1bppTransparent(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
+void  Text_BlitTile2bpp(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
+void  Text_BlitTile2bppTransparent(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
+s32   Text_GetTilePixels(TextObject* obj, s32 x, s32 y);
+void  Text_ReleaseFont(TextObject* obj);
+void  Text_SetPalette(TextObject* obj, u16* palette);
+void  Text_SelectFont(TextObject* obj, u32 fonts, u32 fontIndex);
+void  TextSprite_ResetQueue(SpriteTextObject* obj);
+BOOL  TextSprite_IsQueueEmpty(SpriteTextObject* obj);
+void  TextSprite_EnqueueCode(SpriteTextObject* obj, u16 code);
+void  TextSprite_Clear(SpriteTextObject* obj);
+void* TextSprite_EnqueueString(SpriteTextObject* obj, u8* string);
+void  TextSprite_Render(SpriteTextObject* obj, s32 x, s32 y, u8* string);
+void  TextSprite_SetPalette(SpriteTextObject* obj, u16* palette);
+void  TextSprite_ClearAndResetPosition(SpriteTextObject* obj);
+void  TextSprite_Flush(SpriteTextObject* obj);
+u16   TextSprite_PeekCode(SpriteTextObject* obj);
+s32   TextSprite_ReadFormattedCode(SpriteTextObject* obj);
+u16   TextSprite_DequeueCode(SpriteTextObject* obj);
+s32   TextSprite_DrawGlyph(SpriteTextObject*, s32);
+s32   TextSprite_DrawControl(SpriteTextObject*, s32, s32);
+void  TextSprite_DrawCode(SpriteTextObject*, u32, s32);
+void  TextSprite_SelectFont(SpriteTextObject* obj, s32 fonts, s32 fontIndex);
+void* TextSprite_GetTilePixels(SpriteTextObject* obj, s32 x, s32 y);
+
+typedef void (*TextTileBlitter)(u32*, u8*, u32*, s32, s32, u32, u32*, u32*);
+// Indexed by (source bpp * 4) + mode; mode 1 preserves source color zero.
+const TextTileBlitter Text_TileBlitters[20] = {
+    Text_BlitTileNoop, Text_BlitTileNoop,
+    Text_BlitTileNoop, Text_BlitTileNoop,
+    Text_BlitTile1bpp, Text_BlitTile1bppTransparent,
+    Text_BlitTileNoop, Text_BlitTileNoop,
+    Text_BlitTile2bpp, Text_BlitTile2bppTransparent,
+    Text_BlitTileNoop, Text_BlitTileNoop,
+    Text_BlitTileNoop, Text_BlitTileNoop,
+    Text_BlitTileNoop, Text_BlitTileNoop,
+    Text_BlitTileNoop, Text_BlitTileNoop,
+    Text_BlitTileNoop, Text_BlitTileNoop,
 };
 
-const s32 data_0205ae64[0x10] = {0xF};
+const s32 Text_TransparentPixelMasks[0x10] = {0xF};
 typedef struct {
     s32 x;
     s32 y;
@@ -93,7 +181,7 @@ typedef struct {
     s32 bytes;
     s32 tiles;
 } TextOamAllocation;
-const TextOamRegion data_0205b454[4][4][2] = {
+const TextOamRegion Text_OamRegions[4][4][2] = {
     {
      {
      {0, 0, 1, 1, 0, 0},
@@ -151,8 +239,8 @@ const TextOamRegion data_0205b454[4][4][2] = {
  {-1, -1, 0, 0, 0, 0},
  }, },
 };
-extern const u32 data_0205ae24[8][2];
-const u32        data_0205b0f4[9][8][3] = {
+extern const u32 Text_TileShifts[8][2];
+const u32        Text_TileMasks[9][8][3] = {
     {
      {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
      {0xFFFFFFFF, 0xFFFFFFFF, 0x00000000},
@@ -245,7 +333,8 @@ const u32        data_0205b0f4[9][8][3] = {
      },
 };
 
-const u16 data_0205aef4[256] = {
+// Preserve the game's punctuation substitutions as well as fullwidth ASCII.
+const u16 Text_AsciiToSjisTable[256] = {
     0x0,    0x1,    0x2,    0x3,    0x4,    0x5,    0x6,    0x7,    0x8,    0x9,    0xA,    0xB,    0xC,    0xD,    0xE,
     0xF,    0x10,   0x11,   0x12,   0x13,   0x14,   0x15,   0x16,   0x17,   0x18,   0x19,   0x1A,   0x1B,   0x1C,   0x1D,
     0x1E,   0x1F,   0x8140, 0x8149, 0x8160, 0x818C, 0x8190, 0x818B, 0x8195, 0x818C, 0x8169, 0x816A, 0x8196, 0x817B, 0x8143,
@@ -266,51 +355,53 @@ const u16 data_0205aef4[256] = {
     0x8159,
 };
 
-u16 func_0200f94c(s32 idx) {
-    return data_0205aef4[idx];
+u16 Text_AsciiToSjis(s32 ascii) {
+    return Text_AsciiToSjisTable[ascii];
 }
 
-u16 func_0200f960(u32 arg0, u8* arg1) {
-    u16 offset      = ((arg0 & 0x7F00) >> 6);
-    u16 base_offset = arg1[offset] | (arg1[offset + 1] << 8);
-    u16 width       = (arg1[offset + 3] << 8) | arg1[offset + 2];
-    u16 result      = 0;
+// Two u16s per Shift-JIS page: payload offset and glyph base.
+// Missing pages (0xFFFF) and missing bytes (0xFF) select glyph zero.
+u16 Text_FindGlyph(u32 code, u8* codeMap) {
+    u16 pageOffset    = ((code & 0x7F00) >> 6);
+    u16 payloadOffset = codeMap[pageOffset] | (codeMap[pageOffset + 1] << 8);
+    u16 glyphBase     = (codeMap[pageOffset + 3] << 8) | codeMap[pageOffset + 2];
+    u16 result        = 0;
 
-    if (base_offset != 0xFFFF) {
-        u8 char_width = arg1[(u16)(base_offset + ((arg0 & 0xFF) - 0x40))];
-        if (char_width != 0xFF) {
-            result = char_width + width;
+    if (payloadOffset != 0xFFFF) {
+        u8 glyphOffset = codeMap[(u16)(payloadOffset + ((code & 0xFF) - 0x40))];
+        if (glyphOffset != 0xFF) {
+            result = glyphOffset + glyphBase;
         }
     }
 
     return result;
 }
 
-u16 func_0200f9e0(s32 arg0, u8* arg1, u8* arg2, u32 arg3, u16 arg4) {
-    u16 var_r4 = 0;
+u16 Text_GetAdvance(s32 code, u8* codeMap, u8* advanceWidths, u32 advanceWidthCount, u16 defaultAdvance) {
+    u16 advance = 0;
 
-    if (arg2 != 0) {
-        u32 idx = func_0200f960(arg0, arg1);
-        if (idx < arg3) {
-            var_r4 = arg2[idx];
+    if (advanceWidths != 0) {
+        u32 glyph = Text_FindGlyph(code, codeMap);
+        if (glyph < advanceWidthCount) {
+            advance = advanceWidths[glyph];
         }
     }
-    if (var_r4 == 0) {
-        var_r4 = arg4;
+    if (advance == 0) {
+        advance = defaultAdvance;
     }
-    return var_r4;
+    return advance;
 }
 
-u32 func_0200fa10(u32 param_1, u8* param_2, u32 param_3, u32 param_4) {
-    return param_4 * func_0200f960(param_1, param_2) + param_3;
+u32 Text_GetGlyphBitmap(u32 code, u8* codeMap, u32 bitmap, u32 glyphStrideBytes) {
+    return glyphStrideBytes * Text_FindGlyph(code, codeMap) + bitmap;
 }
 
-void func_0200fa28(u32*, u8*, u32*, s32, s32, u32, u32*, u32*) {
+void Text_BlitTileNoop(u32*, u8*, u32*, s32, s32, u32, u32*, u32*) {
     return;
 }
 
-void func_0200fa2c(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
-                   u32* shifts) {
+void Text_BlitTile1bpp(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
+                       u32* shifts) {
     u32 pixels;
     s32 row;
     s32 packed;
@@ -346,8 +437,8 @@ void func_0200fa2c(u32* destination, u8* source, u32* palette, s32 width, s32 he
     } while (row < height);
 }
 
-void func_0200fad4(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
-                   u32* shifts) {
+void Text_BlitTile2bpp(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
+                       u32* shifts) {
     u32 pixels;
     s32 row;
     s32 packed;
@@ -383,8 +474,8 @@ void func_0200fad4(u32* destination, u8* source, u32* palette, s32 width, s32 he
     } while (row < height);
 }
 
-void func_0200fb88(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
-                   u32* shifts) {
+void Text_BlitTile1bppTransparent(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride,
+                                  u32* masks, u32* shifts) {
     u32 pixels;
     u32 preserveMask;
     s32 packed;
@@ -405,7 +496,7 @@ void func_0200fb88(u32* destination, u8* source, u32* palette, s32 width, s32 he
             do {
                 s32 paletteIndex = packed & 1;
                 pixels |= palette[paletteIndex] << bit;
-                preserveMask |= data_0205ae64[paletteIndex] << bit;
+                preserveMask |= Text_TransparentPixelMasks[paletteIndex] << bit;
                 packed >>= 1;
                 bit += 4;
             } while (bit < width);
@@ -421,8 +512,8 @@ void func_0200fb88(u32* destination, u8* source, u32* palette, s32 width, s32 he
     } while (row < height);
 }
 
-void func_0200fc70(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride, u32* masks,
-                   u32* shifts) {
+void Text_BlitTile2bppTransparent(u32* destination, u8* source, u32* palette, s32 width, s32 height, u32 sourceStride,
+                                  u32* masks, u32* shifts) {
     u32 pixels;
     u32 preserveMask;
     s32 packed;
@@ -443,7 +534,7 @@ void func_0200fc70(u32* destination, u8* source, u32* palette, s32 width, s32 he
             do {
                 s32 paletteIndex = packed & 3;
                 pixels |= palette[paletteIndex] << bit;
-                preserveMask |= data_0205ae64[paletteIndex] << bit;
+                preserveMask |= Text_TransparentPixelMasks[paletteIndex] << bit;
                 packed >>= 2;
                 bit += 4;
             } while (bit < width);
@@ -459,26 +550,26 @@ void func_0200fc70(u32* destination, u8* source, u32* palette, s32 width, s32 he
     } while (row < height);
 }
 
-s32 func_0200fd64(UnkMedText* glyph) {
+s32 Text_BlitTile(TextGlyphBlit* glyph) {
     s32 width;
     s32 height;
     s32 pixelOffset;
 
-    width = glyph->unk_10;
+    width = glyph->width;
     if (width > 8) {
         width = 8;
     }
-    height      = (s32)glyph->unk_14 > 8 ? 8 : (s32)glyph->unk_14;
-    pixelOffset = glyph->unk_0C;
+    height      = (s32)glyph->height > 8 ? 8 : (s32)glyph->height;
+    pixelOffset = glyph->destinationX;
 
-    data_0205aea4[(glyph->unk_02 << 2) + glyph->unk_04](glyph->unk_1C, glyph->unk_18, glyph->unk_20, width, height,
-                                                        glyph->unk_08, data_0205b0f4[width][pixelOffset],
-                                                        data_0205ae24[pixelOffset]);
+    Text_TileBlitters[(glyph->bitsPerPixel << 2) + glyph->mode](
+        glyph->destination, glyph->source, glyph->palette, width, height, glyph->sourceRowBytes,
+        Text_TileMasks[width][pixelOffset], Text_TileShifts[pixelOffset]);
 
     return ((pixelOffset + width + 7) & ~7) >> 3;
 }
 
-s32 func_0200fe08(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s32 width, s32 height) {
+s32 Text_BlitGlyph(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s32 width, s32 height) {
     void* tileCache;
     s32   columnsDrawn;
     u16*  currentTile;
@@ -492,11 +583,11 @@ s32 func_0200fe08(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s3
     s32   rowsDrawn;
     s32   tileSpan;
     s32   firstTile;
-    u16   clipWidth = obj->unk_20;
+    u16   clipWidth = obj->pixelWidth;
     if ((s32)(xOffset + width) > (s32)clipWidth) {
         width = clipWidth - xOffset;
     }
-    u16 clipHeight = obj->unk_22;
+    u16 clipHeight = obj->pixelHeight;
     if ((s32)(clippedY + height) > (s32)clipHeight) {
         height = (s32)clipHeight - clippedY;
     }
@@ -504,52 +595,52 @@ s32 func_0200fe08(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s3
         return 0;
     }
     {
-        firstTile             = (s32)(u16)(obj->unk_36 + (((clippedY >> 3) * obj->unk_18[0]) + (clippedX >> 3)));
+        firstTile             = (s32)(u16)(obj->firstTile + (((clippedY >> 3) * obj->tileSize.x) + (clippedX >> 3)));
         s32 rowOffset         = clippedY & 7;
         tileCache             = (u8*)obj + 0x310;
         obj->primaryRowPixels = (void*)((u8*)tileCache + (rowOffset * 4));
-        obj->unk_78           = clippedX & 7;
-        obj->unk_80           = 8 - rowOffset;
+        obj->destinationX     = clippedX & 7;
+        obj->blitHeight       = 8 - rowOffset;
         rowsDrawn             = 0;
         if (height > 0) {
             do {
-                currentTile   = (u16*)func_020107a4(obj, clippedX, clippedY + rowsDrawn);
-                currentPixels = (void*)func_02010808(obj, clippedX, clippedY + rowsDrawn);
+                currentTile   = (u16*)Text_GetTilemapAddress(obj, clippedX, clippedY + rowsDrawn);
+                currentPixels = (void*)Text_GetTilePixels(obj, clippedX, clippedY + rowsDrawn);
                 if (currentTile == NULL && currentPixels == NULL) {
                     goto block_14;
                 }
-                if (currentTile != NULL && *currentTile == obj->unk_34) {
+                if (currentTile != NULL && *currentTile == obj->blankTile) {
                 block_14:
-                    MI_CpuFill(obj->unk_30, tileCache, 0x20);
+                    MI_CpuFill(obj->backgroundFill, tileCache, 0x20);
                 } else {
                     MI_CpuCopy(currentPixels, tileCache, 0x20);
                 }
-                columnsDrawn = 0;
-                obj->unk_84  = (rowsDrawn * obj->unk_74) + glyphData;
-                obj->unk_7C  = width;
-                if (obj->unk_7C > 0) {
+                columnsDrawn      = 0;
+                obj->sourcePixels = (rowsDrawn * obj->sourceRowBytes) + glyphData;
+                obj->blitWidth    = width;
+                if (obj->blitWidth > 0) {
                     s32 tileColumn = 0;
                     do {
                         if (currentTile != NULL) {
                             nextTile = currentTile + 1;
                         } else {
-                            nextTile = (u16*)func_020107a4(obj, clippedX + columnsDrawn + 8, clippedY + rowsDrawn);
+                            nextTile = (u16*)Text_GetTilemapAddress(obj, clippedX + columnsDrawn + 8, clippedY + rowsDrawn);
                         }
                         if (currentPixels != NULL) {
                             nextPixels = (void*)((u8*)currentPixels + 0x20);
                         } else {
-                            nextPixels = (void*)func_02010808(obj, clippedX + columnsDrawn + 8, clippedY + rowsDrawn);
+                            nextPixels = (void*)Text_GetTilePixels(obj, clippedX + columnsDrawn + 8, clippedY + rowsDrawn);
                         }
                         if (nextTile == NULL && nextPixels == NULL) {
                             goto block_29;
                         }
-                        if (nextTile != NULL && *nextTile == obj->unk_34) {
+                        if (nextTile != NULL && *nextTile == obj->blankTile) {
                         block_29:
-                            MI_CpuFill(obj->unk_30, (u8*)tileCache + 0x20, 0x20);
+                            MI_CpuFill(obj->backgroundFill, (u8*)tileCache + 0x20, 0x20);
                         } else {
                             MI_CpuCopy(nextPixels, (u8*)tileCache + 0x20, 0x20);
                         }
-                        tileSpan = func_0200fd64((UnkMedText*)((u8*)obj + 0x6C));
+                        tileSpan = Text_BlitTile((TextGlyphBlit*)&obj->blitReserved);
                         if (currentTile != NULL) {
                             *currentTile = (u16)(firstTile + tileColumn);
                         }
@@ -568,18 +659,18 @@ s32 func_0200fe08(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s3
                         currentPixels = nextPixels;
                         MI_CpuCopy((u8*)tileCache + 0x20, tileCache, 0x20);
                         tileColumn += 1;
-                        obj->unk_84 = obj->unk_84 + obj->unk_6E;
+                        obj->sourcePixels = obj->sourcePixels + obj->blitBitsPerPixel;
                         columnsDrawn += 8;
-                        obj->unk_7C = obj->unk_7C - 8;
-                    } while (obj->unk_7C > 0);
+                        obj->blitWidth = obj->blitWidth - 8;
+                    } while (obj->blitWidth > 0);
                 }
-                firstTile             = (s32)(u16)(firstTile + obj->unk_18[0]);
+                firstTile             = (s32)(u16)(firstTile + obj->tileSize.x);
                 obj->primaryRowPixels = tileCache;
-                rowsDrawn += obj->unk_80;
+                rowsDrawn += obj->blitHeight;
                 s32 remainingRows = height - rowsDrawn;
-                obj->unk_80       = remainingRows;
+                obj->blitHeight   = remainingRows;
                 if (remainingRows > 8) {
-                    obj->unk_80 = 8;
+                    obj->blitHeight = 8;
                 }
             } while (rowsDrawn < height);
         }
@@ -588,33 +679,33 @@ s32 func_0200fe08(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s3
     return 0;
 }
 
-u16 func_02010170(TextObject* obj) {
-    if (obj->unk_64 != obj->unk_66) {
-        u16 val = obj->unk_68[obj->unk_66];
-        obj->unk_66++;
-        obj->unk_66 = obj->unk_66 & 0xff;
+u16 Text_DequeueCode(TextObject* obj) {
+    if (obj->queueWrite != obj->queueRead) {
+        u16 val = obj->queue[obj->queueRead];
+        obj->queueRead++;
+        obj->queueRead = obj->queueRead & 0xff;
         return val;
     }
     return 0;
 }
 
-BOOL func_020101ac(TextObject* obj, u32 arg1) {
-    u32 iVar1 = func_0200fa10(arg1, obj->unk_50, obj->unk_54, obj->unk_46);
-    u32 uVar1 = func_0200f9e0(arg1, obj->unk_50, obj->unk_58, obj->unk_5C, obj->unk_60);
+BOOL Text_DrawGlyph(TextObject* obj, u32 code) {
+    u32 glyphBitmap = Text_GetGlyphBitmap(code, obj->codeMap, obj->bitmap, obj->glyphStrideBytes);
+    u32 advance     = Text_GetAdvance(code, obj->codeMap, obj->advanceWidths, obj->advanceWidthCount, obj->defaultAdvance);
 
-    func_0200fe08(obj, obj->xOffset, obj->yOffset, iVar1, uVar1, obj->unk_4E);
-    if (obj->unk_00 == 0) {
-        obj->xOffset += uVar1;
+    Text_BlitGlyph(obj, obj->xOffset, obj->yOffset, glyphBitmap, advance, obj->glyphHeight);
+    if (obj->vertical == 0) {
+        obj->xOffset += advance;
     } else {
-        obj->yOffset += obj->unk_4E;
+        obj->yOffset += obj->glyphHeight;
     }
-    if ((obj->unk_10[0] != 0) && (obj->unk_70 == 0)) {
-        if (obj->unk_00 == 0) {
-            func_0200fe08(obj, obj->xOffset, obj->yOffset, obj->unk_2C, obj->unk_10[0], obj->unk_4E);
-            obj->xOffset += obj->unk_10[0];
+    if ((obj->spacing.x != 0) && (obj->blitMode == 0)) {
+        if (obj->vertical == 0) {
+            Text_BlitGlyph(obj, obj->xOffset, obj->yOffset, obj->blankGlyph, obj->spacing.x, obj->glyphHeight);
+            obj->xOffset += obj->spacing.x;
         } else {
-            func_0200fe08(obj, obj->xOffset, obj->yOffset, obj->unk_2C, obj->unk_4C, obj->unk_10[1]);
-            obj->yOffset += obj->unk_10[1];
+            Text_BlitGlyph(obj, obj->xOffset, obj->yOffset, obj->blankGlyph, obj->glyphWidth, obj->spacing.y);
+            obj->yOffset += obj->spacing.y;
         }
     }
     return TRUE;
@@ -625,221 +716,223 @@ static inline void SetOffsets(TextObject* obj, u32 x, u32 y) {
     obj->yOffset = y;
 }
 
-BOOL func_020102d8(TextObject* obj, u32 arg1, u32 arg2) {
-    BOOL BVar1 = FALSE;
+BOOL Text_DrawControl(TextObject* obj, u32 code, u32 drawBlank) {
+    BOOL advanced = FALSE;
 
-    switch (arg1) {
+    switch (code) {
         case 0:
             break;
         case 10:
-            if (obj->unk_00 == 0) {
-                SetOffsets(obj, 0, obj->yOffset + (obj->unk_4E + obj->unk_10[1]));
+            if (obj->vertical == 0) {
+                SetOffsets(obj, 0, obj->yOffset + (obj->glyphHeight + obj->spacing.y));
             } else {
-                SetOffsets(obj, obj->xOffset - (obj->unk_4C + obj->unk_10[0]), 0);
+                SetOffsets(obj, obj->xOffset - (obj->glyphWidth + obj->spacing.x), 0);
             }
             break;
         case 9:
-            if (obj->unk_00 == 0) {
-                if (arg2 == 1) {
-                    func_0200fe08(obj, obj->xOffset, obj->yOffset, obj->unk_2C, 8 - (obj->xOffset & 7U), obj->unk_4E);
+            if (obj->vertical == 0) {
+                if (drawBlank == 1) {
+                    Text_BlitGlyph(obj, obj->xOffset, obj->yOffset, obj->blankGlyph, 8 - (obj->xOffset & 7U),
+                                   obj->glyphHeight);
                 }
                 SetOffsets(obj, (obj->xOffset + 8) & ~7, obj->yOffset);
             } else {
-                if (arg2 == 1) {
-                    func_0200fe08(obj, obj->xOffset, obj->yOffset, obj->unk_2C, obj->unk_4C, 8 - (obj->yOffset & 7U));
+                if (drawBlank == 1) {
+                    Text_BlitGlyph(obj, obj->xOffset, obj->yOffset, obj->blankGlyph, obj->glyphWidth, 8 - (obj->yOffset & 7U));
                 }
                 SetOffsets(obj, obj->xOffset, (obj->yOffset + 8) & ~7);
             }
-            BVar1 = TRUE;
+            advanced = TRUE;
             break;
     }
 
-    return BVar1;
+    return advanced;
 }
 
-void func_020103f4(TextObject* arg0, s32 arg1, s32 unused) {
-    if (arg1 & 0xFF00) {
-        func_020101ac(arg0, arg1);
+void Text_DrawCode(TextObject* obj, s32 code, s32 unused) {
+    if (code & 0xFF00) {
+        Text_DrawGlyph(obj, code);
         return;
     }
-    func_020102d8(arg0, arg1, 1);
+    Text_DrawControl(obj, code, 1);
 }
 
-void func_02010414(TextObject* obj) {
-    if (obj->unk_18[0] == 0 && obj->unk_18[1] == 0) {
+void Text_Clear(TextObject* obj) {
+    if (obj->tileSize.x == 0 && obj->tileSize.y == 0) {
         return;
     }
 
     u16 i;
-    s32 iVar3 = func_020107a4(obj, 0, 0);
+    s32 iVar3 = Text_GetTilemapAddress(obj, 0, 0);
 
     if (iVar3 != 0) {
-        for (i = 0; i < obj->unk_18[1]; i++) {
-            MI_CpuFillU16(obj->unk_34, iVar3, obj->unk_18[0] << 1);
-            iVar3 += obj->unk_04 * 2;
+        for (i = 0; i < obj->tileSize.y; i++) {
+            MI_CpuFillU16(obj->blankTile, iVar3, obj->tileSize.x << 1);
+            iVar3 += obj->mapWidth * 2;
         }
     } else {
-        MI_CpuFill(obj->unk_30, func_02010808(obj, 0, 0), obj->unk_18[0] * obj->unk_18[1] * 0x20);
+        MI_CpuFill(obj->backgroundFill, Text_GetTilePixels(obj, 0, 0), obj->tileSize.x * obj->tileSize.y * 0x20);
     }
 }
 
-void func_020104c0(TextObject* obj, UnkSmallText* param_2) {
-    obj->unk_00 = param_2->unk_0C;
-    obj->unk_3C = param_2->unk_08;
-    obj->data   = NULL;
-    obj->unk_04 = 0x20;
-    obj->unk_06 = 0x20;
+void Text_Init(TextObject* obj, TextScreenInitArgs* args) {
+    obj->vertical  = args->vertical;
+    obj->datSlot   = args->datSlot;
+    obj->data      = NULL;
+    obj->mapWidth  = 0x20;
+    obj->mapHeight = 0x20;
 
-    obj->unk_10 = param_2->unk_18;
-    obj->unk_14 = param_2->unk_10;
-    obj->unk_18 = param_2->unk_14;
+    obj->spacing    = args->spacing;
+    obj->tileOrigin = args->tileOrigin;
+    obj->tileSize   = args->tileSize;
 
-    obj->unk_1C = param_2->unk_10[0] << 3;
-    obj->unk_1E = param_2->unk_10[1] << 3;
-    obj->unk_20 = param_2->unk_14[0] << 3;
-    obj->unk_22 = param_2->unk_14[1] << 3;
+    obj->pixelOriginX = args->tileOrigin.x << 3;
+    obj->pixelOriginY = args->tileOrigin.y << 3;
+    obj->pixelWidth   = args->tileSize.x << 3;
+    obj->pixelHeight  = args->tileSize.y << 3;
 
-    obj->unk_24 = param_2->unk_1C;
-    obj->unk_28 = param_2->unk_20;
-    obj->unk_34 = param_2->unk_2C;
-    obj->unk_36 = param_2->unk_2E;
+    obj->pixels    = args->pixels;
+    obj->tilemap   = args->tilemap;
+    obj->blankTile = args->blankTile;
+    obj->firstTile = args->firstTile;
 
-    func_020105d4(obj, param_2->unk_24, param_2->unk_28);
-    obj->unk_38 = param_2->unk_24;
-    obj->unk_2C = func_0200fa10(0x8140, obj->unk_50, obj->unk_54, obj->unk_46);
-    func_02010adc(obj, &param_2->unk_30);
-    func_02010870(obj);
+    Text_SelectFont(obj, args->fonts, args->fontIndex);
+    obj->fonts      = args->fonts;
+    obj->blankGlyph = Text_GetGlyphBitmap(0x8140, obj->codeMap, obj->bitmap, obj->glyphStrideBytes);
+    Text_SetPalette(obj, &args->controls[0]);
+    Text_ResetQueue(obj);
 }
 
-void func_020105b8(TextObject* obj) {
+void Text_ReleaseFont(TextObject* obj) {
     DatMgr_ReleaseData(obj->data);
     obj->data = NULL;
 }
 
-void func_020105d4(TextObject* obj, u32 arg1, u32 arg2) {
-    obj->unk_38                  = (s32)arg1;
-    void*                var_r0  = obj->data;
-    const TextFontEntry* temp_r4 = (const TextFontEntry*)arg1 + arg2;
-    if (var_r0 == NULL) {
-        if (var_r0 != NULL) {
-            DatMgr_ReleaseData((Data*)var_r0);
+void Text_SelectFont(TextObject* obj, u32 fonts, u32 fontIndex) {
+    obj->fonts                = (s32)fonts;
+    void*                data = obj->data;
+    const TextFontEntry* face = (const TextFontEntry*)fonts + fontIndex;
+    if (data == NULL) {
+        if (data != NULL) {
+            DatMgr_ReleaseData((Data*)data);
         }
-        s32 var_r6 = 0;
-        s32 temp_r7;
-        if (*(s32*)((u8*)temp_r4 + 8) == 1) {
-            var_r6 = 1;
+        s32 compressed = 0;
+        s32 datSlot;
+        if (face->loadMode == 1) {
+            compressed = 1;
         }
-        s32 temp_r8 = *(s32*)temp_r4;
-        s32 temp_r9 = *(s32*)((u8*)temp_r4 + 4);
-        temp_r7     = obj->unk_3C;
-        if (BinMgr_FindById(temp_r8) == NULL) {
-            var_r0 = DatMgr_LoadPackEntry(temp_r7, NULL, 0, (BinIdentifier*)temp_r8, temp_r9, (BOOL)var_r6);
+        s32 bin       = (s32)face->bin;
+        s32 packIndex = face->packIndex;
+        datSlot       = obj->datSlot;
+        if (BinMgr_FindById(bin) == NULL) {
+            data = DatMgr_LoadPackEntry(datSlot, NULL, 0, (BinIdentifier*)bin, packIndex, (BOOL)compressed);
         } else {
-            var_r0 = DatMgr_LoadPackEntryDirect(temp_r7, (BinIdentifier*)temp_r8, temp_r9, var_r6);
+            data = DatMgr_LoadPackEntryDirect(datSlot, (BinIdentifier*)bin, packIndex, compressed);
         }
     }
-    obj->data     = (Data*)var_r0;
-    obj->unk_44   = (u16) * (u16*)((u8*)temp_r4 + 12);
-    obj->unk_46   = (u16) * (u16*)((u8*)temp_r4 + 14);
-    obj->fontSize = temp_r4->dimensions;
-    s32   temp_r3 = *(s32*)((u8*)temp_r4 + 20);
-    void* var_r1  = NULL;
-    if (var_r0 == NULL || temp_r3 <= 0) {
-        var_r1 = NULL;
+    obj->data             = (Data*)data;
+    obj->bitsPerPixel     = face->bitsPerPixel;
+    obj->glyphStrideBytes = face->glyphStrideBytes;
+    obj->fontSize         = face->dimensions;
+    s32   codeMapEntry    = face->codeMapEntry;
+    void* codeMap         = NULL;
+    if (data == NULL || codeMapEntry <= 0) {
+        codeMap = NULL;
     } else {
-        void* temp_r2 = (u8*)((Data*)var_r0)->buffer + 0x20;
-        var_r1        = (u8*)temp_r2 + *(s32*)((u8*)temp_r2 + temp_r3 * 8);
+        void* packEntries = (u8*)((Data*)data)->buffer + 0x20;
+        codeMap           = (u8*)packEntries + *(s32*)((u8*)packEntries + codeMapEntry * 8);
     }
-    obj->unk_50     = (u8*)var_r1;
-    s32   temp_r3_2 = *(s32*)((u8*)temp_r4 + 24);
-    void* var_r1_2  = NULL;
-    if (var_r0 == NULL || temp_r3_2 <= 0) {
-        var_r1_2 = NULL;
+    obj->codeMap      = (u8*)codeMap;
+    s32   bitmapEntry = face->bitmapEntry;
+    void* bitmap      = NULL;
+    if (data == NULL || bitmapEntry <= 0) {
+        bitmap = NULL;
     } else {
-        void* temp_r2 = (u8*)((Data*)var_r0)->buffer + 0x20;
-        var_r1_2      = (u8*)temp_r2 + *(s32*)((u8*)temp_r2 + temp_r3_2 * 8);
+        void* packEntries = (u8*)((Data*)data)->buffer + 0x20;
+        bitmap            = (u8*)packEntries + *(s32*)((u8*)packEntries + bitmapEntry * 8);
     }
-    obj->unk_54     = (u32)var_r1_2;
-    s32   temp_r3_3 = *(s32*)((u8*)temp_r4 + 28);
-    void* var_r1_3  = NULL;
-    if (var_r0 == NULL || temp_r3_3 <= 0) {
-        var_r1_3 = NULL;
+    obj->bitmap              = (u32)bitmap;
+    s32   advanceWidthsEntry = face->advanceWidthsEntry;
+    void* advanceWidths      = NULL;
+    if (data == NULL || advanceWidthsEntry <= 0) {
+        advanceWidths = NULL;
     } else {
-        void* temp_r2 = (u8*)((Data*)var_r0)->buffer + 0x20;
-        var_r1_3      = (u8*)temp_r2 + *(s32*)((u8*)temp_r2 + temp_r3_3 * 8);
+        void* packEntries = (u8*)((Data*)data)->buffer + 0x20;
+        advanceWidths     = (u8*)packEntries + *(s32*)((u8*)packEntries + advanceWidthsEntry * 8);
     }
-    obj->unk_58 = (u8*)var_r1_3;
-    obj->unk_5C = *(s32*)((u8*)((Data*)var_r0)->buffer + (*(s32*)((u8*)temp_r4 + 28) * 8) + 0x24);
-    // Actually m2c: arg0->unk5C = (s32)(var_r0->buffer + (temp_r4->unk1C * 8))->unk24;
-    obj->unk_60  = *(u16*)((u8*)temp_r4 + 32);
-    obj->unk_48  = (((*(u16*)((u8*)temp_r4 + 16)) + 7) & ~7) >> 3;
-    obj->unk_4A  = (((*(u16*)((u8*)temp_r4 + 18)) + 7) & ~7) >> 3;
-    obj->unk_6C  = 0;
-    obj->unk_6E  = obj->unk_44;
-    obj->unk_74  = (((obj->unk_4C * obj->unk_44) + 7) & ~7) >> 3;
-    obj->unk_8C  = (void*)((u8*)obj + 0x90);
-    obj->unk_70  = 0;
+    obj->advanceWidths     = (u8*)advanceWidths;
+    obj->advanceWidthCount = *(s32*)((u8*)((Data*)data)->buffer + (face->advanceWidthsEntry * 8) + 0x24);
+    obj->defaultAdvance    = face->defaultAdvance;
+    obj->glyphTileWidth    = (((face->dimensions.x) + 7) & ~7) >> 3;
+    obj->glyphTileHeight   = (((face->dimensions.y) + 7) & ~7) >> 3;
+    obj->blitReserved      = 0;
+    obj->blitBitsPerPixel  = obj->bitsPerPixel;
+    obj->sourceRowBytes    = (((obj->glyphWidth * obj->bitsPerPixel) + 7) & ~7) >> 3;
+    obj->blitPalette       = obj->palette;
+    obj->blitMode          = 0;
+    // Keep these aliasing reloads: named self-assignments change MWCC output.
     s32 temp_y   = *(s32*)((u8*)obj + 0x0C);
     obj->xOffset = *(s32*)((u8*)obj + 0x08);
     obj->yOffset = temp_y;
 }
 
-s32 func_020107a4(TextObject* obj, s32 x, s32 y) {
-    if (x < 0 || x >= obj->unk_20 || y < 0 || y >= obj->unk_22)
+s32 Text_GetTilemapAddress(TextObject* obj, s32 x, s32 y) {
+    if (x < 0 || x >= obj->pixelWidth || y < 0 || y >= obj->pixelHeight)
         return 0;
-    s32 row     = (y + obj->unk_1E) >> 3;
-    s32 address = obj->unk_28 + (row * obj->unk_04) * 2;
-    x += obj->unk_1C;
+    s32 row     = (y + obj->pixelOriginY) >> 3;
+    s32 address = obj->tilemap + (row * obj->mapWidth) * 2;
+    x += obj->pixelOriginX;
     return address + (x >> 3) * 2;
 }
 
-s32 func_02010808(TextObject* arg0, s32 arg1, s32 arg2) {
-    register u32 var_lr = 0;
-    s32          var_ip = var_lr - 1;
+s32 Text_GetTilePixels(TextObject* obj, s32 x, s32 y) {
+    register u32 pixels = 0;
+    s32          offset = pixels - 1;
 
-    if ((arg1 >= 0) && (arg1 < arg0->unk_20) && (arg2 >= 0) && (arg2 < arg0->unk_22)) {
-        s32 var_r3 = (arg2 >> 3) * arg0->unk_18[0];
-        u32 var_r2 = (arg2 << 0x1D);
-        var_r3 += arg1 >> 3;
-        var_r3 <<= 5;
-        var_r2 >>= 0x1B;
-        var_ip = var_r3 + var_r2;
+    if ((x >= 0) && (x < obj->pixelWidth) && (y >= 0) && (y < obj->pixelHeight)) {
+        s32 tileOffset = (y >> 3) * obj->tileSize.x;
+        u32 rowOffset  = (y << 0x1D);
+        tileOffset += x >> 3;
+        tileOffset <<= 5;
+        rowOffset >>= 0x1B;
+        offset = tileOffset + rowOffset;
     }
 
-    if (var_ip >= 0) {
-        var_lr = arg0->unk_24 + (var_ip & ~0x1F);
+    if (offset >= 0) {
+        pixels = obj->pixels + (offset & ~0x1F);
     }
 
-    return var_lr;
+    return pixels;
 }
 
-void func_02010870(TextObject* obj) {
-    obj->unk_68 = &obj->unk_110;
-    obj->unk_64 = 0;
-    obj->unk_66 = 0;
+void Text_ResetQueue(TextObject* obj) {
+    obj->queue      = &obj->queueStorage;
+    obj->queueWrite = 0;
+    obj->queueRead  = 0;
 }
 
-BOOL func_02010888(TextObject* obj) {
-    return obj->unk_64 == obj->unk_66;
+BOOL Text_IsQueueEmpty(TextObject* obj) {
+    return obj->queueWrite == obj->queueRead;
 }
 
-void func_020108a0(TextObject* obj, u16 param_2) {
-    obj->unk_68[obj->unk_64] = param_2;
-    obj->unk_64++;
-    obj->unk_64 &= 0xff;
+void Text_EnqueueCode(TextObject* obj, u16 code) {
+    obj->queue[obj->queueWrite] = code;
+    obj->queueWrite++;
+    obj->queueWrite &= 0xff;
 }
 
-s32 func_020108cc(TextObject* obj) {
+// Formatting consumes @, a command (F/b/f/a/e), and one hexadecimal digit.
+s32 Text_ReadFormattedCode(TextObject* obj) {
     u16 value;
     s32 command;
     s32 character;
     for (;;) {
-        character = func_02010170(obj);
+        character = Text_DequeueCode(obj);
         if (character != 0x40) {
             return character;
         }
-        command = func_02010170(obj);
-        value   = func_02010170(obj);
+        command = Text_DequeueCode(obj);
+        value   = Text_DequeueCode(obj);
         if (value >= 0x30U && value <= 0x39U) {
             value -= 0x30;
         } else if (value >= 0x61U && value <= 0x66U) {
@@ -851,114 +944,115 @@ s32 func_020108cc(TextObject* obj) {
         }
         switch (command) {
             case 0x46:
-                func_020105d4(obj, obj->unk_38, value);
+                Text_SelectFont(obj, obj->fonts, value);
                 break;
             case 0x62:
-                obj->unk_90 = value;
+                obj->palette[0] = value;
                 break;
             case 0x66:
-                obj->unk_94 = value;
+                obj->palette[1] = value;
                 break;
             case 0x61:
-                obj->unk_98 = value;
+                obj->palette[2] = value;
                 break;
             case 0x65:
-                obj->unk_9C = value;
+                obj->palette[3] = value;
                 break;
         }
     }
 }
 
-s32 func_020109d0(TextObject* arg0) {
+s32 Text_PeekCode(TextObject* arg0) {
     u16 temp_r4;
     u16 temp_r5;
 
-    temp_r4 = arg0->unk_64;
-    temp_r5 = arg0->unk_66;
+    temp_r4 = arg0->queueWrite;
+    temp_r5 = arg0->queueRead;
 loop_1:
-    s32 val = func_02010170(arg0);
+    s32 val = Text_DequeueCode(arg0);
     if (val == 0x40) {
-        func_02010170(arg0);
-        func_02010170(arg0);
+        Text_DequeueCode(arg0);
+        Text_DequeueCode(arg0);
         goto loop_1;
     }
-    arg0->unk_64 = temp_r4;
-    arg0->unk_66 = temp_r5;
+    arg0->queueWrite = temp_r4;
+    arg0->queueRead  = temp_r5;
     return val;
 }
 
-void* func_02010a10(TextObject* arg0, u8* arg1) {
-    u8  var_r2;
-    u8* var_r4;
+// High-bit bytes consume a big-endian two-byte code; other bytes use the ASCII table.
+void* Text_EnqueueString(TextObject* obj, u8* string) {
+    u8  byte;
+    u8* cursor;
 
-    var_r4 = arg1;
-    var_r2 = *var_r4;
-    if (var_r2 != 0) {
+    cursor = string;
+    byte   = *cursor;
+    if (byte != 0) {
         do {
-            if (var_r2 & 0x80) {
-                func_020108a0(arg0, (u16)(var_r4[1] | (var_r2 << 8)));
-                var_r4 += 2;
+            if (byte & 0x80) {
+                Text_EnqueueCode(obj, (u16)(cursor[1] | (byte << 8)));
+                cursor += 2;
             } else {
-                func_020108a0(arg0, func_0200f94c(var_r2));
-                var_r4 += 1;
+                Text_EnqueueCode(obj, Text_AsciiToSjis(byte));
+                cursor += 1;
             }
-            var_r2 = *var_r4;
-        } while (var_r2 != 0);
+            byte = *cursor;
+        } while (byte != 0);
     }
-    return var_r4 + 1;
+    return cursor + 1;
 }
 
-void func_02010a7c(TextObject* arg0) {
-    while (func_02010888(arg0) == FALSE) {
-        s32 charCode = func_020108cc(arg0);
-        s32 result   = func_020109d0(arg0);
+void Text_Flush(TextObject* obj) {
+    while (Text_IsQueueEmpty(obj) == FALSE) {
+        s32 charCode = Text_ReadFormattedCode(obj);
+        s32 result   = Text_PeekCode(obj);
         s32 val      = 0;
 
         if (result == 0 || result == 0xA) {
             val = 1;
         }
 
-        func_020103f4(arg0, charCode, val);
+        Text_DrawCode(obj, charCode, val);
     }
 }
 
-void func_02010adc(TextObject* obj, u16* arg1) {
-    s32 var_ip = 0;
+void Text_SetPalette(TextObject* obj, u16* palette) {
+    s32 index = 0;
     do {
-        u16 temp_r3                = arg1[var_ip];
-        ((u32*)obj)[0x24 + var_ip] = temp_r3;
-        ((u32*)obj)[0x34 + var_ip] = temp_r3;
-        var_ip += 1;
-    } while (var_ip < 0x10);
-    u32 temp_r1 = *(u32*)((u8*)obj + 0x90);
-    temp_r1 |= temp_r1 * 0x10;
-    temp_r1 |= temp_r1 << 8;
-    *(u32*)((u8*)obj + 0x30) = temp_r1 | (temp_r1 << 0x10);
+        u16 color                = palette[index];
+        obj->palette[index]      = color;
+        obj->savedPalette[index] = color;
+        index += 1;
+    } while (index < 0x10);
+    u32 fill = obj->palette[0];
+    fill |= fill * 0x10;
+    fill |= fill << 8;
+    obj->backgroundFill = fill | (fill << 0x10);
 }
 
 void Text_RenderToScreen(TextObject* obj, s32 xOffset, s32 yOffset, const char* string) {
-    func_02010a7c(obj);
+    Text_Flush(obj);
     obj->xOffset = xOffset;
     obj->yOffset = yOffset;
-    func_02010a10(obj, string);
-    func_02010a7c(obj);
+    Text_EnqueueString(obj, string);
+    Text_Flush(obj);
 }
 
-void func_02010b50(TextObject* obj) {
+void Text_ClearAndResetPosition(TextObject* obj) {
     s32 sVar1;
 
-    func_02010414(obj);
-    if (obj->unk_00 == 0) {
+    Text_Clear(obj);
+    if (obj->vertical == 0) {
         sVar1 = 0;
     } else {
-        sVar1 = obj->unk_20 - obj->unk_4C;
+        sVar1 = obj->pixelWidth - obj->glyphWidth;
     }
     obj->xOffset = sVar1;
     obj->yOffset = 0;
 }
 
 // Nonmatching: pixelX and the strength-reduced (pixelX >> 3) tile counter swap registers (r5/r9)
-void func_02010b84(TextObject* obj, s32 xOffset, s32 yOffset, s32 width, s32 height) {
+void Text_ClearRect(TextObject* obj, s32 xOffset, s32 yOffset, s32 width, s32 height) {
     s32   clippedX = xOffset;
     s32   clippedY = yOffset;
     u16*  savedControls;
@@ -1000,17 +1094,17 @@ void func_02010b84(TextObject* obj, s32 xOffset, s32 yOffset, s32 width, s32 hei
         height += clippedY;
         clippedY = 0;
     }
-    clipWidth = obj->unk_20;
+    clipWidth = obj->pixelWidth;
     if ((s32)(clippedX + clippedWidth) > (s32)clipWidth) {
         clippedWidth = clipWidth - clippedX;
     }
-    clipHeight = obj->unk_22;
+    clipHeight = obj->pixelHeight;
     if ((s32)(clippedY + height) > (s32)clipHeight) {
         height = clipHeight - clippedY;
     }
     if ((clippedWidth > 0) && (height > 0)) {
-        savedControls = obj->unk_70;
-        obj->unk_70   = NULL;
+        savedControls = obj->blitMode;
+        obj->blitMode = NULL;
         right         = clippedX + clippedWidth;
         obj->xOffset  = right;
         bottom        = clippedY + height;
@@ -1019,26 +1113,26 @@ void func_02010b84(TextObject* obj, s32 xOffset, s32 yOffset, s32 width, s32 hei
         if (topRemainder != 0) {
             topLeftRemainder = clippedX & 7;
             if (topLeftRemainder != 0) {
-                func_0200fe08(obj, clippedX, clippedY, obj->unk_2C, 8 - topLeftRemainder, 8 - topRemainder);
+                Text_BlitGlyph(obj, clippedX, clippedY, obj->blankGlyph, 8 - topLeftRemainder, 8 - topRemainder);
             }
             topX          = (clippedX + 7) & ~7;
             topRightTileX = right & ~7;
             if (topX < topRightTileX) {
                 do {
-                    func_0200fe08(obj, topX, clippedY, obj->unk_2C, 8, 8 - topRemainder);
+                    Text_BlitGlyph(obj, topX, clippedY, obj->blankGlyph, 8, 8 - topRemainder);
                     topX += 8;
                 } while (topX < topRightTileX);
             }
             topRightRemainder = right & 7;
             if ((topRightRemainder != 0) && ((s32)(clippedX & ~7) < topRightTileX)) {
-                func_0200fe08(obj, topRightTileX, clippedY, obj->unk_2C, topRightRemainder, 8 - topRemainder);
+                Text_BlitGlyph(obj, topRightTileX, clippedY, obj->blankGlyph, topRightRemainder, 8 - topRemainder);
             }
         }
         leftAligned   = (clippedX + 7) & ~7;
         rowY          = (clippedY + 7) & ~7;
         rightTileX    = right & ~7;
         alignedBottom = bottom & ~7;
-        if (func_020107a4(obj, 0, 0) != 0) {
+        if (Text_GetTilemapAddress(obj, 0, 0) != 0) {
             if (rowY < alignedBottom) {
                 mapLeftRemainder  = clippedX & 7;
                 mapLeftWidth      = 8 - mapLeftRemainder;
@@ -1046,18 +1140,18 @@ void func_02010b84(TextObject* obj, s32 xOffset, s32 yOffset, s32 width, s32 hei
                 mapLeftTileX      = clippedX & ~7;
                 do {
                     if (mapLeftRemainder != 0) {
-                        func_0200fe08(obj, clippedX, rowY, obj->unk_2C, mapLeftWidth, 8);
+                        Text_BlitGlyph(obj, clippedX, rowY, obj->blankGlyph, mapLeftWidth, 8);
                     }
-                    tileMap = (u16*)func_020107a4(obj, 0, rowY);
+                    tileMap = (u16*)Text_GetTilemapAddress(obj, 0, rowY);
                     mapX    = leftAligned;
                     if (leftAligned < rightTileX) {
                         do {
-                            tileMap[mapX >> 3] = obj->unk_34;
+                            tileMap[mapX >> 3] = obj->blankTile;
                             mapX += 8;
                         } while (mapX < rightTileX);
                     }
                     if ((mapRightRemainder != 0) && (mapLeftTileX < rightTileX)) {
-                        func_0200fe08(obj, rightTileX, rowY, obj->unk_2C, mapRightRemainder, 8);
+                        Text_BlitGlyph(obj, rightTileX, rowY, obj->blankGlyph, mapRightRemainder, 8);
                     }
                     rowY += 8;
                 } while (rowY < alignedBottom);
@@ -1069,18 +1163,18 @@ void func_02010b84(TextObject* obj, s32 xOffset, s32 yOffset, s32 width, s32 hei
             pixelLeftTileX      = clippedX & ~7;
             do {
                 if (pixelLeftRemainder != 0) {
-                    func_0200fe08(obj, leftAligned, rowY, obj->unk_2C, pixelLeftWidth, 8);
+                    Text_BlitGlyph(obj, leftAligned, rowY, obj->blankGlyph, pixelLeftWidth, 8);
                 }
-                pixels = (void*)func_02010808(obj, leftAligned, rowY);
+                pixels = (void*)Text_GetTilePixels(obj, leftAligned, rowY);
                 pixelX = leftAligned;
                 if (leftAligned < rightTileX) {
                     do {
-                        MI_CpuFill(obj->unk_30, (u8*)pixels + ((pixelX >> 3) << 5), 0x20);
+                        MI_CpuFill(obj->backgroundFill, (u8*)pixels + ((pixelX >> 3) << 5), 0x20);
                         pixelX += 8;
                     } while (pixelX < rightTileX);
                 }
                 if ((pixelRightRemainder != 0) && (pixelLeftTileX < rightTileX)) {
-                    func_0200fe08(obj, rightTileX, rowY, obj->unk_2C, pixelRightRemainder, 8);
+                    Text_BlitGlyph(obj, rightTileX, rowY, obj->blankGlyph, pixelRightRemainder, 8);
                 }
                 rowY += 8;
             } while (rowY < alignedBottom);
@@ -1089,24 +1183,24 @@ void func_02010b84(TextObject* obj, s32 xOffset, s32 yOffset, s32 width, s32 hei
         if ((bottomRemainder != 0) && ((s32)(clippedY & ~7) < alignedBottom)) {
             bottomLeftRemainder = clippedX & 7;
             if (bottomLeftRemainder != 0) {
-                func_0200fe08(obj, clippedX, alignedBottom, obj->unk_2C, 8 - bottomLeftRemainder, bottomRemainder);
+                Text_BlitGlyph(obj, clippedX, alignedBottom, obj->blankGlyph, 8 - bottomLeftRemainder, bottomRemainder);
             }
             if (leftAligned < rightTileX) {
                 do {
-                    func_0200fe08(obj, leftAligned, alignedBottom, obj->unk_2C, 8, bottomRemainder);
+                    Text_BlitGlyph(obj, leftAligned, alignedBottom, obj->blankGlyph, 8, bottomRemainder);
                     leftAligned += 8;
                 } while (leftAligned < rightTileX);
             }
             bottomRightRemainder = right & 7;
             if ((bottomRightRemainder != 0) && ((s32)(clippedX & ~7) < rightTileX)) {
-                func_0200fe08(obj, rightTileX, alignedBottom, obj->unk_2C, bottomRightRemainder, bottomRemainder);
+                Text_BlitGlyph(obj, rightTileX, alignedBottom, obj->blankGlyph, bottomRightRemainder, bottomRemainder);
             }
         }
-        obj->unk_70 = savedControls;
+        obj->blitMode = savedControls;
     }
 }
 
-s32 func_02010fd8(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s32 width, s32 height) {
+s32 TextSprite_BlitGlyph(SpriteTextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s32 width, s32 height) {
     void* tileCache;
     s32   rowsDrawn;
     s32   columnsDrawn;
@@ -1116,8 +1210,8 @@ s32 func_02010fd8(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s3
     void* nextPixels;
     s32   clippedY   = yOffset;
     s32   glyphData  = glyphSource;
-    u16   clipWidth  = obj->unk_20;
-    u16   clipHeight = obj->unk_22;
+    u16   clipWidth  = obj->pixelWidth;
+    u16   clipHeight = obj->pixelHeight;
     if ((s32)(xOffset + width) > (s32)clipWidth) {
         width = clipWidth - xOffset;
     }
@@ -1128,33 +1222,33 @@ s32 func_02010fd8(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s3
         return 0;
     }
     {
-        tileCache               = (u8*)obj + 0x318;
-        s32 rowOffset           = clippedY & 7;
-        obj->secondaryRowPixels = (void*)((u8*)tileCache + (rowOffset * 4));
-        obj->unk_80             = xOffset & 7;
-        obj->unk_88             = 8 - rowOffset;
-        rowsDrawn               = 0;
+        tileCache         = obj->tileCache;
+        s32 rowOffset     = clippedY & 7;
+        obj->rowPixels    = (void*)((u8*)tileCache + (rowOffset * 4));
+        obj->destinationX = xOffset & 7;
+        obj->blitHeight   = 8 - rowOffset;
+        rowsDrawn         = 0;
         if (height > 0) {
             do {
-                void* firstPixels = func_02011b7c(obj, xOffset, clippedY + rowsDrawn);
+                void* firstPixels = TextSprite_GetTilePixels(obj, xOffset, clippedY + rowsDrawn);
                 currentPixels     = firstPixels;
                 if (currentPixels == NULL) {
-                    MI_CpuFill(*(void**)((u8*)obj + 0x34), tileCache, 0x20);
+                    MI_CpuFill(obj->backgroundFill, tileCache, 0x20);
                 } else {
                     MI_CpuCopy(firstPixels, tileCache, 0x20);
                 }
-                columnsDrawn = 0;
-                obj->unk_8C  = (rowsDrawn * obj->unk_7C) + glyphData;
-                obj->unk_84  = width;
-                if (obj->unk_84 > 0) {
+                columnsDrawn      = 0;
+                obj->sourcePixels = (rowsDrawn * obj->sourceRowBytes) + glyphData;
+                obj->blitWidth    = width;
+                if (obj->blitWidth > 0) {
                     do {
-                        nextPixels = func_02011b7c(obj, xOffset + columnsDrawn + 8, clippedY + rowsDrawn);
+                        nextPixels = TextSprite_GetTilePixels(obj, xOffset + columnsDrawn + 8, clippedY + rowsDrawn);
                         if (nextPixels == NULL) {
-                            MI_CpuFill(*(void**)((u8*)obj + 0x34), (u8*)tileCache + 0x20, 0x20);
+                            MI_CpuFill(obj->backgroundFill, (u8*)tileCache + 0x20, 0x20);
                         } else {
                             MI_CpuCopy(nextPixels, (u8*)tileCache + 0x20, 0x20);
                         }
-                        tileSpan = func_0200fd64((UnkMedText*)((u8*)obj + 0x74));
+                        tileSpan = Text_BlitTile((TextGlyphBlit*)&obj->blitReserved);
                         if (currentPixels != NULL) {
                             MI_CpuCopy(tileCache, currentPixels, 0x20);
                         }
@@ -1164,16 +1258,16 @@ s32 func_02010fd8(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s3
                         currentPixels = nextPixels;
                         MI_CpuCopy((u8*)tileCache + 0x20, tileCache, 0x20);
                         columnsDrawn += 8;
-                        obj->unk_8C = obj->unk_8C + *(u16*)((u8*)obj + 0x76);
-                        obj->unk_84 = obj->unk_84 - 8;
-                    } while (obj->unk_84 > 0);
+                        obj->sourcePixels = obj->sourcePixels + obj->blitBitsPerPixel;
+                        obj->blitWidth    = obj->blitWidth - 8;
+                    } while (obj->blitWidth > 0);
                 }
-                obj->secondaryRowPixels = tileCache;
-                rowsDrawn += obj->unk_88;
+                obj->rowPixels = tileCache;
+                rowsDrawn += obj->blitHeight;
                 s32 remainingRows = height - rowsDrawn;
-                obj->unk_88       = remainingRows;
+                obj->blitHeight   = remainingRows;
                 if (remainingRows > 8) {
-                    obj->unk_88 = 8;
+                    obj->blitHeight = 8;
                 }
             } while (rowsDrawn < height);
         }
@@ -1181,97 +1275,102 @@ s32 func_02010fd8(TextObject* obj, s32 xOffset, s32 yOffset, s32 glyphSource, s3
     }
     return 0;
 }
-u16 func_020111f0(TextObject* obj) {
-    if (obj->unk_6C != obj->unk_6E) {
-        u16 val = obj->unk_70[obj->unk_6E];
-        obj->unk_6E++;
-        obj->unk_6E &= 0xff;
+u16 TextSprite_DequeueCode(SpriteTextObject* obj) {
+    if (obj->queueWrite != obj->queueRead) {
+        u16 val = obj->queue[obj->queueRead];
+        obj->queueRead++;
+        obj->queueRead &= 0xff;
         return val;
     }
     return 0;
 }
 
-s32 func_0201122c(TextObject* obj, s32 arg1) {
-    s32 temp_r6 = func_0200fa10(arg1, obj->unk_58, obj->unk_5C, obj->unk_4E);
-    s32 temp_r0 = (s32)func_0200f9e0(arg1, obj->unk_58, (s32) * (s32*)((u8*)obj + 0x60), (s32) * (s32*)((u8*)obj + 0x64),
-                                     *(u16*)((u8*)obj + 0x68));
-    func_02010fd8(obj, obj->xOffset, obj->yOffset, temp_r6, temp_r0, (s32) * (u16*)((u8*)obj + 0x56));
-    if (*(s32*)((u8*)obj + 0x04) == 0) {
-        obj->xOffset = obj->xOffset + temp_r0;
+s32 TextSprite_DrawGlyph(SpriteTextObject* obj, s32 code) {
+    s32 glyphBitmap = Text_GetGlyphBitmap(code, obj->codeMap, obj->bitmap, obj->glyphStrideBytes);
+    s32 advance = (s32)Text_GetAdvance(code, obj->codeMap, (s32) * (s32*)((u8*)obj + 0x60), (s32) * (s32*)((u8*)obj + 0x64),
+                                       obj->defaultAdvance);
+    TextSprite_BlitGlyph(obj, obj->xOffset, obj->yOffset, glyphBitmap, advance, (s32) * (u16*)((u8*)obj + 0x56));
+    if (obj->vertical == 0) {
+        obj->xOffset = obj->xOffset + advance;
     } else {
-        obj->yOffset = obj->yOffset + *(u16*)((u8*)obj + 0x56);
+        obj->yOffset = obj->yOffset + obj->fontSize.y;
     }
-    u16 temp_r1 = obj->unk_10[0];
-    if (temp_r1 != 0 && obj->unk_78 == 0) {
-        if (*(s32*)((u8*)obj + 0x04) == 0) {
-            func_02010fd8(obj, obj->xOffset, obj->yOffset, obj->unk_30, (s32)temp_r1, (s32) * (u16*)((u8*)obj + 0x56));
-            obj->xOffset = obj->xOffset + obj->unk_10[0];
+    u16 spacingX = obj->spacing.x;
+    if (spacingX != 0 && obj->blitMode == 0) {
+        if (obj->vertical == 0) {
+            TextSprite_BlitGlyph(obj, obj->xOffset, obj->yOffset, obj->blankGlyph, (s32)spacingX,
+                                 (s32) * (u16*)((u8*)obj + 0x56));
+            obj->xOffset = obj->xOffset + obj->spacing.x;
         } else {
-            func_02010fd8(obj, obj->xOffset, obj->yOffset, obj->unk_30, (s32) * (u16*)((u8*)obj + 0x54), (s32)obj->unk_10[1]);
-            obj->yOffset = obj->yOffset + obj->unk_10[1];
+            TextSprite_BlitGlyph(obj, obj->xOffset, obj->yOffset, obj->blankGlyph, (s32) * (u16*)((u8*)obj + 0x54),
+                                 (s32)obj->spacing.y);
+            obj->yOffset = obj->yOffset + obj->spacing.y;
         }
     }
     return 1;
 }
 
-void func_02011474(TextObject* arg0, u32 arg1, s32 arg2) {
-    if ((arg1 & 0xff00) != 0) {
-        func_0201122c(arg0, (s32)arg1);
+void TextSprite_DrawCode(SpriteTextObject* obj, u32 code, s32 unused) {
+    if ((code & 0xff00) != 0) {
+        TextSprite_DrawGlyph(obj, (s32)code);
     } else {
-        func_02011358(arg0, (s32)arg1, 1);
+        TextSprite_DrawControl(obj, (s32)code, 1);
     }
 }
 
-s32 func_02011358(TextObject* obj, s32 arg1, s32 arg2) {
-    s32 var_r3 = 0;
-    switch (arg1) {
+s32 TextSprite_DrawControl(SpriteTextObject* obj, s32 code, s32 drawBlank) {
+    s32 advanced = 0;
+    switch (code) {
         case 0:
             break;
         case 10:
-            if (*(s32*)((u8*)obj + 0x04) == 0) {
-                s32 nextY    = obj->yOffset + (*(u16*)((u8*)obj + 0x56) + obj->unk_10[1]);
+            if (obj->vertical == 0) {
+                s32 nextY    = obj->yOffset + (obj->fontSize.y + obj->spacing.y);
                 obj->xOffset = 0;
                 obj->yOffset = nextY;
             } else {
-                s32 temp_r1  = *(u16*)((u8*)obj + 0x54) + obj->unk_10[0];
+                s32 temp_r1  = obj->fontSize.x + obj->spacing.x;
                 obj->xOffset = obj->xOffset - temp_r1;
                 obj->yOffset = 0;
             }
             break;
         case 9:
-            if (*(s32*)((u8*)obj + 0x04) == 0) {
-                if (arg2 == 1) {
+            if (obj->vertical == 0) {
+                if (drawBlank == 1) {
                     s32 temp_r1 = obj->xOffset;
-                    func_02010fd8(obj, temp_r1, obj->yOffset, obj->unk_30, 8 - (temp_r1 & 7), (s32) * (u16*)((u8*)obj + 0x56));
+                    TextSprite_BlitGlyph(obj, temp_r1, obj->yOffset, obj->blankGlyph, 8 - (temp_r1 & 7),
+                                         (s32) * (u16*)((u8*)obj + 0x56));
                 }
-                s32 temp_y   = obj->yOffset;
+                // Keep these aliasing reloads: named self-assignments change MWCC output.
+                s32 temp_y   = *(s32*)((u8*)obj + 0x0C);
                 obj->xOffset = (obj->xOffset + 8) & ~7;
                 obj->yOffset = temp_y;
             } else {
-                if (arg2 == 1) {
+                if (drawBlank == 1) {
                     s32 temp_r2 = obj->yOffset;
-                    func_02010fd8(obj, obj->xOffset, temp_r2, obj->unk_30, (s32) * (u16*)((u8*)obj + 0x54), 8 - (temp_r2 & 7));
+                    TextSprite_BlitGlyph(obj, obj->xOffset, temp_r2, obj->blankGlyph, (s32) * (u16*)((u8*)obj + 0x54),
+                                         8 - (temp_r2 & 7));
                 }
                 s32 temp_x   = *(s32*)((u8*)obj + 0x08);
                 s32 temp_r1  = obj->yOffset + 8;
                 obj->xOffset = temp_x;
                 obj->yOffset = temp_r1 & ~7;
             }
-            var_r3 = 1;
+            advanced = 1;
             break;
     }
-    return var_r3;
+    return advanced;
 }
 
-void func_02011494(TextObject* obj) {
-    if (obj->unk_18[0] == 0 && obj->unk_18[1] == 0) {
+void TextSprite_Clear(SpriteTextObject* obj) {
+    if (obj->tileSize.x == 0 && obj->tileSize.y == 0) {
         return;
     }
-    MI_CpuFill(*(s32*)((u8*)obj + 0x34), func_02011b7c(obj, 0, 0), obj->unk_24);
+    MI_CpuFill(obj->backgroundFill, TextSprite_GetTilePixels(obj, 0, 0), obj->pixelBytes);
 }
 
 // Nonmatching: target keeps a dead per-tile counter in r11, shifting registers and two stack slots
-TextOamAllocation func_020114d4(s32 screen, UnkQuad area, u16* tileMap, OamCellPiece* pieces, s32 palette) {
+TextOamAllocation TextSprite_BuildOam(s32 screen, TextTileArea area, u16* tileMap, OamCellPiece* pieces, s32 palette) {
     TextOamAllocation    allocation;
     s32                  widthPower;
     s32                  heightPower;
@@ -1292,8 +1391,8 @@ TextOamAllocation func_020114d4(s32 screen, UnkQuad area, u16* tileMap, OamCellP
     s32                  regionRow;
     s32                  width;
 
-    width        = area.half2;
-    height       = area.half3;
+    width        = area.width;
+    height       = area.height;
     tileMapBytes = (width * height * 2 + 31) & ~31;
     mapping      = g_OamMgr[screen].charBases[0];
     MI_CpuSet(tileMap, 0xFF, tileMapBytes);
@@ -1325,7 +1424,7 @@ TextOamAllocation func_020114d4(s32 screen, UnkQuad area, u16* tileMap, OamCellP
                             heightPower = 1;
                         else if (remainingHeight >= 1)
                             heightPower = 0;
-                        region      = data_0205b454[heightPower][widthPower];
+                        region      = Text_OamRegions[heightPower][widthPower];
                         regionIndex = 0;
                         do {
                             tile      = tileCount;
@@ -1371,150 +1470,151 @@ TextOamAllocation func_020114d4(s32 screen, UnkQuad area, u16* tileMap, OamCellP
     return allocation;
 }
 
-void func_02011810(TextObject* obj) {
-    obj->unk_24 = func_020114d4(obj->unk_00, *(UnkQuad*)(void*)&obj->unk_14[0], (u16*)obj->unk_38, (OamCellPiece*)obj->unk_3C,
-                                obj->unk_2C)
-                      .tiles
-                  << 5;
+void TextSprite_UpdateOam(SpriteTextObject* obj) {
+    obj->pixelBytes = TextSprite_BuildOam(obj->screen, *(TextTileArea*)(void*)&obj->tileOrigin.x, (u16*)obj->tileOffsets,
+                                          (OamCellPiece*)obj->pieces, obj->paletteIndex)
+                          .tiles
+                      << 5;
 }
 
-void func_0201187c(TextObject* obj, void* arg1) {
-    const TextInitArgs* initArgs = arg1;
-    *(s32*)((u8*)obj + 0x04)     = *(s32*)((u8*)arg1 + 8);
-    obj->unk_00                  = *(s32*)arg1;
-    *(s32*)((u8*)obj + 0x44)     = *(s32*)((u8*)arg1 + 4);
-    *(Data**)((u8*)obj + 0x48)   = NULL;
-    obj->spacing                 = initArgs->spacing;
-    obj->tileOrigin              = initArgs->tileOrigin;
-    obj->tileSize                = initArgs->tileSize;
-    obj->unk_1C                  = (u16)(*(u16*)((u8*)arg1 + 12) * 8);
-    obj->unk_1E                  = (u16)(*(u16*)((u8*)arg1 + 14) * 8);
-    obj->unk_20                  = (u16)(*(u16*)((u8*)arg1 + 16) * 8);
-    obj->unk_22                  = (u16)(*(u16*)((u8*)arg1 + 18) * 8);
-    obj->unk_28                  = *(s32*)((u8*)arg1 + 24);
-    obj->unk_2C                  = *(s32*)((u8*)arg1 + 28);
-    obj->unk_38                  = *(s32*)((u8*)arg1 + 32);
-    obj->unk_3C                  = *(s32*)((u8*)arg1 + 32) + (((obj->unk_18[0] * obj->unk_18[1] * 2) + 0x1F) & ~0x1F);
-    func_020119b0(obj, *(s32*)((u8*)arg1 + 36), *(s32*)((u8*)arg1 + 40));
-    *(s32*)((u8*)obj + 0x40) = *(s32*)((u8*)arg1 + 36);
-    obj->unk_30              = func_0200fa10(0x8140, obj->unk_58, obj->unk_5C, obj->unk_4E);
-    func_02011e58(obj, (u8*)arg1 + 0x2C);
-    func_02011bec(obj);
-    func_02011810(obj);
+void TextSprite_Init(SpriteTextObject* obj, void* arg1) {
+    const TextSpriteInitArgs* initArgs = arg1;
+    obj->vertical                      = initArgs->vertical;
+    obj->screen                        = initArgs->screen;
+    obj->datSlot                       = initArgs->datSlot;
+    obj->data                          = NULL;
+    obj->spacing                       = initArgs->spacing;
+    obj->tileOrigin                    = initArgs->tileOrigin;
+    obj->tileSize                      = initArgs->tileSize;
+    obj->pixelOriginX                  = (u16)(initArgs->tileOrigin.x * 8);
+    obj->pixelOriginY                  = (u16)(initArgs->tileOrigin.y * 8);
+    obj->pixelWidth                    = (u16)(initArgs->tileSize.x * 8);
+    obj->pixelHeight                   = (u16)(initArgs->tileSize.y * 8);
+    obj->pixels                        = initArgs->pixels;
+    obj->paletteIndex                  = initArgs->paletteIndex;
+    obj->tileOffsets                   = initArgs->buffer;
+    obj->pieces                        = initArgs->buffer + (((obj->tileSize.x * obj->tileSize.y * 2) + 0x1F) & ~0x1F);
+    TextSprite_SelectFont(obj, initArgs->fonts, initArgs->fontIndex);
+    obj->fonts      = initArgs->fonts;
+    obj->blankGlyph = Text_GetGlyphBitmap(0x8140, obj->codeMap, obj->bitmap, obj->glyphStrideBytes);
+    TextSprite_SetPalette(obj, initArgs->controls);
+    TextSprite_ResetQueue(obj);
+    TextSprite_UpdateOam(obj);
 }
 
-void func_02011994(TextObject* obj) {
-    DatMgr_ReleaseData(*(Data**)((u8*)obj + 0x48));
-    *(Data**)((u8*)obj + 0x48) = NULL;
+void TextSprite_ReleaseFont(SpriteTextObject* obj) {
+    DatMgr_ReleaseData(obj->data);
+    obj->data = NULL;
 }
 
-void func_020119b0(TextObject* obj, s32 arg1, s32 arg2) {
-    *(s32*)((u8*)obj + 0x40)     = arg1;
-    Data*                var_r0  = *(Data**)((u8*)obj + 0x48);
-    const TextFontEntry* temp_r4 = (const TextFontEntry*)arg1 + arg2;
-    if (var_r0 != NULL) {
-        DatMgr_ReleaseData(var_r0);
+void TextSprite_SelectFont(SpriteTextObject* obj, s32 fonts, s32 fontIndex) {
+    obj->fonts                = fonts;
+    Data*                data = obj->data;
+    const TextFontEntry* face = (const TextFontEntry*)fonts + fontIndex;
+    if (data != NULL) {
+        DatMgr_ReleaseData(data);
     }
-    s32 var_r6 = 0;
-    s32 temp_r7;
-    if (*(s32*)((u8*)temp_r4 + 8) == 1) {
-        var_r6 = 1;
+    s32 compressed = 0;
+    s32 datSlot;
+    if (face->loadMode == 1) {
+        compressed = 1;
     }
-    s32 temp_r8 = *(s32*)temp_r4;
-    s32 temp_r9 = *(s32*)((u8*)temp_r4 + 4);
-    temp_r7     = *(s32*)((u8*)obj + 0x44);
-    if (BinMgr_FindById(temp_r8) == NULL) {
-        var_r0 = DatMgr_LoadPackEntry(temp_r7, NULL, 0, (BinIdentifier*)temp_r8, temp_r9, (BOOL)var_r6);
+    s32 bin       = (s32)face->bin;
+    s32 packIndex = face->packIndex;
+    datSlot       = obj->datSlot;
+    if (BinMgr_FindById(bin) == NULL) {
+        data = DatMgr_LoadPackEntry(datSlot, NULL, 0, (BinIdentifier*)bin, packIndex, (BOOL)compressed);
     } else {
-        var_r0 = DatMgr_LoadPackEntryDirect(temp_r7, (BinIdentifier*)temp_r8, temp_r9, var_r6);
+        data = DatMgr_LoadPackEntryDirect(datSlot, (BinIdentifier*)bin, packIndex, compressed);
     }
-    *(Data**)((u8*)obj + 0x48) = var_r0;
-    obj->unk_4C                = (u16) * (u16*)((u8*)temp_r4 + 12);
-    obj->unk_4E                = (u16) * (u16*)((u8*)temp_r4 + 14);
-    obj->secondaryFontSize     = temp_r4->dimensions;
-    s32   temp_r3              = *(s32*)((u8*)temp_r4 + 20);
-    void* var_r1               = NULL;
-    if (var_r0 == NULL || temp_r3 <= 0) {
-        var_r1 = NULL;
+    obj->data             = data;
+    obj->bitsPerPixel     = face->bitsPerPixel;
+    obj->glyphStrideBytes = face->glyphStrideBytes;
+    obj->fontSize         = face->dimensions;
+    s32   codeMapEntry    = face->codeMapEntry;
+    void* codeMap         = NULL;
+    if (data == NULL || codeMapEntry <= 0) {
+        codeMap = NULL;
     } else {
-        void* temp_r2 = (u8*)var_r0->buffer + 0x20;
-        var_r1        = (u8*)temp_r2 + *(s32*)((u8*)temp_r2 + temp_r3 * 8);
+        void* packEntries = (u8*)data->buffer + 0x20;
+        codeMap           = (u8*)packEntries + *(s32*)((u8*)packEntries + codeMapEntry * 8);
     }
-    obj->unk_58     = (u8*)var_r1;
-    s32   temp_r3_2 = *(s32*)((u8*)temp_r4 + 24);
-    void* var_r1_2  = NULL;
-    if (var_r0 == NULL || temp_r3_2 <= 0) {
-        var_r1_2 = NULL;
+    obj->codeMap      = (u8*)codeMap;
+    s32   bitmapEntry = face->bitmapEntry;
+    void* bitmap      = NULL;
+    if (data == NULL || bitmapEntry <= 0) {
+        bitmap = NULL;
     } else {
-        void* temp_r2_2 = (u8*)var_r0->buffer + 0x20;
-        var_r1_2        = (u8*)temp_r2_2 + *(s32*)((u8*)temp_r2_2 + temp_r3_2 * 8);
+        void* bitmapEntries = (u8*)data->buffer + 0x20;
+        bitmap              = (u8*)bitmapEntries + *(s32*)((u8*)bitmapEntries + bitmapEntry * 8);
     }
-    obj->unk_5C     = (u32)var_r1_2;
-    s32   temp_r3_3 = *(s32*)((u8*)temp_r4 + 28);
-    void* var_r1_3  = NULL;
-    if (var_r0 == NULL || temp_r3_3 <= 0) {
-        var_r1_3 = NULL;
+    obj->bitmap              = (u32)bitmap;
+    s32   advanceWidthsEntry = face->advanceWidthsEntry;
+    void* advanceWidths      = NULL;
+    if (data == NULL || advanceWidthsEntry <= 0) {
+        advanceWidths = NULL;
     } else {
-        void* temp_r2_3 = (u8*)var_r0->buffer + 0x20;
-        var_r1_3        = (u8*)temp_r2_3 + *(s32*)((u8*)temp_r2_3 + temp_r3_3 * 8);
+        void* widthEntries = (u8*)data->buffer + 0x20;
+        advanceWidths      = (u8*)widthEntries + *(s32*)((u8*)widthEntries + advanceWidthsEntry * 8);
     }
-    *(u32*)((u8*)obj + 0x60) = (u32)var_r1_3;
-    *(s32*)((u8*)obj + 0x64) = *(s32*)((u8*)var_r0->buffer + (*(s32*)((u8*)temp_r4 + 28) * 8) + 0x24);
-    *(u16*)((u8*)obj + 0x68) = *(u16*)((u8*)temp_r4 + 32);
-    *(s16*)((u8*)obj + 0x50) = (((*(u16*)((u8*)temp_r4 + 16)) + 7) & ~7) >> 3;
-    *(s16*)((u8*)obj + 0x52) = (((*(u16*)((u8*)temp_r4 + 18)) + 7) & ~7) >> 3;
-    *(u16*)((u8*)obj + 0x74) = 0;
-    *(u16*)((u8*)obj + 0x76) = obj->unk_4C;
-    obj->unk_7C              = ((((*(u16*)((u8*)obj + 0x54)) * obj->unk_4C) + 7) & ~7) >> 3;
-    obj->unk_94              = (void*)((u8*)obj + 0x98);
-    obj->unk_78              = 0;
-    s32 temp_y               = *(s32*)((u8*)obj + 0x0C);
-    obj->xOffset             = *(s32*)((u8*)obj + 0x08);
-    obj->yOffset             = temp_y;
+    obj->advanceWidths     = (u32)advanceWidths;
+    obj->advanceWidthCount = *(s32*)((u8*)data->buffer + (face->advanceWidthsEntry * 8) + 0x24);
+    obj->defaultAdvance    = face->defaultAdvance;
+    obj->glyphTileWidth    = (((face->dimensions.x) + 7) & ~7) >> 3;
+    obj->glyphTileHeight   = (((face->dimensions.y) + 7) & ~7) >> 3;
+    obj->blitReserved      = 0;
+    obj->blitBitsPerPixel  = obj->bitsPerPixel;
+    obj->sourceRowBytes    = ((((obj->fontSize.x) * obj->bitsPerPixel) + 7) & ~7) >> 3;
+    obj->blitPalette       = obj->palette;
+    obj->blitMode          = 0;
+    // Keep these aliasing reloads: named self-assignments change MWCC output.
+    s32 temp_y   = *(s32*)((u8*)obj + 0x0C);
+    obj->xOffset = *(s32*)((u8*)obj + 0x08);
+    obj->yOffset = temp_y;
 }
 
-void* func_02011b7c(TextObject* obj, s32 arg1, s32 arg2) {
-    void* var_lr = NULL;
-    s32   var_ip = var_lr - 1;
-    if (arg1 >= 0 && arg1 < obj->unk_20 && arg2 >= 0 && arg2 < obj->unk_22) {
-        var_ip = *(u16*)((u8*)(u32)obj->unk_38 + ((((arg2 >> 3) * obj->unk_18[0]) + (arg1 >> 3)) * 2));
+void* TextSprite_GetTilePixels(SpriteTextObject* obj, s32 x, s32 y) {
+    void* pixels = NULL;
+    s32   offset = pixels - 1;
+    if (x >= 0 && x < obj->pixelWidth && y >= 0 && y < obj->pixelHeight) {
+        offset = *(u16*)((u8*)(u32)obj->tileOffsets + ((((y >> 3) * obj->tileSize.x) + (x >> 3)) * 2));
     }
-    if (var_ip != 0xFFFF) {
-        var_lr = (void*)(obj->unk_28 + (var_ip & ~0x1F));
+    if (offset != 0xFFFF) {
+        pixels = (void*)(obj->pixels + (offset & ~0x1F));
     }
-    return var_lr;
+    return pixels;
 }
 
-void func_02011bec(TextObject* obj) {
-    obj->unk_70 = (u16*)((u8*)obj + 0x118);
-    obj->unk_6C = 0;
-    obj->unk_6E = 0;
+void TextSprite_ResetQueue(SpriteTextObject* obj) {
+    obj->queue      = obj->queueStorage;
+    obj->queueWrite = 0;
+    obj->queueRead  = 0;
 }
 
-BOOL func_02011c04(TextObject* obj) {
-    if (obj->unk_6C == obj->unk_6E) {
+BOOL TextSprite_IsQueueEmpty(SpriteTextObject* obj) {
+    if (obj->queueWrite == obj->queueRead) {
         return TRUE;
     }
     return FALSE;
 }
 
-void func_02011c1c(TextObject* obj, u16 arg1) {
-    obj->unk_70[obj->unk_6C] = arg1;
-    obj->unk_6C++;
-    obj->unk_6C = (u16)(u8)obj->unk_6C;
+void TextSprite_EnqueueCode(SpriteTextObject* obj, u16 code) {
+    obj->queue[obj->queueWrite] = code;
+    obj->queueWrite++;
+    obj->queueWrite = (u16)(u8)obj->queueWrite;
 }
 
-s32 func_02011c48(TextObject* obj) {
+s32 TextSprite_ReadFormattedCode(SpriteTextObject* obj) {
     u16 value;
     s32 command;
     s32 character;
     for (;;) {
-        character = func_020111f0(obj);
+        character = TextSprite_DequeueCode(obj);
         if (character != 0x40) {
             return character;
         }
-        command = func_020111f0(obj);
-        value   = func_020111f0(obj);
+        command = TextSprite_DequeueCode(obj);
+        value   = TextSprite_DequeueCode(obj);
         if (value >= 0x30U && value <= 0x39U) {
             value -= 0x30;
         } else if (value >= 0x61U && value <= 0x66U) {
@@ -1526,102 +1626,102 @@ s32 func_02011c48(TextObject* obj) {
         }
         switch (command) {
             case 0x46:
-                func_020119b0(obj, (s32)obj->data, value);
+                TextSprite_SelectFont(obj, obj->fonts, value);
                 break;
             case 0x62:
-                obj->unk_98 = value;
+                obj->palette[0] = value;
                 break;
             case 0x66:
-                obj->unk_9C = value;
+                obj->palette[1] = value;
                 break;
             case 0x61:
-                *(s32*)((u8*)obj + 0xa0) = value;
+                obj->palette[2] = value;
                 break;
             case 0x65:
-                *(s32*)((u8*)obj + 0xa4) = value;
+                obj->palette[3] = value;
                 break;
         }
     }
 }
 
-u16 func_02011d4c(TextObject* obj) {
-    u16 temp_r4 = obj->unk_6C;
-    u16 temp_r5 = obj->unk_6E;
+u16 TextSprite_PeekCode(SpriteTextObject* obj) {
+    u16 temp_r4 = obj->queueWrite;
+    u16 temp_r5 = obj->queueRead;
     u16 val;
 loop_1:
-    val = func_020111f0(obj);
+    val = TextSprite_DequeueCode(obj);
     if (val == 0x40) {
-        func_020111f0(obj);
-        func_020111f0(obj);
+        TextSprite_DequeueCode(obj);
+        TextSprite_DequeueCode(obj);
         goto loop_1;
     }
-    obj->unk_6C = temp_r4;
-    obj->unk_6E = temp_r5;
+    obj->queueWrite = temp_r4;
+    obj->queueRead  = temp_r5;
     return val;
 }
 
-void* func_02011d8c(TextObject* obj, u8* arg1) {
-    u8* var_r4 = arg1;
-    u8  var_r2 = *var_r4;
-    if (var_r2 != 0) {
+void* TextSprite_EnqueueString(SpriteTextObject* obj, u8* string) {
+    u8* cursor = string;
+    u8  byte   = *cursor;
+    if (byte != 0) {
         do {
-            if (var_r2 & 0x80) {
-                func_02011c1c(obj, (u16)(var_r4[1] | (var_r2 << 8)));
-                var_r4 += 2;
+            if (byte & 0x80) {
+                TextSprite_EnqueueCode(obj, (u16)(cursor[1] | (byte << 8)));
+                cursor += 2;
             } else {
-                func_02011c1c(obj, func_0200f94c(var_r2));
-                var_r4 += 1;
+                TextSprite_EnqueueCode(obj, Text_AsciiToSjis(byte));
+                cursor += 1;
             }
-            var_r2 = *var_r4;
-        } while (var_r2 != 0);
+            byte = *cursor;
+        } while (byte != 0);
     }
-    return var_r4 + 1;
+    return cursor + 1;
 }
 
-void func_02011df8(TextObject* obj) {
-    if (func_02011c04(obj)) {
+void TextSprite_Flush(SpriteTextObject* obj) {
+    if (TextSprite_IsQueueEmpty(obj)) {
         return;
     }
     do {
-        s32 temp_r6 = func_02011c48(obj);
-        u16 temp_r0 = func_02011d4c(obj);
+        s32 temp_r6 = TextSprite_ReadFormattedCode(obj);
+        u16 temp_r0 = TextSprite_PeekCode(obj);
         s32 var_r2  = 0;
         if (!(temp_r0 != 0 && temp_r0 != 0xA)) {
             var_r2 = 1;
         }
-        func_02011474(obj, (u32)temp_r6, var_r2);
-    } while (!func_02011c04(obj));
+        TextSprite_DrawCode(obj, (u32)temp_r6, var_r2);
+    } while (!TextSprite_IsQueueEmpty(obj));
 }
 
-void func_02011e58(TextObject* obj, u16* arg1) {
-    s32 var_ip = 0;
+void TextSprite_SetPalette(SpriteTextObject* obj, u16* palette) {
+    s32 index = 0;
     do {
-        u16 temp_r3                = arg1[var_ip];
-        ((u32*)obj)[0x26 + var_ip] = temp_r3;
-        ((u32*)obj)[0x36 + var_ip] = temp_r3;
-        var_ip += 1;
-    } while (var_ip < 0x10);
-    u32 temp_r1 = *(u32*)((u8*)obj + 0x98);
-    temp_r1 |= temp_r1 * 0x10;
-    temp_r1 |= temp_r1 << 8;
-    *(u32*)((u8*)obj + 0x34) = temp_r1 | (temp_r1 << 0x10);
+        u16 color                = palette[index];
+        obj->palette[index]      = color;
+        obj->savedPalette[index] = color;
+        index += 1;
+    } while (index < 0x10);
+    u32 fill = obj->palette[0];
+    fill |= fill * 0x10;
+    fill |= fill << 8;
+    obj->backgroundFill = fill | (fill << 0x10);
 }
 
-void func_02011e94(TextObject* obj, s32 arg1, s32 arg2, u8* arg3) {
-    func_02011df8(obj);
-    obj->xOffset = arg1;
-    obj->yOffset = arg2;
-    func_02011d8c(obj, arg3);
-    func_02011df8(obj);
+void TextSprite_Render(SpriteTextObject* obj, s32 x, s32 y, u8* string) {
+    TextSprite_Flush(obj);
+    obj->xOffset = x;
+    obj->yOffset = y;
+    TextSprite_EnqueueString(obj, string);
+    TextSprite_Flush(obj);
 }
 
-void func_02011ecc(TextObject* obj) {
+void TextSprite_ClearAndResetPosition(SpriteTextObject* obj) {
     s32 var_r0;
-    func_02011494(obj);
-    if (*(s32*)((u8*)obj + 0x04) == 0) {
+    TextSprite_Clear(obj);
+    if (obj->vertical == 0) {
         var_r0 = 0;
     } else {
-        var_r0 = obj->unk_20 - (u16) * (u16*)((u8*)obj + 0x54);
+        var_r0 = obj->pixelWidth - (u16) * (u16*)((u8*)obj + 0x54);
     }
     obj->xOffset = var_r0;
     obj->yOffset = 0;

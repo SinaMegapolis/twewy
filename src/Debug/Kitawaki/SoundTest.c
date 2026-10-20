@@ -1432,7 +1432,7 @@ void func_ov029_020824a0(SoundTestState* state) {
 }
 
 void SoundTest_DrawMenu(SoundTestState* state) {
-    func_02010b84(&state->unk_215A0, 0, 0x10, 0x100, 0x50);
+    Text_ClearRect(&state->unk_215A0, 0, 0x10, 0x100, 0x50);
 
     Text_RenderToScreen(&state->unk_215A0, 8, 0x10, CriSndMgr_AdxData[state->adxIdx].adxFile);
     Text_RenderToScreen(&state->unk_215A0, 8, 0x18, Str_SPrintf("seqArc:%d", state->seqArc));

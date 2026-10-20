@@ -189,12 +189,12 @@ void func_ov046_02082874(DebugLauncherState* state) {
                         }
                         state->unk_64 = 0;
                     }
-                    func_02010b84(&state->unk_156E8, 0x0, 0x80, 0x100, 0x0);
+                    Text_ClearRect(&state->unk_156E8, 0x0, 0x80, 0x100, 0x0);
                     Text_RenderToScreen(&state->unk_156E8, 0x8, 0x80, Categories[selectedCell].creator);
                     Text_RenderToScreen(&state->unk_156E8, 0x8, 0x88, Categories[selectedCell].description);
                     state->selectedCategoryIndex = selectedCell;
                     state->selectedOptionIndex   = 0xFFFFFFFF;
-                    func_02010b84(&state->unk_15B04, 0x0, 0x60, 0x100, 0x20);
+                    Text_ClearRect(&state->unk_15B04, 0x0, 0x60, 0x100, 0x20);
                     return;
                 }
             }
@@ -211,7 +211,7 @@ void func_ov046_02082874(DebugLauncherState* state) {
         func_ov046_02083670(EasyTask_GetTaskData(&state->taskPool, state->unk_6C[state->selectedOptionIndex]), FALSE);
     }
     func_ov046_02083670(EasyTask_GetTaskData(&state->taskPool, state->unk_6C[selectedCell]), TRUE);
-    func_02010b84(&state->unk_156E8, 0x0, 0x98, 0x100, 0x20);
+    Text_ClearRect(&state->unk_156E8, 0x0, 0x98, 0x100, 0x20);
     Text_RenderToScreen(&state->unk_156E8, 0x8, 0x98,
                         (&Categories[state->selectedCategoryIndex])->options[selectedCell].function);
     Text_RenderToScreen(&state->unk_156E8, 0x8, 0xA0,

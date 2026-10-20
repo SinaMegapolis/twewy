@@ -1294,7 +1294,7 @@ static void OtuEditor_DrawStunFrames(TinPinSlammer_Scene* scene, s32 slot) {
 static void OtuEditor_DrawPage(TinPinSlammer_Scene* scene) {
     OtuEditor* block = OtuStageDispatch_GetBlock(&scene->stage);
 
-    func_02010b50(&scene->text);
+    Text_ClearAndResetPosition(&scene->text);
 
     switch (block->page) {
         case 0: {

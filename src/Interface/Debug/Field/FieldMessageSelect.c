@@ -46,7 +46,6 @@ typedef struct {
 // Total number of messages across every .xls file.
 #define FLD_MES_TOTAL 25233
 
-extern void func_02010b84(TextObject* textObj, s32 x, s32 y, s32 width, s32 height);
 extern void func_02025b68(void* textObj, UnkStruct_usedby_02025b68* params);
 extern void func_02025e30(void* textObj);
 
@@ -90,7 +89,7 @@ void FldMesSel_CreateTextView(FldMesSelObject* selObj) {
 }
 
 void FldMesSel_DrawMenu(FldMesSelObject* selObj) {
-    func_02010b84(&selObj->text, 0, 0x10, 0x100, 0x60);
+    Text_ClearRect(&selObj->text, 0, 0x10, 0x100, 0x60);
     Text_RenderToScreen(&selObj->text, 8, 0x10, Str_SPrintf("%s", MsgXls_GetXlsName(selObj->xlsIndex)));
     Text_RenderToScreen(&selObj->text, 8, 0x18,
                         Str_SPrintf("mesNum:%d total:%d", selObj->mesNo - MsgXls_GetMesNum(selObj->xlsIndex), selObj->mesNo));

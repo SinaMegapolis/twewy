@@ -9,113 +9,68 @@ typedef struct {
     u16 y;
 } TextU16Pair;
 
+// Background text prefix. Enclosing users provide storage through offset 0x350:
+// 256 queued u16 codes at 0x110, followed by two 4bpp tiles at 0x310.
+// Keep this prefix at 0x114 until those enclosing layouts are fully recovered.
 typedef struct {
-    /* 0x00 */ char unk_00[0x8];
-    /* 0x08 */ u32  unk_08;
-    /* 0x0C */ u32  unk_0C;
-    /* 0x10 */ u16  unk_10[2];
-    /* 0x14 */ u16  unk_14[2];
-    /* 0x18 */ u16  unk_18[2];
-    /* 0x1C */ u32  unk_1C;
-    /* 0x20 */ u32  unk_20;
-    /* 0x24 */ u32  unk_24;
-    /* 0x28 */ u32  unk_28;
-    /* 0x2C */ u16  unk_2C;
-    /* 0x2E */ u16  unk_2E;
-    /* 0x30 */ u32  unk_30;
-} UnkSmallText;
-
-typedef struct {
-    /* 0x00 */ u16   unk_00;
-    /* 0x02 */ u16   unk_02;
-    /* 0x04 */ u32   unk_04;
-    /* 0x08 */ u32   unk_08;
-    /* 0x0C */ u32   unk_0C;
-    /* 0x10 */ u32   unk_10;
-    /* 0x14 */ u32   unk_14;
-    /* 0x18 */ void* unk_18;
-    /* 0x1C */ void* unk_1C;
-    /* 0x20 */ u32   unk_20;
-} UnkMedText;
-
-typedef struct {
-    /* 0x000 */ u32 unk_00;
-    /* 0x004 */ u16 unk_04;
-    /* 0x006 */ u16 unk_06;
-    /* 0x008 */ s32 xOffset;
-    /* 0x00C */ s32 yOffset;
-    /* 0x010 */ union {
-        u16         unk_10[2];
-        TextU16Pair spacing;
-    };
-    /* 0x014 */ union {
-        u16         unk_14[2];
-        TextU16Pair tileOrigin;
-    };
-    /* 0x018 */ union {
-        u16         unk_18[2];
-        TextU16Pair tileSize;
-    };
-    /* 0x01C */ u16   unk_1C;
-    /* 0x01E */ u16   unk_1E;
-    /* 0x020 */ u16   unk_20;
-    /* 0x022 */ u16   unk_22;
-    /* 0x024 */ u32   unk_24;
-    /* 0x028 */ u32   unk_28;
-    /* 0x02C */ u32   unk_2C;
-    /* 0x030 */ u32   unk_30;
-    /* 0x034 */ u16   unk_34;
-    /* 0x036 */ u16   unk_36;
-    /* 0x038 */ u32   unk_38;
-    /* 0x03C */ u32   unk_3C;
-    /* 0x040 */ Data* data;
-    /* 0x044 */ u16   unk_44;
-    /* 0x046 */ u16   unk_46;
-    /* 0x048 */ u16   unk_48;
-    /* 0x04A */ u16   unk_4A;
+    /* 0x000 */ u32         vertical;
+    /* 0x004 */ u16         mapWidth;
+    /* 0x006 */ u16         mapHeight;
+    /* 0x008 */ s32         xOffset;
+    /* 0x00C */ s32         yOffset;
+    /* 0x010 */ TextU16Pair spacing;
+    /* 0x014 */ TextU16Pair tileOrigin;
+    /* 0x018 */ TextU16Pair tileSize;
+    /* 0x01C */ u16         pixelOriginX;
+    /* 0x01E */ u16         pixelOriginY;
+    /* 0x020 */ u16         pixelWidth;
+    /* 0x022 */ u16         pixelHeight;
+    /* 0x024 */ u32         pixels;
+    /* 0x028 */ u32         tilemap;
+    /* 0x02C */ u32         blankGlyph;
+    /* 0x030 */ u32         backgroundFill;
+    /* 0x034 */ u16         blankTile;
+    /* 0x036 */ u16         firstTile;
+    /* 0x038 */ u32         fonts;
+    /* 0x03C */ u32         datSlot;
+    /* 0x040 */ Data*       data;
+    /* 0x044 */ u16         bitsPerPixel;
+    /* 0x046 */ u16         glyphStrideBytes;
+    /* 0x048 */ u16         glyphTileWidth;
+    /* 0x04A */ u16         glyphTileHeight;
     /* 0x04C */ union {
         struct {
-            u16 unk_4C;
-            u16 unk_4E;
+            u16 glyphWidth;
+            u16 glyphHeight;
         };
         TextU16Pair fontSize;
     };
-    /* 0x050 */ u8* unk_50;
-    /* 0x054 */ union {
-        u32         unk_54;
-        TextU16Pair secondaryFontSize;
-    };
-    /* 0x058 */ u8*  unk_58;
-    /* 0x05C */ u32  unk_5C;
-    /* 0x060 */ u16  unk_60;
-    /* 0x062 */ u16  unk_62;
-    /* 0x064 */ u16  unk_64;
-    /* 0x066 */ u16  unk_66;
-    /* 0x068 */ u16* unk_68;
-    /* 0x06C */ u16  unk_6C;
-    /* 0x06E */ u16  unk_6E;
-    /* 0x070 */ u16* unk_70;
-    /* 0x074 */ s32  unk_74;
-    /* 0x078 */ s32  unk_78;
-    /* 0x07C */ s32  unk_7C;
-    /* 0x080 */ s32  unk_80;
-    /* 0x084 */ s32  unk_84;
-    /* 0x088 */ union {
-        s32   unk_88;
-        void* primaryRowPixels;
-    };
-    /* 0x08C */ void* unk_8C;
-    /* 0x090 */ union {
-        u32   unk_90;
-        void* secondaryRowPixels;
-    };
-    /* 0x094 */ u32  unk_94;
-    /* 0x098 */ u32  unk_98;
-    /* 0x09C */ u32  unk_9C;
-    /* 0x0A0 */ char unk_A0[0x70];
-    /* 0x100 */ u32  unk_110;
+    /* 0x050 */ u8*   codeMap;
+    /* 0x054 */ u32   bitmap;
+    /* 0x058 */ u8*   advanceWidths;
+    /* 0x05C */ u32   advanceWidthCount;
+    /* 0x060 */ u16   defaultAdvance;
+    /* 0x062 */ u16   padding62;
+    /* 0x064 */ u16   queueWrite;
+    /* 0x066 */ u16   queueRead;
+    /* 0x068 */ u16*  queue;
+    /* 0x06C */ u16   blitReserved;
+    /* 0x06E */ u16   blitBitsPerPixel;
+    /* 0x070 */ u16*  blitMode;
+    /* 0x074 */ s32   sourceRowBytes;
+    /* 0x078 */ s32   destinationX;
+    /* 0x07C */ s32   blitWidth;
+    /* 0x080 */ s32   blitHeight;
+    /* 0x084 */ s32   sourcePixels;
+    /* 0x088 */ void* primaryRowPixels;
+    /* 0x08C */ void* blitPalette;
+    /* 0x090 */ u32   palette[16];
+    /* 0x0D0 */ u32   savedPalette[16];
+    /* 0x110 */ u32   queueStorage;
 } TextObject;
 
+void Text_ClearAndResetPosition(TextObject* obj);
+void Text_ClearRect(TextObject* obj, s32 x, s32 y, s32 width, s32 height);
 void Text_RenderToScreen(TextObject* textObj, s32 x, s32 y, const char* string);
 
 #endif

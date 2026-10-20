@@ -29,6 +29,9 @@ import struct
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from glyph_names import GLYPH_NAMES
+
 REPO = Path(__file__).resolve().parents[2]  # tools/asset/mesdump.py -> repo root
 VERSIONS = ("usa", "jp")
 
@@ -79,50 +82,67 @@ ICONS = [
 CONTROL.update({0x0226 + n: f"<ic_{name}>" for n, name in enumerate(ICONS)})
 
 # The font's code space (first glyph index, characters in glyph order)
+# The glyph numbers of the message code space, with the character each glyph
+# draws.  From 0x108 on, the names come from the retail USA ROM: its
+# SysFontDsCodeMap (the table transcribed in src/Util/SysFont.c) maps a DS
+# character code to a glyph, and the DS character set names the code, so the
+# pair names the glyph.  tools/asset/verify_charmap.py checks the table in
+# the source against the ROM and reports every glyph that disagrees.
 CHARMAP_RUNS = [
-    (0, "".join(chr(0x20 + n) for n in range(95))),  # ASCII 0x20..0x7E
-    (
-        95,
-        "あいうえおかがきぎくぐけげこごさざしじすずせぜそぞただちぢつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもやゆよらりるれろわをん",
-    ),  # hiragana
-    (
-        178,
-        "ァィゥェォカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲン",
-    ),  # katakana
-    (
-        264,
-        "、。，．・：；？！゛゜´｀¨＾～‾＿ヽヾゝゞ〃仝々〆〇ゑゐゔ㐀㐁㐂㐃㐄㐅㐆㐇㐈㐉㐊㐋㐌㐍㐎㐏㐐㐑㐒㐓㐔㐕㐖㐗㐘㐙㐚㐛㐜㐝㐞㐟㐠㐡㐢㐣",
-    ),  # JP punctuation and symbols
-    (341, "ａｂｃ"),
-    (345, "ＡＢ"),
-    (350, "「ＡＢ」ａ｡ａ｢ａ｣"),
-    (359, "ａｩ｡"),
-    (364, "ａ｢ａ｣ａ､｡｢｡｣｡ａ｡ａ｢ａ｣ａ､｡"),
-    (390, "ａ｡｡｢‐"),
-    (421, "ａ｢ａ｣ａ､｡｢ａ｣ａ､"),
-    (427, "".join(chr(0xE000 + n) for n in range(29))),  # DS firmware pictographs
-    (456, ""),
-    (457, "　"),  # SYSFONT_GLYPH_WIDE_SPACE
-    # Past 457 SysFontDsCodeMap simply stops because it only has to cover what a DS
-    # owner name can contain. What follows after is fullwidth alphanumerics,
-    # e.g. ｱｲｳｴ, ｻﾀ, ﾗﾘﾞ and ﾔﾐﾁﾝ.
-    (458, "".join(chr(0xFF10 + n) for n in range(10))),  # ０..９
-    (468, "".join(chr(0xFF21 + n) for n in range(26))),  # Ａ..Ｚ
-    (494, "".join(chr(0xFF41 + n) for n in range(26))),  # ａ..ｚ
-    # The katakana prolonged sound mark, and what SysFont_WriteFx32 emits as the minus
-    # sign for a negative value (SYSFONT_GLYPH_MINUS). The sheet's other ー at 283
-    # occurs zero times in any ROM version, favoring this one in all instances.
-    (520, "ー"),  # ー
+    (0, "".join(chr(0x20 + n) for n in range(95))),  # ASCII 0x20-0x7E
+    # The kana run is contiguous and in plain Unicode order: the ROM's code
+    # map points 0x3041 (ぁ) at glyph 0x5F and 0x30A1 (ァ) at glyph 0xB2, and
+    # the run reaches 0x30F6 (ヶ) at 0x107 with no gaps.  There are no separate
+    # "extra kana" blocks; the small vowels simply live between the large ones.
+    (95, "".join(chr(c) for c in range(0x3041, 0x3094))),   # hiragana ぁ..ん
+    (178, "".join(chr(c) for c in range(0x30A1, 0x30F7))),  # katakana ァ..ヶ
+    (264, "、。，．・：；？！゛゜´`¨＾〓ゝゞ々ー―‐／＼～｜…‘’“”（）〔〕【】｛｝〈〉「」＋－±×÷＝∞∴°′″＆☆★○●◎◇◆□■△▲▽▼※〒→←↑↓♯♭♪€‚„"),  # symbols and Latin-1, from the ROM's code map
+    (345, "ˆŒ"),  # symbols and Latin-1, from the ROM's code map
+    (350, "•˜™›œ¡¢£"),  # symbols and Latin-1, from the ROM's code map
+    (359, "©®"),  # symbols and Latin-1, from the ROM's code map
+    (364, "·¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ"),  # symbols and Latin-1, from the ROM's code map
+    (390, "ØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõö"),  # symbols and Latin-1, from the ROM's code map
+    (421, "øùúûüý"),
+    (457, "　0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz−"),  # the ideographic space, the half-width digits and letters, and the minus sign
 ]
 
 
-def load_charmap():
+# The Japanese release's messages use a different code space.  Its sheet
+# (extract/jp/.../Grp_Font.bin) draws the same glyphs as the USA sheet, but
+# the message tables number the kana in Unicode order: the hiragana run is
+# ぁ..ん from 0x5F and the katakana run is ァ..ヶ from 0xB2.  The Japanese
+# ROM carries the same kind of DS-code -> glyph table the USA ROM has, and
+# there it confirms the order: 0x3041 (ぁ) points at the glyph 0x5F and
+# 0x30A1 (ァ) at the glyph 0xB2.  The ASCII runs and the symbol block are the
+# same in both, so only the kana differ.  From 0x209 on the sheet holds a
+# symbol block and then a kanji list that no ROM table names; those names are
+# recorded in glyph_names.py as they are identified.
+JP_HIRAGANA = "".join(chr(c) for c in range(0x3041, 0x3094))   # ぁ .. ん
+JP_KATAKANA = "".join(chr(c) for c in range(0x30A1, 0x30F7))   # ァ .. ヶ
+
+
+def load_charmap(version="usa"):
     """{glyph index: unicode char} for the whole known code space."""
     charmap = {}
     for start, chars in CHARMAP_RUNS:
         for n, ch in enumerate(chars):
             charmap[start + n] = ch
+    if version == "jp":
+        charmap = load_jp_charmap(charmap)
+    charmap.update(GLYPH_NAMES)
     return charmap
+
+
+def load_jp_charmap(charmap=None):
+    """The Japanese code space, built on the shared parts of the USA one."""
+    if charmap is None:
+        charmap = load_charmap("usa")
+    out = {code: ch for code, ch in charmap.items() if code < 0x5F or code >= 0x108}
+    for n, ch in enumerate(JP_HIRAGANA):
+        out[0x5F + n] = ch
+    for n, ch in enumerate(JP_KATAKANA):
+        out[0xB2 + n] = ch
+    return out
 
 
 # Only the backslash needs escaping, to allow it to represent an escape in text.
@@ -168,8 +188,8 @@ def write_dump(path, rows):
 
 
 def cmd_dump(args):
-    charmap = load_charmap()
     for version in args.versions:
+        charmap = load_charmap(version)
         rows = []
         unknown = collections.Counter()
         samples = {}

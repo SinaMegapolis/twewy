@@ -154,15 +154,15 @@ void func_ov038_020833a4(GrpCheckState* state) {
 }
 
 void GrpCheck_PrintRowIndicator(GrpCheckState* state) {
-    func_02010b84(&state->textObj, 0, 0, 8, 176);
+    Text_ClearRect(&state->textObj, 0, 0, 8, 176);
     Text_RenderToScreen(&state->textObj, 0, state->currentRow * 8, ">");
 }
 
 void GrpCheck_PrintSpritePath(GrpCheckState* state) {
     GrpCheckBigUnk* temp_r4 = &state->unk_116C0[state->unk_11B80];
 
-    func_02010b84(&state->textObj, 8, 0, 0x100, 0x20);
-    func_02010b84(&state->textObj, 8, 0x20, 0xA8, 8);
+    Text_ClearRect(&state->textObj, 8, 0, 0x100, 0x20);
+    Text_ClearRect(&state->textObj, 8, 0x20, 0xA8, 8);
     Text_RenderToScreen(&state->textObj, 8, 0, Str_SPrintf("%s", data_ov038_020ac980.unk_04[temp_r4->unk_40].unk_00));
     Text_RenderToScreen(&state->textObj, 8, 8, Str_SPrintf("└%s", data_ov038_020ac980.unk_04[temp_r4->unk_40].unk_04));
     Text_RenderToScreen(&state->textObj, 8, 0x10, Str_SPrintf("　└%s", data_ov038_020ac980.unk_04[temp_r4->unk_40].unk_08));
@@ -175,7 +175,7 @@ const char data_ov038_020b6fe0[]; // "ソフトウェアスプライトを表示できません"
 
 void GrpCheck_PrintSpriteDetails(GrpCheckState* state) {
     GrpCheckBigUnk* temp_r4 = &state->unk_116C0[state->unk_11B80];
-    func_02010b84(&state->textObj, 8, 0x28, 0xA8, 0x58);
+    Text_ClearRect(&state->textObj, 8, 0x28, 0xA8, 0x58);
 
     if ((data_ov038_020b7200.unk_4 != 2) && (data_ov038_020ac980.unk_04[temp_r4->unk_40].unk_0C == 2)) {
         Text_RenderToScreen(&state->textObj, 8, 0x28, Str_SPrintf(data_ov038_020b6fe0));
@@ -223,20 +223,20 @@ void GrpCheck_PrintScale(GrpCheckState* state) {
     s32 integer    = F2I(raw);
     s32 fractional = F2I(raw * 100) - (integer * 100);
 
-    func_02010b84(&state->textObj, 8, 0x80, 0xa8, 8);
+    Text_ClearRect(&state->textObj, 8, 0x80, 0xa8, 8);
 
     Text_RenderToScreen(&state->textObj, 8, 128, Str_SPrintf("scale:%d.%02d", integer, fractional));
 }
 
 void GrpCheck_PrintColorChannels(GrpCheckState* state) {
-    func_02010b84(&state->textObj, 8, 136, 168, 24);
+    Text_ClearRect(&state->textObj, 8, 136, 168, 24);
     Text_RenderToScreen(&state->textObj, 8, 136, Str_SPrintf("BG R:%d", state->bgR));
     Text_RenderToScreen(&state->textObj, 8, 144, Str_SPrintf("BG G:%d", state->bgG));
     Text_RenderToScreen(&state->textObj, 8, 152, Str_SPrintf("BG B:%d", state->bgB));
 }
 
 void GrpCheck_PrintScreenPos(GrpCheckState* state) {
-    func_02010b84(&state->textObj, 8, 160, 256, 24);
+    Text_ClearRect(&state->textObj, 8, 160, 256, 24);
     Text_RenderToScreen(&state->textObj, 8, 160, Str_SPrintf("%s", data_ov038_02086fe4[state->unk_1165C].unk_00));
     Text_RenderToScreen(&state->textObj, 8, 168, Str_SPrintf("└%s", data_ov038_02087004[state->unk_1165C].unk_00));
     Text_RenderToScreen(&state->textObj, 8, 176,
@@ -245,7 +245,7 @@ void GrpCheck_PrintScreenPos(GrpCheckState* state) {
 
 void GrpCheck_PrintWarnings(GrpCheckState* state) {
     s32 yOffset = 23;
-    func_02010b84(&state->textObj, 8, 184, 256, 16);
+    Text_ClearRect(&state->textObj, 8, 184, 256, 16);
 
     if (state->isVramLimitReached) {
         yOffset++;
