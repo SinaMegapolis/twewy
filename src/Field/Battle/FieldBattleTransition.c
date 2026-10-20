@@ -13,7 +13,7 @@
 #include "Field/Tasks/Fld_ScanArea.h"
 #include "Save.h"
 extern s8*  func_ov030_020b0534(s16 area);
-extern void func_02011e94(void* dst, s32 arg1, s32 arg2, void* src);
+extern void TextSprite_Render(void* obj, s32 x, s32 y, const char* string);
 
 void FieldScan_MarkSeen(s32 id) {
     FieldEventManager* field = data_ov030_02109d60;
@@ -164,7 +164,7 @@ void FieldDebug_DrawAreaName(void) {
             field->debugAreaName[i] = src[i];
         }
         field->debugAreaName[i] = 0;
-        func_02011e94(data + 0x10, 0, 0, field->debugAreaName);
+        TextSprite_Render(data + 0x10, 0, 0, field->debugAreaName);
     }
 }
 
@@ -174,14 +174,15 @@ void FieldDebug_DrawPlayerInfo(void) {
     if (field->taskId_DebugText != -1) {
         void* data = EasyTask_GetTaskById(&field->taskPool, field->taskId_DebugText)->data;
 
-        func_02011e94(data + 0x10, 0, 24,
-                      Str_SPrintf("player:%04d,%03d", F2I(gSaveData.fieldPos.x), F2I(gSaveData.fieldPos.y)));
+        TextSprite_Render(data + 0x10, 0, 24,
+                          Str_SPrintf("player:%04d,%03d", F2I(gSaveData.fieldPos.x), F2I(gSaveData.fieldPos.y)));
 
         s32 value = func_ov030_020aeca4(gSaveData.fieldPos.y);
-        func_02011e94(data + 0x10, 0, 32, Str_SPrintf(" Scale:%03d.%02d", F2I(value), F2I(value * 100) - F2I(value) * 100));
-        func_02011e94(data + 0x10, 0, 40,
-                      Str_SPrintf("camera:%04d,%03d", F2I(field->origin.x) + 128, F2I(field->origin.y) + 96));
-        func_02011e94(data + 0x10, 0, 56, Str_SPrintf("NPC %04d / %04d", field->drawnHumanCount, field->humanCount));
+        TextSprite_Render(data + 0x10, 0, 32,
+                          Str_SPrintf(" Scale:%03d.%02d", F2I(value), F2I(value * 100) - F2I(value) * 100));
+        TextSprite_Render(data + 0x10, 0, 40,
+                          Str_SPrintf("camera:%04d,%03d", F2I(field->origin.x) + 128, F2I(field->origin.y) + 96));
+        TextSprite_Render(data + 0x10, 0, 56, Str_SPrintf("NPC %04d / %04d", field->drawnHumanCount, field->humanCount));
     }
 }
 
