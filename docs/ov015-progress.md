@@ -38,7 +38,8 @@ Helper scripts: `build/scratch/ov.ps1 -end 0x...` (extend delink prefix + rebuil
 
 ## Status (objdiff)
 
-**44 of 57 functions are exact (100%), average 98.28%.** The `.text` delink covers the full range.
+**45 of 57 functions are exact (100%), average 98.31%; `.text` 95.30%, `.rodata` 66.9%,
+`.data` 100%.** The `.text` delink covers the full range.
 Remaining:
 
 | Function | % | Notes |
@@ -51,11 +52,99 @@ Remaining:
 | `func_ov015_02127e7c` | 94.5 | twin cooldown; push/pop reg set + reload scheduling |
 | `func_ov015_0212786c` | 83.8 | twin state transfer; early-guard form loads twin before unk14 check |
 | `func_ov015_02125d0c` | 83.4 | particle spawner; param-block store scheduling |
-| `func_ov015_02127ac4` | 98.1 | palette mode; beq vs return-predication shape |
+| `func_ov015_02127ac4` | 99.1 | palette mode; one `beq` vs predicated-epilogue slot left |
 | `func_ov015_02127c18` | 98.8 | counter compare reg colors |
 | `func_ov015_02125f80` | 99.8 | one `.word data_ov015_0212851a` literal (ours targets `data_ov015_02128500+0x1a`) |
 | `func_ov015_021256f8` | 99.9 | byte-identical; literal reloc accounting |
 | `func_ov015_021256c0` | 99.3 | byte-identical; second `.word` literal is `data_ov015_02128130+0x4` in ours |
+
+## WARNING: stale `objdiff.json` silently invalidates measurements
+
+`objdiff.json` is generated and can go stale. When the requested unit is missing from it,
+`objdiff-cli diff -u <unit>` **fails with `Unit not found` and does not write its output
+file** — so the previous run's `build/ov_diff.json` is still sitting there, and the harness
+prints entirely plausible, completely unchanged numbers. This cost a lot of time here: a
+large `const` rewrite plus a full reordering appeared to have had *zero* effect, and the
+"reordering does not change the layout" conclusion drawn from it was wrong.
+
+Two guards, both now in `build/scratch/ov.ps1`:
+
+- `ninja objdiff.json` is run first, so the unit list is regenerated.
+- `build/ov_diff.json` is deleted before the diff and the harness exits non-zero if it is
+  not recreated, so a failed diff can never masquerade as a result.
+
+Sanity check whenever a number refuses to move: confirm the unit is present in
+`objdiff.json` before believing the score. `objdiff-cli` resolving the unit at all is the
+minimum bar.
+
+## Data sections: the ov012/ov013 recipe mostly applies, with one hard difference
+
+`.data` went 77.3% → **100%** and `.rodata` 4.8% → **66.9%**. The changes:
+
+- **`const` on every read-only table** — the ten `Enm026Variant`s, the twelve
+  `BinIdentifier`s, both `SpriteAnimEntry` tables, `Enm026IdPair` and `Enm026StateFns`.
+- **Padded sizes on the `char[]` arrays**, from the gap to the next symbol in `symbols.txt`:
+  `[28] [28] [28] [4] [24] [28] [28] [28] [28] [28] [20] [8] [20] [32] [32] [20] [44]`.
+  The last one runs to the end of `.data`.
+- **Keep the `char[]` arrays non-**`const`** so they stay in `.data`.
+- **Two literals are split mid-string in the original** and are reproduced by splitting the
+  array: `0x02128334` `"Apl_"` + `0x02128338` `"Hor/Grp_BtlEnm026d.bin"`, and `0x021283dc`
+  `"Apl_Hor/Grp_BtlEnm02"` + `0x021283f0` `"6b.bin"`. Both `BinIdentifier`s still point at
+  the first half, so the runtime paths are unchanged. This is the same pattern as ov012's
+  `Tsk_BtlEnm014_RG` and ov013's `Grp_BtlEnm015b.bin`.
+
+### Why `.rodata` stops at 66.9% — REVISED, the old conclusion was wrong
+
+**First, the load-bearing fact: the linked ROM's ov015 overlay is byte-identical to the
+original.** `build/scratch/romcmp.py` reports 0 differing bytes across all 10,520 bytes of
+`.text`, all 748 of `.rodata` and all 544 of `.data`. The decompilation is correct and the
+`.rodata` *placement* is correct.
+
+That invalidates the first reason previously recorded here, which was:
+
+> ~~MWCC does not emit `.rodata` in declaration order — it groups objects by size.~~
+
+If our object order were genuinely different from the original's, the bytes would differ. They
+do not. So the order is right, and what objdiff is scoring is **object boundaries**, not content
+or placement — the same class of problem ov010 had, where `.rodata` was stuck at 99.234%.
+
+**What ov010 taught us, which is the template for fixing this:**
+
+1. An objdiff section percentage measures object *granularity*, not bytes. Verify with
+   `romcmp.py` before believing one.
+2. Where `symbols.txt` describes a differently-shaped object than our C declares, reproduce the
+   shape in C — ov010's `data_ov015...`-style extents needed a 2-byte pad, and
+   `Tsk_BtlEnm006_Swirl` needed splitting into an 8-byte head plus a distinct 4-byte word.
+3. **The object's name must match `symbols.txt` exactly**, or the linker folds it away (no
+   address) and objdiff cannot pair it. This was the last 0.5% on ov010 and it is not obvious.
+
+**Status: not yet attempted.** The remaining gap is much larger than ov010's (~248 bytes versus
+6), so it needs a proper address-coverage analysis of `.rodata` against `symbols.txt` to say
+which objects disagree. Individual data symbols that objdiff *does* score all report 100%.
+
+The two "spurious 4-byte objects" noted previously may also not be spurious — ov010's
+`ambiguous`-flagged `data_ov010_021292c0` turned out to be a genuinely separate, externally
+referenced word. Before calling anything here spurious, check whether another overlay's
+`relocs.txt` targets its address.
+
+The second reason previously recorded — two 4-byte objects sitting *inside* struct arrays,
+`data_ov015_02128134` (4 bytes into `data_ov015_02128130[13]`) and `data_ov015_0212819c` (4
+bytes into `data_ov015_02128198[18]`) — is the one that accounts for the two `.word` literal
+mismatches in `func_ov015_021256c0` (99.3%) and `func_ov015_02125f80` (99.8%), where the original
+has distinct symbols and ours renders `data_ov015_02128130+0x4`.
+
+**These may be reproducible after all.** ov010's fix for the same shape was to declare a struct
+whose extent matches the tagger's, or to split the object — not to edit `symbols.txt`. An
+`Enm026IdPair` struct with an explicit 4-byte-named head, or a wrapper type that stops the
+compiler folding the interior word into the array, is the thing to try. Unverified: this has not
+been attempted.
+
+Do **not** edit `symbols.txt` to drop them without first checking whether another overlay's
+`relocs.txt` targets 0x02128134 or 0x0212819c — on ov010, deleting the `ambiguous`-flagged
+symbol broke the delink outright.
+
+Fixing this means editing `symbols.txt` to drop or mark the two phantom objects. That is a
+ground-truth change rather than a source change, so it has not been done unilaterally.
 
 ## Key codegen recipes (MWCC 2.0 sp1p5, -O4,p) — see also `docs/ov013-progress.md`
 
@@ -66,6 +155,11 @@ Remaining:
   then `Mth_MulFixed(sin, mag)` / `Mth_MulFixed(cos, mag)`.
 - Sparse 2-3 case switches → `cmp/beq` chains; 4+ dense cases → `addls pc, pc, rX, lsl #2` table.
 - `if (A || B) return x;` → branched form; separate `if`s → predicated returns. Both shapes occur.
+- **Nesting a body inside `if (A == B)` makes MWCC branch over it; the original often
+  predicates the epilogue instead** (`cmp / ldmneia sp!, {r3,r4,r5,pc}`). Writing
+  `if (A != B) { return; } <body>` restores the predicated early return. Found in
+  `func_ov015_02127ac4` (98.1% → 99.1%); the same inversion is worth trying wherever a
+  function scores just under 100% on a `beq`/`bne`-versus-`ldm*ia` slot.
 - Common-tail code shared by `case 0`/`case 1` via fallthrough is written as
   `case 0: ...; /* fallthrough */ case 1: ...common...; break;` (021268b0 pattern, now 100%).
 - Flip ternaries emit `rsb` when the negative arm is first:

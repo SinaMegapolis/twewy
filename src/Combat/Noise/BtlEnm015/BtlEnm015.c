@@ -12,27 +12,30 @@ extern void* func_ov003_020c3c88(void*);
 extern void  func_ov003_020c3efc(void*, void*);
 extern void  func_ov003_020c427c(void*);
 extern void  func_ov003_020c495c(void*);
-extern void  func_ov003_020c4ab4(void*, s32);
-extern s32   func_ov003_020c4e0c(void*);
-extern s16   func_ov003_020843b0(s32, s32);
-extern s16   func_ov003_020843ec(s32, s32, s32);
-extern void  func_ov003_02084634(void*, s32, s32, s32);
-extern void  func_ov003_020880e4(s32, void*, void*);
-extern s32   func_ov003_02082f2c(void*);
-extern void  func_ov003_02084694(void*, s32);
-extern s32   func_ov003_020c3c28(void);
-extern void  func_ov003_020c4628(void*);
-extern void  func_ov003_020c4668(void*);
-extern void  func_ov003_020c4748(void*);
-extern void  func_ov003_020c4cc4(void*, s32);
-extern void  func_ov003_020ccea8(void*, void*);
-extern s32   func_ov003_020c5bfc(void*);
-extern s32   func_ov003_020ccfec(void*);
-extern s32   func_ov003_020c72b4(void*, s32, s32);
-extern s32   func_ov003_020c4830(void*);
-extern s32   func_ov003_02088130(void);
-extern void  func_ov003_0208810c(void*, void*);
-extern void  func_ov003_02084348(s32, s16*, s16*, s32, s32, s32);
+// Returns arg1 != 0, not void: the body is `mov r0, #0x1; bl 02082750; mov r0, #0x1; pop`
+// on one arm and `mov r0, #0x0; ...; pop` on the other.  Both call sites here discard the
+// result, so the old `void` compiled to the same code, but it hid that this is a predicate.
+extern s32  func_ov003_020c4ab4(void*, s32);
+extern s32  func_ov003_020c4e0c(void*);
+extern s16  func_ov003_020843b0(s32, s32);
+extern s16  func_ov003_020843ec(s32, s32, s32);
+extern void func_ov003_02084634(void*, s32, s32, s32);
+extern void func_ov003_020880e4(s32, void*, void*);
+extern s32  func_ov003_02082f2c(void*);
+extern void func_ov003_02084694(void*, s32);
+extern s32  func_ov003_020c3c28(void);
+extern void func_ov003_020c4628(void*);
+extern void func_ov003_020c4668(void*);
+extern void func_ov003_020c4748(void*);
+extern void func_ov003_020c4cc4(void*, s32);
+extern void func_ov003_020ccea8(void*, void*);
+extern s32  func_ov003_020c5bfc(void*);
+extern s32  func_ov003_020ccfec(void*);
+extern s32  func_ov003_020c72b4(void*, s32, s32);
+extern s32  func_ov003_020c4830(void*);
+extern s32  func_ov003_02088130(void);
+extern void func_ov003_0208810c(void*, void*);
+extern void func_ov003_02084348(s32, s16*, s16*, s32, s32, s32);
 
 // The sprite animation setter is referenced by its ov000 linker symbol in the original binary.
 extern void Mini108_VBlank(CombatSprite* cSprite, u16 animTableIndex, s32 arg2);
@@ -84,20 +87,24 @@ void func_ov013_02127230(BtlEnm015*);
 
 // MARK: Data
 
-char data_ov013_0212754c[] = "Apl_Hor/Grp_BtlEnm015.bin";
-char data_ov013_02127568[] = "Apl_Hor/Grp_BtlEnm015b.bin";
-char data_ov013_02127584[] = "Apl_Hor/Grp_BtlEnm015a.bin";
+char data_ov013_0212754c[28] = "Apl_Hor/Grp_BtlEnm015.bin";
+// The original splits this literal into a 4-byte "Apl_" object at 0x02127568 and
+// the 24-byte remainder at 0x0212756c. The BinIdentifier still points at 0x02127568,
+// so the runtime path is unchanged.
+char data_ov013_02127568[4]  = "Apl_";
+char data_ov013_0212756c[24] = "Hor/Grp_BtlEnm015b.bin";
+char data_ov013_02127584[28] = "Apl_Hor/Grp_BtlEnm015a.bin";
 
-BinIdentifier data_ov013_02127484 = {3, data_ov013_0212754c};
-BinIdentifier data_ov013_0212748c = {3, data_ov013_02127568};
-BinIdentifier data_ov013_02127494 = {3, data_ov013_02127584};
+const BinIdentifier data_ov013_02127484 = {3, data_ov013_0212754c};
+const BinIdentifier data_ov013_0212748c = {3, data_ov013_02127568};
+const BinIdentifier data_ov013_02127494 = {3, data_ov013_02127584};
 
-SpriteAnimEntry data_ov013_02127454[2] = {
+const SpriteAnimEntry data_ov013_02127454[2] = {
     {0x10, 0x12, 0x11, 0},
     {0x16, 0x18, 0x17, 0},
 };
 
-SpriteAnimEntry data_ov013_0212749c[8] = {
+const SpriteAnimEntry data_ov013_0212749c[8] = {
     {0x1, 0x3, 0x2, 0},
     {0x4, 0x6, 0x5, 0},
     {0x4, 0x6, 0x5, 1},
@@ -108,14 +115,14 @@ SpriteAnimEntry data_ov013_0212749c[8] = {
     {0xA, 0xC, 0xB, 0},
 };
 
-SpriteAnimEntry data_ov013_021274dc[2] = {
+const SpriteAnimEntry data_ov013_021274dc[2] = {
     { 0xD,  0xF,  0xE, 0},
     {0x13, 0x15, 0x14, 0},
 };
 
-Enm015Variant data_ov013_02127444 = {&data_ov013_02127484, data_ov013_0212749c, 0, 0, 0x19, 0x2BC};
-Enm015Variant data_ov013_02127474 = {&data_ov013_0212748c, data_ov013_0212749c, 0, 0, 0x19, 0x2BC};
-Enm015Variant data_ov013_02127464 = {&data_ov013_02127494, data_ov013_0212749c, 0, 0, 0x19, 0x2C8};
+const Enm015Variant data_ov013_02127444 = {&data_ov013_02127484, data_ov013_0212749c, 0, 0x19, 0x2BC, 0};
+const Enm015Variant data_ov013_02127474 = {&data_ov013_0212748c, data_ov013_0212749c, 0, 0x19, 0x2BC, 0};
+const Enm015Variant data_ov013_02127464 = {&data_ov013_02127494, data_ov013_0212749c, 0, 0x19, 0x2C8, 0};
 
 Enm015Variant* data_ov013_02127540[3] = {
     &data_ov013_02127444,
@@ -123,12 +130,12 @@ Enm015Variant* data_ov013_02127540[3] = {
     &data_ov013_02127464,
 };
 
-char data_ov013_021275a0[] = "Tsk_BtlEnm015_Eff";
-char data_ov013_021275b4[] = "Tsk_BtlEnm015_EffStamp";
-char data_ov013_021275cc[] = "Tsk_BtlEnm015_EffStampSub";
-char data_ov013_021275e8[] = "Tsk_BtlEnm015_RG";
-char data_ov013_021275fc[] = "Tsk_BtlEnm015_Shake";
-char data_ov013_02127610[] = "Tsk_BtlEnm015_UG";
+char data_ov013_021275a0[20] = "Tsk_BtlEnm015_Eff";
+char data_ov013_021275b4[24] = "Tsk_BtlEnm015_EffStamp";
+char data_ov013_021275cc[28] = "Tsk_BtlEnm015_EffStampSub";
+char data_ov013_021275e8[20] = "Tsk_BtlEnm015_RG";
+char data_ov013_021275fc[20] = "Tsk_BtlEnm015_Shake";
+char data_ov013_02127610[48] = "Tsk_BtlEnm015_UG";
 
 const TaskHandle Tsk_BtlEnm015_Eff         = {data_ov013_021275a0, func_ov013_021260e8, 0x70};
 const TaskHandle Tsk_BtlEnm015_EffStamp    = {data_ov013_021275b4, func_ov013_02126700, 0xC};
@@ -371,9 +378,12 @@ s32 func_ov013_02125d24(BtlEnm015* arg0) {
         func_ov003_020c4668(arg0);
     }
     if (data_ov003_020e71b8->unk3D874 == 2 && func_ov003_020c3c28() == 0 && arg0->unk_084.animTableIndex == 0) {
-        u16 diff = SpriteMgr_IsFrameFinished(&arg0->unk_084.sprite)
-                       ? arg0->unk_084.sprite.currentFrame - arg0->unk_084.sprite.loopFrame
-                       : arg0->unk_084.sprite.currentFrame - arg0->unk_084.sprite.loopFrame + 1;
+        u16 diff;
+        if (SpriteMgr_IsFrameFinished(&arg0->unk_084.sprite)) {
+            diff = arg0->unk_084.sprite.currentFrame - arg0->unk_084.sprite.loopFrame + 1;
+        } else {
+            diff = arg0->unk_084.sprite.currentFrame - arg0->unk_084.sprite.loopFrame;
+        }
         if (diff == 4) {
             func_ov003_020c4cc4(arg0, 0x223);
         }

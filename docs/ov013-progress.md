@@ -43,26 +43,54 @@ In the per-function instruction diff, `left` = the original (delinked from ROM),
 
 ## Status (objdiff)
 
-26 of 38 functions are exact (100%). The rest:
+**28 of 38 functions are exact (100%), average 98.13%; `.text` 97.00%, `.rodata` 100%,
+`.data` 100%.** The rest:
 
 | Function | % | Notes |
 |----------|---|-------|
 | `func_ov013_02126960` | 76.5 | EffStampSub init; anim-build register allocation/scheduling |
-| `func_ov013_02125b8c` | 85.8 | RG/UG init; anim-build register allocation/scheduling |
 | `func_ov013_02125fd0` | 83.2 | Eff task init; same class of reg-alloc diffs |
+| `func_ov013_02125b8c` | 85.8 | RG/UG init; anim-build register allocation/scheduling |
 | `func_ov013_02126254` | 95.2 | spark ring; loop register assignment (count/conv/owner colors) |
 | `func_ov013_021265b0` | 95.9 | single-spark spawn; reg-alloc swaps (magic/global/owner) |
 | `func_ov013_02127370` | 96.5 | UG handler; 0x19000 constant materialization position |
 | `func_ov013_02126788` | 96.8 | EffStampSub update; reg swaps around the pc-rel loads |
-| `func_ov013_02125d24` | 98.6 | command switch; IsFrameFinished if/else predication shape |
-| `func_ov013_02125a04` | 99.9 | one `bl` shows `branch_dest` on the original side (forward intra-TU call) |
-| `func_ov013_02126ff4` | 99.4 | Shake handler; ternary store register swap |
-| `func_ov013_021256c0` | 98.8 | byte-identical; `.word` literal relocation accounting |
-| `func_ov013_021256e4` | 98.3 | byte-identical; `.word` literal relocation accounting |
+| `func_ov013_02126ff4` | 99.4 | Shake handler; `r0`/`r1` swap on a conditional-pointer store |
+| `func_ov013_02125838` | 99.8 | single `ldrne`/`moveq` pair |
+| `func_ov013_02125a04` | 99.9 | instruction-identical; forward intra-TU `bl` shown as `branch_dest` |
 
-The `021256c0`/`021256e4`/`02125a04` mismatches are objdiff accounting artifacts, not code
-differences (same bytes; the delinker resolves some relocations to raw `branch_dest` values /
-different symbol indices on the original side).
+`02125a04` and `02125838` are objdiff accounting artifacts, not code differences — after
+normalising branch and literal-pool targets, `02125a04`'s 88 instructions are identical.
+`021256c0`/`021256e4` reached 100% as a side effect of the `const` change below.
+
+## Data sections now match (the ov012 recipe applies verbatim)
+
+`.rodata` went 30% → 100% and `.data` 75.9% → 100%. Four changes, all mechanical:
+
+- **`const` on every read-only table** — the three `Enm015Variant`s, the three
+  `SpriteAnimEntry` tables and the three `BinIdentifier`s. Without this MWCC puts them
+  in `.data`. This alone took `.rodata` to 94% and fixed `func_ov013_021256c0`/`021256e4`.
+- **Padded sizes on the `char[]` arrays**, derived from the gap to the next symbol in
+  `symbols.txt`: `[28] [4] [24] [28]` for the asset names and `[20] [24] [28] [20] [20]
+  [48]` for the task names. The last one runs to the end of `.data`.
+- **Keep the `char[]` arrays non-const** so they stay in `.data`. Adding `const` here
+  drops `.data` to 0%.
+- **`data_ov013_02127568` is split mid-literal** in the original: a 4-byte `"Apl_"` object
+  plus a 24-byte remainder at `0x0212756c` (marked `ambiguous` in `symbols.txt`). The
+  `BinIdentifier` still points at `0x02127568`, so splitting the array reproduces both
+  extents with an identical byte image.
+
+Two real bugs fell out of this:
+
+- The three `Enm015Variant` initializers carried a spurious extra `0`, putting
+  `unk_0A`/`unk_0C` one slot late — `unk_0A` read `0` instead of `0x19` and `unk_0C` read
+  `0x19` instead of `0x2BC`. Confirmed against the original bytes at `0x02127444`
+  (`... 0000 1900 bc02 0000`). The code reads these by name, so `.text` was unaffected
+  and this was purely a data/behaviour bug.
+- The `IsFrameFinished` frame-diff ternary in `func_ov013_02125d24` had the `+1` on the
+  wrong arm. The original adds 1 when the frame *is* finished. Spelling it as an explicit
+  `if`/`else` with the `+1` in the then-arm also stops MWCC if-converting both arms, which
+  was costing three predicated instructions. 98.6% → 100%.
 
 ## Key codegen recipes discovered (MWCC 2.0 sp1p5, -O4,p)
 
@@ -123,12 +151,37 @@ Many ov003 helpers are unnamed; these are used by the implemented code:
 
 ## Notes
 
-- The user cares primarily about **code sections matching** (objdiff function percentages), not the
-  `.rodata`/`.data` layout.
-- Overlay TUs are only linked from source when marked `complete` in `delinks.txt`; these are not, so the
-  ROM still links the delinked original (i.e. `ninja sha1` passing does not validate this source).
+- `.rodata`/`.data` now both match, so the earlier "known gap" caveat is gone. That was the
+  prerequisite for ever marking this TU `complete`.
+- The ROM `arm9_ov013.bin` has **unapplied intra-module relocations**, so pointer *values* in
+  `.rodata`/`.data` cannot be read from it (e.g. `0x021274ec` holds `0x02127180`, not the
+  task-name pointer). String contents, padding and object extents can be read from it; use
+  `symbols.txt` and `relocs.txt` for anything pointer-shaped.
+- Overlay TUs are only linked from source when marked `complete` in `delinks.txt`; this one is
+  not, so the ROM still links the delinked original (i.e. `ninja sha1` passing would not
+  validate this source). `ninja check_modules` and `ninja check_symbols` both pass.
 - `data_ov013_02127640` / `data_ov013_02127644` are two separate `s32` BSS task-id slots.
 - The `Tsk_BtlEnm015_*` symbols were renamed in `symbols.txt` to match the source task-handle names.
 - `Enm015Variant.unk_08` and `.unk_0C` are `u16` (the original loads them with `ldrh`).
 - `BtlEnm015.unk_1E8` is `u16`; `BtlEnm015Shake.unk_0C` is `u16`.
 - The RG task's `MI_CpuSet` clears `0x1E8` bytes (not `sizeof(BtlEnm015)` = 0x1EC).
+
+## Remaining work
+
+Ten functions, all register-allocation or scheduling decisions. Source shapes already tried and
+rejected are listed so they are not retried:
+
+- `func_ov013_02126960` (76.5%): the seven `SpriteAnimationEx` stores are emitted in a different
+  order, which cascades into the `ldrh [r4, #..]` hoisting. Tried and rejected: reordering the
+  seven stores to the original's emission order (73.0%), spelling `table[3] + 1` inline instead of
+  via the `animData` local (74.1%), and both together (68.0%). The committed order is the best of six.
+- `func_ov013_02126ff4` (99.4%): a pure `r0`/`r1` swap on
+  `*((cond) ? &a : &b) = -1`. Tried and rejected: selecting into an `s32*` local, an
+  `if`/`else` assigning each slot directly (90.3%), and a pointer local with the condition
+  tested the other way round. All produce 99.4%; the register choice is not steerable.
+- `func_ov013_02125a04` (99.9%) / `func_ov013_02125838` (99.8%): instruction-identical or
+  near-identical; objdiff relocation-index artifacts. Not fixable in source.
+- `func_ov013_02126254`, `021265b0`, `02127370`, `02126788`, `02125b8c`, `02125fd0`: the
+  register-colour and scheduling differences described in the table above; consistent with
+  ov012's experience these have not responded to source restructuring.
+
