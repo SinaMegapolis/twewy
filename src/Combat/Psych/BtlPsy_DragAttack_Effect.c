@@ -2,9 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32              func_ov003_020a62b8(s32, s32, s32, s32);
-extern const TaskHandle data_ov003_020dc77c;
+static const TaskHandle data_ov003_020dc77c;
 
 s32 func_ov003_020acd6c(TaskPool* pool, Task* task, void* args) {
     Ov003Blur* self = task->data;
@@ -70,7 +68,7 @@ void func_ov003_020acf0c(s32 taskId, u16 angle) {
         self->angle = angle;
 }
 
-s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003DragAttack*   self;
     switch (stage) {
@@ -173,6 +171,5 @@ s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4ba0[32] = "Tsk_BtlPsy_DragAttack_Effect";
-const TaskHandle data_ov003_020dc77c     = {data_ov003_020e4ba0, func_ov003_020acf24, sizeof(Ov003DragAttack)};
-extern char      data_ov003_020e4bc0[];
+static char             data_ov003_020e4ba0[32] = "Tsk_BtlPsy_DragAttack_Effect";
+static const TaskHandle data_ov003_020dc77c     = {data_ov003_020e4ba0, func_ov003_020acf24, sizeof(Ov003DragAttack)};

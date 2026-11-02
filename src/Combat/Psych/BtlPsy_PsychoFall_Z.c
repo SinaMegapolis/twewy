@@ -3,12 +3,9 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a632c(s32, s32, s32, s32);
-
 /// Drops a PsychoFall falling-sprite sub-task at the trail's current pivot.
 
-extern char             data_ov003_020e4e9c[];
-extern const TaskHandle data_ov003_020dca34;
+static const TaskHandle data_ov003_020dca34;
 
 s32 func_ov003_020b4b60(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(6))
@@ -23,7 +20,7 @@ s32 func_ov003_020b4b60(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003PsychoFallZ*  self;
     switch (stage) {
@@ -102,5 +99,5 @@ s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4e84[0x18] = "Tsk_BtlPsy_PsychoFall_Z";
-const TaskHandle data_ov003_020dca34       = {data_ov003_020e4e84, func_ov003_020b4bcc, sizeof(Ov003PsychoFallZ)};
+static char             data_ov003_020e4e84[0x18] = "Tsk_BtlPsy_PsychoFall_Z";
+static const TaskHandle data_ov003_020dca34       = {data_ov003_020e4e84, func_ov003_020b4bcc, sizeof(Ov003PsychoFallZ)};

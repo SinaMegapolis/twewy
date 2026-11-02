@@ -7,9 +7,8 @@
 #include "Field/Tasks/Fld_TouchCursor.h"
 #include "Field/Tasks/Fld_TouchSeal.h"
 #include "Field/Tasks/Fld_TouchShine.h"
+#include "Save.h"
 #include "SndMgr.h"
-
-extern s32 func_0202599c(s32 flagIndex);
 
 typedef struct {
     /* 0x00 */ s16 id;

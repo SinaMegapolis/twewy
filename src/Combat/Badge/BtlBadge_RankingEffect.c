@@ -32,14 +32,12 @@ typedef struct BtlBadgeRankingEffect {
 /// The battle sprite page the badge family loads from (`Apl_Hir/Grp_BtlBadge.bin`).
 extern const BinIdentifier data_ov003_020dc044;
 
-extern s32 func_ov003_020a6c7c(s32 kind);
-
-char data_ov003_020e4938[0x1C] = "Tsk_BtlBadge_RankingEffect";
+static char data_ov003_020e4938[0x1C] = "Tsk_BtlBadge_RankingEffect";
 
 /// Defined below; the task handle needs its address.
-s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle data_ov003_020dc5f0 = {data_ov003_020e4938, func_ov003_020a7c9c, sizeof(BtlBadgeRankingEffect)};
+static const TaskHandle data_ov003_020dc5f0 = {data_ov003_020e4938, func_ov003_020a7c9c, sizeof(BtlBadgeRankingEffect)};
 
 // ---------------------------------------------------------------------------------------------
 // Functions
@@ -83,7 +81,7 @@ void func_ov003_020a7ba8(Ov003TouchActor* actor) {
 /// The ranking badge stages: build, update, position and render, release.
 // Nonmatching: the target keeps `task->data` in `r4` from the dispatch on and reuses it for the
 // stage-1/stage-3 bodies; mwcc re-materialises it inside those cases.
-s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage) {
     switch (stage) {
         case 0: {
             BtlBadgeRankingEffect*     self = task->data;

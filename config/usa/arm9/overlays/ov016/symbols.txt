@@ -16,42 +16,42 @@ Boss01_Eff_CreateTask kind:function(arm,size=0xf4) addr:0x02125a54
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Noise/Boss01/Boss01_RG.c
 //////////////////////////////////////////////////////////////////////
-Boss01_RG_IsInBounds kind:function(arm,size=0x70) addr:0x02125b48
-func_ov016_02125bb8 kind:function(arm,size=0x18) addr:0x02125bb8
-Boss01_RG_SetState kind:function(arm,size=0x28) addr:0x02125bd0
-Boss01_MoveState_WaitToFly kind:function(arm,size=0x28) addr:0x02125bf8
-func_ov016_02125c20 kind:function(arm,size=0x108) addr:0x02125c20
-Boss01_MoveState_FlyAcross kind:function(arm,size=0x38c) addr:0x02125d28
-func_ov016_021260b4 kind:function(arm,size=0x1c) addr:0x021260b4
-Boss01_RG_Init kind:function(arm,size=0xa4) addr:0x021260d0
-Boss01_RG_Update kind:function(arm,size=0x74) addr:0x02126174
-Boss01_RG_Render kind:function(arm,size=0x88) addr:0x021261e8
-Boss01_RG_Destroy kind:function(arm,size=0x20) addr:0x02126270
-Boss01_RG_RunTask kind:function(arm,size=0x48) addr:0x02126290
+Boss01_RG_IsInBounds kind:function(arm,size=0x70) addr:0x02125b48 local
+func_ov016_02125bb8 kind:function(arm,size=0x18) addr:0x02125bb8 local
+Boss01_RG_SetState kind:function(arm,size=0x28) addr:0x02125bd0 local
+Boss01_MoveState_WaitToFly kind:function(arm,size=0x28) addr:0x02125bf8 local
+func_ov016_02125c20 kind:function(arm,size=0x108) addr:0x02125c20 local
+Boss01_MoveState_FlyAcross kind:function(arm,size=0x38c) addr:0x02125d28 local
+func_ov016_021260b4 kind:function(arm,size=0x1c) addr:0x021260b4 local
+Boss01_RG_Init kind:function(arm,size=0xa4) addr:0x021260d0 local
+Boss01_RG_Update kind:function(arm,size=0x74) addr:0x02126174 local
+Boss01_RG_Render kind:function(arm,size=0x88) addr:0x021261e8 local
+Boss01_RG_Destroy kind:function(arm,size=0x20) addr:0x02126270 local
+Boss01_RG_RunTask kind:function(arm,size=0x48) addr:0x02126290 local
 
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Noise/Boss01/Boss01_UG.c
 //////////////////////////////////////////////////////////////////////
-func_ov016_021262d8 kind:function(arm,size=0x190) addr:0x021262d8
-func_ov016_02126468 kind:function(arm,size=0x70) addr:0x02126468
-func_ov016_021264d8 kind:function(arm,size=0x3c) addr:0x021264d8
-func_ov016_02126514 kind:function(arm,size=0x40) addr:0x02126514
-func_ov016_02126554 kind:function(arm,size=0x54) addr:0x02126554
-func_ov016_021265a8 kind:function(arm,size=0x90) addr:0x021265a8
-func_ov016_02126638 kind:function(arm,size=0x50) addr:0x02126638
-Boss01_UG_SetState kind:function(arm,size=0x2c) addr:0x02126688
-func_ov016_021266b4 kind:function(arm,size=0x40) addr:0x021266b4
-func_ov016_021266f4 kind:function(arm,size=0x138) addr:0x021266f4
-func_ov016_0212682c kind:function(arm,size=0x28) addr:0x0212682c
-func_ov016_02126854 kind:function(arm,size=0x3d0) addr:0x02126854
-func_ov016_02126c24 kind:function(arm,size=0x114) addr:0x02126c24
-func_ov016_02126d38 kind:function(arm,size=0x2b8) addr:0x02126d38
-func_ov016_02126ff0 kind:function(arm,size=0xb8) addr:0x02126ff0
-Boss01_UG_Init kind:function(arm,size=0x118) addr:0x021270a8
-Boss01_UG_Update kind:function(arm,size=0xc0) addr:0x021271c0
-Boss01_UG_Render kind:function(arm,size=0xc0) addr:0x02127280
-Boss01_UG_Destroy kind:function(arm,size=0x34) addr:0x02127340
-Boss01_UG_RunTask kind:function(arm,size=0x48) addr:0x02127374
+func_ov016_021262d8 kind:function(arm,size=0x190) addr:0x021262d8 local
+func_ov016_02126468 kind:function(arm,size=0x70) addr:0x02126468 local
+func_ov016_021264d8 kind:function(arm,size=0x3c) addr:0x021264d8 local
+func_ov016_02126514 kind:function(arm,size=0x40) addr:0x02126514 local
+func_ov016_02126554 kind:function(arm,size=0x54) addr:0x02126554 local
+func_ov016_021265a8 kind:function(arm,size=0x90) addr:0x021265a8 local
+func_ov016_02126638 kind:function(arm,size=0x50) addr:0x02126638 local
+Boss01_UG_SetState kind:function(arm,size=0x2c) addr:0x02126688 local
+func_ov016_021266b4 kind:function(arm,size=0x40) addr:0x021266b4 local
+func_ov016_021266f4 kind:function(arm,size=0x138) addr:0x021266f4 local
+func_ov016_0212682c kind:function(arm,size=0x28) addr:0x0212682c local
+func_ov016_02126854 kind:function(arm,size=0x3d0) addr:0x02126854 local
+func_ov016_02126c24 kind:function(arm,size=0x114) addr:0x02126c24 local
+func_ov016_02126d38 kind:function(arm,size=0x2b8) addr:0x02126d38 local
+func_ov016_02126ff0 kind:function(arm,size=0xb8) addr:0x02126ff0 local
+Boss01_UG_Init kind:function(arm,size=0x118) addr:0x021270a8 local
+Boss01_UG_Update kind:function(arm,size=0xc0) addr:0x021271c0 local
+Boss01_UG_Render kind:function(arm,size=0xc0) addr:0x02127280 local
+Boss01_UG_Destroy kind:function(arm,size=0x34) addr:0x02127340 local
+Boss01_UG_RunTask kind:function(arm,size=0x48) addr:0x02127374 local
 
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Noise/Boss01/Boss01s_FlyRG_Curve.c
@@ -109,27 +109,27 @@ BtlEff_Bomb_CreateTask kind:function(arm,size=0x54) addr:0x02128320
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Noise/Boss01/Boss01_BtlEff_Fall.c
 //////////////////////////////////////////////////////////////////////
-BtlEff_Fall_Init kind:function(arm,size=0xe8) addr:0x02128374
-BtlEff_Fall_Update kind:function(arm,size=0x184) addr:0x0212845c
-BtlEff_Fall_Render kind:function(arm,size=0x78) addr:0x021285e0
-BtlEff_Fall_Destroy kind:function(arm,size=0x20) addr:0x02128658
-BtlEff_Fall_RunTask kind:function(arm,size=0x48) addr:0x02128678
+BtlEff_Fall_Init kind:function(arm,size=0xe8) addr:0x02128374 local
+BtlEff_Fall_Update kind:function(arm,size=0x184) addr:0x0212845c local
+BtlEff_Fall_Render kind:function(arm,size=0x78) addr:0x021285e0 local
+BtlEff_Fall_Destroy kind:function(arm,size=0x20) addr:0x02128658 local
+BtlEff_Fall_RunTask kind:function(arm,size=0x48) addr:0x02128678 local
 BtlEff_Fall_CreateTask kind:function(arm,size=0x50) addr:0x021286c0
 
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Noise/Boss01/Boss01_BtlObs_Bus.c
 //////////////////////////////////////////////////////////////////////
-BtlObs_Bus_SetState kind:function(arm,size=0x18) addr:0x02128710
-BtlObs_Bus_OnPhaseStart kind:function(arm,size=0x7c) addr:0x02128728
-BtlObs_Bus_StateIdle kind:function(arm,size=0x4) addr:0x021287a4
-BtlObs_Bus_StateStop kind:function(arm,size=0xc) addr:0x021287a8
-BtlObs_Bus_StateEnd kind:function(arm,size=0x4) addr:0x021287b4
-BtlObs_Bus_StateHitFlash kind:function(arm,size=0x98) addr:0x021287b8
-BtlObs_Bus_Init kind:function(arm,size=0x110) addr:0x02128850
-BtlObs_Bus_Update kind:function(arm,size=0xc0) addr:0x02128960
-BtlObs_Bus_Render kind:function(arm,size=0x108) addr:0x02128a20
-BtlObs_Bus_Destroy kind:function(arm,size=0x20) addr:0x02128b28
-BtlObs_Bus_RunTask kind:function(arm,size=0x48) addr:0x02128b48
+BtlObs_Bus_SetState kind:function(arm,size=0x18) addr:0x02128710 local
+BtlObs_Bus_OnPhaseStart kind:function(arm,size=0x7c) addr:0x02128728 local
+BtlObs_Bus_StateIdle kind:function(arm,size=0x4) addr:0x021287a4 local
+BtlObs_Bus_StateStop kind:function(arm,size=0xc) addr:0x021287a8 local
+BtlObs_Bus_StateEnd kind:function(arm,size=0x4) addr:0x021287b4 local
+BtlObs_Bus_StateHitFlash kind:function(arm,size=0x98) addr:0x021287b8 local
+BtlObs_Bus_Init kind:function(arm,size=0x110) addr:0x02128850 local
+BtlObs_Bus_Update kind:function(arm,size=0xc0) addr:0x02128960 local
+BtlObs_Bus_Render kind:function(arm,size=0x108) addr:0x02128a20 local
+BtlObs_Bus_Destroy kind:function(arm,size=0x20) addr:0x02128b28 local
+BtlObs_Bus_RunTask kind:function(arm,size=0x48) addr:0x02128b48 local
 BtlObs_Bus_CreateTask kind:function(arm,size=0x50) addr:0x02128b90
 
 //////////////////////////////////////////////////////////////////////

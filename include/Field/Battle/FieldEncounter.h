@@ -29,4 +29,9 @@ void Field_LoadTouchEventBg(FieldEventManager* mgr);
 void Field_SetupDisplay2D(FieldEventManager* mgr, s32 use256Colors);
 void Field_SetupDisplay3D(FieldEventManager* mgr);
 
+void Field_InitState(FieldEventManager* mgr);
+void Field_ReleasePacks(FieldEventManager* mgr);
+void Field_ScriptUpdate(FieldEventManager* mgr);
+s16  func_ov030_020adc84(void);
+
 #endif // FIELD_BATTLE_FIELDENCOUNTER_H

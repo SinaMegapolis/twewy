@@ -4,6 +4,7 @@
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
+#include "main_02026528.h"
 
 #include <nitro/mi/cpumem.h>
 
@@ -40,10 +41,8 @@ typedef struct BtlPop_Tech_Args {
 // External functions
 // ---------------------------------------------------------------------------------------------
 
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
-
-extern const TaskHandle    data_ov003_020d813c;
-extern const TaskStages    data_ov003_020d8148;
+static const TaskHandle    data_ov003_020d813c;
+static const TaskStages    data_ov003_020d8148;
 extern const BinIdentifier data_ov003_020d7800;
 
 // ---------------------------------------------------------------------------------------------
@@ -52,7 +51,7 @@ extern const BinIdentifier data_ov003_020d7800;
 
 /// Splits `value` (clamped to 0..9999) into decimal digits, least significant first, and returns
 /// how many digits are needed to show it.
-s32 func_ov003_0209d088(s32* digits, s32 value) {
+static s32 func_ov003_0209d088(s32* digits, s32 value) {
     s32 v = value;
     s32 rest;
 
@@ -83,13 +82,13 @@ s32 func_ov003_0209d088(s32* digits, s32 value) {
 }
 
 /// Loads the popup's sprite (the "tech name" plate) and starts it on its first animation.
-void func_ov003_0209d154(CombatSprite* sprite, s32 variant) {
+static void func_ov003_0209d154(CombatSprite* sprite, s32 variant) {
     CombatSprite_LoadDirectNoProto(0, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, variant);
     func_ov003_02082738(sprite, 0);
     func_ov003_02082730(sprite, 1);
 }
 
-s32 func_ov003_0209d1b4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209d1b4(TaskPool* pool, Task* task, void* args) {
     BtlPop_Tech*      data   = task->data;
     BtlPop_Tech_Args* params = args;
     s32               digits[4];
@@ -114,7 +113,7 @@ s32 func_ov003_0209d1b4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209d284(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209d284(TaskPool* pool, Task* task, void* args) {
     BtlPop_Tech* data = task->data;
 
     switch (data->state) {
@@ -146,7 +145,7 @@ s32 func_ov003_0209d284(TaskPool* pool, Task* task, void* args) {
 
 // Nonmatching: pure register allocation -- `posY`, `half` and `right` take r9/r6/r8 instead of
 // the retail build's r6/r7/r9, a rotation of the same callee-saved set.
-s32 func_ov003_0209d334(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209d334(TaskPool* pool, Task* task, void* args) {
     BtlPop_Tech* data = task->data;
     s32          posX = func_ov003_020843b0(0, data->x);
     s16          posY = (s16)(func_ov003_020843ec(0, data->y, data->z) - 8);
@@ -173,14 +172,14 @@ s32 func_ov003_0209d334(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209d434(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209d434(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
 /// Task dispatcher: calls the stage function for `stage`, which is a no-op for a popup that
 /// finished this frame.
-s32 func_ov003_0209d448(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209d448(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8148;
 
     if (func_ov003_0208b690((u16)stage) != 0) {
@@ -206,13 +205,13 @@ void func_ov003_0209d4b0(void) {
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e3cfc[0x10] = "Tsk_BtlPop_Tech";
+static char data_ov003_020e3cfc[0x10] = "Tsk_BtlPop_Tech";
 
-const TaskStages data_ov003_020d8148 = {
+static const TaskStages data_ov003_020d8148 = {
     .initialize = func_ov003_0209d1b4,
     .update     = func_ov003_0209d284,
     .render     = func_ov003_0209d334,
     .cleanup    = func_ov003_0209d434,
 };
 
-const TaskHandle data_ov003_020d813c = {data_ov003_020e3cfc, func_ov003_0209d448, sizeof(BtlPop_Tech)};
+static const TaskHandle data_ov003_020d813c = {data_ov003_020e3cfc, func_ov003_0209d448, sizeof(BtlPop_Tech)};

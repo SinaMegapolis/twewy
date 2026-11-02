@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0c80;
+static const TaskHandle data_ov003_020e0c80;
 
 s32 func_ov003_020d0518(Ov003EnemyShotSource* finalSource, s32 finalSpeed, u16 finalAngle, u16 finalSpread, u16 finalCount,
                         Ov003EnemyShotSource* initialSource, s32 initialSpeed, u16 initialAngle, u16 initialSpread,
@@ -28,7 +28,7 @@ s32 func_ov003_020d0518(Ov003EnemyShotSource* finalSource, s32 finalSpeed, u16 f
     return EasyTask_CreateTask(pool, &data_ov003_020e0c80, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020d05dc(Ov003EnemyShotRapidSlow* self, Ov003EnemyShotRapidSlowArgs* args) {
+static s32 func_ov003_020d05dc(Ov003EnemyShotRapidSlow* self, Ov003EnemyShotRapidSlowArgs* args) {
     MI_CpuSet(self, 0, sizeof(*self));
     MI_CpuCopyU8(args->finalSource, &self->finalShot.source, sizeof(self->finalShot.source));
     MI_CpuCopyU8(args->initialSource, &self->initialShot.source, sizeof(self->initialShot.source));
@@ -44,7 +44,7 @@ s32 func_ov003_020d05dc(Ov003EnemyShotRapidSlow* self, Ov003EnemyShotRapidSlowAr
     return 1;
 }
 
-s32 func_ov003_020d0664(Ov003EnemyShotRapidSlow* self) {
+static s32 func_ov003_020d0664(Ov003EnemyShotRapidSlow* self) {
     if (!func_ov003_020cce34(self->finalShot.source.core.owner->base.sprite.sprite.bits_0_1))
         return 0;
     if (self->finalShot.source.core.owner->base.actor.flags & 2)
@@ -65,14 +65,14 @@ s32 func_ov003_020d0664(Ov003EnemyShotRapidSlow* self) {
     return 1;
 }
 
-s32 func_ov003_020d0748(Ov003EnemyShotRapidSlow* self) {
+static s32 func_ov003_020d0748(Ov003EnemyShotRapidSlow* self) {
     return 1;
 }
-s32 func_ov003_020d0750(Ov003EnemyShotRapidSlow* self) {
+static s32 func_ov003_020d0750(Ov003EnemyShotRapidSlow* self) {
     return 1;
 }
 
-s32 func_ov003_020d0758(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d0758(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotRapidSlow* self = task->data;
     switch (stage) {
         case 0:
@@ -88,5 +88,5 @@ s32 func_ov003_020d0758(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6ce0[28] = "Tsk_BtlEnmShot_RapidSlow";
-const TaskHandle data_ov003_020e0c80     = {data_ov003_020e6ce0, func_ov003_020d0758, sizeof(Ov003EnemyShotRapidSlow)};
+static char             data_ov003_020e6ce0[28] = "Tsk_BtlEnmShot_RapidSlow";
+static const TaskHandle data_ov003_020e0c80     = {data_ov003_020e6ce0, func_ov003_020d0758, sizeof(Ov003EnemyShotRapidSlow)};

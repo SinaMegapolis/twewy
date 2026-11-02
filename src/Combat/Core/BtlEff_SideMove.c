@@ -41,13 +41,11 @@ typedef struct BossExp1Piece {
 extern const BinIdentifier data_ov003_020d7800;
 extern const TaskHandle    data_ov003_020e0a48;
 
-extern void func_ov003_020c439c(Ov003EnemyActor* actor, SpriteAnimationEx* anim);
-
 char data_ov003_020e6b38[0x10] = "Tsk_BossExp1";
 char data_ov003_020e6b48[0x1C] = "Apl_Mor/Grp_BossExp1.bin";
 
 /// The animation table of the flying pieces.
-const SpriteAnimEntry data_ov003_020e0b80[2] = {
+static const SpriteAnimEntry data_ov003_020e0b80[2] = {
     {0x1F, 0x21, 0x20, 0},
     {0x1F, 0x21, 0x20, 1},
 };

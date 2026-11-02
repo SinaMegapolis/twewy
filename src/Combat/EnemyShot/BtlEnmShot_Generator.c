@@ -39,8 +39,7 @@ typedef struct Ov003EnemyShotGeneratorArgs {
     /* 0x20 */ s32                   speedScale;
 } Ov003EnemyShotGeneratorArgs; // Size: 0x24
 
-extern u32              func_ov003_02082f2c(void);
-extern const TaskHandle data_ov003_020e0c50;
+static const TaskHandle data_ov003_020e0c50;
 
 s32 func_ov003_020cec78(Ov003EnemyShotSource* source, u16 moveAngle, s32 moveSpeed, s32 moveDecay,
                         Ov003EnemyShotSource* paramSource, u16 angle, u16 angleStep, s32 shotSpeed, u16 delayFrames,
@@ -67,7 +66,7 @@ s32 func_ov003_020cec78(Ov003EnemyShotSource* source, u16 moveAngle, s32 moveSpe
     return EasyTask_CreateTask(pool, &data_ov003_020e0c50, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020ced48(Ov003EnemyShotGenerator* self, Ov003EnemyShotGeneratorArgs* args) {
+static s32 func_ov003_020ced48(Ov003EnemyShotGenerator* self, Ov003EnemyShotGeneratorArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
     CombatSprite*               sprite = &self->actor.sprite;
@@ -103,10 +102,10 @@ s32 func_ov003_020ced48(Ov003EnemyShotGenerator* self, Ov003EnemyShotGeneratorAr
     return 1;
 }
 
-s32 func_ov003_020cef74(Ov003EnemyShotGenerator* self) {
+static s32 func_ov003_020cef74(Ov003EnemyShotGenerator* self) {
     if (data_ov003_020e71b8->unk3D878 & 0x40)
         return 1;
-    switch (func_ov003_02082f2c()) {
+    switch (((u32(*)())CombatActor_PopPendingCommand)()) {
         default:
             break;
         case 1:
@@ -167,7 +166,7 @@ s32 func_ov003_020cef74(Ov003EnemyShotGenerator* self) {
     return 1;
 }
 
-s32 func_ov003_020cf228(Ov003EnemyShotGenerator* self) {
+static s32 func_ov003_020cf228(Ov003EnemyShotGenerator* self) {
     s16 x, y;
     func_ov003_02084348(func_ov003_020c37f8(&self->actor.sprite) ? 1 : 0, &x, &y, self->core.position.x, self->core.position.y,
                         self->core.position.z);
@@ -177,7 +176,7 @@ s32 func_ov003_020cf228(Ov003EnemyShotGenerator* self) {
     return 1;
 }
 
-s32 func_ov003_020cf2a0(Ov003EnemyShotGenerator* self) {
+static s32 func_ov003_020cf2a0(Ov003EnemyShotGenerator* self) {
     self->actor.flags18C = (self->actor.flags18C | 0x40) & ~0x20;
     self->actor.actor.flags |= 4;
     func_ov003_020c4a08((Ov003CutinActor*)self);
@@ -187,7 +186,7 @@ s32 func_ov003_020cf2a0(Ov003EnemyShotGenerator* self) {
     return 1;
 }
 
-s32 func_ov003_020cf2fc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020cf2fc(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotGenerator* self = task->data;
     switch (stage) {
         case 0:
@@ -203,5 +202,5 @@ s32 func_ov003_020cf2fc(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6c78[28] = "Tsk_BtlEnmShot_Generator";
-const TaskHandle data_ov003_020e0c50     = {data_ov003_020e6c78, func_ov003_020cf2fc, sizeof(Ov003EnemyShotGenerator)};
+static char             data_ov003_020e6c78[28] = "Tsk_BtlEnmShot_Generator";
+static const TaskHandle data_ov003_020e0c50     = {data_ov003_020e6c78, func_ov003_020cf2fc, sizeof(Ov003EnemyShotGenerator)};

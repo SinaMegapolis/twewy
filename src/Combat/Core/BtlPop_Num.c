@@ -55,22 +55,16 @@ typedef struct BtlPop_NumArgs {
 // ---------------------------------------------------------------------------------------------
 
 extern const BinIdentifier data_ov003_020d7800;
-extern const TaskHandle    data_ov003_020d7ffc;
-extern const TaskStages    data_ov003_020d8008;
+static const TaskHandle    data_ov003_020d7ffc;
+static const TaskStages    data_ov003_020d8008;
 
 // ---------------------------------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-s32 func_ov003_0209b0a0(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209b294(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209b318(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209b498(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209b4fc(TaskPool* pool, Task* task, void* args, s32 stage);
-
 /// Splits `value` (clamped to 0..99999) into decimal digits, least significant first, and
 /// returns how many digits are needed to show it. A value of -1 stores a lone `-` glyph.
-s32 func_ov003_0209af30(s32* digits, s32 value) {
+static s32 func_ov003_0209af30(s32* digits, s32 value) {
     s32 v = value;
     s32 rest;
 
@@ -107,7 +101,7 @@ s32 func_ov003_0209af30(s32* digits, s32 value) {
 }
 
 /// Loads the popup sprite and starts it on the digit animation set of `engine`.
-void func_ov003_0209b04c(s32 engine, CombatSprite* sprite, s32 arg2, s32 variant) {
+static void func_ov003_0209b04c(s32 engine, CombatSprite* sprite, s32 arg2, s32 variant) {
     CombatSprite_LoadDirectNoProto(engine, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, variant, arg2);
     func_ov003_02082738(sprite, 0);
     func_ov003_02082730(sprite, 1);
@@ -115,7 +109,7 @@ void func_ov003_0209b04c(s32 engine, CombatSprite* sprite, s32 arg2, s32 variant
 
 /// Popup initialiser: splits the amount into digits, scatters its launch velocities and picks
 /// the element's animation base for the digits and the two decoration icons.
-s32 func_ov003_0209b0a0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209b0a0(TaskPool* pool, Task* task, void* args) {
     BtlPop_Num*     data = task->data;
     BtlPop_NumArgs* p    = args;
     s32             digits[5];
@@ -178,7 +172,7 @@ s32 func_ov003_0209b0a0(TaskPool* pool, Task* task, void* args) {
 
 /// Per-frame motion: rise until the apex (z reaches 0), then drift along the scatter velocity
 /// while the popup counts down its lifetime.
-s32 func_ov003_0209b294(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209b294(TaskPool* pool, Task* task, void* args) {
     BtlPop_Num* data = task->data;
 
     data->zVelocity += 0x4CD;
@@ -201,7 +195,7 @@ s32 func_ov003_0209b294(TaskPool* pool, Task* task, void* args) {
 /// Draws the digits of the number above the actor, plus the two optional icons.
 // Nonmatching: `posY`, `half` and the loop base sit in a rotated register triple
 // (target r6/r8/r9, ours r9/r6/r8); the instruction sequence is otherwise identical.
-s32 func_ov003_0209b318(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209b318(TaskPool* pool, Task* task, void* args) {
     BtlPop_Num* data = task->data;
     s32         posX;
     s32         screenY;
@@ -241,7 +235,7 @@ s32 func_ov003_0209b318(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209b498(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209b498(TaskPool* pool, Task* task, void* args) {
     BtlPop_Num* data = task->data;
 
     CombatSprite_Release(&data->sprite);
@@ -255,7 +249,7 @@ s32 func_ov003_0209b498(TaskPool* pool, Task* task, void* args) {
 
 /// Task dispatcher: calls the stage function for `stage`, which is a no-op for a popup that
 /// finished this frame.
-s32 func_ov003_0209b4fc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209b4fc(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8008;
 
     if (func_ov003_0208b690(stage) != 0) {
@@ -346,11 +340,11 @@ void func_ov003_0209b61c(s32 engine, s32 value, CombatActor* actor) {
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e3c90[0x10] = "Tsk_BtlPop_Num";
+static char data_ov003_020e3c90[0x10] = "Tsk_BtlPop_Num";
 
-const TaskHandle data_ov003_020d7ffc = {data_ov003_020e3c90, func_ov003_0209b4fc, sizeof(BtlPop_Num)};
+static const TaskHandle data_ov003_020d7ffc = {data_ov003_020e3c90, func_ov003_0209b4fc, sizeof(BtlPop_Num)};
 
-const TaskStages data_ov003_020d8008 = {
+static const TaskStages data_ov003_020d8008 = {
     func_ov003_0209b0a0,
     func_ov003_0209b294,
     func_ov003_0209b318,

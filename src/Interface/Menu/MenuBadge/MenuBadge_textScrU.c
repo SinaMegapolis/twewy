@@ -1,5 +1,6 @@
 #include "Engine/Core/Memory.h"
 #include "Interface/Menu/MenuBadge.h"
+#include "Player/Inventory.h"
 #include "Util/SysFont.h"
 
 // JP has no Tin Pin stat readout (fonts 15-21).
@@ -18,8 +19,6 @@ typedef struct {
     /* 0x0 */ s32              dataType;
     /* 0x4 */ MenuBadgeObject* menuBadge;
 } MenuBadge_textScrU_Args;
-
-extern s32 func_02024434(s32 pinId);
 
 static s32 MenuBadge_textScrU_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 

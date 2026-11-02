@@ -2,12 +2,11 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32                          func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const u8                     data_ov003_020dc87c[4];
-extern const s32                    data_ov003_020dc880[2];
-extern const Ov003ElementBindSounds data_ov003_020dc894[2];
+static const u8                     data_ov003_020dc87c[4];
+static const s32                    data_ov003_020dc880[2];
+static const Ov003ElementBindSounds data_ov003_020dc894[2];
 
-extern const TaskHandle data_ov003_020dc888;
+static const TaskHandle data_ov003_020dc888;
 
 s32 func_ov003_020af75c(Ov003EffectState* effect, Ov003EnemyActor* unit, s32 kind, s32 attackId) {
     Ov003ElementBindArgs args;
@@ -20,7 +19,7 @@ s32 func_ov003_020af75c(Ov003EffectState* effect, Ov003EnemyActor* unit, s32 kin
 }
 
 // Nonmatching: sound descriptor words are one array instead of three cross-indexed objects.
-s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003ElementBindArgs* arg = args;
     Ov003ElementBind*     self;
     switch (stage) {
@@ -118,13 +117,13 @@ s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-const u8         data_ov003_020dc87c[4] = {21, 25, 0, 0};
-const s32        data_ov003_020dc880[2] = {0xB7, 0xBA};
-extern char      data_ov003_020e4c64[24];
-const TaskHandle data_ov003_020dc888 = {data_ov003_020e4c64, func_ov003_020af790, sizeof(Ov003ElementBind)};
+static const u8         data_ov003_020dc87c[4] = {21, 25, 0, 0};
+static const s32        data_ov003_020dc880[2] = {0xB7, 0xBA};
+static char             data_ov003_020e4c64[24];
+static const TaskHandle data_ov003_020dc888 = {data_ov003_020e4c64, func_ov003_020af790, sizeof(Ov003ElementBind)};
 // Retail's 020dc898 and 020dc89c names point inside these two sound records.
-const Ov003ElementBindSounds data_ov003_020dc894[2] = {
+static const Ov003ElementBindSounds data_ov003_020dc894[2] = {
     {0x5E, 0x5F, 0x60},
     {0x61, 0x62, 0x63}
 };
-char data_ov003_020e4c64[24] = "Tsk_BtlPsy_ElementBind";
+static char data_ov003_020e4c64[24] = "Tsk_BtlPsy_ElementBind";

@@ -1,6 +1,7 @@
 #ifndef DMA_H
 #define DMA_H
 
+#include "Field/FieldRegion.h"
 #include <nitro/types.h>
 
 typedef struct {
@@ -30,5 +31,7 @@ void DMA_Init(s32 size);
  * @brief Purge data cache, process all active DMA operations, then reset DMA state.
  */
 void DMA_Flush(void);
+
+BOOL func_02001b44(s32 idx, s32 arg1, const void* req, s32 arg3);
 
 #endif // DMA_H

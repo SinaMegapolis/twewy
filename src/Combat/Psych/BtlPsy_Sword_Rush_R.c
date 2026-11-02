@@ -1,6 +1,7 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatTouch.h"
 #include <nitro/mi/cpumem.h>
 
@@ -16,7 +17,7 @@ typedef struct BtlPsyRush {
     s16               timer;
     s32               active;
 } BtlPsyRush;
-void func_ov003_02095b1c(BtlPsyRush* self) {
+static void func_ov003_02095b1c(BtlPsyRush* self) {
     if (self->timer == 0) {
         if (self->count >= 9) {
             func_ov003_02087310();
@@ -34,7 +35,7 @@ void func_ov003_02095b1c(BtlPsyRush* self) {
         return;
     func_ov003_02087310();
 }
-s32 func_ov003_02095bb0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02095bb0(TaskPool* pool, Task* task, void* args) {
     BtlPsyRush*     self = task->data;
     BtlPsyRushArgs* arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
@@ -45,7 +46,7 @@ s32 func_ov003_02095bb0(TaskPool* pool, Task* task, void* args) {
     self->active                  = 1;
     return 1;
 }
-s32 func_ov003_02095c04(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02095c04(TaskPool* pool, Task* task, void* args) {
     BtlPsyRush* self = task->data;
     if (!data_ov003_020e71b8->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
         func_ov003_02087310();
@@ -54,20 +55,20 @@ s32 func_ov003_02095c04(TaskPool* pool, Task* task, void* args) {
     func_ov003_02095b1c(self);
     return self->active;
 }
-s32 func_ov003_02095c54(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02095c54(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
-s32 func_ov003_02095c5c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02095c5c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32              func_ov003_02095c64(TaskPool* pool, Task* task, void* args, s32 stage);
-char             data_ov003_020e3bf0[24] = "Tsk_BtlPsy_Sword_Rush_R";
-const TaskHandle data_ov003_020d7e48     = {data_ov003_020e3bf0, func_ov003_02095c64, 0x18};
-const TaskStages data_ov003_020d7e54     = {
+static s32              func_ov003_02095c64(TaskPool* pool, Task* task, void* args, s32 stage);
+static char             data_ov003_020e3bf0[24] = "Tsk_BtlPsy_Sword_Rush_R";
+static const TaskHandle data_ov003_020d7e48     = {data_ov003_020e3bf0, func_ov003_02095c64, 0x18};
+static const TaskStages data_ov003_020d7e54     = {
     {func_ov003_02095bb0, func_ov003_02095c04, func_ov003_02095c54, func_ov003_02095c5c}
 };
-s32 func_ov003_02095c64(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_02095c64(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7e54;
     return stages.iter[stage](pool, task, args);
 }

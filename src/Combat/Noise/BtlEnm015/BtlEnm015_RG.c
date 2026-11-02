@@ -4,13 +4,13 @@
 
 #include "Combat/Core/CombatApi.h"
 #include <nitro/mi/cpumem.h>
-s32  func_ov013_02126dd8(TaskPool* pool, Task* task, void* args, s32 stage);
-void func_ov013_02126b30(BtlEnm015*);
-void func_ov013_02126c64(BtlEnm015*);
+static s32  func_ov013_02126dd8(TaskPool* pool, Task* task, void* args, s32 stage);
+static void func_ov013_02126b30(BtlEnm015*);
+static void func_ov013_02126c64(BtlEnm015*);
 
 const TaskHandle Tsk_BtlEnm015_RG = {"Tsk_BtlEnm015_RG", func_ov013_02126dd8, 0x1E8};
 
-void func_ov013_02126ab0(BtlEnm015* arg0) {
+static void func_ov013_02126ab0(BtlEnm015* arg0) {
     switch (arg0->unk_1C2) {
         case 0:
             CombatSprite_SetAnimFromTable(&arg0->base.sprite, 0, 0);
@@ -25,7 +25,7 @@ void func_ov013_02126ab0(BtlEnm015* arg0) {
     }
 }
 
-void func_ov013_02126b30(BtlEnm015* arg0) {
+static void func_ov013_02126b30(BtlEnm015* arg0) {
     BtlEnm015* boss = (BtlEnm015*)data_ov003_020e71b8->unk3D89C;
 
     switch (arg0->unk_1C2) {
@@ -66,7 +66,7 @@ void func_ov013_02126b30(BtlEnm015* arg0) {
     }
 }
 
-void func_ov013_02126c64(BtlEnm015* arg0) {
+static void func_ov013_02126c64(BtlEnm015* arg0) {
     BtlEnm015* boss = (BtlEnm015*)data_ov003_020e71b8->unk3D89C;
 
     switch (arg0->unk_1C2) {
@@ -113,7 +113,7 @@ void func_ov013_02126c64(BtlEnm015* arg0) {
     }
 }
 
-s32 func_ov013_02126dd8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov013_02126dd8(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm015* data = task->data;
     s32        ret  = 1;
 

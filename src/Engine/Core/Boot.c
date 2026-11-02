@@ -5,7 +5,6 @@
 #include "Engine/Overlay/OverlayDispatcher.h"
 #include <nitro/types.h>
 
-extern void ProcessOverlay_OpenEnd(void* state);
 extern void ProcessOverlay_Launcher(void* state);
 
 // TODO: Padding suggests these structs might be slightly wrong

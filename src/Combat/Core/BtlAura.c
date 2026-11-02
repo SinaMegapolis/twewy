@@ -7,6 +7,7 @@
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 
 // The aura of the player's gauge (`Tsk_BtlAura`): while the partner sync rate is high, flames drift up out of the
 // ground below the gauge actor of one screen. The strength of the aura follows the sync rate, a badge can boost it
@@ -49,26 +50,19 @@ typedef struct BtlAura {
 
 extern const BinIdentifier data_ov003_020d7800;
 
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
-extern void func_ov003_02082a04(s32 engine, Sprite* sprite, const BinIdentifier* iden, const SpriteAnimEntry* table, u16 entry,
-                                s32 palette, s32 paletteCount);
-extern void func_ov003_02082a90(s32 engine, Sprite* sprite, const BinIdentifier* iden, u16 entry, u16 arg4, u16 arg5,
-                                s32 palette, s32 anim);
+static void func_ov003_02096afc(BtlAura* self);
+static s32  func_ov003_02096d0c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02096e0c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02096e68(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02096fac(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02096fd4(TaskPool* pool, Task* task, void* args, s32 stage);
 
-void func_ov003_02096afc(BtlAura* self);
-void func_ov003_020969a4(BtlAura* self);
-s32  func_ov003_02096d0c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02096e0c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02096e68(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02096fac(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02096fd4(TaskPool* pool, Task* task, void* args, s32 stage);
-
-char data_ov003_020e3c38[0xC] = "Tsk_BtlAura";
+static char data_ov003_020e3c38[0xC] = "Tsk_BtlAura";
 
 const TaskHandle data_ov003_020d7e9c = {data_ov003_020e3c38, func_ov003_02096fd4, sizeof(BtlAura)};
 
 /// The four stage functions of the aura.
-const TaskStages data_ov003_020d7ea8 = {
+static const TaskStages data_ov003_020d7ea8 = {
     func_ov003_02096d0c,
     func_ov003_02096e0c,
     func_ov003_02096e68,
@@ -76,7 +70,7 @@ const TaskStages data_ov003_020d7ea8 = {
 };
 
 /// The animation entries of the two burst sprites.
-const SpriteAnimEntry data_ov003_020d7eb8[2] = {
+static const SpriteAnimEntry data_ov003_020d7eb8[2] = {
     {0x10, 0x12, 0x11, 0},
     {0x10, 0x12, 0x11, 2},
 };
@@ -85,14 +79,14 @@ const SpriteAnimEntry data_ov003_020d7eb8[2] = {
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_0209609c(BtlAura* self, BtlAuraState state) {
+static void func_ov003_0209609c(BtlAura* self, BtlAuraState state) {
     self->state = state;
     self->phase = 0;
     self->timer = 0;
 }
 
 /// Moves `*value` a fraction of the way to `target`; the fraction shrinks with the frames left.
-void func_ov003_020960b4(s32* value, s32 target, u16 frames) {
+static void func_ov003_020960b4(s32* value, s32 target, u16 frames) {
     u16 count = frames * 3;
     s32 diff  = target - *value;
 
@@ -103,7 +97,7 @@ void func_ov003_020960b4(s32* value, s32 target, u16 frames) {
 }
 
 /// The sound that plays when the main screen's aura starts.
-void func_ov003_020960f0(void) {
+static void func_ov003_020960f0(void) {
     if (data_ov003_020e71b8->unk3D8EE < 500) {
         func_ov003_02087f28(0x365, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
     } else {
@@ -112,7 +106,7 @@ void func_ov003_020960f0(void) {
 }
 
 /// The sound that plays when the sub screen's aura starts, depending on the partner.
-void func_ov003_02096140(void) {
+static void func_ov003_02096140(void) {
     if (data_ov003_020e71b8->unk3D8EE < 500) {
         switch (data_ov003_020e71b8->unk3D88D) {
             case 0:
@@ -141,7 +135,7 @@ void func_ov003_02096140(void) {
 }
 
 /// Starts the aura level at the carried over value, or at 200 plus the badge's bonus.
-void func_ov003_02096230(s16* level) {
+static void func_ov003_02096230(s16* level) {
     if (data_ov003_020e71b8->unk3D8ED != 0) {
         *level = data_ov003_020e71b8->unk3D8EE;
     } else if (func_ov003_020a3330(0x39) == 0) {
@@ -153,7 +147,7 @@ void func_ov003_02096230(s16* level) {
 }
 
 /// Picks the aura level of the battle from how much of the aura is left.
-void func_ov003_0209628c(BtlAura* self) {
+static void func_ov003_0209628c(BtlAura* self) {
     s32 left = self->total - self->remaining;
 
     if (left <= self->total * 2 / 100) {
@@ -174,7 +168,7 @@ void func_ov003_0209628c(BtlAura* self) {
 }
 
 /// Starts a flame.
-void func_ov003_020963a0(BtlAura* self, s32 mode) {
+static void func_ov003_020963a0(BtlAura* self, s32 mode) {
     BtlAuraFlameSprite* flame;
     s32                 engine;
     s32                 palette;
@@ -230,7 +224,7 @@ void func_ov003_020963a0(BtlAura* self, s32 mode) {
     } else {
         sortKey = 0x80000000 - ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.y;
     }
-    func_ov003_02082a90(engine, &flame->sprite.sprite, &data_ov003_020d7800, 0x13, 0x15, 0x14, palette, (u16)anim);
+    CombatSprite_LoadDirectNoProto(engine, &flame->sprite, &data_ov003_020d7800, 0x13, 0x15, 0x14, palette, (u16)anim);
     CombatSprite_SetAnim(&flame->sprite, (u16)anim, 1);
     CombatSprite_SetPosition(&flame->sprite, (x * 0x10) >> 16, (y * 0x10) >> 16);
     func_ov003_02082730(&flame->sprite, sortKey);
@@ -239,7 +233,7 @@ void func_ov003_020963a0(BtlAura* self, s32 mode) {
 }
 
 /// Returns a finished flame to the free list.
-void func_ov003_020965dc(BtlAura* self, BtlAuraFlameSprite* flame) {
+static void func_ov003_020965dc(BtlAura* self, BtlAuraFlameSprite* flame) {
     if (flame == NULL) {
         return;
     }
@@ -249,7 +243,7 @@ void func_ov003_020965dc(BtlAura* self, BtlAuraFlameSprite* flame) {
 }
 
 /// Puts every flame on the free list.
-void func_ov003_02096614(BtlAura* self) {
+static void func_ov003_02096614(BtlAura* self) {
     BtlAuraFlameSprite* flame;
     s32                 i;
 
@@ -265,7 +259,7 @@ void func_ov003_02096614(BtlAura* self) {
 }
 
 /// Advances the live flames and retires the finished ones.
-void func_ov003_02096668(BtlAura* self) {
+static void func_ov003_02096668(BtlAura* self) {
     BtlAuraFlameSprite* flame = func_ov003_0208495c(&self->active);
     BtlAuraFlameSprite* next;
 
@@ -285,7 +279,7 @@ void func_ov003_02096668(BtlAura* self) {
 }
 
 /// Draws the live flames behind the gauge actor of their screen.
-void func_ov003_020966d0(BtlAura* self) {
+static void func_ov003_020966d0(BtlAura* self) {
     BtlAuraFlameSprite* flame = func_ov003_0208495c(&self->active);
 
     if (flame == NULL) {
@@ -303,7 +297,7 @@ void func_ov003_020966d0(BtlAura* self) {
 }
 
 /// Releases the flames that are still loaded.
-void func_ov003_02096750(BtlAura* self) {
+static void func_ov003_02096750(BtlAura* self) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
@@ -314,7 +308,7 @@ void func_ov003_02096750(BtlAura* self) {
 }
 
 /// Follows the gauge actor of `side`.
-void func_ov003_02096788(BtlAura* self, s32 side) {
+static void func_ov003_02096788(BtlAura* self, s32 side) {
     if (side == 1) {
         self->x = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->screenX << 12;
         self->y = (((CombatActor*)data_ov003_020e71b8->unk3D89C)->screenY - 0x20) << 12;
@@ -325,7 +319,7 @@ void func_ov003_02096788(BtlAura* self, s32 side) {
 }
 
 /// Works out how long the aura lasts from the sync rate, the battle index and the badges.
-void func_ov003_0209680c(BtlAura* self) {
+static void func_ov003_0209680c(BtlAura* self) {
     if (self->intensity >= 0x1000) {
         return;
     }
@@ -345,7 +339,7 @@ void func_ov003_0209680c(BtlAura* self) {
 }
 
 /// Burns the aura down.
-void func_ov003_02096914(BtlAura* self) {
+static void func_ov003_02096914(BtlAura* self) {
     if (self->remaining > 0) {
         func_ov003_020960b4(&self->intensity, 0, (u16)self->remaining);
         self->remaining--;
@@ -360,7 +354,7 @@ void func_ov003_02096914(BtlAura* self) {
 }
 
 /// The idle state: reacts to a request to start the aura on one of the screens.
-void func_ov003_020969a4(BtlAura* self) {
+static void func_ov003_020969a4(BtlAura* self) {
     switch (data_ov003_020e71b8->unk3D8EC) {
         case 1:
             data_ov003_020e71b8->unk3D8EC = 0;
@@ -405,7 +399,7 @@ void func_ov003_020969a4(BtlAura* self) {
 }
 
 /// The aura moves to the other screen and bursts there.
-void func_ov003_02096afc(BtlAura* self) {
+static void func_ov003_02096afc(BtlAura* self) {
     s32 x;
     s32 y;
 
@@ -468,7 +462,7 @@ void func_ov003_02096afc(BtlAura* self) {
     }
 }
 
-s32 func_ov003_02096d0c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02096d0c(TaskPool* pool, Task* task, void* args) {
     BtlAura* self = task->data;
 
     self->x                       = 0;
@@ -480,8 +474,8 @@ s32 func_ov003_02096d0c(TaskPool* pool, Task* task, void* args) {
     data_ov003_020e71b8->unk3D8ED = 0;
     data_ov003_020e71b8->unk3D8F0 = 0;
     data_ov003_020e71b8->unk3D8F4 = 0;
-    func_ov003_02082a04(1, &self->sprites[0].sprite, &data_ov003_020d7800, data_ov003_020d7eb8, 0, 0x40, 0x40);
-    func_ov003_02082a04(0, &self->sprites[1].sprite, &data_ov003_020d7800, data_ov003_020d7eb8, 0, 0x3E, 0x40);
+    CombatSprite_LoadFromTableNoProto(1, &self->sprites[0], &data_ov003_020d7800, data_ov003_020d7eb8, 0, 0x40, 0x40);
+    CombatSprite_LoadFromTableNoProto(0, &self->sprites[1], &data_ov003_020d7800, data_ov003_020d7eb8, 0, 0x3E, 0x40);
     CombatSprite_SetAnimFromTable(&self->sprites[0], 1, 0);
     CombatSprite_SetAnimFromTable(&self->sprites[1], 1, 0);
     func_ov003_02096614(self);
@@ -490,7 +484,7 @@ s32 func_ov003_02096d0c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02096e0c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02096e0c(TaskPool* pool, Task* task, void* args) {
     BtlAura* self = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x40) {
@@ -505,7 +499,7 @@ s32 func_ov003_02096e0c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02096e68(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02096e68(TaskPool* pool, Task* task, void* args) {
     BtlAura* self = task->data;
 
     if (self->intensity > 0x14) {
@@ -534,7 +528,7 @@ s32 func_ov003_02096e68(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02096fac(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02096fac(TaskPool* pool, Task* task, void* args) {
     BtlAura* self = task->data;
 
     CombatSprite_Release(&self->sprites[0]);
@@ -543,7 +537,7 @@ s32 func_ov003_02096fac(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02096fd4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_02096fd4(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7ea8;
 
     if (func_ov003_0208b690((u16)stage)) {

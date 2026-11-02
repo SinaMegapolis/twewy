@@ -3,7 +3,8 @@
 #include <nitro/fx.h>
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dd068;
+static const TaskHandle data_ov003_020dd068;
+static void             func_ov003_020b9a14(Ov003Psychithunder* self);
 
 s32 func_ov003_020b9838(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(2))
@@ -17,7 +18,7 @@ s32 func_ov003_020b9838(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b9898(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b9898(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychArgs*     arg = args;
     Ov003Psychithunder* self;
     switch (stage) {
@@ -71,7 +72,7 @@ s32 func_ov003_020b9898(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-void func_ov003_020b9a14(Ov003Psychithunder* self) {
+static void func_ov003_020b9a14(Ov003Psychithunder* self) {
     CombatActor*      player  = func_ov003_020a6438();
     s32               playerY = player->screenY;
     s32               x;
@@ -99,7 +100,7 @@ void func_ov003_020b9a14(Ov003Psychithunder* self) {
     self->taskIds[0] = func_ov003_020b9040(effect, 3, x, y, targetX, targetY, lifetime);
 }
 
-extern char      data_ov003_020e4fdc[28];
-char             data_ov003_020e4ff8[28] = "Task_BtlPsy_Psychithunder_T";
-const TaskHandle data_ov003_020dd05c     = {data_ov003_020e4fdc, func_ov003_020b9518, sizeof(Ov003LineThunder)};
-const TaskHandle data_ov003_020dd068     = {data_ov003_020e4ff8, func_ov003_020b9898, sizeof(Ov003Psychithunder)};
+extern char             data_ov003_020e4fdc[28];
+static char             data_ov003_020e4ff8[28] = "Task_BtlPsy_Psychithunder_T";
+const TaskHandle        data_ov003_020dd05c     = {data_ov003_020e4fdc, func_ov003_020b9518, sizeof(Ov003LineThunder)};
+static const TaskHandle data_ov003_020dd068     = {data_ov003_020e4ff8, func_ov003_020b9898, sizeof(Ov003Psychithunder)};

@@ -1,4 +1,5 @@
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatEnemyShot.h"
 #include "Display.h"
 #include "EasyFade.h"
@@ -48,15 +49,10 @@ typedef char check_ActSp_phase[(offsetof(BtlActSp, phase) == 8) ? 1 : -1];
 typedef char check_ActSp_selection[(offsetof(BtlActSp, selection) == 0xC) ? 1 : -1];
 typedef char check_ActSp_active[(offsetof(BtlActSp, active) == 0x14) ? 1 : -1];
 
-extern const TaskHandle       data_ov003_020ddaac;
-extern const BtlActSpCutins   data_ov003_020ddab8;
-extern const TaskStages       data_ov003_020ddac4;
-extern const BtlActSpFeatures data_ov003_020ddaf8;
 typedef struct BtlActSpAttackTable {
     u16 entries[3][3];
 } BtlActSpAttackTable;
-extern const BtlActSpAttackTable data_ov003_020ddad4, data_ov003_020ddae6;
-extern const TaskHandle          data_ov024_020f6b7c;
+extern const TaskHandle data_ov024_020f6b7c;
 typedef struct BtlActSpStatus {
     s8  level;
     s8  character;
@@ -66,50 +62,46 @@ typedef struct BtlActSpStatus {
 typedef char          check_ActSpStatus[(sizeof(BtlActSpStatus) == 0xC) ? 1 : -1];
 typedef char          check_ActSpStatus_released[(offsetof(BtlActSpStatus, released) == 8) ? 1 : -1];
 extern BtlActSpStatus data_ov003_020e71d8;
-extern void           func_ov003_020bd2a8(s32);
-extern s32            func_ov003_020be6d0(TaskPool* pool);
-void                  func_ov003_020c14ec(void);
-void                  func_ov003_020c17bc(void);
-void                  func_ov003_020c1848(BtlActSp*);
-void                  func_ov003_020c1918(BtlActSp*);
+static void           func_ov003_020c1918(BtlActSp*);
 
-s32 func_ov003_020c1dbc(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020c1e44(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020c1e68(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020c1e70(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020c1ed0(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020c1dbc(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020c1e44(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020c1e68(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020c1e70(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020c1ed0(TaskPool* pool, Task* task, void* args, s32 stage);
 
 extern const TaskHandle data_ov003_020dd838, data_ov003_020dd978, data_ov003_020dd984;
 extern const TaskHandle Tsk_BtlFeat00, Tsk_BtlFeat01, Tsk_BtlFeat02;
 extern const TaskHandle data_ov005_020f0570, data_ov005_020f0708, data_ov005_020f0764;
 extern const TaskHandle data_ov006_020f0ac0, data_ov006_020f0b60, data_ov006_020f0d0c;
 
-char                 data_ov003_020e53e4[16] = "Tsk_BtlActSp00";
-const TaskHandle     data_ov003_020ddaac     = {data_ov003_020e53e4, func_ov003_020c1ed0, sizeof(BtlActSp)};
-const BtlActSpCutins data_ov003_020ddab8     = {
+static char                 data_ov003_020e53e4[16] = "Tsk_BtlActSp00";
+static const TaskHandle     data_ov003_020ddaac     = {data_ov003_020e53e4, func_ov003_020c1ed0, sizeof(BtlActSp)};
+static const BtlActSpCutins data_ov003_020ddab8     = {
     {&data_ov003_020dd838, &data_ov003_020dd978, &data_ov003_020dd984}
 };
-const TaskStages data_ov003_020ddac4 = {func_ov003_020c1dbc, func_ov003_020c1e44, func_ov003_020c1e68, func_ov003_020c1e70};
-const BtlActSpAttackTable data_ov003_020ddae6 = {
+static const TaskStages          data_ov003_020ddac4 = {func_ov003_020c1dbc, func_ov003_020c1e44, func_ov003_020c1e68,
+                                                        func_ov003_020c1e70};
+static const BtlActSpAttackTable data_ov003_020ddae6 = {
     {{0x21, 0x23, 0x25}, {0x27, 0x29, 0x2B}, {0x2D, 0x2F, 0x31}}
 };
-const BtlActSpAttackTable data_ov003_020ddad4 = {
+static const BtlActSpAttackTable data_ov003_020ddad4 = {
     {{0x22, 0x24, 0x26}, {0x28, 0x2A, 0x2C}, {0x2E, 0x30, 0x32}}
 };
-const BtlActSpFeatures data_ov003_020ddaf8 = {
+static const BtlActSpFeatures data_ov003_020ddaf8 = {
     {{&Tsk_BtlFeat00, &Tsk_BtlFeat01, &Tsk_BtlFeat02},
      {&data_ov005_020f0570, &data_ov005_020f0708, &data_ov005_020f0764},
      {&data_ov006_020f0ac0, &data_ov006_020f0b60, &data_ov006_020f0d0c}}
 };
 
-void func_ov003_020c1224(BtlActSp* self, void (*update)(BtlActSp*)) {
+static void func_ov003_020c1224(BtlActSp* self, void (*update)(BtlActSp*)) {
     self->update = update;
     self->phase  = 0;
     self->timer  = 0;
 }
 
 // Nonmatching: attack-loop and signed healing arithmetic register allocation.
-void func_ov003_020c1238(u16 character, u16 level) {
+static void func_ov003_020c1238(u16 character, u16 level) {
     BtlActSpAttackTable subAttacks  = data_ov003_020ddad4;
     BtlActSpAttackTable mainAttacks = data_ov003_020ddae6;
     CombatActor*        mainActor   = data_ov003_020e71b8->unk3D898;
@@ -160,7 +152,7 @@ void func_ov003_020c1238(u16 character, u16 level) {
 }
 
 // Nonmatching: display-setting store scheduling.
-void func_ov003_020c14ec(void) {
+static void func_ov003_020c14ec(void) {
     Display_SetMainBrightness(0x10);
     Display_SetSubBrightness(0x10);
     Display_CommitSynced();
@@ -216,7 +208,7 @@ void func_ov003_020c14ec(void) {
     Display_Commit();
 }
 
-void func_ov003_020c17bc(void) {
+static void func_ov003_020c17bc(void) {
     g_DisplaySettings.engineState[0].blendMode = 1;
     Display_SetBlendLayers(0, 1, 0x3E);
     Display_SetBlendCoeffs(0, 6, 0xA);
@@ -237,7 +229,7 @@ void func_ov003_020c17bc(void) {
 }
 
 // Nonmatching: fade-stage register allocation.
-void func_ov003_020c1848(BtlActSp* self) {
+static void func_ov003_020c1848(BtlActSp* self) {
     s16 phase = self->phase;
     switch (phase) {
         case 0:
@@ -260,7 +252,7 @@ void func_ov003_020c1848(BtlActSp* self) {
     }
 }
 
-void func_ov003_020c1918(BtlActSp* self) {
+static void func_ov003_020c1918(BtlActSp* self) {
     BtlActSpCutins   cutins   = data_ov003_020ddab8;
     BtlActSpFeatures features = data_ov003_020ddaf8;
     switch (self->phase) {
@@ -352,7 +344,7 @@ void func_ov003_020c1918(BtlActSp* self) {
 }
 
 // Nonmatching: argument-load scheduling and register allocation.
-s32 func_ov003_020c1dbc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c1dbc(TaskPool* pool, Task* task, void* args) {
     BtlActSp*     self  = task->data;
     BtlActSpArgs* spawn = args;
     data_ov003_020e71b8->unk3D878 |= 2;
@@ -367,16 +359,16 @@ s32 func_ov003_020c1dbc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020c1e44(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c1e44(TaskPool* pool, Task* task, void* args) {
     BtlActSp* self = task->data;
     if (self->update)
         self->update(self);
     return self->active;
 }
-s32 func_ov003_020c1e68(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c1e68(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
-s32 func_ov003_020c1e70(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c1e70(TaskPool* pool, Task* task, void* args) {
     EasyTask_CleanupAllTasks(&data_ov003_020e71b8->unk_34230);
     func_ov003_020bd078();
     data_ov003_020e71b8->unk3D878 &= ~2;
@@ -384,7 +376,7 @@ s32 func_ov003_020c1e70(TaskPool* pool, Task* task, void* args) {
     Mem_ValidateSequences(&gMainHeap);
     return 1;
 }
-s32 func_ov003_020c1ed0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020c1ed0(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020ddac4;
     return stages.iter[stage](pool, task, args);
 }

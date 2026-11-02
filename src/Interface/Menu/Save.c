@@ -1,6 +1,7 @@
 #include "Interface/Menu/Save.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Core/DMA.h"
 #include "Engine/Core/HBlank.h"
 #include "Engine/Core/Interrupts.h"
 #include "Engine/Core/Memory.h"
@@ -47,20 +48,11 @@ typedef struct {
     /* 0x216A4 */ SaveMenuObject    save;
 } SaveMenuState; // Size: 0x21934
 
-void GX_LoadBgPltt(void* src, u32 offset, u32 size);
-void GX_LoadObjPltt(void* src, u32 offset, u32 size);
-void GXs_LoadBgPltt(void* src, u32 offset, u32 size);
-void GXs_LoadObjPltt(void* src, u32 offset, u32 size);
 void func_0202b878(void);
-BOOL func_02001b44(s32, s32, void*, s32);
-s32  Inventory_IsHelpSeen(s32);
-void Inventory_SetHelpSeen(s32);
 
 extern void ProcessOverlay_MenuTop();
 extern u32  OVERLAY_42_ID;
 
-// Where Save_Update goes for each nextProcess value. JP has no counterpart to USA's ov036, so every later
-// overlay number is one lower there, and the entry points of the other overlays moved.
 #ifdef REGION_USA
     #define SAVE_OVL_MENU    OVERLAY_43_ID
     #define SAVE_NEXT1_OVL   OVERLAY_30_ID
@@ -74,7 +66,6 @@ extern void func_ov030_020b0fe8(void* state);
 extern void func_ov030_020b16f0(void* state);
     #define SAVE_NEXT2_OVL   OVERLAY_36_ID
 #endif
-extern void ProcessOverlay_OpenEnd(void* state);
 extern void ProcessOverlay_OtosuMenu_DataLoadFailure(void* state);
 extern void ProcessOverlay_OtosuMenu_DataSaveFailure(void* state);
 extern void ProcessOverlay_OtosuMenu_DataCorrupted(void* state);
@@ -735,16 +726,7 @@ void Save_InitDisplay(void) {
     g_DisplaySettings.engineState[DISPLAY_SUB].blendCoeff0  = 6;
     g_DisplaySettings.engineState[DISPLAY_SUB].blendCoeff1  = 10;
 
-    OamMgr_InitEngine(0, DISPLAY_MAIN);
-    OamMgr_Reset(&g_OamMgr[DISPLAY_MAIN], 0, 0);
-    DC_PurgeRange(g_OamMgr[DISPLAY_MAIN].oam, 0x400);
-    GX_LoadOam(g_OamMgr[DISPLAY_MAIN].oam, 0, 0x400);
-    OamMgr_InitEngine(0, DISPLAY_SUB);
-    OamMgr_Reset(&g_OamMgr[DISPLAY_SUB], 0, 0);
-    DC_PurgeRange(g_OamMgr[DISPLAY_SUB].oam, 0x400);
-    GXs_LoadOam(g_OamMgr[DISPLAY_SUB].oam, 0, 0x400);
-    OamMgr_InitEngine(0, DISPLAY_EXTENDED);
-    OamMgr_SetAffineCount(&g_OamMgr[DISPLAY_EXTENDED], 0);
+    OamMgr_InitExtended();
 }
 
 void Save_VBlank(void) {

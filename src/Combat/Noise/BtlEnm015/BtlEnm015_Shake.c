@@ -11,11 +11,11 @@ typedef struct BtlEnm015Shake {
     /* 0x08 */ s32          unk_08;
     /* 0x0C */ u16          unk_0C;
 } BtlEnm015Shake; // Size: 0x10
-s32 func_ov013_02126ff4(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov013_02126ff4(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlEnm015_Shake = {"Tsk_BtlEnm015_Shake", func_ov013_02126ff4, 0x10};
 
-s32 func_ov013_02126ef0(BtlEnm015Shake* data) {
+static s32 func_ov013_02126ef0(BtlEnm015Shake* data) {
     data->unk_0C = (RNG_Next(3) + 1 + data->unk_0C) % 4;
 
     switch (data->unk_0C) {
@@ -40,7 +40,7 @@ s32 func_ov013_02126ef0(BtlEnm015Shake* data) {
     return data->unk_08 > 0;
 }
 
-s32 func_ov013_02126f8c(BtlEnm015Shake* data, BtlEnm015* args) {
+static s32 func_ov013_02126f8c(BtlEnm015Shake* data, BtlEnm015* args) {
     MI_CpuSet(data, 0, sizeof(BtlEnm015Shake));
     data->unk_00 = args;
 
@@ -54,7 +54,7 @@ s32 func_ov013_02126f8c(BtlEnm015Shake* data, BtlEnm015* args) {
     return 1;
 }
 
-s32 func_ov013_02126ff4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov013_02126ff4(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm015Shake* data  = task->data;
     BtlEnm015*      owner = data->unk_00;
 

@@ -35,7 +35,7 @@ typedef struct BtlInf_Star {
 // External functions
 // ---------------------------------------------------------------------------------------------
 
-extern const TaskStages    data_ov003_020d8164;
+static const TaskStages    data_ov003_020d8164;
 extern const BinIdentifier data_ov003_020d7800;
 
 // ---------------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ extern const BinIdentifier data_ov003_020d7800;
 
 /// Splits `value` (clamped to 0..99) into two decimal digits, least significant first, and
 /// returns how many digits are needed to show it.
-s32 func_ov003_0209d51c(s32* digits, s32 value) {
+static s32 func_ov003_0209d51c(s32* digits, s32 value) {
     s32 v = value;
 
     if (v < 0) {
@@ -63,7 +63,7 @@ s32 func_ov003_0209d51c(s32* digits, s32 value) {
     return 1;
 }
 
-void func_ov003_0209d570(CombatSprite* sprite, u16 anim, s32 posX, s32 posY) {
+static void func_ov003_0209d570(CombatSprite* sprite, u16 anim, s32 posX, s32 posY) {
     CombatSprite_SetAnim(sprite, anim, 0);
     CombatSprite_SetPosition(sprite, posX, posY);
     CombatSprite_Update(sprite);
@@ -71,7 +71,7 @@ void func_ov003_0209d570(CombatSprite* sprite, u16 anim, s32 posX, s32 posY) {
 }
 
 /// Writes the two animation indices for `value`'s decimal digits to `digits`.
-void func_ov003_0209d5ac(s16* digits, s32 value) {
+static void func_ov003_0209d5ac(s16* digits, s32 value) {
     s32 split[2];
 
     func_ov003_0209d51c(split, value);
@@ -81,7 +81,7 @@ void func_ov003_0209d5ac(s16* digits, s32 value) {
 
 /// Refreshes the panel from the charge-command state; each element is only reloaded when its
 /// source value changed.
-void func_ov003_0209d5e0(BtlInf_Star* data) {
+static void func_ov003_0209d5e0(BtlInf_Star* data) {
     Ov003EffectCmd* charge = data_ov003_020e71b8->effectCmd;
 
     if (data->step != charge->current) {
@@ -106,14 +106,14 @@ void func_ov003_0209d5e0(BtlInf_Star* data) {
 }
 
 /// Whether the charge-command task asked for the HUD to be hidden this frame.
-s32 func_ov003_0209d688(void) {
+static s32 func_ov003_0209d688(void) {
     if (data_ov003_020e71b8->effectCmd->flags & 1) {
         return 1;
     }
     return 0;
 }
 
-s32 func_ov003_0209d6b0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209d6b0(TaskPool* pool, Task* task, void* args) {
     BtlInf_Star* data = task->data;
 
     MI_CpuSet(data, 0, sizeof(BtlInf_Star));
@@ -132,7 +132,7 @@ s32 func_ov003_0209d6b0(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209d758(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209d758(TaskPool* pool, Task* task, void* args) {
     BtlInf_Star* data = task->data;
 
     if (func_ov003_0209d688() != 0) {
@@ -142,7 +142,7 @@ s32 func_ov003_0209d758(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209d780(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209d780(TaskPool* pool, Task* task, void* args) {
     BtlInf_Star* data = task->data;
 
     if (func_ov003_0209d688() != 0) {
@@ -159,14 +159,14 @@ s32 func_ov003_0209d780(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209d824(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209d824(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
 /// Task dispatcher: calls the stage function for `stage`, which is a no-op for a panel that
 /// finished this frame.
-s32 func_ov003_0209d838(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209d838(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8164;
 
     if (func_ov003_0208b690((u16)stage) != 0) {
@@ -179,9 +179,9 @@ s32 func_ov003_0209d838(TaskPool* pool, Task* task, void* args, s32 stage) {
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e3d0c[0x10] = "Tsk_BtlInf_Star";
+static char data_ov003_020e3d0c[0x10] = "Tsk_BtlInf_Star";
 
-const TaskStages data_ov003_020d8164 = {
+static const TaskStages data_ov003_020d8164 = {
     .initialize = func_ov003_0209d6b0,
     .update     = func_ov003_0209d758,
     .render     = func_ov003_0209d780,

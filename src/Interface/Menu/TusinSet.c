@@ -2,6 +2,7 @@
 #include "CriSndMgr.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Core/DMA.h"
 #include "Engine/Core/HBlank.h"
 #include "Engine/Core/Interrupts.h"
 #include "Engine/Core/Memory.h"
@@ -57,14 +58,7 @@ typedef struct {
     /* 0x216F0 */ TusinSetObject tusinSet;
 } TusinSetState; // Size: 0x27A14 (JP: 0x279C0)
 
-void GX_LoadBgPltt(void* src, u32 offset, u32 size);
-void GX_LoadObjPltt(void* src, u32 offset, u32 size);
-void GXs_LoadBgPltt(void* src, u32 offset, u32 size);
-void GXs_LoadObjPltt(void* src, u32 offset, u32 size);
 void func_0202b878(void);
-BOOL func_02001b44(s32, s32, void*, s32);
-s32  Inventory_IsHelpSeen(s32);
-void Inventory_SetHelpSeen(s32);
 void TusinSet_itemU_ReleaseSprite(TaskPool* pool, s32 taskId);
 void TusinSet_item_ReleaseSprite(TaskPool* pool, s32 taskId);
 

@@ -32,10 +32,8 @@ typedef struct BtlEnm004Blink {
 extern const BinIdentifier data_ov009_021232d8[]; // sprite pages of the group 4 owners
 extern const BinIdentifier data_ov018_020fec90[]; // sprite pages of the group 0x20 owners
 
-extern const TaskHandle data_ov003_020e0bf0;
-
 /// Writes `src` scaled by `scale` to `dst`.
-void func_ov003_020cac84(s32 scale, Vec* src, Vec* dst) {
+static void func_ov003_020cac84(s32 scale, Vec* src, Vec* dst) {
     Vec zero;
 
     zero.x = 0;
@@ -44,7 +42,7 @@ void func_ov003_020cac84(s32 scale, Vec* src, Vec* dst) {
     Vec_MultAdd(scale, src, &zero, dst);
 }
 
-s32 func_ov003_020cacb0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020cacb0(TaskPool* pool, Task* task, void* args) {
     BtlEnm004Blink*     self  = task->data;
     BtlEnm004BlinkArgs* spawn = args;
     Ov003CutinActor*    owner = spawn->owner;
@@ -80,7 +78,7 @@ s32 func_ov003_020cacb0(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020cae94(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020cae94(TaskPool* pool, Task* task, void* args) {
     BtlEnm004Blink* self = task->data;
     Vec             offset;
 
@@ -106,7 +104,7 @@ s32 func_ov003_020cae94(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020cafd4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020cafd4(TaskPool* pool, Task* task, void* args) {
     BtlEnm004Blink* self = task->data;
     s32             x    = func_ov003_020843b0(func_ov003_020c3908(&self->sprite), self->position.x);
     s32             y    = func_ov003_020843ec(func_ov003_020c3908(&self->sprite), self->position.y, self->position.z);
@@ -119,7 +117,7 @@ s32 func_ov003_020cafd4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020cb04c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020cb04c(TaskPool* pool, Task* task, void* args) {
     BtlEnm004Blink* self = task->data;
 
     CombatSprite_Release(&self->sprite);
@@ -127,20 +125,20 @@ s32 func_ov003_020cb04c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020cb06c(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020cb06c(TaskPool* pool, Task* task, void* args, s32 stage);
 
-char             data_ov003_020e6bd0[0x18] = "Task_BtlEnm004_Blink";
-const TaskHandle data_ov003_020e0bf0       = {data_ov003_020e6bd0, func_ov003_020cb06c, sizeof(BtlEnm004Blink)};
+static char             data_ov003_020e6bd0[0x18] = "Task_BtlEnm004_Blink";
+static const TaskHandle data_ov003_020e0bf0       = {data_ov003_020e6bd0, func_ov003_020cb06c, sizeof(BtlEnm004Blink)};
 
 /// The stage table of the streak: build, update, render, release.
-const TaskStages data_ov003_020e0bfc = {
+static const TaskStages data_ov003_020e0bfc = {
     func_ov003_020cacb0,
     func_ov003_020cae94,
     func_ov003_020cafd4,
     func_ov003_020cb04c,
 };
 
-s32 func_ov003_020cb06c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020cb06c(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020e0bfc;
 
     return stages.iter[stage](pool, task, args);

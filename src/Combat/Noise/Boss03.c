@@ -4,6 +4,7 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatSprite.h"
+#include "Combat/Noise/BtlEnm.h"
 #include "EasyFade.h"
 #include "Engine/Core/DMA.h"
 #include "Engine/Core/Interrupts.h"
@@ -12,11 +13,10 @@
 #include "Engine/IO/Input.h"
 #include "Engine/Math/Random.h"
 #include "Engine/Resources/ResourceMgr.h"
+#include "Otosu/OtosuGame.h"
 
 #include <nitro/fx.h>
 #include <nitro/mi/cpumem.h>
-
-extern s32 func_02047e84(u16);
 
 // void  func_ov003_02082730(void*, s32);                                                /* extern */
 // void  func_ov003_02084348(s32, s16*, s16*, s32, ...);                                 /* extern */
@@ -140,181 +140,127 @@ extern s32 func_02047e84(u16);
 // void  func_ov003_020c4748();                                                          /* extern */
 // void  func_ov003_020c4c5c(void*);                                                     /* extern */
 
-void* func_ov009_020f3448(s32);
-void* func_ov009_020f6f88(s32);
-
-void func_ov017_0213ee0c();
-void func_ov017_0213efa8(s32*, s32*);
-void func_ov017_02140a8c(s32, void*, s32, s32);
-void func_ov017_02140b14(u32 arg0, CombatSprite* arg1, s32 arg2, s32 arg3);
-void func_ov017_0213df24(s32 arg0);
-void func_ov017_0213e074();
-void func_ov017_0213e088(u32 arg0, s32 arg1);
-s32* func_ov017_0213e204(s32 arg0);
-void func_ov017_0213f394(void* arg0);
-void func_ov017_0213f4cc(void* arg0);
-s32  func_ov017_0213f630(s32 arg0, Ov003EnemyActor* arg1, void* arg2);
-void func_ov017_0212bf64(void* arg0);
-void func_ov017_0212c018(void* arg0);
-void func_ov017_0212c6c0(void* arg0);
-void func_ov017_0212c758(void* arg0);
-void func_ov017_0212ce90(void* arg0);
-void func_ov017_0212d310(void* arg0);
-void func_ov017_0212d730();
-void func_ov017_0212d8e0(void* arg0);
-void func_ov017_0212db48(void* arg0);
-void func_ov017_0212df1c(void* arg0);
-void func_ov017_0212e21c(void* arg0, void (*arg1)(void*));
-void func_ov017_0212e240(void* arg0);
-void func_ov017_0212e36c(void* arg0);
-void func_ov017_0212e380(void* arg0);
-void func_ov017_0212e5c4(void* arg0);
-void func_ov017_0212e5ec(void* arg0);
-void func_ov017_0212e954(void* arg0);
-void func_ov017_0212ec84(void* arg0);
-void func_ov017_0212f064(void* arg0);
-void func_ov017_0212f08c(void* arg0);
-void func_ov017_0212f3ac(void* arg0);
-void func_ov017_0212f3c8(void* arg0);
-void func_ov017_0212f674(void* arg0);
-void func_ov017_0212f784(void* arg0);
-void func_ov017_0212fd18(void* arg0);
-void func_ov017_0212c4e0(void* arg0);
-void func_ov017_0212c508(void* arg0);
-s32  func_ov017_0213731c(void*, s32);
-s32  func_ov017_021373d8(void*, s32);
-s32  func_ov017_02137494(void*, s32);
-s32  func_ov017_02137600(void*, s32);
-s16  func_ov017_02137730(void*, s32);
-void func_ov017_0213778c(void*, s32, s32, s32);
-s32  func_ov017_0213779c(void*);
-s32  func_ov017_021377d4(void*);
-void func_ov017_02137848(void*, s32);
-s32  func_ov017_0213789c(s32, s32);
-s32  func_ov017_021378e4();
-void func_ov017_0213d6b4(s32, s32);
-void func_ov017_0213e17c(u32, s32);
-void func_ov017_0213e3a4();
-void func_ov017_0213e3b8();
-s32  func_ov017_0213eeb8();
-s32  func_ov017_0213ef4c();
-void func_ov017_0213f0bc(s32);
-void func_ov017_0213f15c(s32);
-void func_ov017_0213f20c(u8);
-s32  func_ov017_0213f5fc(s32);
-void func_ov017_02140b9c(void*, s16);
-s32  func_ov017_02140c40(void*, s32, s32, s32, s16);
-void func_ov017_02130a90();
-void func_ov017_02133624(void* arg0);
-void func_ov017_02133718(void* arg0);
-void func_ov017_02133ad0(void* arg0);
-void func_ov017_02133d9c(void* arg0);
-void func_ov017_02133f74(void* arg0);
-void func_ov017_0213400c(void* arg0);
-void func_ov017_02134190(void* arg0);
-void func_ov017_02134378(void* arg0);
-void func_ov017_02134600(void* arg0);
-void func_ov017_021348c0(void* arg0);
-void func_ov017_02134d58(void* arg0);
-void func_ov017_02135124(void* arg0);
-void func_ov017_02135190(void* arg0);
-void func_ov017_021352a0(void* arg0);
-void func_ov017_021353c4(void* arg0);
-s32  func_ov017_02135438(void* arg0, s16 arg1);
-s32  func_ov017_021354e4(void* arg0, s16 arg1);
-s32  func_ov017_021355a0(void* arg0, s16* arg1, s32 arg2, s16 arg3);
-void func_ov017_02135868(void* arg0);
-void func_ov017_02135a38(void* arg0);
-void func_ov017_02135d60(void* arg0);
-s16  func_ov017_02135dac(void* arg0, s32 arg1);
-void func_ov017_02135e08(void* arg0, s32 arg1);
-void func_ov017_02135e7c(void* arg0, s32 arg1);
-s32  func_ov017_02135eb0(void* arg0, s32 arg1);
-s16  func_ov017_02135ecc(void* arg0, s32 arg1);
-void func_ov017_02135edc(void* arg0, s32 arg1, s16 arg2);
-void func_ov017_021360ac(void* arg0);
-void func_ov017_021361ac(void* arg0);
-void func_ov017_021362b0(void* arg0);
-void func_ov017_021363c4(void* arg0);
-void func_ov017_021364b8(void* arg0);
-void func_ov017_02136d90(void* arg0);
-void func_ov017_02136fa0(void* arg0);
-s32  func_ov017_02137228(void* arg0, s16 arg1);
-s32  func_ov017_0213727c(void* arg0, s32 arg1, s16 arg2);
-void func_ov017_021302f0(void*);
-void func_ov017_02135eec(void*, void (*)(void*));
-s32  func_ov017_0213cfec(void*, s32);
-s16  func_ov017_0213d13c(void*, s32);
-void func_ov017_0213d198(void*, s32, s32, s32);
-s32  func_ov017_0213d1a8(void*);
-void func_ov017_0213d1e0(void*, s32);
-s32  func_ov017_0213d27c(s32, s32);
-s32  func_ov017_0213d298(void*);
-s32  func_ov017_0213d2f4(void*);
-void func_ov017_0213e17c(u32, s32);
-void func_ov017_0213e3a4();
-void func_ov017_0213e3b8();
-s32  func_ov017_0213eeb8();
-s32  func_ov017_0213ef4c();
-void func_ov017_0213f20c(u8);
-void func_ov017_02140cbc(void*);
-void func_ov017_02137c18(void* arg0, void (*arg1)(void*));
-void func_ov017_02137cd4(void* arg0);
-void func_ov017_02137d34(void* arg0);
-void func_ov017_02137d64(void* arg0);
-void func_ov017_02137edc(void* arg0);
-void func_ov017_02137fd0(void* arg0);
-void func_ov017_02138048(void* arg0);
-void func_ov017_021380dc(void* arg0);
-void func_ov017_021389d0(void* arg0);
-void func_ov017_02138b70(void* arg0);
-void func_ov017_02138bfc(void* arg0);
-void func_ov017_02138ce0(void* arg0);
-void func_ov017_02138e44(void* arg0);
-s32  func_ov017_02138eb4(void* arg0, s32 arg1, s16 arg2);
-s32  func_ov017_02138fdc(void* arg0, s16 arg1);
-s32  func_ov017_0213903c(void* arg0, s16 arg1);
-s32  func_ov017_021390e4(void* arg0, s16 arg1);
-s32  func_ov017_02139194(void* arg0, s16 arg1);
-s32  func_ov017_021392b8(void* arg0, s32 arg1);
-s16  func_ov017_02139408(void* arg0, s32 arg1);
-void func_ov017_02139464(void* arg0, s32 arg1, s32 arg2, s32 arg3);
-s32  func_ov017_02139474(void* arg0);
-void func_ov017_021394ac(void* arg0, s32 arg1);
-s32  func_ov017_02139534(void* arg0, s32 arg1);
-s32  func_ov017_02139550(void* arg0);
-void func_ov017_02139ae0(void* arg0);
-void func_ov017_02139b40(void* arg0);
-void func_ov017_02139c54(void* arg0);
-void func_ov017_02139d14(void* arg0);
-void func_ov017_02139de0(void* arg0);
-void func_ov017_02139f1c(void* arg0);
-void func_ov017_0213a01c(void* arg0);
-void func_ov017_0213a458(void* arg0);
-void func_ov017_0213a674(void* arg0);
-void func_ov017_0213a728(void* arg0);
-s32  func_ov017_0213a7a0(void* arg0, s16 arg1);
-s32  func_ov017_0213a818(void* arg0, s16 arg1);
-s32  func_ov017_0213a8e0(void* arg0, s16 arg1);
-s32  func_ov017_0213a9cc(void* arg0, s16 arg1);
-s32  func_ov017_0213ab24(void* arg0, s32 arg1);
-s16  func_ov017_0213ac5c(void* arg0, s32 arg1);
-void func_ov017_0213acc8(void* arg0, s32 arg1);
-s32  func_ov017_0213ad4c(void* arg0, s32 arg1);
-void func_ov017_0213ad7c(void* arg0);
-s32  func_ov017_0213ada0();
-void func_ov017_0213b594(void* arg0);
-void func_ov017_0213b6d0(void* arg0);
-void func_ov017_0213b7c4(void* arg0);
-void func_ov017_0213b83c(void* arg0);
-void func_ov017_0213b8cc(void* arg0);
-void func_ov017_0213c1d4(void* arg0);
-void func_ov017_0213c60c(void* arg0);
-s32  func_ov017_0213cbcc(void* arg0, s32 arg1, s16 arg2);
-s32  func_ov017_0213cd00(void* arg0, s16 arg1);
-s32  func_ov017_0213cd60(void* arg0, s16 arg1);
-s32  func_ov017_0213ce14(void* arg0, s16 arg1);
-s32  func_ov017_0213ced0(void* arg0, s16 arg1);
+static void func_ov017_0213ee0c();
+static void func_ov017_0213efa8(s32*, s32*);
+static void func_ov017_02140a8c(s32, void*, s32, s32);
+static void func_ov017_02140b14(u32 arg0, CombatSprite* arg1, s32 arg2, s32 arg3);
+static void func_ov017_0213df24(s32 arg0);
+static void func_ov017_0213e074();
+static void func_ov017_0213e088(u32 arg0, s32 arg1);
+static s32* func_ov017_0213e204(s32 arg0);
+static void func_ov017_0213f394(void* arg0);
+static void func_ov017_0213f4cc(void* arg0);
+static s32  func_ov017_0213f630(s32 arg0, Ov003EnemyActor* arg1, void* arg2);
+static s32  func_ov017_0213731c(void*, s32);
+static s32  func_ov017_021373d8(void*, s32);
+static s32  func_ov017_02137494(void*, s32);
+static s32  func_ov017_02137600(void*, s32);
+static s16  func_ov017_02137730(void*, s32);
+static void func_ov017_0213778c(void*, s32, s32, s32);
+static s32  func_ov017_0213779c(void*);
+static s32  func_ov017_021377d4(void*);
+static void func_ov017_02137848(void*, s32);
+static s32  func_ov017_0213789c(s32, s32);
+static s32  func_ov017_021378e4();
+static void func_ov017_0213d6b4(s32, s32);
+static void func_ov017_0213e17c(u32, s32);
+static void func_ov017_0213e3a4();
+static void func_ov017_0213e3b8();
+static s32  func_ov017_0213eeb8();
+static s32  func_ov017_0213ef4c();
+static void func_ov017_0213f0bc(s32);
+static void func_ov017_0213f15c(s32);
+static void func_ov017_0213f20c(u8);
+static s32  func_ov017_0213f5fc(s32);
+static void func_ov017_02140b9c(void*, s16);
+static s32  func_ov017_02140c40(void*, s32, s32, s32, s16);
+static void func_ov017_02133718(void* arg0);
+static void func_ov017_02133ad0(void* arg0);
+static void func_ov017_02133d9c(void* arg0);
+static void func_ov017_0213400c(void* arg0);
+static void func_ov017_02134190(void* arg0);
+static void func_ov017_02134378(void* arg0);
+static void func_ov017_02134600(void* arg0);
+static void func_ov017_021348c0(void* arg0);
+static void func_ov017_02134d58(void* arg0);
+static void func_ov017_02135124(void* arg0);
+static s32  func_ov017_02135438(void* arg0, s16 arg1);
+static s32  func_ov017_021354e4(void* arg0, s16 arg1);
+static s32  func_ov017_021355a0(void* arg0, s16* arg1, s32 arg2, s16 arg3);
+static void func_ov017_02135868(void* arg0);
+static void func_ov017_02135a38(void* arg0);
+static void func_ov017_02135d60(void* arg0);
+static s16  func_ov017_02135dac(void* arg0, s32 arg1);
+static void func_ov017_02135e08(void* arg0, s32 arg1);
+static void func_ov017_02135e7c(void* arg0, s32 arg1);
+static s32  func_ov017_02135eb0(void* arg0, s32 arg1);
+static s16  func_ov017_02135ecc(void* arg0, s32 arg1);
+static void func_ov017_02135edc(void* arg0, s32 arg1, s16 arg2);
+static void func_ov017_021360ac(void* arg0);
+static void func_ov017_021361ac(void* arg0);
+static void func_ov017_021362b0(void* arg0);
+static void func_ov017_021363c4(void* arg0);
+static void func_ov017_021364b8(void* arg0);
+static void func_ov017_02136d90(void* arg0);
+static void func_ov017_02136fa0(void* arg0);
+static s32  func_ov017_02137228(void* arg0, s16 arg1);
+static s32  func_ov017_0213727c(void* arg0, s32 arg1, s16 arg2);
+static s32  func_ov017_0213cfec(void*, s32);
+static s16  func_ov017_0213d13c(void*, s32);
+static void func_ov017_0213d198(void*, s32, s32, s32);
+static s32  func_ov017_0213d1a8(void*);
+static void func_ov017_0213d1e0(void*, s32);
+static s32  func_ov017_0213d27c(s32, s32);
+static s32  func_ov017_0213d298(void*);
+static s32  func_ov017_0213d2f4(void*);
+static void func_ov017_02140cbc(void*);
+static void func_ov017_02137d64(void* arg0);
+static void func_ov017_02137edc(void* arg0);
+static void func_ov017_02137fd0(void* arg0);
+static void func_ov017_02138048(void* arg0);
+static void func_ov017_021380dc(void* arg0);
+static void func_ov017_021389d0(void* arg0);
+static void func_ov017_02138b70(void* arg0);
+static s32  func_ov017_02138eb4(void* arg0, s32 arg1, s16 arg2);
+static s32  func_ov017_02138fdc(void* arg0, s16 arg1);
+static s32  func_ov017_0213903c(void* arg0, s16 arg1);
+static s32  func_ov017_021390e4(void* arg0, s16 arg1);
+static s32  func_ov017_02139194(void* arg0, s16 arg1);
+static s32  func_ov017_021392b8(void* arg0, s32 arg1);
+static s16  func_ov017_02139408(void* arg0, s32 arg1);
+static void func_ov017_02139464(void* arg0, s32 arg1, s32 arg2, s32 arg3);
+static s32  func_ov017_02139474(void* arg0);
+static void func_ov017_021394ac(void* arg0, s32 arg1);
+static s32  func_ov017_02139534(void* arg0, s32 arg1);
+static s32  func_ov017_02139550(void* arg0);
+static void func_ov017_02139b40(void* arg0);
+static void func_ov017_02139c54(void* arg0);
+static void func_ov017_02139d14(void* arg0);
+static void func_ov017_02139de0(void* arg0);
+static void func_ov017_02139f1c(void* arg0);
+static void func_ov017_0213a01c(void* arg0);
+static void func_ov017_0213a458(void* arg0);
+static s32  func_ov017_0213a7a0(void* arg0, s16 arg1);
+static s32  func_ov017_0213a818(void* arg0, s16 arg1);
+static s32  func_ov017_0213a8e0(void* arg0, s16 arg1);
+static s32  func_ov017_0213a9cc(void* arg0, s16 arg1);
+static s32  func_ov017_0213ab24(void* arg0, s32 arg1);
+static s16  func_ov017_0213ac5c(void* arg0, s32 arg1);
+static void func_ov017_0213acc8(void* arg0, s32 arg1);
+static s32  func_ov017_0213ad4c(void* arg0, s32 arg1);
+static s32  func_ov017_0213ada0();
+static void func_ov017_0213b594(void* arg0);
+static void func_ov017_0213b6d0(void* arg0);
+static void func_ov017_0213b7c4(void* arg0);
+static void func_ov017_0213b83c(void* arg0);
+static void func_ov017_0213b8cc(void* arg0);
+static void func_ov017_0213c1d4(void* arg0);
+static void func_ov017_0213c60c(void* arg0);
+static s32  func_ov017_0213cbcc(void* arg0, s32 arg1, s16 arg2);
+static s32  func_ov017_0213cd00(void* arg0, s16 arg1);
+static s32  func_ov017_0213cd60(void* arg0, s16 arg1);
+static s32  func_ov017_0213ce14(void* arg0, s16 arg1);
+static s32  func_ov017_0213ced0(void* arg0, s16 arg1);
 
 extern SubroutineArgs data_ov017_021427b8;
 extern s32            data_ov017_021435bc;
@@ -329,10 +275,6 @@ extern s32            data_ov017_02143a48;
 extern s32            data_ov017_02143a50;
 extern s32            data_ov017_02143a58;
 extern s32            data_ov017_02143a60;
-void                  func_ov017_0213b534(void* arg0);
-void                  func_ov017_0213c7c0(void* arg0);
-void                  func_ov017_0213c930(void* arg0);
-void                  func_ov017_0213ca84(void* arg0);
 extern s32            data_ov009_02123944;
 extern s32            data_ov009_02124174;
 extern s32            data_ov009_02124620;
@@ -394,12 +336,12 @@ static void* data_ov017_02143918[0xE] = {
     &data_ov017_0214298c, &data_ov017_02142ac4, &data_ov017_02142994, &data_ov017_02142a84, &data_ov017_02142c34,
     &data_ov017_02142984, &data_ov017_021429fc, &data_ov017_02142b04, &data_ov017_02142b34,
 };
-const BinIdentifier   data_ov017_02142058      = {3, "Apl_Suy/Grp_Boss14.bin"};
-const SpriteAnimEntry data_ov017_02142970      = {13, 15, 14, 3};
-static u16            data_ov017_02142a14[0xE] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};                /* const */
-static u16            data_ov017_02142a30[0xE] = {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0};                /* const */
-static u16            data_ov017_02142a4c[0xE] = {0x14, 0x40, 0x11, 0xA0, 0xC0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; /* const */
-static u16            data_ov017_02142a68[0xE] = {
+static const BinIdentifier   data_ov017_02142058      = {3, "Apl_Suy/Grp_Boss14.bin"};
+static const SpriteAnimEntry data_ov017_02142970      = {13, 15, 14, 3};
+static u16                   data_ov017_02142a14[0xE] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};                /* const */
+static u16                   data_ov017_02142a30[0xE] = {4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0};                /* const */
+static u16                   data_ov017_02142a4c[0xE] = {0x14, 0x40, 0x11, 0xA0, 0xC0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; /* const */
+static u16                   data_ov017_02142a68[0xE] = {
     0x24, 0x4C, 0x2A, 0x28, 0x40, 0x29, 0x29, 0xA4, 0xC0, 0xE8, 0xC0, 0xE0, 0x138, 0x170,
 }; /* const */
 extern const s32 data_ov017_02142cc8; /* unable to generate initializer: unknown type; const */
@@ -415,10 +357,6 @@ extern SubroutineArgs   data_ov017_02142780;
 extern SubroutineArgs   data_ov017_0214279c;
 extern s32              data_ov017_0214357c;
 extern s32              data_ov017_0214357e;
-void                    func_ov017_02136024(void* arg0);
-void                    func_ov017_02136084(void* arg0);
-void                    func_ov017_02137020(void* arg0);
-void                    func_ov017_02137110(void* arg0);
 extern Boss03DataStruct data_ov017_02142040;
 extern s32              data_ov017_021425b8;
 extern s32              data_ov017_021425c8;
@@ -434,22 +372,22 @@ extern s32            data_ov017_021426e0;
 extern s32            data_ov017_021426e2;
 
 /////////////////////// KEEP FORWARD DECLARED ///////////////////////
-static s32 func_ov017_0213064c(s32 arg0, Ov003EnemyActor* arg1, void* arg2);
-static s32 func_ov017_0213066c(s32 arg0, Ov003EnemyActor* arg1, void* arg2);
-void       func_ov017_0213ed98(s32, void*);
-void       func_ov017_021337e4(void* arg0);
+static s32  func_ov017_0213064c(s32 arg0, Ov003EnemyActor* arg1, void* arg2);
+static s32  func_ov017_0213066c(s32 arg0, Ov003EnemyActor* arg1, void* arg2);
+static void func_ov017_0213ed98(s32, void*);
+static void func_ov017_021337e4(void* arg0);
 
-void BtlBoss03_NoisAttk_CreateTask(s32* arg0);
-void BtlBoss03_FailPly_CreateTask(s32, s32);
-void BtlBoss03_SeqEntry_CreateTask(void*);
-void BtlBoss03_ShotEff_CreateTask(s32);
-void BtlBoss03_NoisAppr_CreateTask(u16 arg0, s32 arg1, s32 arg2, void* arg3, void* arg4);
-void BtlBoss03_KindanMgr_CreateTask();
-s32  BtlBoss03_AppearBlackBall_CreateTask(s32, s32, s32, s32, s32, s32, s32);
-s32  BtlBoss03_EffRush_CreateTask(void*);
-s32  BtlBoss03_EffSign_CreateTask(void*);
-void BtlBoss03_EffPosture_CreateTask(void*);
-void BtlBoss03_EffCatch_CreateTask(void*);
+static void BtlBoss03_NoisAttk_CreateTask(s32* arg0);
+static void BtlBoss03_FailPly_CreateTask(s32, s32);
+static void BtlBoss03_SeqEntry_CreateTask(void*);
+static void BtlBoss03_ShotEff_CreateTask(s32);
+static void BtlBoss03_NoisAppr_CreateTask(u16 arg0, s32 arg1, s32 arg2, void* arg3, void* arg4);
+static void BtlBoss03_KindanMgr_CreateTask();
+static s32  BtlBoss03_AppearBlackBall_CreateTask(s32, s32, s32, s32, s32, s32, s32);
+static s32  BtlBoss03_EffRush_CreateTask(void*);
+static s32  BtlBoss03_EffSign_CreateTask(void*);
+static void BtlBoss03_EffPosture_CreateTask(void*);
+static void BtlBoss03_EffCatch_CreateTask(void*);
 /////////////////////// KEEP FORWARD DECLARED ///////////////////////
 
 static s32 Boss03_BeginFadeOut(s32 unused) {
@@ -626,23 +564,23 @@ typedef struct BtlBoss03_00_RG {
     /* 0x1CC */ s32 unk_1CC;
 } BtlBoss03_00_RG; // Size: 0x1D4
 
-void func_ov017_02130714(BtlBoss03_00_RG* rg);
-void func_ov017_021307c4(BtlBoss03_00_RG* rg);
-void func_ov017_0213082c(BtlBoss03_00_RG* rg);
-s32  func_ov017_021309d8(BtlBoss03_00_RG* rg, s16 arg1);
+static void func_ov017_02130714(BtlBoss03_00_RG* rg);
+static void func_ov017_021307c4(BtlBoss03_00_RG* rg);
+static void func_ov017_0213082c(BtlBoss03_00_RG* rg);
+static s32  func_ov017_021309d8(BtlBoss03_00_RG* rg, s16 arg1);
 
-s32 BtlBoss03_00_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_00_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlBoss03_00_RG = {"Tsk_BtlBoss03_00_RG", BtlBoss03_00_RG_RunTask, 0x1D4};
 
-void func_ov017_02130698(BtlBoss03_00_RG* rg, void (*arg1)(BtlBoss03_00_RG*)) {
+static void func_ov017_02130698(BtlBoss03_00_RG* rg, void (*arg1)(BtlBoss03_00_RG*)) {
     func_ov003_020c427c(&rg->base);
     rg->unk_1C8      = arg1;
     rg->base.partner = 0;
     rg->base.unk_188 = 0;
 }
 
-void func_ov017_021306c0(BtlBoss03_00_RG* rg) {
+static void func_ov017_021306c0(BtlBoss03_00_RG* rg) {
     if (rg->unk_1C0 == 0) {
         data_ov003_020e71b8->unk3D875 = 2;
     }
@@ -652,7 +590,7 @@ void func_ov017_021306c0(BtlBoss03_00_RG* rg) {
     }
 }
 
-void func_ov017_02130714(BtlBoss03_00_RG* rg) {
+static void func_ov017_02130714(BtlBoss03_00_RG* rg) {
     void* temp_r4 = rg->base.unk_188;
 
     if (rg->unk_1C0 == 0) {
@@ -671,7 +609,7 @@ void func_ov017_02130714(BtlBoss03_00_RG* rg) {
     }
 }
 
-void func_ov017_021307c4(BtlBoss03_00_RG* rg) {
+static void func_ov017_021307c4(BtlBoss03_00_RG* rg) {
     if (rg->unk_1C0 == 0) {
         func_ov003_02087f00(SEIDX_MINAMI_BTL_FB04, func_ov003_020843b0(1, rg->base.actor.position.x));
     }
@@ -684,7 +622,7 @@ void func_ov017_021307c4(BtlBoss03_00_RG* rg) {
     }
 }
 
-void func_ov017_0213082c(BtlBoss03_00_RG* rg) {
+static void func_ov017_0213082c(BtlBoss03_00_RG* rg) {
     void* temp_r4 = rg->base.unk_188;
 
     switch (rg->unk_1C4) {
@@ -726,7 +664,7 @@ void func_ov017_0213082c(BtlBoss03_00_RG* rg) {
     }
 }
 
-void func_ov017_02130990(BtlBoss03_00_RG* rg) {
+static void func_ov017_02130990(BtlBoss03_00_RG* rg) {
     if (rg->unk_1C0 == 0) {
         rg->unk_1C0++;
     }
@@ -735,7 +673,7 @@ void func_ov017_02130990(BtlBoss03_00_RG* rg) {
     }
 }
 
-s32 func_ov017_021309d8(BtlBoss03_00_RG* rg, s16 arg1) {
+static s32 func_ov017_021309d8(BtlBoss03_00_RG* rg, s16 arg1) {
     if (arg1 == 0) {
         CombatSprite_Release(&rg->base.sprite);
         func_ov017_02140a8c(1, &rg->base.sprite, 3, 0);
@@ -754,11 +692,11 @@ s32 func_ov017_021309d8(BtlBoss03_00_RG* rg, s16 arg1) {
     return SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) == 0;
 }
 
-void func_ov017_02130a90(void) {
+static void func_ov017_02130a90(void) {
     return;
 }
 
-s32 BtlBoss03_00_RG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_00_RG_Init(TaskPool* pool, Task* task, void* args) {
     BtlBoss03_00_RG* rg = task->data;
 
     MI_CpuSet(rg, 0, 0x1D4);
@@ -777,7 +715,7 @@ s32 BtlBoss03_00_RG_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_00_RG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_00_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlBoss03_00_RG* rg = task->data;
 
     rg->base.unk_188 = rg->base.partner->unk_188;
@@ -802,21 +740,21 @@ s32 BtlBoss03_00_RG_Update(TaskPool* pool, Task* task, void* args) {
     return rg->unk_1CC;
 }
 
-s32 BtlBoss03_00_RG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_00_RG_Render(TaskPool* pool, Task* task, void* args) {
     BtlBoss03_00_RG* rg = task->data;
 
     func_ov003_020c4878(rg);
     return 1;
 }
 
-s32 BtlBoss03_00_RG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_00_RG_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlBoss03_00_RG* rg = task->data;
 
     func_ov003_020c48fc(rg);
     return 1;
 }
 
-s32 BtlBoss03_00_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_00_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov017_02142624 = {
         .initialize = BtlBoss03_00_RG_Init,
         .update     = BtlBoss03_00_RG_Update,
@@ -838,11 +776,11 @@ typedef struct BtlBoss03_00_UG {
     /* 0x1E0 */ s32             unk_1E0;
 } BtlBoss03_00_UG; // Size: 0x1E4
 
-s32 BtlBoss03_00_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_00_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlBoss03_00_UG = {"Tsk_BtlBoss03_00_UG", BtlBoss03_00_UG_RunTask, 0x1E4};
 
-s32 BtlBoss03_00_UG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_00_UG_Init(TaskPool* pool, Task* task, void* args) {
     BtlBoss03_00_UG* ug = task->data;
 
     MI_CpuSet(ug, 0, 0x1E4);
@@ -863,7 +801,7 @@ s32 BtlBoss03_00_UG_Init(TaskPool* pool, Task* task, void* args) {
     ug->unk_1CC = 1;
 }
 
-s32 BtlBoss03_00_UG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_00_UG_Update(TaskPool* pool, Task* task, void* args) {
     BtlBoss03_00_UG* ug = task->data;
 
     void (*temp_r1_2)(void*);
@@ -902,14 +840,14 @@ s32 BtlBoss03_00_UG_Update(TaskPool* pool, Task* task, void* args) {
     return ((Boss03*)temp_r4)->unk1CC;
 }
 
-s32 BtlBoss03_00_UG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_00_UG_Render(TaskPool* pool, Task* task, void* args) {
     BtlBoss03_00_UG* ug = task->data;
 
     func_ov003_020c48b0(&ug->base);
     return 1;
 }
 
-s32 BtlBoss03_00_UG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_00_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlBoss03_00_UG* ug = task->data;
 
     func_ov003_020c492c(&ug->base);
@@ -919,7 +857,7 @@ s32 BtlBoss03_00_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_00_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_00_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov017_02142640 = {
         .initialize = BtlBoss03_00_UG_Init,
         .update     = BtlBoss03_00_UG_Update,
@@ -970,14 +908,14 @@ typedef struct {
     s32 unk_4;
 } UnkRGTuple;
 
-const UnkRGTuple data_ov017_0214267c[4] = {
+static const UnkRGTuple data_ov017_0214267c[4] = {
     {0x1000, -0x3000},
     {0x1800, -0x3800},
     {0x2000, -0x4000},
     {0x2800, -0x3CCD},
 };
 
-const UnkRGTuple data_ov017_0214269c[5] = {
+static const UnkRGTuple data_ov017_0214269c[5] = {
     {-0x1666, -0x3333},
     {-0x1E66, -0x399A},
     {-0x299A, -0x2CCD},
@@ -985,7 +923,7 @@ const UnkRGTuple data_ov017_0214269c[5] = {
     {-0x4000, -0x2E66},
 };
 
-const struct {
+static const struct {
     /* 0x0 */ s16 unk_0;
     /* 0x2 */ s16 unk_2;
 } data_ov017_0214265c[2][4] = {
@@ -993,34 +931,34 @@ const struct {
     { {600, 300},    {0, 0}, {300, 0}, {300, 0}},
 };
 
-void func_ov017_02133074(BtlBoss03_01_RG* rg);
-void func_ov017_021331fc(BtlBoss03_01_RG* rg);
-void func_ov017_021315d4(BtlBoss03_01_RG* rg);
-void func_ov017_021318a8(BtlBoss03_01_RG* rg);
-void func_ov017_02131cd0(BtlBoss03_01_RG* rg);
-void func_ov017_0213104c(BtlBoss03_01_RG* rg);
-void func_ov017_02132378(BtlBoss03_01_RG* rg);
-void func_ov017_021312fc(BtlBoss03_01_RG* rg);
-void func_ov017_021316f0(BtlBoss03_01_RG* rg);
-void func_ov017_02131fcc(BtlBoss03_01_RG* rg);
-void func_ov017_02131458(BtlBoss03_01_RG* rg);
-s32  func_ov017_02132d4c(BtlBoss03_01_RG* rg, s32 arg1, s16 arg2);
-s32  func_ov017_02132dc8(BtlBoss03_01_RG* rg, s16* arg1, s32 arg2, s16 arg3);
+static void func_ov017_02133074(BtlBoss03_01_RG* rg);
+static void func_ov017_021331fc(BtlBoss03_01_RG* rg);
+static void func_ov017_021315d4(BtlBoss03_01_RG* rg);
+static void func_ov017_021318a8(BtlBoss03_01_RG* rg);
+static void func_ov017_02131cd0(BtlBoss03_01_RG* rg);
+static void func_ov017_0213104c(BtlBoss03_01_RG* rg);
+static void func_ov017_02132378(BtlBoss03_01_RG* rg);
+static void func_ov017_021312fc(BtlBoss03_01_RG* rg);
+static void func_ov017_021316f0(BtlBoss03_01_RG* rg);
+static void func_ov017_02131fcc(BtlBoss03_01_RG* rg);
+static void func_ov017_02131458(BtlBoss03_01_RG* rg);
+static s32  func_ov017_02132d4c(BtlBoss03_01_RG* rg, s32 arg1, s16 arg2);
+static s32  func_ov017_02132dc8(BtlBoss03_01_RG* rg, s16* arg1, s32 arg2, s16 arg3);
 
-s32 BtlBoss03_01_RG_WarpDisappear(BtlBoss03_01_RG* rg, s16 arg1);
-s32 BtlBoss03_01_RG_WarpAppear(BtlBoss03_01_RG* rg, s16 arg1);
+static s32 BtlBoss03_01_RG_WarpDisappear(BtlBoss03_01_RG* rg, s16 arg1);
+static s32 BtlBoss03_01_RG_WarpAppear(BtlBoss03_01_RG* rg, s16 arg1);
 
-void BtlBoss03_01_RG_ResetCooldownRandom(BtlBoss03_01_RG* rg, s32 cdSlot);
-void BtlBoss03_01_RG_TickCooldown(BtlBoss03_01_RG* rg, s32 cdSlot);
-BOOL BtlBoss03_01_RG_IsCooldownReady(BtlBoss03_01_RG* rg, s32 cdSlot);
-s16  BtlBoss03_01_RG_GetCooldown(BtlBoss03_01_RG* rg, s32 cdSlot);
-void BtlBoss03_01_RG_SetCooldown(BtlBoss03_01_RG* rg, s32 cdSlot, s16 cooldown);
+static void BtlBoss03_01_RG_ResetCooldownRandom(BtlBoss03_01_RG* rg, s32 cdSlot);
+static void BtlBoss03_01_RG_TickCooldown(BtlBoss03_01_RG* rg, s32 cdSlot);
+static BOOL BtlBoss03_01_RG_IsCooldownReady(BtlBoss03_01_RG* rg, s32 cdSlot);
+static s16  BtlBoss03_01_RG_GetCooldown(BtlBoss03_01_RG* rg, s32 cdSlot);
+static void BtlBoss03_01_RG_SetCooldown(BtlBoss03_01_RG* rg, s32 cdSlot, s16 cooldown);
 
-s32 BtlBoss03_01_RG_Init(BtlBoss03_01_RG* rg, void* arg1);
-s32 BtlBoss03_01_RG_Update(BtlBoss03_01_RG* rg);
-s32 BtlBoss03_01_RG_Render(BtlBoss03_01_RG* rg);
-s32 BtlBoss03_01_RG_Destroy(BtlBoss03_01_RG* rg);
-s32 BtlBoss03_01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_01_RG_Init(BtlBoss03_01_RG* rg, void* arg1);
+static s32 BtlBoss03_01_RG_Update(BtlBoss03_01_RG* rg);
+static s32 BtlBoss03_01_RG_Render(BtlBoss03_01_RG* rg);
+static s32 BtlBoss03_01_RG_Destroy(BtlBoss03_01_RG* rg);
+static s32 BtlBoss03_01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static inline void BtlBoss03_01_RG_PlaySE_BtlFb(BtlBoss03_01_RG* rg, s32 arg1) {
     if ((SndMgr_IsSEPlaying(SEIDX_MINAMI_BTL_FB06) == FALSE) || (SndMgr_IsSEPlaying(SEIDX_MINAMI_BTL_FB01) == FALSE)) {
@@ -1036,14 +974,14 @@ static inline void BtlBoss03_01_RG_PlaySE_BtlAtc(BtlBoss03_01_RG* rg, s32 arg1) 
 
 const TaskHandle Tsk_BtlBoss03_01_RG = {"Tsk_BtlBoss03_01_RG", BtlBoss03_01_RG_RunTask, sizeof(BtlBoss03_01_RG)};
 
-void BtlBoss03_01_RG_SetState(BtlBoss03_01_RG* rg, void (*callback)(BtlBoss03_01_RG*)) {
+static void BtlBoss03_01_RG_SetState(BtlBoss03_01_RG* rg, void (*callback)(BtlBoss03_01_RG*)) {
     func_ov003_020c427c(&rg->base);
     rg->unk_1C8 = callback;
     rg->unk_1C4 = 0;
     rg->unk_1C0 = 0;
 }
 
-void func_ov017_02130e7c(BtlBoss03_01_RG* rg) {
+static void func_ov017_02130e7c(BtlBoss03_01_RG* rg) {
     BtlBoss03_01_RG_SetState(rg, func_ov017_021315d4);
     rg->unk_1E4++;
     if (rg->unk_1E4 >= 3) {
@@ -1052,7 +990,7 @@ void func_ov017_02130e7c(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02130ec4(BtlBoss03_01_RG* rg) {
+static void func_ov017_02130ec4(BtlBoss03_01_RG* rg) {
     if ((s32)RNG_Next(100) < 60) {
         BtlBoss03_01_RG_SetState(rg, func_ov017_021318a8);
     } else {
@@ -1061,7 +999,7 @@ void func_ov017_02130ec4(BtlBoss03_01_RG* rg) {
     rg->unk_1E4 = 0;
 }
 
-void func_ov017_02130f10(BtlBoss03_01_RG* rg) {
+static void func_ov017_02130f10(BtlBoss03_01_RG* rg) {
     if (rg->unk_1C0 == 0) {
         rg->unk_1C0++;
         if (rg->base.spriteIndex == 0) {
@@ -1073,7 +1011,7 @@ void func_ov017_02130f10(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02130f78(BtlBoss03_01_RG* rg) {
+static void func_ov017_02130f78(BtlBoss03_01_RG* rg) {
     RGBlob* temp = rg->base.unk_188;
 
     if (rg->unk_1C0 == 0) {
@@ -1096,7 +1034,7 @@ void func_ov017_02130f78(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_0213104c(BtlBoss03_01_RG* rg) {
+static void func_ov017_0213104c(BtlBoss03_01_RG* rg) {
     RGBlob* temp = rg->base.unk_188;
 
     if (rg->unk_1C0 == 0) {
@@ -1175,7 +1113,7 @@ void func_ov017_0213104c(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_021312fc(BtlBoss03_01_RG* rg) {
+static void func_ov017_021312fc(BtlBoss03_01_RG* rg) {
     if (rg->unk_1C0 == 0) {
         func_ov017_021302f0(rg);
         BtlBoss03_01_RG_PlaySE_BtlFb(rg, 1);
@@ -1189,7 +1127,7 @@ void func_ov017_021312fc(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_021313c8(BtlBoss03_01_RG* rg) {
+static void func_ov017_021313c8(BtlBoss03_01_RG* rg) {
     RGBlob* temp = rg->base.unk_188;
 
     if (rg->unk_1C0 == 0) {
@@ -1206,7 +1144,7 @@ void func_ov017_021313c8(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02131458(BtlBoss03_01_RG* rg) {
+static void func_ov017_02131458(BtlBoss03_01_RG* rg) {
     switch (rg->unk_1C4) {
         case 0: {
             if (rg->unk_1C0 == 0) {
@@ -1242,7 +1180,7 @@ void func_ov017_02131458(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_021315d4(BtlBoss03_01_RG* rg) {
+static void func_ov017_021315d4(BtlBoss03_01_RG* rg) {
     switch (rg->unk_1C4) {
         case 0: {
             if (rg->unk_1C0 == 0) {
@@ -1270,7 +1208,7 @@ void func_ov017_021315d4(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_021316f0(BtlBoss03_01_RG* rg) {
+static void func_ov017_021316f0(BtlBoss03_01_RG* rg) {
     switch (rg->unk_1C4) {
         case 0: {
             if (rg->unk_1C0 == 0) {
@@ -1315,7 +1253,7 @@ void func_ov017_021316f0(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
+static void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
     u16   sp92;
     s16   sp8E;
     s32   sp88;
@@ -1377,7 +1315,7 @@ void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
                     var_r5 = 0;
                 }
                 if (temp_r1_3 == 0) {
-                    func_ov003_020cc834(&sp74, rg, var_r6, 0, 0);
+                    ((s32(*)())func_ov003_020cc834)(&sp74, rg, var_r6, 0, 0);
                     sp80 += var_r4_2;
                     sp88 -= 0x28000;
                     sp8E = 0x20;
@@ -1385,8 +1323,8 @@ void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
                     func_ov003_020d1dc0((Ov003EnemyShotSource*)&sp74, 0x4000, var_r5, 0x1000, 5);
                     func_ov003_02087f00(SEIDX_SE_B005_FIRING_SHOT, func_ov003_020843b0(1, rg->base.actor.position.x));
                 } else {
-                    func_ov003_020cc834(&sp48, rg, var_r6, 0, 0);
-                    func_ov003_020cc834(&sp1C, rg, var_r6, 0xF8, 0);
+                    ((s32(*)())func_ov003_020cc834)(&sp48, rg, var_r6, 0, 0);
+                    ((s32(*)())func_ov003_020cc834)(&sp1C, rg, var_r6, 0xF8, 0);
                     sp54 += var_r4_2;
                     sp62 = 0x20;
                     sp36 = 0x20;
@@ -1450,7 +1388,7 @@ void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02131cd0(BtlBoss03_01_RG* rg) {
+static void func_ov017_02131cd0(BtlBoss03_01_RG* rg) {
     u16   sp26;
     s16   sp22;
     s32   sp1C;
@@ -1495,7 +1433,7 @@ void func_ov017_02131cd0(BtlBoss03_01_RG* rg) {
                 if (rg->base.actor.isFlipped == FALSE) {
                     var_r6 = -0x30000;
                 }
-                func_ov003_020cc834(&sp8, rg, var_r5_2, 0xF8, 0);
+                ((s32(*)())func_ov003_020cc834)(&sp8, rg, var_r5_2, 0xF8, 0);
                 var_r9 = 0;
                 sp22   = 0x20;
                 sp14 += var_r6;
@@ -1553,7 +1491,7 @@ void func_ov017_02131cd0(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02131fcc(BtlBoss03_01_RG* rg) {
+static void func_ov017_02131fcc(BtlBoss03_01_RG* rg) {
     SubroutineArgs subroutine_arg0;
     CombatSprite*  sprite  = &rg->base.sprite;
     RGBlob*        temp_r4 = rg->base.unk_188;
@@ -1667,7 +1605,7 @@ void func_ov017_02131fcc(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02132378(BtlBoss03_01_RG* rg) {
+static void func_ov017_02132378(BtlBoss03_01_RG* rg) {
     s16   sp10;
     s32   spC;
     s32   sp8;
@@ -1839,7 +1777,7 @@ void func_ov017_02132378(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02132950(BtlBoss03_01_RG* rg) {
+static void func_ov017_02132950(BtlBoss03_01_RG* rg) {
     if (rg->unk_1C0 == 0) {
         func_ov017_021302f0(rg);
         rg->unk_1E6 &= ~2;
@@ -1851,7 +1789,7 @@ void func_ov017_02132950(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_021329bc(BtlBoss03_01_RG* rg) {
+static void func_ov017_021329bc(BtlBoss03_01_RG* rg) {
     switch (rg->unk_1C4) {
         case 0: {
             if (rg->unk_1C0 == 0) {
@@ -1880,7 +1818,7 @@ void func_ov017_021329bc(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02132ac0(BtlBoss03_01_RG* rg) {
+static void func_ov017_02132ac0(BtlBoss03_01_RG* rg) {
     RGBlob* temp_r4 = rg->base.unk_188;
 
     if (func_ov003_020c703c(&rg->base) == 0) {
@@ -1892,7 +1830,7 @@ void func_ov017_02132ac0(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_02132b0c(BtlBoss03_01_RG* rg) {
+static void func_ov017_02132b0c(BtlBoss03_01_RG* rg) {
     if (rg->unk_1C0 == 0) {
         rg->unk_1C0++;
         if (rg->base.spriteIndex == 0) {
@@ -1905,7 +1843,7 @@ void func_ov017_02132b0c(BtlBoss03_01_RG* rg) {
     }
 }
 
-s32 BtlBoss03_01_RG_WarpDisappear(BtlBoss03_01_RG* rg, s16 arg1) {
+static s32 BtlBoss03_01_RG_WarpDisappear(BtlBoss03_01_RG* rg, s16 arg1) {
     if (arg1 == 0) {
         CombatSprite* sprite = &rg->base.sprite;
 
@@ -1930,7 +1868,7 @@ s32 BtlBoss03_01_RG_WarpDisappear(BtlBoss03_01_RG* rg, s16 arg1) {
     return 0;
 }
 
-s32 BtlBoss03_01_RG_WarpAppear(BtlBoss03_01_RG* rg, s16 arg1) {
+static s32 BtlBoss03_01_RG_WarpAppear(BtlBoss03_01_RG* rg, s16 arg1) {
     if (arg1 == 0) {
         CombatSprite* sprite = &rg->base.sprite;
 
@@ -1959,7 +1897,7 @@ s32 BtlBoss03_01_RG_WarpAppear(BtlBoss03_01_RG* rg, s16 arg1) {
     }
 }
 
-s32 func_ov017_02132d4c(BtlBoss03_01_RG* rg, s32 arg1, s16 arg2) {
+static s32 func_ov017_02132d4c(BtlBoss03_01_RG* rg, s32 arg1, s16 arg2) {
     if (arg2 == 0) {
         CombatSprite_Release(&rg->base.sprite);
         if (arg1 != 0) {
@@ -1973,7 +1911,7 @@ s32 func_ov017_02132d4c(BtlBoss03_01_RG* rg, s32 arg1, s16 arg2) {
     return (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) == FALSE);
 }
 
-s32 func_ov017_02132dc8(BtlBoss03_01_RG* rg, s16* arg1, s32 arg2, s16 arg3) {
+static s32 func_ov017_02132dc8(BtlBoss03_01_RG* rg, s16* arg1, s32 arg2, s16 arg3) {
     if (arg3 == 0) {
         if (rg->base.spriteIndex == 0) {
             CombatSprite_Release(&rg->base.sprite);
@@ -2025,7 +1963,7 @@ s32 func_ov017_02132dc8(BtlBoss03_01_RG* rg, s16* arg1, s32 arg2, s16 arg3) {
     return 1;
 }
 
-s32 BtlBoss03_01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlBoss03_01_RG* rg = task->data;
 
     switch (stage) {
@@ -2041,7 +1979,7 @@ s32 BtlBoss03_01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     return 1;
 }
 
-s32 BtlBoss03_01_RG_Init(BtlBoss03_01_RG* rg, void* arg1) {
+static s32 BtlBoss03_01_RG_Init(BtlBoss03_01_RG* rg, void* arg1) {
     MI_CpuSet(rg, 0, sizeof(BtlBoss03_01_RG));
 
     u16 temp_r0 = ((Boss03*)arg1)->unk4;
@@ -2074,7 +2012,7 @@ s32 BtlBoss03_01_RG_Init(BtlBoss03_01_RG* rg, void* arg1) {
     return 1;
 }
 
-void func_ov017_02133074(BtlBoss03_01_RG* rg) {
+static void func_ov017_02133074(BtlBoss03_01_RG* rg) {
     void*            temp_r4 = func_ov003_020cb42c(1, 43, 0);
     BtlBoss03_01_RG* temp    = (BtlBoss03_01_RG*)func_ov003_020cb42c(1, 45, 0);
 
@@ -2116,12 +2054,12 @@ void func_ov017_02133074(BtlBoss03_01_RG* rg) {
     }
 }
 
-void func_ov017_021331fc(BtlBoss03_01_RG* rg) {
+static void func_ov017_021331fc(BtlBoss03_01_RG* rg) {
     BtlBoss03_01_RG_SetState(rg, func_ov017_02130f10);
     rg->unk_1E6 |= 2;
 }
 
-s32 BtlBoss03_01_RG_Update(BtlBoss03_01_RG* rg) {
+static s32 BtlBoss03_01_RG_Update(BtlBoss03_01_RG* rg) {
     RGBlob* temp_r4  = rg->base.partner->unk_188;
     rg->base.unk_188 = temp_r4;
 
@@ -2180,17 +2118,17 @@ s32 BtlBoss03_01_RG_Update(BtlBoss03_01_RG* rg) {
     return rg->unk_1CC;
 }
 
-s32 BtlBoss03_01_RG_Render(BtlBoss03_01_RG* rg) {
+static s32 BtlBoss03_01_RG_Render(BtlBoss03_01_RG* rg) {
     func_ov003_020c4878(rg);
     return 1;
 }
 
-s32 BtlBoss03_01_RG_Destroy(BtlBoss03_01_RG* rg) {
+static s32 BtlBoss03_01_RG_Destroy(BtlBoss03_01_RG* rg) {
     func_ov003_020c48fc(rg);
     return 1;
 }
 
-void BtlBoss03_01_RG_ResetCooldownRandom(BtlBoss03_01_RG* rg, s32 cdSlot) {
+static void BtlBoss03_01_RG_ResetCooldownRandom(BtlBoss03_01_RG* rg, s32 cdSlot) {
     s32 var_r4 = (rg->base.spriteIndex != 0) ? 1 : 0;
     s32 extra  = data_ov017_0214265c[var_r4][cdSlot].unk_2;
     s32 rnd    = RNG_Next((extra * 2) + 1);
@@ -2198,38 +2136,38 @@ void BtlBoss03_01_RG_ResetCooldownRandom(BtlBoss03_01_RG* rg, s32 cdSlot) {
     rg->unk_1D2[cdSlot] = data_ov017_0214265c[var_r4][cdSlot].unk_0 + (rnd - extra);
 }
 
-void BtlBoss03_01_RG_TickCooldown(BtlBoss03_01_RG* rg, s32 cdSlot) {
+static void BtlBoss03_01_RG_TickCooldown(BtlBoss03_01_RG* rg, s32 cdSlot) {
     if (rg->unk_1D2[cdSlot] > 0) {
         rg->unk_1D2[cdSlot]--;
     }
 }
 
-BOOL BtlBoss03_01_RG_IsCooldownReady(BtlBoss03_01_RG* rg, s32 cdSlot) {
+static BOOL BtlBoss03_01_RG_IsCooldownReady(BtlBoss03_01_RG* rg, s32 cdSlot) {
     return rg->unk_1D2[cdSlot] == 0;
 }
 
-s16 BtlBoss03_01_RG_GetCooldown(BtlBoss03_01_RG* rg, s32 cdSlot) {
+static s16 BtlBoss03_01_RG_GetCooldown(BtlBoss03_01_RG* rg, s32 cdSlot) {
     return rg->unk_1D2[cdSlot];
 }
 
-void BtlBoss03_01_RG_SetCooldown(BtlBoss03_01_RG* rg, s32 cdSlot, s16 cooldown) {
+static void BtlBoss03_01_RG_SetCooldown(BtlBoss03_01_RG* rg, s32 cdSlot, s16 cooldown) {
     rg->unk_1D2[cdSlot] = cooldown;
 }
 
 /// MARK: BtlBoss03_01_UG
 
-s32 BtlBoss03_01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlBoss03_01_UG = {"Tsk_BtlBoss03_01_UG", BtlBoss03_01_UG_RunTask, 0x0228};
 
-void func_ov017_02133524(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_02133524(void* arg0, void (*arg1)(void*)) {
     func_ov003_020c427c(arg0);
     ((Boss03*)arg0)->unk1C8 = arg1;
     ((Boss03*)arg0)->unk1C4 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_0213354c(void* arg0) {
+static void func_ov017_0213354c(void* arg0) {
     u32 temp_r0;
 
     if (((Boss03*)arg0)->unk80 != 0) {
@@ -2246,7 +2184,7 @@ void func_ov017_0213354c(void* arg0) {
     func_ov017_02133524(arg0, func_ov017_02133ad0);
 }
 
-void func_ov017_021335c8(void* arg0) {
+static void func_ov017_021335c8(void* arg0) {
     s32 temp_r0;
 
     temp_r0 = (s32)RNG_Next(0x64);
@@ -2261,7 +2199,7 @@ void func_ov017_021335c8(void* arg0) {
     func_ov017_02133524(arg0, func_ov017_021348c0);
 }
 
-void func_ov017_02133624(void* arg0) {
+static void func_ov017_02133624(void* arg0) {
     s16 temp_r1;
 
     temp_r1 = ((Boss03*)arg0)->unk1C0;
@@ -2277,7 +2215,7 @@ void func_ov017_02133624(void* arg0) {
     func_ov017_02133524(arg0, func_ov017_021337e4);
 }
 
-void func_ov017_0213368c(void* arg0) {
+static void func_ov017_0213368c(void* arg0) {
     s16   temp_r1;
     void* temp_r4;
 
@@ -2299,7 +2237,7 @@ void func_ov017_0213368c(void* arg0) {
     ((Boss03*)arg0)->unk54  = (s32)(((Boss03*)arg0)->unk54 | 4);
 }
 
-void func_ov017_02133718(void* arg0) {
+static void func_ov017_02133718(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         ((Boss03*)arg0)->unk224 &= ~2;
         func_ov017_02135d60(arg0);
@@ -2314,7 +2252,7 @@ void func_ov017_02133718(void* arg0) {
     }
 }
 
-void func_ov017_021337e4(void* arg0) {
+static void func_ov017_021337e4(void* arg0) {
     s16   temp_r2;
     u16   temp_r0;
     void* temp_r4;
@@ -2403,7 +2341,7 @@ block_18:
     }
 }
 
-void func_ov017_02133ad0(void* arg0) {
+static void func_ov017_02133ad0(void* arg0) {
     s16 temp_r0;
     s16 temp_r0_2;
     s16 temp_r2;
@@ -2482,7 +2420,7 @@ void func_ov017_02133ad0(void* arg0) {
     }
 }
 
-void func_ov017_02133d9c(void* arg0) {
+static void func_ov017_02133d9c(void* arg0) {
     s32 sp8;
     s32 sp4;
     s16 temp_r1;
@@ -2539,7 +2477,7 @@ void func_ov017_02133d9c(void* arg0) {
     }
 }
 
-void func_ov017_02133f74(void* arg0) {
+static void func_ov017_02133f74(void* arg0) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)arg0)->unk188;
@@ -2557,7 +2495,7 @@ void func_ov017_02133f74(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_0213400c(void* arg0) {
+static void func_ov017_0213400c(void* arg0) {
     s16   temp_r1;
     u16   var_r0;
     void* temp_r0;
@@ -2601,7 +2539,7 @@ void func_ov017_0213400c(void* arg0) {
     }
 }
 
-void func_ov017_02134190(void* arg0) {
+static void func_ov017_02134190(void* arg0) {
     s16 temp_r1;
     s16 temp_r1_2;
     s16 temp_r2;
@@ -2660,7 +2598,7 @@ void func_ov017_02134190(void* arg0) {
     }
 }
 
-void func_ov017_02134378(void* arg0) {
+static void func_ov017_02134378(void* arg0) {
     u16   sp92;
     s16   sp8E;
     s32   sp88;
@@ -2705,7 +2643,7 @@ void func_ov017_02134378(void* arg0) {
             var_r6 = 0;
         }
         if (temp_r1 == 0) {
-            func_ov003_020cc834(&sp74, arg0, var_r7, 0);
+            ((s32(*)())func_ov003_020cc834)(&sp74, arg0, var_r7, 0);
             sp80 += var_r5;
             sp88 -= 0x28000;
             sp8E = 0x20;
@@ -2713,8 +2651,8 @@ void func_ov017_02134378(void* arg0) {
             func_ov003_020d1dc0((Ov003EnemyShotSource*)&sp74, 0x4000, var_r6, 0x1000, 5);
             func_ov003_02087f00(SEIDX_SE_B005_FIRING_SHOT, func_ov003_020843b0(0, ((Boss03*)arg0)->unk28));
         } else {
-            func_ov003_020cc834(&sp48, arg0, var_r7, 0);
-            func_ov003_020cc834(&sp1C, arg0, var_r7, 0xF2, 0);
+            ((s32(*)())func_ov003_020cc834)(&sp48, arg0, var_r7, 0);
+            ((s32(*)())func_ov003_020cc834)(&sp1C, arg0, var_r7, 0xF2, 0);
             sp62 = 0x20;
             sp36 = 0x20;
             sp54 += var_r5;
@@ -2738,7 +2676,7 @@ void func_ov017_02134378(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_02134600(void* arg0) {
+static void func_ov017_02134600(void* arg0) {
     u16   sp26;
     s16   sp22;
     s32   sp1C;
@@ -2784,7 +2722,7 @@ void func_ov017_02134600(void* arg0) {
                 if (((Boss03*)arg0)->unk24 == 0) {
                     var_r6 = -0x30000;
                 }
-                func_ov003_020cc834(&sp8, arg0, var_r5_2, 0xF2, 0);
+                ((s32(*)())func_ov003_020cc834)(&sp8, arg0, var_r5_2, 0xF2, 0);
                 var_r9 = 0;
                 sp22   = 0x20;
                 sp14 += var_r6;
@@ -2844,7 +2782,7 @@ void func_ov017_02134600(void* arg0) {
     }
 }
 
-void func_ov017_021348c0(void* arg0) {
+static void func_ov017_021348c0(void* arg0) {
     SubroutineArgs subroutine_arg0;
     s32            sp100;
     s32            spF8;
@@ -2926,8 +2864,8 @@ void func_ov017_021348c0(void* arg0) {
                 }
                 if (temp_r1_2 == 0) {
                     BtlBoss03_ShotEff_CreateTask((s32)arg0);
-                    func_ov003_020cc834(&spEC, arg0, var_r6, 0xF2, 0);
-                    func_ov003_020cc834(&spC0, arg0, var_r7, 0xF2, 0);
+                    ((s32(*)())func_ov003_020cc834)(&spEC, arg0, var_r6, 0xF2, 0);
+                    ((s32(*)())func_ov003_020cc834)(&spC0, arg0, var_r7, 0xF2, 0);
                     ((Boss03DataStruct*)&sp100)->unk6 = 0x20;
                     spDA                              = 0x20;
                     spF8 += var_r4_2;
@@ -2952,8 +2890,8 @@ void func_ov017_021348c0(void* arg0) {
                     func_ov003_02087f00(SEIDX_SE_B005_FIRING_SPLIT, func_ov003_020843b0(0, ((Boss03*)arg0)->unk28));
                 } else {
                     BtlBoss03_ShotEff_CreateTask((s32)arg0);
-                    func_ov003_020cc834(&sp68, arg0, var_r6, 0xF2, 0);
-                    func_ov003_020cc834(&sp3C, arg0, var_r7, 0xF2, 0);
+                    ((s32(*)())func_ov003_020cc834)(&sp68, arg0, var_r6, 0xF2, 0);
+                    ((s32(*)())func_ov003_020cc834)(&sp3C, arg0, var_r7, 0xF2, 0);
                     sp82 = 0x20;
                     sp56 = 0x20;
                     sp74 += var_r4_2;
@@ -3029,7 +2967,7 @@ void func_ov017_021348c0(void* arg0) {
     }
 }
 
-void func_ov017_02134d58(void* arg0) {
+static void func_ov017_02134d58(void* arg0) {
     SubroutineArgs subroutine_arg0;
     s16            temp_r1;
     s16            temp_r1_2;
@@ -3167,7 +3105,7 @@ void func_ov017_02134d58(void* arg0) {
     }
 }
 
-void func_ov017_02135124(void* arg0) {
+static void func_ov017_02135124(void* arg0) {
     void* temp_r5;
 
     ((Boss03*)arg0)->unk224 = (u16)(((Boss03*)arg0)->unk224 & ~2);
@@ -3181,7 +3119,7 @@ void func_ov017_02135124(void* arg0) {
     CombatSprite_Release(arg0 + 0x84);
 }
 
-void func_ov017_02135190(void* arg0) {
+static void func_ov017_02135190(void* arg0) {
     s16 temp_r1;
 
     temp_r1 = ((Boss03*)arg0)->unk1C4;
@@ -3213,7 +3151,7 @@ void func_ov017_02135190(void* arg0) {
     }
 }
 
-void func_ov017_021352a0(void* arg0) {
+static void func_ov017_021352a0(void* arg0) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)arg0)->unk188;
@@ -3226,7 +3164,7 @@ void func_ov017_021352a0(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_021352ec(void* arg0) {
+static void func_ov017_021352ec(void* arg0) {
     s16 temp_r2;
     s32 var_r0;
     s32 var_r4;
@@ -3260,7 +3198,7 @@ void func_ov017_021352ec(void* arg0) {
     func_ov017_02133524(arg0, func_ov017_021337e4);
 }
 
-void func_ov017_021353c4(void* arg0) {
+static void func_ov017_021353c4(void* arg0) {
     s16 temp_r1;
 
     temp_r1 = ((Boss03*)arg0)->unk1C0;
@@ -3277,7 +3215,7 @@ void func_ov017_021353c4(void* arg0) {
     func_ov017_02133524(arg0, func_ov017_021337e4);
 }
 
-s32 func_ov017_02135438(void* arg0, s16 arg1) {
+static s32 func_ov017_02135438(void* arg0, s16 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk54 = (s32)(((Boss03*)arg0)->unk54 | 0x10);
         if (((Boss03*)arg0)->unk80 == 0) {
@@ -3296,7 +3234,7 @@ s32 func_ov017_02135438(void* arg0, s16 arg1) {
     return 0;
 }
 
-s32 func_ov017_021354e4(void* arg0, s16 arg1) {
+static s32 func_ov017_021354e4(void* arg0, s16 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C & ~1);
         if (((Boss03*)arg0)->unk80 == 0) {
@@ -3317,7 +3255,7 @@ s32 func_ov017_021354e4(void* arg0, s16 arg1) {
     return 0;
 }
 
-s32 func_ov017_021355a0(void* arg0, s16* arg1, s32 arg2, s16 arg3) {
+static s32 func_ov017_021355a0(void* arg0, s16* arg1, s32 arg2, s16 arg3) {
     s16 temp_r0;
     s16 temp_r0_2;
     s16 temp_r0_3;
@@ -3385,7 +3323,7 @@ s32 func_ov017_021355a0(void* arg0, s16* arg1, s32 arg2, s16 arg3) {
     }
 }
 
-s32 BtlBoss03_01_UG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_01_UG_Init(TaskPool* pool, Task* task, void* args) {
     s32   var_r6;
     void* temp_r4;
 
@@ -3428,7 +3366,7 @@ s32 BtlBoss03_01_UG_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-void func_ov017_02135868(void* arg0) {
+static void func_ov017_02135868(void* arg0) {
     void* temp_r0;
     void* temp_r4;
 
@@ -3477,12 +3415,12 @@ void func_ov017_02135868(void* arg0) {
     CombatSprite_Release(arg0 + 0x84);
 }
 
-void func_ov017_02135a38(void* arg0) {
+static void func_ov017_02135a38(void* arg0) {
     func_ov017_02133524(arg0, func_ov017_02133624);
     ((Boss03*)arg0)->unk224 = (u16)(((Boss03*)arg0)->unk224 | 2);
 }
 
-s32 BtlBoss03_01_UG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_01_UG_Update(TaskPool* pool, Task* task, void* args) {
     void (*temp_r1_2)(void*);
     s16   temp_r1;
     s32   temp_r0;
@@ -3561,12 +3499,12 @@ s32 BtlBoss03_01_UG_Update(TaskPool* pool, Task* task, void* args) {
     return ((Boss03*)temp_r4)->unk1CC;
 }
 
-s32 BtlBoss03_01_UG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_01_UG_Render(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c48b0(((Boss03*)task->data)->unk18);
     return 1;
 }
 
-s32 BtlBoss03_01_UG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_01_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)task->data)->unk18;
@@ -3577,7 +3515,7 @@ s32 BtlBoss03_01_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov017_021426d0 = {
         .initialize = BtlBoss03_01_UG_Init,
         .update     = BtlBoss03_01_UG_Update,
@@ -3587,19 +3525,19 @@ s32 BtlBoss03_01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     return data_ov017_021426d0.iter[stage](pool, task, args);
 }
 
-void func_ov017_02135d60(void* arg0) {
+static void func_ov017_02135d60(void* arg0) {
     ((Boss03*)arg0)->unk28 = (s32)(RNG_Next((func_ov003_020cb744(0) >> 0xC) + 1) << 0xC);
     ((Boss03*)arg0)->unk2C = (s32)(RNG_Next((func_ov003_020cb7a4(0) >> 0xC) + 1) << 0xC);
     ((Boss03*)arg0)->unk30 = 0;
 }
 
-s16 func_ov017_02135dac(void* arg0, s32 arg1) {
+static s16 func_ov017_02135dac(void* arg0, s32 arg1) {
     return func_ov003_020cb910(arg0 + 0x1DC, arg0 + 0x1E0, arg0 + 0x1E4, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C,
                                ((Boss03*)arg0)->unk30, ((Boss03*)arg0)->unk1D0, ((Boss03*)arg0)->unk1D4,
                                ((Boss03*)arg0)->unk1D8, arg1);
 }
 
-void func_ov017_02135e08(void* arg0, s32 arg1) {
+static void func_ov017_02135e08(void* arg0, s32 arg1) {
     s16 temp_r7;
     s32 temp_r4;
     s32 var_r1;
@@ -3615,7 +3553,7 @@ void func_ov017_02135e08(void* arg0, s32 arg1) {
         (s16)(*((arg1 * 4) + (&data_ov017_021426e0 + temp_r4)) + ((0 - temp_r7) + RNG_Next((temp_r7 * 2) + 1)));
 }
 
-void func_ov017_02135e7c(void* arg0, s32 arg1) {
+static void func_ov017_02135e7c(void* arg0, s32 arg1) {
     s16*  temp_ip;
     s32   temp_r3;
     void* temp_r0;
@@ -3629,29 +3567,29 @@ void func_ov017_02135e7c(void* arg0, s32 arg1) {
     }
 }
 
-s32 func_ov017_02135eb0(void* arg0, s32 arg1) {
+static s32 func_ov017_02135eb0(void* arg0, s32 arg1) {
     if (((Boss03*)(arg0 + (arg1 * 2)))->unk212 == 0) {
         return 1;
     }
     return 0;
 }
 
-s16 func_ov017_02135ecc(void* arg0, s32 arg1) {
+static s16 func_ov017_02135ecc(void* arg0, s32 arg1) {
     return ((Boss03*)(arg0 + (arg1 * 2)))->unk212;
 }
 
-void func_ov017_02135edc(void* arg0, s32 arg1, s16 arg2) {
+static void func_ov017_02135edc(void* arg0, s32 arg1, s16 arg2) {
     ((Boss03*)(arg0 + (arg1 * 2)))->unk212 = arg2;
 }
 
-void func_ov017_02135eec(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_02135eec(void* arg0, void (*arg1)(void*)) {
     func_ov003_020c427c(arg0);
     ((Boss03*)arg0)->unk1C8 = arg1;
     ((Boss03*)arg0)->unk1C4 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_02135f14(void* arg0) {
+static void func_ov017_02135f14(void* arg0) {
     func_ov017_02135eec(arg0, func_ov017_021361ac);
     ((Boss03*)arg0)->unk202 = (s16)(((Boss03*)arg0)->unk202 + 1);
     if ((s32)((Boss03*)arg0)->unk202 < 3) {
@@ -3661,7 +3599,7 @@ void func_ov017_02135f14(void* arg0) {
     func_ov017_02137848(arg0, 0);
 }
 
-void func_ov017_02135f58(void* arg0) {
+static void func_ov017_02135f58(void* arg0) {
     s16 temp_r1;
     u32 temp_r0;
 
@@ -3689,7 +3627,7 @@ void func_ov017_02135f58(void* arg0) {
     ((Boss03*)arg0)->unk202 = 0;
 }
 
-void func_ov017_02136024(void* arg0) {
+static void func_ov017_02136024(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         data_ov003_020e71b8->unk3D875 = 2;
         ((Boss03*)arg0)->unk1C0       = (s16)(((Boss03*)arg0)->unk1C0 + 1);
@@ -3700,7 +3638,7 @@ void func_ov017_02136024(void* arg0) {
     func_ov017_02135eec(arg0, func_ov017_021360ac);
 }
 
-void func_ov017_02136084(void* arg0) {
+static void func_ov017_02136084(void* arg0) {
     if (((Boss03*)((Boss03*)arg0)->unk188)->unk4 == 0) {
         return;
     }
@@ -3708,7 +3646,7 @@ void func_ov017_02136084(void* arg0) {
     ((Boss03*)arg0)->unk54  = (s32)(((Boss03*)arg0)->unk54 | 4);
 }
 
-void func_ov017_021360ac(void* arg0) {
+static void func_ov017_021360ac(void* arg0) {
     s16 temp_r1;
     s16 temp_r2;
     s32 temp_r0;
@@ -3743,7 +3681,7 @@ void func_ov017_021360ac(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(temp_r2 + 1);
 }
 
-void func_ov017_021361ac(void* arg0) {
+static void func_ov017_021361ac(void* arg0) {
     s16 temp_r2;
     s32 var_r0;
 
@@ -3788,7 +3726,7 @@ void func_ov017_021361ac(void* arg0) {
     }
 }
 
-void func_ov017_021362b0(void* arg0) {
+static void func_ov017_021362b0(void* arg0) {
     s16 temp_r0;
     s16 temp_r2;
 
@@ -3831,7 +3769,7 @@ void func_ov017_021362b0(void* arg0) {
     }
 }
 
-void func_ov017_021363c4(void* arg0) {
+static void func_ov017_021363c4(void* arg0) {
     s16 temp_r0;
     s16 temp_r2;
 
@@ -3864,7 +3802,7 @@ void func_ov017_021363c4(void* arg0) {
     }
 }
 
-void func_ov017_021364b8(void* arg0) {
+static void func_ov017_021364b8(void* arg0) {
     s16   spA;
     s16   sp8;
     s32   var_r1;
@@ -4170,7 +4108,7 @@ void func_ov017_021364b8(void* arg0) {
     }
 }
 
-void func_ov017_02136d90(void* arg0) {
+static void func_ov017_02136d90(void* arg0) {
     s16   temp_r0;
     s16   temp_r2;
     s32   temp_r6;
@@ -4252,7 +4190,7 @@ void func_ov017_02136d90(void* arg0) {
     }
 }
 
-void func_ov017_02136fa0(void* arg0) {
+static void func_ov017_02136fa0(void* arg0) {
     SubroutineArgs subroutine_arg0;
     void*          temp_r4;
 
@@ -4271,7 +4209,7 @@ void func_ov017_02136fa0(void* arg0) {
     func_ov003_02087ed8(SEIDX_SE_B005_LION_NINGEN_HENSHIN);
 }
 
-void func_ov017_02137020(void* arg0) {
+static void func_ov017_02137020(void* arg0) {
     s16 temp_r1;
 
     temp_r1 = ((Boss03*)arg0)->unk1C4;
@@ -4301,7 +4239,7 @@ void func_ov017_02137020(void* arg0) {
     }
 }
 
-void func_ov017_02137110(void* arg0) {
+static void func_ov017_02137110(void* arg0) {
     s16   temp_r1;
     u32   var_r1;
     u8    temp_r0;
@@ -4334,7 +4272,7 @@ void func_ov017_02137110(void* arg0) {
     func_ov017_02135eec(arg0, func_ov017_021360ac);
 }
 
-s32 func_ov017_02137228(void* arg0, s16 arg1) {
+static s32 func_ov017_02137228(void* arg0, s16 arg1) {
     if (arg1 == -1) {
         return 0;
     }
@@ -4346,7 +4284,7 @@ s32 func_ov017_02137228(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_0213727c(void* arg0, s32 arg1, s16 arg2) {
+static s32 func_ov017_0213727c(void* arg0, s32 arg1, s16 arg2) {
     if (arg2 == 0) {
         CombatSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(1, arg0 + 0x84, 0xA, 0);
@@ -4363,7 +4301,7 @@ s32 func_ov017_0213727c(void* arg0, s32 arg1, s16 arg2) {
     return 0;
 }
 
-s32 func_ov017_0213731c(void* arg0, s32 arg1) {
+static s32 func_ov017_0213731c(void* arg0, s32 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk54 = (s32)(((Boss03*)arg0)->unk54 | 0x10);
         CombatSprite_Release(arg0 + 0x84);
@@ -4382,7 +4320,7 @@ s32 func_ov017_0213731c(void* arg0, s32 arg1) {
     return 1;
 }
 
-s32 func_ov017_021373d8(void* arg0, s32 arg1) {
+static s32 func_ov017_021373d8(void* arg0, s32 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C & ~1);
         CombatSprite_Release(arg0 + 0x84);
@@ -4401,7 +4339,7 @@ s32 func_ov017_021373d8(void* arg0, s32 arg1) {
     return 1;
 }
 
-s32 func_ov017_02137494(void* arg0, s32 arg1) {
+static s32 func_ov017_02137494(void* arg0, s32 arg1) {
     f32 var_r0;
     s16 temp_r0;
     s32 temp_r0_3;
@@ -4451,7 +4389,7 @@ s32 func_ov017_02137494(void* arg0, s32 arg1) {
     }
 }
 
-s32 func_ov017_02137600(void* arg0, s32 arg1) {
+static s32 func_ov017_02137600(void* arg0, s32 arg1) {
     s16 temp_r0;
     s32 var_r5;
 
@@ -4493,24 +4431,24 @@ s32 func_ov017_02137600(void* arg0, s32 arg1) {
     }
 }
 
-s16 func_ov017_02137730(void* arg0, s32 arg1) {
+static s16 func_ov017_02137730(void* arg0, s32 arg1) {
     return func_ov003_020cb910(arg0 + 0x1DC, arg0 + 0x1E0, arg0 + 0x1E4, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C,
                                ((Boss03*)arg0)->unk30, ((Boss03*)arg0)->unk1D0, ((Boss03*)arg0)->unk1D4,
                                ((Boss03*)arg0)->unk1D8, arg1);
 }
 
-void func_ov017_0213778c(void* arg0, s32 arg1, s32 arg2, s32 arg3) {
+static void func_ov017_0213778c(void* arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((Boss03*)arg0)->unk1D0 = arg1;
     ((Boss03*)arg0)->unk1D4 = arg2;
     ((Boss03*)arg0)->unk1D8 = arg3;
 }
 
-s32 func_ov017_0213779c(void* arg0) {
+static s32 func_ov017_0213779c(void* arg0) {
     func_ov003_020cba54(((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30, ((Boss03*)arg0)->unk1D0,
                         ((Boss03*)arg0)->unk1D4, ((Boss03*)arg0)->unk1D8);
 }
 
-s32 func_ov017_021377d4(void* arg0) {
+static s32 func_ov017_021377d4(void* arg0) {
     s32 var_ip;
 
     var_ip = 0x48000;
@@ -4521,11 +4459,11 @@ s32 func_ov017_021377d4(void* arg0) {
                                ((Boss03*)arg0)->unk30 - 0x20000, 0x10000, 0x20000, 0x10000);
 }
 
-void func_ov017_02137834(void* arg0, s32 arg1) {
+static void func_ov017_02137834(void* arg0, s32 arg1) {
     ((Boss03*)(arg0 + (arg1 * 2)))->unk200 = 0;
 }
 
-void func_ov017_02137848(void* arg0, s32 arg1) {
+static void func_ov017_02137848(void* arg0, s32 arg1) {
     s16 temp_r5;
 
     temp_r5 = *(s32*)((char*)&data_ov017_021426fa + (arg1 * 4));
@@ -4533,14 +4471,14 @@ void func_ov017_02137848(void* arg0, s32 arg1) {
         (s16)(*(s32*)((char*)&data_ov017_021426f8 + (arg1 * 4)) + ((0 - temp_r5) + RNG_Next((temp_r5 * 2) + 1)));
 }
 
-s32 func_ov017_0213789c(s32 arg0, s32 arg1) {
+static s32 func_ov017_0213789c(s32 arg0, s32 arg1) {
     if (((Boss03*)(arg0 + (arg1 * 2)))->unk200 == 0) {
         return 1;
     }
     return 0;
 }
 
-void func_ov017_021378b8(void* arg0, s32 arg1) {
+static void func_ov017_021378b8(void* arg0, s32 arg1) {
     s16* temp_r1;
     s32  temp_r3;
 
@@ -4552,14 +4490,14 @@ void func_ov017_021378b8(void* arg0, s32 arg1) {
     *(temp_r1 + temp_r3) = *(temp_r1 + temp_r3) - 1;
 }
 
-s32 func_ov017_021378e4(void) {
+static s32 func_ov017_021378e4(void) {
     if (((Boss03*)data_ov003_020e71b8->unk3D89C)->unk30 > -0x20000) {
         return 1;
     }
     return 0;
 }
 
-s32 func_ov017_02137914(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov017_02137914(TaskPool* pool, Task* task, void* args) {
     void* temp_r4;
     void* temp_r5;
 
@@ -4602,7 +4540,7 @@ s32 func_ov017_02137914(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov017_02137aa0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov017_02137aa0(TaskPool* pool, Task* task, void* args) {
     void (*temp_r1_2)(void*);
     s16   temp_r1;
     s16*  temp_r5;
@@ -4643,12 +4581,12 @@ s32 func_ov017_02137aa0(TaskPool* pool, Task* task, void* args) {
     return ((Boss03*)temp_r4)->unk1CC;
 }
 
-s32 func_ov017_02137ba8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov017_02137ba8(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c4878(((Boss03*)task->data)->unk18);
     return 1;
 }
 
-s32 func_ov017_02137bbc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov017_02137bbc(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c48fc(((Boss03*)task->data)->unk18);
     return 1;
 }
@@ -4663,18 +4601,18 @@ s32 func_ov017_02137bd0(TaskPool* pool, Task* task, void* args, s32 stage) {
     return data_ov017_021426fc.iter[stage](pool, task, args);
 }
 
-void func_ov017_02137c18(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_02137c18(void* arg0, void (*arg1)(void*)) {
     func_ov003_020c427c(arg0);
     ((Boss03*)arg0)->unk1C8 = arg1;
     ((Boss03*)arg0)->unk1C4 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_02137c40(void* arg0) {
+static void func_ov017_02137c40(void* arg0) {
     func_ov017_02137c18(arg0, func_ov017_02137edc);
 }
 
-void func_ov017_02137c54(void* arg0) {
+static void func_ov017_02137c54(void* arg0) {
     s32 temp_r0;
     u32 temp_r1;
     u8  temp_r2;
@@ -4698,7 +4636,7 @@ void func_ov017_02137c54(void* arg0) {
     func_ov017_02137c18(arg0, func_ov017_021389d0);
 }
 
-void func_ov017_02137cd4(void* arg0) {
+static void func_ov017_02137cd4(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         data_ov003_020e71b8->unk3D875 = 2;
         ((Boss03*)arg0)->unk1C0       = (s16)(((Boss03*)arg0)->unk1C0 + 1);
@@ -4709,7 +4647,7 @@ void func_ov017_02137cd4(void* arg0) {
     func_ov017_02137c18(arg0, func_ov017_02137d64);
 }
 
-void func_ov017_02137d34(void* arg0) {
+static void func_ov017_02137d34(void* arg0) {
     if (((Boss03*)((Boss03*)arg0)->unk188)->unk4 == 0) {
         return;
     }
@@ -4718,7 +4656,7 @@ void func_ov017_02137d34(void* arg0) {
     func_ov017_021394ac(arg0, 0);
 }
 
-void func_ov017_02137d64(void* arg0) {
+static void func_ov017_02137d64(void* arg0) {
     s16 temp_r2;
     u32 temp_r3;
 
@@ -4756,7 +4694,7 @@ void func_ov017_02137d64(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(temp_r2 + 1);
 }
 
-void func_ov017_02137edc(void* arg0) {
+static void func_ov017_02137edc(void* arg0) {
     s32 var_r1;
     s16 temp_r2;
     s32 temp_r4;
@@ -4792,7 +4730,7 @@ void func_ov017_02137edc(void* arg0) {
     }
 }
 
-void func_ov017_02137fd0(void* arg0) {
+static void func_ov017_02137fd0(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c4b5c(arg0);
         func_ov003_02087f00(SEIDX_MINAMI_N_BTL_ATCS02, func_ov003_020843b0(0, ((Boss03*)arg0)->unk28));
@@ -4804,7 +4742,7 @@ void func_ov017_02137fd0(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_02138048(void* arg0) {
+static void func_ov017_02138048(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c4b5c(arg0);
         func_ov003_02087f00(SEIDX_MINAMI_N_BTL_ATCS03, func_ov003_020843b0(0, ((Boss03*)arg0)->unk28));
@@ -4817,7 +4755,7 @@ void func_ov017_02138048(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_021380dc(void* arg0) {
+static void func_ov017_021380dc(void* arg0) {
     s16   spA;
     s16   sp8;
     s32   var_r1;
@@ -5123,7 +5061,7 @@ void func_ov017_021380dc(void* arg0) {
     }
 }
 
-void func_ov017_021389d0(void* arg0) {
+static void func_ov017_021389d0(void* arg0) {
     s16   temp_r2;
     s32   temp_r7;
     s32   var_r4;
@@ -5179,7 +5117,7 @@ void func_ov017_021389d0(void* arg0) {
     }
 }
 
-void func_ov017_02138b70(void* arg0) {
+static void func_ov017_02138b70(void* arg0) {
     SubroutineArgs subroutine_arg0;
     void*          temp_r4;
 
@@ -5199,7 +5137,7 @@ void func_ov017_02138b70(void* arg0) {
     func_ov003_02087ed8(SEIDX_SE_B005_LION_NINGEN_HENSHIN);
 }
 
-void func_ov017_02138bfc(void* arg0) {
+static void func_ov017_02138bfc(void* arg0) {
     s16 temp_r1;
 
     temp_r1 = ((Boss03*)arg0)->unk1C4;
@@ -5228,7 +5166,7 @@ void func_ov017_02138bfc(void* arg0) {
     }
 }
 
-void func_ov017_02138ce0(void* arg0) {
+static void func_ov017_02138ce0(void* arg0) {
     s16   temp_r1;
     s32   var_r5;
     u8    temp_r0;
@@ -5269,7 +5207,7 @@ void func_ov017_02138ce0(void* arg0) {
     func_ov017_02137c18(arg0, func_ov017_02137d64);
 }
 
-void func_ov017_02138e44(void* arg0) {
+static void func_ov017_02138e44(void* arg0) {
     s16 temp_r1;
 
     temp_r1 = ((Boss03*)arg0)->unk1C0;
@@ -5285,7 +5223,7 @@ void func_ov017_02138e44(void* arg0) {
     func_ov017_02137c18(arg0, func_ov017_02137d64);
 }
 
-s32 func_ov017_02138eb4(void* arg0, s32 arg1, s16 arg2) {
+static s32 func_ov017_02138eb4(void* arg0, s32 arg1, s16 arg2) {
     s16 temp_r0;
 
     if (arg2 == 0) {
@@ -5314,7 +5252,7 @@ s32 func_ov017_02138eb4(void* arg0, s32 arg1, s16 arg2) {
     return 1;
 }
 
-s32 func_ov017_02138fdc(void* arg0, s16 arg1) {
+static s32 func_ov017_02138fdc(void* arg0, s16 arg1) {
     if (arg1 == -1) {
         return 0;
     }
@@ -5328,7 +5266,7 @@ s32 func_ov017_02138fdc(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_0213903c(void* arg0, s16 arg1) {
+static s32 func_ov017_0213903c(void* arg0, s16 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk54 = (s32)(((Boss03*)arg0)->unk54 | 0x10);
         func_ov003_02084694(arg0 + 0x144, 1);
@@ -5345,7 +5283,7 @@ s32 func_ov017_0213903c(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_021390e4(void* arg0, s16 arg1) {
+static s32 func_ov017_021390e4(void* arg0, s16 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C & ~1);
         CombatSprite_Release(arg0 + 0x84);
@@ -5362,7 +5300,7 @@ s32 func_ov017_021390e4(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_02139194(void* arg0, s16 arg1) {
+static s32 func_ov017_02139194(void* arg0, s16 arg1) {
     s16 temp_r0;
     s32 var_r5;
 
@@ -5401,7 +5339,7 @@ s32 func_ov017_02139194(void* arg0, s16 arg1) {
     }
 }
 
-s32 func_ov017_021392b8(void* arg0, s32 arg1) {
+static s32 func_ov017_021392b8(void* arg0, s32 arg1) {
     s16   temp_r0;
     s32   var_r4;
     s32   var_r5;
@@ -5450,24 +5388,24 @@ s32 func_ov017_021392b8(void* arg0, s32 arg1) {
     }
 }
 
-s16 func_ov017_02139408(void* arg0, s32 arg1) {
+static s16 func_ov017_02139408(void* arg0, s32 arg1) {
     return func_ov003_020cb910(arg0 + 0x1DC, arg0 + 0x1E0, arg0 + 0x1E4, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C,
                                ((Boss03*)arg0)->unk30, ((Boss03*)arg0)->unk1D0, ((Boss03*)arg0)->unk1D4,
                                ((Boss03*)arg0)->unk1D8, arg1);
 }
 
-void func_ov017_02139464(void* arg0, s32 arg1, s32 arg2, s32 arg3) {
+static void func_ov017_02139464(void* arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((Boss03*)arg0)->unk1D0 = arg1;
     ((Boss03*)arg0)->unk1D4 = arg2;
     ((Boss03*)arg0)->unk1D8 = arg3;
 }
 
-s32 func_ov017_02139474(void* arg0) {
+static s32 func_ov017_02139474(void* arg0) {
     func_ov003_020cba54(((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30, ((Boss03*)arg0)->unk1D0,
                         ((Boss03*)arg0)->unk1D4, ((Boss03*)arg0)->unk1D8);
 }
 
-void func_ov017_021394ac(void* arg0, s32 arg1) {
+static void func_ov017_021394ac(void* arg0, s32 arg1) {
     s16 temp_r5;
 
     temp_r5 = *(s32*)((char*)&data_ov017_0214357e + (arg1 * 4));
@@ -5475,7 +5413,7 @@ void func_ov017_021394ac(void* arg0, s32 arg1) {
         (s16)(*(s32*)((char*)&data_ov017_0214357c + (arg1 * 4)) + ((0 - temp_r5) + RNG_Next((temp_r5 * 2) + 1)));
 }
 
-void func_ov017_02139500(void* arg0, s32 arg1) {
+static void func_ov017_02139500(void* arg0, s32 arg1) {
     s16*  temp_ip;
     s32   temp_r3;
     void* temp_r0;
@@ -5489,14 +5427,14 @@ void func_ov017_02139500(void* arg0, s32 arg1) {
     }
 }
 
-s32 func_ov017_02139534(void* arg0, s32 arg1) {
+static s32 func_ov017_02139534(void* arg0, s32 arg1) {
     if (((Boss03*)(arg0 + (arg1 * 2)))->unk202 == 0) {
         return 1;
     }
     return 0;
 }
 
-s32 func_ov017_02139550(void* arg0) {
+static s32 func_ov017_02139550(void* arg0) {
     s32 var_ip;
 
     var_ip = 0x48000;
@@ -5509,11 +5447,11 @@ s32 func_ov017_02139550(void* arg0) {
 
 /// MARK: BtlBoss03_02_UG
 
-s32 BtlBoss03_02_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_02_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlBoss03_02_UG = {"Tsk_BtlBoss03_02_UG", BtlBoss03_02_UG_RunTask, 0x218};
 
-s32 BtlBoss03_02_UG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_02_UG_Init(TaskPool* pool, Task* task, void* args) {
     u8    temp_r1;
     void* temp_r4;
     void* temp_r5;
@@ -5570,7 +5508,7 @@ s32 BtlBoss03_02_UG_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_02_UG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_02_UG_Update(TaskPool* pool, Task* task, void* args) {
     void (*temp_r1_2)(void*);
     s16   temp_r1;
     s16*  temp_r5;
@@ -5627,7 +5565,7 @@ s32 BtlBoss03_02_UG_Update(TaskPool* pool, Task* task, void* args) {
     return ((Boss03*)temp_r4)->unk1CC;
 }
 
-s32 BtlBoss03_02_UG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_02_UG_Render(TaskPool* pool, Task* task, void* args) {
     s32   temp_r1;
     s32   var_z;
     void* temp_r4;
@@ -5647,7 +5585,7 @@ s32 BtlBoss03_02_UG_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_02_UG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_02_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)task->data)->unk18;
@@ -5658,7 +5596,7 @@ s32 BtlBoss03_02_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_02_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_02_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov017_02142754 = {
         .initialize = BtlBoss03_02_UG_Init,
         .update     = BtlBoss03_02_UG_Update,
@@ -5668,14 +5606,14 @@ s32 BtlBoss03_02_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     return data_ov017_02142754.iter[stage](pool, task, args);
 }
 
-void func_ov017_021399dc(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_021399dc(void* arg0, void (*arg1)(void*)) {
     func_ov003_020c427c(arg0);
     ((Boss03*)arg0)->unk1C8 = arg1;
     ((Boss03*)arg0)->unk1C4 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_02139a04(void* arg0) {
+static void func_ov017_02139a04(void* arg0) {
     func_ov017_021399dc(arg0, func_ov017_02139d14);
     ((Boss03*)arg0)->unk1F8 = (s16)(((Boss03*)arg0)->unk1F8 + 1);
     if (((Boss03*)arg0)->unk1F8 != 3) {
@@ -5685,7 +5623,7 @@ void func_ov017_02139a04(void* arg0) {
     ((Boss03*)arg0)->unk1F8 = 0;
 }
 
-void func_ov017_02139a50(void* arg0) {
+static void func_ov017_02139a50(void* arg0) {
     s32 temp_r0;
 
     if ((s32)((Boss03*)arg0)->unk1E8 >= 2) {
@@ -5704,7 +5642,7 @@ void func_ov017_02139a50(void* arg0) {
     ((Boss03*)arg0)->unk1F8 = 0;
 }
 
-void func_ov017_02139ae0(void* arg0) {
+static void func_ov017_02139ae0(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         data_ov003_020e71b8->unk3D875 = 2;
         ((Boss03*)arg0)->unk1C0       = (s16)(((Boss03*)arg0)->unk1C0 + 1);
@@ -5715,7 +5653,7 @@ void func_ov017_02139ae0(void* arg0) {
     func_ov017_021399dc(arg0, func_ov017_02139b40);
 }
 
-void func_ov017_02139b40(void* arg0) {
+static void func_ov017_02139b40(void* arg0) {
     s16 temp_r2;
     u32 temp_r0;
 
@@ -5753,7 +5691,7 @@ void func_ov017_02139b40(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(temp_r2 + 1);
 }
 
-void func_ov017_02139c54(void* arg0) {
+static void func_ov017_02139c54(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         CombatSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(1, arg0 + 0x84, 8, 0);
@@ -5775,7 +5713,7 @@ void func_ov017_02139c54(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_02139d14(void* arg0) {
+static void func_ov017_02139d14(void* arg0) {
     s16 temp_r2;
 
     temp_r2 = ((Boss03*)arg0)->unk1C4;
@@ -5803,7 +5741,7 @@ void func_ov017_02139d14(void* arg0) {
     }
 }
 
-void func_ov017_02139de0(void* arg0) {
+static void func_ov017_02139de0(void* arg0) {
     s16 temp_r0;
     s16 temp_r2;
 
@@ -5848,7 +5786,7 @@ void func_ov017_02139de0(void* arg0) {
     }
 }
 
-void func_ov017_02139f1c(void* arg0) {
+static void func_ov017_02139f1c(void* arg0) {
     s16 temp_r0;
     s16 temp_r2;
 
@@ -5882,7 +5820,7 @@ void func_ov017_02139f1c(void* arg0) {
     }
 }
 
-void func_ov017_0213a01c(void* arg0) {
+static void func_ov017_0213a01c(void* arg0) {
     f32   var_r0_2;
     s16   temp_r0;
     s16   temp_r0_2;
@@ -6028,7 +5966,7 @@ void func_ov017_0213a01c(void* arg0) {
     }
 }
 
-void func_ov017_0213a458(void* arg0) {
+static void func_ov017_0213a458(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         CombatSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(1, arg0 + 0x84, 9, 0);
@@ -6054,7 +5992,7 @@ void func_ov017_0213a458(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_0213a558(void* arg0) {
+static void func_ov017_0213a558(void* arg0) {
     s16 temp_r1 = ((Boss03*)arg0)->unk1C4;
 
     switch (temp_r1) { /* irregular */
@@ -6088,7 +6026,7 @@ void func_ov017_0213a558(void* arg0) {
     }
 }
 
-void func_ov017_0213a674(void* arg0) {
+static void func_ov017_0213a674(void* arg0) {
     s16   temp_r0;
     void* temp_r4;
 
@@ -6112,7 +6050,7 @@ void func_ov017_0213a674(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_0213a728(void* arg0) {
+static void func_ov017_0213a728(void* arg0) {
     s16 temp_r0;
 
     temp_r0 = ((Boss03*)arg0)->unk1C0;
@@ -6130,7 +6068,7 @@ void func_ov017_0213a728(void* arg0) {
     func_ov017_021399dc(arg0, func_ov017_02139b40);
 }
 
-s32 func_ov017_0213a7a0(void* arg0, s16 arg1) {
+static s32 func_ov017_0213a7a0(void* arg0, s16 arg1) {
     if (arg1 == -1) {
         return 0;
     }
@@ -6146,7 +6084,7 @@ s32 func_ov017_0213a7a0(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_0213a818(void* arg0, s16 arg1) {
+static s32 func_ov017_0213a818(void* arg0, s16 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk54 = (s32)(((Boss03*)arg0)->unk54 | 0x10);
         func_ov003_02084694(arg0 + 0x144, 1);
@@ -6166,7 +6104,7 @@ s32 func_ov017_0213a818(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_0213a8e0(void* arg0, s16 arg1) {
+static s32 func_ov017_0213a8e0(void* arg0, s16 arg1) {
     s32 var_r0;
 
     if (arg1 == 0) {
@@ -6196,7 +6134,7 @@ s32 func_ov017_0213a8e0(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_0213a9cc(void* arg0, s16 arg1) {
+static s32 func_ov017_0213a9cc(void* arg0, s16 arg1) {
     f32 var_r0;
     s16 temp_r0;
     s32 temp_r0_3;
@@ -6245,7 +6183,7 @@ s32 func_ov017_0213a9cc(void* arg0, s16 arg1) {
     }
 }
 
-s32 func_ov017_0213ab24(void* arg0, s32 arg1) {
+static s32 func_ov017_0213ab24(void* arg0, s32 arg1) {
     s16 temp_r0;
     s32 var_r5;
 
@@ -6288,17 +6226,17 @@ s32 func_ov017_0213ab24(void* arg0, s32 arg1) {
     }
 }
 
-s16 func_ov017_0213ac5c(void* arg0, s32 arg1) {
+static s16 func_ov017_0213ac5c(void* arg0, s32 arg1) {
     return func_ov003_020cb910(arg0 + 0x1DC, arg0 + 0x1E0, arg0 + 0x1E4, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C,
                                ((Boss03*)arg0)->unk30, ((Boss03*)arg0)->unk1D0, ((Boss03*)arg0)->unk1D4,
                                ((Boss03*)arg0)->unk1D8, arg1);
 }
 
-void func_ov017_0213acb8(void* arg0, s32 arg1, s16 arg2) {
+static void func_ov017_0213acb8(void* arg0, s32 arg1, s16 arg2) {
     ((Boss03*)(arg0 + (arg1 * 2)))->unk1EC = arg2;
 }
 
-void func_ov017_0213acc8(void* arg0, s32 arg1) {
+static void func_ov017_0213acc8(void* arg0, s32 arg1) {
     s16 temp_r5;
 
     temp_r5 = *(s32*)((char*)&data_ov017_02142772 + (arg1 * 4));
@@ -6306,7 +6244,7 @@ void func_ov017_0213acc8(void* arg0, s32 arg1) {
         (s16)(*(s32*)((char*)&data_ov017_02142770 + (arg1 * 4)) + ((0 - temp_r5) + RNG_Next((temp_r5 * 2) + 1)));
 }
 
-void func_ov017_0213ad1c(void* arg0, s32 arg1) {
+static void func_ov017_0213ad1c(void* arg0, s32 arg1) {
     s32*  temp_ip;
     s32   temp_r3;
     void* temp_r0;
@@ -6320,18 +6258,18 @@ void func_ov017_0213ad1c(void* arg0, s32 arg1) {
     }
 }
 
-s32 func_ov017_0213ad4c(void* arg0, s32 arg1) {
+static s32 func_ov017_0213ad4c(void* arg0, s32 arg1) {
     if (((Boss03*)(arg0 + (arg1 * 2)))->unk1EC == 0) {
         return 1;
     }
     return 0;
 }
 
-void func_ov017_0213ad68(void* arg0, s32 arg1) {
+static void func_ov017_0213ad68(void* arg0, s32 arg1) {
     ((Boss03*)(arg0 + (arg1 * 2)))->unk1EC = 0;
 }
 
-void func_ov017_0213ad7c(void* arg0) {
+static void func_ov017_0213ad7c(void* arg0) {
     u8 temp_r0;
     u8 var_r0;
 
@@ -6344,14 +6282,14 @@ void func_ov017_0213ad7c(void* arg0) {
     ((Boss03*)arg0)->unk1FA = var_r0;
 }
 
-s32 func_ov017_0213ada0(void) {
+static s32 func_ov017_0213ada0(void) {
     if (((Boss03*)data_ov003_020e71b8->unk3D89C)->unk30 > -0x20000) {
         return 1;
     }
     return 0;
 }
 
-s32 BtlBoss03_03_RG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_03_RG_Init(TaskPool* pool, Task* task, void* args) {
     s32   var_r4;
     void* temp_r4;
     void* temp_r5;
@@ -6386,7 +6324,7 @@ s32 BtlBoss03_03_RG_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_03_RG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_03_RG_Update(TaskPool* pool, Task* task, void* args) {
     void (*temp_r1_2)(void*);
     s16   temp_r0_4;
     s32   temp_r0;
@@ -6484,21 +6422,21 @@ s32 BtlBoss03_03_RG_Update(TaskPool* pool, Task* task, void* args) {
     return ((Boss03*)temp_r4)->unk1CC;
 }
 
-s32 BtlBoss03_03_RG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_03_RG_Render(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c48b0(((Boss03*)task->data)->unk18);
     return 1;
 }
 
-s32 BtlBoss03_03_RG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_03_RG_Destroy(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c48fc(((Boss03*)task->data)->unk18);
     return 1;
 }
 
-s32 BtlBoss03_03_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_03_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlBoss03_03_RG = {"Tsk_BtlBoss03_03_RG", BtlBoss03_03_RG_RunTask, 0x1FC};
 
-s32 BtlBoss03_03_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_03_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov017_02142780 = {
         .initialize = BtlBoss03_03_RG_Init,
         .update     = BtlBoss03_03_RG_Update,
@@ -6508,7 +6446,7 @@ s32 BtlBoss03_03_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     return data_ov017_02142780.iter[stage](pool, task, args);
 }
 
-s32 BtlBoss03_03_UG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_03_UG_Init(TaskPool* pool, Task* task, void* args) {
     void* temp_r4;
     void* temp_r5;
 
@@ -6537,7 +6475,7 @@ s32 BtlBoss03_03_UG_Init(TaskPool* pool, Task* task, void* args) {
     ((Boss03*)temp_r4)->unk1CC = 1;
 }
 
-s32 BtlBoss03_03_UG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_03_UG_Update(TaskPool* pool, Task* task, void* args) {
     void* temp_r4;
     void* temp_r5;
 
@@ -6562,22 +6500,22 @@ s32 BtlBoss03_03_UG_Update(TaskPool* pool, Task* task, void* args) {
     return ((Boss03*)temp_r4)->unk1CC;
 }
 
-s32 BtlBoss03_03_UG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_03_UG_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_03_UG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_03_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c492c(((Boss03*)task->data)->unk18);
     func_ov017_0213e074();
     return 1;
 }
 
 /// MARK: BtlBoss03_03_UG
-s32 BtlBoss03_03_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_03_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlBoss03_03_UG = {"Tsk_BtlBoss03_03_UG", BtlBoss03_03_UG_RunTask, 0x1DC};
 
-s32 BtlBoss03_03_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_03_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov017_0214279c = {
         .initialize = BtlBoss03_03_UG_Init,
         .update     = BtlBoss03_03_UG_Update,
@@ -6587,18 +6525,18 @@ s32 BtlBoss03_03_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     return data_ov017_0214279c.iter[stage](pool, task, args);
 }
 
-void func_ov017_0213b454(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_0213b454(void* arg0, void (*arg1)(void*)) {
     func_ov003_020c427c(arg0);
     ((Boss03*)arg0)->unk1C8 = arg1;
     ((Boss03*)arg0)->unk1C4 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_0213b47c(void* arg0) {
+static void func_ov017_0213b47c(void* arg0) {
     func_ov017_0213b454(arg0, func_ov017_0213b6d0);
 }
 
-void func_ov017_0213b490(void* arg0) {
+static void func_ov017_0213b490(void* arg0) {
     s32 temp_r4;
     u32 temp_r1;
     u8  temp_r2;
@@ -6632,7 +6570,7 @@ void func_ov017_0213b490(void* arg0) {
     func_ov017_0213b454(arg0, var_r1);
 }
 
-void func_ov017_0213b534(void* arg0) {
+static void func_ov017_0213b534(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         data_ov003_020e71b8->unk3D875 = 2;
         ((Boss03*)arg0)->unk1C0       = (s16)(((Boss03*)arg0)->unk1C0 + 1);
@@ -6643,7 +6581,7 @@ void func_ov017_0213b534(void* arg0) {
     func_ov017_0213b454(arg0, func_ov017_0213b594);
 }
 
-void func_ov017_0213b594(void* arg0) {
+static void func_ov017_0213b594(void* arg0) {
     s16 temp_r2;
     u32 temp_r3;
 
@@ -6675,7 +6613,7 @@ void func_ov017_0213b594(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(temp_r2 + 1);
 }
 
-void func_ov017_0213b6d0(void* arg0) {
+static void func_ov017_0213b6d0(void* arg0) {
     s32 var_r1;
     s16 temp_r2;
     s32 temp_r4;
@@ -6711,7 +6649,7 @@ void func_ov017_0213b6d0(void* arg0) {
     }
 }
 
-void func_ov017_0213b7c4(void* arg0) {
+static void func_ov017_0213b7c4(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c4b5c(arg0);
         func_ov003_02087f00(SEIDX_HANEKOMA_N_BTL_ATCS01, func_ov003_020843b0(0, ((Boss03*)arg0)->unk28));
@@ -6723,7 +6661,7 @@ void func_ov017_0213b7c4(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_0213b83c(void* arg0) {
+static void func_ov017_0213b83c(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c4b5c(arg0);
         func_ov003_02087f00(SEIDX_HANEKOMA_N_BTL_ATCM01, func_ov003_020843b0(0, ((Boss03*)arg0)->unk28));
@@ -6736,7 +6674,7 @@ void func_ov017_0213b83c(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_0213b8cc(void* arg0) {
+static void func_ov017_0213b8cc(void* arg0) {
     s16   spA;
     s16   sp8;
     s32   var_r1;
@@ -7044,7 +6982,7 @@ void func_ov017_0213b8cc(void* arg0) {
     }
 }
 
-void func_ov017_0213c1d4(void* arg0) {
+static void func_ov017_0213c1d4(void* arg0) {
     f32   var_r0;
     f32   var_r0_3;
     s16   temp_r0;
@@ -7201,7 +7139,7 @@ void func_ov017_0213c1d4(void* arg0) {
     }
 }
 
-void func_ov017_0213c60c(void* arg0) {
+static void func_ov017_0213c60c(void* arg0) {
     s16   temp_r2;
     s32   temp_r6;
     s32   var_r7;
@@ -7264,7 +7202,7 @@ void func_ov017_0213c60c(void* arg0) {
     }
 }
 
-void func_ov017_0213c7c0(void* arg0) {
+static void func_ov017_0213c7c0(void* arg0) {
     s16   temp_r1;
     u8    temp_r0_2;
     void* temp_r0;
@@ -7305,7 +7243,7 @@ void func_ov017_0213c7c0(void* arg0) {
     func_ov017_0213b454(arg0, func_ov017_0213b594);
 }
 
-void func_ov017_0213c930(void* arg0) {
+static void func_ov017_0213c930(void* arg0) {
     u8    temp_r0;
     void* temp_r0_2;
     void* temp_r3;
@@ -7341,7 +7279,7 @@ void func_ov017_0213c930(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s16)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_0213ca84(void* arg0) {
+static void func_ov017_0213ca84(void* arg0) {
     s16   temp_r2;
     u8    temp_r0;
     void* temp_r0_2;
@@ -7379,7 +7317,7 @@ void func_ov017_0213ca84(void* arg0) {
     func_ov017_0213b454(arg0, func_ov017_0213b594);
 }
 
-s32 func_ov017_0213cbcc(void* arg0, s32 arg1, s16 arg2) {
+static s32 func_ov017_0213cbcc(void* arg0, s32 arg1, s16 arg2) {
     s16 temp_r0;
 
     if (arg2 == 0) {
@@ -7409,7 +7347,7 @@ s32 func_ov017_0213cbcc(void* arg0, s32 arg1, s16 arg2) {
     return 1;
 }
 
-s32 func_ov017_0213cd00(void* arg0, s16 arg1) {
+static s32 func_ov017_0213cd00(void* arg0, s16 arg1) {
     if (arg1 == -1) {
         return 0;
     }
@@ -7423,7 +7361,7 @@ s32 func_ov017_0213cd00(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_0213cd60(void* arg0, s16 arg1) {
+static s32 func_ov017_0213cd60(void* arg0, s16 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk54 = (s32)(((Boss03*)arg0)->unk54 | 0x10);
         func_ov003_02084694(arg0 + 0x144, 1);
@@ -7441,7 +7379,7 @@ s32 func_ov017_0213cd60(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_0213ce14(void* arg0, s16 arg1) {
+static s32 func_ov017_0213ce14(void* arg0, s16 arg1) {
     if (arg1 == 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C & ~1);
         CombatSprite_Release(arg0 + 0x84);
@@ -7459,7 +7397,7 @@ s32 func_ov017_0213ce14(void* arg0, s16 arg1) {
     return 1;
 }
 
-s32 func_ov017_0213ced0(void* arg0, s16 arg1) {
+static s32 func_ov017_0213ced0(void* arg0, s16 arg1) {
     s16 temp_r0;
     s32 var_r4;
 
@@ -7498,7 +7436,7 @@ s32 func_ov017_0213ced0(void* arg0, s16 arg1) {
     }
 }
 
-s32 func_ov017_0213cfec(void* arg0, s32 arg1) {
+static s32 func_ov017_0213cfec(void* arg0, s32 arg1) {
     s16   temp_r0;
     s32   var_r4;
     s32   var_r5;
@@ -7547,24 +7485,24 @@ s32 func_ov017_0213cfec(void* arg0, s32 arg1) {
     }
 }
 
-s16 func_ov017_0213d13c(void* arg0, s32 arg1) {
+static s16 func_ov017_0213d13c(void* arg0, s32 arg1) {
     return func_ov003_020cb910(arg0 + 0x1DC, arg0 + 0x1E0, arg0 + 0x1E4, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C,
                                ((Boss03*)arg0)->unk30, ((Boss03*)arg0)->unk1D0, ((Boss03*)arg0)->unk1D4,
                                ((Boss03*)arg0)->unk1D8, arg1);
 }
 
-void func_ov017_0213d198(void* arg0, s32 arg1, s32 arg2, s32 arg3) {
+static void func_ov017_0213d198(void* arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((Boss03*)arg0)->unk1D0 = arg1;
     ((Boss03*)arg0)->unk1D4 = arg2;
     ((Boss03*)arg0)->unk1D8 = arg3;
 }
 
-s32 func_ov017_0213d1a8(void* arg0) {
+static s32 func_ov017_0213d1a8(void* arg0) {
     func_ov003_020cba54(((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30, ((Boss03*)arg0)->unk1D0,
                         ((Boss03*)arg0)->unk1D4, ((Boss03*)arg0)->unk1D8);
 }
 
-void func_ov017_0213d1e0(void* arg0, s32 arg1) {
+static void func_ov017_0213d1e0(void* arg0, s32 arg1) {
     s16 temp_r5;
 
     temp_r5 = *(s32*)((char*)&data_ov017_021435be + (arg1 * 4));
@@ -7572,11 +7510,11 @@ void func_ov017_0213d1e0(void* arg0, s32 arg1) {
         (s16)(*(s32*)((char*)&data_ov017_021435bc + (arg1 * 4)) + ((0 - temp_r5) + RNG_Next((temp_r5 * 2) + 1)));
 }
 
-void func_ov017_0213d234(void* arg0, s32 arg1) {
+static void func_ov017_0213d234(void* arg0, s32 arg1) {
     ((Boss03*)(arg0 + (arg1 * 2)))->unk1F6 = 0;
 }
 
-void func_ov017_0213d248(void* arg0, s32 arg1) {
+static void func_ov017_0213d248(void* arg0, s32 arg1) {
     s32   temp_ip;
     s32   temp_r3;
     void* temp_r0;
@@ -7590,14 +7528,14 @@ void func_ov017_0213d248(void* arg0, s32 arg1) {
     }
 }
 
-s32 func_ov017_0213d27c(s32 arg0, s32 arg1) {
+static s32 func_ov017_0213d27c(s32 arg0, s32 arg1) {
     if (((Boss03*)(arg0 + (arg1 * 2)))->unk1F6 == 0) {
         return 1;
     }
     return 0;
 }
 
-s32 func_ov017_0213d298(void* arg0) {
+static s32 func_ov017_0213d298(void* arg0) {
     s32 var_ip = 0x48000;
     if (((Boss03*)arg0)->unk24 == 0) {
         var_ip = -0x48000;
@@ -7606,7 +7544,7 @@ s32 func_ov017_0213d298(void* arg0) {
                                ((Boss03*)arg0)->unk30, 0x10000, 0x20000, 0x10000);
 }
 
-s32 func_ov017_0213d2f4(void* arg0) {
+static s32 func_ov017_0213d2f4(void* arg0) {
     s32   temp_r1;
     s32   temp_r1_2;
     void* temp_r4;
@@ -7624,11 +7562,11 @@ s32 func_ov017_0213d2f4(void* arg0) {
 
 /// MARK: Boss03_04_UG
 
-s32 BtlBoss03_04_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_04_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle data_ov017_021427ac = {"Tsk_BtlBoss03_04_UG", BtlBoss03_04_UG_RunTask, 524};
 
-s32 BtlBoss03_04_UG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_04_UG_Init(TaskPool* pool, Task* task, void* args) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)task->data)->unk18;
@@ -7648,7 +7586,7 @@ s32 BtlBoss03_04_UG_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_04_UG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_04_UG_Update(TaskPool* pool, Task* task, void* args) {
     void (*temp_r1)(void*);
     s32    temp_r0;
     s32    temp_r0_2;
@@ -7705,18 +7643,18 @@ s32 BtlBoss03_04_UG_Update(TaskPool* pool, Task* task, void* args) {
     return ((Boss03*)temp_r4)->unk1CC;
 }
 
-s32 BtlBoss03_04_UG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_04_UG_Render(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c48b0(((Boss03*)task->data)->unk18);
     return 1;
 }
 
-s32 BtlBoss03_04_UG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_04_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c492c(((Boss03*)task->data)->unk18);
     func_ov017_0213e074();
     return 1;
 }
 
-s32 BtlBoss03_04_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_04_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov017_021427b8 = {
         .initialize = BtlBoss03_04_UG_Init,
         .update     = BtlBoss03_04_UG_Update,
@@ -7742,15 +7680,16 @@ typedef struct {
     /* 0x18 */ s32 unk_18;
 } Boss03_AppearBlackBall_Args;
 
-s32 BtlBoss03_AppearBlackBall_Init(void* arg0, void* arg1);
-s32 BtlBoss03_AppearBlackBall_Update(void* arg0);
-s32 BtlBoss03_AppearBlackBall_Render(s32 arg0);
-s32 BtlBoss03_AppearBlackBall_Destroy(s32 arg0);
-s32 BtlBoss03_AppearBlackBall_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_AppearBlackBall_Init(void* arg0, void* arg1);
+static s32 BtlBoss03_AppearBlackBall_Update(void* arg0);
+static s32 BtlBoss03_AppearBlackBall_Render(s32 arg0);
+static s32 BtlBoss03_AppearBlackBall_Destroy(s32 arg0);
+static s32 BtlBoss03_AppearBlackBall_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Task_BtlBoss03_AppearBlackBall = {"Task_BtlBoss03_AppearBlackBall", BtlBoss03_AppearBlackBall_RunTask, 0xE4};
+static const TaskHandle Task_BtlBoss03_AppearBlackBall = {"Task_BtlBoss03_AppearBlackBall", BtlBoss03_AppearBlackBall_RunTask,
+                                                          0xE4};
 
-s32 BtlBoss03_AppearBlackBall_CreateTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+static s32 BtlBoss03_AppearBlackBall_CreateTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
     Boss03_AppearBlackBall_Args args;
     args.unk_0  = arg0;
     args.unk_4  = arg1;
@@ -7769,7 +7708,7 @@ s32 BtlBoss03_AppearBlackBall_CreateTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
     EasyTask_CreateTask(taskPool, &Task_BtlBoss03_AppearBlackBall, 0, 0, 0, &args);
 }
 
-void func_ov017_0213d6b4(s32 arg0, s32 arg1) {
+static void func_ov017_0213d6b4(s32 arg0, s32 arg1) {
     void* temp_r4 = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_00000, arg0);
     void* temp_r0 = EasyTask_GetTaskData(&data_ov003_020e71b8->taskPool, arg1);
 
@@ -7779,7 +7718,7 @@ void func_ov017_0213d6b4(s32 arg0, s32 arg1) {
     ((Boss03*)temp_r0)->unk7C = (void*)(temp_r4 + 4);
 }
 
-s32 BtlBoss03_AppearBlackBall_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_AppearBlackBall_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     Boss03_AppearBlackBall* appearBlackBall = task->data;
 
     switch (stage) {
@@ -7795,7 +7734,7 @@ s32 BtlBoss03_AppearBlackBall_RunTask(TaskPool* pool, Task* task, void* args, s3
     return 1;
 }
 
-s32 BtlBoss03_AppearBlackBall_Init(void* arg0, void* arg1) {
+static s32 BtlBoss03_AppearBlackBall_Init(void* arg0, void* arg1) {
     u32 var_r0;
 
     MI_CpuSet(arg0, 0, 0xE4);
@@ -7821,7 +7760,7 @@ s32 BtlBoss03_AppearBlackBall_Init(void* arg0, void* arg1) {
     return 1;
 }
 
-s32 BtlBoss03_AppearBlackBall_Update(void* arg0) {
+static s32 BtlBoss03_AppearBlackBall_Update(void* arg0) {
     SubroutineArgs subroutine_arg0;
     s32            sp18;
     s32            sp14;
@@ -7920,7 +7859,7 @@ s32 BtlBoss03_AppearBlackBall_Update(void* arg0) {
     }
 }
 
-s32 BtlBoss03_AppearBlackBall_Render(s32 arg0) {
+static s32 BtlBoss03_AppearBlackBall_Render(s32 arg0) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
@@ -7928,16 +7867,16 @@ s32 BtlBoss03_AppearBlackBall_Render(s32 arg0) {
     return 1;
 }
 
-s32 BtlBoss03_AppearBlackBall_Destroy(s32 arg0) {
+static s32 BtlBoss03_AppearBlackBall_Destroy(s32 arg0) {
     CombatSprite_Release(arg0 + 0x80);
     return 1;
 }
 
-s32 BtlBoss03_BlckBall_Abs_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_BlckBall_Abs_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Task_BtlBoss03_BlckBall_Abs = {"Task_BtlBoss03_BlckBall_Abs", BtlBoss03_BlckBall_Abs_RunTask, 0x98};
+static const TaskHandle Task_BtlBoss03_BlckBall_Abs = {"Task_BtlBoss03_BlckBall_Abs", BtlBoss03_BlckBall_Abs_RunTask, 0x98};
 
-s32 BtlBoss03_BlckBall_Abs_CreateTask(void* arg0) {
+static s32 BtlBoss03_BlckBall_Abs_CreateTask(void* arg0) {
     void**    sp8;
     TaskPool* taskPool;
 
@@ -7950,7 +7889,7 @@ s32 BtlBoss03_BlckBall_Abs_CreateTask(void* arg0) {
     return EasyTask_CreateTask(taskPool, &Task_BtlBoss03_BlckBall_Abs, 0, 0, 0, &sp8);
 }
 
-s32 BtlBoss03_BlckBall_Abs_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_BlckBall_Abs_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     s16    sp1A;
     s16    sp18;
     s32    var_r0;
@@ -8075,7 +8014,7 @@ s32 BtlBoss03_BlckBall_Abs_RunTask(TaskPool* pool, Task* task, void* args, s32 s
     }
 }
 
-void func_ov017_0213df24(s32 arg0) {
+static void func_ov017_0213df24(s32 arg0) {
     s32* temp_r1;
     s32  temp_hi;
     s32  temp_hi_2;
@@ -8137,11 +8076,11 @@ void func_ov017_0213df24(s32 arg0) {
     func_ov003_020cb150(&data_ov017_02143a24);
 }
 
-void func_ov017_0213e074(void) {
+static void func_ov017_0213e074(void) {
     func_ov003_020cb194(&data_ov017_02143a24);
 }
 
-void func_ov017_0213e088(u32 arg0, s32 arg1) {
+static void func_ov017_0213e088(u32 arg0, s32 arg1) {
     s32* table;
     s32  temp_r4;
     u16  var_r5;
@@ -8177,7 +8116,7 @@ void func_ov017_0213e088(u32 arg0, s32 arg1) {
     func_ov003_020cb200(&data_ov017_02143a24, var_r5);
 }
 
-void func_ov017_0213e134(s32 arg0, s32 arg1) {
+static void func_ov017_0213e134(s32 arg0, s32 arg1) {
     s32* table;
     u16  var_r4;
 
@@ -8195,7 +8134,7 @@ loop_1:
     goto loop_1;
 }
 
-void func_ov017_0213e17c(u32 arg0, s32 arg1) {
+static void func_ov017_0213e17c(u32 arg0, s32 arg1) {
     u16 var_r4;
 
     var_r4 = 0;
@@ -8223,24 +8162,24 @@ void func_ov017_0213e17c(u32 arg0, s32 arg1) {
     func_ov003_020cb304(&data_ov017_02143a24, var_r4);
 }
 
-s32* func_ov017_0213e204(s32 arg0) {
+static s32* func_ov017_0213e204(s32 arg0) {
     if (arg0 == 1) {
         return (s32*)&data_ov017_02143614;
     }
     return (s32*)&data_ov017_02143660;
 }
 
-s32 BtlBoss03_EffPress_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
-s32 BtlBoss03_EffCatch_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
-s32 BtlBoss03_EffPosture_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
-s32 BtlBoss03_EffSign_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_EffPress_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_EffCatch_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_EffPosture_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_EffSign_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Tsk_BtlBoss03_EffPress    = {"Tsk_BtlBoss03_EffPress", BtlBoss03_EffPress_RunTask, 0x68};
-const TaskHandle Tsk_BtlBoss03_EffCatch    = {"Tsk_BtlBoss03_EffCatch", BtlBoss03_EffCatch_RunTask, 0x64};
-const TaskHandle Task_BtlBoss03_EffPosture = {"Task_BtlBoss03_EffPosture", BtlBoss03_EffPosture_RunTask, 0x64};
-const TaskHandle Task_BtlBoss03_EffSign    = {"Task_BtlBoss03_EffSign", BtlBoss03_EffSign_RunTask, 0x68};
+static const TaskHandle Tsk_BtlBoss03_EffPress    = {"Tsk_BtlBoss03_EffPress", BtlBoss03_EffPress_RunTask, 0x68};
+static const TaskHandle Tsk_BtlBoss03_EffCatch    = {"Tsk_BtlBoss03_EffCatch", BtlBoss03_EffCatch_RunTask, 0x64};
+static const TaskHandle Task_BtlBoss03_EffPosture = {"Task_BtlBoss03_EffPosture", BtlBoss03_EffPosture_RunTask, 0x64};
+static const TaskHandle Task_BtlBoss03_EffSign    = {"Task_BtlBoss03_EffSign", BtlBoss03_EffSign_RunTask, 0x68};
 
-s32 BtlBoss03_EffSign_CreateTask(void* arg0) {
+static s32 BtlBoss03_EffSign_CreateTask(void* arg0) {
     void** sp8;
     void*  var_r0;
 
@@ -8253,7 +8192,7 @@ s32 BtlBoss03_EffSign_CreateTask(void* arg0) {
     EasyTask_CreateTask(var_r0, &Task_BtlBoss03_EffSign, 0, 0, 0, &sp8);
 }
 
-void BtlBoss03_EffPosture_CreateTask(void* arg0) {
+static void BtlBoss03_EffPosture_CreateTask(void* arg0) {
     void** sp8;
     void*  var_r0;
 
@@ -8266,7 +8205,7 @@ void BtlBoss03_EffPosture_CreateTask(void* arg0) {
     EasyTask_CreateTask(var_r0, &Task_BtlBoss03_EffPosture, 0, 0, 0, &sp8);
 }
 
-void BtlBoss03_EffCatch_CreateTask(void* arg0) {
+static void BtlBoss03_EffCatch_CreateTask(void* arg0) {
     void**    sp8;
     TaskPool* taskPool;
 
@@ -8279,7 +8218,7 @@ void BtlBoss03_EffCatch_CreateTask(void* arg0) {
     EasyTask_CreateTask(taskPool, &Tsk_BtlBoss03_EffCatch, 0, 0, 0, &sp8);
 }
 
-void BtlBoss03_EffPress_CreateTask(void* arg0) {
+static void BtlBoss03_EffPress_CreateTask(void* arg0) {
     void**    sp8;
     TaskPool* taskPool;
 
@@ -8294,15 +8233,15 @@ void BtlBoss03_EffPress_CreateTask(void* arg0) {
     }
 }
 
-void func_ov017_0213e3a4(void) {
+static void func_ov017_0213e3a4(void) {
     data_ov017_02143a60 = 1;
 }
 
-void func_ov017_0213e3b8(void) {
+static void func_ov017_0213e3b8(void) {
     data_ov017_02143a60 = 0;
 }
 
-s32 BtlBoss03_EffSign_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_EffSign_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     s32    var_r3;
     s32    var_r5;
     void*  temp_r0;
@@ -8362,7 +8301,7 @@ s32 BtlBoss03_EffSign_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
     }
 }
 
-s32 BtlBoss03_EffPosture_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_EffPosture_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     s16    spA;
     s16    sp8;
     s32    var_r0;
@@ -8429,7 +8368,7 @@ s32 BtlBoss03_EffPosture_RunTask(TaskPool* pool, Task* task, void* args, s32 sta
     }
 }
 
-s32 BtlBoss03_EffCatch_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_EffCatch_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     s16    spA;
     s16    sp8;
     s32    var_r0;
@@ -8496,7 +8435,7 @@ s32 BtlBoss03_EffCatch_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
     }
 }
 
-s32 BtlBoss03_EffPress_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_EffPress_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     s16    spA;
     s16    sp8;
     s16    temp_r0_2;
@@ -8578,11 +8517,11 @@ s32 BtlBoss03_EffPress_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
     }
 }
 
-s32 BtlBoss03_EffRush_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_EffRush_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Task_BtlBoss03_EffRush = {"Task_BtlBoss03_EffRush", BtlBoss03_EffRush_RunTask, 0x64};
+static const TaskHandle Task_BtlBoss03_EffRush = {"Task_BtlBoss03_EffRush", BtlBoss03_EffRush_RunTask, 0x64};
 
-s32 BtlBoss03_EffRush_CreateTask(void* arg0) {
+static s32 BtlBoss03_EffRush_CreateTask(void* arg0) {
     void** sp8;
     void*  var_r0;
 
@@ -8595,7 +8534,7 @@ s32 BtlBoss03_EffRush_CreateTask(void* arg0) {
     EasyTask_CreateTask(var_r0, &Task_BtlBoss03_EffRush, 0, 0, 0, &sp8);
 }
 
-s32 BtlBoss03_EffRush_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_EffRush_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     s16    spA;
     s16    sp8;
     s32    var_r0;
@@ -8689,11 +8628,11 @@ typedef struct {
     /* 0x4 */ s32 unk_4;
 } BtlBoss03_FailPly_Args;
 
-s32 BtlBoss03_FailPly_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_FailPly_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Tsk_BtlBoss03_FailPly = {"Tsk_BtlBoss03_FailPly", BtlBoss03_FailPly_RunTask, 0x14};
+static const TaskHandle Tsk_BtlBoss03_FailPly = {"Tsk_BtlBoss03_FailPly", BtlBoss03_FailPly_RunTask, 0x14};
 
-void BtlBoss03_FailPly_CreateTask(s32 arg0, s32 arg1) {
+static void BtlBoss03_FailPly_CreateTask(s32 arg0, s32 arg1) {
     BtlBoss03_FailPly_Args args;
     TaskPool*              taskPool;
 
@@ -8707,7 +8646,7 @@ void BtlBoss03_FailPly_CreateTask(s32 arg0, s32 arg1) {
     EasyTask_CreateTask(taskPool, &Tsk_BtlBoss03_FailPly, NULL, 0, NULL, &args);
 }
 
-s32 BtlBoss03_FailPly_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_FailPly_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlBoss03_FailPly*      failPly     = task->data;
     BtlBoss03_FailPly_Args* failPlyArgs = args;
 
@@ -8747,7 +8686,7 @@ s32 BtlBoss03_FailPly_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
     return var_r5;
 }
 
-void* func_ov017_0213ece0(u32 arg0) {
+static void* func_ov017_0213ece0(u32 arg0) {
     switch (arg0) {
         default:
             return NULL;
@@ -8766,34 +8705,34 @@ void* func_ov017_0213ece0(u32 arg0) {
 
 /// MARK: BtlBoss03_KindanMgr
 
-s32 BtlBoss03_KindanMgr_Init(void* arg0, s32);
-s32 BtlBoss03_KindanMgr_Update(void* arg0);
-s32 BtlBoss03_KindanMgr_Destroy(s32 arg0);
+static s32 BtlBoss03_KindanMgr_Init(void* arg0, s32);
+static s32 BtlBoss03_KindanMgr_Update(void* arg0);
+static s32 BtlBoss03_KindanMgr_Destroy(s32 arg0);
 
-s32 BtlBoss03_KindanMgr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_KindanMgr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Task_BtlBoss03_KindanMgr = {"Task_BtlBoss03_KindanMgr", BtlBoss03_KindanMgr_RunTask, 0x88};
+static const TaskHandle Task_BtlBoss03_KindanMgr = {"Task_BtlBoss03_KindanMgr", BtlBoss03_KindanMgr_RunTask, 0x88};
 
-void BtlBoss03_KindanMgr_CreateTask(void) {
+static void BtlBoss03_KindanMgr_CreateTask(void) {
     s32 sp8;
 
     data_ov017_02143a64 = EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Task_BtlBoss03_KindanMgr, 0, 0, 0, &sp8);
 }
 
-void func_ov017_0213ed98(s32 arg0, void* arg1) {
+static void func_ov017_0213ed98(s32 arg0, void* arg1) {
     void* temp_r0 = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, data_ov017_02143a64);
 
     ((Boss03*)temp_r0)->unk8 = arg0;
     ((Boss03*)temp_r0)->unkC = arg1;
 }
 
-void func_ov017_0213edd4(void) {
+static void func_ov017_0213edd4(void) {
     void* temp_r0 = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, data_ov017_02143a64);
 
     ((Boss03*)temp_r0)->unk38 = (s16)(((Boss03*)temp_r0)->unk38 + 1);
 }
 
-void func_ov017_0213ee0c(void) {
+static void func_ov017_0213ee0c(void) {
     void* temp_r0 = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, data_ov017_02143a64);
 
     s16 temp_r1 = ((Boss03*)temp_r0)->unk38;
@@ -8802,7 +8741,7 @@ void func_ov017_0213ee0c(void) {
     }
 }
 
-void* func_ov017_0213ee48(s32 arg0, s32 arg1) {
+static void* func_ov017_0213ee48(s32 arg0, s32 arg1) {
     void* temp_r0 = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, data_ov017_02143a64);
 
     if (arg0 == 1) {
@@ -8811,7 +8750,7 @@ void* func_ov017_0213ee48(s32 arg0, s32 arg1) {
     return EasyTask_GetTaskData(&data_ov003_020e71b8->unk_00000, ((Boss03*)(temp_r0 + (arg1 * 8)))->unk44);
 }
 
-s32 func_ov017_0213eeb8(void) {
+static s32 func_ov017_0213eeb8(void) {
     s32   var_r3;
     void* temp_r0;
     void* temp_r2;
@@ -8833,7 +8772,7 @@ loop_4:
     return 0;
 }
 
-s32 func_ov017_0213ef4c(void) {
+static s32 func_ov017_0213ef4c(void) {
     s16   temp_r1_2;
     s16   temp_r2;
     s32   var_r3;
@@ -8854,7 +8793,7 @@ s32 func_ov017_0213ef4c(void) {
     return var_r4 - ((Boss03*)temp_r0)->unk38;
 }
 
-void func_ov017_0213efa8(s32* arg0, s32* arg1) {
+static void func_ov017_0213efa8(s32* arg0, s32* arg1) {
     void* temp_r0;
     s32   temp_r3;
     s32   var_r0;
@@ -8908,7 +8847,7 @@ loop_7:
     BtlBoss03_NoisAppr_CreateTask(temp_r5, arg0, arg1, temp_r4 + 0x40 + (var_r6 * 8), temp_r4 + 0x44 + (var_r6 * 8));
 }
 
-void func_ov017_0213f0bc(s32 arg0) {
+static void func_ov017_0213f0bc(s32 arg0) {
     s32   var_r5;
     void* temp_r0;
     void* temp_r0_2;
@@ -8936,7 +8875,7 @@ void func_ov017_0213f0bc(s32 arg0) {
     } while (var_r5 < 4);
 }
 
-void func_ov017_0213f15c(s32 arg0) {
+static void func_ov017_0213f15c(s32 arg0) {
     s32   var_r6;
     void* temp_r0;
     void* temp_r0_2;
@@ -8962,7 +8901,7 @@ void func_ov017_0213f15c(s32 arg0) {
     } while (var_r6 < 4);
 }
 
-void func_ov017_0213f20c(u8 arg0) {
+static void func_ov017_0213f20c(u8 arg0) {
     void* temp_r0;
 
     temp_r0 = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, data_ov017_02143a64);
@@ -8980,7 +8919,7 @@ void func_ov017_0213f20c(u8 arg0) {
     func_ov017_0213f4cc(temp_r0);
 }
 
-u32 func_ov017_0213f2a8(void* arg0) {
+static u32 func_ov017_0213f2a8(void* arg0) {
     void* var_r6_2;
     s32   var_ip;
     s32   var_lr;
@@ -9041,7 +8980,7 @@ u32 func_ov017_0213f2a8(void* arg0) {
     return var_r5;
 }
 
-void func_ov017_0213f394(void* arg0) {
+static void func_ov017_0213f394(void* arg0) {
     void* var_r4;
     s32   var_r0;
     s32   var_r1;
@@ -9105,7 +9044,7 @@ void func_ov017_0213f394(void* arg0) {
     } while (*(temp_r3 + (var_r4_2 * 2)) != 5);
 }
 
-void func_ov017_0213f4cc(void* arg0) {
+static void func_ov017_0213f4cc(void* arg0) {
     void* var_r4;
     s32   var_r1;
     s32   var_r7;
@@ -9143,7 +9082,7 @@ void func_ov017_0213f4cc(void* arg0) {
     } while ((s32)var_r6 < 5);
 }
 
-s16 func_ov017_0213f59c(void* arg0) {
+static s16 func_ov017_0213f59c(void* arg0) {
     s16 temp_r1;
     s16 var_r3;
     s32 var_r2;
@@ -9158,7 +9097,7 @@ s16 func_ov017_0213f59c(void* arg0) {
     return var_r3;
 }
 
-s16 func_ov017_0213f5cc(void* arg0) {
+static s16 func_ov017_0213f5cc(void* arg0) {
     s16 temp_r1;
     s16 var_r3;
     s32 var_r2;
@@ -9173,7 +9112,7 @@ s16 func_ov017_0213f5cc(void* arg0) {
     return var_r3;
 }
 
-s32 func_ov017_0213f5fc(s32 arg0) {
+static s32 func_ov017_0213f5fc(s32 arg0) {
     s32 sp0;
 
     sp0 = 1;
@@ -9183,7 +9122,7 @@ s32 func_ov017_0213f5fc(s32 arg0) {
     return sp0;
 }
 
-s32 func_ov017_0213f630(s32 arg0, Ov003EnemyActor* arg1, void* arg2) {
+static s32 func_ov017_0213f630(s32 arg0, Ov003EnemyActor* arg1, void* arg2) {
     s32   temp_r1;
     void* temp_r0;
 
@@ -9212,7 +9151,7 @@ block_11:
     return 1;
 }
 
-s32 BtlBoss03_KindanMgr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_KindanMgr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* kindanMgr = task->data;
 
     switch (stage) {
@@ -9226,7 +9165,7 @@ s32 BtlBoss03_KindanMgr_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
     return 1;
 }
 
-s32 BtlBoss03_KindanMgr_Init(void* arg0, s32) {
+static s32 BtlBoss03_KindanMgr_Init(void* arg0, s32) {
     s32   var_r2;
     u32   temp_r5;
     void* temp_r0;
@@ -9260,7 +9199,7 @@ s32 BtlBoss03_KindanMgr_Init(void* arg0, s32) {
     return 1;
 }
 
-s32 BtlBoss03_KindanMgr_Update(void* arg0) {
+static s32 BtlBoss03_KindanMgr_Update(void* arg0) {
     s32 sp4;
     s32 sp0;
     void (*temp_r2)(s32, s32);
@@ -9367,7 +9306,7 @@ s32 BtlBoss03_KindanMgr_Update(void* arg0) {
     return 1;
 }
 
-s32 BtlBoss03_KindanMgr_Destroy(s32 arg0) {
+static s32 BtlBoss03_KindanMgr_Destroy(s32 arg0) {
     func_ov003_020cb194(arg0 + 0x64);
     return 1;
 }
@@ -9388,7 +9327,7 @@ typedef struct {
     /* 0xC */ void* unk_C;
 } Appr;
 
-Appr data_ov017_021428f8[5] = {};
+static Appr data_ov017_021428f8[5] = {};
 
 typedef struct {
     /* 0x00 */ u16   unk_0;
@@ -9406,13 +9345,13 @@ typedef struct {
     Vec unk_8;
 } ApprBlob;
 
-s32 BtlBoss03_NoisAppr_Init(BtlBoss03_NoisAppr* noisAppr, void*);
-s32 BtlBoss03_NoisAppr_Update(BtlBoss03_NoisAppr* noisAppr);
-s32 BtlBoss03_NoisAppr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_NoisAppr_Init(BtlBoss03_NoisAppr* noisAppr, void*);
+static s32 BtlBoss03_NoisAppr_Update(BtlBoss03_NoisAppr* noisAppr);
+static s32 BtlBoss03_NoisAppr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle data_ov017_021428ec = {"Task_BtlBoss03_NoisAppr", BtlBoss03_NoisAppr_RunTask, 0x0C};
+static const TaskHandle data_ov017_021428ec = {"Task_BtlBoss03_NoisAppr", BtlBoss03_NoisAppr_RunTask, 0x0C};
 
-void BtlBoss03_NoisAppr_CreateTask(u16 arg0, s32 arg1, s32 arg2, void* arg3, void* arg4) {
+static void BtlBoss03_NoisAppr_CreateTask(u16 arg0, s32 arg1, s32 arg2, void* arg3, void* arg4) {
     BtlBoss03_NoisAppr_Args args;
     args.unk_4  = arg1;
     args.unk_8  = arg2;
@@ -9422,7 +9361,7 @@ void BtlBoss03_NoisAppr_CreateTask(u16 arg0, s32 arg1, s32 arg2, void* arg3, voi
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov017_021428ec, 0, 0, 0, &args);
 }
 
-s32 BtlBoss03_NoisAppr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_NoisAppr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlBoss03_NoisAppr* noisAppr = task->data;
 
     switch (stage) {
@@ -9435,7 +9374,7 @@ s32 BtlBoss03_NoisAppr_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
     }
 }
 
-s32 BtlBoss03_NoisAppr_Init(BtlBoss03_NoisAppr* noisAppr, void* arg1) {
+static s32 BtlBoss03_NoisAppr_Init(BtlBoss03_NoisAppr* noisAppr, void* arg1) {
     BtlBoss03_NoisAppr_Args* noisApprArgs = arg1;
 
     s32 sp34;
@@ -9499,7 +9438,7 @@ s32 BtlBoss03_NoisAppr_Init(BtlBoss03_NoisAppr* noisAppr, void* arg1) {
     return 1;
 }
 
-s32 BtlBoss03_NoisAppr_Update(BtlBoss03_NoisAppr* noisAppr) {
+static s32 BtlBoss03_NoisAppr_Update(BtlBoss03_NoisAppr* noisAppr) {
     if ((noisAppr->unk_4 != NULL) && (((Boss03*)noisAppr->unk_4)->unk54 & 4)) {
         noisAppr->unk_4 = NULL;
     }
@@ -9557,11 +9496,11 @@ s32 BtlBoss03_NoisAppr_Update(BtlBoss03_NoisAppr* noisAppr) {
 
 /// MARK: BtlBoss03_NoisAttk
 
-s32 BtlBoss03_NoisAttk_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_NoisAttk_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Task_BtlBoss03_NoisAttk = {"Task_BtlBoss03_NoisAttk", BtlBoss03_NoisAttk_RunTask, 0x10C};
+static const TaskHandle Task_BtlBoss03_NoisAttk = {"Task_BtlBoss03_NoisAttk", BtlBoss03_NoisAttk_RunTask, 0x10C};
 
-void BtlBoss03_NoisAttk_CreateTask(s32* arg0) {
+static void BtlBoss03_NoisAttk_CreateTask(s32* arg0) {
     TaskPool* taskPool;
 
     if (func_ov003_020c37f8((CombatSprite*)(arg0 + 0x84)) == 0) {
@@ -9572,13 +9511,13 @@ void BtlBoss03_NoisAttk_CreateTask(s32* arg0) {
     EasyTask_CreateTask(taskPool, &Task_BtlBoss03_NoisAttk, 0, 0, 0, arg0);
 }
 
-s16 func_ov017_0213fec0(void* arg0, s32 arg1) {
+static s16 func_ov017_0213fec0(void* arg0, s32 arg1) {
     return func_ov003_020cb910(arg0 + 0xF8, arg0 + 0xFC, arg0 + 0x100, ((Boss03*)arg0)->unk88, ((Boss03*)arg0)->unk8C,
                                ((Boss03*)arg0)->unk90, ((Boss03*)arg0)->unkEC, ((Boss03*)arg0)->unkF0, ((Boss03*)arg0)->unkF4,
                                arg1);
 }
 
-s32 BtlBoss03_NoisAttk_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_NoisAttk_Init(TaskPool* pool, Task* task, void* args) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)args)->unk18;
@@ -9591,7 +9530,7 @@ s32 BtlBoss03_NoisAttk_Init(TaskPool* pool, Task* task, void* args) {
     ((Boss03*)temp_r4)->unkE8 = 1;
 }
 
-s32 BtlBoss03_NoisAttk_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_NoisAttk_Update(TaskPool* pool, Task* task, void* args) {
     s32   var_r0_2;
     s16   temp_ip;
     s16   temp_lr;
@@ -9776,7 +9715,7 @@ s32 BtlBoss03_NoisAttk_Update(TaskPool* pool, Task* task, void* args) {
     return ((Boss03*)temp_r4)->unkE8;
 }
 
-s32 BtlBoss03_NoisAttk_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_NoisAttk_Render(TaskPool* pool, Task* task, void* args) {
     s16   spA;
     s16   sp8;
     s32   var_r0;
@@ -9801,7 +9740,7 @@ s32 BtlBoss03_NoisAttk_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_NoisAttk_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlBoss03_NoisAttk_Destroy(TaskPool* pool, Task* task, void* args) {
     void* temp_r0;
     void* temp_r1;
     void* temp_r1_2;
@@ -9839,7 +9778,7 @@ s32 BtlBoss03_NoisAttk_Destroy(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlBoss03_NoisAttk_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_NoisAttk_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov017_02142954 = {
         .initialize = BtlBoss03_NoisAttk_Init,
         .update     = BtlBoss03_NoisAttk_Update,
@@ -9858,15 +9797,15 @@ typedef struct {
     /* 0x0C */ u16 unk_0C;
 } BtlBoss03_SeqEntry_Args;
 
-s32 BtlBoss03_SeqEntry_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_SeqEntry_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Task_BtlBoss03_SeqEntry = {"Task_BtlBoss03_SeqEntry", BtlBoss03_SeqEntry_RunTask, 0x2C};
+static const TaskHandle Task_BtlBoss03_SeqEntry = {"Task_BtlBoss03_SeqEntry", BtlBoss03_SeqEntry_RunTask, 0x2C};
 
-void BtlBoss03_SeqEntry_CreateTask(void* arg0) {
+static void BtlBoss03_SeqEntry_CreateTask(void* arg0) {
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Task_BtlBoss03_SeqEntry, 0, 0, 0, arg0);
 }
 
-s32 BtlBoss03_SeqEntry_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_SeqEntry_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     s32   spC;
     s32   sp8;
     s32   temp_r3;
@@ -9947,15 +9886,15 @@ typedef struct {
     /* 0x04 */ CombatSprite unk_04;
 } BtlBoss03_ShotEff; // Size: 0x64
 
-s32 BtlBoss03_ShotEff_Init(BtlBoss03_ShotEff* shotEff, void**);
-s32 BtlBoss03_ShotEff_Update(BtlBoss03_ShotEff* shotEff);
-s32 BtlBoss03_ShotEff_Render(BtlBoss03_ShotEff* shotEff);
-s32 BtlBoss03_ShotEff_Destroy(s32);
-s32 BtlBoss03_ShotEff_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlBoss03_ShotEff_Init(BtlBoss03_ShotEff* shotEff, void**);
+static s32 BtlBoss03_ShotEff_Update(BtlBoss03_ShotEff* shotEff);
+static s32 BtlBoss03_ShotEff_Render(BtlBoss03_ShotEff* shotEff);
+static s32 BtlBoss03_ShotEff_Destroy(s32);
+static s32 BtlBoss03_ShotEff_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Tsk_BtlBoss03_ShotEff = {"Tsk_BtlBoss03_ShotEff", BtlBoss03_ShotEff_RunTask};
+static const TaskHandle Tsk_BtlBoss03_ShotEff = {"Tsk_BtlBoss03_ShotEff", BtlBoss03_ShotEff_RunTask};
 
-void BtlBoss03_ShotEff_CreateTask(s32 arg0) {
+static void BtlBoss03_ShotEff_CreateTask(s32 arg0) {
     s32 sp8;
 
     func_ov003_020c37f8((CombatSprite*)(arg0 + 0x84));
@@ -9963,7 +9902,7 @@ void BtlBoss03_ShotEff_CreateTask(s32 arg0) {
     EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlBoss03_ShotEff, 0, 0, 0, &sp8);
 }
 
-s32 BtlBoss03_ShotEff_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_ShotEff_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlBoss03_ShotEff* shotEff = task->data;
 
     switch (stage) {
@@ -9979,7 +9918,7 @@ s32 BtlBoss03_ShotEff_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
     return 1;
 }
 
-s32 BtlBoss03_ShotEff_Init(BtlBoss03_ShotEff* shotEff, void** arg1) {
+static s32 BtlBoss03_ShotEff_Init(BtlBoss03_ShotEff* shotEff, void** arg1) {
     s32   var_r1;
     void* temp_r0;
 
@@ -10003,7 +9942,7 @@ s32 BtlBoss03_ShotEff_Init(BtlBoss03_ShotEff* shotEff, void** arg1) {
     return 1;
 }
 
-s32 BtlBoss03_ShotEff_Update(BtlBoss03_ShotEff* shotEff) {
+static s32 BtlBoss03_ShotEff_Update(BtlBoss03_ShotEff* shotEff) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
@@ -10012,7 +9951,7 @@ s32 BtlBoss03_ShotEff_Update(BtlBoss03_ShotEff* shotEff) {
     return SpriteMgr_IsAnimationFinished(&shotEff->unk_04.sprite) == FALSE;
 }
 
-s32 BtlBoss03_ShotEff_Render(BtlBoss03_ShotEff* shotEff) {
+static s32 BtlBoss03_ShotEff_Render(BtlBoss03_ShotEff* shotEff) {
     s16    spA;
     s16    sp8;
     s32    var_r0;
@@ -10040,12 +9979,12 @@ s32 BtlBoss03_ShotEff_Render(BtlBoss03_ShotEff* shotEff) {
     return 1;
 }
 
-s32 BtlBoss03_ShotEff_Destroy(s32 arg0) {
+static s32 BtlBoss03_ShotEff_Destroy(s32 arg0) {
     CombatSprite_Release(arg0 + 4);
     return 1;
 }
 
-void func_ov017_02140a8c(s32 arg0, void* arg1, s32 arg2, s32 arg3) {
+static void func_ov017_02140a8c(s32 arg0, void* arg1, s32 arg2, s32 arg3) {
     void*  temp_r4;
     void** var_r0;
 
@@ -10060,7 +9999,7 @@ void func_ov017_02140a8c(s32 arg0, void* arg1, s32 arg2, s32 arg3) {
                                (s32)data_ov017_02142a68[arg2]);
 }
 
-void func_ov017_02140b14(u32 arg0, CombatSprite* arg1, s32 arg2, s32 arg3) {
+static void func_ov017_02140b14(u32 arg0, CombatSprite* arg1, s32 arg2, s32 arg3) {
     void*  temp_r4;
     void** var_r0;
 
@@ -10111,16 +10050,16 @@ typedef struct {
     /* 0x1C */ s32  unk_1C;
 } BtlBoss03_ThrwBdge_Args;
 
-void func_ov017_02140d44(s32 arg0, void* arg1);
-s32  BtlBoss03_ThrwBdge_Init(BtlBoss03_ThrwBdge* thrwBdge, BtlBoss03_ThrwBdge_Args* args);
-s32  BtlBoss03_ThrwBdge_Update(BtlBoss03_ThrwBdge* thrwBdge);
-s32  BtlBoss03_ThrwBdge_Render(BtlBoss03_ThrwBdge* thrwBdge);
-s32  BtlBoss03_ThrwBdge_Destroy(BtlBoss03_ThrwBdge* thrwBdge);
-s32  BtlBoss03_ThrwBdge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static void func_ov017_02140d44(s32 arg0, void* arg1);
+static s32  BtlBoss03_ThrwBdge_Init(BtlBoss03_ThrwBdge* thrwBdge, BtlBoss03_ThrwBdge_Args* args);
+static s32  BtlBoss03_ThrwBdge_Update(BtlBoss03_ThrwBdge* thrwBdge);
+static s32  BtlBoss03_ThrwBdge_Render(BtlBoss03_ThrwBdge* thrwBdge);
+static s32  BtlBoss03_ThrwBdge_Destroy(BtlBoss03_ThrwBdge* thrwBdge);
+static s32  BtlBoss03_ThrwBdge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Tsk_BtlBoss03_ThrwBdge = {"Tsk_BtlBoss03_ThrwBdge", BtlBoss03_ThrwBdge_RunTask, 0x011C};
+static const TaskHandle Tsk_BtlBoss03_ThrwBdge = {"Tsk_BtlBoss03_ThrwBdge", BtlBoss03_ThrwBdge_RunTask, 0x011C};
 
-void func_ov017_02140b9c(void* arg0, s16 arg1) {
+static void func_ov017_02140b9c(void* arg0, s16 arg1) {
     BtlBoss03_ThrwBdge_Args args;
     void*                   temp_r5;
 
@@ -10136,7 +10075,7 @@ void func_ov017_02140b9c(void* arg0, s16 arg1) {
     EasyTask_CreateTask(temp_r5 + 0x8000, &Tsk_BtlBoss03_ThrwBdge, 0, 0, 0, &args);
 }
 
-s32 func_ov017_02140c40(void* arg0, s32 arg1, s32 arg2, s32 arg3, s16 arg4) {
+static s32 func_ov017_02140c40(void* arg0, s32 arg1, s32 arg2, s32 arg3, s16 arg4) {
     BtlBoss03_ThrwBdge_Args args;
 
     func_ov003_020c37f8((CombatSprite*)(arg0 + 0x84));
@@ -10149,7 +10088,7 @@ s32 func_ov017_02140c40(void* arg0, s32 arg1, s32 arg2, s32 arg3, s16 arg4) {
     EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlBoss03_ThrwBdge, 0, 0, 0, &args);
 }
 
-void func_ov017_02140cbc(void* arg0) {
+static void func_ov017_02140cbc(void* arg0) {
     BtlBoss03_ThrwBdge_Args args;
     args.unk_00 = arg0;
     args.unk_04 = 3;
@@ -10160,7 +10099,7 @@ void func_ov017_02140cbc(void* arg0) {
     EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlBoss03_ThrwBdge, 0, 0, 0, &args);
 }
 
-void func_ov017_02140d44(s32 arg0, void* arg1) {
+static void func_ov017_02140d44(s32 arg0, void* arg1) {
     s32 temp_r5;
 
     if (arg0 == 1) {
@@ -10178,7 +10117,7 @@ void func_ov017_02140d44(s32 arg0, void* arg1) {
     }
 }
 
-s32 BtlBoss03_ThrwBdge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss03_ThrwBdge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlBoss03_ThrwBdge*      thrwBdge     = task->data;
     BtlBoss03_ThrwBdge_Args* thrwBdgeArgs = args;
 
@@ -10195,7 +10134,7 @@ s32 BtlBoss03_ThrwBdge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
     return 1;
 }
 
-s32 BtlBoss03_ThrwBdge_Init(BtlBoss03_ThrwBdge* thrwBdge, BtlBoss03_ThrwBdge_Args* args) {
+static s32 BtlBoss03_ThrwBdge_Init(BtlBoss03_ThrwBdge* thrwBdge, BtlBoss03_ThrwBdge_Args* args) {
     MI_CpuSet(thrwBdge, 0, sizeof(BtlBoss03_ThrwBdge));
 
     u32 temp_r0 = (*(Boss03**)args)->unk84 << 0x1E;
@@ -10259,7 +10198,7 @@ s32 BtlBoss03_ThrwBdge_Init(BtlBoss03_ThrwBdge* thrwBdge, BtlBoss03_ThrwBdge_Arg
     return 1;
 }
 
-s32 BtlBoss03_ThrwBdge_Update(BtlBoss03_ThrwBdge* thrwBdge) {
+static s32 BtlBoss03_ThrwBdge_Update(BtlBoss03_ThrwBdge* thrwBdge) {
     void* temp_r0 = func_ov003_020cb42c(1, 0x2F, 0);
 
     if ((data_ov003_020e71b8->unk3D878 & 0x20000000) || ((temp_r0 != NULL) && (((Boss03*)temp_r0)->unk54 & 4))) {
@@ -10374,7 +10313,7 @@ s32 BtlBoss03_ThrwBdge_Update(BtlBoss03_ThrwBdge* thrwBdge) {
     return 1;
 }
 
-s32 BtlBoss03_ThrwBdge_Render(BtlBoss03_ThrwBdge* thrwBdge) {
+static s32 BtlBoss03_ThrwBdge_Render(BtlBoss03_ThrwBdge* thrwBdge) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
@@ -10390,7 +10329,7 @@ s32 BtlBoss03_ThrwBdge_Render(BtlBoss03_ThrwBdge* thrwBdge) {
     return 1;
 }
 
-s32 BtlBoss03_ThrwBdge_Destroy(BtlBoss03_ThrwBdge* thrwBdge) {
+static s32 BtlBoss03_ThrwBdge_Destroy(BtlBoss03_ThrwBdge* thrwBdge) {
     CombatSprite_Release(&thrwBdge->unk_004);
     return 1;
 }

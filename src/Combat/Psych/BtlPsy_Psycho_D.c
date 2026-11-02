@@ -1,16 +1,15 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
-extern void             func_020265d4(s32*, s32, u16);
-extern const TaskHandle data_ov003_020dca78;
+static const TaskHandle data_ov003_020dca78;
 
-s32  func_ov003_020b537c(Ov003EffectContext* context, Ov003EffectState* effect);
-s32  func_ov003_020b5744(Ov003PsychoD* self);
-s32  func_ov003_020b585c(Ov003PsychoD* self);
-s32  func_ov003_020b5934(Ov003PsychoD* self);
-s32  func_ov003_020b5c84(Ov003PsychoD* self);
-void func_ov003_020b5d40(Ov003PsychoD* self, s32 phase);
+static s32  func_ov003_020b5744(Ov003PsychoD* self);
+static s32  func_ov003_020b585c(Ov003PsychoD* self);
+static s32  func_ov003_020b5934(Ov003PsychoD* self);
+static s32  func_ov003_020b5c84(Ov003PsychoD* self);
+static void func_ov003_020b5d40(Ov003PsychoD* self, s32 phase);
 
 s32 func_ov003_020b537c(Ov003EffectContext* context, Ov003EffectState* effect) {
     BtlTouchWork* touch = func_ov003_020a62a0();
@@ -47,7 +46,7 @@ s32 func_ov003_020b537c(Ov003EffectContext* context, Ov003EffectState* effect) {
 
 // Nonmatching: mwcc allocates the stage-2 sprite x/y pair to r5/r6 in the opposite order from the
 // target (x -> r6, y -> r5) and shuffles them into the arguments before the first SetPosition.
-s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs* arg = args;
     Ov003PsychoD*       self;
     switch (stage) {
@@ -133,7 +132,7 @@ s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-s32 func_ov003_020b5744(Ov003PsychoD* self) {
+static s32 func_ov003_020b5744(Ov003PsychoD* self) {
     Ov003EnemyActor* unit = self->unit;
     if (!func_ov003_02085cfc(6)) {
         func_ov003_020a6198(self->unit, 5);
@@ -168,7 +167,7 @@ s32 func_ov003_020b5744(Ov003PsychoD* self) {
 
 // Nonmatching: mwcc if-converts the `dy <= 4` result to movle/movgt where the target keeps a
 // branchy 0/1 assignment.
-s32 func_ov003_020b585c(Ov003PsychoD* self) {
+static s32 func_ov003_020b585c(Ov003PsychoD* self) {
     Ov003EnemyActor* unit = self->unit;
     if (!func_ov003_02085cfc(6)) {
         func_ov003_020a6198(self->unit, 5);
@@ -197,7 +196,7 @@ s32 func_ov003_020b585c(Ov003PsychoD* self) {
 
 // Nonmatching: the final "above" flag is materialised as a branchy 0/1 value in the target; mwcc
 // if-converts it to movgt here and reloads `unit` in a different order.
-s32 func_ov003_020b5934(Ov003PsychoD* self) {
+static s32 func_ov003_020b5934(Ov003PsychoD* self) {
     BtlTouchWork*    touch = &data_ov003_020e71b8->touchWork;
     Ov003EnemyActor* unit  = self->unit;
     if (!func_ov003_02085cfc(6) && !func_ov003_02085cfc(7)) {
@@ -262,7 +261,7 @@ s32 func_ov003_020b5934(Ov003PsychoD* self) {
     return 1;
 }
 
-s32 func_ov003_020b5c84(Ov003PsychoD* self) {
+static s32 func_ov003_020b5c84(Ov003PsychoD* self) {
     Ov003EnemyActor* unit = self->unit;
     if (self->timer == 0) {
         self->timer           = 0x10;
@@ -284,11 +283,11 @@ s32 func_ov003_020b5c84(Ov003PsychoD* self) {
     return 0;
 }
 
-void func_ov003_020b5d40(Ov003PsychoD* self, s32 phase) {
+static void func_ov003_020b5d40(Ov003PsychoD* self, s32 phase) {
     self->phase    = phase;
     self->subPhase = 0;
     self->timer    = 0;
 }
 
-char             data_ov003_020e4eb4[0x14] = "Tsk_BtlPsy_Psycho_D";
-const TaskHandle data_ov003_020dca78       = {data_ov003_020e4eb4, func_ov003_020b5480, sizeof(Ov003PsychoD)};
+static char             data_ov003_020e4eb4[0x14] = "Tsk_BtlPsy_Psycho_D";
+static const TaskHandle data_ov003_020dca78       = {data_ov003_020e4eb4, func_ov003_020b5480, sizeof(Ov003PsychoD)};

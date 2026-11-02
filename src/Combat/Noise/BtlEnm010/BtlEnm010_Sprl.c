@@ -22,7 +22,7 @@ typedef struct BtlEnm010Sprl {
     /* 0xB0 */ u16              unk_0B0[4]; // copy of the owner's actor.unk_04..unk_0A
 } BtlEnm010Sprl;                            // Size: 0xB8
 
-extern char data_ov011_0212cc54[20];
+static char data_ov011_0212cc54[20];
 
 // MARK: Declarations and notes, hoisted above the definitions so every
 // function can be emitted in address order (the linker places functions
@@ -34,10 +34,10 @@ extern char data_ov011_0212cc54[20];
 
 /// `func_ov003_0208a164` -- five arguments (r0-r3 plus one stack word), returning 1 on success.
 
-s32 func_ov011_02128758(TaskPool* pool, Task* task, void* args, s32 stage);
-s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1);
-s32 func_ov011_02128b80(BtlEnm010Sprl* data);
-s32 func_ov011_02128c30(BtlEnm010Sprl* p);
+static s32 func_ov011_02128758(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1);
+static s32 func_ov011_02128b80(BtlEnm010Sprl* data);
+static s32 func_ov011_02128c30(BtlEnm010Sprl* p);
 
 /// `CombatSprite_Update` (`CombatSprite_Update`) -- one argument, a `CombatSprite*`; ticks a
 /// palette timer behind the sprite's `flags46` bit 12. Declared in `Combat/Core/CombatSprite.h`.
@@ -48,17 +48,14 @@ s32 func_ov011_02128c30(BtlEnm010Sprl* p);
 /// x/y/z triple. The two out-parameters are written through the pointers and read back as
 /// `ldrsh`, so they are `s16`, not `s32`.
 
-extern s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1);
-extern s32 func_ov011_021288c8(BtlEnm010Sprl* p);
-extern s32 func_ov011_02128b80(BtlEnm010Sprl* data);
-extern s32 func_ov011_02128c30(BtlEnm010Sprl* p);
+static s32 func_ov011_021288c8(BtlEnm010Sprl* p);
 
-const TaskHandle data_ov011_0212c210 = {(const char*)data_ov011_0212cc54, func_ov011_02128758, 184};
+static const TaskHandle data_ov011_0212c210 = {(const char*)data_ov011_0212cc54, func_ov011_02128758, 184};
 
-const s32 data_ov011_0212c21c[5] = {4096, 3584, 3072, 2560, 2048};
+static const s32 data_ov011_0212c21c[5] = {4096, 3584, 3072, 2560, 2048};
 
-char data_ov011_0212cc54[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
-                                0x30, 0x31, 0x30, 0x5F, 0x53, 0x70, 0x72, 0x6C, 0x00, 0x00};
+static char data_ov011_0212cc54[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
+                                       0x30, 0x31, 0x30, 0x5F, 0x53, 0x70, 0x72, 0x6C, 0x00, 0x00};
 
 /// Spawns the Sprl task. As in `func_ov011_02127c84`, the last argument is the *address of the
 /// data pointer* -- the prologue's `str r0, [sp, #0x8]` and the `str r1, [sp, #0x4]` that stores
@@ -74,7 +71,7 @@ s32 func_ov011_02128718(Ov003EnemyActor* owner) {
 
 /// `Tsk_BtlEnm010_Sprl`'s task entry, third of the three identical four-way dispatchers
 /// (`0x0212801c`, `0x02128348`, `0x02128758`).
-s32 func_ov011_02128758(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov011_02128758(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* p;
     s32   r;
 
@@ -108,7 +105,7 @@ s32 func_ov011_02128758(TaskPool* pool, Task* task, void* args, s32 stage) {
 /// Open (51 bytes): the `+0x24`/arm block runs one register higher than the reference (chain in
 /// r1/v in r2 vs r0/r1) with the same live-value count -- the scratch rotation, not a
 /// declaration. Scoping `i` did not move it.
-s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
+static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
     s32 v;
 
     MI_CpuSet(data, 0, 0xB8);
@@ -163,7 +160,7 @@ s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
 /// with the joint's x/y and `unk_098` as z; a `== 1` result plays SE `0x1DA`. The exit test is
 /// `unk_0A4 > data_ov003_020e71b8 + 0x3D000 + 0x7CC` -- the four-hop global load, spelled with the
 /// split bias exactly like the rest of this file.
-s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
+static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
     s32             dx;
     s32             dy;
     s32             dist;
@@ -234,7 +231,7 @@ s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
 /// `func_ov003_02084348`'s arguments are `(mode, out, out, x, y, z)` -- the reference spills
 /// `unk_084[i]` into the first stack slot and `unk_098` into the second, so y comes before the
 /// z height here, in the same order `func_ov011_021284bc` passes its position triple.
-s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
+static s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
     s16 v0;
     s16 v1;
     s32 i;
@@ -253,7 +250,7 @@ s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
 
 /// Ticks the sprite at `+0x04` and nothing else. Second of the two identical 20-byte tickers
 /// (`0x02128704` was the first).
-s32 func_ov011_02128c30(BtlEnm010Sprl* p) {
+static s32 func_ov011_02128c30(BtlEnm010Sprl* p) {
     CombatSprite_Release(&p->sprite);
     return 1;
 }

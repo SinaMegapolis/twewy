@@ -37,25 +37,23 @@ typedef struct BtlEnm010SingleShotArgs {
     /* 0x16 */ s16              field_16; // launch delay
 } BtlEnm010SingleShotArgs;
 
-extern char data_ov011_0212cc38[28];
+static char data_ov011_0212cc38[28];
 
-s32 func_ov011_02128348(TaskPool* pool, Task* task, void* args, s32 stage);
-s32 func_ov011_021283a8(BtlEnm010SingleShot* data, BtlEnm010SingleShotArgs* arg1);
-s32 func_ov011_02128698(BtlEnm010SingleShot* p);
-s32 func_ov011_02128704(BtlEnm010SingleShot* p);
+static s32 func_ov011_02128348(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov011_021283a8(BtlEnm010SingleShot* data, BtlEnm010SingleShotArgs* arg1);
+static s32 func_ov011_02128698(BtlEnm010SingleShot* p);
+static s32 func_ov011_02128704(BtlEnm010SingleShot* p);
 
-extern s32 func_ov011_021283a8(BtlEnm010SingleShot* data, BtlEnm010SingleShotArgs* arg1);
-extern s32 func_ov011_021284bc(BtlEnm010SingleShot* p);
-extern s32 func_ov011_02128698(BtlEnm010SingleShot* p);
+static s32 func_ov011_021284bc(BtlEnm010SingleShot* p);
 
-const s32 data_ov011_0212c1ec[3] = {4096, 3584, 3072};
+static const s32 data_ov011_0212c1ec[3] = {4096, 3584, 3072};
 
-const TaskHandle data_ov011_0212c1f8 = {(const char*)data_ov011_0212cc38, func_ov011_02128348, 180};
+static const TaskHandle data_ov011_0212c1f8 = {(const char*)data_ov011_0212cc38, func_ov011_02128348, 180};
 
-const s32 data_ov011_0212c204[3] = {4096, 3277, 2458};
+static const s32 data_ov011_0212c204[3] = {4096, 3277, 2458};
 
-char data_ov011_0212cc38[28] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D, 0x30, 0x31, 0x30, 0x5F,
-                                0x53, 0x69, 0x6E, 0x67, 0x6C, 0x65, 0x53, 0x68, 0x6F, 0x74, 0x00, 0x00, 0x00, 0x00};
+static char data_ov011_0212cc38[28] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D, 0x30, 0x31, 0x30, 0x5F,
+                                       0x53, 0x69, 0x6E, 0x67, 0x6C, 0x65, 0x53, 0x68, 0x6F, 0x74, 0x00, 0x00, 0x00, 0x00};
 
 s32 func_ov011_021282b8(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, u16 arg4, s32 arg5, s16 arg6) {
     BtlEnm010SingleShotArgs t;
@@ -76,7 +74,7 @@ s32 func_ov011_021282b8(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, u1
     return EasyTask_CreateTask(pool, &data_ov011_0212c1f8, 0, 0, 0, (void*)&t);
 }
 
-s32 func_ov011_02128348(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov011_02128348(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* p;
     s32   r;
 
@@ -99,7 +97,7 @@ s32 func_ov011_02128348(TaskPool* pool, Task* task, void* args, s32 stage) {
     return r;
 }
 
-s32 func_ov011_021283a8(BtlEnm010SingleShot* data, BtlEnm010SingleShotArgs* arg1) {
+static s32 func_ov011_021283a8(BtlEnm010SingleShot* data, BtlEnm010SingleShotArgs* arg1) {
     s32              i;
     s32              v;
     Ov003EnemyActor* o;
@@ -124,7 +122,7 @@ s32 func_ov011_021283a8(BtlEnm010SingleShot* data, BtlEnm010SingleShotArgs* arg1
     data->unk_0AC[3] = o->actor.unk_0A;
 }
 
-s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
+static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
     s32            r;
     s32            mode;
     u16            id;
@@ -183,7 +181,7 @@ s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
     return (r == 3) ? 0 : 1;
 }
 
-s32 func_ov011_02128698(BtlEnm010SingleShot* p) {
+static s32 func_ov011_02128698(BtlEnm010SingleShot* p) {
     BtlEnm010SingleShot* data;
     s32                  base;
     s32                  i;
@@ -201,7 +199,7 @@ s32 func_ov011_02128698(BtlEnm010SingleShot* p) {
     return 1;
 }
 
-s32 func_ov011_02128704(BtlEnm010SingleShot* p) {
+static s32 func_ov011_02128704(BtlEnm010SingleShot* p) {
     CombatSprite_Release(&p->sprite);
     return 1;
 }

@@ -1,14 +1,18 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatEnemyActor.h"
+#include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
+#include "Combat/Noise/BtlEnm.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include "EasyFade.h"
 #include "Engine/Core/OamMgr.h"
 #include "Engine/Math/Random.h"
 #include <nitro/fx.h>
+#include <nitro/mi/cpumem.h>
 
 /// MARK: Boss01_UG
 
@@ -31,11 +35,11 @@ typedef struct Boss01_UG {
     /* 0x1F0 */ s32               unk_1F0;
 } Boss01_UG; // Size: 0x1F4
 
-void func_ov016_021266f4(Boss01_UG* bossUG);
-void func_ov016_02126c24(Boss01_UG* bossUG);
-void func_ov016_02126854(Boss01_UG* bossUG);
-void func_ov016_02126d38(Boss01_UG* bossUG);
-s32  Boss01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static void func_ov016_021266f4(Boss01_UG* bossUG);
+static void func_ov016_02126c24(Boss01_UG* bossUG);
+static void func_ov016_02126854(Boss01_UG* bossUG);
+static void func_ov016_02126d38(Boss01_UG* bossUG);
+static s32  Boss01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 extern void* data_ov009_02123540;
 extern void* data_ov009_021234cc;
@@ -43,7 +47,7 @@ static s32   data_ov016_021291d8 = 1;
 
 const TaskHandle Tsk_Boss01_UG = {"Tsk_Boss01_UG", Boss01_UG_RunTask, 0x1F4};
 
-void func_ov016_021262d8(Boss01_UG* bossUG) {
+static void func_ov016_021262d8(Boss01_UG* bossUG) {
     if (func_ov003_02088130() == 0) {
         return;
     }
@@ -91,7 +95,7 @@ void func_ov016_021262d8(Boss01_UG* bossUG) {
     }
 }
 
-s32 func_ov016_02126468(Boss01_UG* bossUG) {
+static s32 func_ov016_02126468(Boss01_UG* bossUG) {
     s32 temp_lr;
     s32 var_ip;
     s32 var_ip_2;
@@ -116,23 +120,24 @@ s32 func_ov016_02126468(Boss01_UG* bossUG) {
     return var_r3;
 }
 
-void func_ov016_021264d8(void*) {
+static void func_ov016_021264d8(void*) {
     u8 subroutine[0x14];
 
-    func_ov003_020c3c44(subroutine, 7, 3);
-    func_ov003_020c3cec(&data_ov009_02123540, &data_ov009_021234cc, subroutine, subroutine);
+    func_ov003_020c3c44((Ov003CutinScript*)subroutine, 7, 3);
+    func_ov003_020c3cec((const TaskHandle*)&data_ov009_02123540, (const TaskHandle*)&data_ov009_021234cc, subroutine,
+                        subroutine);
 }
 
-s32 func_ov016_02126514(Boss01_UG* bossUG, Boss01_UG* arg1) {
-    if ((func_ov003_020c5a28(bossUG, &arg1->base.actor.baseArgs) != 0) && (arg1->base.actor.yVelocity == 0) &&
-        (arg1->base.actor.linearDampingStep == 0) && (arg1->base.actor.screenX == 0))
+static s32 func_ov016_02126514(Boss01_UG* bossUG, Boss01_UG* arg1) {
+    if ((((s32(*)())func_ov003_020c5a28)((Ov003CutinActor*)bossUG, &arg1->base.actor.baseArgs) != 0) &&
+        (arg1->base.actor.yVelocity == 0) && (arg1->base.actor.linearDampingStep == 0) && (arg1->base.actor.screenX == 0))
     {
         return 1;
     }
     return 0;
 }
 
-s32 func_ov016_02126554(Boss01_UG* bossUG, Boss01_UG* arg1, s32 arg2) {
+static s32 func_ov016_02126554(Boss01_UG* bossUG, Boss01_UG* arg1, s32 arg2) {
     if ((arg2 != 0) && (func_ov009_020fa71c(arg1) == 0)) {
         return 0;
     }
@@ -142,7 +147,7 @@ s32 func_ov016_02126554(Boss01_UG* bossUG, Boss01_UG* arg1, s32 arg2) {
     return func_ov016_02126514(bossUG, arg1);
 }
 
-Boss01_UG* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
+static Boss01_UG* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
     Boss01_UG* var_r4  = NULL;
     s32        temp_r5 = RNG_Next(func_ov003_020cc5fc(0, 0x19));
     Boss01_UG* var_r8  = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8B4);
@@ -159,7 +164,7 @@ Boss01_UG* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
     return var_r4;
 }
 
-Boss01_UG* func_ov016_02126638(Boss01_UG* bossUG) {
+static Boss01_UG* func_ov016_02126638(Boss01_UG* bossUG) {
     s16        temp_r1_2;
     Boss01_UG* temp_r1;
     Boss01_UG* temp_r4;
@@ -180,22 +185,22 @@ Boss01_UG* func_ov016_02126638(Boss01_UG* bossUG) {
     return var_r0;
 }
 
-void Boss01_UG_SetState(Boss01_UG* bossUG, void (*arg1)(Boss01_UG*)) {
-    func_ov003_020c427c();
+static void Boss01_UG_SetState(Boss01_UG* bossUG, void (*arg1)(Boss01_UG*)) {
+    ((void (*)())func_ov003_020c427c)();
     bossUG->unk_1C8 = arg1;
     bossUG->unk_1C4 = 0;
     bossUG->unk_1C0 = 0;
     bossUG->unk_1EC = 0;
 }
 
-void func_ov016_021266b4(Boss01_UG* bossUG) {
+static void func_ov016_021266b4(Boss01_UG* bossUG) {
     if (func_ov003_020cb3c4(0, 7) == 0) {
         *data_ov016_021292c0 = 1;
         Boss01_UG_SetState(bossUG, func_ov016_021266f4);
     }
 }
 
-void func_ov016_021266f4(Boss01_UG* bossUG) {
+static void func_ov016_021266f4(Boss01_UG* bossUG) {
     switch (bossUG->unk_1C4) {
         case 0: {
             if (bossUG->unk_1C0 <= 180) {
@@ -224,7 +229,7 @@ void func_ov016_021266f4(Boss01_UG* bossUG) {
         case 4: {
             if (bossUG->unk_1C0 == 0) {
                 EasyFade_FadeBothDisplays(FADER_LINEAR, 0, 0x400);
-                func_ov003_020c3ec0(bossUG);
+                func_ov003_020c3ec0((CombatActor*)bossUG);
                 Boss01s_LandRG_CreateTask();
                 Boss01s_LandUG_CreateTask();
                 Boss01s_FlyRG_Curve_CreateTask();
@@ -243,13 +248,13 @@ void func_ov016_021266f4(Boss01_UG* bossUG) {
     }
 }
 
-void func_ov016_0212682c(Boss01_UG* bossUG) {
+static void func_ov016_0212682c(Boss01_UG* bossUG) {
     if (*data_ov016_021292c0 == 2) {
         Boss01_UG_SetState(bossUG, func_ov016_02126854);
     }
 }
 
-void func_ov016_02126854(Boss01_UG* bossUG) {
+static void func_ov016_02126854(Boss01_UG* bossUG) {
     s32        sp8;
     s16        temp_r1_2;
     s32        temp_r3;
@@ -258,7 +263,7 @@ void func_ov016_02126854(Boss01_UG* bossUG) {
     Boss01_UG* temp_r4 = data_ov003_020e71b8->unk3D898;
 
     if (bossUG->unk_1C0 == 0) {
-        func_ov003_020c4c5c(bossUG);
+        func_ov003_020c4c5c(&bossUG->base);
         bossUG->base.actor.flags |= 0x10;
         bossUG->unk_1DC               = 0x666;
         bossUG->base.actor.position.y = temp_r4->base.actor.position.y;
@@ -266,7 +271,7 @@ void func_ov016_02126854(Boss01_UG* bossUG) {
         bossUG->unk_1D0               = (bossUG->base.actor.isFlipped != 0) ? 0x3000 : -0x3000;
 
         if ((bossUG->base.unk_188 == 0) && (bossUG->unk_1E0 != NULL)) {
-            func_ov003_02086654();
+            ((void (*)())func_ov003_02086654)();
             bossUG->unk_1E8 = 0;
             bossUG->unk_1E0 = NULL;
         }
@@ -296,7 +301,7 @@ void func_ov016_02126854(Boss01_UG* bossUG) {
             (func_ov003_020c3960(&sp8, bossUG->unk_1E0->base.actor.unk_74 << 0xC) == 0))
         {
             s32 var_r3 = (bossUG->base.actor.isFlipped != 0) ? 0x2800 : -0x2800;
-            func_ov003_020c5ac0(bossUG, 0xE5, &bossUG->unk_1E0->base.actor.baseArgs, var_r3);
+            ((void (*)())func_ov003_020c5ac0)(bossUG, 0xE5, (Ov003CutinActor*)&bossUG->unk_1E0->base.actor.baseArgs, var_r3);
 
             if (bossUG->unk_1E0 == bossUG->unk_1E4) {
                 BtlEff_Fall_CreateTask((UnkStruct_Boss01*)bossUG->unk_1E0, (Boss01*)bossUG, 231);
@@ -348,11 +353,11 @@ void func_ov016_02126854(Boss01_UG* bossUG) {
     bossUG->unk_1C0++;
 }
 
-void func_ov016_02126c24(Boss01_UG* bossUG) {
+static void func_ov016_02126c24(Boss01_UG* bossUG) {
     Boss01* temp_r5 = data_ov003_020e71b8->unk3D898;
 
     if (bossUG->unk_1C0 == 0) {
-        func_ov003_020c4c5c(bossUG);
+        func_ov003_020c4c5c(&bossUG->base);
         bossUG->base.actor.flags      = (s32)(bossUG->base.actor.flags | 0x10);
         bossUG->unk_1DC               = 0xCCD;
         bossUG->base.actor.position.y = (s32)temp_r5->unk_2C;
@@ -363,7 +368,7 @@ void func_ov016_02126c24(Boss01_UG* bossUG) {
             bossUG->unk_1D0 = 0x4000;
         }
         if (*data_ov016_021292c0 == 1) {
-            func_ov003_020c4cc4(bossUG, 498);
+            func_ov003_020c4cc4(&bossUG->base, 498);
         }
     }
     bossUG->base.actor.position.x += bossUG->unk_1D0;
@@ -380,12 +385,12 @@ void func_ov016_02126c24(Boss01_UG* bossUG) {
     bossUG->unk_1C0++;
 }
 
-void func_ov016_02126d38(Boss01_UG* bossUG) {
+static void func_ov016_02126d38(Boss01_UG* bossUG) {
     UnkStruct_Boss01* temp_r4 = data_ov003_020e71b8->unk3D898;
 
     if (bossUG->unk_1C0 == 0) {
         bossUG->unk_1E0 = func_ov016_02126638(bossUG);
-        func_ov003_020c4c5c(bossUG);
+        func_ov003_020c4c5c(&bossUG->base);
         bossUG->base.actor.flags &= ~0x10;
         bossUG->unk_1DC = 0x1000;
         bossUG->unk_1D4 = 0;
@@ -407,7 +412,7 @@ void func_ov016_02126d38(Boss01_UG* bossUG) {
 
         bossUG->unk_1D0 = (bossUG->base.actor.isFlipped != 0) ? 0x4000 : -0x4000;
 
-        func_ov003_020c4cc4(bossUG, 0x1F2);
+        func_ov003_020c4cc4(&bossUG->base, 0x1F2);
     }
     bossUG->base.actor.position.x += bossUG->unk_1D0;
     if (bossUG->unk_1E0 != NULL) {
@@ -421,11 +426,11 @@ void func_ov016_02126d38(Boss01_UG* bossUG) {
             (bossUG->base.actor.position.x < (s32)(bossUG->unk_1E0->base.actor.position.y + 0x4000)) &&
             (func_ov016_02126514(bossUG, bossUG->unk_1E0) != 0))
         {
-            func_ov003_020c5a00(&bossUG->unk_1E0->base.actor.baseArgs);
+            func_ov003_020c5a00((Ov003CutinActor*)&bossUG->unk_1E0->base.actor.baseArgs);
             bossUG->unk_1E0->base.actor.periodicEffectMode = 6;
             bossUG->unk_1E8                                = 1;
             bossUG->base.unk_188                           = (void*)bossUG->unk_1E0;
-            func_ov003_020c4cc4(bossUG, 0x1F3);
+            func_ov003_020c4cc4(&bossUG->base, 0x1F3);
 
             s32 temp_r2_3 = bossUG->unk_1E0->base.actor.unk_76 * (bossUG->unk_1E0->base.actor.unk_74 << 0xD);
             s32 temp_r1_2 = (s32)(temp_r2_3 + ((u32)(temp_r2_3 >> 5) >> 0x1A)) >> 6;
@@ -463,14 +468,14 @@ void func_ov016_02126d38(Boss01_UG* bossUG) {
     bossUG->unk_1C0++;
 }
 
-void func_ov016_02126ff0(Boss01_UG* bossUG) {
+static void func_ov016_02126ff0(Boss01_UG* bossUG) {
     SpriteAnimationEx subroutine;
 
     if (bossUG->unk_1C0 == 0) {
         func_ov016_021256c0(&subroutine, 0, bossUG->base.sprite.flags46 & 1);
         func_ov003_020c9064(&subroutine);
     }
-    s32 temp_r5 = func_ov003_020c9338(bossUG);
+    s32 temp_r5 = func_ov003_020c9338(&bossUG->base);
     if ((func_ov003_020c9008() != 0) && (data_ov016_021291d8 != 0)) {
         CombatSprite_Release(&bossUG->base.sprite);
         data_ov016_021291d8 = 0;
@@ -485,7 +490,7 @@ void func_ov016_02126ff0(Boss01_UG* bossUG) {
     bossUG->unk_1C0++;
 }
 
-s32 Boss01_UG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 Boss01_UG_Init(TaskPool* pool, Task* task, void* args) {
     SpriteAnimationEx subroutine;
     Boss01_UG*        bossUG = task->data;
 
@@ -494,11 +499,11 @@ s32 Boss01_UG_Init(TaskPool* pool, Task* task, void* args) {
     void* src       = Data_GetPackEntryData(data_ov003_020e71b8->unk3D350, 66);
     bossUG->unk_1D8 = PaletteMgr_AcquireContiguous(g_PaletteManagers[DISPLAY_EXTENDED], src, 5, 1);
 
-    func_ov003_020c3efc(bossUG, args);
+    func_ov003_020c3efc(&bossUG->base, args);
     func_ov016_021256c0(&subroutine, 2, 0);
     CombatSprite_Load(&bossUG->base.sprite, &subroutine);
-    func_ov003_020c49c8(bossUG);
-    func_ov003_020c4c5c(bossUG);
+    func_ov003_020c49c8(&bossUG->base);
+    func_ov003_020c4c5c(&bossUG->base);
     bossUG->base.actor.flags |= 0x10000010;
     bossUG->base.actor.zGravity   = 0;
     bossUG->base.actor.position.x = -0x80000;
@@ -512,7 +517,7 @@ s32 Boss01_UG_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 Boss01_UG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 Boss01_UG_Update(TaskPool* pool, Task* task, void* args) {
     Boss01_UG* bossUG = task->data;
 
     if (func_ov003_020c3bf0(bossUG) != 0) {
@@ -528,7 +533,7 @@ s32 Boss01_UG_Update(TaskPool* pool, Task* task, void* args) {
         bossUG->unk_1C8(bossUG);
     }
 
-    if (((s32)*data_ov016_021292c0 > 1) && (func_ov003_020cb3c4(0, 7) < 4) && (RNG_Next(180) == 0) &&
+    if (((s32)*data_ov016_021292c0 > 1) && ((s32)func_ov003_020cb3c4(0, 7) < 4) && (RNG_Next(180) == 0) &&
         !(bossUG->base.actor.flags & 4))
     {
         func_ov016_021264d8(bossUG);
@@ -538,7 +543,7 @@ s32 Boss01_UG_Update(TaskPool* pool, Task* task, void* args) {
     return bossUG->unk_1CC;
 }
 
-s32 Boss01_UG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 Boss01_UG_Render(TaskPool* pool, Task* task, void* args) {
     s16        spA, sp8;
     Boss01_UG* bossUG = task->data;
 
@@ -560,16 +565,16 @@ s32 Boss01_UG_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 Boss01_UG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 Boss01_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     Boss01_UG* bossUG = task->data;
 
     PaletteMgr_ReleaseResource(g_PaletteManagers[DISPLAY_EXTENDED], bossUG->unk_1D8);
     CombatSprite_Release(&bossUG->base.sprite);
-    func_ov003_020c4a74(bossUG);
+    func_ov003_020c4a74(&bossUG->base);
     return 1;
 }
 
-s32 Boss01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 Boss01_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov016_02128fe4 = {
         .initialize = Boss01_UG_Init,
         .update     = Boss01_UG_Update,

@@ -4,9 +4,9 @@
 #include "SndMgr.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
 /// Owned by the IcePillar_S unit; only the task name string lives here.
-extern const TaskHandle data_ov003_020dc90c;
+static const TaskHandle data_ov003_020dc90c;
+static Ov003EnemyActor* func_ov003_020b1c50(void);
 
 /// Task payload of the OpticalHold effect: three ramp sprites over the held actor plus six
 /// shared animation particles.
@@ -28,7 +28,7 @@ s32 func_ov003_020b15dc(Ov003EffectContext* context, Ov003EffectState* effect) {
 // objdiff flags the intra-TU `bl func_ov003_020b1c50` relocation only because this object emits one
 // .text section per function while the delinked target keeps a single one; the encoded instruction
 // (and its post-link displacement) is identical.
-s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs* arg = args;
     Ov003OpticalHold*   self;
     switch (stage) {
@@ -204,7 +204,7 @@ s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 /// Returns the held actor while the optical-hold touch is active, or NULL when it is not.
-Ov003EnemyActor* func_ov003_020b1c50(void) {
+static Ov003EnemyActor* func_ov003_020b1c50(void) {
     BtlTouchWork*    touch;
     Ov003EnemyActor* unit;
     if (!func_ov003_02085cfc(6))
@@ -220,5 +220,5 @@ Ov003EnemyActor* func_ov003_020b1c50(void) {
     return unit;
 }
 
-char             data_ov003_020e4d34[24] = "Tsk_BtlPsy_OpticalHold";
-const TaskHandle data_ov003_020dc90c     = {data_ov003_020e4d34, func_ov003_020b1634, sizeof(Ov003OpticalHold)};
+static char             data_ov003_020e4d34[24] = "Tsk_BtlPsy_OpticalHold";
+static const TaskHandle data_ov003_020dc90c     = {data_ov003_020e4d34, func_ov003_020b1634, sizeof(Ov003OpticalHold)};

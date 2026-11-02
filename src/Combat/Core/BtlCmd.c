@@ -7,6 +7,7 @@
 #include "Engine/IO/Input.h"
 #include "Engine/Math/Random.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 
 #include <nitro/mi/cpumem.h>
 
@@ -96,34 +97,20 @@ typedef struct BtlCmd {
 extern const BinIdentifier data_ov003_020d7808;
 extern u8                  data_02071cf0[];
 
-extern void func_ov003_020868c8(u16 value);
-extern void func_ov003_0208697c(void);
-extern void func_ov003_020869c8(s32 value);
-extern s32  func_ov003_02086a64(void);
-extern s32  func_ov003_02086a80(void);
-extern void func_ov003_02086af0(void);
-extern void func_ov003_02086b14(Ov003ChargeState* state);
-extern u16  func_ov003_02086d24(void);
-extern void func_ov003_02086d8c(CombatSprite* sprite, s32 animId, s32 flipped, s32 x, s16 y, s16 z);
-extern void func_ov003_02086e38(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32  func_ov003_02086f7c(void);
-extern void func_02026590(s32* dst, s32 target, u16 weight);
+static void func_ov003_0209842c(BtlCmd* self);
+static void func_ov003_02098458(BtlCmd* self);
+static void func_ov003_0209862c(BtlCmd* self);
+static s32  func_ov003_02098718(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020988b4(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020989e8(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02098b60(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02098bc0(TaskPool* pool, Task* task, void* args, s32 stage);
 
-void func_ov003_0209842c(BtlCmd* self);
-void func_ov003_02098458(BtlCmd* self);
-void func_ov003_02098484(BtlCmd* self);
-void func_ov003_0209862c(BtlCmd* self);
-s32  func_ov003_02098718(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020988b4(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020989e8(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02098b60(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02098bc0(TaskPool* pool, Task* task, void* args, s32 stage);
-
-char             data_ov003_020e3c54[0xC] = "Tsk_BtlCmd";
+static char      data_ov003_020e3c54[0xC] = "Tsk_BtlCmd";
 const TaskHandle data_ov003_020d7eec      = {data_ov003_020e3c54, func_ov003_02098bc0, sizeof(BtlCmd)};
 
 /// The stage table of the display: build, update, draw, release.
-const TaskStages data_ov003_020d7ef8 = {
+static const TaskStages data_ov003_020d7ef8 = {
     func_ov003_02098718,
     func_ov003_020988b4,
     func_ov003_020989e8,
@@ -131,11 +118,11 @@ const TaskStages data_ov003_020d7ef8 = {
 };
 
 /// The frames to wait before a held pad is read as pressed again: pairs of (short, long) for each difficulty.
-const s16 data_ov003_020d7f08[1] = {0};
-const s16 data_ov003_020d7f0a[7] = {0, 0x1E, 0x78, 0xB4, 0x78, 0x168, 0x78};
+static const s16 data_ov003_020d7f08[1] = {0};
+static const s16 data_ov003_020d7f0a[7] = {0, 0x1E, 0x78, 0xB4, 0x78, 0x168, 0x78};
 
 /// The chain parameters, picked by the badges the player wears.
-const BtlCmdParams data_ov003_020d7f18[9] = {
+static const BtlCmdParams data_ov003_020d7f18[9] = {
     {0, 7, 8, 1, 1, 0, 0},
     {0, 4, 5, 1, 1, 0, 0},
     {0, 1, 3, 1, 1, 0, 0},
@@ -151,14 +138,14 @@ const BtlCmdParams data_ov003_020d7f18[9] = {
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_02097544(BtlCmd* self, BtlCmdState state) {
+static void func_ov003_02097544(BtlCmd* self, BtlCmdState state) {
     self->state     = state;
     self->unk_2C8   = 0;
     self->moveTimer = 0;
 }
 
 /// Loads a cell sprite.
-void func_ov003_0209755c(CombatSprite* sprite, s32 index, s32 mode) {
+static void func_ov003_0209755c(CombatSprite* sprite, s32 index, s32 mode) {
     SpriteAnimationEx anim;
 
     CombatSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
@@ -178,7 +165,7 @@ void func_ov003_0209755c(CombatSprite* sprite, s32 index, s32 mode) {
 }
 
 /// Loads a marker sprite for the kind of effect command the battle is running.
-void func_ov003_02097604(CombatSprite* sprite) {
+static void func_ov003_02097604(CombatSprite* sprite) {
     SpriteAnimationEx anim;
     Ov003EffectCmd*   command = data_ov003_020e71b8->effectCmd;
 
@@ -225,7 +212,7 @@ void func_ov003_02097604(CombatSprite* sprite) {
 }
 
 /// The chain parameter row that applies when no badge asks for another.
-s32 func_ov003_02097760(s32 side) {
+static s32 func_ov003_02097760(s32 side) {
     s32 row = 5;
 
     switch (data_ov003_020e71b8->unk3D88D) {
@@ -248,7 +235,7 @@ s32 func_ov003_02097760(s32 side) {
 }
 
 /// Adds `amount` to `*value`, keeping it between 1 and 16.
-void func_ov003_020977b0(s16* value, s32 amount) {
+static void func_ov003_020977b0(s16* value, s32 amount) {
     *value = *value + amount;
     if (*value > 0x10) {
         *value = 0x10;
@@ -259,7 +246,7 @@ void func_ov003_020977b0(s16* value, s32 amount) {
 }
 
 /// Picks the two chains' parameters and lets the badges stretch them.
-void func_ov003_020977e0(BtlCmd* self) {
+static void func_ov003_020977e0(BtlCmd* self) {
     s32 row;
     s16 bonus;
 
@@ -296,7 +283,7 @@ void func_ov003_020977e0(BtlCmd* self) {
 }
 
 /// Which way the enemies mostly stand compared with the gauge actor: 0x800 for one side, 1 for the other.
-u32 func_ov003_02097984(u32 wanted) {
+static u32 func_ov003_02097984(u32 wanted) {
     s32              ahead  = 0;
     s32              behind = 0;
     u32              result = 0;
@@ -330,7 +317,7 @@ u32 func_ov003_02097984(u32 wanted) {
 }
 
 /// Counts the wait before the pad is read again.
-void func_ov003_02097a40(BtlCmd* self) {
+static void func_ov003_02097a40(BtlCmd* self) {
     s32 level = (data_02071cf0[0x39] >> 2) & 3;
     s32 wait;
 
@@ -361,7 +348,7 @@ void func_ov003_02097a40(BtlCmd* self) {
     self->input   = self->wanted;
 }
 
-void func_ov003_02097b1c(BtlCmd* self) {
+static void func_ov003_02097b1c(BtlCmd* self) {
     s32 level = (data_02071cf0[0x39] >> 2) & 3;
 
     if (level == 0) {
@@ -379,7 +366,7 @@ void func_ov003_02097b1c(BtlCmd* self) {
 }
 
 /// Reads the pad.
-void func_ov003_02097b70(BtlCmd* self) {
+static void func_ov003_02097b70(BtlCmd* self) {
     s32 level = (data_02071cf0[0x39] >> 2) & 3;
 
     if (level == 0) {
@@ -397,7 +384,7 @@ void func_ov003_02097b70(BtlCmd* self) {
 }
 
 /// Shows a cell: more follow, or it is the last (and `value` says which way the chain runs).
-void func_ov003_02097c00(BtlCmdCell* cell, s32 value, s32 last) {
+static void func_ov003_02097c00(BtlCmdCell* cell, s32 value, s32 last) {
     u16 anim;
 
     if (value > 0) {
@@ -411,7 +398,7 @@ void func_ov003_02097c00(BtlCmdCell* cell, s32 value, s32 last) {
     cell->anim = anim;
 }
 
-void func_ov003_02097c24(BtlCmdRecord* record, s32 width) {
+static void func_ov003_02097c24(BtlCmdRecord* record, s32 width) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
@@ -421,7 +408,7 @@ void func_ov003_02097c24(BtlCmdRecord* record, s32 width) {
 }
 
 /// Sets the frame and the two marker sprites from where the cursor is.
-void func_ov003_02097c68(BtlCmd* self) {
+static void func_ov003_02097c68(BtlCmd* self) {
     BtlCmdRecord* current = self->current;
     s16           anim    = 0;
 
@@ -443,7 +430,7 @@ void func_ov003_02097c68(BtlCmd* self) {
 }
 
 /// Lays a record out: `count` cells, the branch markers somewhere inside the allowed range.
-void func_ov003_02097d40(BtlCmd* self, BtlCmdRecord* record, s32 count) {
+static void func_ov003_02097d40(BtlCmd* self, BtlCmdRecord* record, s32 count) {
     BtlCmdParams* params = &self->params[self->chain];
     s32           last   = count - 1;
     s32           i;
@@ -484,10 +471,10 @@ void func_ov003_02097d40(BtlCmd* self, BtlCmdRecord* record, s32 count) {
     record->ready = 0;
 }
 
-void func_ov003_02097e8c(BtlCmd* self, BtlCmdRecord* record) {}
+static void func_ov003_02097e8c(BtlCmd* self, BtlCmdRecord* record) {}
 
 /// Draws the cells of a record from (`x`,`y`).
-void func_ov003_02097e90(BtlCmd* self, BtlCmdRecord* record, s16 x, s16 y) {
+static void func_ov003_02097e90(BtlCmd* self, BtlCmdRecord* record, s16 x, s16 y) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
@@ -504,7 +491,7 @@ void func_ov003_02097e90(BtlCmd* self, BtlCmdRecord* record, s16 x, s16 y) {
 }
 
 /// Starts the chain `chain`; `direction` 2 runs it to the right.
-void func_ov003_02097f3c(BtlCmd* self, s32 chain, s32 direction) {
+static void func_ov003_02097f3c(BtlCmd* self, s32 chain, s32 direction) {
     BtlCmdParams* params = &self->params[chain];
 
     if (direction == 2) {
@@ -534,7 +521,7 @@ void func_ov003_02097f3c(BtlCmd* self, s32 chain, s32 direction) {
 }
 
 /// Moves on to `record` after a branch was taken.
-void func_ov003_02098090(BtlCmd* self, BtlCmdRecord* record) {
+static void func_ov003_02098090(BtlCmd* self, BtlCmdRecord* record) {
     BtlCmdParams* params = &self->params[self->chain];
 
     self->current = record;
@@ -566,14 +553,14 @@ void func_ov003_02098090(BtlCmd* self, BtlCmdRecord* record) {
     func_ov003_02097d40(self, self->otherB, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
 }
 
-void func_ov003_020981dc(BtlCmd* self, s32 y) {
+static void func_ov003_020981dc(BtlCmd* self, s32 y) {
     self->burstY   = y;
     self->bursting = 1;
     CombatSprite_Restart(&self->burst);
 }
 
 /// Answers the cell under the cursor (or ends the chain when `cancel` is set).
-void func_ov003_020981f8(BtlCmd* self, s32 cancel) {
+static void func_ov003_020981f8(BtlCmd* self, s32 cancel) {
     BtlCmdCell* cells;
     s32         cursor;
 
@@ -608,7 +595,7 @@ void func_ov003_020981f8(BtlCmd* self, s32 cancel) {
 }
 
 /// Waits for the first answer of the left chain.
-void func_ov003_0209830c(BtlCmd* self) {
+static void func_ov003_0209830c(BtlCmd* self) {
     u16 input = self->input;
 
     if (input & (INPUT_BUTTON_B | INPUT_BUTTON_DOWN)) {
@@ -633,7 +620,7 @@ void func_ov003_0209830c(BtlCmd* self) {
 }
 
 /// The same for the right chain.
-void func_ov003_020983ac(BtlCmd* self) {
+static void func_ov003_020983ac(BtlCmd* self) {
     u16 input = self->input;
 
     if (input & (INPUT_BUTTON_B | INPUT_BUTTON_DOWN)) {
@@ -652,7 +639,7 @@ void func_ov003_020983ac(BtlCmd* self) {
     }
 }
 
-void func_ov003_0209842c(BtlCmd* self) {
+static void func_ov003_0209842c(BtlCmd* self) {
     if (func_ov003_02086a64() == 0) {
         return;
     }
@@ -660,7 +647,7 @@ void func_ov003_0209842c(BtlCmd* self) {
     func_ov003_02097544(self, func_ov003_02098458);
 }
 
-void func_ov003_02098458(BtlCmd* self) {
+static void func_ov003_02098458(BtlCmd* self) {
     func_ov003_02097a40(self);
     if (func_ov003_02086a80() != 0) {
         func_ov003_020983ac(self);
@@ -670,7 +657,7 @@ void func_ov003_02098458(BtlCmd* self) {
 }
 
 /// Follows the cursor along the current record.
-void func_ov003_02098484(BtlCmd* self) {
+static void func_ov003_02098484(BtlCmd* self) {
     func_ov003_02097b1c(self);
     if (self->input & (INPUT_BUTTON_Y | INPUT_BUTTON_LEFT)) {
         func_ov003_020981f8(self, self->cellWidth > 0 ? 1 : 0);
@@ -720,7 +707,7 @@ void func_ov003_02098484(BtlCmd* self) {
 }
 
 /// Slides the cursor onto the next cell.
-void func_ov003_0209862c(BtlCmd* self) {
+static void func_ov003_0209862c(BtlCmd* self) {
     if (self->moveTimer == 0) {
         self->moveTimer = 3;
     }
@@ -744,7 +731,7 @@ void func_ov003_0209862c(BtlCmd* self) {
     func_ov003_02097544(self, func_ov003_02098484);
 }
 
-s32 func_ov003_02098718(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02098718(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
     s32     i;
 
@@ -788,7 +775,7 @@ s32 func_ov003_02098718(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020988b4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020988b4(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x40) {
@@ -829,7 +816,7 @@ s32 func_ov003_020988b4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020989e8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020989e8(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
     s32     px;
     s32     py;
@@ -868,7 +855,7 @@ s32 func_ov003_020989e8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02098b60(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02098b60(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
     s32     i;
 
@@ -883,7 +870,7 @@ s32 func_ov003_02098b60(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02098bc0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_02098bc0(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7ef8;
 
     if (func_ov003_0208b690((u16)stage)) {

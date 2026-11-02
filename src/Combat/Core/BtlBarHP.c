@@ -7,6 +7,7 @@
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
 #include "Save.h"
+#include "main_02026528.h"
 
 #include <nitro/mi/cpumem.h>
 
@@ -27,12 +28,10 @@
 // External functions
 // ---------------------------------------------------------------------------------------------
 
-extern void func_02026590(s32* value, s32 target, u16 frames);
-
 extern const BinIdentifier data_ov003_020d7800;
 
 extern const TaskHandle data_ov003_020d7f98;
-extern const TaskStages data_ov003_020d7fa4;
+static const TaskStages data_ov003_020d7fa4;
 
 // mwcc emits each unreferenced .rodata object in its own section; the handle is only used by other
 // units, so an (optimised-away) intra-TU reference keeps both objects in one .rodata section like
@@ -45,7 +44,7 @@ static const TaskHandle* const sBtlBarHpHandle = &data_ov003_020d7f98;
 
 /// Plays the damage voice sample for the bar that just dropped below half, once the battle is in
 /// its "fighting" state (0x2). `arg0` selects the partner's sample table (`unk3D88D`).
-void func_ov003_02098c28(s32 arg0, s32 arg1) {
+static void func_ov003_02098c28(s32 arg0, s32 arg1) {
     if (data_ov003_020e71b8->unk3D874 != 2) {
         return;
     }
@@ -73,14 +72,14 @@ void func_ov003_02098c28(s32 arg0, s32 arg1) {
 }
 
 /// Converts a gauge value to a bar width in pixels (a full bar is 0xA2 pixels wide).
-s32 func_ov003_02098ce4(s16 value) {
+static s32 func_ov003_02098ce4(s16 value) {
     s32 width = ((value << 12) / data_ov003_020e71b8->unk3D8D2) * 0xA2;
 
     return (width << 4) >> 16;
 }
 
 /// Resets a freshly created bar to the gauges' current values.
-void func_ov003_02098d18(BtlBar* bar) {
+static void func_ov003_02098d18(BtlBar* bar) {
     bar->flags   = 0;
     bar->unk_3DA = data_ov003_020e71b8->unk3D8D4;
     bar->unk_3DC = data_ov003_020e71b8->unk3D8D6;
@@ -98,7 +97,7 @@ void func_ov003_02098d18(BtlBar* bar) {
 /// stage. Also runs the low-HP warning blink on the two bar backgrounds.
 // Nonmatching: register allocation/scheduling of the two width selects (the `fixed` value and the
 // sampled width land in the opposite scratch registers) - the logic is otherwise identical.
-void func_ov003_02098da0(BtlBar* bar) {
+static void func_ov003_02098da0(BtlBar* bar) {
     s32 width;
     s32 target;
     s32 fixed;
@@ -226,7 +225,7 @@ void func_ov003_02098da0(BtlBar* bar) {
 }
 
 /// Task init: loads the ten bar sprites and snaps them to the current gauges.
-s32 func_ov003_0209923c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209923c(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
 
     MI_CpuSet(bar, 0, sizeof(BtlBar));
@@ -265,7 +264,7 @@ s32 func_ov003_0209923c(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task update: runs the state machine, plays the half-HP voice samples and updates the sprites.
-s32 func_ov003_02099530(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02099530(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
     s32     playerBelowHalf;
     s32     partnerBelowHalf;
@@ -294,7 +293,7 @@ s32 func_ov003_02099530(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task render.
-s32 func_ov003_020995f4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020995f4(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
 
     if (gSaveData.unk_3130 == 1) {
@@ -368,7 +367,7 @@ s32 func_ov003_020995f4(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task cleanup.
-s32 func_ov003_020998fc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020998fc(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
 
     CombatSprite_Release(&bar->sprites[5]);
@@ -385,7 +384,7 @@ s32 func_ov003_020998fc(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task dispatcher: calls the stage function for `stage`.
-s32 func_ov003_0209995c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209995c(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7fa4;
 
     if (func_ov003_0208b690(stage) != 0) {
@@ -398,11 +397,11 @@ s32 func_ov003_0209995c(TaskPool* pool, Task* task, void* args, s32 stage) {
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e3c60[0x10] = "Tsk_BtlBarHP";
+static char data_ov003_020e3c60[0x10] = "Tsk_BtlBarHP";
 
 const TaskHandle data_ov003_020d7f98 = {data_ov003_020e3c60, func_ov003_0209995c, sizeof(BtlBar)};
 
-const TaskStages data_ov003_020d7fa4 = {
+static const TaskStages data_ov003_020d7fa4 = {
     func_ov003_0209923c,
     func_ov003_02099530,
     func_ov003_020995f4,

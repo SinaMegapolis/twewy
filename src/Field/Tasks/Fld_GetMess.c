@@ -6,9 +6,8 @@
 #include "Field/Tasks/Fld_MapJumpName.h"
 #include "SpriteMgr.h"
 #include "Util/SysFont.h"
+#include "main_02026528.h"
 #include <nitro/types.h>
-
-extern void func_020265d4(s32* value, s32 target, u16 scale);
 
 typedef struct {
     /* 0x00 */ Sprite  sprite;

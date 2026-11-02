@@ -15,34 +15,37 @@ typedef struct Enm006AnimEntryPad2 {
     /* 0x08 */ u8              pad[2];
 } Enm006AnimEntryPad2; // Size: 0xA
 
-extern s32  func_ov010_02125730(TaskPool* pool, Task* task, void* args, s32 stage);
-extern s32  func_ov010_02125780(Enm006DeadEff*, Enm006Spawn*);
-extern char data_ov010_0212938c[24];
+static s32  func_ov010_02125730(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32  func_ov010_02125780(Enm006DeadEff*, Enm006Spawn*);
+static char data_ov010_0212938c[24];
+static s32  func_ov010_02125854(Enm006DeadEff* data);
+static s32  func_ov010_02125878(Enm006DeadEff* data);
+static s32  func_ov010_02125900(Enm006DeadEff* data);
 
-const s16 data_ov010_02129200[3] = {0x17, 0x17, 0x17};
+static const s16 data_ov010_02129200[3] = {0x17, 0x17, 0x17};
 
-const SpriteAnimEntry data_ov010_02129206[1] = {
+static const SpriteAnimEntry data_ov010_02129206[1] = {
     {16, 18, 17, 0},
 };
 
-const SpriteAnimEntry data_ov010_0212920e[1] = {
+static const SpriteAnimEntry data_ov010_0212920e[1] = {
     {16, 18, 17, 0},
 };
 
-const Enm006AnimEntryPad2 data_ov010_02129216 = {
+static const Enm006AnimEntryPad2 data_ov010_02129216 = {
     {16, 18, 17, 0},
     {0, 0},
 };
 
-const TaskHandle Tsk_BtlEnm006_DeadEff = {data_ov010_0212938c, func_ov010_02125730, 0x6C};
+static const TaskHandle Tsk_BtlEnm006_DeadEff = {data_ov010_0212938c, func_ov010_02125730, 0x6C};
 
-SpriteAnimEntry* data_ov010_02129380[3] = {
+static SpriteAnimEntry* data_ov010_02129380[3] = {
     (SpriteAnimEntry*)&data_ov010_02129216.entry,
     &data_ov010_0212920e[0],
     &data_ov010_02129206[0],
 };
 
-char data_ov010_0212938c[24] = "Tsk_BtlEnm006_DeadEff";
+static char data_ov010_0212938c[24] = "Tsk_BtlEnm006_DeadEff";
 
 void func_ov010_021256d0(BtlEnm006* owner, BtlEnm006* target) {
     BtlEnm006* args[2];
@@ -57,7 +60,7 @@ void func_ov010_021256d0(BtlEnm006* owner, BtlEnm006* target) {
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_DeadEff, 0, 0, 0, args);
 }
 
-s32 func_ov010_02125730(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov010_02125730(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* data = task->data;
     switch (stage) {
         case 0:
@@ -72,7 +75,7 @@ s32 func_ov010_02125730(TaskPool* pool, Task* task, void* args, s32 stage) {
     return 1;
 }
 
-s32 func_ov010_02125780(Enm006DeadEff* data, Enm006Spawn* args) {
+static s32 func_ov010_02125780(Enm006DeadEff* data, Enm006Spawn* args) {
     s32 m;
     u16 v;
     MI_CpuSet(data, 0, 0x6C);
@@ -88,12 +91,12 @@ s32 func_ov010_02125780(Enm006DeadEff* data, Enm006Spawn* args) {
     return 1;
 }
 
-s32 func_ov010_02125854(Enm006DeadEff* data) {
+static s32 func_ov010_02125854(Enm006DeadEff* data) {
     CombatSprite_Update(&data->sprite);
     return SpriteMgr_IsAnimationFinished(&data->sprite.sprite) == 0;
 }
 
-s32 func_ov010_02125878(Enm006DeadEff* data) {
+static s32 func_ov010_02125878(Enm006DeadEff* data) {
     if (func_ov003_020c3c28() != 0) {
         return 0;
     }
@@ -107,7 +110,7 @@ s32 func_ov010_02125878(Enm006DeadEff* data) {
     return 1;
 }
 
-s32 func_ov010_02125900(Enm006DeadEff* data) {
+static s32 func_ov010_02125900(Enm006DeadEff* data) {
     CombatSprite_Release(&data->sprite);
     return 1;
 }

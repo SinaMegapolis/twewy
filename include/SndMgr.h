@@ -88,4 +88,7 @@ void func_02027200(u32 param_1);
 
 void SndMgr_SetPriorityLoadFlag(s32 param_1);
 
+void SndMgr_DeepResetSequenceHeap(void);
+void SndMgr_TrackSeqArc(s32 seqArc);
+
 #endif // SNDMGR_H

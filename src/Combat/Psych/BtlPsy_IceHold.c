@@ -6,9 +6,8 @@
 /// Hold-type ice psych: two sprites are attached to the held actor, the first
 /// one plays the freeze-in animation while the second one trails behind.
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc900;
+static const TaskHandle data_ov003_020dc900;
+static Ov003EnemyActor* func_ov003_020b15a0(void);
 
 s32 func_ov003_020b10d8(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EnemyActor* unit = func_ov003_020b15a0();
@@ -24,7 +23,7 @@ s32 func_ov003_020b10d8(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 // Nonmatching: angle/actor temporary registers in the particle block and one local call relocation differ.
-s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs* arg = args;
     Ov003IceHold*       self;
     switch (stage) {
@@ -144,7 +143,7 @@ s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 /// The actor tracked by the ice psych.
-Ov003EnemyActor* func_ov003_020b15a0(void) {
+static Ov003EnemyActor* func_ov003_020b15a0(void) {
     if (!func_ov003_02085cfc(3))
         return NULL;
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_020a62a0()->released;
@@ -155,5 +154,5 @@ Ov003EnemyActor* func_ov003_020b15a0(void) {
     return unit;
 }
 
-char             data_ov003_020e4d20[20] = "Tsk_BtlPsy_IceHold";
-const TaskHandle data_ov003_020dc900     = {data_ov003_020e4d20, func_ov003_020b1130, sizeof(Ov003IceHold)};
+static char             data_ov003_020e4d20[20] = "Tsk_BtlPsy_IceHold";
+static const TaskHandle data_ov003_020dc900     = {data_ov003_020e4d20, func_ov003_020b1130, sizeof(Ov003IceHold)};

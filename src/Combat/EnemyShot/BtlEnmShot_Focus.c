@@ -3,7 +3,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0c44;
+static const TaskHandle data_ov003_020e0c44;
 
 /// The task parameter: the shot to fire, the heading and speed it leaves with, and the point it turns toward.
 typedef struct Ov003EnemyShotFocusArgs {
@@ -33,8 +33,8 @@ typedef struct Ov003EnemyShotFocus {
     /* 0xAC */ s32                  accel;
 } Ov003EnemyShotFocus; // Size: 0xB0
 
-s32 func_ov003_020ce39c(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 spread, s32 accel, s32 targetX, s32 targetY,
-                        s32 targetZ) {
+static s32 func_ov003_020ce39c(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 spread, s32 accel, s32 targetX,
+                               s32 targetY, s32 targetZ) {
     Ov003EnemyShotFocusArgs args;
     MI_CpuSet(&args, 0, sizeof(args));
     args.source  = source;
@@ -92,7 +92,7 @@ void func_ov003_020ce448(Ov003EnemyShotSource* source, s32* ids, s32 offsetX, s3
     }
 }
 
-s32 func_ov003_020ce7d4(Ov003EnemyShotFocus* self, Ov003EnemyShotFocusArgs* args) {
+static s32 func_ov003_020ce7d4(Ov003EnemyShotFocus* self, Ov003EnemyShotFocusArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
     s32                         engine = args->source->core.owner->base.sprite.sprite.bits_0_1;
@@ -116,7 +116,7 @@ s32 func_ov003_020ce7d4(Ov003EnemyShotFocus* self, Ov003EnemyShotFocusArgs* args
     return 1;
 }
 
-s32 func_ov003_020ce99c(Ov003EnemyShotFocus* self) {
+static s32 func_ov003_020ce99c(Ov003EnemyShotFocus* self) {
     s16 x, y;
     s16 targetX, targetY;
     s32 engine = func_ov003_020c37f8(&self->sprite) ? 1 : 0;
@@ -153,7 +153,7 @@ s32 func_ov003_020ce99c(Ov003EnemyShotFocus* self) {
     return 1;
 }
 
-s32 func_ov003_020ceb9c(Ov003EnemyShotFocus* self) {
+static s32 func_ov003_020ceb9c(Ov003EnemyShotFocus* self) {
     s16 x, y;
     func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
                         self->source.core.position.y, self->source.core.position.z);
@@ -163,12 +163,12 @@ s32 func_ov003_020ceb9c(Ov003EnemyShotFocus* self) {
     return 1;
 }
 
-s32 func_ov003_020cec14(Ov003EnemyShotFocus* self) {
+static s32 func_ov003_020cec14(Ov003EnemyShotFocus* self) {
     CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020cec28(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020cec28(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotFocus* self = task->data;
     switch (stage) {
         case 0:
@@ -184,5 +184,5 @@ s32 func_ov003_020cec28(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6c60[24] = "Tsk_BtlEnmShot_Focus";
-const TaskHandle data_ov003_020e0c44     = {data_ov003_020e6c60, func_ov003_020cec28, sizeof(Ov003EnemyShotFocus)};
+static char             data_ov003_020e6c60[24] = "Tsk_BtlEnmShot_Focus";
+static const TaskHandle data_ov003_020e0c44     = {data_ov003_020e6c60, func_ov003_020cec28, sizeof(Ov003EnemyShotFocus)};

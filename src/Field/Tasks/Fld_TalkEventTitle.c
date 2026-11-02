@@ -4,9 +4,8 @@
 #include "Field/Event/EventTables.h"
 #include "Field/Tasks/Fld_TalkEventTitle.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 #include <nitro/types.h>
-
-extern void func_020265d4(s32* value, s32 target, s32 duration);
 
 typedef struct {
     /* 0x00 */ Sprite sprite;

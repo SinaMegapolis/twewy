@@ -374,7 +374,6 @@ s32 func_ov003_020d2fb0(Ov003EnemyShotSource*, u16, s32, s32, u16);
 
 s32 func_ov003_020d1eec(Ov003EnemyShotSource*, s32, s32, s32, s32, s32, u16);
 
-s32 func_ov003_020cde74(CombatSprite*, s32, s32, s32, s32, s32);
 s32 func_ov003_020cdfbc(Ov003EnemyShotSource*, s32, s32);
 s32 func_ov003_020cdff4(Ov003EnemyShotCore*, s32, s32);
 
@@ -392,10 +391,6 @@ s32 func_ov003_020cfedc(Ov003EnemyShotSource*, u16, s16, s16, s16, s16);
 void                func_ov003_020d07a8(Ov003EnemyShotSource*, CombatList*, Ov003EnemyShotRoot*, u16, s16, s16, s32, s16);
 void                func_ov003_020d117c(CombatList*);
 Ov003EnemyShotRoot* func_ov003_020d11b8(Ov003EnemyShotRoot*, u16*, s32*, s32*, s32*, s32*, s32*);
-void*               func_ov003_0208495c(CombatList*);
-void*               func_ov003_02084984(CombatListNode*);
-void                func_ov003_020849ac(CombatList*);
-void                func_ov003_020849bc(CombatList*, CombatListNode*, void*);
 
 void func_ov003_020cc8b0(Ov003EnemyShotCore*, const Ov003EnemyShotSource*);
 s32  func_ov003_020ccb9c(Ov003EnemyShotSource*, CombatSprite*);
@@ -427,5 +422,42 @@ typedef struct BtlVec2 {
     /* 0x0 */ s32 x;
     /* 0x4 */ s32 y;
 } BtlVec2;
+
+/// The task parameter: the shot to snapshot, the root shot it repeats and the placement ranges of the roots.
+typedef struct Ov003EnemyShotRootLaserArgs {
+    /* 0x00 */ Ov003EnemyShotSource* source;
+    /* 0x04 */ u16                   ownerAnimation;
+    /* 0x06 */ u16                   reserved06;
+    /* 0x08 */ Ov003EnemyShotSource* childSource;
+    /* 0x0C */ u16                   childAnimation;
+    /* 0x0E */ u16                   kind;
+    /* 0x10 */ s16                   animation; // flash animation, < 0 for none
+    /* 0x12 */ s16                   spacing;
+    /* 0x14 */ s16                   horizontalMin;
+    /* 0x16 */ s16                   horizontalMax;
+    /* 0x18 */ s16                   verticalMin;
+    /* 0x1A */ s16                   verticalMax;
+    /* 0x1C */ s32                   speed;
+    /* 0x20 */ s16                   delay;
+    /* 0x22 */ s16                   length;
+    /* 0x24 */ u16                   override;
+    /* 0x26 */ u16                   reserved26;
+    /* 0x28 */ SndMgrSeIdx           sound;
+    /* 0x2C */ SndMgrSeIdx           sound2;
+} Ov003EnemyShotRootLaserArgs; // Size: 0x30
+
+typedef s32 (*BtlItemFilter)(s32 count, void* item, s32 arg);
+
+// BtlEnmShot_Focus.c
+void func_ov003_020ce448(Ov003EnemyShotSource* source, s32* ids, s32 offsetX, s32 offsetY, s32 speed, s32 spread, s32 accel,
+                         s32 targetX, s32 targetY, s32 targetZ);
+
+// BtlEnmShot_Generator.c
+s32 func_ov003_020cec78(Ov003EnemyShotSource* source, u16 moveAngle, s32 moveSpeed, s32 moveDecay,
+                        Ov003EnemyShotSource* paramSource, u16 angle, u16 angleStep, s32 shotSpeed, u16 delayFrames,
+                        s16 lifetime, s32 speedScale);
+
+// BtlEnmShot_RootLaser.c
+void func_ov003_020d1538(Ov003EnemyShotRootLaserArgs* args);
 
 #endif

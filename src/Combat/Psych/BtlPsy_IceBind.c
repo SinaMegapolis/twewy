@@ -3,7 +3,7 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc8b8;
+static const TaskHandle data_ov003_020dc8b8;
 
 s32 func_ov003_020afdf0(Ov003EffectContext* context, Ov003EffectState* effect) {
     BtlTouchWork* touch = func_ov003_020a62a0();
@@ -25,7 +25,7 @@ s32 func_ov003_020afdf0(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020afeb4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020afeb4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs* arg = args;
     Ov003IceBind*       self;
     switch (stage) {
@@ -77,5 +77,5 @@ s32 func_ov003_020afeb4(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4c90[20] = "Tsk_BtlPsy_IceBind";
-const TaskHandle data_ov003_020dc8b8     = {data_ov003_020e4c90, func_ov003_020afeb4, sizeof(Ov003IceBind)};
+static char             data_ov003_020e4c90[20] = "Tsk_BtlPsy_IceBind";
+static const TaskHandle data_ov003_020dc8b8     = {data_ov003_020e4c90, func_ov003_020afeb4, sizeof(Ov003IceBind)};

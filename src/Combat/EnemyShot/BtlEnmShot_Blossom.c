@@ -1,5 +1,6 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyShot.h"
+#include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
@@ -17,8 +18,6 @@
 // ---------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------
-
-typedef s32 (*BtlItemFilter)(s32 count, void* item, s32 arg);
 
 /// A petal's task parameter.
 typedef struct Ov003EnemyShotBlossomArgs {
@@ -57,19 +56,12 @@ typedef struct Ov003EnemyShotBlossom {
 
 extern u8 data_ov003_020d4231[];
 
-extern void func_ov003_02082a04(s32 engine, Sprite* sprite, const BinIdentifier* iden, const SpriteAnimEntry* table, u16 entry,
-                                s32 palette, s32 paletteCount);
-extern void func_ov003_02082a90(s32 engine, Sprite* sprite, const BinIdentifier* iden, u16 entry, u16 arg4, u16 arg5,
-                                s32 palette, s32 anim);
+static s32 func_ov003_020cd6a4(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY);
+static s32 func_ov003_020ccdb8(s32 engine, s32 x, s32 y, s32 z, s32 marginX, s32 marginY);
 
-s32 func_ov003_020cd1c8(Ov003EnemyShotBlossom* self, Ov003EnemyShotBlossomArgs* args);
-s32 func_ov003_020cd44c(Ov003EnemyShotBlossom* self);
-s32 func_ov003_020cd618(Ov003EnemyShotBlossom* self);
-s32 func_ov003_020cd690(Ov003EnemyShotBlossom* self);
-s32 func_ov003_020cd6a4(TaskPool* pool, Task* task, void* args, s32 stage);
-
-char             data_ov003_020e6be8[0x18] = "Tsk_BtlEnmShot_Blossom";
-const TaskHandle data_ov003_020e0c0c       = {data_ov003_020e6be8, func_ov003_020cd6a4, sizeof(Ov003EnemyShotBlossom)};
+static char             data_ov003_020e6be8[0x18] = "Tsk_BtlEnmShot_Blossom";
+static const TaskHandle data_ov003_020e0c0c       = {data_ov003_020e6be8, func_ov003_020cd6a4, sizeof(Ov003EnemyShotBlossom)};
 
 // ---------------------------------------------------------------------------------------------
 // Resource sets
@@ -338,7 +330,7 @@ s32 func_ov003_020cb648(Ov003EnemyActor* actor, s32 percent) {
 // ---------------------------------------------------------------------------------------------
 
 /// Pushes `*value` past the camera's left edge shifted by the view angle.
-s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
+static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
     Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
     s32          limit  = camera->posX + FX_Mul(FX_SinIdx(camera->rotation), scale);
 
@@ -349,7 +341,7 @@ s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
     return 0;
 }
 
-s32 func_ov003_020cb6e8(s32 index, s32* value, s32 margin, s32 scale) {
+static s32 func_ov003_020cb6e8(s32 index, s32* value, s32 margin, s32 scale) {
     Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
     s32          moved  = 0;
 
@@ -388,7 +380,7 @@ s32 func_ov003_020cb7c4(s32 index, s32 x, s32 y) {
 }
 
 /// Keeps (`*x`, `*y`) at least a margin inside the camera's field. Returns whether it had to move them.
-s32 func_ov003_020cb814(s32 index, s32* x, s32* y, s32 marginX, s32 marginY) {
+static s32 func_ov003_020cb814(s32 index, s32* x, s32* y, s32 marginX, s32 marginY) {
     Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
     s32          moved  = 0;
 
@@ -507,7 +499,7 @@ s32 func_ov003_020cbafc(s32* vx, s32* vy, s32* vz, s32 x0, s32 y0, s32 z0, s32 x
     return length;
 }
 
-void func_ov003_020cbc10(s32* mx, s32* my, s32* mz, s32 x0, s32 y0, s32 z0, s32 x1, s32 y1, s32 z1);
+static void func_ov003_020cbc10(s32* mx, s32* my, s32* mz, s32 x0, s32 y0, s32 z0, s32 x1, s32 y1, s32 z1);
 
 void func_ov003_020cbbd4(s32* mx, s32* my, s32 x0, s32 y0, s32 x1, s32 y1) {
     s32 mz;
@@ -516,7 +508,7 @@ void func_ov003_020cbbd4(s32* mx, s32* my, s32 x0, s32 y0, s32 x1, s32 y1) {
 }
 
 /// The middle of two points.
-void func_ov003_020cbc10(s32* mx, s32* my, s32* mz, s32 x0, s32 y0, s32 z0, s32 x1, s32 y1, s32 z1) {
+static void func_ov003_020cbc10(s32* mx, s32* my, s32* mz, s32 x0, s32 y0, s32 z0, s32 x1, s32 y1, s32 z1) {
     *mx = x0 + ((x1 - x0) >> 1);
     *my = y0 + ((y1 - y0) >> 1);
     *mz = z0 + ((z1 - z0) >> 1);
@@ -857,8 +849,8 @@ void func_ov003_020cc8b0(Ov003EnemyShotCore* dst, const Ov003EnemyShotSource* sr
 
 /// Whether a shot is over: it left the field, ran out of time, finished its animation, hit something, or its owner
 /// went down, depending on the `flags` of the shot.
-s32 func_ov003_020cc8fc(u16 flags, s32 engine, s32 x, s32 y, s32 z, s32 marginX, s32 marginY, Ov003CutinActor* owner,
-                        CombatSprite* sprite, s32 hitResult, s16* timer) {
+static s32 func_ov003_020cc8fc(u16 flags, s32 engine, s32 x, s32 y, s32 z, s32 marginX, s32 marginY, Ov003CutinActor* owner,
+                               CombatSprite* sprite, s32 hitResult, s16* timer) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
@@ -965,7 +957,7 @@ void func_ov003_020cccf0(s32 engine, Ov003EnemyShotSource* source) {
 }
 
 /// Whether a box of `marginX` by `marginY` around (`x`,`y`) lies outside the camera's field.
-s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY) {
+static s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY) {
     Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
 
     if (x + marginX < 0) {
@@ -981,7 +973,7 @@ s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY) {
 }
 
 /// Whether a box around the world point lies outside the screen.
-s32 func_ov003_020ccdb8(s32 engine, s32 x, s32 y, s32 z, s32 marginX, s32 marginY) {
+static s32 func_ov003_020ccdb8(s32 engine, s32 x, s32 y, s32 z, s32 marginX, s32 marginY) {
     s16 screenX;
     s16 screenY;
 
@@ -1067,7 +1059,7 @@ void func_ov003_020ccf58(s32 side, Ov003EnemyActor* actor) {
 
 /// Loads a sprite from a descriptor.
 void func_ov003_020ccf94(s32 engine, CombatSprite* sprite, const BtlSpriteDesc* desc) {
-    func_ov003_02082a04(engine, &sprite->sprite, desc->iden, desc->table, desc->entry, desc->palette, desc->paletteCount);
+    CombatSprite_LoadFromTable(engine, sprite, desc->iden, desc->table, desc->entry, desc->palette, desc->paletteCount);
 }
 
 s32 func_ov003_020ccfc8(Ov003EnemyActor* actor, u16 anim) {
@@ -1146,7 +1138,7 @@ s32 func_ov003_020cd134(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 
     return EasyTask_CreateTask(pool, &data_ov003_020e0c0c, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020cd1c8(Ov003EnemyShotBlossom* self, Ov003EnemyShotBlossomArgs* args) {
+static s32 func_ov003_020cd1c8(Ov003EnemyShotBlossom* self, Ov003EnemyShotBlossomArgs* args) {
     const Ov003EnemyShotTableVisual* visual = args->source->tableVisual;
     const SpriteAnimEntry*           entry  = &visual->base.entries[visual->base.entry];
     s32                              engine = args->source->core.owner->base.sprite.sprite.bits_0_1;
@@ -1170,8 +1162,8 @@ s32 func_ov003_020cd1c8(Ov003EnemyShotBlossom* self, Ov003EnemyShotBlossomArgs* 
         self->curveX     = FX_Mul(FX_CosIdx(side), big);
         self->curveY     = FX_Mul(FX_SinIdx(side), big);
     }
-    func_ov003_02082a90(engine, &self->sprite.sprite, visual->base.file, entry->charDataIndex, entry->paletteDataIndex,
-                        entry->frameDataIndex, visual->base.paletteSlot, entry->animDataIndex);
+    CombatSprite_LoadDirect(engine, &self->sprite, visual->base.file, entry->charDataIndex, entry->paletteDataIndex,
+                            entry->frameDataIndex, visual->base.paletteSlot, entry->animDataIndex);
     CombatSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
     self->source.core.sprite = &self->sprite;
     func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags46 & 1, 0);
@@ -1179,7 +1171,7 @@ s32 func_ov003_020cd1c8(Ov003EnemyShotBlossom* self, Ov003EnemyShotBlossomArgs* 
     return 1;
 }
 
-s32 func_ov003_020cd44c(Ov003EnemyShotBlossom* self) {
+static s32 func_ov003_020cd44c(Ov003EnemyShotBlossom* self) {
     s16 sx;
     s16 sy;
 
@@ -1212,7 +1204,7 @@ s32 func_ov003_020cd44c(Ov003EnemyShotBlossom* self) {
     return 1;
 }
 
-s32 func_ov003_020cd618(Ov003EnemyShotBlossom* self) {
+static s32 func_ov003_020cd618(Ov003EnemyShotBlossom* self) {
     s16 x;
     s16 y;
 
@@ -1224,12 +1216,12 @@ s32 func_ov003_020cd618(Ov003EnemyShotBlossom* self) {
     return 1;
 }
 
-s32 func_ov003_020cd690(Ov003EnemyShotBlossom* self) {
+static s32 func_ov003_020cd690(Ov003EnemyShotBlossom* self) {
     CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020cd6a4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020cd6a4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotBlossom* self = task->data;
 
     switch (stage) {

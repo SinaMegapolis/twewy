@@ -4,10 +4,10 @@
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
+#include <nitro/mi/cpumem.h>
 
 extern BinIdentifier data_ov003_020d7800;
-
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
 
 /// Task data of the damage-rate popup (`Tsk_BtlPop_Rate`): one sprite per rate digit,
 /// the tens digit only being shown when the rate has a non-zero tens digit.
@@ -34,18 +34,17 @@ typedef struct BtlPop_RateArgs {
     /* 0x10 */ s16 rate;
 } BtlPop_RateArgs; // Size: 0x14
 
-s32  func_ov003_0209c270(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209c378(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209c3dc(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209c498(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209c500(TaskPool* pool, Task* task, void* args, s32 stage);
-void func_ov003_0209c1f0(BtlPop_Rate* pop, s32 rate);
+static s32 func_ov003_0209c270(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209c378(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209c3dc(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209c498(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209c500(TaskPool* pool, Task* task, void* args, s32 stage);
 
-char data_ov003_020e3cb4[0x10] = "Tsk_BtlPop_Rate";
+static char data_ov003_020e3cb4[0x10] = "Tsk_BtlPop_Rate";
 
-const TaskHandle data_ov003_020d8034 = {data_ov003_020e3cb4, func_ov003_0209c500, 0xE0};
+static const TaskHandle data_ov003_020d8034 = {data_ov003_020e3cb4, func_ov003_0209c500, 0xE0};
 
-const TaskStages data_ov003_020d8040 = {
+static const TaskStages data_ov003_020d8040 = {
     func_ov003_0209c270,
     func_ov003_0209c378,
     func_ov003_0209c3dc,
@@ -54,7 +53,7 @@ const TaskStages data_ov003_020d8040 = {
 
 /// Animation table of the rate digits: every entry shares the same char, palette and
 /// frame indices and only varies the animation index.
-const SpriteAnimEntry data_ov003_020d8050[14] = {
+static const SpriteAnimEntry data_ov003_020d8050[14] = {
     {0x0A, 0x0C, 0x0B, 0x0},
     {0x0A, 0x0C, 0x0B, 0x1},
     {0x0A, 0x0C, 0x0B, 0x2},
@@ -74,14 +73,14 @@ const SpriteAnimEntry data_ov003_020d8050[14] = {
 /// Splits a rate into its hundreds and tens digit.
 // Nonmatching: instruction sequence is right; mwcc picks r5/r3 for the quotient and the final
 // digit instead of the retail r3/r4 pair (pure register allocation, no structural difference).
-void func_ov003_0209c1a4(s32* digits, s32 rate) {
+static void func_ov003_0209c1a4(s32* digits, s32 rate) {
     digits[1] = rate / 100;
     digits[0] = rate % 100 / 10;
 }
 
 /// Selects the hundreds/tens digit animations and stores the horizontal offset between
 /// the two digit sprites.
-void func_ov003_0209c1f0(BtlPop_Rate* pop, s32 rate) {
+static void func_ov003_0209c1f0(BtlPop_Rate* pop, s32 rate) {
     s32 digits[2];
 
     func_ov003_0209c1a4(digits, rate);
@@ -94,7 +93,7 @@ void func_ov003_0209c1f0(BtlPop_Rate* pop, s32 rate) {
 // Nonmatching: the retail first `CombatSprite_LoadFromTable` materialises its stack arguments in
 // r0 and reloads `p->engine`, while this build keeps the engine in r0 and uses r1/r12 for the
 // constants (argument-setup scheduling only; the call sequence itself is identical).
-s32 func_ov003_0209c270(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c270(TaskPool* pool, Task* task, void* args) {
     BtlPop_Rate*     pop = task->data;
     BtlPop_RateArgs* p   = args;
     s32              animIndex;
@@ -128,7 +127,7 @@ s32 func_ov003_0209c270(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209c378(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c378(TaskPool* pool, Task* task, void* args) {
     BtlPop_Rate* pop = task->data;
 
     if (pop->timer > 0) {
@@ -143,7 +142,7 @@ s32 func_ov003_0209c378(TaskPool* pool, Task* task, void* args) {
     return pop->active;
 }
 
-s32 func_ov003_0209c3dc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c3dc(TaskPool* pool, Task* task, void* args) {
     BtlPop_Rate* pop = task->data;
     s32          posX;
     s32          posY;
@@ -170,7 +169,7 @@ s32 func_ov003_0209c3dc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209c498(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c498(TaskPool* pool, Task* task, void* args) {
     BtlPop_Rate* pop = task->data;
 
     if (pop->sprite.sprite.bits_0_1 == 0) {
@@ -187,7 +186,7 @@ s32 func_ov003_0209c498(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209c500(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209c500(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8040;
 
     if (func_ov003_0208b690(stage) != 0) {

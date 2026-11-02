@@ -2,9 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc9a8;
+static const TaskHandle data_ov003_020dc9a8;
 
 s32 func_ov003_020b4048(Ov003EffectState* effect, s32 x, s32 y, s32 z, s32 vx, s32 vy, s32 vz, s32 animation, s32 trail) {
     Ov003BrokenMeteorArgs args;
@@ -20,7 +18,7 @@ s32 func_ov003_020b4048(Ov003EffectState* effect, s32 x, s32 y, s32 z, s32 vx, s
     return func_ov003_020a6000(&data_ov003_020dc9a8, &args);
 }
 
-s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003BrokenMeteorArgs* arg = args;
     Ov003BrokenMeteor*     self;
     switch (stage) {
@@ -73,5 +71,5 @@ s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4e34[28] = "SubTsk_BtlPsy_BrokenMeteor";
-const TaskHandle data_ov003_020dc9a8     = {data_ov003_020e4e34, func_ov003_020b40a0, sizeof(Ov003BrokenMeteor)};
+static char             data_ov003_020e4e34[28] = "SubTsk_BtlPsy_BrokenMeteor";
+static const TaskHandle data_ov003_020dc9a8     = {data_ov003_020e4e34, func_ov003_020b40a0, sizeof(Ov003BrokenMeteor)};

@@ -9,9 +9,7 @@ typedef struct BtlAbsorbEffect {
     /* 0x64 */ Vec               position;
 } BtlAbsorbEffect; // Size: 0x70
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc644;
+static const TaskHandle data_ov003_020dc644;
 
 void func_ov003_020a912c(Ov003EffectSlots* slots, s32 value) {
     Ov003AbsorbArgs args;
@@ -88,5 +86,5 @@ s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e49d8[24] = "Tsk_BtlPsy_AbsorbEffect";
-const TaskHandle data_ov003_020dc644     = {data_ov003_020e49d8, func_ov003_020a9154, sizeof(BtlAbsorbEffect)};
+static char             data_ov003_020e49d8[24] = "Tsk_BtlPsy_AbsorbEffect";
+static const TaskHandle data_ov003_020dc644     = {data_ov003_020e49d8, func_ov003_020a9154, sizeof(BtlAbsorbEffect)};

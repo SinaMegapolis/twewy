@@ -4,6 +4,9 @@
 
 extern const TaskHandle data_ov003_020dd05c;
 
+static void func_ov003_020b96d8(Ov003LineThunder* self);
+static void func_ov003_020b9764(s32* outX, s32* outY, s32 x1, s32 y1, s32 x2, s32 y2);
+
 // Nonmatching: the compiler merges two identical task-handle literals.
 s32 func_ov003_020b94b8(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(4))
@@ -83,7 +86,7 @@ s32 func_ov003_020b9518(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 // Nonmatching: local call relocation representation differs in objdiff.
-void func_ov003_020b96d8(Ov003LineThunder* self) {
+static void func_ov003_020b96d8(Ov003LineThunder* self) {
     s32 x, y;
     func_ov003_020b9764(&x, &y, self->x, self->y, self->previousX, self->previousY);
     Ov003EffectState* effect    = self->effect;
@@ -108,7 +111,7 @@ void func_ov003_020b96d8(Ov003LineThunder* self) {
 }
 
 // Nonmatching: coordinate/register allocation and conditional-add scheduling differ.
-void func_ov003_020b9764(s32* outX, s32* outY, s32 x1, s32 y1, s32 x2, s32 y2) {
+static void func_ov003_020b9764(s32* outX, s32* outY, s32 x1, s32 y1, s32 x2, s32 y2) {
     s32 startX = x1 * 0x1000;
     s32 startY = y1 * 0x1000;
     s32 endX   = x2 * 0x1000;

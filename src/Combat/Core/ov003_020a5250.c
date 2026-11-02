@@ -1,6 +1,7 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "EasyFade.h"
@@ -14,6 +15,7 @@
 #include "Engine/File/BinMgr.h"
 #include "Engine/File/DatMgr.h"
 #include "Engine/IO/Input.h"
+#include "Engine/IO/Str.h"
 #include "Engine/IO/TouchInput.h"
 #include "Engine/Math/Random.h"
 #include "Engine/Overlay/OverlayDispatcher.h"
@@ -46,7 +48,7 @@ typedef union Ov003EffectFlags {
 } Ov003EffectFlags;
 
 typedef struct Ov003EffectEntry {
-    /* 0x0 */ s32 (*fn)(void*, void*);
+    /* 0x0 */ s32 (*fn)();
     /* 0x4 */ u16              animId;
     /* 0x6 */ u16              pad;
     /* 0x8 */ Ov003EffectFlags flags;
@@ -60,101 +62,27 @@ typedef struct Ov003EffectEntry {
 
 /// One of the 0x70-byte sprite slots an effect owns: a `CombatSprite` plus its spin/fade timers.
 
-// ---------------------------------------------------------------------------------------------
-// External functions
-// ---------------------------------------------------------------------------------------------
-
-extern u32  func_0200f93c(void*);
-extern void func_020274e4(void*, s32, s32, const BinIdentifier*);
-
 // Defined in this unit.
-void              func_ov003_020a5540(Ov003EffectState* effect, Ov003TouchActor* actor);
-void              func_ov003_020a563c(Ov003EffectState* effect);
-void              func_ov003_020a58e4(Ov003EffectState* effect, u16 arg1, u8 arg2);
-Ov003EffectEntry* func_ov003_020a5d74(s32 state);
-
-extern s32 func_ov003_020a62b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-
-/// The effect entry points referenced by `data_ov003_020dc254`; only their addresses are used.
-extern s32 func_ov003_020af590();
-extern s32 func_ov003_020af280();
-extern s32 func_ov003_020af41c();
-extern s32 func_ov003_020b87a0();
-extern s32 func_ov003_020b8c1c();
-extern s32 func_ov003_020b7bf4();
-extern s32 func_ov003_020b7f9c();
-extern s32 func_ov003_020b8398();
-extern s32 func_ov003_020b2710();
-extern s32 func_ov003_020b1fd4();
-extern s32 func_ov003_020b94b8();
-extern s32 func_ov003_020b9838();
-extern s32 func_ov003_020afdf0();
-extern s32 func_ov003_020b0058();
-extern s32 func_ov003_020ade84();
-extern s32 func_ov003_020ad720();
-extern s32 func_ov003_020b15dc();
-extern s32 func_ov003_020b0cd4();
-extern s32 func_ov003_020b10d8();
-extern s32 func_ov003_020a9a58();
-extern s32 func_ov003_020a9830();
-extern s32 func_ov003_020ab1c4();
-extern s32 func_ov003_020ab35c();
-extern s32 func_ov003_020aaa84();
-extern s32 func_ov003_020aaa9c();
-extern s32 func_ov003_020aaab8();
-extern s32 func_ov003_020b05b8();
-extern s32 func_ov003_020b0b14();
-extern s32 func_ov003_02094cf8();
-extern s32 func_ov003_02094d4c();
-extern s32 func_ov003_020950ac();
-extern s32 func_ov003_020ac4f4();
-extern s32 func_ov003_020ac1ec();
-extern s32 func_ov003_020ac36c();
-extern s32 func_ov003_02087e5c();
-extern s32 func_ov003_020ba714();
-extern s32 func_ov003_02095350();
-extern s32 func_ov003_0209588c();
-extern s32 func_ov003_02087c28();
-extern s32 func_ov003_02095ac8();
-extern s32 func_ov003_02095cac();
-extern s32 func_ov003_02096048();
-extern s32 func_ov003_02095e64();
-extern s32 func_ov003_02087c98();
-extern s32 func_ov003_02087d1c();
-extern s32 func_ov003_020b5f74();
-extern s32 func_ov003_020b5d54();
-extern s32 func_ov003_020b537c();
-extern s32 func_ov003_020b47fc();
-extern s32 func_ov003_020b4b60();
-extern s32 func_ov003_020b3da8();
-extern s32 func_ov003_020b37c8();
-extern s32 func_ov003_020b39c0();
-extern s32 func_ov003_020baa58();
-extern s32 func_ov003_020ba2e8();
-extern s32 func_ov003_020b6644();
-extern s32 func_ov003_020b66b4();
-extern s32 func_ov003_020b292c();
-extern s32 func_ov003_020ac634();
-extern s32 func_ov003_020ac6bc();
-extern s32 func_ov003_020a9ec0();
-extern s32 func_ov003_020b6368();
-extern s32 func_ov003_020b641c();
-extern s32 func_ov003_020b6498();
-extern s32 func_ov003_020ba6c8();
+static Ov003EffectEntry* func_ov003_020a5d74(s32 state);
 
 // ---------------------------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------------------------
 
 /// PsyData.bin pack identifier.
-extern char         data_ov003_020e48cc[0x14];
-const BinIdentifier data_ov003_020dc234 = {3, data_ov003_020e48cc};
+static char                data_ov003_020e48cc[0x14];
+static void                func_ov003_020a5974(Ov003EffectState* effect);
+static s32                 func_ov003_020a59f8(void);
+static s32                 func_ov003_020a5b80(s32 state);
+static void                func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectState* effect, s32 arg3);
+static void                func_ov003_020a5d50(void* ptr);
+static const BinIdentifier data_ov003_020dc234 = {3, data_ov003_020e48cc};
 
 /// Effect priority per psych kind, indexed by `actor->params.unk_30`; lower wins.
-const u8 data_ov003_020dc23c[0x18] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+static const u8 data_ov003_020dc23c[0x18] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 /// Per-effect behaviour table; `func_ov003_020a5d74` indexes it with the effect state.
-const Ov003EffectEntry data_ov003_020dc254[65] = {
+static const Ov003EffectEntry data_ov003_020dc254[65] = {
     {func_ov003_020af590,  0x2, 0x0, 0x1},
     {func_ov003_020af280,  0x2, 0x0, 0x1},
     {func_ov003_020af41c,  0x2, 0x0, 0x1},
@@ -223,10 +151,10 @@ const Ov003EffectEntry data_ov003_020dc254[65] = {
 };
 
 /// Per-actor approach speeds (20.12); ramped up while an effect is close to its origin.
-s32 data_ov003_020e48bc[4] = {0x333, 0x333, 0x333, 0x333};
+static s32 data_ov003_020e48bc[4] = {0x333, 0x333, 0x333, 0x333};
 
 /// PsyData.bin path (referenced by `data_ov003_020dc234`).
-char data_ov003_020e48cc[0x14] = "Data/PsyData.bin";
+static char data_ov003_020e48cc[0x14] = "Data/PsyData.bin";
 
 // ---------------------------------------------------------------------------------------------
 // Physics integrator
@@ -234,7 +162,7 @@ char data_ov003_020e48cc[0x14] = "Data/PsyData.bin";
 
 /// Integrates one touch actor's velocity, bouncing it off the battle bounds and pushing it away
 /// from overlapping actors; also ramps the effect speed of actors near the effect origin.
-void func_ov003_020a5250(Ov003TouchActor* actor) {
+static void func_ov003_020a5250(Ov003TouchActor* actor) {
     Ov003TouchActor* other;
     BtlTouchWork*    origin;
     s32              angle;
@@ -302,7 +230,7 @@ void func_ov003_020a5540(Ov003EffectState* effect, Ov003TouchActor* actor) {
         func_ov003_020a5d50(effect->context.arg);
         effect->context.arg = NULL;
     }
-    if (func_0200f93c(&data_ov003_020e71b8->unk_201A4) > 0x80U) {
+    if (func_0200f93c((StrListOwner*)&data_ov003_020e71b8->unk_201A4) > 0x80U) {
         return;
     }
     entry = func_ov003_020a5d74(effect->state);
@@ -331,7 +259,7 @@ void func_ov003_020a563c(Ov003EffectState* effect) {
 }
 
 /// Starts effect `effect`: resets its per-frame counters and spawns its task/callbacks.
-u16 func_ov003_020a5660(Ov003TouchActor* actor) {
+static u16 func_ov003_020a5660(Ov003TouchActor* actor) {
     Ov003EffectEntry* entry = func_ov003_020a5d74(actor->effect.state);
 
     actor->effect.unk_08 = 0;
@@ -348,7 +276,7 @@ u16 func_ov003_020a5660(Ov003TouchActor* actor) {
 }
 
 /// Whether `actor` should be considered by the touch-effect selection.
-s32 func_ov003_020a56c8(Ov003TouchActor* actor) {
+static s32 func_ov003_020a56c8(Ov003TouchActor* actor) {
     if (func_ov003_020a3edc(actor) == 0) {
         return 0;
     }
@@ -371,7 +299,7 @@ s32 func_ov003_020a56c8(Ov003TouchActor* actor) {
 /// effect kinds. Returns the number collected.
 // Nonmatching: the two "store the actor" arms are if-converted into conditional stores here;
 // the retail build keeps a separate store block per arm.
-s32 func_ov003_020a5738(Ov003TouchActor** slots, s32 count, s32 mode) {
+static s32 func_ov003_020a5738(Ov003TouchActor** slots, s32 count, s32 mode) {
     Ov003TouchActor* actor;
     s32              n = 0;
     s32              i;
@@ -407,7 +335,7 @@ s32 func_ov003_020a5738(Ov003TouchActor** slots, s32 count, s32 mode) {
 
 /// Picks the highest-priority live touch actor and starts its effect; returns the effect's
 /// animation id (0 if nothing was picked).
-u16 func_ov003_020a5804(s32 mode) {
+static u16 func_ov003_020a5804(s32 mode) {
     Ov003TouchActor* slots[6];
     s32              count = func_ov003_020a5738(slots, 6, mode);
 
@@ -435,12 +363,12 @@ u16 func_ov003_020a5804(s32 mode) {
     return 0;
 }
 
-void func_ov003_020a58c4(void) {
-    func_ov003_020a5804(1);
+s32 func_ov003_020a58c4(void) {
+    return func_ov003_020a5804(1);
 }
 
-void func_ov003_020a58d4(void) {
-    func_ov003_020a5804(0);
+s32 func_ov003_020a58d4(void) {
+    return func_ov003_020a5804(0);
 }
 
 /// Initialises an effect state from its kind and per-actor index.
@@ -472,7 +400,7 @@ void func_ov003_020a593c(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 }
 
 /// Fires the shared effect for all five touch slots and arms its cooldown.
-void func_ov003_020a5974(Ov003EffectState* effect) {
+static void func_ov003_020a5974(Ov003EffectState* effect) {
     Ov003EffectSlots* state = &data_ov003_020e71b8->effectSlots;
     s32               i;
 
@@ -492,7 +420,7 @@ void func_ov003_020a59dc(void) {
     data_ov003_020e71b8->effectSlots.unk_0C = 0;
 }
 
-s32 func_ov003_020a59f8(void) {
+static s32 func_ov003_020a59f8(void) {
     if (data_ov003_020e71b8->effectSlots.unk_0C != 0) {
         return 1;
     }
@@ -557,7 +485,7 @@ s32 func_ov003_020a5b18(s32 state) {
 }
 
 /// Number of slots effect `state` occupies.
-s32 func_ov003_020a5b80(s32 state) {
+static s32 func_ov003_020a5b80(s32 state) {
     switch (state) {
         case 0x3B:
             return 2;
@@ -569,7 +497,7 @@ s32 func_ov003_020a5b80(s32 state) {
 }
 
 /// Fills `slots` with the actors participating in `effect`, one per effect slot.
-void func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectState* effect, s32 arg3) {
+static void func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectState* effect, s32 arg3) {
     Ov003TouchActor* actor;
     s32              i;
     s32              slot;
@@ -614,12 +542,12 @@ void* func_ov003_020a5d2c(s32 size, const char* name) {
     return Mem_AllocHeapTail(&data_ov003_020e71b8->heap_20224, size);
 }
 
-void func_ov003_020a5d50(void* ptr) {
+static void func_ov003_020a5d50(void* ptr) {
     Mem_Free(&data_ov003_020e71b8->heap_20224, ptr);
 }
 
 /// The behaviour table entry for effect `state`.
-Ov003EffectEntry* func_ov003_020a5d74(s32 state) {
+static Ov003EffectEntry* func_ov003_020a5d74(s32 state) {
     return &data_ov003_020dc254[state];
 }
 

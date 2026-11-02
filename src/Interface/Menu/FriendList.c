@@ -2,6 +2,7 @@
 #include "CriSndMgr.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Core/DMA.h"
 #include "Engine/Core/HBlank.h"
 #include "Engine/Core/Interrupts.h"
 #include "Engine/Core/Memory.h"
@@ -53,14 +54,7 @@ typedef struct {
     /* 0x216A8 */ FriendListObject friendList;
 } FriendListState;                              // Size: 0x24038
 
-void GX_LoadBgPltt(void* src, u32 offset, u32 size);
-void GX_LoadObjPltt(void* src, u32 offset, u32 size);
-void GXs_LoadBgPltt(void* src, u32 offset, u32 size);
-void GXs_LoadObjPltt(void* src, u32 offset, u32 size);
 void func_0202b878(void);
-BOOL func_02001b44(s32, s32, void*, s32);
-s32  Inventory_IsHelpSeen(s32);
-void Inventory_SetHelpSeen(s32);
 
 extern void func_ov043_020aeee0();
 

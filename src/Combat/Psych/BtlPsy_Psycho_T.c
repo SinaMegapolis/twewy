@@ -2,9 +2,8 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern char             data_ov003_020e4ef0[];
-extern const TaskHandle data_ov003_020dca90;
+static const TaskHandle data_ov003_020dca90;
+static Ov003EnemyActor* func_ov003_020b6308(Ov003EffectState* effect);
 
 s32 func_ov003_020b5f74(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EnemyActor* unit = func_ov003_020b6308(effect);
@@ -21,7 +20,7 @@ s32 func_ov003_020b5f74(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs* arg = args;
     Ov003PsychoT*       self;
     switch (stage) {
@@ -128,7 +127,7 @@ s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-Ov003EnemyActor* func_ov003_020b6308(Ov003EffectState* effect) {
+static Ov003EnemyActor* func_ov003_020b6308(Ov003EffectState* effect) {
     Ov003EnemyActor* primary   = (Ov003EnemyActor*)func_ov003_02085dc8(2);
     Ov003EnemyActor* secondary = (Ov003EnemyActor*)func_ov003_02085dc8(1);
     switch (effect->index) {
@@ -148,5 +147,5 @@ Ov003EnemyActor* func_ov003_020b6308(Ov003EffectState* effect) {
     return NULL;
 }
 
-char             data_ov003_020e4edc[20] = "Tsk_BtlPsy_Psycho_T";
-const TaskHandle data_ov003_020dca90     = {data_ov003_020e4edc, func_ov003_020b5fe4, sizeof(Ov003PsychoT)};
+static char             data_ov003_020e4edc[20] = "Tsk_BtlPsy_Psycho_T";
+static const TaskHandle data_ov003_020dca90     = {data_ov003_020e4edc, func_ov003_020b5fe4, sizeof(Ov003PsychoT)};

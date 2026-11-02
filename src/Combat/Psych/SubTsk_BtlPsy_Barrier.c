@@ -3,11 +3,12 @@
 #include "SndMgr.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32       func_ov003_020a51c0(void);
-extern s32       func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const s32 data_ov003_020dc6b4[4];
+static const s32 data_ov003_020dc6b4[4];
 
-extern const TaskHandle data_ov003_020dc6a8;
+static const TaskHandle data_ov003_020dc6a8;
+static void             func_ov003_020aa860(Ov003Barrier* barrier);
+static void             func_ov003_020aa990(Ov003Barrier* barrier);
+static void             func_ov003_020aa9f4(Ov003EffectState* effect, s32 percent);
 
 void func_ov003_020aa32c(Ov003EffectState* effect, s32 mode, s32 kind) {
     Ov003BarrierSpawn args;
@@ -18,7 +19,7 @@ void func_ov003_020aa32c(Ov003EffectState* effect, s32 mode, s32 kind) {
 }
 
 // Nonmatching: register allocation and affine-render loop scheduling differ.
-s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003BarrierSpawn* arg = args;
     Ov003Barrier*      barrier;
     switch (stage) {
@@ -153,7 +154,7 @@ s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-void func_ov003_020aa860(Ov003Barrier* barrier) {
+static void func_ov003_020aa860(Ov003Barrier* barrier) {
     CombatActor* player = func_ov003_020a6438();
     if (barrier->phase == 0) {
         if (!SpriteMgr_IsAnimationFinished(&barrier->sprites[1].sprite))
@@ -186,7 +187,7 @@ void func_ov003_020aa860(Ov003Barrier* barrier) {
     }
 }
 
-void func_ov003_020aa990(Ov003Barrier* barrier) {
+static void func_ov003_020aa990(Ov003Barrier* barrier) {
     func_ov003_020a6438();
     if (barrier->phase == 0)
         return;
@@ -198,7 +199,7 @@ void func_ov003_020aa990(Ov003Barrier* barrier) {
     CombatSprite_Restart(&barrier->sprites[3]);
 }
 
-void func_ov003_020aa9f4(Ov003EffectState* effect, s32 percent) {
+static void func_ov003_020aa9f4(Ov003EffectState* effect, s32 percent) {
     CombatActor* player = func_ov003_020a6438();
     s32          amount = data_ov003_020e71b8->unk3D8D2 * percent / 100;
     SndMgr_PlaySEWithPan(SEIDX_SE_BOY_RECOVER_DRINK, func_ov003_020843b0(0, player->position.x));
@@ -207,6 +208,6 @@ void func_ov003_020aa9f4(Ov003EffectState* effect, s32 percent) {
     func_ov003_0208b3cc(0, (s16)amount);
 }
 
-char             data_ov003_020e4a58[24] = "SubTsk_BtlPsy_Barrier";
-const TaskHandle data_ov003_020dc6a8     = {data_ov003_020e4a58, func_ov003_020aa358, sizeof(Ov003Barrier)};
-const s32        data_ov003_020dc6b4[4]  = {0x83, 0x85, 0x87, 0x89};
+static char             data_ov003_020e4a58[24] = "SubTsk_BtlPsy_Barrier";
+static const TaskHandle data_ov003_020dc6a8     = {data_ov003_020e4a58, func_ov003_020aa358, sizeof(Ov003Barrier)};
+static const s32        data_ov003_020dc6b4[4]  = {0x83, 0x85, 0x87, 0x89};

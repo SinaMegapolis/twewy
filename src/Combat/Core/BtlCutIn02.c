@@ -1,6 +1,9 @@
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatCutin.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Resources/ScreenMapper.h"
+#include <nitro/g2.h>
 #include <nitro/mi/cpumem.h>
 #include <nitro/reg.h>
 #include <stddef.h>
@@ -71,30 +74,23 @@ typedef char check_Cutin02_kind[(offsetof(BtlCutIn02, kind) == 0x214) ? 1 : -1];
 typedef char check_Cutin02_index[(offsetof(BtlCutIn02, programIndex) == 0x2BA) ? 1 : -1];
 
 extern const BinIdentifier            data_ov003_020dd7ac;
-extern const Ov003CutinPaletteEntries data_ov003_020dd990;
-extern const TaskStages               data_ov003_020dd99c;
-extern const Cutin02Resources         data_ov003_020dd9ac[4];
-extern Cutin02Step                    data_ov003_020e53a8[15];
+static const Ov003CutinPaletteEntries data_ov003_020dd990;
+static const TaskStages               data_ov003_020dd99c;
+static const Cutin02Resources         data_ov003_020dd9ac[4];
+static Cutin02Step                    data_ov003_020e53a8[15];
 extern char                           data_ov003_020e534c[16];
-extern s32                            func_ov003_020bfb4c(TaskPool* pool, Task* task, void* args, s32 stage);
-extern void                           func_0200d858(ScreenMapEntry*, s32, s32, s32);
-extern void                           func_0200d954(s32, s32);
-extern void*                          G2S_GetBG1ScrPtr(void);
-extern void                           func_0203aafc(s32, void*, u32, u32);
-extern void                           func_ov003_020bd2c8(s32 kind, s32 index);
-extern void                           func_ov003_020bd370(s32 kind, s32 index);
 
-void func_ov003_020bfb94(BtlCutIn02* self) {
+static void func_ov003_020bfb94(BtlCutIn02* self) {
     self->programIndex++;
     self->subTimer  = 0;
     self->subState  = 0;
     self->subActive = 0;
 }
-void func_ov003_020bfbb8(BtlCutIn02* self, const Cutin02Step* program) {
+static void func_ov003_020bfbb8(BtlCutIn02* self, const Cutin02Step* program) {
     self->program = program;
 }
 // Nonmatching: display offset register allocation.
-void func_ov003_020bfbc0(BtlCutIn02* self) {
+static void func_ov003_020bfbc0(BtlCutIn02* self) {
     ScreenMapEntry* map = &self->scenes[0].screens[0].map;
     Display_SetBGOffset(map->engineId, map->bgLayer, self->firstX, self->firstY);
     map = &self->scenes[0].screens[1].map;
@@ -108,12 +104,12 @@ void func_ov003_020bfbc0(BtlCutIn02* self) {
     map = &self->overlayMainMap;
     Display_SetBGOffset(map->engineId, map->bgLayer, self->overlayMainOffset, self->overlayMainOffset);
 }
-s32 func_ov003_020bfe2c(BtlCutIn02* self) {
+static s32 func_ov003_020bfe2c(BtlCutIn02* self) {
     EasyFade_FadeBothDisplays(0, 0x10, 0x1000);
     return 1;
 }
 // Nonmatching: display-state store scheduling.
-s32 func_ov003_020bfe48(BtlCutIn02* self) {
+static s32 func_ov003_020bfe48(BtlCutIn02* self) {
     g_DisplaySettings.controls[0].windows |= 4;
     g_DisplaySettings.engineState[0].windowObj            = 8;
     g_DisplaySettings.engineState[0].windowObjEffects     = 0;
@@ -149,11 +145,11 @@ s32 func_ov003_020bfe48(BtlCutIn02* self) {
     return 0;
 }
 
-s32 func_ov003_020c0058(BtlCutIn02* self) {
+static s32 func_ov003_020c0058(BtlCutIn02* self) {
     func_ov003_020bfb94(self);
     return 2;
 }
-s32 func_ov003_020c0068(BtlCutIn02* self) {
+static s32 func_ov003_020c0068(BtlCutIn02* self) {
     PaletteMgr_ReleaseResource(g_PaletteManagers[0], self->scenes[0].palettes[1]);
     PaletteMgr_ReleaseResource(g_PaletteManagers[1], self->scenes[0].palettes[0]);
     PaletteMgr_ReleaseResource(g_PaletteManagers[0], self->scenes[1].palettes[1]);
@@ -176,17 +172,17 @@ s32 func_ov003_020c0068(BtlCutIn02* self) {
     func_ov003_020bfb94(self);
     return 0;
 }
-s32 func_ov003_020c0188(BtlCutIn02* self) {
+static s32 func_ov003_020c0188(BtlCutIn02* self) {
     EasyFade_FadeBothDisplays(0, 0, 0x800);
     func_ov003_020bfb94(self);
     return 0;
 }
-s32 func_ov003_020c01b0(BtlCutIn02* self) {
+static s32 func_ov003_020c01b0(BtlCutIn02* self) {
     EasyFade_FadeBothDisplays(0, 0x10, 0x1000);
     func_ov003_020bfb94(self);
     return 0;
 }
-void func_ov003_020c01d8(BtlCutIn02* self, u16 kind) {
+static void func_ov003_020c01d8(BtlCutIn02* self, u16 kind) {
     self->overlayPack                = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7ac, 3, 0);
     Ov003CutinPaletteEntries entries = data_ov003_020dd990;
     void*                    palette = Data_GetPackEntryData(self->overlayPack, entries.entries[kind]);
@@ -210,7 +206,7 @@ void func_ov003_020c01d8(BtlCutIn02* self, u16 kind) {
     self->overlaySubOffset  = 0;
     self->overlayMainOffset = 0x100000;
 }
-void func_ov003_020c04a0(BtlCutIn02* self, u16 kind) {
+static void func_ov003_020c04a0(BtlCutIn02* self, u16 kind) {
     const Cutin02Resources* base    = &data_ov003_020dd9ac[0];
     const Cutin02Resources* variant = &data_ov003_020dd9ac[kind + 1];
     Cutin02Scene*           first   = &self->scenes[0];
@@ -276,12 +272,12 @@ void func_ov003_020c04a0(BtlCutIn02* self, u16 kind) {
     self->secondY = 0;
     func_ov003_020bfbc0(self);
 }
-s32 func_ov003_020c0d90(BtlCutIn02* self) {
+static s32 func_ov003_020c0d90(BtlCutIn02* self) {
     func_ov003_020c04a0(self, self->kind);
     func_ov003_020bfb94(self);
     return 2;
 }
-s32 func_ov003_020c0db4(BtlCutIn02* self) {
+static s32 func_ov003_020c0db4(BtlCutIn02* self) {
     self->active            = 1;
     self->pathIndex         = 0;
     self->phase             = 0;
@@ -306,7 +302,7 @@ static inline s32 Cutin02_Coordinate(u16 value) {
     return (value & 0x7FFF) * sign;
 }
 // Nonmatching: path coordinate decoding register allocation.
-s32 func_ov003_020c0e88(BtlCutIn02* self) {
+static s32 func_ov003_020c0e88(BtlCutIn02* self) {
     const Cutin02Point* first  = &self->scenes[0].path->points[self->pathIndex];
     const Cutin02Point* second = &self->scenes[1].path->points[self->pathIndex];
     s16                 x1     = Cutin02_Coordinate(first->x);
@@ -332,24 +328,24 @@ s32 func_ov003_020c0e88(BtlCutIn02* self) {
     }
     return 0;
 }
-s32 func_ov003_020c0fe4(BtlCutIn02* self) {
+static s32 func_ov003_020c0fe4(BtlCutIn02* self) {
     self->pathIndex = 10;
     func_ov003_020bfb94(self);
     return 2;
 }
-s32 func_ov003_020c1000(BtlCutIn02* self) {
+static s32 func_ov003_020c1000(BtlCutIn02* self) {
     self->pathIndex = 30;
     func_ov003_020bfb94(self);
     return 2;
 }
-s32 func_ov003_020c101c(BtlCutIn02* self) {
+static s32 func_ov003_020c101c(BtlCutIn02* self) {
     if (self->pathIndex != 0)
         self->pathIndex--;
     else
         func_ov003_020bfb94(self);
     return 0;
 }
-void func_ov003_020c1044(BtlCutIn02* self) {
+static void func_ov003_020c1044(BtlCutIn02* self) {
     MI_CpuSet(self, 0, sizeof(*self));
     func_ov003_020bfbb8(self, data_ov003_020e53a8);
     EasyFade_FadeBothDisplays(0, 0, 0x800);
@@ -366,12 +362,12 @@ void func_ov003_020c1044(BtlCutIn02* self) {
             return;
     }
 }
-s32 func_ov003_020c10d4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c10d4(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c1044(task->data);
     return 1;
 }
 // Nonmatching: update dispatch and scrolling instruction scheduling.
-s32 func_ov003_020c10e8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c10e8(TaskPool* pool, Task* task, void* args) {
     BtlCutIn02* self = task->data;
     if (self->program[self->programIndex] == NULL)
         return 0;
@@ -398,32 +394,33 @@ s32 func_ov003_020c10e8(TaskPool* pool, Task* task, void* args) {
     func_ov003_020bfbc0(self);
     return 1;
 }
-s32 func_ov003_020c11cc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c11cc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
-s32 func_ov003_020c11d4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c11d4(TaskPool* pool, Task* task, void* args) {
     return 0;
 }
-s32 func_ov003_020c11dc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020c11dc(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020dd99c;
     return stages.iter[stage](pool, task, args);
 }
 
-const TaskHandle               data_ov003_020dd978 = {data_ov003_020e534c, func_ov003_020bfb4c, 0x270};
-extern char                    data_ov003_020e5398[16];
-const TaskHandle               data_ov003_020dd984 = {data_ov003_020e5398, func_ov003_020c11dc, sizeof(BtlCutIn02)};
-const Ov003CutinPaletteEntries data_ov003_020dd990 = {
+const TaskHandle                      data_ov003_020dd978 = {data_ov003_020e534c, func_ov003_020bfb4c, 0x270};
+static char                           data_ov003_020e5398[16];
+const TaskHandle                      data_ov003_020dd984 = {data_ov003_020e5398, func_ov003_020c11dc, sizeof(BtlCutIn02)};
+static const Ov003CutinPaletteEntries data_ov003_020dd990 = {
     {10, 11, 12}
 };
-const TaskStages data_ov003_020dd99c = {func_ov003_020c10d4, func_ov003_020c10e8, func_ov003_020c11cc, func_ov003_020c11d4};
-const Cutin02Resources data_ov003_020dd9ac[4] = {
+static const TaskStages       data_ov003_020dd99c    = {func_ov003_020c10d4, func_ov003_020c10e8, func_ov003_020c11cc,
+                                                        func_ov003_020c11d4};
+static const Cutin02Resources data_ov003_020dd9ac[4] = {
     {14, 7, 1, {2, 3, 4, 5, 6}, {0}},
     {15, 7, 1, {2, 3, 4, 5, 6}, {0}},
     {16, 7, 1, {2, 3, 4, 5, 6}, {0}},
     {17, 7, 1, {2, 3, 4, 5, 6}, {0}}
 };
-char        data_ov003_020e5398[16] = "Tsk_BtlCutIn02";
-Cutin02Step data_ov003_020e53a8[15] = {func_ov003_020bfe48, func_ov003_020c0058, func_ov003_020c0d90, func_ov003_020c0188,
-                                       func_ov003_020c0db4, func_ov003_020c0e88, func_ov003_020c0fe4, func_ov003_020c101c,
-                                       func_ov003_020c0fe4, func_ov003_020c101c, func_ov003_020c01b0, func_ov003_020c1000,
-                                       func_ov003_020c101c, func_ov003_020c0068, func_ov003_020bfe2c};
+static char        data_ov003_020e5398[16] = "Tsk_BtlCutIn02";
+static Cutin02Step data_ov003_020e53a8[15] = {
+    func_ov003_020bfe48, func_ov003_020c0058, func_ov003_020c0d90, func_ov003_020c0188, func_ov003_020c0db4,
+    func_ov003_020c0e88, func_ov003_020c0fe4, func_ov003_020c101c, func_ov003_020c0fe4, func_ov003_020c101c,
+    func_ov003_020c01b0, func_ov003_020c1000, func_ov003_020c101c, func_ov003_020c0068, func_ov003_020bfe2c};

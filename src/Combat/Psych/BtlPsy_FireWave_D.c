@@ -7,9 +7,8 @@ typedef struct FireWaveDef {
     s32 kind;
     s32 attackId;
 } FireWaveDef;
-extern const FireWaveDef data_ov003_020dc674[5];
-extern const TaskHandle  data_ov003_020dc668;
-extern s32               func_ov003_020a51c0(void);
+static const FireWaveDef data_ov003_020dc674[5];
+static const TaskHandle  data_ov003_020dc668;
 
 // Nonmatching: mwcc merges the two identical task-handle literals.
 s32 func_ov003_020a9a58(Ov003EffectContext* context, Ov003EffectState* effect) {
@@ -26,7 +25,7 @@ s32 func_ov003_020a9a58(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 // Nonmatching: register allocation differs, and one true array owns the split configuration symbols.
-s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003FireWave* wave;
     switch (stage) {
         default:
@@ -117,12 +116,12 @@ s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 // Retail splits this table at the first attack id (data_ov003_020dc678).
 // Keeping a real array avoids accesses beyond the first scalar object.
-const FireWaveDef data_ov003_020dc674[5] = {
+static const FireWaveDef data_ov003_020dc674[5] = {
     {0x68, 0x151},
     {0x68, 0x152},
     {0x6A, 0x153},
     {0x68, 0x154},
     {0x69, 0x155}
 };
-char             data_ov003_020e4a24[24] = "Tsk_BtlPsy_FireWave_D";
-const TaskHandle data_ov003_020dc668     = {data_ov003_020e4a24, func_ov003_020a9ac4, 0x38};
+static char             data_ov003_020e4a24[24] = "Tsk_BtlPsy_FireWave_D";
+static const TaskHandle data_ov003_020dc668     = {data_ov003_020e4a24, func_ov003_020a9ac4, 0x38};

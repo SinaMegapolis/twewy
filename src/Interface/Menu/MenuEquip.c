@@ -1,6 +1,7 @@
 #include "Interface/Menu/MenuEquip.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Core/DMA.h"
 #include "Engine/Core/HBlank.h"
 #include "Engine/Core/Interrupts.h"
 #include "Engine/Core/Memory.h"
@@ -60,13 +61,6 @@ typedef struct {
 
 static MenuEquipState* data_ov043_020cd284;
 
-void        GX_LoadBgPltt(void* src, u32 offset, u32 size);
-void        GX_LoadObjPltt(void* src, u32 offset, u32 size);
-void        GXs_LoadBgPltt(void* src, u32 offset, u32 size);
-void        GXs_LoadObjPltt(void* src, u32 offset, u32 size);
-BOOL        func_02001b44(s32, s32, void*, s32);
-void        Inventory_SetHelpSeen(s32);
-s32         Inventory_IsHelpSeen(s32);
 void        func_0202b878(void);
 extern void ProcessOverlay_MenuTop(void* state);
 

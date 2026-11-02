@@ -26,15 +26,12 @@ typedef struct {
     /* 0x0C */ u32   size;
 } BgCharInfo;
 
-// BgResMgr.c defines this with an extra stack argument; its callers pass four.
-BgResource* BgResMgr_AllocCharAligned(BgResMgr* mgr, UnkSmallStruct_DispBG* src, u32 charBase, u32 size);
-void        func_020105b8(TextObject* obj);
-void*       G2_GetBG0ScrPtr(void);
-void*       G2_GetBG1ScrPtr(void);
-void*       G2S_GetBG0ScrPtr(void);
-void*       G2S_GetBG1ScrPtr(void);
-void*       func_02036710(void);
-void*       func_02036808(void);
+void  func_020105b8(TextObject* obj);
+void* G2_GetBG0ScrPtr(void);
+void* G2_GetBG1ScrPtr(void);
+void* G2S_GetBG0ScrPtr(void);
+void* func_02036710(void);
+void* func_02036808(void);
 
 s32  BgText_Init(BgText* bgText, UnkStruct_usedby_02025b68* args);
 void BgText_Free(BgText* bgText);
@@ -106,7 +103,7 @@ s32 BgText_Init(BgText* bgText, UnkStruct_usedby_02025b68* args) {
         palette = sBgTextDefaultPalette;
     }
     bgText->engine = sBgTextTemplate.unk_00;
-    bgText->chr    = BgResMgr_AllocCharAligned(
+    bgText->chr    = ((BgResource * (*)()) BgResMgr_AllocCharAligned)(
         g_BgResourceManagers[sBgTextTemplate.unk_00], NULL,
         g_DisplaySettings.engineState[sBgTextTemplate.unk_00].bgSettings[sBgTextTemplate.unk_04].charBase,
         (sBgTextTemplate.unk_14[0] * sBgTextTemplate.unk_14[1] + 2) << 5);

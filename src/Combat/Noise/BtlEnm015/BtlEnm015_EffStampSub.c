@@ -2,6 +2,7 @@
 #include "Combat/Noise/Private/BtlEnm015.h"
 
 #include "Combat/Core/CombatApi.h"
+#include "SndMgr.h"
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlEnm015StampSub {
@@ -13,11 +14,11 @@ typedef struct BtlEnm015StampSub {
     /* 0x6C */ s32          unk_6C;
     /* 0x70 */ s32          unk_70;
 } BtlEnm015StampSub; // Size: 0x74
-s32 func_ov013_02126a30(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov013_02126a30(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlEnm015_EffStampSub = {"Tsk_BtlEnm015_EffStampSub", func_ov013_02126a30, 0x74};
 
-s32 func_ov013_02126788(BtlEnm015StampSub* data) {
+static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
     s32          engine = func_ov003_020c37f8(&data->unk_00->base.sprite) != 0;
     CombatActor* base;
     s32          se;
@@ -68,7 +69,7 @@ s32 func_ov013_02126788(BtlEnm015StampSub* data) {
     return 1;
 }
 
-void func_ov013_021268d8(BtlEnm015StampSub* data) {
+static void func_ov013_021268d8(BtlEnm015StampSub* data) {
     s16 x;
     s16 y;
 
@@ -78,11 +79,11 @@ void func_ov013_021268d8(BtlEnm015StampSub* data) {
     CombatSprite_Render(&data->sprite);
 }
 
-void func_ov013_02126950(BtlEnm015StampSub* data) {
+static void func_ov013_02126950(BtlEnm015StampSub* data) {
     CombatSprite_Release(&data->sprite);
 }
 
-void func_ov013_02126960(BtlEnm015StampSub* data, Enm015Spawn* args) {
+static void func_ov013_02126960(BtlEnm015StampSub* data, Enm015Spawn* args) {
     BtlEnm015* owner = args->unk_00;
 
     MI_CpuSet(data, 0, sizeof(BtlEnm015StampSub));
@@ -108,7 +109,7 @@ void func_ov013_02126960(BtlEnm015StampSub* data, Enm015Spawn* args) {
     CombatSprite_Load(&data->sprite, &anim);
 }
 
-s32 func_ov013_02126a30(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov013_02126a30(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm015StampSub* data  = task->data;
     BtlEnm015*         owner = data->unk_00;
 

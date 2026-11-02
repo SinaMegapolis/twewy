@@ -12,9 +12,8 @@
 #include "Field/Tasks/XFade.h"
 #include "Save.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 #include <nitro/fx.h>
-
-extern void func_020265d4(s32* value, s32 target, u16 scale);
 
 typedef struct {
     /* 0x00 */ s16 unk0;

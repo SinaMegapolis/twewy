@@ -1,6 +1,5 @@
 #include "Interface/Menu/FriendList.h"
-
-s32 Inventory_IsHelpSeen(s32);
+#include "Player/Inventory.h"
 
 typedef struct {
     /* 0x00 */ Sprite            sprites[3];

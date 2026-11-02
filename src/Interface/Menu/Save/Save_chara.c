@@ -2,11 +2,6 @@
 #include "Player/Inventory.h"
 #include "Save.h"
 
-u16  Inventory_GetNoiseReportCount(void);
-u16  Inventory_GetMasteredPinCount(void);
-u16  Inventory_GetCollectedItemCount(void);
-BOOL Savefile_AcquiredAllSecretReports(void);
-
 typedef struct {
     /* 0x000 */ Sprite          sprites[8];
     /* 0x200 */ BOOL            visible[8];

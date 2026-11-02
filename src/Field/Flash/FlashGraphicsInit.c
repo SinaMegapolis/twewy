@@ -12,10 +12,6 @@
 #include <nitro/os/cpustat.h>
 
 extern void func_0202b878(void);
-extern void GX_LoadBgPltt(const void* src, u32 offset, u32 size);
-extern void GX_LoadObjPltt(const void* src, u32 offset, u32 size);
-extern void GXs_LoadBgPltt(const void* src, u32 offset, u32 size);
-extern void GXs_LoadObjPltt(const void* src, u32 offset, u32 size);
 extern void G3i_OrthoW(fx32 top, fx32 bottom, fx32 left, fx32 right, fx32 near, fx32 far, fx32 scaleW, BOOL draw, void* mtx);
 
 BOOL      gFlashDrawBottomScreen = TRUE;

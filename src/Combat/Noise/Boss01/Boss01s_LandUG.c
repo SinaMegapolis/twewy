@@ -1,4 +1,5 @@
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 
@@ -50,7 +51,8 @@ s32 Boss01s_LandUG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    func_ov003_02084348(func_ov003_020c3908(landUG), &spA, &sp8, landUG->unk_60, landUG->unk_64, landUG->unk_68);
+    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)landUG), &spA, &sp8, landUG->unk_60, landUG->unk_64,
+                        landUG->unk_68);
     CombatSprite_SetPosition(&landUG->sprite, spA, sp8);
     func_ov003_02082730(&landUG->sprite, 0x7FFFFFFF);
     CombatSprite_Render(&landUG->sprite);

@@ -8,6 +8,7 @@
 #include "SpriteMgr.h"
 #include "Util/SysFont.h"
 #include "Util/SysFontMsgs.h"
+#include "main_02026528.h"
 
 typedef struct {
     /* 0x00 */ Sprite  sprite;
@@ -53,8 +54,6 @@ static const SpriteAnimation Fld_GetPlate_Anim = {
     .unk_28            = 4,
     .animIndex         = 2,
 };
-
-extern void func_020265d4(void* value, s32 target, u16 step);
 
 SpriteFrameInfo* Fld_GetPlate_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     Sprite_FrameInfoCallback(sprite, mode);

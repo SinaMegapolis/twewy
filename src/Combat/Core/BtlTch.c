@@ -7,7 +7,7 @@
 extern const BinIdentifier data_ov003_020d6fac;
 extern char                data_ov003_020e3ad4[12];
 
-s32 func_ov003_0208ee20(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208ee20(TaskPool* pool, Task* task, void* args) {
     BtlIcon* icon = task->data;
 
     MI_CpuSet(icon, 0, sizeof(*icon));
@@ -21,7 +21,7 @@ s32 func_ov003_0208ee20(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0208eebc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208eebc(TaskPool* pool, Task* task, void* args) {
     BtlIcon* icon = task->data;
 
     func_ov003_0208ecbc(icon);
@@ -36,7 +36,7 @@ s32 func_ov003_0208eebc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0208ef28(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208ef28(TaskPool* pool, Task* task, void* args) {
     BtlIcon* icon = task->data;
 
     if (icon->unk_6C != 0) {
@@ -46,26 +46,26 @@ s32 func_ov003_0208ef28(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0208ef5c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208ef5c(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
-extern const TaskStages data_ov003_020d78fc;
+static const TaskStages data_ov003_020d78fc;
 
-s32 func_ov003_0208ef70(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0208ef70(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d78fc;
     return stages.iter[stage](pool, task, args);
 }
 
-const TaskHandle data_ov003_020d78f0 = {data_ov003_020e3ad4, func_ov003_0208ef70, sizeof(BtlIcon)};
-const TaskStages data_ov003_020d78fc = {
+const TaskHandle        data_ov003_020d78f0 = {data_ov003_020e3ad4, func_ov003_0208ef70, sizeof(BtlIcon)};
+static const TaskStages data_ov003_020d78fc = {
     func_ov003_0208ee20,
     func_ov003_0208eebc,
     func_ov003_0208ef28,
     func_ov003_0208ef5c,
 };
 
-extern char data_ov003_020e3ac4[16];
+static char data_ov003_020e3ac4[16];
 char*       data_ov003_020e3ac0     = data_ov003_020e3ac4;
-char        data_ov003_020e3ac4[16] = "Seq_Battle()";
+static char data_ov003_020e3ac4[16] = "Seq_Battle()";

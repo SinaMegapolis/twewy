@@ -60,12 +60,6 @@ typedef struct {
     /* 0x21810 */ MenuTopObject topMenu;
 } MenuTopState; // Size: 0x21958
 
-void GX_LoadBgPltt(void* src, u32 offset, u32 size);
-void GX_LoadObjPltt(void* src, u32 offset, u32 size);
-void GXs_LoadBgPltt(void* src, u32 offset, u32 size);
-void GXs_LoadObjPltt(void* src, u32 offset, u32 size);
-void Inventory_SetHelpSeen(s32);
-s32  Inventory_IsHelpSeen(s32);
 void func_0202b878(void);
 
 extern void ProcessOverlay_MenuEquip(void* state);

@@ -3,6 +3,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include "Engine/Math/Random.h"
 #include "Save.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 #include <stddef.h>
 
@@ -35,28 +36,24 @@ typedef char                 check_PrizeItem_phase[(offsetof(BtlPrizeItem, phase
 typedef char                 check_PrizeItem_angle[(offsetof(BtlPrizeItem, angle) == 0x84) ? 1 : -1];
 extern const BtlPrizeLookup  data_ov003_020dd228[13], data_ov003_020dd290[96];
 extern const BinIdentifier   data_ov003_020d7800;
-extern const TaskHandle      data_ov003_020dd3d8;
-extern const SpriteAnimEntry data_ov003_020dd3c8, data_ov003_020dd3e4[5];
-extern const BinIdentifier   data_ov003_020dd3d0;
+static const TaskHandle      data_ov003_020dd3d8;
+static const SpriteAnimEntry data_ov003_020dd3c8, data_ov003_020dd3e4[5];
+static const BinIdentifier   data_ov003_020dd3d0;
 typedef union BtlPrizeCount {
     u32 raw;
     struct {
         u16 count, reserved;
     };
 } BtlPrizeCount;
-extern BtlPrizeCount data_ov003_020e71c4;
-extern BOOL          func_ov003_0208b1e8(u32 itemId);
-extern void          func_ov003_0209c984(s32 engine, s32 animBase, s32 x, s32 y, s32 z);
-extern void          func_02026590(s32*, s32, u16);
-extern void          func_020265d4(s32*, s32, u16);
-s32                  func_ov003_020bb590(Ov003CutinActor*, s32);
-s32                  func_ov003_020bb6d4(const Ov003ActorParams*);
-void                 func_ov003_020bb73c(s32, s16);
-void                 func_ov003_020bb7c4(s32, s16, s8);
-s32                  func_ov003_020bb878(u32);
-s32                  func_ov003_020bb8bc(void);
+static BtlPrizeCount data_ov003_020e71c4;
+static s32           func_ov003_020bb590(Ov003CutinActor*, s32);
+static s32           func_ov003_020bb6d4(const Ov003ActorParams*);
+static void          func_ov003_020bb73c(s32, s16);
+static void          func_ov003_020bb7c4(s32, s16, s8);
+static s32           func_ov003_020bb878(u32);
+static s32           func_ov003_020bb8bc(void);
 
-s32 func_ov003_020babf8(s32 group, u16 variant) {
+static s32 func_ov003_020babf8(s32 group, u16 variant) {
     switch ((u32)(group - 0x11)) {
         case 0:
             if (variant != 1)
@@ -113,7 +110,7 @@ s32 func_ov003_020babf8(s32 group, u16 variant) {
 }
 
 // Nonmatching: record and variant switch layout.
-s32 func_ov003_020bad24(s32 group, s16 variant) {
+static s32 func_ov003_020bad24(s32 group, s16 variant) {
     u32 relativeBase;
     s16 adjusted = variant;
     s32 record   = 0;
@@ -317,7 +314,7 @@ s32 func_ov003_020bad24(s32 group, s16 variant) {
     return record + adjusted;
 }
 
-void func_ov003_020bb0f0(s32 group, s16 variant) {
+static void func_ov003_020bb0f0(s32 group, s16 variant) {
     s32 record = func_ov003_020bad24(group, variant);
 
     if (record == -1) {
@@ -418,7 +415,7 @@ void func_ov003_020bb190(s32 group, u32 time, s32 unused) {
     gSaveData.bestDefeatTimes[0x53] = time;
 }
 
-void func_ov003_020bb3e4(s32 group, s16 variant, u32 grade) {
+static void func_ov003_020bb3e4(s32 group, s16 variant, u32 grade) {
     s32 record = func_ov003_020bad24(group, variant);
     if (record == -1)
         return;
@@ -477,7 +474,7 @@ void func_ov003_020bb580(void* actor) {
 }
 
 // Nonmatching: actor/drop-selection register allocation.
-s32 func_ov003_020bb590(Ov003CutinActor* actor, s32 spawn) {
+static s32 func_ov003_020bb590(Ov003CutinActor* actor, s32 spawn) {
     s32 result = -1;
     if (actor->base.group < 0 || actor->base.group >= 60)
         return -1;
@@ -504,7 +501,7 @@ s32 func_ov003_020bb590(Ov003CutinActor* actor, s32 spawn) {
     return result;
 }
 
-s32 func_ov003_020bb6d4(const Ov003ActorParams* params) {
+static s32 func_ov003_020bb6d4(const Ov003ActorParams* params) {
     s8 grade = func_ov003_020bb8bc();
     do {
         s32 rate = (u16)data_ov003_020e71b8->unk3D892 * params->dropRates[grade];
@@ -515,7 +512,7 @@ s32 func_ov003_020bb6d4(const Ov003ActorParams* params) {
     return -1;
 }
 
-void func_ov003_020bb73c(s32 group, s16 variant) {
+static void func_ov003_020bb73c(s32 group, s16 variant) {
     if (data_ov003_020e71b8->unk3D88E == 0x1E) {
         func_ov003_020bb0f0(0x37, 0);
         func_ov003_020bb0f0(0x39, 0);
@@ -533,7 +530,7 @@ void func_ov003_020bb73c(s32 group, s16 variant) {
 }
 
 // Nonmatching: drop-flag helper call layout.
-void func_ov003_020bb7c4(s32 group, s16 variant, s8 grade) {
+static void func_ov003_020bb7c4(s32 group, s16 variant, s8 grade) {
     if (group >= 0x11 && group <= 0x1D) {
         func_ov003_020bb3e4(group, variant, func_ov003_020bb878(0));
         func_ov003_020bb3e4(group, variant, func_ov003_020bb878(1));
@@ -547,7 +544,7 @@ void func_ov003_020bb7c4(s32 group, s16 variant, s8 grade) {
     func_ov003_020bb3e4(0x2B, variant, grade);
 }
 
-s32 func_ov003_020bb878(u32 grade) {
+static s32 func_ov003_020bb878(u32 grade) {
     switch (grade) {
         case 0:
             return 0;
@@ -561,7 +558,7 @@ s32 func_ov003_020bb878(u32 grade) {
             return 0;
     }
 }
-s32 func_ov003_020bb8bc(void) {
+static s32 func_ov003_020bb8bc(void) {
     switch (gSaveData.battleDifficulty) {
         case 0:
             return 0;
@@ -576,7 +573,7 @@ s32 func_ov003_020bb8bc(void) {
     }
 }
 
-void func_ov003_020bb90c(BtlPrizeItem* self) {
+static void func_ov003_020bb90c(BtlPrizeItem* self) {
     CombatActor* owner;
     if (func_ov003_020c37f8(&self->sprite))
         owner = data_ov003_020e71b8->unk3D89C;
@@ -594,7 +591,7 @@ void func_ov003_020bb90c(BtlPrizeItem* self) {
 }
 
 // Nonmatching: sprite-loading and fixed-point register allocation.
-s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
+static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
     CombatActor* owner;
     if (args->engine == 0)
         owner = data_ov003_020e71b8->unk3D898;
@@ -638,7 +635,7 @@ s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
 }
 
 // Nonmatching: orbit/approach arithmetic and register allocation.
-s32 func_ov003_020bbc14(BtlPrizeItem* self) {
+static s32 func_ov003_020bbc14(BtlPrizeItem* self) {
     CombatActor* owner;
     if (func_ov003_020c37f8(&self->sprite))
         owner = data_ov003_020e71b8->unk3D89C;
@@ -678,7 +675,7 @@ s32 func_ov003_020bbc14(BtlPrizeItem* self) {
     return active;
 }
 
-s32 func_ov003_020bbec0(BtlPrizeItem* self) {
+static s32 func_ov003_020bbec0(BtlPrizeItem* self) {
     s32 engine = func_ov003_020c37f8(&self->sprite) ? 1 : 0;
     if (func_ov003_020c3c28())
         return 1;
@@ -690,7 +687,7 @@ s32 func_ov003_020bbec0(BtlPrizeItem* self) {
     return 1;
 }
 
-s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
+static s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
     if ((u16)(data_ov003_020e71b8->unk3D874 + 0xFFFE) <= 1) {
         s32 pan;
 
@@ -708,7 +705,7 @@ s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
     return 1;
 }
 
-s32 func_ov003_020bc018(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020bc018(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlPrizeItem* self = task->data;
     switch (stage) {
         case 0:
@@ -724,16 +721,16 @@ s32 func_ov003_020bc018(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char                  data_ov003_020e50a0[20] = "Tsk_BtlPrizeItem";
-char                  data_ov003_020e50b4[32] = "Apl_Hor/Grp_BtlPrize_Lime.bin";
-const SpriteAnimEntry data_ov003_020dd3c8     = {1, 3, 2, 0};
-const BinIdentifier   data_ov003_020dd3d0     = {3, data_ov003_020e50b4};
-const TaskHandle      data_ov003_020dd3d8     = {data_ov003_020e50a0, func_ov003_020bc018, sizeof(BtlPrizeItem)};
-const SpriteAnimEntry data_ov003_020dd3e4[5]  = {
+static char                  data_ov003_020e50a0[20] = "Tsk_BtlPrizeItem";
+static char                  data_ov003_020e50b4[32] = "Apl_Hor/Grp_BtlPrize_Lime.bin";
+static const SpriteAnimEntry data_ov003_020dd3c8     = {1, 3, 2, 0};
+static const BinIdentifier   data_ov003_020dd3d0     = {3, data_ov003_020e50b4};
+static const TaskHandle      data_ov003_020dd3d8     = {data_ov003_020e50a0, func_ov003_020bc018, sizeof(BtlPrizeItem)};
+static const SpriteAnimEntry data_ov003_020dd3e4[5]  = {
     {0x37, 0x39, 0x38, 0},
     {0x37, 0x39, 0x38, 1},
     {0x37, 0x39, 0x38, 2},
     {0x37, 0x39, 0x38, 3},
     {0x37, 0x39, 0x38, 4}
 };
-BtlPrizeCount data_ov003_020e71c4;
+static BtlPrizeCount data_ov003_020e71c4;

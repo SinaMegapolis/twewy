@@ -2,6 +2,8 @@
 #include "Combat/Core/CombatSprite.h"
 
 #include "Combat/Core/CombatApi.h"
+#include "main_02026528.h"
+#include <nitro/mi/cpumem.h>
 typedef struct BtlStarTrail {
     s32 x, y;
     s16 timer;
@@ -21,21 +23,23 @@ typedef struct BtlEffStarArgs {
     s8               level;
 } BtlEffStarArgs;
 extern const BinIdentifier data_ov003_020d7800, data_ov003_020d7810;
-extern void                func_020265d4(s32* dst, s32 target, u16 weight);
-void                       func_ov003_0209fd98(BtlEffStar*);
-void                       func_ov003_0209fddc(BtlEffStar*);
-void                       func_ov003_0209fe58(BtlEffStar*);
-void                       func_ov003_0209fef0(BtlEffStar*);
-const SpriteAnimEntry      data_ov003_020d870c     = {1, 3, 2, 0};
-const SpriteAnimEntry      data_ov003_020d8714     = {0x1c, 0x1e, 0x1d, 0};
-char                       data_ov003_020e3de8[16] = "Tsk_BtlEff_Star";
-const TaskHandle           data_ov003_020d871c     = {data_ov003_020e3de8, func_ov003_020a01fc, 0x1dc};
-const TaskStages data_ov003_020d8728 = {func_ov003_0209ff9c, func_ov003_020a00e8, func_ov003_020a0180, func_ov003_020a01cc};
-void             func_ov003_0209fd48(s32 engine, CombatSprite* sprite) {
+static s32                 func_ov003_0209ff9c(TaskPool* pool, Task* task, void* args);
+static s32                 func_ov003_020a00e8(TaskPool* pool, Task* task, void* args);
+static s32                 func_ov003_020a0180(TaskPool* pool, Task* task, void* args);
+static s32                 func_ov003_020a01cc(TaskPool* pool, Task* task, void* args);
+static s32                 func_ov003_020a01fc(TaskPool* pool, Task* task, void* args, s32 stage);
+
+static const SpriteAnimEntry data_ov003_020d870c     = {1, 3, 2, 0};
+static const SpriteAnimEntry data_ov003_020d8714     = {0x1c, 0x1e, 0x1d, 0};
+static char                  data_ov003_020e3de8[16] = "Tsk_BtlEff_Star";
+static const TaskHandle      data_ov003_020d871c     = {data_ov003_020e3de8, func_ov003_020a01fc, 0x1dc};
+static const TaskStages      data_ov003_020d8728     = {func_ov003_0209ff9c, func_ov003_020a00e8, func_ov003_020a0180,
+                                                        func_ov003_020a01cc};
+static void                  func_ov003_0209fd48(s32 engine, CombatSprite* sprite) {
     CombatSprite_LoadDirect(engine, sprite, &data_ov003_020d7800, 0x19, 0x1b, 0x1a, 0x3f, 12);
     func_ov003_02082738(sprite, 0);
 }
-void func_ov003_0209fd98(BtlEffStar* data) {
+static void func_ov003_0209fd98(BtlEffStar* data) {
     s32 i;
     data->count = 0;
     for (i = 0; i < 5; i++)
@@ -43,7 +47,7 @@ void func_ov003_0209fd98(BtlEffStar* data) {
     func_ov003_0209fd48(1, &data->sprites[2]);
     func_ov003_0209fd48(0, &data->sprites[3]);
 }
-void func_ov003_0209fddc(BtlEffStar* data) {
+static void func_ov003_0209fddc(BtlEffStar* data) {
     s32           max = 0;
     BtlStarTrail* trail;
     switch (data->level) {
@@ -66,7 +70,7 @@ void func_ov003_0209fddc(BtlEffStar* data) {
     trail->active = 1;
     data->count++;
 }
-void func_ov003_0209fe58(BtlEffStar* data) {
+static void func_ov003_0209fe58(BtlEffStar* data) {
     s32           x = data->owner->x, y = data->owner->y;
     s32           i;
     BtlStarTrail* trail;
@@ -83,7 +87,7 @@ void func_ov003_0209fe58(BtlEffStar* data) {
         }
     }
 }
-void func_ov003_0209fef0(BtlEffStar* data) {
+static void func_ov003_0209fef0(BtlEffStar* data) {
     s32           i;
     BtlStarTrail* trail;
     for (i = 0; i < data->count; i++) {
@@ -102,7 +106,7 @@ void func_ov003_0209fef0(BtlEffStar* data) {
 }
 // Nonmatching: the descriptor flag halfword load and stores are scheduled differently.
 // All assigned descriptor values and subsequent calls agree with retail.
-s32 func_ov003_0209ff9c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ff9c(TaskPool* pool, Task* task, void* args) {
     BtlEffStar*       data = task->data;
     BtlEffStarArgs*   p    = args;
     SpriteAnimationEx anim;
@@ -133,7 +137,7 @@ s32 func_ov003_0209ff9c(TaskPool* pool, Task* task, void* args) {
     func_ov003_0209fd98(data);
     return 1;
 }
-s32 func_ov003_020a00e8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a00e8(TaskPool* pool, Task* task, void* args) {
     BtlEffStar* data = task->data;
     if (data_ov003_020e71b8->unk3D878 & 6)
         return 0;
@@ -149,7 +153,7 @@ s32 func_ov003_020a00e8(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Update(&data->sprites[3]);
     return 1;
 }
-s32 func_ov003_020a0180(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a0180(TaskPool* pool, Task* task, void* args) {
     BtlEffStar* data = task->data;
     CombatSprite_Render(&data->sprites[0]);
     CombatSprite_SetPosition(&data->sprites[1], (s16)(data->owner->x >> 12), (s16)(data->owner->y >> 12));
@@ -157,7 +161,7 @@ s32 func_ov003_020a0180(TaskPool* pool, Task* task, void* args) {
     func_ov003_0209fef0(data);
     return 1;
 }
-s32 func_ov003_020a01cc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a01cc(TaskPool* pool, Task* task, void* args) {
     BtlEffStar* data = task->data;
     CombatSprite_Release(&data->sprites[0]);
     CombatSprite_Release(&data->sprites[1]);
@@ -165,7 +169,7 @@ s32 func_ov003_020a01cc(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(&data->sprites[3]);
     return 1;
 }
-s32 func_ov003_020a01fc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a01fc(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8728;
     return stages.iter[stage](pool, task, args);
 }

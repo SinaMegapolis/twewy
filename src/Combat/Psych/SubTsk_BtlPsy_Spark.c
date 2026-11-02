@@ -3,10 +3,7 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount);
-
-extern const TaskHandle data_ov003_020dc788;
+static const TaskHandle data_ov003_020dc788;
 
 // Nonmatching: fixed-point product register allocation and argument-store scheduling differ.
 s32 func_ov003_020ad280(Ov003AttackStreak* streak, s32 x, s32 y, s32 angle, s32 speed, s32 scale) {
@@ -24,7 +21,7 @@ s32 func_ov003_020ad280(Ov003AttackStreak* streak, s32 x, s32 y, s32 angle, s32 
     return func_ov003_020a6000(&data_ov003_020dc788, &args);
 }
 
-s32 func_ov003_020ad364(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ad364(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003SparkArgs* arg = args;
     Ov003Spark*     self;
     switch (stage) {
@@ -97,5 +94,5 @@ s32 func_ov003_020ad364(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4bc0[20] = "SubTsk_BtlPsy_Spark";
-const TaskHandle data_ov003_020dc788     = {data_ov003_020e4bc0, func_ov003_020ad364, sizeof(Ov003Spark)};
+static char             data_ov003_020e4bc0[20] = "SubTsk_BtlPsy_Spark";
+static const TaskHandle data_ov003_020dc788     = {data_ov003_020e4bc0, func_ov003_020ad364, sizeof(Ov003Spark)};

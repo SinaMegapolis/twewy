@@ -2,10 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount);
-
-extern const TaskHandle data_ov003_020dc724;
+static const TaskHandle data_ov003_020dc724;
 
 void func_ov003_020abe30(Ov003EffectState* effect, s32 x, s32 y, s32 z) {
     Ov003PsychPositionArgs args;
@@ -17,7 +14,7 @@ void func_ov003_020abe30(Ov003EffectState* effect, s32 x, s32 y, s32 z) {
 }
 
 // Nonmatching: sprite-loop register allocation, sort-key construction and sound-load scheduling differ.
-s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychPositionArgs* arg = args;
     Ov003PsychoBomb*        self;
     switch (stage) {
@@ -108,5 +105,5 @@ s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage) {
             return 1;
     }
 }
-char             data_ov003_020e4b10[28] = "SubTsk_BtlPsy_PsychoBomb";
-const TaskHandle data_ov003_020dc724     = {data_ov003_020e4b10, func_ov003_020abe60, sizeof(Ov003PsychoBomb)};
+static char             data_ov003_020e4b10[28] = "SubTsk_BtlPsy_PsychoBomb";
+static const TaskHandle data_ov003_020dc724     = {data_ov003_020e4b10, func_ov003_020abe60, sizeof(Ov003PsychoBomb)};

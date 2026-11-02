@@ -3,7 +3,7 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc858;
+static const TaskHandle data_ov003_020dc858;
 
 // Nonmatching: Compiler pools the task-handle literal.
 s32 func_ov003_020af280(Ov003EffectContext* context, Ov003EffectState* effect) {
@@ -18,7 +18,7 @@ s32 func_ov003_020af280(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 // Nonmatching: Initialization registers and predicated update return differ.
-s32 func_ov003_020af2d8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020af2d8(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState**   arg = args;
     Ov003PsychByteTimer* self;
     switch (stage) {
@@ -54,6 +54,6 @@ s32 func_ov003_020af2d8(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 // Descriptor words at 020dc7c0/020dc7c4/020dc7c8 belong to the unified array in
 // SubTsk_BtlPsy_Element.c rather than separate, cross-indexed C objects here.
-char data_ov003_020e4c1c[24] = "Tsk_BtlPsy_Element_S";
+static char data_ov003_020e4c1c[24] = "Tsk_BtlPsy_Element_S";
 
-const TaskHandle data_ov003_020dc858 = {data_ov003_020e4c1c, func_ov003_020af2d8, sizeof(Ov003PsychByteTimer)};
+static const TaskHandle data_ov003_020dc858 = {data_ov003_020e4c1c, func_ov003_020af2d8, sizeof(Ov003PsychByteTimer)};

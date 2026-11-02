@@ -5,6 +5,7 @@
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "Save.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
 // The "ready" banner shown when a battle starts (`Tsk_BtlReady`): three pairs of sprites (one per screen) slide in
@@ -39,24 +40,20 @@ typedef struct BtlReady {
 
 extern const BinIdentifier data_ov003_020d7818;
 
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
-extern void func_ov003_0208b278(u32 state);
+static void func_ov003_020a0954(BtlReady* self);
+static void func_ov003_020a09f4(BtlReady* self);
+static void func_ov003_020a0ac0(BtlReady* self);
+static s32  func_ov003_020a0b4c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a0ca0(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a0d2c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a0e5c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a0ec0(TaskPool* pool, Task* task, void* args, s32 stage);
 
-void func_ov003_020a0910(BtlReady* self);
-void func_ov003_020a0954(BtlReady* self);
-void func_ov003_020a09f4(BtlReady* self);
-void func_ov003_020a0ac0(BtlReady* self);
-s32  func_ov003_020a0b4c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a0ca0(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a0d2c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a0e5c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a0ec0(TaskPool* pool, Task* task, void* args, s32 stage);
-
-char             data_ov003_020e3e08[0x10] = "Tsk_BtlReady";
+static char      data_ov003_020e3e08[0x10] = "Tsk_BtlReady";
 const TaskHandle data_ov003_020d8764       = {data_ov003_020e3e08, func_ov003_020a0ec0, sizeof(BtlReady)};
 
 /// The stage table of the banner: build, update, draw, release.
-const TaskStages data_ov003_020d8770 = {
+static const TaskStages data_ov003_020d8770 = {
     func_ov003_020a0b4c,
     func_ov003_020a0ca0,
     func_ov003_020a0d2c,
@@ -64,7 +61,7 @@ const TaskStages data_ov003_020d8770 = {
 };
 
 /// The animations of the banner sprites: the first two are the frame and the "READY" text, the rest the battle numbers.
-const SpriteAnimEntry data_ov003_020d8780[18] = {
+static const SpriteAnimEntry data_ov003_020d8780[18] = {
     {1, 3, 2,  0},
     {1, 3, 2,  1},
     {1, 3, 2,  2},
@@ -89,14 +86,14 @@ const SpriteAnimEntry data_ov003_020d8780[18] = {
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_020a060c(BtlReady* self, BtlReadyState state) {
+static void func_ov003_020a060c(BtlReady* self, BtlReadyState state) {
     self->state = state;
     self->timer = 0;
     self->phase = 0;
 }
 
 /// Loads sprite `index` of the banner table for `engine`, `x` tiles off to the side.
-void func_ov003_020a0624(s32 engine, CombatSprite* sprite, u16 index, u16 x) {
+static void func_ov003_020a0624(s32 engine, CombatSprite* sprite, u16 index, u16 x) {
     SpriteAnimationEx anim;
     u16               charIndex;
     u16               paletteIndex;
@@ -125,7 +122,7 @@ void func_ov003_020a0624(s32 engine, CombatSprite* sprite, u16 index, u16 x) {
 }
 
 /// The generic line.
-void func_ov003_020a0708(s32 weak) {
+static void func_ov003_020a0708(s32 weak) {
     if (weak) {
         func_ov003_02087ed8(SEIDX_NEKU_BTL_OP_DANGER01);
         return;
@@ -138,7 +135,7 @@ void func_ov003_020a0708(s32 weak) {
 }
 
 /// The partner's own line.
-void func_ov003_020a0750(s32 weak) {
+static void func_ov003_020a0750(s32 weak) {
     s32 line;
 
     if (weak) {
@@ -189,7 +186,7 @@ void func_ov003_020a0750(s32 weak) {
 }
 
 /// Picks and plays the opening line.
-void func_ov003_020a0898(void) {
+static void func_ov003_020a0898(void) {
     s32 weak = 0;
     s32 other;
 
@@ -214,7 +211,7 @@ void func_ov003_020a0898(void) {
 }
 
 /// Waits before the banner appears.
-void func_ov003_020a0910(BtlReady* self) {
+static void func_ov003_020a0910(BtlReady* self) {
     if (self->timer == 0) {
         self->timer = 0x82;
     }
@@ -226,7 +223,7 @@ void func_ov003_020a0910(BtlReady* self) {
 }
 
 /// The banners slide in.
-void func_ov003_020a0954(BtlReady* self) {
+static void func_ov003_020a0954(BtlReady* self) {
     if (self->timer == 0) {
         self->timer = 30;
         if (self->speaks != 0) {
@@ -245,7 +242,7 @@ void func_ov003_020a0954(BtlReady* self) {
 }
 
 /// The line plays while the banners wait, then the screen fades.
-void func_ov003_020a09f4(BtlReady* self) {
+static void func_ov003_020a09f4(BtlReady* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -272,7 +269,7 @@ void func_ov003_020a09f4(BtlReady* self) {
 }
 
 /// The banners slide out.
-void func_ov003_020a0ac0(BtlReady* self) {
+static void func_ov003_020a0ac0(BtlReady* self) {
     if (self->timer == 0) {
         self->timer = 30;
         func_ov003_02087ed8(SEIDX_SE_READY02);
@@ -287,7 +284,7 @@ void func_ov003_020a0ac0(BtlReady* self) {
     }
 }
 
-s32 func_ov003_020a0b4c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a0b4c(TaskPool* pool, Task* task, void* args) {
     BtlReady* self = task->data;
     u16       number;
 
@@ -315,7 +312,7 @@ s32 func_ov003_020a0b4c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a0ca0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a0ca0(TaskPool* pool, Task* task, void* args) {
     BtlReady* self = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 6) {
@@ -335,7 +332,7 @@ s32 func_ov003_020a0ca0(TaskPool* pool, Task* task, void* args) {
     return self->running;
 }
 
-s32 func_ov003_020a0d2c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a0d2c(TaskPool* pool, Task* task, void* args) {
     BtlReady* self = task->data;
     s32       subX;
     s32       x;
@@ -367,7 +364,7 @@ s32 func_ov003_020a0d2c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a0e5c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a0e5c(TaskPool* pool, Task* task, void* args) {
     BtlReady* self = task->data;
 
     CombatSprite_Release(&self->sprites[0]);
@@ -382,7 +379,7 @@ s32 func_ov003_020a0e5c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a0ec0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a0ec0(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8770;
 
     return stages.iter[stage](pool, task, args);

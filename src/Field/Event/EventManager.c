@@ -40,14 +40,13 @@
 #include "Save.h"
 #include "SndMgr.h"
 #include "Util/SysFont.h"
+#include "main_02026528.h"
 #include "nitro/reg.h"
 #include <nitro/types.h>
 #include <stdarg.h>
 extern s32 data_ov030_020da264;
 
-extern s32  func_02023be8(u16 itemID, s32 arg1);
-extern void func_02026590(void*, s32, s32);
-extern s32  func_ov030_020aa4bc(FieldEventManager*);
+extern s32 func_ov030_020aa4bc(FieldEventManager*);
 
 // Nonmatching
 void FldEvent_SetCurrent(FieldEvent event) {

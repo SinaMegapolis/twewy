@@ -1,3 +1,4 @@
+#include "main_02026528.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/Resources/ObjResMgr.h"
 
@@ -11,12 +12,6 @@ typedef struct {
 extern u32 (*data_02065fcc)(u32 size, BOOL flag, u32 opt);
 extern s32 (*data_02065fd0)(u32 key);
 
-s32  func_02026528(s32 angle, s32 target);
-void func_02026564(u16* angle, u16 target, s32 shift);
-void func_02026590(s32* value, s32 target, u16 frames);
-u16  func_020265c0(s32 scale);
-void func_020265d4(s32* value, s32 target, u16 scale);
-void func_02026608(s32* value, s32 target, u16 duration, s32 minStep);
 s32  TexVram_FindFreeSlot(void);
 u32  TexVram_Alloc(u32 size, BOOL flag, u32 opt);
 s32  TexVram_Free(u32 key);

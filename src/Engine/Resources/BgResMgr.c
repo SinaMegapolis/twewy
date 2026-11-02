@@ -1,12 +1,12 @@
+#include "Engine/Resources/BgResMgr.h"
+#include "Engine/Core/Decompress.h"
 #include "Engine/Resources/ResourceMgr.h"
-
-void BgResMgr_LoadCharToVram(BgResMgr* arg0, BgResource* arg1, UnkSmallStruct_DispBG* arg2);
-void BgResMgr_LoadScreenToVram(BgResMgr* arg0, BgResource* arg1, UnkSmallStruct_DispBG* arg2);
+#include <nitro/mi/cpumem.h>
 
 BgResMgr*        g_BgResourceManagers[2] = {NULL, NULL};
 static const u16 DefaultFlags[4]         = {0x20, 0x40, 0x60, 0x60};
 
-void func_0200927c(s16* arg0, u32 arg1) {
+static void func_0200927c(s16* arg0, u32 arg1) {
     MI_CpuFillU16(0U, arg0, 0x1420U);
     switch (arg1) {
         default:

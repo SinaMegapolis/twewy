@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc8e8;
+static const TaskHandle data_ov003_020dc8e8;
 
 /// Spawner state of the PsychoTyphoon effect. It walks the sub-screen unit list once and
 /// hands the shared release flag at 0x10 to each per-unit sub-effect.
@@ -18,7 +18,7 @@ s32 func_ov003_020b0b14(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b0b68(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b0b68(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState**  arg = args;
     Ov003PsychoTyphoon* self;
     switch (stage) {
@@ -72,5 +72,5 @@ s32 func_ov003_020b0b68(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4cf0[28] = "Tsk_BtlPsy_PsychoTyphoon_M";
-const TaskHandle data_ov003_020dc8e8     = {data_ov003_020e4cf0, func_ov003_020b0b68, sizeof(Ov003PsychoTyphoon)};
+static char             data_ov003_020e4cf0[28] = "Tsk_BtlPsy_PsychoTyphoon_M";
+static const TaskHandle data_ov003_020dc8e8     = {data_ov003_020e4cf0, func_ov003_020b0b68, sizeof(Ov003PsychoTyphoon)};

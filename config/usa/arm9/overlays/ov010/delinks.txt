@@ -21,6 +21,7 @@ src/Combat/Noise/BtlEnm006/BtlEnm006_RG.c:
     .data       start:0x021293a4 end:0x021293b8
 
 src/Combat/Noise/BtlEnm006/BtlEnm006_Swirl.c:
+    complete
     .text       start:0x02126c38 end:0x021270a8
     .rodata     start:0x021292b0 end:0x021292dc
     .data       start:0x021293b8 end:0x021293cc

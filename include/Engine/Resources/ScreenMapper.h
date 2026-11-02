@@ -20,4 +20,11 @@ typedef struct ScreenMapEntry {
 s32  func_0200d1d8(ScreenMapEntry* entry, s32 engineId, s32 bgLayer, void* tilemap, void* tileData, s32 width, s32 height);
 void func_0200d8f0(void);
 
+// ScreenMapper.c
+s32  func_0200d244(ScreenMapEntry* entry);
+void func_0200d90c(void);
+void func_0200d954(s32 eng, s32 bg);
+
+void func_0200d858(ScreenMapEntry* entry, s32 wrapH, s32 wrapV, void* defaultTile);
+
 #endif // ENGINE_SCREENMAPPER_H

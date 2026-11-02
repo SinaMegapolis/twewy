@@ -2,8 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern char             data_ov003_020e4c1c[24];
-extern const TaskHandle data_ov003_020dc864;
+static const TaskHandle data_ov003_020dc864;
 
 s32 func_ov003_020af41c(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(2))
@@ -18,7 +17,7 @@ s32 func_ov003_020af41c(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 // Nonmatching: the final predicated return moves are emitted in reverse order.
-s32 func_ov003_020af488(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020af488(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003ElementTArgs* arg = args;
     Ov003ElementT*     self;
     switch (stage) {
@@ -49,5 +48,5 @@ s32 func_ov003_020af488(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4c34[24] = "Tsk_BtlPsy_Element_T";
-const TaskHandle data_ov003_020dc864     = {data_ov003_020e4c34, func_ov003_020af488, sizeof(Ov003ElementT)};
+static char             data_ov003_020e4c34[24] = "Tsk_BtlPsy_Element_T";
+static const TaskHandle data_ov003_020dc864     = {data_ov003_020e4c34, func_ov003_020af488, sizeof(Ov003ElementT)};

@@ -4,22 +4,20 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern const Ov003ShockWaveKind data_ov003_020dcb10[27];
+static const Ov003ShockWaveKind data_ov003_020dcb10[27];
 
-extern s32 func_ov003_020a632c(s32, s32, s32, s32);
-extern s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount);
-void       func_ov003_020b716c(Ov003ShockWaveBody* self);
-void       func_ov003_020b71a0(Ov003ShockWaveBody* self);
-s32        func_ov003_020b7240(Ov003ShockWaveBody* self);
-s32        func_ov003_020b72b8(Ov003ShockWaveBody* self);
-void       func_ov003_020b76e4(Ov003ShockWaveBody* self);
-void       func_ov003_020b7760(Ov003ShockWaveBody* self);
-s32        func_ov003_020b77a8(Ov003ShockWaveBody* self);
-void       func_ov003_020b78b0(Ov003ShockWaveBody* self);
-s32        func_ov003_020b7a9c(Ov003ShockWaveBody* self);
-s32        func_ov003_020b7ad8(Ov003ShockWaveBody* self);
+static void func_ov003_020b716c(Ov003ShockWaveBody* self);
+static void func_ov003_020b71a0(Ov003ShockWaveBody* self);
+static s32  func_ov003_020b7240(Ov003ShockWaveBody* self);
+static s32  func_ov003_020b72b8(Ov003ShockWaveBody* self);
+static void func_ov003_020b76e4(Ov003ShockWaveBody* self);
+static void func_ov003_020b7760(Ov003ShockWaveBody* self);
+static s32  func_ov003_020b77a8(Ov003ShockWaveBody* self);
+static void func_ov003_020b78b0(Ov003ShockWaveBody* self);
+static s32  func_ov003_020b7a9c(Ov003ShockWaveBody* self);
+static s32  func_ov003_020b7ad8(Ov003ShockWaveBody* self);
 
-s32 func_ov003_020b6b38(s32 kind) {
+static s32 func_ov003_020b6b38(s32 kind) {
     return data_ov003_020dcb10[kind].effectAnimation;
 }
 
@@ -260,13 +258,13 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-void func_ov003_020b716c(Ov003ShockWaveBody* self) {
+static void func_ov003_020b716c(Ov003ShockWaveBody* self) {
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite) != 0)
         func_ov003_020a35b8(&self->sprite, self->animation, 0);
     CombatSprite_Update(&self->sprite);
 }
 
-void func_ov003_020b71a0(Ov003ShockWaveBody* self) {
+static void func_ov003_020b71a0(Ov003ShockWaveBody* self) {
     self->x += FX_Mul(self->speed, COS2(FX_SinCosTable_, self->angle));
     self->y += FX_Mul(self->speed, SIN2(FX_SinCosTable_, self->angle));
     self->distance += self->speed;
@@ -275,7 +273,7 @@ void func_ov003_020b71a0(Ov003ShockWaveBody* self) {
 
 // Nonmatching: the two `return 1` sites are merged into one tail block in the target and the
 // `if (phase == 4) return 0; return 1;` pair stays a branch there; mwcc if-converts it here.
-s32 func_ov003_020b7240(Ov003ShockWaveBody* self) {
+static s32 func_ov003_020b7240(Ov003ShockWaveBody* self) {
     s32 x = func_ov003_020843b0(0, self->x);
     s32 y = func_ov003_020843ec(0, self->y, self->z);
 
@@ -290,7 +288,7 @@ s32 func_ov003_020b7240(Ov003ShockWaveBody* self) {
     return 1;
 }
 
-s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
+static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
     Ov003PsychEffectArgs anim15;
     Ov003PsychEffectArgs anim16;
     Ov003PsychEffectArgs anim18;
@@ -405,7 +403,7 @@ s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
     return 1;
 }
 
-void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
+static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
     BtlTouchWork* touch = &data_ov003_020e71b8->touchWork;
     s32           x     = func_ov003_020843b0(0, self->x);
     s32           y     = func_ov003_020843ec(0, self->y, self->z);
@@ -416,7 +414,7 @@ void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
     self->renderAngle = self->angle = func_ov003_020a62d0(x, y, touch->x, touch->y);
 }
 
-void func_ov003_020b7760(Ov003ShockWaveBody* self) {
+static void func_ov003_020b7760(Ov003ShockWaveBody* self) {
     BtlTouchWork* touch = &data_ov003_020e71b8->touchWork;
 
     if (!func_ov003_02085cfc(4))
@@ -425,7 +423,7 @@ void func_ov003_020b7760(Ov003ShockWaveBody* self) {
     self->renderAngle = self->angle = touch->angle;
 }
 
-s32 func_ov003_020b77a8(Ov003ShockWaveBody* self) {
+static s32 func_ov003_020b77a8(Ov003ShockWaveBody* self) {
     Ov003ShockWaveArgs args;
     u32                angle = self->angle;
 
@@ -453,7 +451,7 @@ s32 func_ov003_020b77a8(Ov003ShockWaveBody* self) {
     return 1;
 }
 
-void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
+static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
     CombatActor* actor = data_ov003_020e71b8->unk3D898;
     s32          x;
     s32          y;
@@ -502,7 +500,7 @@ void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
     }
 }
 
-s32 func_ov003_020b7a9c(Ov003ShockWaveBody* self) {
+static s32 func_ov003_020b7a9c(Ov003ShockWaveBody* self) {
     if (self->distance >= self->distanceLimit)
         return 0;
     if (self->distance >= self->distanceLimit / 2)
@@ -510,7 +508,7 @@ s32 func_ov003_020b7a9c(Ov003ShockWaveBody* self) {
     return 1;
 }
 
-s32 func_ov003_020b7ad8(Ov003ShockWaveBody* self) {
+static s32 func_ov003_020b7ad8(Ov003ShockWaveBody* self) {
     if (self->mode == 0) {
         if (self->distance >= self->distanceLimit)
             return 0;
@@ -543,7 +541,7 @@ void func_ov003_020b7b34(s32 x, s32 y, s32 z, s32 kind, s32 flip, u32* out) {
 }
 
 // Twenty-seven contiguous records, indexed by kind.
-const Ov003ShockWaveKind data_ov003_020dcb10[27] = {
+static const Ov003ShockWaveKind data_ov003_020dcb10[27] = {
     {   0x0,  0x19A, 0x29, 0x28, 0x175,  0x6C, 0x6D},
     {   0x0,  0x19A, 0x29, 0x28, 0x176,  0x6C, 0x6D},
     {0x3800,    0x0, 0x2C, 0x2B, 0x177,  0xA4, 0x6D},

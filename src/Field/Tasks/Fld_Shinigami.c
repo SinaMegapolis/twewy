@@ -9,6 +9,7 @@
 #include "Field/Tasks/Fld_TouchCommand.h"
 #include "Field/Tasks/Fld_TouchCursor.h"
 #include "Field/Tasks/Fld_TouchSeal.h"
+#include "Save.h"
 #include "SndMgr.h"
 #include <nitro/fx.h>
 
@@ -41,7 +42,6 @@ void Fld_Shinigami_SetWorld(ShiniWorld* world, void* arg1, u8* file) {
     Fld_Shinigami_World->unk_10 = &Fld_Shinigami_World->indexTable[Fld_Shinigami_World->grid->unk_1C];
 }
 
-extern s32        func_0202599c(s32);
 static ShiniWall* Fld_Shinigami_FindWall(FieldPos* pos, s32 category);
 static ShiniCell* Fld_Shinigami_GetCell(FieldPos* pos);
 static s32        Fld_Shinigami_TestWall(ShiniWall* wall, FieldPos* pos);

@@ -3,13 +3,11 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a62b8(s32, s32, s32, s32);
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32              func_ov003_020a51c0(void);
-extern const TaskHandle data_ov003_020dd000;
+static const TaskHandle            data_ov003_020dd000;
+static const Ov003SlashThunderKind data_ov003_020dd00c[4];
 
 // Nonmatching: coordinate and side-selection register scheduling differs.
-s32 func_ov003_020b8e60(Ov003ShockWaveArgs* args, s32 x, s32 y) {
+static s32 func_ov003_020b8e60(Ov003ShockWaveArgs* args, s32 x, s32 y) {
     s32          left    = 0;
     s32          targetX = func_ov003_0208442c(0, x);
     s32          targetY = func_ov003_02084460(0, y, -0x27000);
@@ -159,9 +157,9 @@ s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char                        data_ov003_020e4fc0[28] = "SubTsk_BtlPsy_SlashThunder";
-const TaskHandle            data_ov003_020dd000     = {data_ov003_020e4fc0, func_ov003_020b9088, sizeof(Ov003SlashThunder)};
-const Ov003SlashThunderKind data_ov003_020dd00c[4]  = {
+static char                        data_ov003_020e4fc0[28] = "SubTsk_BtlPsy_SlashThunder";
+static const TaskHandle            data_ov003_020dd000 = {data_ov003_020e4fc0, func_ov003_020b9088, sizeof(Ov003SlashThunder)};
+static const Ov003SlashThunderKind data_ov003_020dd00c[4] = {
     {{0x15, 0x16, 0x17}, 0x158, 0x9E000},
     {{0x18, 0x19, 0x1A}, 0x159, 0x9E000},
     {{0x1B, 0x1C, 0x1D}, 0x158, 0x9E000},

@@ -19,22 +19,22 @@ typedef struct Enm006SpriteAlt4 {
     /* 0xF8 */ u16 unk_F8;
 } Enm006SpriteAlt4;
 
-void func_ov010_02127650(BtlEnm006* data);
-void func_ov010_02127cc0(BtlEnm006* data);
-s16  func_ov010_02128a6c(BtlEnm006* data, void* arg1);
+static void func_ov010_02127650(BtlEnm006* data);
+static void func_ov010_02127cc0(BtlEnm006* data);
+static s16  func_ov010_02128a6c(BtlEnm006* data, void* arg1);
 typedef struct Enm006PickCtx {
     /* 0x00 */ s32        remaining; // counts down to the randomly chosen unit
     /* 0x04 */ BtlEnm006* picked;
 } Enm006PickCtx;
 
-BtlEnm006* func_ov010_02128b48(void);
-s32        func_ov010_02128c3c(void* arg0, BtlEnm006* unit);
-s32        func_ov010_02128c6c(s32 arg0, BtlEnm006* unit, Enm006PickCtx* ctx);
-extern s32 func_ov010_02128dbc(TaskPool* pool, Task* task, void* args, s32 stage);
-extern s32 func_ov010_02128e80(BtlEnm006*);
-extern s32 func_ov010_02128cbc(s32, BtlEnm006*, BtlEnm006*);
-extern s32 func_ov010_02128bcc(void*, void*);
-extern s32 func_ov010_02128a08(BtlEnm006*, s32);
+static BtlEnm006* func_ov010_02128b48(void);
+static s32        func_ov010_02128c3c(void* arg0, BtlEnm006* unit);
+static s32        func_ov010_02128c6c(s32 arg0, BtlEnm006* unit, Enm006PickCtx* ctx);
+static s32        func_ov010_02128dbc(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32        func_ov010_02128e80(BtlEnm006*);
+static s32        func_ov010_02128cbc(s32, BtlEnm006*, BtlEnm006*);
+static s32        func_ov010_02128bcc(void*, void*);
+static s32        func_ov010_02128a08(BtlEnm006*, s32);
 
 typedef struct Enm006CmdTbl {
     u8            pad00[5];
@@ -42,28 +42,33 @@ typedef struct Enm006CmdTbl {
     u8            pad06[6];
 } Enm006CmdTbl;
 
-extern void func_ov010_02127764(BtlEnm006*);
-extern char data_ov010_021293e0[32];
+static void func_ov010_02127764(BtlEnm006*);
+static char data_ov010_021293e0[32];
+static s32  func_ov010_02128ac8(BtlEnm006* data);
+static s32  func_ov010_02128b00(void);
+static s32  func_ov010_02128e0c(BtlEnm006* data, void* arg1);
+static s32  func_ov010_02128fe8(BtlEnm006* data);
+static s32  func_ov010_02128ff8(BtlEnm006* data);
 
 const TaskHandle Tsk_BtlEnm006_UG = {data_ov010_021293e0, func_ov010_02128dbc, 0x200};
 
 /// Palette per variant (`unk_080`) and damage level (`unk_1E8`).
-const u16 data_ov010_021292f4[3][4] = {
+static const u16 data_ov010_021292f4[3][4] = {
     {19, 20, 21, 22},
     {19, 20, 21, 22},
     {19, 20, 21, 22},
 };
 
-char data_ov010_021293e0[32] = "Tsk_BtlEnm006_UG";
+static char data_ov010_021293e0[32] = "Tsk_BtlEnm006_UG";
 
-void func_ov010_02127460(BtlEnm006* data, void* arg1) {
+static void func_ov010_02127460(BtlEnm006* data, void* arg1) {
     func_ov003_020c427c(&data->base);
     data->unk_1C8 = arg1;
     data->unk_1C4 = 0;
     data->unk_1C0 = 0;
 }
 
-void func_ov010_02127488(BtlEnm006* data) {
+static void func_ov010_02127488(BtlEnm006* data) {
     if (data->base.spriteIndex != 0) {
         if (RNG_Next(0x64) >= 0x5A) {
             goto big;
@@ -79,7 +84,7 @@ big:
     func_ov010_02127460(data, (void*)func_ov010_02127cc0);
 }
 
-void func_ov010_02127500(BtlEnm006* data) {
+static void func_ov010_02127500(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         data->unk_1C0++;
         data->base.unk_188 = data->ext.ug.unk_1F6;
@@ -90,7 +95,7 @@ void func_ov010_02127500(BtlEnm006* data) {
     func_ov010_02127460(data, (void*)func_ov010_02127764);
 }
 
-void func_ov010_02127550(BtlEnm006* data) {
+static void func_ov010_02127550(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         Ov003ActorParams* g = func_ov003_020c3c88(&data->base);
         data->base.unk_198  = ((-(data->unk_1E8 << 11) / 3 + 0x1000) * g->unk_1C) >> 12;
@@ -113,7 +118,7 @@ bump:
     data->unk_1C0 = data->unk_1C0 + 1;
 }
 
-void func_ov010_02127650(BtlEnm006* data) {
+static void func_ov010_02127650(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         CombatSprite_SetAnimFromTable(&data->base.sprite, 0xC, 0);
         s32 mid = func_ov003_020cb744(0);
@@ -142,7 +147,7 @@ void func_ov010_02127650(BtlEnm006* data) {
     func_ov010_02127460(data, (void*)func_ov010_02127550);
 }
 
-void func_ov010_02127764(BtlEnm006* data) {
+static void func_ov010_02127764(BtlEnm006* data) {
     switch (data->unk_1C4) {
         case 0:
             if (data->unk_1C0 == 0) {
@@ -301,7 +306,7 @@ void func_ov010_02127764(BtlEnm006* data) {
     }
 }
 
-void func_ov010_02127cc0(BtlEnm006* data) {
+static void func_ov010_02127cc0(BtlEnm006* data) {
     s32 n;
     s32 v;
     switch (data->unk_1C4) {
@@ -456,7 +461,7 @@ void func_ov010_02127cc0(BtlEnm006* data) {
     }
 }
 
-void func_ov010_021282b8(BtlEnm006* data) {
+static void func_ov010_021282b8(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         data->unk_1C0++;
         data->base.actor.zVelocity = data->unk_1DC = data->unk_1E0 = data->unk_1E4 = 0;
@@ -467,7 +472,7 @@ void func_ov010_021282b8(BtlEnm006* data) {
     func_ov010_02127460(data, (void*)func_ov010_02127550);
 }
 
-void func_ov010_02128314(BtlEnm006* data) {
+static void func_ov010_02128314(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         data->unk_1C0++;
         data->unk_1E4              = 0;
@@ -486,7 +491,7 @@ void func_ov010_02128314(BtlEnm006* data) {
     func_ov010_02127460(data, (void*)func_ov010_02127550);
 }
 
-void func_ov010_021283c0(BtlEnm006* data) {
+static void func_ov010_021283c0(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         data->unk_1C0++;
         data->unk_1DC = data->unk_1E0 = data->unk_1E4 = 0;
@@ -500,7 +505,7 @@ void func_ov010_021283c0(BtlEnm006* data) {
     func_ov010_02127460(data, (void*)func_ov010_02127550);
 }
 
-void func_ov010_02128434(BtlEnm006* data) {
+static void func_ov010_02128434(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         data->unk_1C0++;
         data->unk_1DC = data->unk_1E0 = data->unk_1E4 = 0;
@@ -510,7 +515,7 @@ void func_ov010_02128434(BtlEnm006* data) {
     }
 }
 
-void func_ov010_0212847c(s32* outX, s32* outY, BtlEnm006* data, s32 index) {
+static void func_ov010_0212847c(s32* outX, s32* outY, BtlEnm006* data, s32 index) {
     s32 i = index;
     s32 lo;
     s32 hi;
@@ -578,7 +583,7 @@ void func_ov010_0212847c(s32* outX, s32* outY, BtlEnm006* data, s32 index) {
     }
 }
 
-s32 func_ov010_02128624(BtlEnm006* data) {
+static s32 func_ov010_02128624(BtlEnm006* data) {
     s32 bestD = 0x7FFFFFFF;
     s32 bestI = -1;
     s32 x;
@@ -613,7 +618,7 @@ s32 func_ov010_02128624(BtlEnm006* data) {
     return bestI;
 }
 
-s32 func_ov010_021286e8(BtlEnm006* data, s32 x1, s32 y1, s16* outHalf, s32* outWord) {
+static s32 func_ov010_021286e8(BtlEnm006* data, s32 x1, s32 y1, s16* outHalf, s32* outWord) {
     u16 sector[4];
     u16 a;
     u16 b;
@@ -664,7 +669,7 @@ s32 func_ov010_021286e8(BtlEnm006* data, s32 x1, s32 y1, s16* outHalf, s32* outW
     return v;
 }
 
-void func_ov010_02128820(BtlEnm006* data, s32 arg1) {
+static void func_ov010_02128820(BtlEnm006* data, s32 arg1) {
     s16 h;
     s32 o1a;
     s32 o1b;
@@ -727,7 +732,7 @@ bump:
     data->unk_1F0 = data->unk_1F0 + 1;
 }
 
-s32 func_ov010_02128a08(BtlEnm006* data, s32 arg1) {
+static s32 func_ov010_02128a08(BtlEnm006* data, s32 arg1) {
     if (arg1 == 0) {
         data->unk_1F0 = 0;
     }
@@ -740,25 +745,25 @@ s32 func_ov010_02128a08(BtlEnm006* data, s32 arg1) {
     return 1;
 }
 
-s16 func_ov010_02128a6c(BtlEnm006* data, void* arg1) {
+static s16 func_ov010_02128a6c(BtlEnm006* data, void* arg1) {
     return func_ov003_020cb910(&data->unk_1DC, &data->unk_1E0, &data->unk_1E4, data->base.actor.position.x,
                                data->base.actor.position.y, data->base.actor.position.z, data->unk_1D0, data->unk_1D4,
                                data->unk_1D8, arg1);
 }
 
-s32 func_ov010_02128ac8(BtlEnm006* data) {
+static s32 func_ov010_02128ac8(BtlEnm006* data) {
     return func_ov003_020cba54(data->base.actor.position.x, data->base.actor.position.y, data->base.actor.position.z,
                                data->unk_1D0, data->unk_1D4, data->unk_1D8);
 }
 
-s32 func_ov010_02128b00(void) {
+static s32 func_ov010_02128b00(void) {
     s32 lo = func_ov003_020cb3c4(0, 5);
     s32 hi = func_ov003_020cb3c4(0, 0x3C);
     s32 t  = ((hi - lo) << 11) + 0x1000;
     return ((u32)FX_Divide(t * 0x64, t + 0x3000) << 4) >> 16;
 }
 
-BtlEnm006* func_ov010_02128b48(void) {
+static BtlEnm006* func_ov010_02128b48(void) {
     s32           hits = func_ov003_020cb498(0, 0x3C, (void*)func_ov010_02128c3c, 0);
     Enm006PickCtx ctx;
     if (hits != 0 && RNG_Next(0x64) >= 0x14) {
@@ -771,7 +776,7 @@ pick:
     return ctx.picked;
 }
 
-s32 func_ov010_02128bcc(void* arg0, void* arg1) {
+static s32 func_ov010_02128bcc(void* arg0, void* arg1) {
     BtlEnm006* data = arg0;
     if (func_ov003_020cc354(arg1) != 0) {
         return 0;
@@ -781,7 +786,7 @@ s32 func_ov010_02128bcc(void* arg0, void* arg1) {
                                data->base.actor.position.z, 0x18000, 0x20000, 0x20000);
 }
 
-s32 func_ov010_02128c3c(void* arg0, BtlEnm006* unit) {
+static s32 func_ov010_02128c3c(void* arg0, BtlEnm006* unit) {
     s32 v = unit->base.group;
     if (v < -1) {
         goto zero;
@@ -798,7 +803,7 @@ one:
     return 1;
 }
 
-s32 func_ov010_02128c6c(s32 arg0, BtlEnm006* unit, Enm006PickCtx* ctx) {
+static s32 func_ov010_02128c6c(s32 arg0, BtlEnm006* unit, Enm006PickCtx* ctx) {
     s32 v = unit->base.group;
     if (v < -1) {
         goto zero;
@@ -823,7 +828,7 @@ body:
     return 0;
 }
 
-s32 func_ov010_02128cbc(s32 arg0, BtlEnm006* unit, BtlEnm006* data) {
+static s32 func_ov010_02128cbc(s32 arg0, BtlEnm006* unit, BtlEnm006* data) {
     if (unit->base.group == 5) {
         return 0;
     }
@@ -839,7 +844,7 @@ zero:
     return 0;
 }
 
-void func_ov010_02128d20(BtlEnm006* data, u16 arg1) {
+static void func_ov010_02128d20(BtlEnm006* data, u16 arg1) {
     data->unk_1E8 = data->unk_1E8 + arg1;
     if (data->unk_1E8 >= 4) {
         data->unk_1E8 = 3;
@@ -852,7 +857,7 @@ void func_ov010_02128d20(BtlEnm006* data, u16 arg1) {
     data->base.actor.flags |= 0x40000000;
 }
 
-s32 func_ov010_02128dbc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov010_02128dbc(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* data = task->data;
     switch (stage) {
         case 0:
@@ -867,7 +872,7 @@ s32 func_ov010_02128dbc(TaskPool* pool, Task* task, void* args, s32 stage) {
     return 1;
 }
 
-s32 func_ov010_02128e0c(BtlEnm006* data, void* arg1) {
+static s32 func_ov010_02128e0c(BtlEnm006* data, void* arg1) {
     MI_CpuSet(data, 0, 0x200);
     func_ov003_020c3efc(&data->base, arg1);
     func_ov003_020c4520(&data->base);
@@ -882,7 +887,7 @@ s32 func_ov010_02128e0c(BtlEnm006* data, void* arg1) {
     return 1;
 }
 
-s32 func_ov010_02128e80(BtlEnm006* data) {
+static s32 func_ov010_02128e80(BtlEnm006* data) {
     data->base.actor.zVelocity = 0;
     if (data->unk_1C8 != (void*)func_ov010_02127500) {
         if (func_ov003_020c3bf0(data) != 0) {
@@ -926,12 +931,12 @@ s32 func_ov010_02128e80(BtlEnm006* data) {
     return data->unk_1CC;
 }
 
-s32 func_ov010_02128fe8(BtlEnm006* data) {
+static s32 func_ov010_02128fe8(BtlEnm006* data) {
     func_ov003_020c48b0(&data->base);
     return 1;
 }
 
-s32 func_ov010_02128ff8(BtlEnm006* data) {
+static s32 func_ov010_02128ff8(BtlEnm006* data) {
     func_ov003_020c492c(&data->base);
     return 1;
 }

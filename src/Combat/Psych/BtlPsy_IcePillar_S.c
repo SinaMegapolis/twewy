@@ -2,9 +2,8 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a51c0(void);
-extern const TaskHandle data_ov003_020dc948;
-extern const s32        data_ov003_020dc954[3];
+static const TaskHandle data_ov003_020dc948;
+static const s32        data_ov003_020dc954[3];
 
 /// The small ice pillar that walks along the floor in the direction of the
 /// swipe. `count` is how many pillars remain to be spawned; each hit nudges
@@ -27,7 +26,7 @@ s32 func_ov003_020b2710(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     switch (stage) {
         default:
@@ -81,6 +80,6 @@ s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4d80[0x18] = "Tsk_BtlPsy_IcePillar_S";
-const TaskHandle data_ov003_020dc948       = {data_ov003_020e4d80, func_ov003_020b2780, sizeof(Ov003IcePillarS)};
-const s32        data_ov003_020dc954[3]    = {0x143, 0x144, 0x145};
+static char             data_ov003_020e4d80[0x18] = "Tsk_BtlPsy_IcePillar_S";
+static const TaskHandle data_ov003_020dc948       = {data_ov003_020e4d80, func_ov003_020b2780, sizeof(Ov003IcePillarS)};
+static const s32        data_ov003_020dc954[3]    = {0x143, 0x144, 0x145};

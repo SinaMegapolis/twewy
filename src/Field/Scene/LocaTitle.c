@@ -4,6 +4,7 @@
 #include "Engine/File/BinMgr.h"
 #include "Field/Scene/LocaTitle.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
 typedef struct LocaTitle {
@@ -23,8 +24,6 @@ typedef struct {
     /* 0x8 */ s32 dataType;
 } LocaTitle_Args;
 
-extern void func_020265d4(s32* value, s32 target, u16 duration);
-extern void func_02026590(s32* value, s32 target, u16 duration);
 extern void func_02026608(s32* value, s32 target, u16 duration, s32 mode);
 
 void func_ov030_020d2e4c(LocaTitle* locaTitle);

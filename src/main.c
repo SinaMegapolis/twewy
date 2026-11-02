@@ -5,6 +5,7 @@
 #include "Engine/Math/Random.h"
 #include "Engine/Overlay/OverlayDispatcher.h"
 #include "Engine/Overlay/OverlayManager.h"
+#include "Player/Inventory.h"
 #include "common_data.h"
 #include <nitro/fs.h>
 #include <nitro/os.h>

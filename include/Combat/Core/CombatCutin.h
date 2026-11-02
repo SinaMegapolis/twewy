@@ -123,10 +123,6 @@ typedef struct Ov003ActorSnapshots {
 
 typedef void (*Ov003SnapshotCallback)(s32, Ov003ActorSnapshot*, void*);
 
-u16  func_ov003_020bce6c(CombatList* list);
-u16  func_ov003_020bceac(CombatList* list, Ov003ActorSnapshot** snapshots);
-void func_ov003_020bcf64(CombatList* list, s32 command);
-void func_ov003_020bcf98(CombatList* list, Ov003ActorSnapshot* snapshots, u32 count);
 void func_ov003_020bd020(void);
 void func_ov003_020bd078(void);
 void func_ov003_020bd114(void);
@@ -158,5 +154,21 @@ typedef struct Ov003CutinScript {
     /* 0x0C */ s32   unk_0C;
     /* 0x10 */ s32   unk_10;
 } Ov003CutinScript; // Size: 0x14
+
+/// A circular buffer of motion tracks plus the playback cursor.
+typedef struct Ov003CutinTracks {
+    /* 0x00 */ Vec* tracks;
+    /* 0x04 */ u16  count;
+    /* 0x06 */ u16  cursor;
+} Ov003CutinTracks; // Size: 0x8
+
+s32  func_ov003_020bd1bc(s32 mode, Ov003ActorSnapshot* entry);
+s32  func_ov003_020bd1ec(s32 mode, Ov003ActorSnapshot* entry);
+void func_ov003_020bd224(s32 mode, Ov003ActorSnapshot* entry, s32 x);
+void func_ov003_020bd260(s32 mode, Ov003ActorSnapshot* entry, s32 y);
+void func_ov003_020bd2a8(s32 kind);
+s32  func_ov003_020bd2b8(void);
+void func_ov003_020bd2c8(s32 kind, s32 index);
+void func_ov003_020bd370(s32 kind, s32 index);
 
 #endif

@@ -67,11 +67,9 @@ extern void ProcessOverlay_OtosuMenu_DataDeletion(void* state);
 extern void ProcessOverlay_OtosuMenu_DataCorrupted(void* state);
 extern void ProcessOverlay_OtosuMenu_DataLoadFailure(void* state);
 extern void ProcessOverlay_OtosuMenu_DataSaveFailure(void* state);
-extern void ProcessOverlay_Continue(void* state);
 
 extern void ProcessOverlay_Tutorial(void* state);
 
-extern void func_ov027_020e860c(void* state);
 extern void func_ov027_020e9670(void* state);
 
 extern void func_ov028_020e82d0(void* state);
@@ -86,7 +84,6 @@ extern void ProcessOverlay_FldNpcMesSel(void* state);
 extern void ProcessOverlay_FldMesSel(void* state);
 extern void ProcessOverlay_LocaTitleSeq(void* state);
 extern void ProcessOverlay_FlashSel(void* state);
-extern void ProcessOverlay_OpenEnd(void* state);
 
 extern void ProcessOverlay_GrpCheck_HwSprites(void* state);
 extern void ProcessOverlay_GrpCheck_SwSprites(void* state);

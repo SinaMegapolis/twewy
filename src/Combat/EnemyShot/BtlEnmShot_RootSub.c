@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0c98;
+static const TaskHandle data_ov003_020e0c98;
 
 s32 func_ov003_020d1228(Ov003EnemyShotSource* source, CombatList* list, u16 angle, s32 x, s32 y, s32 z, s32 scaleX,
                         s32 scaleY) {
@@ -19,7 +19,7 @@ s32 func_ov003_020d1228(Ov003EnemyShotSource* source, CombatList* list, u16 angl
     return EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov003_020e0c98, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020d12b4(Ov003EnemyShotRoot* self, Ov003EnemyShotRootArgs* args) {
+static s32 func_ov003_020d12b4(Ov003EnemyShotRoot* self, Ov003EnemyShotRootArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     MI_CpuSet(self, 0, sizeof(*self));
     self->angle      = args->angle;
@@ -40,7 +40,7 @@ s32 func_ov003_020d12b4(Ov003EnemyShotRoot* self, Ov003EnemyShotRootArgs* args) 
     return 1;
 }
 
-s32 func_ov003_020d1398(Ov003EnemyShotRoot* self) {
+static s32 func_ov003_020d1398(Ov003EnemyShotRoot* self) {
     if (func_ov003_020c3c28())
         return 0;
     if (self->sprite.sprite.resourceData != NULL) {
@@ -53,7 +53,7 @@ s32 func_ov003_020d1398(Ov003EnemyShotRoot* self) {
     return self->active;
 }
 
-s32 func_ov003_020d13ec(Ov003EnemyShotRoot* self) {
+static s32 func_ov003_020d13ec(Ov003EnemyShotRoot* self) {
     if (self->sprite.sprite.resourceData != NULL) {
         s32 scaleX  = self->scaleX;
         s32 xOffset = 0;
@@ -81,13 +81,13 @@ s32 func_ov003_020d13ec(Ov003EnemyShotRoot* self) {
     return 1;
 }
 
-s32 func_ov003_020d14cc(Ov003EnemyShotRoot* self) {
+static s32 func_ov003_020d14cc(Ov003EnemyShotRoot* self) {
     if (self->sprite.sprite.resourceData != NULL)
         CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020d14e8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d14e8(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotRoot* self = task->data;
     switch (stage) {
         case 0:
@@ -103,5 +103,5 @@ s32 func_ov003_020d14e8(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6d14[24] = "Tsk_BtlEnmShot_RootSub";
-const TaskHandle data_ov003_020e0c98     = {data_ov003_020e6d14, func_ov003_020d14e8, sizeof(Ov003EnemyShotRoot)};
+static char             data_ov003_020e6d14[24] = "Tsk_BtlEnmShot_RootSub";
+static const TaskHandle data_ov003_020e0c98     = {data_ov003_020e6d14, func_ov003_020d14e8, sizeof(Ov003EnemyShotRoot)};

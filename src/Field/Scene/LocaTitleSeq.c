@@ -1,3 +1,4 @@
+#include "Engine/Core/DMA.h"
 #include "Field/FieldRegion.h"
 
 #include "Display.h"
@@ -21,7 +22,6 @@ typedef struct {
     /* 0x0008C */ u8              memBuffer[0x4000];
     /* 0x0408C */ ResourceManager resources;
 } LocaTitleSeq; // Size: 0x1560C
-extern void func_02001b44(s32 arg0, s32 arg1, void* arg2, s32 arg3);
 
 s32 data_ov030_02109de8;
 

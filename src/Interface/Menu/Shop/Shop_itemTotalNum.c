@@ -1,4 +1,5 @@
 #include "Interface/Menu/Shop.h"
+#include "Player/Inventory.h"
 
 typedef struct {
     /* 0x000 */ Sprite      unk_000[4];

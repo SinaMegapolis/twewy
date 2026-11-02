@@ -2,11 +2,11 @@
 
 #include "Combat/Core/CombatApi.h"
 
-extern const TaskHandle data_ov003_020dc760;
-extern const TaskStages data_ov003_020dc76c;
+static const TaskHandle data_ov003_020dc760;
+static const TaskStages data_ov003_020dc76c;
 
 // Nonmatching: coordinate-load scheduling and redundant halfword narrowing differ.
-s32 func_ov003_020acb74(Ov003ChargeLaser* self, Ov003EnemyActor* unit) {
+static s32 func_ov003_020acb74(Ov003ChargeLaser* self, Ov003EnemyActor* unit) {
     s32 x = func_ov003_020843b0(0, self->x);
     if (func_ov003_020a6568(&self->effect->streak, 0x16D, unit, x, 0, 0) == 1) {
         Ov003PsychEffectArgs effect;
@@ -48,13 +48,13 @@ void func_ov003_020acd04(void) {
     func_ov003_020a6000(&data_ov003_020dc760, args);
 }
 
-s32 func_ov003_020acd24(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020acd24(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020dc76c;
     return stages.iter[stage](pool, task, args);
 }
 
-char             data_ov003_020e4b90[16] = "Tsk_BtlPsy_Blur";
-const TaskHandle data_ov003_020dc760     = {data_ov003_020e4b90, func_ov003_020acd24, sizeof(Ov003Blur)};
-const TaskStages data_ov003_020dc76c     = {
+static char             data_ov003_020e4b90[16] = "Tsk_BtlPsy_Blur";
+static const TaskHandle data_ov003_020dc760     = {data_ov003_020e4b90, func_ov003_020acd24, sizeof(Ov003Blur)};
+static const TaskStages data_ov003_020dc76c     = {
     {func_ov003_020acd6c, func_ov003_020acdc0, func_ov003_020ace54, func_ov003_020acebc}
 };

@@ -8,7 +8,7 @@ typedef struct BtlFireStorm {
     s32               cooldown;
 } BtlFireStorm; // Size: 0x8
 
-extern const TaskHandle data_ov003_020dc65c;
+static const TaskHandle data_ov003_020dc65c;
 
 s32 func_ov003_020a9830(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_020a63e4())
@@ -21,7 +21,7 @@ s32 func_ov003_020a9830(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020a9884(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a9884(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlFireStorm* storm;
     switch (stage) {
         default:
@@ -66,6 +66,5 @@ s32 func_ov003_020a9884(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-extern char      data_ov003_020e4a24[24];
-char             data_ov003_020e4a08[28] = "SubTsk_BtlPsy_FireStorm_P";
-const TaskHandle data_ov003_020dc65c     = {data_ov003_020e4a08, func_ov003_020a9884, sizeof(BtlFireStorm)};
+static char             data_ov003_020e4a08[28] = "SubTsk_BtlPsy_FireStorm_P";
+static const TaskHandle data_ov003_020dc65c     = {data_ov003_020e4a08, func_ov003_020a9884, sizeof(BtlFireStorm)};

@@ -77,6 +77,11 @@ void MainOvlDisp_Pop(OverlayTag* tag);
  */
 void MainOvlDisp_ReplaceTop(OverlayTag* tag, s32 overlayId, void* callback, void* cbArg, OverlayProcessStage stage);
 
+// Overlay entry points reached from other overlays
+void func_ov027_020e860c(void* state);
+void ProcessOverlay_Continue(void* object);
+void ProcessOverlay_OpenEnd(void* state);
+
 /**
  * @brief Set the callback argument for the main overlay dispatcher.
  *

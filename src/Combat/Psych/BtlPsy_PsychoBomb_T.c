@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc748;
+static const TaskHandle data_ov003_020dc748;
 
 s32 func_ov003_020ac4f4(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(2))
@@ -16,7 +16,7 @@ s32 func_ov003_020ac4f4(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 // Nonmatching: the final conditional return emits its two predicated moves in reverse order.
-s32 func_ov003_020ac54c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ac54c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState**   arg = args;
     Ov003PsychByteTimer* self;
     switch (stage) {
@@ -47,5 +47,5 @@ s32 func_ov003_020ac54c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4b5c[24] = "Tsk_BtlPsy_PsychoBomb_T";
-const TaskHandle data_ov003_020dc748     = {data_ov003_020e4b5c, func_ov003_020ac54c, sizeof(Ov003PsychByteTimer)};
+static char             data_ov003_020e4b5c[24] = "Tsk_BtlPsy_PsychoBomb_T";
+static const TaskHandle data_ov003_020dc748     = {data_ov003_020e4b5c, func_ov003_020ac54c, sizeof(Ov003PsychByteTimer)};

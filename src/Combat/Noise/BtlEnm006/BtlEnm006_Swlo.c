@@ -22,13 +22,14 @@ typedef struct Enm006Swlo {
     u8                    pad31[0x34 - 0x31];
 } Enm006Swlo; // Size: 0x34 (from the Tsk_BtlEnm006_Swlo TaskHandle)
 
-extern s32  func_ov010_02127178(TaskPool* pool, Task* task, void* args, s32 stage);
-extern s32  func_ov010_021271c0(Enm006Swlo*, Enm006Spawn*);
-extern s32  func_ov010_021272e0(Enm006Swlo*);
-extern char data_ov010_021293cc[20];
+static s32  func_ov010_02127178(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32  func_ov010_021271c0(Enm006Swlo*, Enm006Spawn*);
+static s32  func_ov010_021272e0(Enm006Swlo*);
+static char data_ov010_021293cc[20];
+static s32  func_ov010_02127458(void);
 
-const TaskHandle Tsk_BtlEnm006_Swlo      = {data_ov010_021293cc, func_ov010_02127178, 0x34};
-char             data_ov010_021293cc[20] = "Tsk_BtlEnm006_Swlo";
+static const TaskHandle Tsk_BtlEnm006_Swlo      = {data_ov010_021293cc, func_ov010_02127178, 0x34};
+static char             data_ov010_021293cc[20] = "Tsk_BtlEnm006_Swlo";
 
 s32 func_ov010_021270a8(BtlEnm006* owner, BtlEnm006* target) {
     TaskPool*   pool;
@@ -58,7 +59,7 @@ void func_ov010_02127110(BtlEnm006* owner, BtlEnm006* target) {
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_Swlo, 0, 0, 0, &args);
 }
 
-s32 func_ov010_02127178(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov010_02127178(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* data = task->data;
     switch (stage) {
         case 0:
@@ -71,7 +72,7 @@ s32 func_ov010_02127178(TaskPool* pool, Task* task, void* args, s32 stage) {
     return 1;
 }
 
-s32 func_ov010_021271c0(Enm006Swlo* data, Enm006Spawn* args) {
+static s32 func_ov010_021271c0(Enm006Swlo* data, Enm006Spawn* args) {
     BtlEnm006* target;
     MI_CpuSet(data, 0, 0x34);
     data->unk_00 = args->unk_00;
@@ -103,7 +104,7 @@ s32 func_ov010_021271c0(Enm006Swlo* data, Enm006Spawn* args) {
     return 1;
 }
 
-s32 func_ov010_021272e0(Enm006Swlo* data) {
+static s32 func_ov010_021272e0(Enm006Swlo* data) {
     data->unk_2C = data->unk_2C + 0x600;
     s32 result   = 1;
     if (data->unk_2C >= 0xC000) {
@@ -147,6 +148,6 @@ s32 func_ov010_021272e0(Enm006Swlo* data) {
     return result;
 }
 
-s32 func_ov010_02127458(void) {
+static s32 func_ov010_02127458(void) {
     return 1;
 }

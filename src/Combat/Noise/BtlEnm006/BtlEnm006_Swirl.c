@@ -23,15 +23,16 @@ typedef struct Enm006Swirl {
     /* 0x80 */ s32          unk_80[8];
 } Enm006Swirl; // Size: 0xA0
 
-extern s32 func_ov010_02126d04(TaskPool* pool, Task* task, void* args, s32 stage);
-extern s32 func_ov010_02126d54(Enm006Swirl*, Enm006Spawn*);
-extern s32 func_ov010_02126e58(Enm006Swirl*);
-extern s32 func_ov010_02126fdc(Enm006Swirl*);
+static s32 func_ov010_02126d04(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov010_02126d54(Enm006Swirl*, Enm006Spawn*);
+static s32 func_ov010_02126e58(Enm006Swirl*);
+static s32 func_ov010_02126fdc(Enm006Swirl*);
+static s32 func_ov010_02127094(Enm006Swirl* data);
 
-const s16        data_ov010_021292b0[4] = {0x17, 0x17, 0x17, 0};
+static const s16 data_ov010_021292b0[4] = {0x17, 0x17, 0x17, 0};
 const TaskHandle Tsk_BtlEnm006_Swirl    = {"Tsk_BtlEnm006_Swirl", func_ov010_02126d04, sizeof(Enm006Swirl)};
 
-const SpriteAnimEntry data_ov010_021292c4[3] = {
+static const SpriteAnimEntry data_ov010_021292c4[3] = {
     {16, 18, 17, 4},
     {16, 18, 17, 4},
     {16, 18, 17, 4},
@@ -48,13 +49,13 @@ void func_ov010_02126c38(BtlEnm006* arg0) {
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_Swirl, 0, 0, 0, &self);
 }
 
-void func_ov010_02126c94(Enm006Swirl* data, s32* outX, s32* outY, s32 index) {
+static void func_ov010_02126c94(Enm006Swirl* data, s32* outX, s32* outY, s32 index) {
     func_ov003_020cbcb4(outX, outY, data->unk_7C + index * 0x10000 / 8, data->unk_70, 0x800);
     *outX += data->unk_68;
     *outY += data->unk_6C;
 }
 
-s32 func_ov010_02126d04(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov010_02126d04(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* data = task->data;
     switch (stage) {
         case 0:
@@ -69,7 +70,7 @@ s32 func_ov010_02126d04(TaskPool* pool, Task* task, void* args, s32 stage) {
     return 1;
 }
 
-s32 func_ov010_02126d54(Enm006Swirl* data, Enm006Spawn* args) {
+static s32 func_ov010_02126d54(Enm006Swirl* data, Enm006Spawn* args) {
     s32 m;
     u16 v;
     s32 i;
@@ -96,7 +97,7 @@ s32 func_ov010_02126d54(Enm006Swirl* data, Enm006Spawn* args) {
     return 1;
 }
 
-s32 func_ov010_02126e58(Enm006Swirl* data) {
+static s32 func_ov010_02126e58(Enm006Swirl* data) {
     s32 count = 0;
     if (func_ov003_020c3c28() != 0) {
         return 0;
@@ -141,7 +142,7 @@ s32 func_ov010_02126e58(Enm006Swirl* data) {
     return count != 0;
 }
 
-s32 func_ov010_02126fdc(Enm006Swirl* data) {
+static s32 func_ov010_02126fdc(Enm006Swirl* data) {
     s32 flag = func_ov003_020c37f8(&data->sprite) != 0;
     s32 i;
     for (i = 0; i < 8; i++) {
@@ -161,7 +162,7 @@ s32 func_ov010_02126fdc(Enm006Swirl* data) {
     return 1;
 }
 
-s32 func_ov010_02127094(Enm006Swirl* data) {
+static s32 func_ov010_02127094(Enm006Swirl* data) {
     CombatSprite_Release(&data->sprite);
     return 1;
 }

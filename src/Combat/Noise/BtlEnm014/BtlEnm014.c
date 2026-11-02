@@ -5,41 +5,41 @@
 
 #include <nitro/mi/cpumem.h>
 
-extern char data_ov012_02127990[28];
+static char data_ov012_02127990[28];
 
-extern char           data_ov012_021279ac[28];
-extern char           data_ov012_021279c8[28];
-extern char           data_ov012_021279e4[28];
-const BinIdentifier   data_ov012_02127894;
-const BinIdentifier   data_ov012_0212789c;
-const BinIdentifier   data_ov012_021278a4;
-const BinIdentifier   data_ov012_021278ac;
-SpriteAnimEntry const data_ov012_021278b4[8][2];
+static char                  data_ov012_021279ac[28];
+static char                  data_ov012_021279c8[28];
+static char                  data_ov012_021279e4[28];
+static const BinIdentifier   data_ov012_02127894;
+static const BinIdentifier   data_ov012_0212789c;
+static const BinIdentifier   data_ov012_021278a4;
+static const BinIdentifier   data_ov012_021278ac;
+static SpriteAnimEntry const data_ov012_021278b4[8][2];
 
-const u16 data_ov012_0212783c[4] = {0x10, 0x16, 0x16, 0x16};
+static const u16 data_ov012_0212783c[4] = {0x10, 0x16, 0x16, 0x16};
 
-const BtlSpriteDesc data_ov012_02127844 = {&data_ov012_02127894, &data_ov012_021278b4[0][0], 0, 0x10, 0xD8};
+static const BtlSpriteDesc data_ov012_02127844 = {&data_ov012_02127894, &data_ov012_021278b4[0][0], 0, 0x10, 0xD8};
 
-const SpriteAnimEntry data_ov012_02127854[2] = {
+static const SpriteAnimEntry data_ov012_02127854[2] = {
     {   4,    6,    5, 0},
     {0x13, 0x15, 0x14, 0},
 };
 
-const BtlSpriteDesc data_ov012_02127864 = {&data_ov012_0212789c, &data_ov012_021278b4[0][0], 0, 0x16, 0xF0};
+static const BtlSpriteDesc data_ov012_02127864 = {&data_ov012_0212789c, &data_ov012_021278b4[0][0], 0, 0x16, 0xF0};
 
-const BtlSpriteDesc data_ov012_02127874 = {&data_ov012_021278ac, &data_ov012_021278b4[0][0], 0, 0x16, 0x104};
+static const BtlSpriteDesc data_ov012_02127874 = {&data_ov012_021278ac, &data_ov012_021278b4[0][0], 0, 0x16, 0x104};
 
-const BtlSpriteDesc data_ov012_02127884 = {&data_ov012_021278a4, &data_ov012_021278b4[0][0], 0, 0x16, 0x104};
+static const BtlSpriteDesc data_ov012_02127884 = {&data_ov012_021278a4, &data_ov012_021278b4[0][0], 0, 0x16, 0x104};
 
-const BinIdentifier data_ov012_02127894 = {3, data_ov012_02127990};
+static const BinIdentifier data_ov012_02127894 = {3, data_ov012_02127990};
 
-const BinIdentifier data_ov012_0212789c = {3, data_ov012_021279ac};
+static const BinIdentifier data_ov012_0212789c = {3, data_ov012_021279ac};
 
-const BinIdentifier data_ov012_021278a4 = {3, data_ov012_021279c8};
+static const BinIdentifier data_ov012_021278a4 = {3, data_ov012_021279c8};
 
-const BinIdentifier data_ov012_021278ac = {3, data_ov012_021279e4};
+static const BinIdentifier data_ov012_021278ac = {3, data_ov012_021279e4};
 
-const SpriteAnimEntry data_ov012_021278b4[8][2] = {
+static const SpriteAnimEntry data_ov012_021278b4[8][2] = {
     {         {1, 3, 2, 0},          {1, 3, 2, 1}},
     {         {7, 9, 8, 0},          {7, 9, 8, 1}},
     {   {0xA, 0xC, 0xB, 0},    {0xA, 0xC, 0xB, 1}},
@@ -57,13 +57,13 @@ BtlSpriteDesc* data_ov012_02127980[4] = {
     &data_ov012_02127874,
 };
 
-char data_ov012_02127990[28] = "Apl_Hor/Grp_BtlEnm014.bin";
+static char data_ov012_02127990[28] = "Apl_Hor/Grp_BtlEnm014.bin";
 
-char data_ov012_021279ac[28] = "Apl_Hor/Grp_BtlEnm014a.bin";
+static char data_ov012_021279ac[28] = "Apl_Hor/Grp_BtlEnm014a.bin";
 
-char data_ov012_021279c8[28] = "Apl_Hor/Grp_BtlEnm014b.bin";
+static char data_ov012_021279c8[28] = "Apl_Hor/Grp_BtlEnm014b.bin";
 
-char data_ov012_021279e4[28] = "Apl_Hor/Grp_BtlEnm014c.bin";
+static char data_ov012_021279e4[28] = "Apl_Hor/Grp_BtlEnm014c.bin";
 
 BinIdentifier* func_ov012_021256c0(s32 index) {
     return (BinIdentifier*)&data_ov012_02127894 + index;

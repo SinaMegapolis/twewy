@@ -18,16 +18,16 @@ typedef struct Ov003Node3D8BC {
     /* 0x108 */ CombatListNode node;
 } Ov003Node3D8BC;
 
-void        func_ov015_0212736c(BtlEnm026*);
-void        func_ov015_02127594(BtlEnm026*);
-s32         func_ov015_021275fc(TaskPool* pool, Task* task, void* args, s32 stage);
-extern char data_ov015_021284d4[44];
+static void func_ov015_0212736c(BtlEnm026*);
+static void func_ov015_02127594(BtlEnm026*);
+static s32  func_ov015_021275fc(TaskPool* pool, Task* task, void* args, s32 stage);
+static char data_ov015_021284d4[44];
 
 const TaskHandle Tsk_BtlEnm026_UG = {data_ov015_021284d4, func_ov015_021275fc, 0x1F4};
 
-char data_ov015_021284d4[44] = "Tsk_BtlEnm026_UG";
+static char data_ov015_021284d4[44] = "Tsk_BtlEnm026_UG";
 
-void func_ov015_02126fd8(BtlEnm026* data) {
+static void func_ov015_02126fd8(BtlEnm026* data) {
     BtlEnm026* boss = (BtlEnm026*)data_ov003_020e71b8->unk3D898;
 
     switch (data->unk_1C2) {
@@ -134,7 +134,7 @@ void func_ov015_02126fd8(BtlEnm026* data) {
     }
 }
 
-void func_ov015_0212736c(BtlEnm026* data) {
+static void func_ov015_0212736c(BtlEnm026* data) {
     if (data_ov015_02128500.variant == 0x11 && data->unk_1D8 == 1) {
         s32 count;
 
@@ -194,7 +194,7 @@ void func_ov015_0212736c(BtlEnm026* data) {
     }
 }
 
-void func_ov015_02127594(BtlEnm026* data) {
+static void func_ov015_02127594(BtlEnm026* data) {
     if (data_ov015_02128500.result10 != -1) {
         CombatSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
     } else {
@@ -204,7 +204,7 @@ void func_ov015_02127594(BtlEnm026* data) {
     func_ov003_020c4ab4(&data->base, (data->unk_1D0 > 0) ? 1 : 0);
 }
 
-s32 func_ov015_021275fc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov015_021275fc(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm026* data = task->data;
     s32        ret  = 1;
 

@@ -19,7 +19,7 @@ typedef struct BtlTchSlash {
 
 extern const BinIdentifier data_ov003_020d6fac;
 
-s32 func_ov003_0208f134(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208f134(TaskPool* pool, Task* task, void* args) {
     BtlTchSlash*  effect = task->data;
     BtlTouchWork* input  = &data_ov003_020e71b8->touchWork;
 
@@ -47,7 +47,7 @@ s32 func_ov003_0208f134(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0208f260(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208f260(TaskPool* pool, Task* task, void* args) {
     BtlTchSlash* effect = task->data;
 
     effect->alpha = (effect->fade * 31) >> 12;
@@ -63,7 +63,7 @@ s32 func_ov003_0208f260(TaskPool* pool, Task* task, void* args) {
 }
 
 // Nonmatching: affine-index and bitfield temporaries use different registers.
-s32 func_ov003_0208f2b8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208f2b8(TaskPool* pool, Task* task, void* args) {
     BtlTchSlash* effect = task->data;
     u16 affine = OamMgr_AllocAffineGroup(&g_OamMgr[DISPLAY_EXTENDED], effect->angle, effect->scaleX, effect->scaleY, 0);
 
@@ -73,20 +73,20 @@ s32 func_ov003_0208f2b8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0208f328(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208f328(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
-extern const TaskStages data_ov003_020d7934;
-s32                     func_ov003_0208f33c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static const TaskStages data_ov003_020d7934;
+static s32              func_ov003_0208f33c(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7934;
     return stages.iter[stage](pool, task, args);
 }
 
-char             data_ov003_020e3af4[20] = "Tsk_BtlTch_Slash";
-const TaskHandle data_ov003_020d7928     = {data_ov003_020e3af4, func_ov003_0208f33c, sizeof(BtlTchSlash)};
-const TaskStages data_ov003_020d7934     = {
+static char             data_ov003_020e3af4[20] = "Tsk_BtlTch_Slash";
+const TaskHandle        data_ov003_020d7928     = {data_ov003_020e3af4, func_ov003_0208f33c, sizeof(BtlTchSlash)};
+static const TaskStages data_ov003_020d7934     = {
     func_ov003_0208f134,
     func_ov003_0208f260,
     func_ov003_0208f2b8,

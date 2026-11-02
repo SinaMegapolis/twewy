@@ -6,16 +6,16 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-void        func_ov015_0212699c(BtlEnm026*);
-void        func_ov015_02126ec4(BtlEnm026*);
-s32         func_ov015_02126f44(TaskPool* pool, Task* task, void* args, s32 stage);
-extern char data_ov015_021284c0[20];
+static void func_ov015_0212699c(BtlEnm026*);
+static void func_ov015_02126ec4(BtlEnm026*);
+static s32  func_ov015_02126f44(TaskPool* pool, Task* task, void* args, s32 stage);
+static char data_ov015_021284c0[20];
 
 const TaskHandle Tsk_BtlEnm026_RG = {data_ov015_021284c0, func_ov015_02126f44, 0x1F4};
 
-char data_ov015_021284c0[20] = "Tsk_BtlEnm026_RG";
+static char data_ov015_021284c0[20] = "Tsk_BtlEnm026_RG";
 
-void func_ov015_021268b0(BtlEnm026* data) {
+static void func_ov015_021268b0(BtlEnm026* data) {
     switch (data->unk_1C2) {
         case 0:
             CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
@@ -43,7 +43,7 @@ void func_ov015_021268b0(BtlEnm026* data) {
     }
 }
 
-void func_ov015_0212699c(BtlEnm026* data) {
+static void func_ov015_0212699c(BtlEnm026* data) {
     BtlEnm026* boss = (BtlEnm026*)data_ov003_020e71b8->unk3D89C;
 
     switch (data->unk_1C2) {
@@ -164,7 +164,7 @@ void func_ov015_0212699c(BtlEnm026* data) {
     }
 }
 
-void func_ov015_02126db8(BtlEnm026* data) {
+static void func_ov015_02126db8(BtlEnm026* data) {
     if (data_ov015_02128500.variant == 0x11) {
         func_ov015_02125a64(data, (s32)func_ov015_021268b0);
         return;
@@ -196,7 +196,7 @@ void func_ov015_02126db8(BtlEnm026* data) {
     }
 }
 
-void func_ov015_02126ec4(BtlEnm026* data) {
+static void func_ov015_02126ec4(BtlEnm026* data) {
     if (data_ov015_02128500.result10 != -1) {
         CombatSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
     } else {
@@ -209,7 +209,7 @@ void func_ov015_02126ec4(BtlEnm026* data) {
     data->base.unk_1B4 = data->base.actor.position.z;
 }
 
-s32 func_ov015_02126f44(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov015_02126f44(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm026* data = task->data;
     s32        ret  = 1;
 

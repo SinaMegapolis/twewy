@@ -6,7 +6,6 @@ extern void ProcessOverlay_OtosuGame_SinglePlayer();
 extern void ProcessOverlay_OtosuGame_Multiplayer();
 extern void ProcessOverlay_MenuTop();
 extern void ProcessOverlay_Result();
-extern void ProcessOverlay_OpenEnd();
 
 #ifdef REGION_USA
     #define OTOSU_OVL_GAME     OVERLAY_39_ID

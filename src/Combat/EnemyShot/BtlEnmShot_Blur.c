@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0c18;
+static const TaskHandle data_ov003_020e0c18;
 
 s32 func_ov003_020cd6f4(Ov003EnemyShotSource* source, s32 opacity, s32 decay) {
     Ov003EnemyShotBlurArgs args;
@@ -18,7 +18,7 @@ s32 func_ov003_020cd6f4(Ov003EnemyShotSource* source, s32 opacity, s32 decay) {
     return EasyTask_CreateTask(pool, &data_ov003_020e0c18, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020cd778(Ov003EnemyShotBlur* self, Ov003EnemyShotBlurArgs* args) {
+static s32 func_ov003_020cd778(Ov003EnemyShotBlur* self, Ov003EnemyShotBlurArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
     func_ov003_020c37f8(&args->source->core.owner->base.sprite);
@@ -35,7 +35,7 @@ s32 func_ov003_020cd778(Ov003EnemyShotBlur* self, Ov003EnemyShotBlurArgs* args) 
     return 1;
 }
 
-s32 func_ov003_020cd868(Ov003EnemyShotBlur* self) {
+static s32 func_ov003_020cd868(Ov003EnemyShotBlur* self) {
     if (func_ov003_020c3c28())
         return 0;
     CombatSprite_Update(&self->sprite);
@@ -43,7 +43,7 @@ s32 func_ov003_020cd868(Ov003EnemyShotBlur* self) {
     return self->opacity > 0x1000;
 }
 
-s32 func_ov003_020cd8a8(Ov003EnemyShotBlur* self) {
+static s32 func_ov003_020cd8a8(Ov003EnemyShotBlur* self) {
     if (self->opacity > 0x1000) {
         s16 x, y;
         func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
@@ -55,12 +55,12 @@ s32 func_ov003_020cd8a8(Ov003EnemyShotBlur* self) {
     return 1;
 }
 
-s32 func_ov003_020cd928(Ov003EnemyShotBlur* self) {
+static s32 func_ov003_020cd928(Ov003EnemyShotBlur* self) {
     CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020cd938(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020cd938(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotBlur* self = task->data;
     switch (stage) {
         case 0:
@@ -76,5 +76,5 @@ s32 func_ov003_020cd938(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6c00[20] = "Tsk_BtlEnmShot_Blur";
-const TaskHandle data_ov003_020e0c18     = {data_ov003_020e6c00, func_ov003_020cd938, sizeof(Ov003EnemyShotBlur)};
+static char             data_ov003_020e6c00[20] = "Tsk_BtlEnmShot_Blur";
+static const TaskHandle data_ov003_020e0c18     = {data_ov003_020e6c00, func_ov003_020cd938, sizeof(Ov003EnemyShotBlur)};

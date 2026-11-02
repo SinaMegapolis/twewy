@@ -24,79 +24,79 @@ typedef struct Enm026StateFns {
     /* 0x04 */ void (*unk_04)();
 } Enm026StateFns;
 
-void func_ov015_02125f00(BtlEnm026*);
-void func_ov015_02126070(BtlEnm026*);
-void func_ov015_021260c4(BtlEnm026*);
-void func_ov015_02126158(BtlEnm026*);
-void func_ov015_02126184(BtlEnm026*);
-void func_ov015_021261ac(BtlEnm026*);
+static void func_ov015_02125f00(BtlEnm026*);
+static void func_ov015_02126070(BtlEnm026*);
+static void func_ov015_021260c4(BtlEnm026*);
+static void func_ov015_02126158(BtlEnm026*);
+static void func_ov015_02126184(BtlEnm026*);
+static void func_ov015_021261ac(BtlEnm026*);
 
-extern char data_ov015_021282e0[28];
+static char data_ov015_021282e0[28];
 
-extern char data_ov015_021282fc[28];
-extern char data_ov015_02128318[28];
-extern char data_ov015_02128334[28];
-extern char data_ov015_02128350[28];
-extern char data_ov015_0212836c[28];
-extern char data_ov015_02128388[28];
-extern char data_ov015_021283a4[28];
-extern char data_ov015_021283c0[28];
-extern char data_ov015_021283dc[20];
+static char data_ov015_021282fc[28];
+static char data_ov015_02128318[28];
+static char data_ov015_02128334[28];
+static char data_ov015_02128350[28];
+static char data_ov015_0212836c[28];
+static char data_ov015_02128388[28];
+static char data_ov015_021283a4[28];
+static char data_ov015_021283c0[28];
+static char data_ov015_021283dc[20];
 
-extern const BinIdentifier data_ov015_02128078;
+static const BinIdentifier data_ov015_02128078;
 
-extern const BinIdentifier   data_ov015_02128080;
-extern const BinIdentifier   data_ov015_02128088;
-extern const BinIdentifier   data_ov015_02128090;
-extern const BinIdentifier   data_ov015_02128098;
-extern const BinIdentifier   data_ov015_021280a0;
-extern const BinIdentifier   data_ov015_021280a8;
-extern const BinIdentifier   data_ov015_021280b0;
-extern const BinIdentifier   data_ov015_021280b8;
-extern const BinIdentifier   data_ov015_021280c0;
-extern const SpriteAnimEntry data_ov015_021280c8[13];
+static const BinIdentifier   data_ov015_02128080;
+static const BinIdentifier   data_ov015_02128088;
+static const BinIdentifier   data_ov015_02128090;
+static const BinIdentifier   data_ov015_02128098;
+static const BinIdentifier   data_ov015_021280a0;
+static const BinIdentifier   data_ov015_021280a8;
+static const BinIdentifier   data_ov015_021280b0;
+static const BinIdentifier   data_ov015_021280b8;
+static const BinIdentifier   data_ov015_021280c0;
+static const SpriteAnimEntry data_ov015_021280c8[13];
 
-const BtlSpriteDesc data_ov015_02127fd8 = {&data_ov015_02128078, data_ov015_021280c8, 0, 0x0D, 0x40};
+static const BtlSpriteDesc data_ov015_02127fd8 = {&data_ov015_02128078, data_ov015_021280c8, 0, 0x0D, 0x40};
 
-const BtlSpriteDesc data_ov015_02127fe8 = {&data_ov015_02128088, data_ov015_021280c8, 0, 0x0D, 0x44};
+static const BtlSpriteDesc data_ov015_02127fe8 = {&data_ov015_02128088, data_ov015_021280c8, 0, 0x0D, 0x44};
 
-const BtlSpriteDesc data_ov015_02127ff8 = {&data_ov015_021280a0, data_ov015_021280c8, 0, 0x0D, 0x30};
+static const BtlSpriteDesc data_ov015_02127ff8 = {&data_ov015_021280a0, data_ov015_021280c8, 0, 0x0D, 0x30};
 
-const BtlSpriteDesc data_ov015_02128008 = {&data_ov015_021280b0, data_ov015_021280c8, 0, 0x0D, 0x42};
+static const BtlSpriteDesc data_ov015_02128008 = {&data_ov015_021280b0, data_ov015_021280c8, 0, 0x0D, 0x42};
 
-const BtlSpriteDesc data_ov015_02128018 = {&data_ov015_02128090, data_ov015_021280c8, 0, 0x0D, 0x30};
+static const BtlSpriteDesc data_ov015_02128018 = {&data_ov015_02128090, data_ov015_021280c8, 0, 0x0D, 0x30};
 
-const BtlSpriteDesc data_ov015_02128028 = {&data_ov015_02128080, data_ov015_021280c8, 0, 0x0D, 0x40};
+static const BtlSpriteDesc data_ov015_02128028 = {&data_ov015_02128080, data_ov015_021280c8, 0, 0x0D, 0x40};
 
-const BtlSpriteDesc data_ov015_02128038 = {&data_ov015_021280c0, data_ov015_021280c8, 0, 0x10, 0x44};
+static const BtlSpriteDesc data_ov015_02128038 = {&data_ov015_021280c0, data_ov015_021280c8, 0, 0x10, 0x44};
 
-const BtlSpriteDesc data_ov015_02128048 = {&data_ov015_02128098, data_ov015_021280c8, 0, 0x0D, 0x30};
+static const BtlSpriteDesc data_ov015_02128048 = {&data_ov015_02128098, data_ov015_021280c8, 0, 0x0D, 0x30};
 
-const BtlSpriteDesc data_ov015_02128058 = {&data_ov015_021280b8, data_ov015_021280c8, 0, 0x0D, 0x46};
+static const BtlSpriteDesc data_ov015_02128058 = {&data_ov015_021280b8, data_ov015_021280c8, 0, 0x0D, 0x46};
 
-const BtlSpriteDesc data_ov015_02128068 = {&data_ov015_021280a8, data_ov015_021280c8, 0, 0x0D, 0x42};
+static const BtlSpriteDesc data_ov015_02128068 = {&data_ov015_021280a8, data_ov015_021280c8, 0, 0x0D, 0x42};
 
-const BinIdentifier data_ov015_02128078 = {3, data_ov015_021282e0};
+static const BinIdentifier data_ov015_02128078 = {3, data_ov015_021282e0};
 
-const BinIdentifier data_ov015_02128080 = {3, data_ov015_021282fc};
+static const BinIdentifier data_ov015_02128080 = {3, data_ov015_021282fc};
 
-const BinIdentifier data_ov015_02128088 = {3, data_ov015_021283dc};
+static const BinIdentifier data_ov015_02128088 = {3, data_ov015_021283dc};
 
-const BinIdentifier data_ov015_02128090 = {3, data_ov015_02128318};
+static const BinIdentifier data_ov015_02128090 = {3, data_ov015_02128318};
 
-const BinIdentifier data_ov015_02128098 = {3, data_ov015_02128334};
+static const BinIdentifier data_ov015_02128098 = {3, data_ov015_02128334};
 
-const BinIdentifier data_ov015_021280a0 = {3, data_ov015_02128350};
+static const BinIdentifier data_ov015_021280a0 = {3, data_ov015_02128350};
 
-const BinIdentifier data_ov015_021280a8 = {3, data_ov015_0212836c};
+static const BinIdentifier data_ov015_021280a8 = {3, data_ov015_0212836c};
 
-const BinIdentifier data_ov015_021280b0 = {3, data_ov015_02128388};
+static const BinIdentifier data_ov015_021280b0 = {3, data_ov015_02128388};
 
-const BinIdentifier data_ov015_021280b8 = {3, data_ov015_021283a4};
+static const BinIdentifier data_ov015_021280b8 = {3, data_ov015_021283a4};
 
-const BinIdentifier data_ov015_021280c0 = {3, data_ov015_021283c0};
+static const BinIdentifier data_ov015_021280c0 = {3, data_ov015_021283c0};
 
-const SpriteAnimEntry data_ov015_021280c8[13] = {
+static const SpriteAnimEntry data_ov015_021280c8[13] = {
     {0x1, 0x3, 0x2, 0},
     {0x1, 0x3, 0x2, 1},
     {0x4, 0x6, 0x5, 0},
@@ -112,7 +112,7 @@ const SpriteAnimEntry data_ov015_021280c8[13] = {
     {0xD, 0xF, 0xE, 2},
 };
 
-const Enm026IdPair data_ov015_02128130[13] = {
+static const Enm026IdPair data_ov015_02128130[13] = {
     {0x11,  0x0},
     {0x12,  0x4},
     {0x13,  0x1},
@@ -128,7 +128,7 @@ const Enm026IdPair data_ov015_02128130[13] = {
     {0x1D,  0x3},
 };
 
-const Enm026StateFns data_ov015_02128198[18] = {
+static const Enm026StateFns data_ov015_02128198[18] = {
     {               NULL, func_ov015_0212786c},
     {func_ov015_021278b0, func_ov015_021278f8},
     {func_ov015_02127690, func_ov015_021276c4},
@@ -149,25 +149,25 @@ const Enm026StateFns data_ov015_02128198[18] = {
     {func_ov015_02127950, func_ov015_02127974},
 };
 
-char data_ov015_021282e0[28] = "Apl_Hor/Grp_BtlEnm026.bin";
+static char data_ov015_021282e0[28] = "Apl_Hor/Grp_BtlEnm026.bin";
 
-char data_ov015_021282fc[28] = "Apl_Hor/Grp_BtlEnm026a.bin";
+static char data_ov015_021282fc[28] = "Apl_Hor/Grp_BtlEnm026a.bin";
 
-char data_ov015_02128318[28] = "Apl_Hor/Grp_BtlEnm026c.bin";
+static char data_ov015_02128318[28] = "Apl_Hor/Grp_BtlEnm026c.bin";
 
-char data_ov015_02128334[28] = "Apl_Hor/Grp_BtlEnm026d.bin";
+static char data_ov015_02128334[28] = "Apl_Hor/Grp_BtlEnm026d.bin";
 
-char data_ov015_02128350[28] = "Apl_Hor/Grp_BtlEnm026e.bin";
+static char data_ov015_02128350[28] = "Apl_Hor/Grp_BtlEnm026e.bin";
 
-char data_ov015_0212836c[28] = "Apl_Hor/Grp_BtlEnm026f.bin";
+static char data_ov015_0212836c[28] = "Apl_Hor/Grp_BtlEnm026f.bin";
 
-char data_ov015_02128388[28] = "Apl_Hor/Grp_BtlEnm026g.bin";
+static char data_ov015_02128388[28] = "Apl_Hor/Grp_BtlEnm026g.bin";
 
-char data_ov015_021283a4[28] = "Apl_Hor/Grp_BtlEnm026h.bin";
+static char data_ov015_021283a4[28] = "Apl_Hor/Grp_BtlEnm026h.bin";
 
-char data_ov015_021283c0[28] = "Apl_Hor/Grp_BtlEnm026i.bin";
+static char data_ov015_021283c0[28] = "Apl_Hor/Grp_BtlEnm026i.bin";
 
-char data_ov015_021283dc[20] = "Apl_Hor/Grp_BtlEnm02";
+static char data_ov015_021283dc[20] = "Apl_Hor/Grp_BtlEnm02";
 
 char data_ov015_021283f0[8] = "6b.bin";
 
@@ -177,7 +177,7 @@ const BtlSpriteDesc* data_ov015_021283f8[11] = {
     &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fd8,
 };
 
-const BtlSpriteDesc* data_ov015_02128424[18] = {
+static const BtlSpriteDesc* data_ov015_02128424[18] = {
     &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fe8, &data_ov015_02128058, &data_ov015_02128028,
     &data_ov015_02128018, &data_ov015_02128018, &data_ov015_02128008, &data_ov015_02128048, &data_ov015_02127ff8,
     &data_ov015_02128068, &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02128068, &data_ov015_02128068,
@@ -186,7 +186,7 @@ const BtlSpriteDesc* data_ov015_02128424[18] = {
 
 Enm026State data_ov015_02128500;
 
-s32 func_ov015_021256c0(s32 arg0) {
+static s32 func_ov015_021256c0(s32 arg0) {
     s32 i;
     for (i = 0; i < 13; i++) {
         if (arg0 == data_ov015_02128130[i].unk_00) {
@@ -196,7 +196,7 @@ s32 func_ov015_021256c0(s32 arg0) {
     return 0;
 }
 
-void func_ov015_021256f8(BtlEnm026* data) {
+static void func_ov015_021256f8(BtlEnm026* data) {
     s32 engine = data->base.sprite.sprite.bits_0_1;
 
     if (data_ov015_02128500.initialized == 0) {
@@ -220,7 +220,7 @@ void func_ov015_021256f8(BtlEnm026* data) {
     }
 }
 
-void func_ov015_021257f8(BtlEnm026* data) {
+static void func_ov015_021257f8(BtlEnm026* data) {
     TaskPool* pool;
 
     if (data_ov003_020e71b8->unk3D874 != 2) {
@@ -282,7 +282,7 @@ void func_ov015_021257f8(BtlEnm026* data) {
     }
 }
 
-s32 func_ov015_021259f4(BtlEnm026* owner, s32 kind, void* params) {
+static s32 func_ov015_021259f4(BtlEnm026* owner, s32 kind, void* params) {
     TaskPool*       pool;
     Enm026IconSpawn spawn;
 
@@ -427,7 +427,7 @@ void func_ov015_02125e5c(BtlEnm026* data) {
     func_ov015_02125a64(data, data->unk_1C8);
 }
 
-void func_ov015_02125f00(BtlEnm026* data) {
+static void func_ov015_02125f00(BtlEnm026* data) {
     s32 ret;
 
     if (func_ov003_020c37f8(&data->base.sprite) != 0) {
@@ -448,7 +448,7 @@ void func_ov015_02125f48(BtlEnm026* data) {
     func_ov015_02125a64(data, (data->base.flags18C & 0x20) ? (s32)func_ov015_021260c4 : data->unk_1C8);
 }
 
-void func_ov015_02125f80(BtlEnm026* data) {
+static void func_ov015_02125f80(BtlEnm026* data) {
     if (data->base.unk_1A8 != 3 || data->unk_1E0 != -1) {
         return;
     }
@@ -480,7 +480,7 @@ void func_ov015_02125f80(BtlEnm026* data) {
     }
 }
 
-void func_ov015_02126070(BtlEnm026* data) {
+static void func_ov015_02126070(BtlEnm026* data) {
     s32 r4 = func_ov003_020c5bfc(&data->base);
     func_ov015_02125f80(data);
     if (r4 != 0) {
@@ -492,7 +492,7 @@ void func_ov015_02126070(BtlEnm026* data) {
     func_ov015_02125a64(data, data->unk_1C8);
 }
 
-void func_ov015_021260c4(BtlEnm026* data) {
+static void func_ov015_021260c4(BtlEnm026* data) {
     s32 ret;
 
     data->base.actor.flags |= 0x4;
@@ -514,21 +514,21 @@ void func_ov015_021260c4(BtlEnm026* data) {
     }
 }
 
-void func_ov015_02126158(BtlEnm026* data) {
+static void func_ov015_02126158(BtlEnm026* data) {
     if (func_ov003_020c6bc8(&data->base, 7) != 0) {
         return;
     }
     func_ov015_02125a64(data, (s32)func_ov015_02126184);
 }
 
-void func_ov015_02126184(BtlEnm026* data) {
+static void func_ov015_02126184(BtlEnm026* data) {
     if (func_ov003_020c6c2c(&data->base, 7) != 0) {
         return;
     }
     func_ov015_02125a64(data, data->unk_1C8);
 }
 
-void func_ov015_021261ac(BtlEnm026* data) {
+static void func_ov015_021261ac(BtlEnm026* data) {
     if (func_ov003_020c72b4(&data->base, 0, 7) != 0) {
         return;
     }

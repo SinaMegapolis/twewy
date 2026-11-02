@@ -12,18 +12,13 @@
 
 #include <nitro/mi/cpumem.h>
 
-extern void* BgResMgr_AllocCharExtended(BgResMgr* mgr, void* source, s32 charBase, u32 arg3, u32 size);
+static s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args);
+static s32 func_ov008_020e78e0(TaskPool* pool, Task* task, void* args);
+static s32 func_ov008_020e78f8(TaskPool* pool, Task* task, void* args);
+static s32 func_ov008_020e7910(TaskPool* pool, Task* task, void* args);
+static s32 func_ov008_020e799c(TaskPool* pool, Task* task, void* args, s32 stage);
 
-s32  func_ov008_020e769c(TaskPool* pool, Task* task, void* args);
-s32  func_ov008_020e78e0(TaskPool* pool, Task* task, void* args);
-s32  func_ov008_020e78f8(TaskPool* pool, Task* task, void* args);
-s32  func_ov008_020e7910(TaskPool* pool, Task* task, void* args);
-s32  func_ov008_020e799c(TaskPool* pool, Task* task, void* args, s32 stage);
-void func_ov008_020e74dc(void);
-s32  func_ov008_020e7580(void);
-void func_ov008_020e75f8(CombatSprite*, s32);
-
-u16 data_ov008_020e7a94[6] = {1, 2, 2, 2, 4, 3};
+static u16 data_ov008_020e7a94[6] = {1, 2, 2, 2, 4, 3};
 
 static const BinIdentifier data_ov008_020e7a20 = {8, "Apl_Fur/Grp_Tutorial.bin"};
 
@@ -45,7 +40,7 @@ static const BtlTutorialVariant data_ov008_020e7a38[6] = {
 
 const TaskHandle Tsk_BtlTutorial = {"Tsk_BtlTutorial", func_ov008_020e799c, 0x7C};
 
-void func_ov008_020e74dc(void) {
+static void func_ov008_020e74dc(void) {
     Display_InitSubBG1(DISPLAY_BGMODE_TEXT, 1, 1, 0, 1, 0, 0x4084);
     Display_InitSubBG2(DISPLAY_BGMODE_TEXT, 1, 1, 2, 3, 1, 0x428C);
     Display_GetBG1Settings(DISPLAY_SUB)->priority = 2;
@@ -53,7 +48,7 @@ void func_ov008_020e74dc(void) {
     g_DisplaySettings.controls[DISPLAY_SUB].layers |= LAYER_BG1 | LAYER_BG2;
 }
 
-s32 func_ov008_020e7580(void) {
+static s32 func_ov008_020e7580(void) {
     s32 result = 0;
 
     switch (data_ov003_020e71b8->unk3D88E - 0x32) {
@@ -79,7 +74,7 @@ s32 func_ov008_020e7580(void) {
     return result;
 }
 
-void func_ov008_020e75f8(CombatSprite* cSprite, s32 variant) {
+static void func_ov008_020e75f8(CombatSprite* cSprite, s32 variant) {
     SpriteAnimationEx anim;
 
     CombatSprite_InitAnim(&anim.anim, 1, &data_ov008_020e7a20);
@@ -96,7 +91,7 @@ void func_ov008_020e75f8(CombatSprite* cSprite, s32 variant) {
     CombatSprite_SetPosition(cSprite, 0x80, 0x60);
 }
 
-s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args) {
     BtlTutorial* data = task->data;
 
     MI_CpuSet(data, 0, sizeof(BtlTutorial));
@@ -139,21 +134,21 @@ s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov008_020e78e0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov008_020e78e0(TaskPool* pool, Task* task, void* args) {
     BtlTutorial* data = task->data;
 
     CombatSprite_Update(&data->sprite);
     return 1;
 }
 
-s32 func_ov008_020e78f8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov008_020e78f8(TaskPool* pool, Task* task, void* args) {
     BtlTutorial* data = task->data;
 
     CombatSprite_Render(&data->sprite);
     return 1;
 }
 
-s32 func_ov008_020e7910(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov008_020e7910(TaskPool* pool, Task* task, void* args) {
     BtlTutorial* data = task->data;
 
     CombatSprite_Release(&data->sprite);
@@ -166,7 +161,7 @@ s32 func_ov008_020e7910(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov008_020e799c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov008_020e799c(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov008_020e7a28;
 
     if (func_ov003_0208b690(stage) != 0) {

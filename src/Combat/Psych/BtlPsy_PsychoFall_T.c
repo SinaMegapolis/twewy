@@ -5,7 +5,8 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dca28;
+static const TaskHandle data_ov003_020dca28;
+static s32              func_ov003_020b4a44(Ov003PsychoFallT* self);
 
 /// Spawner state of the PsychoFall effect: positions itself on the touch point and drops one
 /// meteor shard per `effect->params[0]` while the touch is held.
@@ -24,7 +25,7 @@ s32 func_ov003_020b47fc(Ov003EffectContext* context, Ov003EffectState* effect) {
 // objdiff flags the two intra-TU `bl func_ov003_020b4a44` relocations only because this object
 // emits one .text section per function while the delinked target keeps a single one; the encoded
 // instructions (and their post-link displacement) are identical.
-s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003PsychoFallT*  self;
     BtlTouchWork*      touch;
@@ -93,7 +94,7 @@ s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 /// Spawns `effect->params[0]` falling shards around the anchored position; the first one lands
 /// dead centre and the rest are scattered along a random horizontal angle.
-s32 func_ov003_020b4a44(Ov003PsychoFallT* self) {
+static s32 func_ov003_020b4a44(Ov003PsychoFallT* self) {
     s32 i;
     s32 count = self->effect->params[0];
 
@@ -112,5 +113,5 @@ s32 func_ov003_020b4a44(Ov003PsychoFallT* self) {
     return func_ov003_020a5aa4(self->effect);
 }
 
-char             data_ov003_020e4e6c[24] = "Tsk_BtlPsy_PsychoFall_T";
-const TaskHandle data_ov003_020dca28     = {data_ov003_020e4e6c, func_ov003_020b4854, sizeof(Ov003PsychoFallT)};
+static char             data_ov003_020e4e6c[24] = "Tsk_BtlPsy_PsychoFall_T";
+static const TaskHandle data_ov003_020dca28     = {data_ov003_020e4e6c, func_ov003_020b4854, sizeof(Ov003PsychoFallT)};

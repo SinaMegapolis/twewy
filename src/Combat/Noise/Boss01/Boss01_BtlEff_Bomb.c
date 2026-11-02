@@ -1,4 +1,5 @@
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include <nitro/fx.h>
@@ -26,8 +27,6 @@ s32 BtlEff_Bomb_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 static const SpriteAnimEntry data_ov016_021290a4 = {4, 6, 5, 0};
 static const TaskHandle      Task_BtlEff_Bomb    = {"Task_BtlEff_Bomb", BtlEff_Bomb_RunTask, sizeof(BtlEff_Bomb)};
 
-extern s32 func_ov003_020c5bc4(u16, Quad*, s32, s32, s32);
-
 s32 BtlEff_Bomb_Init(TaskPool* pool, Task* task, void* args) {
     BtlEff_Bomb_Args* bombArgs = (BtlEff_Bomb_Args*)args;
     BtlEff_Bomb*      eff      = task->data;
@@ -41,7 +40,7 @@ s32 BtlEff_Bomb_Init(TaskPool* pool, Task* task, void* args) {
 
     CombatSprite_LoadFromTable(func_ov003_020c3aac(eff->unk_74), &eff->sprite, &data_ov016_0212909c, &data_ov016_021290a4, 0,
                                7, 0);
-    func_ov003_020c38e8(eff);
+    func_ov003_020c38e8((CombatSprite*)eff);
     return 1;
 }
 
@@ -65,7 +64,8 @@ s32 BtlEff_Bomb_Update(TaskPool* pool, Task* task, void* args) {
                 func_ov003_02087f28(501, eff->unk_60.x);
             }
             if (eff->unk_78 == 0) {
-                eff->unk_78 = func_ov003_020c5bc4(eff->unk_74, &eff->unk_6C, eff->unk_60.x, eff->unk_60.y, eff->unk_60.z);
+                eff->unk_78 = func_ov003_020c5bc4(eff->unk_74, (Ov003AttackArgs*)&eff->unk_6C, eff->unk_60.x, eff->unk_60.y,
+                                                  eff->unk_60.z);
             }
             if (SpriteMgr_IsAnimationFinished(&eff->sprite.sprite) != 0) {
                 var_r5 = 0;
@@ -83,9 +83,10 @@ s32 BtlEff_Bomb_Render(TaskPool* pool, Task* task, void* args) {
     s16          sp8;
     BtlEff_Bomb* temp_r4 = task->data;
 
-    func_ov003_02084348(func_ov003_020c3908(temp_r4), &spA, &sp8, temp_r4->unk_60.x, temp_r4->unk_60.y, temp_r4->unk_60.z);
+    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)temp_r4), &spA, &sp8, temp_r4->unk_60.x, temp_r4->unk_60.y,
+                        temp_r4->unk_60.z);
     CombatSprite_SetPosition((CombatSprite*)temp_r4, spA, sp8);
-    if (func_ov003_020c37f8(temp_r4) != 0) {
+    if (func_ov003_020c37f8((CombatSprite*)temp_r4) != 0) {
         func_ov003_02082730((CombatSprite*)temp_r4, 0x7FDFFFFF);
     } else {
         func_ov003_02082730((CombatSprite*)temp_r4, 0x7FFFDFFF - temp_r4->unk_60.y);

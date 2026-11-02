@@ -4,8 +4,7 @@
 #include "Field/Event/EventTables.h"
 #include "Field/Tasks/Fld_TalkEventPlate.h"
 #include "SpriteMgr.h"
-
-extern void func_02026590(s32* value, s32 target, u16 frames);
+#include "main_02026528.h"
 
 typedef struct {
     /* 0x00 */ Sprite sprite;

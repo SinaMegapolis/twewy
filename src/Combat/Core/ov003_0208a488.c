@@ -3,11 +3,14 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatSprite.h"
+#include "Combat/Core/CombatTouch.h"
 #include "Combat/Fusion/BtlFusion.h"
 #include "Combat/Tutorial/BtlTutorial.h"
+#include "CriSndMgr.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
 #include "Engine/Core/DMA.h"
+#include "Engine/Core/HBlank.h"
 #include "Engine/Core/Interrupts.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/Core/OamMgr.h"
@@ -22,11 +25,15 @@
 #include "Engine/Overlay/OverlayManager.h"
 #include "Engine/Resources/PaletteMgr.h"
 #include "Engine/Resources/ResourceMgr.h"
+#include "Engine/Resources/ScreenMapper.h"
 #include "Field/Scene/FieldSeq.h"
+#include "Player/Inventory.h"
 #include "Save.h"
+#include "SndMgr.h"
 #include "common_data.h"
 
 #include <nitro/fx.h>
+#include <nitro/g3.h>
 #include <nitro/gx.h>
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
@@ -43,11 +50,6 @@
 /// manager itself touches are modelled here; concrete units extend this layout.
 
 /// A battle icon whose animation is driven by the shared state at `Ov003Global.touchWork.gesture`.
-
-extern void func_02001b44(s32, s32, void*, s32);
-extern BOOL func_02023dd4(u32 arg0);
-extern void func_0200d90c(void);
-extern s32  func_020067ec(void);
 
 /// Overlay 4 id per noise id.
 extern const s8 data_ov003_020d6ab0[];
@@ -76,8 +78,6 @@ extern const TaskHandle data_ov003_020d8848;
 extern const TaskHandle data_ov003_020dc614;
 extern const TaskHandle data_ov003_020d4f74;
 
-extern void func_ov027_020e860c(void);
-
 // Overlay ids are absolute linker symbols whose "address" is the overlay index.
 extern u32 OVERLAY_4_ID;
 extern u32 OVERLAY_5_ID;
@@ -105,37 +105,34 @@ extern u32 OVERLAY_25_ID;
 /// "Seq_Battle()", the heap sequence name the battle work area is tagged with (owned by BtlTch.c).
 extern char* data_ov003_020e3ac0;
 
-void func_ov003_0208e830(BtlMgrWork*);
-void func_ov003_0208eb04(BtlMgrWork*);
-void func_ov003_0208ec1c(BtlMgrWork*);
-void func_ov003_0208e5f8(BtlMgrWork*);
-void func_ov003_0208e668(BtlMgrWork*);
-void func_ov003_0208e7c0(BtlMgrWork*);
-BOOL func_ov003_0208ca04(s32 mode, u32 effect);
-s16  func_ov003_0208ca24(s32 mode, u32 effect);
-s32  func_ov003_0208c694(void);
-s32  func_ov003_0208c718(void);
-void ProcessOverlay_Continue(void*);
+static void func_ov003_0208e830(BtlMgrWork*);
+static void func_ov003_0208eb04(BtlMgrWork*);
+static void func_ov003_0208ec1c(BtlMgrWork*);
+static void func_ov003_0208e5f8(BtlMgrWork*);
+static void func_ov003_0208e668(BtlMgrWork*);
+static void func_ov003_0208e7c0(BtlMgrWork*);
+static void func_ov003_0208ed98(BtlIcon* icon);
+static void func_ov003_0208edcc(BtlIcon* icon);
 
 // ---------------------------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e397c[0x18] = "Apl_Fur/Grp_BtlCmd.bin";
-char data_ov003_020e3994[0x18] = "Apl_Fur/Grp_BtlObs.bin";
-char data_ov003_020e39ac[0x18] = "Apl_Fur/Bin_BtlMenu.bin";
-char data_ov003_020e39c4[0x1C] = "Apl_Fur/Grp_BtlBadge.bin";
-char data_ov003_020e39e0[0x1C] = "Apl_Fur/Grp_BtlPly02.bin";
-char data_ov003_020e39fc[0x1C] = "Apl_Fur/Grp_BtlPly00.bin";
-char data_ov003_020e3a18[0x1C] = "Apl_Fur/Grp_BtlPly01.bin";
-char data_ov003_020e3a34[0x1C] = "Apl_Fur/Grp_BtlPly03.bin";
-char data_ov003_020e3a50[0x1C] = "Apl_Fur/Grp_BtlJingle.bin";
-char data_ov003_020e3a6c[0x1C] = "Apl_Fur/Grp_BtlEffect.bin";
-char data_ov003_020e3a88[0x1C] = "Apl_Fuk/Grp_BtlSpecial.bin";
-char data_ov003_020e3aa4[0x1C] = "BtlMgr.c : BtlMgr_Init()";
+static char data_ov003_020e397c[0x18] = "Apl_Fur/Grp_BtlCmd.bin";
+static char data_ov003_020e3994[0x18] = "Apl_Fur/Grp_BtlObs.bin";
+static char data_ov003_020e39ac[0x18] = "Apl_Fur/Bin_BtlMenu.bin";
+static char data_ov003_020e39c4[0x1C] = "Apl_Fur/Grp_BtlBadge.bin";
+static char data_ov003_020e39e0[0x1C] = "Apl_Fur/Grp_BtlPly02.bin";
+static char data_ov003_020e39fc[0x1C] = "Apl_Fur/Grp_BtlPly00.bin";
+static char data_ov003_020e3a18[0x1C] = "Apl_Fur/Grp_BtlPly01.bin";
+static char data_ov003_020e3a34[0x1C] = "Apl_Fur/Grp_BtlPly03.bin";
+static char data_ov003_020e3a50[0x1C] = "Apl_Fur/Grp_BtlJingle.bin";
+static char data_ov003_020e3a6c[0x1C] = "Apl_Fur/Grp_BtlEffect.bin";
+static char data_ov003_020e3a88[0x1C] = "Apl_Fuk/Grp_BtlSpecial.bin";
+static char data_ov003_020e3aa4[0x1C] = "BtlMgr.c : BtlMgr_Init()";
 
 /// Experience gained is scaled by a percentage that depends on the battle difficulty.
-const s16 data_ov003_020d77d0[4] = {50, 100, 150, 200};
+static const s16 data_ov003_020d77d0[4] = {50, 100, 150, 200};
 
 const BinIdentifier data_ov003_020d77d8 = {3, data_ov003_020e39fc};
 const BinIdentifier data_ov003_020d77e0 = {4, data_ov003_020e3a18};
@@ -150,30 +147,31 @@ const BinIdentifier data_ov003_020d7820 = {3, data_ov003_020e3994};
 const BinIdentifier data_ov003_020d7828 = {3, data_ov003_020e3a88};
 
 /// Encounter id per boss phase, indexed by the chained-battle timer.
-const u16 data_ov003_020d7830[2] = {0x33, 0x34};
-const u16 data_ov003_020d7834[2] = {0x14, 0x15};
-const u16 data_ov003_020d7838[6] = {0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x00};
+static const u16 data_ov003_020d7830[2] = {0x33, 0x34};
+static const u16 data_ov003_020d7834[2] = {0x14, 0x15};
+static const u16 data_ov003_020d7838[6] = {0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x00};
 
 /// Process stages of the battle overlay: init, main, exit.
-void (*const data_ov003_020d7844[3])(BtlMgrWork*) = {
+static void (*const data_ov003_020d7844[3])(BtlMgrWork*) = {
     func_ov003_0208e830,
     func_ov003_0208eb04,
     func_ov003_0208ec1c,
 };
 
 /// Per-encounter battle track ids.
-const u32 data_ov003_020d7850[18] = {8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26, 22, 23, 26, 21};
+static const u32 data_ov003_020d7850[18] = {8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26, 22, 23, 26, 21};
 
 /// Per-chapter set of characters that may join the battle, as a 16-bit mask.
-const u32 data_ov003_020d7898[22] = {1,     1,     0x1003, 0x1003, 0x1007, 0x1087, 0x287,  0xe88, 0xa88, 0x1298, 0x1218,
-                                     0x438, 0x438, 0x538,  0xd40,  0xd44,  0x1946, 0x18e6, 0xcf6, 0x77f, 0x37f,  0x1fff};
+static const u32 data_ov003_020d7898[22] = {1,      1,      0x1003, 0x1003, 0x1007, 0x1087, 0x287, 0xe88,
+                                            0xa88,  0x1298, 0x1218, 0x438,  0x438,  0x538,  0xd40, 0xd44,
+                                            0x1946, 0x18e6, 0xcf6,  0x77f,  0x37f,  0x1fff};
 
 // ---------------------------------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------------------------------
 
 /// Maximum HP of the player (or partner) at the battle's current level.
-s32 func_ov003_0208a488(void) {
+static s32 func_ov003_0208a488(void) {
     Ov003Global* g = data_ov003_020e71b8;
     s32          partner;
 
@@ -200,7 +198,7 @@ s32 func_ov003_0208a488(void) {
 }
 
 /// Loads the player/partner/badge overlays and picks the battle track for the encounter.
-void func_ov003_0208a51c(u32 partner, u16 encounterId) {
+static void func_ov003_0208a51c(u32 partner, u16 encounterId) {
     s32 overlay4 = data_ov003_020d6ab0[encounterId];
 
     switch (partner) {
@@ -324,7 +322,7 @@ void func_ov003_0208a51c(u32 partner, u16 encounterId) {
 
 /// Returns the partner that fights alongside the player for an encounter. Most encounters force a
 /// specific partner; everything else uses the one selected in the phone menu.
-u32 func_ov003_0208a878(u16 encounterId) {
+static u32 func_ov003_0208a878(u16 encounterId) {
     u32 partner;
 
     switch (gSaveData.playerStats.activePartner) {
@@ -412,7 +410,7 @@ u32 func_ov003_0208a878(u16 encounterId) {
 /// Resets the level-up gauge for the battle that is about to start. When `isContinuation` is set the
 /// gauge carried over from the previous chained battle is restored (the player heals back to full
 /// between battles).
-void func_ov003_0208aa1c(s32 isContinuation) {
+static void func_ov003_0208aa1c(s32 isContinuation) {
     s32 partner;
 
     switch (data_ov003_020e71b8->unk3D88D) {
@@ -495,7 +493,7 @@ void func_ov003_0208aa1c(s32 isContinuation) {
     }
 }
 /// Selects the battle music for the given encounter id.
-void func_ov003_0208ad34(u16 encounterId) {
+static void func_ov003_0208ad34(u16 encounterId) {
     u8 music = 0xD;
 
     func_ov003_020a35d8();
@@ -547,7 +545,7 @@ void func_ov003_0208ad34(u16 encounterId) {
 
 /// Points the thread/equipment system at the player's and partner's equipped threads.
 // Nonmatching: partner-selection control flow/register allocation differs.
-void func_ov003_0208ae24(s32 partner) {
+static void func_ov003_0208ae24(s32 partner) {
     func_ov003_020a300c();
     func_ov003_020a303c(&gSaveData.playerStats.equippedThreads[0], -1);
 
@@ -573,7 +571,7 @@ void func_ov003_0208ae24(s32 partner) {
 }
 
 /// Stops a level-up gauge actor and parks it.
-void func_ov003_0208ae98(Ov003EnemyActor* unit) {
+static void func_ov003_0208ae98(Ov003EnemyActor* unit) {
     unit->actor.flags     = (unit->actor.flags & 0xFFFFBFFD) & ~8;
     unit->actor.xVelocity = 0;
     unit->actor.yVelocity = 0;
@@ -582,7 +580,7 @@ void func_ov003_0208ae98(Ov003EnemyActor* unit) {
 }
 
 /// Checks that both unit lists only contain idle, on-screen units.
-BOOL func_ov003_0208aed8(void) {
+static BOOL func_ov003_0208aed8(void) {
     Ov003EnemyActor* unit;
     BOOL             result = TRUE;
 
@@ -654,7 +652,7 @@ void func_ov003_0208afcc(s32 exp) {
 }
 
 /// Awards experience, scaled by the battle difficulty.
-void func_ov003_0208b17c(s16 exp) {
+static void func_ov003_0208b17c(s16 exp) {
     if (gSaveData.unk_3130 == 1) {
         return;
     }
@@ -662,7 +660,7 @@ void func_ov003_0208b17c(s16 exp) {
 }
 
 /// Adds to the PP earned this battle.
-void func_ov003_0208b1d0(s16 amount) {
+static void func_ov003_0208b1d0(s16 amount) {
     gSaveData.battleBasePP += amount;
 }
 
@@ -837,14 +835,14 @@ BOOL func_ov003_0208b690(u16 encounterId) {
     return FALSE;
 }
 
-void func_ov003_0208b6d4(void) {
+static void func_ov003_0208b6d4(void) {
     func_ov003_0208b278(1);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8764, NULL, 0, NULL, NULL);
 }
 
 /// Advances the battle state machine. Runs every frame from the battle task; decides when the battle
 /// is won and switches to the result screen.
-void func_ov003_0208b71c(void) {
+static void func_ov003_0208b71c(void) {
     BOOL             finished = FALSE;
     Ov003EnemyActor* unit;
 
@@ -905,7 +903,7 @@ void func_ov003_0208b71c(void) {
 
 /// Allocates and initialises the battle globals, loads the battle graphics and spawns every battle
 /// task.
-void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
+static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     void* paletteSrc;
     void* alloc;
 
@@ -1044,7 +1042,7 @@ void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
 }
 
 /// Per-frame battle update: input, combo tracking, task pools.
-void func_ov003_0208c2a8(void) {
+static void func_ov003_0208c2a8(void) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
     s32 pressed;
@@ -1114,7 +1112,7 @@ void func_ov003_0208c2a8(void) {
 }
 
 /// Per-frame task ticking.
-void func_ov003_0208c4bc(void) {
+static void func_ov003_0208c4bc(void) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
 
@@ -1133,7 +1131,7 @@ void func_ov003_0208c4bc(void) {
 }
 
 /// Tears down the battle globals.
-void func_ov003_0208c54c(s32 keepResources) {
+static void func_ov003_0208c54c(s32 keepResources) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
 
@@ -1164,7 +1162,7 @@ void func_ov003_0208c54c(s32 keepResources) {
 }
 
 /// Number of the player's first stat pin owned.
-s32 func_ov003_0208c694(void) {
+static s32 func_ov003_0208c694(void) {
     switch (data_ov003_020e71b8->unk3D88D) {
         case 0:
             return (s16)Inventory_GetOwnedCount(0x2B2);
@@ -1178,7 +1176,7 @@ s32 func_ov003_0208c694(void) {
 }
 
 /// Number of the player's second stat pin owned.
-s32 func_ov003_0208c718(void) {
+static s32 func_ov003_0208c718(void) {
     switch (data_ov003_020e71b8->unk3D88D) {
         case 0:
             return (s16)Inventory_GetOwnedCount(0x2B3);
@@ -1379,7 +1377,7 @@ void func_ov003_0208cbc8(void) {
 }
 
 /// Fills in the battle bonus flags from the damage/combo records.
-void func_ov003_0208cc14(void) {
+static void func_ov003_0208cc14(void) {
     Ov003Global* g = data_ov003_020e71b8;
 
     if (func_ov003_020a3330(0x4B) != 0) {
@@ -1481,7 +1479,7 @@ void func_ov003_0208cc14(void) {
 }
 
 /// Saves progress when the battle was won normally.
-void func_ov003_0208cf94(u32 unused) {
+static void func_ov003_0208cf94(u32 unused) {
     if (gSaveData.unk_3130 != 2) {
         return;
     }
@@ -1501,7 +1499,7 @@ void func_ov003_0208cf94(u32 unused) {
 }
 
 /// Initialises the battle's graphics hardware and display settings.
-void func_ov003_0208d010(void) {
+static void func_ov003_0208d010(void) {
     Interrupts_Init();
     HBlank_Init();
     GX_Init();
@@ -1548,7 +1546,7 @@ void func_ov003_0208d010(void) {
 }
 
 /// Configures the battle's background layers and blend settings.
-void func_ov003_0208d1d0(void) {
+static void func_ov003_0208d1d0(void) {
     DisplayBGSettings*      bg;
     DisplayControlSettings* main = Display_GetMainControls();
     DisplayControlSettings* sub  = Display_GetSubControls();
@@ -1671,7 +1669,7 @@ void func_ov003_0208d1d0(void) {
 }
 
 /// VBlank callback: flushes the display lists and uploads OAM/palettes.
-void func_ov003_0208d49c(void) {
+static void func_ov003_0208d49c(void) {
     if (SystemStatusFlags.vblank == 0) {
         return;
     }
@@ -1689,19 +1687,19 @@ void func_ov003_0208d49c(void) {
     GXs_LoadObjPltt(g_PaletteBuffers[DISPLAY_SUB].obj, 0, 0x200);
 }
 
-void func_ov003_0208d56c(void) {
+static void func_ov003_0208d56c(void) {
     func_ov003_0208d010();
     func_ov003_0208d1d0();
     Interrupts_RegisterVBlankCallback(func_ov003_0208d49c, 1);
 }
 
-void func_ov003_0208d58c(void) {
+static void func_ov003_0208d58c(void) {
     Interrupts_ForceVBlank();
     Interrupts_RegisterVBlankCallback(NULL, 1);
 }
 
 /// Starts a battle (or a chain of battles) with the given encounter id.
-void func_ov003_0208d5a4(u16 encounterId, s32 duration) {
+static void func_ov003_0208d5a4(u16 encounterId, s32 duration) {
     gSaveData.battleCount         = 1;
     gSaveData.battleEncounters[0] = encounterId;
     if (duration != 0) {
@@ -1710,7 +1708,7 @@ void func_ov003_0208d5a4(u16 encounterId, s32 duration) {
 }
 
 /// Number of chapter characters that may still join the current battle.
-s32 func_ov003_0208d5cc(u32 mask) {
+static s32 func_ov003_0208d5cc(u32 mask) {
     u32 available = gSaveData.unk_3234;
     s32 count     = 0;
     s32 i;
@@ -1724,7 +1722,7 @@ s32 func_ov003_0208d5cc(u32 mask) {
 }
 
 /// Picks the character that joins the battle for this chapter and tracks that it was used.
-u16 func_ov003_0208d608(void) {
+static u16 func_ov003_0208d608(void) {
     u32 mask  = data_ov003_020d7898[gSaveData.chapter];
     s32 count = func_ov003_0208d5cc(mask);
     s32 rng;
@@ -1753,7 +1751,7 @@ u16 func_ov003_0208d608(void) {
 }
 
 /// Configures the encounter chain and background track for a battle selector.
-void func_ov003_0208d698(u32 selector) {
+static void func_ov003_0208d698(u32 selector) {
     switch (selector) {
         case 0:
         case 1:
@@ -1928,7 +1926,7 @@ void func_ov003_0208d698(u32 selector) {
 }
 
 /// Chooses the encounter that the battle actually fights and how long it lasts.
-void func_ov003_0208db18(BtlMgrWork* work) {
+static void func_ov003_0208db18(BtlMgrWork* work) {
     u16 encounter = gSaveData.battleEncounters[gSaveData.unk_3142 - 1];
 
     switch (encounter) {
@@ -1955,7 +1953,7 @@ void func_ov003_0208db18(BtlMgrWork* work) {
 }
 
 /// Sets the battle track and remembers that it was played.
-void func_ov003_0208dbf4(BtlMgrWork* work, u32 track) {
+static void func_ov003_0208dbf4(BtlMgrWork* work, u32 track) {
     gSaveData.unk_313C = data_ov003_020d7850[track];
 
     if (gSaveData.battleTimer == 0 || gSaveData.unk_3130 == 1) {
@@ -1968,7 +1966,7 @@ void func_ov003_0208dbf4(BtlMgrWork* work, u32 track) {
 
 /// Selects the battle music. Note that the field at 0x11E14 is reused as the music index once the
 /// encounter id has been consumed.
-void func_ov003_0208dc64(BtlMgrWork* work, s32 isContinuation) {
+static void func_ov003_0208dc64(BtlMgrWork* work, s32 isContinuation) {
     u16 music;
 
     if (isContinuation != 0) {
@@ -2096,7 +2094,7 @@ void func_ov003_0208dc64(BtlMgrWork* work, s32 isContinuation) {
 }
 
 /// Advances the chained-battle timer. Returns TRUE once all battles of the chain are done.
-BOOL func_ov003_0208e008(BtlMgrWork* work) {
+static BOOL func_ov003_0208e008(BtlMgrWork* work) {
     gSaveData.battleTimer++;
     if (gSaveData.battleTimer > work->battleDuration) {
         gSaveData.unk_3142++;
@@ -2106,14 +2104,14 @@ BOOL func_ov003_0208e008(BtlMgrWork* work) {
 }
 
 /// Copies the battle level/experience back into the save data.
-void func_ov003_0208e064(void) {
+static void func_ov003_0208e064(void) {
     gSaveData.playerStats.currentLevel   = gSaveData.battleLevel;
     gSaveData.playerStats.maxLevel       = gSaveData.battleMaxLevel;
     gSaveData.playerStats.expToNextLevel = gSaveData.battleExpToNextLevel;
 }
 
 /// Battle result/continue state machine.
-void func_ov003_0208e098(BtlMgrWork* work) {
+static void func_ov003_0208e098(BtlMgrWork* work) {
     BOOL isTrueEnd = gSaveData.unk_3130 == 3;
 
     switch (work->step) {
@@ -2222,7 +2220,7 @@ void func_ov003_0208e098(BtlMgrWork* work) {
 }
 
 /// State machine used by the "continue" battle overlay.
-void func_ov003_0208e3f0(BtlMgrWork* work) {
+static void func_ov003_0208e3f0(BtlMgrWork* work) {
     switch (work->step) {
         case 0: {
             OverlayTag tag;
@@ -2269,7 +2267,7 @@ void func_ov003_0208e3f0(BtlMgrWork* work) {
 }
 
 /// Fades the battle in, then switches to the battle update callback.
-void func_ov003_0208e520(BtlMgrWork* work) {
+static void func_ov003_0208e520(BtlMgrWork* work) {
     if (work->fadeCounter == 0) {
         EasyFade_FadeBothDisplays(0, 0, 0x1000);
         work->active = 1;
@@ -2284,7 +2282,7 @@ void func_ov003_0208e520(BtlMgrWork* work) {
 }
 
 /// Fades the battle out, then pops the battle callback.
-void func_ov003_0208e59c(BtlMgrWork* work) {
+static void func_ov003_0208e59c(BtlMgrWork* work) {
     if (work->fadeCounter == 0) {
         EasyFade_FadeBothDisplays(0, 0x10, 0x1000);
         work->active = 1;
@@ -2297,7 +2295,7 @@ void func_ov003_0208e59c(BtlMgrWork* work) {
 }
 
 /// Battle update callback: switches to the fade-out callback once the battle is over.
-void func_ov003_0208e5f8(BtlMgrWork* work) {
+static void func_ov003_0208e5f8(BtlMgrWork* work) {
     work->active = data_ov003_020e71b8->unk3D87C == 0;
 
     if (data_ov003_020e71b8->unk3D874 == 1) {
@@ -2309,7 +2307,7 @@ void func_ov003_0208e5f8(BtlMgrWork* work) {
 }
 
 /// Battle update callback for the "battle is over" path.
-void func_ov003_0208e668(BtlMgrWork* work) {
+static void func_ov003_0208e668(BtlMgrWork* work) {
     work->active = data_ov003_020e71b8->unk3D87C == 0;
     func_ov003_0208b71c();
 
@@ -2347,7 +2345,7 @@ void func_ov003_0208e668(BtlMgrWork* work) {
     }
 }
 
-void func_ov003_0208e7c0(BtlMgrWork* work) {
+static void func_ov003_0208e7c0(BtlMgrWork* work) {
     work->active = data_ov003_020e71b8->unk3D87C == 0;
 
     if (data_ov003_020e71b8->unk3D874 != 7) {
@@ -2359,7 +2357,7 @@ void func_ov003_0208e7c0(BtlMgrWork* work) {
 }
 
 /// Overlay init stage: allocate the work area and bring up the battle scene.
-void func_ov003_0208e830(BtlMgrWork* work) {
+static void func_ov003_0208e830(BtlMgrWork* work) {
     if (work == NULL) {
         char* sequence = data_ov003_020e3ac0;
 
@@ -2445,7 +2443,7 @@ void func_ov003_0208e830(BtlMgrWork* work) {
 }
 
 /// Overlay main stage.
-void func_ov003_0208eb04(BtlMgrWork* work) {
+static void func_ov003_0208eb04(BtlMgrWork* work) {
     TouchInput_Update();
     OamMgr_Reset3DState();
     OamMgr_Reset(&g_OamMgr[DISPLAY_MAIN], 0, 0);
@@ -2482,7 +2480,7 @@ void func_ov003_0208eb04(BtlMgrWork* work) {
 }
 
 /// Overlay exit stage.
-void func_ov003_0208ec1c(BtlMgrWork* work) {
+static void func_ov003_0208ec1c(BtlMgrWork* work) {
     if (work == NULL) {
         return;
     }
@@ -2545,7 +2543,7 @@ void func_ov003_0208ecbc(BtlIcon* icon) {
 }
 
 /// Waits for the current icon animation to finish, then plays the idle one.
-void func_ov003_0208ed98(BtlIcon* icon) {
+static void func_ov003_0208ed98(BtlIcon* icon) {
     if (!SpriteMgr_IsAnimationFinished(&icon->sprite.sprite)) {
         return;
     }
@@ -2554,7 +2552,7 @@ void func_ov003_0208ed98(BtlIcon* icon) {
 }
 
 /// Plays the icon's damage animation for the current battle state.
-void func_ov003_0208edcc(BtlIcon* icon) {
+static void func_ov003_0208edcc(BtlIcon* icon) {
     if (data_ov003_020e71b8->touchWork.sweepFrames < 2) {
         CombatSprite_SetAnim(&icon->sprite, 6, 0);
     } else if (data_ov003_020e71b8->touchWork.sweepFrames < 8) {

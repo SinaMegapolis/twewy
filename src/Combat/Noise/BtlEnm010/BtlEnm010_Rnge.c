@@ -11,13 +11,13 @@ typedef struct BtlEnm010Rnge {
     /* 0x68 */ s32              unk_068;
 } BtlEnm010Rnge;
 
-extern char data_ov011_0212cc10[20];
-s32         func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage);
+static char data_ov011_0212cc10[20];
+static s32  func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle data_ov011_0212c1d4 = {(const char*)data_ov011_0212cc10, func_ov011_02127ce0, 108};
+static const TaskHandle data_ov011_0212c1d4 = {(const char*)data_ov011_0212cc10, func_ov011_02127ce0, 108};
 
-char data_ov011_0212cc10[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
-                                0x30, 0x31, 0x30, 0x5F, 0x52, 0x6E, 0x67, 0x65, 0x00, 0x00};
+static char data_ov011_0212cc10[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
+                                       0x30, 0x31, 0x30, 0x5F, 0x52, 0x6E, 0x67, 0x65, 0x00, 0x00};
 
 s32 func_ov011_02127c84(Ov003EnemyActor* owner) {
     Ov003EnemyActor* data;
@@ -32,7 +32,7 @@ s32 func_ov011_02127c84(Ov003EnemyActor* owner) {
     return EasyTask_CreateTask(pool, &data_ov011_0212c1d4, 0, 0, 0, &data);
 }
 
-s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm010Rnge*    data;
     Ov003EnemyActor** spawn;
     s32               r;

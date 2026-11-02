@@ -16,10 +16,9 @@
 #include "Save.h"
 #include "SndMgr.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 #include <nitro/fx.h>
 #include <nitro/fx/fx_vector.h>
-
-extern void func_020265d4(s32* value, s32 target, u16 scale);
 
 // Per-category sprite setup; indexed by the normalized category. The first
 // four fields feed SpriteAnimation's resource indices.

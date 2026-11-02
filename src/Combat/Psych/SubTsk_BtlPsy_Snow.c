@@ -3,9 +3,7 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc8ac;
+static const TaskHandle data_ov003_020dc8ac;
 
 s32 func_ov003_020afb64(s32 kind, s32 x, s32 y, s32 angle, s32 speed) {
     Ov003SnowArgs args;
@@ -18,7 +16,7 @@ s32 func_ov003_020afb64(s32 kind, s32 x, s32 y, s32 angle, s32 speed) {
     return func_ov003_020a6000(&data_ov003_020dc8ac, &args);
 }
 
-s32 func_ov003_020afbc4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020afbc4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003SnowArgs* arg = args;
     Ov003Snow*     self;
     switch (stage) {
@@ -76,6 +74,6 @@ s32 func_ov003_020afbc4(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-extern char      data_ov003_020e4c7c[20];
-const TaskHandle data_ov003_020dc8ac     = {data_ov003_020e4c7c, func_ov003_020afbc4, sizeof(Ov003Snow)};
-char             data_ov003_020e4c7c[20] = "SubTsk_BtlPsy_Snow";
+static char             data_ov003_020e4c7c[20];
+static const TaskHandle data_ov003_020dc8ac     = {data_ov003_020e4c7c, func_ov003_020afbc4, sizeof(Ov003Snow)};
+static char             data_ov003_020e4c7c[20] = "SubTsk_BtlPsy_Snow";

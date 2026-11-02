@@ -1,7 +1,9 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/Boss01.h"
+#include <nitro/mi/cpumem.h>
 
 typedef struct BtlEff_Fall {
     /* 0x00 */ char         unk_00[0x20];
@@ -37,12 +39,12 @@ typedef struct {
 
 static const SpriteAnimEntry data_ov016_021290e4[] = {1, 3, 2, 0, 1, 3, 2, 1, 1, 3, 2, 2};
 
-s32 BtlEff_Fall_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlEff_Fall_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static const TaskHandle Task_BtlEff_Fall = {"Task_BtlEff_Fall", BtlEff_Fall_RunTask, 0x78};
 
 // Nonmatching
-s32 BtlEff_Fall_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEff_Fall_Init(TaskPool* pool, Task* task, void* args) {
     BtlEff_Fall_Args* spawn_args = args;
     BtlEff_Fall*      temp_r4    = task->data;
 
@@ -72,7 +74,7 @@ s32 BtlEff_Fall_Init(TaskPool* pool, Task* task, void* args) {
     }
     if (temp_r1 != 25) {
     escape:
-        func_ov003_020c38e8(temp_r4);
+        func_ov003_020c38e8((CombatSprite*)temp_r4);
     }
 
     func_ov003_02087f28(500, ((Boss01*)temp_r4->unk_64)->unk_28);
@@ -80,7 +82,7 @@ s32 BtlEff_Fall_Init(TaskPool* pool, Task* task, void* args) {
 }
 
 // Nonmatching
-s32 BtlEff_Fall_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEff_Fall_Update(TaskPool* pool, Task* task, void* args) {
     BtlEff_Fall* eff    = task->data;
     s32          var_r5 = 1;
 
@@ -120,19 +122,19 @@ s32 BtlEff_Fall_Update(TaskPool* pool, Task* task, void* args) {
     return var_r5;
 }
 
-s32 BtlEff_Fall_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEff_Fall_Render(TaskPool* pool, Task* task, void* args) {
     BtlEff_Fall* temp_r4 = task->data;
     s16          spA, sp8;
 
-    func_ov003_02084348(func_ov003_020c3908(temp_r4), &spA, &sp8, temp_r4->unk_64->position.x, temp_r4->unk_64->position.y,
-                        temp_r4->unk_64->position.z);
+    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)temp_r4), &spA, &sp8, temp_r4->unk_64->position.x,
+                        temp_r4->unk_64->position.y, temp_r4->unk_64->position.z);
     CombatSprite_SetPosition((CombatSprite*)temp_r4, spA, sp8);
     func_ov003_02082730((CombatSprite*)temp_r4, 0x7FFFEFFF - temp_r4->unk_64->position.y);
     CombatSprite_Render((CombatSprite*)temp_r4);
     return 1;
 }
 
-s32 BtlEff_Fall_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEff_Fall_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlEff_Fall* temp_r4 = task->data;
 
     if (temp_r4->unk_20 != 0) {
@@ -141,7 +143,7 @@ s32 BtlEff_Fall_Destroy(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlEff_Fall_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlEff_Fall_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov016_021290d4 = {
         .initialize = BtlEff_Fall_Init,
         .update     = BtlEff_Fall_Update,

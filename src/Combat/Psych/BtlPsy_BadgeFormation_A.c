@@ -4,10 +4,7 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32              func_ov003_020a62b8(s32, s32, s32, s32);
-extern s32              func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount);
-extern const TaskHandle data_ov003_020dc69c;
+static const TaskHandle data_ov003_020dc69c;
 
 s32 func_ov003_020a9ec0(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003BadgeFormationArgs initial;
@@ -24,7 +21,7 @@ s32 func_ov003_020a9ec0(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003BadgeFormationArgs* arg = args;
     Ov003BadgeFormation*     formation;
     switch (stage) {
@@ -116,5 +113,5 @@ s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4a3c[28] = "Tsk_BtlPsy_BadgeFormation_A";
-const TaskHandle data_ov003_020dc69c     = {data_ov003_020e4a3c, func_ov003_020a9f64, sizeof(Ov003BadgeFormation)};
+static char             data_ov003_020e4a3c[28] = "Tsk_BtlPsy_BadgeFormation_A";
+static const TaskHandle data_ov003_020dc69c     = {data_ov003_020e4a3c, func_ov003_020a9f64, sizeof(Ov003BadgeFormation)};

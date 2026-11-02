@@ -3,9 +3,8 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc718;
+static const TaskHandle data_ov003_020dc718;
+static s32              func_ov003_020abdb8(Ov003ObsBomb* self);
 
 void func_ov003_020abb34(Ov003EffectState* effect, Ov003EnemyActor* unit) {
     Ov003PsychUnitArgs args;
@@ -14,7 +13,7 @@ void func_ov003_020abb34(Ov003EffectState* effect, Ov003EnemyActor* unit) {
     func_ov003_020a6000(&data_ov003_020dc718, &args);
 }
 
-s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs* arg = args;
     Ov003ObsBomb*       self;
     switch (stage) {
@@ -81,7 +80,7 @@ s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 /// Adjusts the contact attack's dimensions to the selected object's dimensions.
-s32 func_ov003_020abdb8(Ov003ObsBomb* self) {
+static s32 func_ov003_020abdb8(Ov003ObsBomb* self) {
     Ov003AttackInfo info  = *func_ov003_0208a114(0x190);
     s16             depth = self->args.unit->actor.unk_72;
     s16             width = self->args.unit->actor.unk_70;
@@ -92,5 +91,5 @@ s32 func_ov003_020abdb8(Ov003ObsBomb* self) {
                                self->args.unit->actor.position.y, self->args.unit->actor.position.z) == 1;
 }
 
-char             data_ov003_020e4af8[24] = "SubTsk_BtlPsy_ObsBomb";
-const TaskHandle data_ov003_020dc718     = {data_ov003_020e4af8, func_ov003_020abb5c, sizeof(Ov003ObsBomb)};
+static char             data_ov003_020e4af8[24] = "SubTsk_BtlPsy_ObsBomb";
+static const TaskHandle data_ov003_020dc718     = {data_ov003_020e4af8, func_ov003_020abb5c, sizeof(Ov003ObsBomb)};

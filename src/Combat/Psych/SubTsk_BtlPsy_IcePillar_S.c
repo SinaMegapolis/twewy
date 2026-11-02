@@ -2,10 +2,9 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32       func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const s32 data_ov003_020dc924[3];
+static const s32 data_ov003_020dc924[3];
 
-extern const TaskHandle data_ov003_020dc918;
+static const TaskHandle data_ov003_020dc918;
 
 /// Starts the ice-pillar sibling task with the four arguments it consumes.
 s32 func_ov003_020b1ca0(Ov003EffectState* effect, s32 x, s32 y, s32 attackId) {
@@ -17,7 +16,7 @@ s32 func_ov003_020b1ca0(Ov003EffectState* effect, s32 x, s32 y, s32 attackId) {
     return func_ov003_020a6000(&data_ov003_020dc918, &args);
 }
 
-s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003IcePillarArgs* arg = args;
     Ov003IcePillar*     self;
     switch (stage) {
@@ -80,7 +79,6 @@ s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-extern char      data_ov003_020e4d4c[28];
-char             data_ov003_020e4d4c[28] = "SubTsk_BtlPsy_IcePillar_S";
-const TaskHandle data_ov003_020dc918     = {data_ov003_020e4d4c, func_ov003_020b1cd0, sizeof(Ov003IcePillar)};
-const s32        data_ov003_020dc924[3]  = {0x8B, 0x8B, 0x8C};
+static char             data_ov003_020e4d4c[28] = "SubTsk_BtlPsy_IcePillar_S";
+static const TaskHandle data_ov003_020dc918     = {data_ov003_020e4d4c, func_ov003_020b1cd0, sizeof(Ov003IcePillar)};
+static const s32        data_ov003_020dc924[3]  = {0x8B, 0x8B, 0x8C};

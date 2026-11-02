@@ -12,6 +12,7 @@
 #include "Engine/Resources/ScreenMapper.h"
 #include "Save.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 
 #include <nitro/g2.h>
 #include <nitro/mi/cpumem.h>
@@ -79,35 +80,21 @@ typedef struct BtlFieldRG {
 extern const BtlFieldDefRG data_ov003_020d9c90[];
 extern const BtlFieldExtra data_ov003_020d9afc[];
 
-extern void* BgResMgr_AllocCharExtended(BgResMgr* arg0, void* arg1, s32 arg2, u32 arg3, u32 arg4);
-extern void  func_0200d858(ScreenMapEntry* entry, s32 wrapH, s32 wrapV, void* defaultTile);
-extern void  func_0200d954(s32 engine, s32 bg);
-extern void  func_02026590(s32* dst, s32 target, u16 weight);
-extern void  func_ov003_02083300(Ov003BgResState* state, s32 engine, BinIdentifier* iden);
-extern void  func_ov003_0208335c(Ov003BgResState* state, const Ov003ResCmd* script, void* arg);
-extern void  func_ov003_02083390(Ov003BgResState* state);
-extern void  func_ov003_020833cc(Ov003BgResState* state);
+static s32 func_ov003_02092f30(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209327c(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020932d0(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020932e4(TaskPool* pool, Task* task, void* args);
 
-void func_ov003_020929a4(BtlFieldRG* state, void (*update)(BtlFieldRG*));
-void func_ov003_02092c10(BtlFieldRG* state);
-void func_ov003_02092c88(Ov003Camera* camera);
-void func_ov003_02092dbc(BtlFieldRG* state);
-
-s32 func_ov003_02092f30(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209327c(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020932d0(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020932e4(TaskPool* pool, Task* task, void* args);
-
-s32 func_ov003_02093394(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_02093394(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// `TaskHandle.taskName` of `data_ov003_020d7b4c`.
-char data_ov003_020e3b18[0x10] = "Tsk_BtlField_RG";
+static char data_ov003_020e3b18[0x10] = "Tsk_BtlField_RG";
 
 /// `Tsk_BtlField_RG`.
 const TaskHandle data_ov003_020d7b4c = {data_ov003_020e3b18, func_ov003_02093394, 0x138};
 
 /// The four stage functions of the field background task.
-const TaskStages data_ov003_020d7b58 = {
+static const TaskStages data_ov003_020d7b58 = {
     func_ov003_02092f30,
     func_ov003_0209327c,
     func_ov003_020932d0,
@@ -119,14 +106,14 @@ const TaskStages data_ov003_020d7b58 = {
 // ---------------------------------------------------------------------------------------------
 
 /// Resets the fade timer and swaps in the background's scroll-update callback.
-void func_ov003_020929a4(BtlFieldRG* state, void (*update)(BtlFieldRG*)) {
+static void func_ov003_020929a4(BtlFieldRG* state, void (*update)(BtlFieldRG*)) {
     state->update = update;
     state->unk_A6 = 0;
     state->timer  = 0;
 }
 
 /// Sets BG1 and BG2 of the sub engine up as the two text layers the floor strips are drawn on.
-void func_ov003_020929b8(void) {
+static void func_ov003_020929b8(void) {
     DisplayBGSettings* bg;
 
     bg                 = &g_DisplaySettings.engineState[1].bgSettings[1];
@@ -153,7 +140,7 @@ void func_ov003_020929b8(void) {
 }
 
 /// Starts the scroll script that the save's battle index picks (the first one if it is out of range).
-void func_ov003_02092a5c(BtlFieldRG* state, const Ov003ResCmd** scripts, u16 count) {
+static void func_ov003_02092a5c(BtlFieldRG* state, const Ov003ResCmd** scripts, u16 count) {
     u16 index = gSaveData.unk_3232;
 
     if (scripts == NULL)
@@ -164,7 +151,7 @@ void func_ov003_02092a5c(BtlFieldRG* state, const Ov003ResCmd** scripts, u16 cou
 }
 
 /// Loads the characters of the third strip. Returns NULL when the background has none.
-BgResource* func_ov003_02092a90(BtlFieldRG* state, u8 index) {
+static BgResource* func_ov003_02092a90(BtlFieldRG* state, u8 index) {
     BgResource* result = NULL;
 
     if (index != 0xFF) {
@@ -178,7 +165,7 @@ BgResource* func_ov003_02092a90(BtlFieldRG* state, u8 index) {
 }
 
 /// Sets the third strip up on BG0. Returns 0 when the background has none.
-s32 func_ov003_02092b14(BtlFieldRG* state, u8 index) {
+static s32 func_ov003_02092b14(BtlFieldRG* state, u8 index) {
     const BtlFieldExtra* extra;
 
     if (index == 0xFF) {
@@ -195,7 +182,7 @@ s32 func_ov003_02092b14(BtlFieldRG* state, u8 index) {
 }
 
 /// Fades the background in with the battle's transition, then hands the task to the live update.
-void func_ov003_02092c10(BtlFieldRG* state) {
+static void func_ov003_02092c10(BtlFieldRG* state) {
     if (state->timer == 0) {
         state->camera->shakeX = -0x48000;
         state->timer          = 100;
@@ -211,7 +198,7 @@ void func_ov003_02092c10(BtlFieldRG* state) {
 }
 
 /// Eases the camera's view point toward its target, keeping it inside the floor's bounds.
-void func_ov003_02092c88(Ov003Camera* camera) {
+static void func_ov003_02092c88(Ov003Camera* camera) {
     s32 dx;
     s32 dy;
     s32 dz;
@@ -259,7 +246,7 @@ void func_ov003_02092c88(Ov003Camera* camera) {
 }
 
 /// Parks the strips behind the camera.
-void func_ov003_02092dbc(BtlFieldRG* state) {
+static void func_ov003_02092dbc(BtlFieldRG* state) {
     BtlField_ScrollRow(&state->rowMaps[0], state->camera, 0x80000, 0x60000);
     BtlField_ScrollRow(&state->rowMaps[1], state->camera, 0x180000, 0x60000);
     if (state->hasExtra == 0) {
@@ -269,7 +256,7 @@ void func_ov003_02092dbc(BtlFieldRG* state) {
 }
 
 /// Task stage 0: fetches the background's resources and seeds the tilemaps.
-s32 func_ov003_02092f30(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02092f30(TaskPool* pool, Task* task, void* args) {
     BtlFieldRG*          state = task->data;
     const BtlFieldDefRG* def;
     void*                palData;
@@ -326,7 +313,7 @@ s32 func_ov003_02092f30(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 1: advances the background every frame.
-s32 func_ov003_0209327c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209327c(TaskPool* pool, Task* task, void* args) {
     BtlFieldRG* state = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x1000) {
@@ -341,13 +328,13 @@ s32 func_ov003_0209327c(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 2: re-parks the background behind the camera.
-s32 func_ov003_020932d0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020932d0(TaskPool* pool, Task* task, void* args) {
     func_ov003_02092dbc(task->data);
     return 1;
 }
 
 /// Task stage 3: releases the background's resources.
-s32 func_ov003_020932e4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020932e4(TaskPool* pool, Task* task, void* args) {
     BtlFieldRG* state = task->data;
 
     BgResMgr_ReleaseChar(g_BgResourceManagers[1], state->charResA);
@@ -368,7 +355,7 @@ s32 func_ov003_020932e4(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task dispatcher: runs `stage` of the field background's stage table.
-s32 func_ov003_02093394(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_02093394(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7b58;
 
     return stages.iter[stage](pool, task, args);

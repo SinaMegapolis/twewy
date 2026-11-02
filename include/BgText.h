@@ -1,6 +1,7 @@
 #ifndef BGTEXT_H
 #define BGTEXT_H
 
+#include "Field/FieldRegion.h"
 #include <nitro/types.h>
 
 typedef struct TextFontFile {

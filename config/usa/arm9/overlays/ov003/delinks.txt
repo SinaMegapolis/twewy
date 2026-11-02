@@ -6,6 +6,7 @@
     .bss        start:0x020e71a0 end:0x020e7360 kind:bss align:32
 
 src/Combat/Core/CombatSprite.c:
+    complete
     .text       start:0x020824a0 end:0x02082d10
 
 src/Combat/Core/CombatActor.c:
@@ -184,6 +185,7 @@ src/Combat/Core/BtlPop_Rate.c:
     .data       start:0x020e3cb4 end:0x020e3cc4
 
 src/Combat/Core/BtlPop_Message.c:
+    complete
     .text       start:0x0209c688 end:0x0209ca18
     .rodata     start:0x020d80c0 end:0x020d80dc
     .data       start:0x020e3cc4 end:0x020e3cd8
@@ -204,6 +206,7 @@ src/Combat/Core/BtlPop_Tech.c:
     .data       start:0x020e3cfc end:0x020e3d0c
 
 src/Combat/Core/BtlInf_Star.c:
+    complete
     .text       start:0x0209d51c end:0x0209d8a0
     .rodata     start:0x020d8158 end:0x020d8174
     .data       start:0x020e3d0c end:0x020e3d1c
@@ -436,6 +439,7 @@ src/Combat/Psych/BtlPsy_BlackHoll_Z.c:
     .data       start:0x020e4ab4 end:0x020e4acc
 
 src/Combat/Psych/SubTsk_BtlPsy_Bomb.c:
+    complete
     .text       start:0x020ab524 end:0x020ab7f8
     .rodata     start:0x020dc6f4 end:0x020dc70c
     .data       start:0x020e4acc end:0x020e4ae0
@@ -644,6 +648,7 @@ src/Combat/Psych/SubTsk_BtlPsy_BrokenMeteor.c:
     .data       start:0x020e4e34 end:0x020e4e50
 
 src/Combat/Psych/SubTsk_BtlPsy_PsychoFall_T.c:
+    complete
     .text       start:0x020b42b4 end:0x020b47fc
     .rodata     start:0x020dc9b4 end:0x020dca28
     .data       start:0x020e4e50 end:0x020e4e6c
@@ -661,6 +666,7 @@ src/Combat/Psych/BtlPsy_PsychoFall_Z.c:
     .data       start:0x020e4e84 end:0x020e4e9c
 
 src/Combat/Psych/SubTsk_BtlPsy_Psycho_T.c:
+    complete
     .text       start:0x020b4e2c end:0x020b537c
     .rodata     start:0x020dca40 end:0x020dca78
     .data       start:0x020e4e9c end:0x020e4eb4
@@ -863,6 +869,7 @@ src/Combat/Core/BtlEnmAuraSub.c:
     .data       start:0x020e6ba0 end:0x020e6bd0
 
 src/Combat/Core/BtlEnm004_Blink.c:
+    complete
     .text       start:0x020cac84 end:0x020cb128
     .rodata     start:0x020e0bf0 end:0x020e0c0c
     .data       start:0x020e6bd0 end:0x020e6be8

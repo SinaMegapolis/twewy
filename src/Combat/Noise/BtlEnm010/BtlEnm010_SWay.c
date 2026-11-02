@@ -4,8 +4,8 @@
 #include "Combat/Core/CombatApi.h"
 #include <nitro/mi/cpumem.h>
 
-extern char data_ov011_0212cc24[20];
-s32         func_ov011_0212801c(TaskPool* pool, Task* task, void* args, s32 stage);
+static char data_ov011_0212cc24[20];
+static s32  func_ov011_0212801c(TaskPool* pool, Task* task, void* args, s32 stage);
 
 typedef struct BtlEnm010SWayArgs {
     /* 0x00 */ Ov003EnemyActor* field_00;
@@ -28,14 +28,14 @@ typedef struct BtlEnm010SWay {
     /* 0x0C */ s32              unk_0C[5]; // SingleShot task ids
 } BtlEnm010SWay;                           // Size: 0x20
 
-s32 func_ov011_02128070(BtlEnm010SWay* p, BtlEnm010SWayArgs* a);
-s32 func_ov011_02128150(BtlEnm010SWay* p);
-s32 func_ov011_02128250(BtlEnm010SWay* p);
+static s32 func_ov011_02128070(BtlEnm010SWay* p, BtlEnm010SWayArgs* a);
+static s32 func_ov011_02128150(BtlEnm010SWay* p);
+static s32 func_ov011_02128250(BtlEnm010SWay* p);
 
-const TaskHandle data_ov011_0212c1e0 = {(const char*)data_ov011_0212cc24, func_ov011_0212801c, 32};
+static const TaskHandle data_ov011_0212c1e0 = {(const char*)data_ov011_0212cc24, func_ov011_0212801c, 32};
 
-char data_ov011_0212cc24[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
-                                0x30, 0x31, 0x30, 0x5F, 0x53, 0x57, 0x61, 0x79, 0x00, 0x00};
+static char data_ov011_0212cc24[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
+                                       0x30, 0x31, 0x30, 0x5F, 0x53, 0x57, 0x61, 0x79, 0x00, 0x00};
 
 s32 func_ov011_02127f6c(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u16 arg5, u16 arg6, s32 arg7,
                         s16 arg8) {
@@ -62,7 +62,7 @@ s32 func_ov011_02127f6c(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, s3
     return EasyTask_CreateTask(pool, &data_ov011_0212c1e0, 0, 0, 0, (void*)&t);
 }
 
-s32 func_ov011_0212801c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov011_0212801c(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* p;
     s32   r;
 
@@ -82,7 +82,7 @@ s32 func_ov011_0212801c(TaskPool* pool, Task* task, void* args, s32 stage) {
     return r;
 }
 
-s32 func_ov011_02128070(BtlEnm010SWay* p, BtlEnm010SWayArgs* a) {
+static s32 func_ov011_02128070(BtlEnm010SWay* p, BtlEnm010SWayArgs* a) {
     s32 i;
 
     MI_CpuSet(p, 0, 0x20);
@@ -100,7 +100,7 @@ s32 func_ov011_02128070(BtlEnm010SWay* p, BtlEnm010SWayArgs* a) {
     return 1;
 }
 
-s32 func_ov011_02128150(BtlEnm010SWay* p) {
+static s32 func_ov011_02128150(BtlEnm010SWay* p) {
     Ov003EnemyActor* o;
     TaskPool*        pool;
     s32              r;
@@ -138,7 +138,7 @@ s32 func_ov011_02128150(BtlEnm010SWay* p) {
     return (r == 5) ? 0 : 1;
 }
 
-s32 func_ov011_02128250(BtlEnm010SWay* p) {
+static s32 func_ov011_02128250(BtlEnm010SWay* p) {
     TaskPool* pool;
     s32       i;
 

@@ -6,6 +6,7 @@
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
 #include "Save.h"
+#include "main_02026528.h"
 
 #include <nitro/mi/cpumem.h>
 
@@ -54,29 +55,20 @@ typedef struct BtlPop_ComboCmd {
 // External functions
 // ---------------------------------------------------------------------------------------------
 
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
-
 extern const BinIdentifier data_ov003_020d7800;
 extern const TaskHandle    data_ov003_020d8018;
-extern const TaskStages    data_ov003_020d8024;
-extern BtlPop_ComboCmd     data_ov003_020e71bc;
+static const TaskStages    data_ov003_020d8024;
+static BtlPop_ComboCmd     data_ov003_020e71bc;
 
 // ---------------------------------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-s32  func_ov003_0209bdf0(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209bea0(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209bed4(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209c0d4(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209c0e8(TaskPool* pool, Task* task, void* args, s32 stage);
-void func_ov003_0209ba40(BtlPop_Combo* data);
-void func_ov003_0209ba94(BtlPop_Combo* data);
-void func_ov003_0209b8f4(BtlPop_Combo* data);
-void func_ov003_0209b88c(BtlPop_Combo* data, s32 combo);
+static void func_ov003_0209ba40(BtlPop_Combo* data);
+static void func_ov003_0209ba94(BtlPop_Combo* data);
 
 /// Installs the per-state-frame callback and restarts the state machine.
-void func_ov003_0209b760(BtlPop_Combo* data, void (*update)(BtlPop_Combo* data)) {
+static void func_ov003_0209b760(BtlPop_Combo* data, void (*update)(BtlPop_Combo* data)) {
     data->update = update;
     data->state  = 0;
     data->timer  = 0;
@@ -84,7 +76,7 @@ void func_ov003_0209b760(BtlPop_Combo* data, void (*update)(BtlPop_Combo* data))
 
 /// Splits `value` (clamped to 0..9999) into decimal digits, least significant first, and
 /// returns how many digits are needed to show it.
-s16 func_ov003_0209b774(s32* digits, s32 value) {
+static s16 func_ov003_0209b774(s32* digits, s32 value) {
     s32 v = value;
     s32 rest;
 
@@ -112,7 +104,7 @@ s16 func_ov003_0209b774(s32* digits, s32 value) {
 }
 
 /// Re-splits `combo` into the digit row the popup draws.
-void func_ov003_0209b838(BtlPop_Combo* data, s32 combo) {
+static void func_ov003_0209b838(BtlPop_Combo* data, s32 combo) {
     s32 digits[4];
     s32 i;
 
@@ -124,7 +116,7 @@ void func_ov003_0209b838(BtlPop_Combo* data, s32 combo) {
 
 /// Re-splits the previous combo into the row that slides in behind the current one. A combo of
 /// zero clears the row instead.
-void func_ov003_0209b88c(BtlPop_Combo* data, s32 combo) {
+static void func_ov003_0209b88c(BtlPop_Combo* data, s32 combo) {
     s32 digits[4];
     s32 i;
 
@@ -139,7 +131,7 @@ void func_ov003_0209b88c(BtlPop_Combo* data, s32 combo) {
 }
 
 /// Restarts the popup on the current combo.
-void func_ov003_0209b8f4(BtlPop_Combo* data) {
+static void func_ov003_0209b8f4(BtlPop_Combo* data) {
     data->x          = 0;
     data->z          = -0x16000;
     data->active     = 1;
@@ -152,7 +144,7 @@ void func_ov003_0209b8f4(BtlPop_Combo* data) {
 /// and (re)starts the popup, a type-2 command hides it.
 // Nonmatching: the `data->combo` re-read after `data->timer = 0` lands in r1 instead of r0;
 // every other instruction is identical.
-void func_ov003_0209b93c(BtlPop_Combo* data, BtlPop_ComboCmd* cmd) {
+static void func_ov003_0209b93c(BtlPop_Combo* data, BtlPop_ComboCmd* cmd) {
     switch (cmd->type) {
         case 2:
             cmd->type    = 0;
@@ -191,7 +183,7 @@ void func_ov003_0209b93c(BtlPop_Combo* data, BtlPop_ComboCmd* cmd) {
 
 /// Idle state: waits out the combo hold time, then resets the shared combo counter and hides
 /// the popup.
-void func_ov003_0209ba40(BtlPop_Combo* data) {
+static void func_ov003_0209ba40(BtlPop_Combo* data) {
     if (data->timer == 0) {
         data->timer = data->holdFrames + 0x14;
     }
@@ -205,7 +197,7 @@ void func_ov003_0209ba40(BtlPop_Combo* data) {
 }
 
 /// The popup's state machine: slide the digits in, flash on a combo increase, hold, then fade.
-void func_ov003_0209ba94(BtlPop_Combo* data) {
+static void func_ov003_0209ba94(BtlPop_Combo* data) {
     switch (data->state) {
         case 0:
             if (data->timer == 0) {
@@ -327,7 +319,7 @@ void func_ov003_0209ba94(BtlPop_Combo* data) {
 
 // Nonmatching: the `CombatSprite_LoadDirect` argument setup is scheduled four instructions
 // apart (the address/sprite-argument loads are hoisted above the 7th stack argument).
-s32 func_ov003_0209bdf0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209bdf0(TaskPool* pool, Task* task, void* args) {
     BtlPop_Combo* data = task->data;
 
     MI_CpuSet(data, 0, sizeof(BtlPop_Combo));
@@ -347,7 +339,7 @@ s32 func_ov003_0209bdf0(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209bea0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209bea0(TaskPool* pool, Task* task, void* args) {
     BtlPop_Combo* data = task->data;
 
     func_ov003_0209b93c(data, &data_ov003_020e71bc);
@@ -361,7 +353,7 @@ s32 func_ov003_0209bea0(TaskPool* pool, Task* task, void* args) {
 /// screen position, plus the plate sprite behind them.
 // Nonmatching: `posX`/`posY`/`animOffset`/`i`/`offset` occupy a rotated register set
 // (target r9/r5/r8/r10/r7); the instruction sequence itself is identical.
-s32 func_ov003_0209bed4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209bed4(TaskPool* pool, Task* task, void* args) {
     BtlPop_Combo* data = task->data;
     s32           posX;
     s16           posY;
@@ -410,14 +402,14 @@ s32 func_ov003_0209bed4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209c0d4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c0d4(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
 /// Task dispatcher: calls the stage function for `stage`, which is a no-op for a popup that
 /// finished this frame.
-s32 func_ov003_0209c0e8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209c0e8(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8024;
 
     if (func_ov003_0208b690(stage) != 0) {
@@ -440,15 +432,15 @@ void func_ov003_0209c150(s16 combo) {
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e3ca0[0x14] = "Tsk_BtlPop_Combo";
+static char data_ov003_020e3ca0[0x14] = "Tsk_BtlPop_Combo";
 
 const TaskHandle data_ov003_020d8018 = {data_ov003_020e3ca0, func_ov003_0209c0e8, sizeof(BtlPop_Combo)};
 
-const TaskStages data_ov003_020d8024 = {
+static const TaskStages data_ov003_020d8024 = {
     func_ov003_0209bdf0,
     func_ov003_0209bea0,
     func_ov003_0209bed4,
     func_ov003_0209c0d4,
 };
 
-BtlPop_ComboCmd data_ov003_020e71bc;
+static BtlPop_ComboCmd data_ov003_020e71bc;

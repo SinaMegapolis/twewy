@@ -1,3 +1,4 @@
+#include "Engine/Core/DMA.h"
 #include "Field/FieldRegion.h"
 
 #include "Display.h"
@@ -60,19 +61,14 @@
 #include <nitro/fx.h>
 #include <nitro/types.h>
 
-extern s32  func_0202599c(s32 flagIndex);
-extern void Field_SpawnMapJumpArrows(FieldEventManager* mgr);
-extern void Field_DeleteMapJumpArrows(FieldEventManager* mgr);
-extern BOOL func_02001b44(s32 idx, s32 arg1, DmaRequest* req, s32 arg3);
+static void Field_SpawnMapJumpArrows(FieldEventManager* mgr);
+static void Field_DeleteMapJumpArrows(FieldEventManager* mgr);
 extern s32 (*data_02065fd4)(s32 arg0, s32 arg1, s32 arg2);
 
-extern void* BgResMgr_AllocCharExtended(BgResMgr* arg0, void* arg1, s32 arg2, u32 arg3, u32 arg4);
-
-void Field_ScriptUpdate(FieldEventManager* mgr);
-void Field_ScanUpdate(FieldEventManager* mgr);
-void Field_SpawnHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnTemplate tmpl, s32 routes, s16 routeCount,
-                      s16 segment, s32 angle, FieldPos target);
-void Field_SpawnStandingHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnTemplate tmpl, s32 angle);
+static void Field_ScanUpdate(FieldEventManager* mgr);
+static void Field_SpawnHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnTemplate tmpl, s32 routes,
+                             s16 routeCount, s16 segment, s32 angle, FieldPos target);
+static void Field_SpawnStandingHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnTemplate tmpl, s32 angle);
 
 void func_ov030_020aac84(FieldEventManager* mgr) {
     if (gSaveData.unk_24A0[gSaveData.unk_249C] == 72) {
@@ -115,11 +111,11 @@ s32 func_ov030_020aad40(void) {
     return data_ov030_020da6c8[gSaveData.chapter](mgr);
 }
 
-u16 Field_GetMailEvent(void) {
+static u16 Field_GetMailEvent(void) {
     return gSaveData.mailEvent;
 }
 
-BOOL func_ov030_020aad94(FieldEventManager* mgr, s32* outY) {
+static BOOL func_ov030_020aad94(FieldEventManager* mgr, s32* outY) {
     if (func_0202599c(1) && gSaveData.chapter != 21) {
         s32 group = Field_GetChapterGroup();
 
@@ -147,7 +143,7 @@ BOOL func_ov030_020aad94(FieldEventManager* mgr, s32* outY) {
     return FALSE;
 }
 
-BOOL Field_CheckMailIconTouch(FieldEventManager* mgr) {
+static BOOL Field_CheckMailIconTouch(FieldEventManager* mgr) {
     TouchCoord coord;
 
     if (mgr->taskId_EventMail == -1) {
@@ -164,14 +160,14 @@ BOOL Field_CheckMailIconTouch(FieldEventManager* mgr) {
     return FALSE;
 }
 
-s32 Field_CheckChapterEvent(FieldEventManager* mgr) {
+static s32 Field_CheckChapterEvent(FieldEventManager* mgr) {
     if (gSaveData.chapter >= 44) {
         gSaveData.chapter = 0;
     }
     return FieldChapterEventChecks[gSaveData.chapter](mgr);
 }
 
-BOOL Field_CheckEventTriggers(FieldEventManager* mgr) {
+static BOOL Field_CheckEventTriggers(FieldEventManager* mgr) {
     s32  hookY;
     s32  npcIndex;
     BOOL wantHook = FALSE;
@@ -202,7 +198,7 @@ BOOL Field_CheckEventTriggers(FieldEventManager* mgr) {
     return FALSE;
 }
 
-BOOL Field_CheckExit(FieldEventManager* mgr) {
+static BOOL Field_CheckExit(FieldEventManager* mgr) {
     s32 blocked;
 
     mgr->activeExit = func_ov030_020b8358(gSaveData.fieldArea, mgr->origin, mgr->unk_21AC0, &blocked);
@@ -229,14 +225,14 @@ void Field_PlayNekuVoice(void) {
     }
 }
 
-void Field_BeginExitTransition(FieldEventManager* mgr) {
+static void Field_BeginExitTransition(FieldEventManager* mgr) {
     DebugOvlDisp_Pop();
     DebugOvlDisp_Push((OverlayCB)FieldMain_StepLeaveArea, mgr, 0);
     mgr->blendTimer = 30;
     mgr->blendEva   = 0;
 }
 
-void Field_PlayElevatorAnim(FieldEventManager* mgr) {
+static void Field_PlayElevatorAnim(FieldEventManager* mgr) {
     s16  area   = gSaveData.fieldArea;
     BOOL played = FALSE;
 
@@ -260,7 +256,7 @@ void Field_PlayElevatorAnim(FieldEventManager* mgr) {
     }
 }
 
-BOOL Field_CheckPhoneMenuInput(FieldEventManager* mgr) {
+static BOOL Field_CheckPhoneMenuInput(FieldEventManager* mgr) {
     TouchCoord coord;
 
     if (!Inventory_HasRequiredQuantity(ITEM_STICKER_PHONE_MENU, 1, 0)) {
@@ -314,7 +310,7 @@ u16 func_ov030_020ab420(s32 arg0) {
     }
 }
 
-u16 func_ov030_020ab454(void) {
+static u16 func_ov030_020ab454(void) {
     u8  chapter = gSaveData.chapter;
     s32 index;
 
@@ -328,7 +324,7 @@ u16 func_ov030_020ab454(void) {
     return data_ov030_020d95c4[index][0];
 }
 
-BOOL func_ov030_020ab494(FieldEventManager* mgr) {
+static BOOL func_ov030_020ab494(FieldEventManager* mgr) {
     s16 r = RNG_Next(100);
 
     if (func_0202599c(7)) {
@@ -452,7 +448,7 @@ void Field_ScriptUpdate(FieldEventManager* mgr) {
     }
 }
 
-void Field_ScanUpdate(FieldEventManager* mgr) {
+static void Field_ScanUpdate(FieldEventManager* mgr) {
     FieldScan_Update(mgr);
     if (mgr->scanActive == 0) {
         DebugOvlDisp_Pop();
@@ -520,7 +516,7 @@ void Field_ReleasePacks(FieldEventManager* mgr) {
     DatMgr_ReleaseData(mgr->unk_21620);
 }
 
-void func_ov030_020abbcc(FieldEventManager* mgr) {
+static void func_ov030_020abbcc(FieldEventManager* mgr) {
     if (mgr->unk_21AC4 != 0) {
         func_ov030_020b7aac(&mgr->unk_2191C);
         ObjResMgr_ReleaseResource(g_ObjResourceManagers[2], mgr->unk_21A9C);
@@ -528,7 +524,7 @@ void func_ov030_020abbcc(FieldEventManager* mgr) {
     }
 }
 
-void Field_DestroyHumans(FieldEventManager* mgr) {
+static void Field_DestroyHumans(FieldEventManager* mgr) {
     s32 i;
 
     EasyTask_DeleteTask(&mgr->taskPool, mgr->taskId_ScanArea);
@@ -546,7 +542,7 @@ void Field_DestroyHumans(FieldEventManager* mgr) {
     func_ov030_020abbcc(mgr);
 }
 
-s16 FieldEncounter_GetRankBaseLevel(s32 rank) {
+static s16 FieldEncounter_GetRankBaseLevel(s32 rank) {
     s32 i;
 
     for (i = 0; i < 12; i++) {
@@ -557,7 +553,7 @@ s16 FieldEncounter_GetRankBaseLevel(s32 rank) {
     return FieldRankLevelRanges[i][1];
 }
 
-s16 FieldEncounter_GetRankForLevel(s32 level) {
+static s16 FieldEncounter_GetRankForLevel(s32 level) {
     s32 i;
 
     for (i = 0; i < 12; i++) {
@@ -570,7 +566,7 @@ s16 FieldEncounter_GetRankForLevel(s32 level) {
     return FieldRankLevelRanges[i][0];
 }
 
-s32 Field_RollHumanLevel(s32 index) {
+static s32 Field_RollHumanLevel(s32 index) {
     s32 place = 14;
     s32 brand = Field_GetCurrentTrendZone();
 
@@ -593,7 +589,7 @@ s32 Field_RollHumanLevel(s32 index) {
     return level;
 }
 
-BOOL FieldEncounter_UsesFirstRange(s32 level) {
+static BOOL FieldEncounter_UsesFirstRange(s32 level) {
     if (level < 6) {
         return TRUE;
     }
@@ -616,7 +612,7 @@ BOOL func_ov030_020abe64(u32 arg0) {
     return FALSE;
 }
 
-u16 FieldEncounter_NextByArea(s32 level) {
+static u16 FieldEncounter_NextByArea(s32 level) {
     s16 area = gSaveData.fieldArea;
     u16 lo1  = FieldEncounterRangesByArea[area].lo1;
     u16 hi1  = FieldEncounterRangesByArea[area].hi1;
@@ -639,7 +635,7 @@ u16 FieldEncounter_NextByArea(s32 level) {
     return lo2 + v;
 }
 
-u16 FieldEncounter_NextByRank(s32 level) {
+static u16 FieldEncounter_NextByRank(s32 level) {
     s16 group = FieldEncounter_GetRankForLevel(level);
     u16 lo1   = FieldEncounterRangesByRank[group].lo1;
     u16 hi1   = FieldEncounterRangesByRank[group].hi1;
@@ -684,7 +680,7 @@ s32 Field_GetChapterGroup(void) {
     return 2;
 }
 
-u16 FieldEncounter_NextByChapter(s32 level) {
+static u16 FieldEncounter_NextByChapter(s32 level) {
     s32 group = Field_GetChapterGroup();
     u16 lo1   = FieldEncounterRangesByChapterGroup[group].lo1;
     u16 hi1   = FieldEncounterRangesByChapterGroup[group].hi1;
@@ -728,7 +724,7 @@ u16 FieldEncounter_RollForHuman(s32 level, s32 limit) {
     return v;
 }
 
-void FieldEncounter_AssignToTemplate(s32 level, FldSpawnTemplate* tpl, s32 limit) {
+static void FieldEncounter_AssignToTemplate(s32 level, FldSpawnTemplate* tpl, s32 limit) {
     if (!func_0202599c(9) && Field_AddEncounterHumanCount(0) < limit && RNG_Next(256) < 64) {
         tpl->unk_10 = FieldEncounter_RollForHuman(level, limit);
         tpl->unk_0E = tpl->unk_10 + 1;
@@ -754,7 +750,7 @@ s32 func_ov030_020ac254(void) {
     return 0;
 }
 
-BOOL func_ov030_020ac294(void) {
+static BOOL func_ov030_020ac294(void) {
     s32 chance = func_ov030_020ac254();
 
     if (chance == 0) {
@@ -763,7 +759,7 @@ BOOL func_ov030_020ac294(void) {
     return RNG_Next(100) < chance;
 }
 
-void Field_SpawnArea5Humans(FieldEventManager* mgr) {
+static void Field_SpawnArea5Humans(FieldEventManager* mgr) {
     FldSpawnTemplate template = FieldDefaultSpawnTemplate;
 
     if (gSaveData.fieldArea == 5) {
@@ -795,7 +791,7 @@ void Field_SpawnArea5Humans(FieldEventManager* mgr) {
 }
 
 // Nonmatching
-void Field_SpawnRouteHumans(FieldEventManager* mgr, s32 percent) {
+static void Field_SpawnRouteHumans(FieldEventManager* mgr, s32 percent) {
     FldHumanSpawnEntry* entry;
     FldSpawnTemplate    tpl = FieldDefaultSpawnTemplate;
     FldHumanSpawnEntry* e;
@@ -866,7 +862,7 @@ void Field_SpawnRouteHumans(FieldEventManager* mgr, s32 percent) {
 }
 
 // Nonmatching: regswaps
-void Field_SpawnRandomHumans(FieldEventManager* mgr, s32 percent) {
+static void Field_SpawnRandomHumans(FieldEventManager* mgr, s32 percent) {
     FldSpawnTemplate tpl = FieldDefaultSpawnTemplate;
     FieldPos         pos;
     s32              i;
@@ -949,8 +945,8 @@ void Field_SpawnHumans(FieldEventManager* mgr) {
     }
 }
 
-void Field_SpawnHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnTemplate tmpl, s32 routes, s16 routeCount,
-                      s16 segment, s32 angle, FieldPos target) {
+static void Field_SpawnHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnTemplate tmpl, s32 routes,
+                             s16 routeCount, s16 segment, s32 angle, FieldPos target) {
     if (mgr->canSpawnHumans != 0) {
         mgr->taskId_Humans[mgr->humanCount] =
             Fld_Human_CreateTask(&mgr->taskPool, &mgr->origin, pos, mgr->humanCount, mgr->dataType, tmpl, level,
@@ -965,13 +961,13 @@ void Field_SpawnHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnT
     }
 }
 
-void Field_SpawnStandingHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnTemplate tmpl, s32 angle) {
+static void Field_SpawnStandingHuman(FieldEventManager* mgr, FieldPos pos, s32 level, FldSpawnTemplate tmpl, s32 angle) {
     FieldPos target = {0, 0};
 
     Field_SpawnHuman(mgr, pos, level, tmpl, 0, 0, 0, angle, target);
 }
 
-void Field_SpawnMapJumpArrows(FieldEventManager* mgr) {
+static void Field_SpawnMapJumpArrows(FieldEventManager* mgr) {
     FldSpawnTemplate template = FieldDefaultSpawnTemplate;
     FieldPos pos;
     s32      kind;
@@ -993,7 +989,7 @@ void Field_SpawnMapJumpArrows(FieldEventManager* mgr) {
     }
 }
 
-void Field_DeleteMapJumpArrows(FieldEventManager* mgr) {
+static void Field_DeleteMapJumpArrows(FieldEventManager* mgr) {
     for (s32 i = 0; i < mgr->mapJumpArrowCount; i++) {
         if (mgr->taskId_MapJumpArrows[i] != -1) {
             EasyTask_DeleteTask(&mgr->taskPool, mgr->taskId_MapJumpArrows[i]);
@@ -1002,7 +998,7 @@ void Field_DeleteMapJumpArrows(FieldEventManager* mgr) {
     mgr->mapJumpArrowCount = 0;
 }
 
-void func_ov030_020acd98(FieldEventManager* mgr, u32* arg1) {
+static void func_ov030_020acd98(FieldEventManager* mgr, u32* arg1) {
     ObjResource* res = ObjResMgr_AllocResource(g_ObjResourceManagers[2], NULL, 1024, 0);
 
     mgr->unk_21A9C = res;
@@ -1015,7 +1011,7 @@ void func_ov030_020acd98(FieldEventManager* mgr, u32* arg1) {
     func_02001b44(2, *arg1, Data_GetPackEntryData(mgr->unk_21D2C, 5), 16);
 }
 
-void Field_InitHumans(FieldEventManager* mgr) {
+static void Field_InitHumans(FieldEventManager* mgr) {
     u32 offset = 2048;
 
     func_ov030_020b7744(&mgr->unk_2191C, mgr->unk_21610);

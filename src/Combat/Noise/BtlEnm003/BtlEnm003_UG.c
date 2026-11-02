@@ -1,7 +1,10 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
+#include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Core/CombatSprite.h"
+#include "Combat/Noise/BtlEnm.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "SpriteMgr.h"
@@ -30,24 +33,24 @@ typedef struct {
     /* 0x4 */ s32 unk_4;
 } Enm3UGUnk;
 
-void func_ov009_02121930(BtlEnm003_UG* ug);
-void func_ov009_02121998(BtlEnm003_UG* ug);
-void func_ov009_02121afc(BtlEnm003_UG* ug);
-void func_ov009_02121ba8(BtlEnm003_UG* ug);
-void func_ov009_02121da8(BtlEnm003_UG* ug);
-void func_ov009_02121fa4(BtlEnm003_UG* ug);
-void func_ov009_021223a0(BtlEnm003_UG* ug);
-void func_ov009_021225b0(BtlEnm003_UG* ug);
-s32  BtlEnm003_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static void func_ov009_02121930(BtlEnm003_UG* ug);
+static void func_ov009_02121998(BtlEnm003_UG* ug);
+static void func_ov009_02121afc(BtlEnm003_UG* ug);
+static void func_ov009_02121ba8(BtlEnm003_UG* ug);
+static void func_ov009_02121da8(BtlEnm003_UG* ug);
+static void func_ov009_02121fa4(BtlEnm003_UG* ug);
+static void func_ov009_021223a0(BtlEnm003_UG* ug);
+static void func_ov009_021225b0(BtlEnm003_UG* ug);
+static s32  BtlEnm003_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const Enm3UGUnk data_ov009_021247ec    = {0x1E001E, 0x140014};
-const Enm3UGUnk data_ov009_02124804[3] = {
+static const Enm3UGUnk data_ov009_021247ec    = {0x1E001E, 0x140014};
+static const Enm3UGUnk data_ov009_02124804[3] = {
     {0x28003C, 0x000000},
     {0x280028, 0x000014},
     {0x1E001E, 0x140014}
 };
 
-void (*data_ov009_021255f8[])(BtlEnm003_UG*) = {
+static void (*data_ov009_021255f8[])(BtlEnm003_UG*) = {
     func_ov009_02121ba8,
     func_ov009_02121da8,
     func_ov009_02121fa4,
@@ -56,7 +59,7 @@ void (*data_ov009_021255f8[])(BtlEnm003_UG*) = {
 
 const TaskHandle Tsk_BtlEnm003_UG = {"Tsk_BtlEnm003_UG", BtlEnm003_UG_RunTask, 0x1E8};
 
-void func_ov009_021214b8(s32 scalar, Vec* src, Vec* dest) {
+static void func_ov009_021214b8(s32 scalar, Vec* src, Vec* dest) {
     Vec vec;
     vec.x = 0;
     vec.y = 0;
@@ -64,8 +67,8 @@ void func_ov009_021214b8(s32 scalar, Vec* src, Vec* dest) {
     Vec_MultAdd(scalar, src, &vec, dest);
 }
 
-s16 func_ov009_021214e4(BtlEnm003_UG* ug) {
-    u32 var_r0 = func_ov003_020c42ec();
+static s16 func_ov009_021214e4(BtlEnm003_UG* ug) {
+    u32 var_r0 = ((s16(*)())func_ov003_020c42ec)();
 
     if (ug->unk_1C4 > 600) {
         var_r0 = (u32)((s32)((var_r0 * 3) + ((u32)((s32)(var_r0 * 3) >> 1) >> 0x1E)) >> 2);
@@ -75,14 +78,14 @@ s16 func_ov009_021214e4(BtlEnm003_UG* ug) {
     return var_r0;
 }
 
-s32 func_ov009_02121534(BtlEnm003_UG* ug, void* arg1) {
+static s32 func_ov009_02121534(BtlEnm003_UG* ug, void* arg1) {
     // if ((func_ov003_020c5a60(ug, arg1 + 4) != 0) && (arg1->unk44 == 0) && (arg1->unk48 == 0) && (arg1->unk34 == 0)) {
     //     return 1;
     // }
     // return 0;
 }
 
-s32 func_ov009_02121574(BtlEnm003_UG* ug, CombatActor* arg1) {
+static s32 func_ov009_02121574(BtlEnm003_UG* ug, CombatActor* arg1) {
 
     if (func_ov009_02121534(ug, arg1) == 0) {
         return 0;
@@ -116,7 +119,7 @@ s32 func_ov009_02121574(BtlEnm003_UG* ug, CombatActor* arg1) {
     return 0;
 }
 
-void* func_ov009_02121638(BtlEnm003_UG* ug) {
+static void* func_ov009_02121638(BtlEnm003_UG* ug) {
     void* var_r4 = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8B4);
 
     while (var_r4 != NULL) {
@@ -128,14 +131,14 @@ void* func_ov009_02121638(BtlEnm003_UG* ug) {
     return NULL;
 }
 
-void func_ov009_02121690(BtlEnm003_UG* ug, void* arg1) {
+static void func_ov009_02121690(BtlEnm003_UG* ug, void* arg1) {
     s32 var_r3 = (ug->base.actor.isFlipped) ? 0x5000 : -0x5000;
 
     func_ov003_020c5ac0(ug, 65, arg1 + 4, var_r3, 0, -0x3000);
     ug->unk_1C2 = 0;
 }
 
-void func_ov009_021216e0(BtlEnm003_UG* ug) {
+static void func_ov009_021216e0(BtlEnm003_UG* ug) {
     void* var_r4 = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8B4);
 
     while (var_r4 != NULL) {
@@ -146,29 +149,29 @@ void func_ov009_021216e0(BtlEnm003_UG* ug) {
     }
 }
 
-void BtlEnm003_UG_SetState(BtlEnm003_UG* ug, void (*callback)(BtlEnm003_UG*)) {
-    func_ov003_020c427c();
+static void BtlEnm003_UG_SetState(BtlEnm003_UG* ug, void (*callback)(BtlEnm003_UG*)) {
+    ((void (*)())func_ov003_020c427c)();
     ug->stateCb = callback;
     ug->unk_1C8 = 0;
     ug->unk_1C0 = 0;
     ug->base.flags18C &= ~0x80;
 }
 
-void func_ov009_02121770(BtlEnm003_UG* ug) {
+static void func_ov009_02121770(BtlEnm003_UG* ug) {
     if (ug->base.partner != NULL && (ug->base.partner->flags18C & 0x80)) {
         BtlEnm003_UG_SetState(ug, func_ov009_021223a0);
     }
 }
 
-void func_ov009_021217a0(BtlEnm003_UG* ug) {
-    if (func_ov003_020c5bfc() == 0) {
+static void func_ov009_021217a0(BtlEnm003_UG* ug) {
+    if (((s32(*)())func_ov003_020c5bfc)() == 0) {
         BtlEnm003_UG_SetState(ug, func_ov009_02121998);
     } else {
         ug->unk_1C0++;
     }
 }
 
-void func_ov009_021217dc(BtlEnm003_UG* ug) {
+static void func_ov009_021217dc(BtlEnm003_UG* ug) {
     CombatActor* temp_r4 = data_ov003_020e71b8->unk3D898;
     s16          temp_r5 = RNG_Next(100);
 
@@ -225,7 +228,7 @@ void func_ov009_021217dc(BtlEnm003_UG* ug) {
     func_ov009_02121770(ug);
 }
 
-void func_ov009_02121930(BtlEnm003_UG* ug) {
+static void func_ov009_02121930(BtlEnm003_UG* ug) {
     if (ug->unk_1C0 == 0) {
         CombatSprite_SetAnimFromTable(&ug->base.sprite, 0, 0);
         func_ov003_02084694(&ug->base.collider, 0);
@@ -238,7 +241,7 @@ void func_ov009_02121930(BtlEnm003_UG* ug) {
     func_ov009_02121770(ug);
 }
 
-void func_ov009_02121998(BtlEnm003_UG* ug) {
+static void func_ov009_02121998(BtlEnm003_UG* ug) {
     CombatActor* temp_r4 = data_ov003_020e71b8->unk3D898;
 
     s32 var_r5 = ug->base.actor.position.x - temp_r4->position.x;
@@ -256,7 +259,7 @@ void func_ov009_02121998(BtlEnm003_UG* ug) {
         func_ov003_02084694(&ug->base.collider, 0);
         ug->unk_1C0++;
     }
-    func_ov003_020c4b5c(ug);
+    func_ov003_020c4b5c(&ug->base);
     ug->unk_1D4.x = ((u32)(var_r5 << 11) / (var_r5 + var_r6));
     ug->unk_1D4.y = ((u32)(var_r6 << 11) / (var_r5 + var_r6));
     if (temp_r4->position.x < ug->base.actor.position.x) {
@@ -279,7 +282,7 @@ void func_ov009_02121998(BtlEnm003_UG* ug) {
     func_ov009_02121770(ug);
 }
 
-void func_ov009_02121afc(BtlEnm003_UG* ug) {
+static void func_ov009_02121afc(BtlEnm003_UG* ug) {
     u16        temp_r2 = RNG_Next(100);
     Enm3UGUnk* var_r0  = &data_ov009_02124804[ug->base.spriteIndex];
 
@@ -287,24 +290,24 @@ void func_ov009_02121afc(BtlEnm003_UG* ug) {
         var_r0 = &data_ov009_021247ec;
     }
 
-    s32 temp_r0 = func_ov003_020c3b30(var_r0, 4, temp_r2);
+    s32 temp_r0 = func_ov003_020c3b30((u16*)var_r0, 4, temp_r2);
     BtlEnm003_UG_SetState(ug, data_ov009_021255f8[temp_r0]);
     if ((ug->unk_1E4 > 0) && (data_ov009_021255f8[temp_r0] == func_ov009_021223a0)) {
         BtlEnm003_UG_SetState(ug, data_ov009_021255f8[RNG_Next(2)]);
     }
 }
 
-void func_ov009_02121ba8(BtlEnm003_UG* ug) {
+static void func_ov009_02121ba8(BtlEnm003_UG* ug) {
     switch (ug->unk_1C8) {
         case 0: {
             if (ug->unk_1C0 == 0) {
-                if (func_ov003_020c4e7c() == 0) {
+                if (((s32(*)())func_ov003_020c4e7c)() == 0) {
                     BtlEnm003_UG_SetState(ug, func_ov009_02121998);
                     return;
                 }
                 CombatSprite_SetAnimFromTable(&ug->base.sprite, 7, 1);
                 func_ov003_02084694(&ug->base.collider, 0);
-                func_ov003_020c4b5c(ug);
+                func_ov003_020c4b5c(&ug->base);
                 func_ov003_02087f28(0x19F, ug->base.actor.position.x);
             }
             if (ug->unk_1C0 <= 20) {
@@ -343,26 +346,26 @@ void func_ov009_02121ba8(BtlEnm003_UG* ug) {
             if (ug->unk_1C0 <= 60) {
                 ug->unk_1C0++;
             } else {
-                func_ov003_020c4b5c(ug);
+                func_ov003_020c4b5c(&ug->base);
                 func_ov003_02084694(&ug->base.collider, 0);
-                func_ov003_020c4f00(ug);
+                func_ov003_020c4f00(&ug->base);
                 BtlEnm003_UG_SetState(ug, func_ov009_02121998);
             }
         } break;
     }
 }
 
-void func_ov009_02121da8(BtlEnm003_UG* ug) {
+static void func_ov009_02121da8(BtlEnm003_UG* ug) {
     switch (ug->unk_1C8) {
         case 0: {
             if (ug->unk_1C0 == 0) {
-                if (func_ov003_020c4e7c() == 0) {
+                if (((s32(*)())func_ov003_020c4e7c)() == 0) {
                     BtlEnm003_UG_SetState(ug, func_ov009_02121998);
                     return;
                 }
                 CombatSprite_SetAnimFromTable(&ug->base.sprite, 9, 1);
                 func_ov003_02084694(&ug->base.collider, 0);
-                func_ov003_020c4b5c(ug);
+                func_ov003_020c4b5c(&ug->base);
                 func_ov003_02087f28(415, ug->base.actor.position.x);
             }
             if (ug->unk_1C0 <= 40) {
@@ -403,27 +406,27 @@ void func_ov009_02121da8(BtlEnm003_UG* ug) {
             if (ug->unk_1C0 <= 120) {
                 ug->unk_1C0++;
             } else {
-                func_ov003_020c4b5c(ug);
+                func_ov003_020c4b5c(&ug->base);
                 func_ov003_02084694(&ug->base.collider, 0);
-                func_ov003_020c4f00(ug);
+                func_ov003_020c4f00(&ug->base);
                 BtlEnm003_UG_SetState(ug, func_ov009_02121998);
             }
         } break;
     }
 }
 
-void func_ov009_02121fa4(BtlEnm003_UG* ug) {
+static void func_ov009_02121fa4(BtlEnm003_UG* ug) {
     CombatActor* temp_r4 = data_ov003_020e71b8->unk3D898;
 
     switch (ug->unk_1C8) {
         case 0: {
             if (ug->unk_1C0 == 0) {
-                if (func_ov003_020c4e7c() == 0) {
+                if (((s32(*)())func_ov003_020c4e7c)() == 0) {
                     BtlEnm003_UG_SetState(ug, func_ov009_02121998);
                     return;
                 }
                 CombatSprite_SetAnimFromTable(&ug->base.sprite, 11, 1);
-                func_ov003_020c4b5c(ug);
+                func_ov003_020c4b5c(&ug->base);
                 func_ov003_02084694(&ug->base.collider, 1);
             }
             if (SpriteMgr_IsAnimationFinished(&ug->base.sprite.sprite) != 0) {
@@ -512,16 +515,16 @@ void func_ov009_02121fa4(BtlEnm003_UG* ug) {
             if (ug->unk_1C0 <= 60) {
                 ug->unk_1C0++;
             } else {
-                func_ov003_020c4b5c(ug);
+                func_ov003_020c4b5c(&ug->base);
                 func_ov003_02084694(&ug->base.collider, 0);
-                func_ov003_020c4f00(ug);
+                func_ov003_020c4f00(&ug->base);
                 BtlEnm003_UG_SetState(ug, func_ov009_02121998);
             }
         } break;
     }
 }
 
-void func_ov009_021223a0(BtlEnm003_UG* ug) {
+static void func_ov009_021223a0(BtlEnm003_UG* ug) {
     BtlEnm003_UG* temp_r2 = (BtlEnm003_UG*)ug->base.partner;
 
     switch (ug->unk_1C8) {
@@ -569,57 +572,57 @@ void func_ov009_021223a0(BtlEnm003_UG* ug) {
     }
 }
 
-void func_ov009_0212252c(BtlEnm003_UG* ug) {
-    if (func_ov003_020c65cc(ug, 2) == 0) {
+static void func_ov009_0212252c(BtlEnm003_UG* ug) {
+    if (func_ov003_020c65cc(&ug->base, 2) == 0) {
         BtlEnm003_UG_SetState(ug, func_ov009_021217dc);
     }
 }
 
-void func_ov009_02122558(BtlEnm003_UG* ug) {
-    if (func_ov003_020c6b8c(ug, 5) == 0) {
+static void func_ov009_02122558(BtlEnm003_UG* ug) {
+    if (func_ov003_020c6b8c(&ug->base, 5) == 0) {
         BtlEnm003_UG_SetState(ug, func_ov009_021217dc);
     }
 }
 
-void func_ov009_02122584(BtlEnm003_UG* ug) {
-    if (func_ov003_020c6bc8(ug, 5) == 0) {
+static void func_ov009_02122584(BtlEnm003_UG* ug) {
+    if (func_ov003_020c6bc8(&ug->base, 5) == 0) {
         BtlEnm003_UG_SetState(ug, func_ov009_021225b0);
     }
 }
 
-void func_ov009_021225b0(BtlEnm003_UG* ug) {
-    if (func_ov003_020c6c2c(ug, 5) != 0) {
+static void func_ov009_021225b0(BtlEnm003_UG* ug) {
+    if (func_ov003_020c6c2c(&ug->base, 5) != 0) {
         return;
     }
     BtlEnm003_UG_SetState(ug, func_ov009_021217dc);
 }
 
-void func_ov009_021225dc(BtlEnm003_UG* ug) {
-    if (func_ov003_020c7070() == 0) {
+static void func_ov009_021225dc(BtlEnm003_UG* ug) {
+    if (((s32(*)())func_ov003_020c7070)() == 0) {
         ug->unk_1D0 = 0;
     }
 }
 
-void func_ov009_021225f8(BtlEnm003_UG* ug) {
-    if (func_ov003_020c72b4(ug, 0, 5) == 0) {
+static void func_ov009_021225f8(BtlEnm003_UG* ug) {
+    if (func_ov003_020c72b4(&ug->base, 0, 5) == 0) {
         BtlEnm003_UG_SetState(ug, func_ov009_021217dc);
     }
 }
 
-s32 BtlEnm003_UG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEnm003_UG_Init(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_UG* ug = task->data;
 
     MI_CpuSet(ug, 0, sizeof(BtlEnm003_UG));
-    func_ov003_020c3efc(ug, args);
-    func_ov003_020c4520(ug);
-    func_ov003_020c4b5c(ug);
+    func_ov003_020c3efc(&ug->base, args);
+    func_ov003_020c4520(&ug->base);
+    func_ov003_020c4b5c(&ug->base);
     ug->base.actor.flags |= 0x40000000;
     ug->unk_1D0 = 1;
     BtlEnm003_UG_SetState(ug, func_ov009_021217a0);
     return 1;
 }
 
-s32 BtlEnm003_UG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEnm003_UG_Update(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_UG* ug = task->data;
 
     switch (CombatActor_PopPendingCommand(&ug->base.actor)) {
@@ -653,7 +656,7 @@ s32 BtlEnm003_UG_Update(TaskPool* pool, Task* task, void* args) {
         ug->stateCb(ug);
     }
 
-    func_ov003_020c4668(ug);
+    func_ov003_020c4668(&ug->base);
     if (ug->unk_1E4 > 0) {
         ug->unk_1E4--;
         if (ug->unk_1E4 == 0) {
@@ -665,21 +668,21 @@ s32 BtlEnm003_UG_Update(TaskPool* pool, Task* task, void* args) {
     return ug->unk_1D0;
 }
 
-s32 BtlEnm003_UG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEnm003_UG_Render(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_UG* ug = task->data;
 
-    func_ov003_020c48b0(ug);
+    func_ov003_020c48b0(&ug->base);
     return 1;
 }
 
-s32 BtlEnm003_UG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEnm003_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_UG* ug = task->data;
 
-    func_ov003_020c492c(ug);
+    func_ov003_020c492c(&ug->base);
     return 1;
 }
 
-s32 BtlEnm003_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlEnm003_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = {
         .initialize = BtlEnm003_UG_Init,
         .update     = BtlEnm003_UG_Update,

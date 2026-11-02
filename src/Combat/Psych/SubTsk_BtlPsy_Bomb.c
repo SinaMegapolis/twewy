@@ -10,14 +10,11 @@ typedef struct BtlBombKind {
 } BtlBombKind;
 
 // Retail delinking names the three words separately; they form one indexed record.
-const BtlBombKind data_ov003_020dc700[1] = {
+static const BtlBombKind data_ov003_020dc700[1] = {
     {0x18F, 0x9D, 0x9E}
 };
 
-extern s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount);
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc6f4;
+static const TaskHandle data_ov003_020dc6f4;
 
 void func_ov003_020ab524(Ov003AttackStreak* streak, s32 kind, s32 x, s32 y, s32 z, s32 angle, s32 speed) {
     Ov003BombArgs args;
@@ -32,7 +29,7 @@ void func_ov003_020ab524(Ov003AttackStreak* streak, s32 kind, s32 x, s32 y, s32 
 }
 
 // Nonmatching: merged descriptor symbols and rodata object ordering differ.
-s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003BombArgs* arg = args;
     Ov003Bomb*     self;
     switch (stage) {
@@ -84,5 +81,5 @@ s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4acc[20] = "SubTsk_BtlPsy_Bomb";
-const TaskHandle data_ov003_020dc6f4     = {data_ov003_020e4acc, func_ov003_020ab56c, 0x7C};
+static char             data_ov003_020e4acc[20] = "SubTsk_BtlPsy_Bomb";
+static const TaskHandle data_ov003_020dc6f4     = {data_ov003_020e4acc, func_ov003_020ab56c, 0x7C};

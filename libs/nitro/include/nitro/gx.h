@@ -472,4 +472,9 @@ inline void GXS_SetVisibleWindows(s32 windows) {
 } // extern "C"
 #endif
 
+void GX_LoadBgPltt(const void* src, u32 offset, u32 size);
+void GX_LoadObjPltt(const void* src, u32 offset, u32 size);
+void GXs_LoadBgPltt(const void* src, u32 offset, u32 size);
+void GXs_LoadObjPltt(const void* src, u32 offset, u32 size);
+
 #endif

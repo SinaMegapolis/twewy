@@ -2,9 +2,9 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const TaskHandle data_ov003_020dc930;
-extern const s32        data_ov003_020dc93c[3];
+static const TaskHandle data_ov003_020dc930;
+static const s32        data_ov003_020dc93c[3];
+static void             func_ov003_020b26cc(Ov003IcePillarR* self);
 
 /// The three ice pillars spawned by IcePillar_R, plus the shared task state.
 ///
@@ -28,7 +28,7 @@ s32 func_ov003_020b1fd4(Ov003EffectContext* context, Ov003EffectState* effect) {
 // objdiff flags the four intra-TU `bl func_ov003_020b26cc` relocations only because this object
 // emits one .text section per function while the delinked target keeps a single one; the encoded
 // instructions (and their post-link displacement) are identical.
-s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     switch (stage) {
         default:
@@ -187,13 +187,13 @@ s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 /// Sways every pillar centre sideways and flips the sway direction for the
 /// next step, so the three beams weave around the touch point.
-void func_ov003_020b26cc(Ov003IcePillarR* self) {
+static void func_ov003_020b26cc(Ov003IcePillarR* self) {
     s32 i;
     for (i = 0; i < self->count; i++)
         self->x[i] += self->xOffset;
     self->xOffset = -self->xOffset;
 }
 
-char             data_ov003_020e4d68[0x18] = "Tsk_BtlPsy_IcePillar_R";
-const TaskHandle data_ov003_020dc930       = {data_ov003_020e4d68, func_ov003_020b202c, sizeof(Ov003IcePillarR)};
-const s32        data_ov003_020dc93c[3]    = {0x8D, 0x8D, 0x8E};
+static char             data_ov003_020e4d68[0x18] = "Tsk_BtlPsy_IcePillar_R";
+static const TaskHandle data_ov003_020dc930       = {data_ov003_020e4d68, func_ov003_020b202c, sizeof(Ov003IcePillarR)};
+static const s32        data_ov003_020dc93c[3]    = {0x8D, 0x8D, 0x8E};

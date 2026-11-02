@@ -16,11 +16,11 @@ typedef struct BtlEnm014Eff {
     /* 0x7A */ u16          unk_7A;
 } BtlEnm014Eff; // Size: 0x7C
 
-s32 func_ov012_02125ab4(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov012_02125ab4(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlEnm014_Eff = {"Tsk_BtlEnm014_Eff", func_ov012_02125ab4, 0x7C};
 
-s32 func_ov012_021259bc(BtlEnm014Eff* data, Enm014Spawn* args) {
+static s32 func_ov012_021259bc(BtlEnm014Eff* data, Enm014Spawn* args) {
     u16 unk_06;
 
     MI_CpuSet(data, 0, sizeof(BtlEnm014Eff));
@@ -45,7 +45,7 @@ s32 func_ov012_021259bc(BtlEnm014Eff* data, Enm014Spawn* args) {
     return 1;
 }
 
-s32 func_ov012_02125ab4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov012_02125ab4(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm014Eff* data = task->data;
 
     switch (stage) {

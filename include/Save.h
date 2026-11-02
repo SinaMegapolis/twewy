@@ -62,4 +62,6 @@ u16  Savefile_GetWriteErrorFlags(void);
  */
 void Savefile_ResetAllGameplay(MainData* arg0);
 
+s32 func_0202599c(s32 flagIndex);
+
 #endif // SAVE_H

@@ -5,6 +5,7 @@
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
+#include <nitro/mi/cpumem.h>
 
 typedef struct {
     /* 0x00 */ u16            unk_00;
@@ -38,7 +39,7 @@ typedef struct {
     /* 0x098 */ CardUnk        unk_098;
 } BtlCard_Esp; // Size: 0x35C
 
-s32 BtlCard_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlCard_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 extern BinIdentifier data_ov003_020d7808;
 
@@ -72,7 +73,7 @@ static const SpriteAnimEntry data_ov004_020f0290[25] = {
 
 const TaskHandle Tsk_BtlCard_Esp = {"Tsk_BtlCard_Esp", BtlCard_Esp_RunTask, 0x35C};
 
-void func_ov004_020eac00(CombatSprite* arg0, s32 arg1, s32 arg2) {
+static void func_ov004_020eac00(CombatSprite* arg0, s32 arg1, s32 arg2) {
     SpriteAnimationEx anim;
 
     CombatSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
@@ -91,7 +92,7 @@ void func_ov004_020eac00(CombatSprite* arg0, s32 arg1, s32 arg2) {
     func_ov003_02082730(arg0, 2);
 }
 
-void func_ov004_020eaccc(CardUnk* arg0, s16 arg1, s16 arg2, s16 arg3) {
+static void func_ov004_020eaccc(CardUnk* arg0, s16 arg1, s16 arg2, s16 arg3) {
     CardUnkEntry* temp_r4 = &arg0->cards[arg1];
 
     temp_r4->unk_00 = 0xFFFF;
@@ -112,7 +113,7 @@ void func_ov004_020eaccc(CardUnk* arg0, s16 arg1, s16 arg2, s16 arg3) {
     func_ov003_020849bc(&arg0->unk_004, &temp_r4->unk_DC, temp_r4);
 }
 
-void func_ov004_020eada8(CardUnkEntry* arg0) {
+static void func_ov004_020eada8(CardUnkEntry* arg0) {
     switch (arg0->unk_C4) {
         case 0: {
             if (arg0->unk_C8 == 0) {
@@ -160,7 +161,7 @@ void func_ov004_020eada8(CardUnkEntry* arg0) {
     }
 }
 
-void func_ov004_020eaf34(CardUnkEntry* arg0) {
+static void func_ov004_020eaf34(CardUnkEntry* arg0) {
     switch (arg0->unk_C6) {
         case 0: {
             if (arg0->unk_CA & 8) {
@@ -178,7 +179,7 @@ void func_ov004_020eaf34(CardUnkEntry* arg0) {
     }
 }
 
-void func_ov004_020eafb0(CardUnk* arg0) {
+static void func_ov004_020eafb0(CardUnk* arg0) {
     CardUnkEntry* var_r4 = func_ov003_0208495c(&arg0->unk_004);
 
     while (var_r4 != NULL) {
@@ -191,7 +192,7 @@ void func_ov004_020eafb0(CardUnk* arg0) {
     }
 }
 
-void func_ov004_020eb004(CardUnk* arg0) {
+static void func_ov004_020eb004(CardUnk* arg0) {
     s16 var_r5;
 
     CardUnkEntry* var_r4 = func_ov003_0208495c(&arg0->unk_004);
@@ -212,7 +213,7 @@ void func_ov004_020eb004(CardUnk* arg0) {
     }
 }
 
-void func_ov004_020eb0a0(CardUnk* arg0) {
+static void func_ov004_020eb0a0(CardUnk* arg0) {
     CardUnkEntry* var_r4 = func_ov003_0208495c(&arg0->unk_004);
 
     while (var_r4 != NULL) {
@@ -222,8 +223,8 @@ void func_ov004_020eb0a0(CardUnk* arg0) {
     }
 }
 
-void func_ov004_020eb0d8(BtlCard_Esp* esp) {
-    CardUnkEntry* temp_r0 = func_ov004_020e742c(&esp->unk_098, esp->unk_098.unk_000);
+static void func_ov004_020eb0d8(BtlCard_Esp* esp) {
+    CardUnkEntry* temp_r0 = func_ov004_020e742c((s16*)&esp->unk_098, esp->unk_098.unk_000);
 
     if (temp_r0 != NULL) {
         CombatSprite_SetPosition(&esp->sprite, temp_r0->unk_CE, (s16)(temp_r0->unk_D0 + (temp_r0->unk_D4 >> 0xC)));
@@ -231,7 +232,7 @@ void func_ov004_020eb0d8(BtlCard_Esp* esp) {
     }
 }
 
-s32 BtlCard_Esp_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCard_Esp_Init(TaskPool* pool, Task* task, void* args) {
     BtlCard_Esp* esp = task->data;
 
     MI_CpuSet(esp, 0, sizeof(BtlCard_Esp));
@@ -249,7 +250,7 @@ s32 BtlCard_Esp_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlCard_Esp_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCard_Esp_Update(TaskPool* pool, Task* task, void* args) {
     BtlCard_Esp* esp = task->data;
 
     if ((esp->effectCmd.flags & 1) == 0) {
@@ -259,7 +260,7 @@ s32 BtlCard_Esp_Update(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlCard_Esp_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCard_Esp_Render(TaskPool* pool, Task* task, void* args) {
     BtlCard_Esp* esp = task->data;
 
     if ((esp->effectCmd.flags & 1) == 0) {
@@ -269,7 +270,7 @@ s32 BtlCard_Esp_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlCard_Esp_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCard_Esp_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlCard_Esp* esp = task->data;
 
     func_ov004_020eb0a0(&esp->unk_098);
@@ -278,7 +279,7 @@ s32 BtlCard_Esp_Destroy(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlCard_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlCard_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = {
         .initialize = BtlCard_Esp_Init,
         .update     = BtlCard_Esp_Update,

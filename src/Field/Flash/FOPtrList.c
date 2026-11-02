@@ -15,10 +15,6 @@
 #include <nitro/mi/cpumem.h>
 
 extern void func_0202b878(void);
-extern void GX_LoadBgPltt(const void* src, u32 offset, u32 size);
-extern void GX_LoadObjPltt(const void* src, u32 offset, u32 size);
-extern void GXs_LoadBgPltt(const void* src, u32 offset, u32 size);
-extern void GXs_LoadObjPltt(const void* src, u32 offset, u32 size);
 
 extern FieldPtrList* gFOPtrList;
 

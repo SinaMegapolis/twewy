@@ -10,7 +10,7 @@ typedef struct BtlTchClick {
 
 extern const BinIdentifier data_ov003_020d6fac;
 
-s32 func_ov003_0208efb8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208efb8(TaskPool* pool, Task* task, void* args) {
     BtlTchClick*  effect = task->data;
     BtlTouchWork* input  = &data_ov003_020e71b8->touchWork;
 
@@ -30,7 +30,7 @@ s32 func_ov003_0208efb8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0208f098(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208f098(TaskPool* pool, Task* task, void* args) {
     BtlTchClick* effect = task->data;
 
     if (SpriteMgr_IsAnimationFinished(&effect->sprite.sprite)) {
@@ -40,27 +40,27 @@ s32 func_ov003_0208f098(TaskPool* pool, Task* task, void* args) {
     return effect->active;
 }
 
-s32 func_ov003_0208f0c4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208f0c4(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Render(task->data);
     return 1;
 }
 
-s32 func_ov003_0208f0d8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0208f0d8(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
-extern const TaskStages data_ov003_020d7918;
-s32                     func_ov003_0208f0ec(TaskPool* pool, Task* task, void* args, s32 stage) {
+static const TaskStages data_ov003_020d7918;
+static s32              func_ov003_0208f0ec(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7918;
     return stages.iter[stage](pool, task, args);
 }
 
 // The preceding TU's descriptor references the first string in this TU.
-char             data_ov003_020e3ad4[12] = "Task_BtlTch";
-char             data_ov003_020e3ae0[20] = "Tsk_BtlTch_Click";
-const TaskHandle data_ov003_020d790c     = {data_ov003_020e3ae0, func_ov003_0208f0ec, sizeof(BtlTchClick)};
-const TaskStages data_ov003_020d7918     = {
+char                    data_ov003_020e3ad4[12] = "Task_BtlTch";
+static char             data_ov003_020e3ae0[20] = "Tsk_BtlTch_Click";
+const TaskHandle        data_ov003_020d790c     = {data_ov003_020e3ae0, func_ov003_0208f0ec, sizeof(BtlTchClick)};
+static const TaskStages data_ov003_020d7918     = {
     func_ov003_0208efb8,
     func_ov003_0208f098,
     func_ov003_0208f0c4,

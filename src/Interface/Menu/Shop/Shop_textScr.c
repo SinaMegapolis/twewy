@@ -61,7 +61,6 @@ typedef struct {
 } Shop_textScr_Args; // Size: 0x8
 
 extern void OS_WaitForever(void);
-extern s32  func_02024434(s32);
 extern void func_ov043_020af4c4(void*, s32);
 extern void func_ov043_020af4f0(void*, s32);
 extern void func_ov043_020af51c(void*, s32);

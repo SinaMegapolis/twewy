@@ -7,6 +7,7 @@
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "SndMgr.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
 // The game over screen (`Tsk_BtlOver`): the battle music stops, two banner sprites slide in, the screen is
@@ -44,29 +45,24 @@ extern const BinIdentifier data_ov003_020d7818;
 extern u16 data_02066aec[];
 extern u16 data_02066eec[];
 
-extern void func_0202fbf4(s32 arg0);
-extern void func_02026590(s32* dst, s32 target, u16 weight);
-extern void func_ov003_0208b278(u32 state);
-
-void func_ov003_020a1c80(BtlOver* self);
-void func_ov003_020a1d04(BtlOver* self);
-void func_ov003_020a1d78(BtlOver* self);
-void func_ov003_020a1db4(BtlOver* self);
-void func_ov003_020a1eb4(BtlOver* self);
-s32  func_ov003_020a1f50(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a1ff4(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a203c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a20a4(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a20c4(TaskPool* pool, Task* task, void* args, s32 stage);
+static void func_ov003_020a1d04(BtlOver* self);
+static void func_ov003_020a1d78(BtlOver* self);
+static void func_ov003_020a1db4(BtlOver* self);
+static void func_ov003_020a1eb4(BtlOver* self);
+static s32  func_ov003_020a1f50(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a1ff4(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a203c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a20a4(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a20c4(TaskPool* pool, Task* task, void* args, s32 stage);
 
 // `Tsk_BtlPause` is pooled into the `.data` of this unit.
-char data_ov003_020e3e24[0x10] = "Task_BtlOver";
-char data_ov003_020e3e34[0x10] = "Tsk_BtlPause";
+static char data_ov003_020e3e24[0x10] = "Task_BtlOver";
+char        data_ov003_020e3e34[0x10] = "Tsk_BtlPause";
 
 const TaskHandle data_ov003_020d882c = {data_ov003_020e3e24, func_ov003_020a20c4, sizeof(BtlOver)};
 
 /// The stage table of the screen: build, update, draw, release.
-const TaskStages data_ov003_020d8838 = {
+static const TaskStages data_ov003_020d8838 = {
     func_ov003_020a1f50,
     func_ov003_020a1ff4,
     func_ov003_020a203c,
@@ -77,14 +73,14 @@ const TaskStages data_ov003_020d8838 = {
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_020a1714(BtlOver* self, BtlOverState state) {
+static void func_ov003_020a1714(BtlOver* self, BtlOverState state) {
     self->state = state;
     self->phase = 0;
     self->timer = 0;
 }
 
 /// Loads a banner sprite for `engine`.
-void func_ov003_020a1728(s32 engine, CombatSprite* sprite) {
+static void func_ov003_020a1728(s32 engine, CombatSprite* sprite) {
     SpriteAnimationEx anim;
 
     CombatSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
@@ -103,7 +99,7 @@ void func_ov003_020a1728(s32 engine, CombatSprite* sprite) {
 }
 
 /// Plays the line of the boss of this battle. Returns 0 when the battle has no boss line.
-s32 func_ov003_020a17bc(void) {
+static s32 func_ov003_020a17bc(void) {
     s32 result = 1;
 
     switch (data_ov003_020e71b8->unk3D88E) {
@@ -183,7 +179,7 @@ s32 func_ov003_020a17bc(void) {
 }
 
 /// Picks and plays the line of the screen.
-void func_ov003_020a1994(void) {
+static void func_ov003_020a1994(void) {
     s32 line;
     s32 other;
 
@@ -245,7 +241,7 @@ void func_ov003_020a1994(void) {
 }
 
 /// Returns 1 when the screens are darkened (every battle except the last four of the story).
-s32 func_ov003_020a1af0(void) {
+static s32 func_ov003_020a1af0(void) {
     switch (data_ov003_020e71b8->unk3D88E) {
         case 19:
         case 20:
@@ -257,7 +253,7 @@ s32 func_ov003_020a1af0(void) {
 }
 
 /// Sets up the blend that darkens both screens.
-void func_ov003_020a1b34(BtlOver* self) {
+static void func_ov003_020a1b34(BtlOver* self) {
     if (self->dim == 0) {
         self->blendTimer = 0;
         return;
@@ -277,7 +273,7 @@ void func_ov003_020a1b34(BtlOver* self) {
 }
 
 /// Closes the blend in.
-void func_ov003_020a1bbc(BtlOver* self) {
+static void func_ov003_020a1bbc(BtlOver* self) {
     s32 amount;
 
     if (self->blendTimer > 0) {
@@ -303,7 +299,7 @@ void func_ov003_020a1bbc(BtlOver* self) {
 }
 
 /// The music stops and the screen fades.
-void func_ov003_020a1c80(BtlOver* self) {
+static void func_ov003_020a1c80(BtlOver* self) {
     if (self->timer == 0) {
         self->timer = 30;
         func_0202fbf4(0);
@@ -319,7 +315,7 @@ void func_ov003_020a1c80(BtlOver* self) {
 }
 
 /// The banners slide in.
-void func_ov003_020a1d04(BtlOver* self) {
+static void func_ov003_020a1d04(BtlOver* self) {
     if (self->timer == 0) {
         self->timer = 40;
     }
@@ -335,7 +331,7 @@ void func_ov003_020a1d04(BtlOver* self) {
 }
 
 /// The banners wait.
-void func_ov003_020a1d78(BtlOver* self) {
+static void func_ov003_020a1d78(BtlOver* self) {
     if (self->timer == 0) {
         self->timer = 60;
     }
@@ -347,7 +343,7 @@ void func_ov003_020a1d78(BtlOver* self) {
 }
 
 /// The background layers are switched off.
-void func_ov003_020a1db4(BtlOver* self) {
+static void func_ov003_020a1db4(BtlOver* self) {
     if (self->timer == 0) {
         self->timer = 120;
         if (self->dim != 0) {
@@ -378,7 +374,7 @@ void func_ov003_020a1db4(BtlOver* self) {
 }
 
 /// The banners switch to their last animation and the battle ends.
-void func_ov003_020a1eb4(BtlOver* self) {
+static void func_ov003_020a1eb4(BtlOver* self) {
     if (self->timer == 0) {
         self->timer = 30;
         EasyFade_FadeBothDisplays(0, 0, 0x1000);
@@ -395,7 +391,7 @@ void func_ov003_020a1eb4(BtlOver* self) {
     func_ov003_0208b278(7);
 }
 
-s32 func_ov003_020a1f50(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a1f50(TaskPool* pool, Task* task, void* args) {
     BtlOver* self = task->data;
 
     MI_CpuSet(self, 0, sizeof(*self));
@@ -414,7 +410,7 @@ s32 func_ov003_020a1f50(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a1ff4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a1ff4(TaskPool* pool, Task* task, void* args) {
     BtlOver* self = task->data;
 
     if (self->state != NULL) {
@@ -428,7 +424,7 @@ s32 func_ov003_020a1ff4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a203c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a203c(TaskPool* pool, Task* task, void* args) {
     BtlOver* self = task->data;
 
     CombatSprite_SetPosition(&self->sprites[0], (self->x * 0x10) >> 16, 0x60);
@@ -440,7 +436,7 @@ s32 func_ov003_020a203c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a20a4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a20a4(TaskPool* pool, Task* task, void* args) {
     BtlOver* self = task->data;
 
     CombatSprite_Release(&self->sprites[0]);
@@ -448,7 +444,7 @@ s32 func_ov003_020a20a4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a20c4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a20c4(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8838;
 
     return stages.iter[stage](pool, task, args);

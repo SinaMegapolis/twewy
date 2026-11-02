@@ -1,5 +1,6 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
@@ -109,7 +110,7 @@ void func_ov004_020e739c(s16* arg0, s32 arg1) {
 }
 
 // Not yet implemented, unsure of correct structure being accessed
-void func_ov004_020e742c(s16* arg0, s16 arg1) {
+void* func_ov004_020e742c(s16* arg0, s16 arg1) {
     // void* var_r0;
 
     // var_r0 = func_ov003_0208495c(arg0 + 4);
@@ -1006,7 +1007,7 @@ s32 BtlPlayer01_Init(TaskPool* pool, Task* task, void* args) {
     } else {
         CombatSprite_LoadFromTable(1, &player->unk_07C, &data_ov003_020d77e0, data_ov004_020f008c, 3, 34, 100);
     }
-    func_ov003_020880e4(1, &player->unk_0DC, player);
+    func_ov003_020880e4(1, &player->unk_0DC, (Ov003EnemyActor*)player);
     EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlArm_Doll, NULL, 0, NULL, &player->unk_140);
     return 1;
 }
@@ -1082,7 +1083,7 @@ s32 BtlPlayer01_Render(TaskPool* pool, Task* task, void* args) {
     BtlPlayer01* player = task->data;
 
     CombatActor_Render(&player->actor, &player->unk_07C);
-    func_ov003_0208810c(&player->unk_0DC, player);
+    func_ov003_0208810c((CombatSprite*)&player->unk_0DC, (CombatActor*)player);
     return 1;
 }
 

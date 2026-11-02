@@ -2,21 +2,6 @@
 
 #define STRLIST_MAX_LEN 0x100
 
-typedef struct StrListNode {
-    /* 0x00 */ struct StrListNode* next;
-    /* 0x04 */ u8                  unk_04[0x18];
-    /* 0x1C */ const char*         str;
-} StrListNode;
-
-typedef struct {
-    /* 0x00 */ u8           unk_00[0x20];
-    /* 0x20 */ StrListNode* listA;
-    /* 0x24 */ u8           unk_24[0x1C];
-    /* 0x40 */ StrListNode* listB;
-    /* 0x44 */ u8           unk_44[0x1C];
-    /* 0x60 */ StrListNode* listC;
-} StrListOwner;
-
 void func_0200f86c(StrListOwner* owner) {
     StrListNode* node;
 

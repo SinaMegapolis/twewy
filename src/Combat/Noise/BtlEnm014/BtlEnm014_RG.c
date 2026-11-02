@@ -6,16 +6,16 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-void func_ov012_02125de4(BtlEnm014*);
-void func_ov012_021265a4(BtlEnm014*);
-void func_ov012_0212684c(BtlEnm014*);
-s32  func_ov012_02126968(TaskPool* pool, Task* task, void* args, s32 stage);
+static void func_ov012_02125de4(BtlEnm014*);
+static void func_ov012_021265a4(BtlEnm014*);
+static void func_ov012_0212684c(BtlEnm014*);
+static s32  func_ov012_02126968(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlEnm014_RG = {"Tsk_BtlEnm014_RG", func_ov012_02126968, 0x1E8};
 
-const s32 data_ov012_0212794c[4] = {0x64, 0x32, 0x32, 0x41};
+static const s32 data_ov012_0212794c[4] = {0x64, 0x32, 0x32, 0x41};
 
-s32 func_ov012_02125c48(BtlEnm014* data) {
+static s32 func_ov012_02125c48(BtlEnm014* data) {
     s32 flag = (RNG_Next(data->base.unk_1A0) == 0);
 
     data->unk_1E0.half.lo = data->unk_1E0.half.lo - 1;
@@ -42,7 +42,7 @@ s32 func_ov012_02125c48(BtlEnm014* data) {
     return 0;
 }
 
-void func_ov012_02125d84(BtlEnm014* data) {
+static void func_ov012_02125d84(BtlEnm014* data) {
     func_ov003_020c4b1c(&data->base);
     switch (data->unk_1C2) {
         case 0:
@@ -57,7 +57,7 @@ void func_ov012_02125d84(BtlEnm014* data) {
     }
 }
 
-void func_ov012_02125de4(BtlEnm014* data) {
+static void func_ov012_02125de4(BtlEnm014* data) {
     BtlEnm014* boss = data_ov003_020e71b8->unk3D89C;
 
     switch (data->unk_1C2) {
@@ -313,7 +313,7 @@ void func_ov012_02125de4(BtlEnm014* data) {
     }
 }
 
-void func_ov012_021265a4(BtlEnm014* data) {
+static void func_ov012_021265a4(BtlEnm014* data) {
     switch (data->unk_1C2) {
         case 0: {
             if (func_ov003_020c6230(&data->base) != 0) {
@@ -391,7 +391,7 @@ void func_ov012_021265a4(BtlEnm014* data) {
     }
 }
 
-void func_ov012_0212684c(BtlEnm014* data) {
+static void func_ov012_0212684c(BtlEnm014* data) {
     if (func_ov003_020c5e98(&data->base) != 0) {
         return;
     }
@@ -402,7 +402,7 @@ void func_ov012_0212684c(BtlEnm014* data) {
     }
 }
 
-s32 func_ov012_02126898(BtlEnm014* data) {
+static s32 func_ov012_02126898(BtlEnm014* data) {
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
         case 0:
             break;
@@ -438,7 +438,7 @@ s32 func_ov012_02126898(BtlEnm014* data) {
     return data->unk_1CC;
 }
 
-s32 func_ov012_02126968(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov012_02126968(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm014* data = task->data;
 
     switch (stage) {

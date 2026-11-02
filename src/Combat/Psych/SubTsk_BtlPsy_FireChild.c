@@ -4,9 +4,7 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc650;
+static const TaskHandle data_ov003_020dc650;
 
 void func_ov003_020a94d8(Ov003EffectState* effect, s32 x, s32 y, s32 kind, s32 attackId, s32 scale, s32 speed, s32 angle,
                          u32 parentTaskId) {
@@ -23,7 +21,7 @@ void func_ov003_020a94d8(Ov003EffectState* effect, s32 x, s32 y, s32 kind, s32 a
     func_ov003_020a6000(&data_ov003_020dc650, &args);
 }
 
-s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003FireChildArgs* arg = args;
     Ov003FireChild*     child;
     switch (stage) {
@@ -99,5 +97,5 @@ s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage) {
             return 1;
     }
 }
-char             data_ov003_020e49f0[24] = "SubTsk_BtlPsy_FireChild";
-const TaskHandle data_ov003_020dc650     = {data_ov003_020e49f0, func_ov003_020a9530, 0x98};
+static char             data_ov003_020e49f0[24] = "SubTsk_BtlPsy_FireChild";
+static const TaskHandle data_ov003_020dc650     = {data_ov003_020e49f0, func_ov003_020a9530, 0x98};

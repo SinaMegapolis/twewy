@@ -1,34 +1,34 @@
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Fusion/BtlPlayerLast.c
 //////////////////////////////////////////////////////////////////////
-func_ov007_020e7360 kind:function(arm,size=0x14) addr:0x020e7360
-func_ov007_020e7374 kind:function(arm,size=0x64) addr:0x020e7374
-func_ov007_020e73d8 kind:function(arm,size=0xa0) addr:0x020e73d8
-func_ov007_020e7478 kind:function(arm,size=0xbc) addr:0x020e7478
-func_ov007_020e7534 kind:function(arm,size=0x38) addr:0x020e7534
-func_ov007_020e756c kind:function(arm,size=0x8) addr:0x020e756c
-func_ov007_020e7574 kind:function(arm,size=0x8) addr:0x020e7574
-func_ov007_020e757c kind:function(arm,size=0x68) addr:0x020e757c
+func_ov007_020e7360 kind:function(arm,size=0x14) addr:0x020e7360 local
+func_ov007_020e7374 kind:function(arm,size=0x64) addr:0x020e7374 local
+func_ov007_020e73d8 kind:function(arm,size=0xa0) addr:0x020e73d8 local
+func_ov007_020e7478 kind:function(arm,size=0xbc) addr:0x020e7478 local
+func_ov007_020e7534 kind:function(arm,size=0x38) addr:0x020e7534 local
+func_ov007_020e756c kind:function(arm,size=0x8) addr:0x020e756c local
+func_ov007_020e7574 kind:function(arm,size=0x8) addr:0x020e7574 local
+func_ov007_020e757c kind:function(arm,size=0x68) addr:0x020e757c local
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Fusion/BtlAuraLast.c
 //////////////////////////////////////////////////////////////////////
-func_ov007_020e75e4 kind:function(arm,size=0x18) addr:0x020e75e4
-func_ov007_020e75fc kind:function(arm,size=0x50) addr:0x020e75fc
-func_ov007_020e764c kind:function(arm,size=0x50) addr:0x020e764c
-func_ov007_020e769c kind:function(arm,size=0x40) addr:0x020e769c
-func_ov007_020e76dc kind:function(arm,size=0x208) addr:0x020e76dc
-func_ov007_020e78e4 kind:function(arm,size=0x38) addr:0x020e78e4
-func_ov007_020e791c kind:function(arm,size=0x54) addr:0x020e791c
-func_ov007_020e7970 kind:function(arm,size=0x68) addr:0x020e7970
-func_ov007_020e79d8 kind:function(arm,size=0x7c) addr:0x020e79d8
-func_ov007_020e7a54 kind:function(arm,size=0x38) addr:0x020e7a54
-func_ov007_020e7a8c kind:function(arm,size=0xc8) addr:0x020e7a8c
-func_ov007_020e7b54 kind:function(arm,size=0x144) addr:0x020e7b54
-func_ov007_020e7c98 kind:function(arm,size=0xb0) addr:0x020e7c98
-func_ov007_020e7d48 kind:function(arm,size=0x5c) addr:0x020e7d48
-func_ov007_020e7da4 kind:function(arm,size=0x10c) addr:0x020e7da4
-func_ov007_020e7eb0 kind:function(arm,size=0x30) addr:0x020e7eb0
-func_ov007_020e7ee0 kind:function(arm,size=0x68) addr:0x020e7ee0
+func_ov007_020e75e4 kind:function(arm,size=0x18) addr:0x020e75e4 local
+func_ov007_020e75fc kind:function(arm,size=0x50) addr:0x020e75fc local
+func_ov007_020e764c kind:function(arm,size=0x50) addr:0x020e764c local
+func_ov007_020e769c kind:function(arm,size=0x40) addr:0x020e769c local
+func_ov007_020e76dc kind:function(arm,size=0x208) addr:0x020e76dc local
+func_ov007_020e78e4 kind:function(arm,size=0x38) addr:0x020e78e4 local
+func_ov007_020e791c kind:function(arm,size=0x54) addr:0x020e791c local
+func_ov007_020e7970 kind:function(arm,size=0x68) addr:0x020e7970 local
+func_ov007_020e79d8 kind:function(arm,size=0x7c) addr:0x020e79d8 local
+func_ov007_020e7a54 kind:function(arm,size=0x38) addr:0x020e7a54 local
+func_ov007_020e7a8c kind:function(arm,size=0xc8) addr:0x020e7a8c local
+func_ov007_020e7b54 kind:function(arm,size=0x144) addr:0x020e7b54 local
+func_ov007_020e7c98 kind:function(arm,size=0xb0) addr:0x020e7c98 local
+func_ov007_020e7d48 kind:function(arm,size=0x5c) addr:0x020e7d48 local
+func_ov007_020e7da4 kind:function(arm,size=0x10c) addr:0x020e7da4 local
+func_ov007_020e7eb0 kind:function(arm,size=0x30) addr:0x020e7eb0 local
+func_ov007_020e7ee0 kind:function(arm,size=0x68) addr:0x020e7ee0 local
 Tsk_BtlPlayerLast kind:data(any) addr:0x020e7f48
 @1538 kind:data(any) addr:0x020e7f54 local
 Tsk_BtlAuraLast kind:data(any) addr:0x020e7f64

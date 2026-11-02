@@ -1,7 +1,9 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
 #include "EasyFade.h"
+#include "Engine/Resources/ScreenMapper.h"
 #include "SndMgr.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
 // Nonmatching: all functions and data exports match individually; data ordering
@@ -14,19 +16,6 @@ typedef struct CutinResources {
     u16 pack, palette, characters, maps[2];
 } CutinResources;
 
-extern char                 data_ov003_020e5184[28];
-extern char                 data_ov003_020e51a0[28];
-extern char                 data_ov003_020e51bc[32];
-extern char                 data_ov003_020e51dc[32];
-extern char                 data_ov003_020e51fc[32];
-extern char                 data_ov003_020e521c[36];
-extern char                 data_ov003_020e5240[36];
-extern char                 data_ov003_020e5264[36];
-extern char                 data_ov003_020e5288[36];
-extern char                 data_ov003_020e52ac[36];
-extern char                 data_ov003_020e52d0[36];
-extern char                 data_ov003_020e52f4[36];
-extern char                 data_ov003_020e5318[36];
 extern const BinIdentifier  data_ov003_020dd77c;
 extern const BinIdentifier  data_ov003_020dd784;
 extern const BinIdentifier  data_ov003_020dd78c;
@@ -40,23 +29,22 @@ extern const BinIdentifier  data_ov003_020dd7c4;
 extern const BinIdentifier  data_ov003_020dd7cc;
 extern const BinIdentifier  data_ov003_020dd7d4;
 extern const BinIdentifier  data_ov003_020dd7dc;
-extern const CutinTable3    data_ov003_020dd7e4;
-extern const CutinTable3    data_ov003_020dd7f0;
-extern const CutinTable3    data_ov003_020dd7fc;
-extern const CutinTable3    data_ov003_020dd808;
-extern const CutinTable3    data_ov003_020dd814;
-extern const CutinTable3    data_ov003_020dd820;
-extern const CutinTable3    data_ov003_020dd82c;
+static const CutinTable3    data_ov003_020dd7e4;
+static const CutinTable3    data_ov003_020dd7f0;
+static const CutinTable3    data_ov003_020dd7fc;
+static const CutinTable3    data_ov003_020dd808;
+static const CutinTable3    data_ov003_020dd814;
+static const CutinTable3    data_ov003_020dd820;
+static const CutinTable3    data_ov003_020dd82c;
 extern const TaskHandle     data_ov003_020dd838;
 extern const TaskStages     data_ov003_020dd844;
-extern const CutinResources data_ov003_020dd854[6];
-extern s32                  data_ov003_020e71d4;
+static const CutinResources data_ov003_020dd854[6];
+static s32                  data_ov003_020e71d4;
+static void                 func_ov003_020be2a8(Ov003CutinTask* self);
+static void                 func_ov003_020be3d0(Ov003CutinTask* self);
 extern char                 data_ov003_020e533c[16];
 
-extern void func_0200d858(ScreenMapEntry*, s32, s32, s32);
-extern void func_0200d954(s32, s32);
-extern void func_02026590(s32*, s32, u16);
-extern u8   data_ov003_020e71d9;
+extern u8 data_ov003_020e71d9;
 
 s32 func_ov003_020bd1bc(s32 mode, Ov003ActorSnapshot* entry) {
     if (mode == 1)
@@ -131,13 +119,13 @@ void func_ov003_020bd370(s32 kind, s32 index) {
             break;
     }
 }
-void func_ov003_020bd418(Ov003CutinTask* self, void (*update)(Ov003CutinTask*)) {
+static void func_ov003_020bd418(Ov003CutinTask* self, void (*update)(Ov003CutinTask*)) {
     self->update = update;
     self->timer  = 0;
     self->phase  = 0;
 }
 
-void func_ov003_020bd430(Ov003CutinTask* self) {
+static void func_ov003_020bd430(Ov003CutinTask* self) {
     Display_SetBGOffset(self->overlayMaps[0].engineId, self->overlayMaps[0].bgLayer, self->overlayOffsets[0], 0);
     Display_SetBGOffset(self->overlayMaps[1].engineId, self->overlayMaps[1].bgLayer, self->overlayOffsets[1], 0);
     Display_SetBGOffset(self->backgrounds[0].maps[0].engineId, self->backgrounds[0].maps[0].bgLayer,
@@ -150,7 +138,7 @@ void func_ov003_020bd430(Ov003CutinTask* self) {
                         self->backgrounds[1].offsets[1] - 0x80000, 0);
 }
 
-void func_ov003_020bd6bc(Ov003CutinBackground* self, s32 index) {
+static void func_ov003_020bd6bc(Ov003CutinBackground* self, s32 index) {
     const CutinResources* resources = &data_ov003_020dd854[index];
     Display_InitSubBG1(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 0, 1, 0, 0x4004);
     Display_InitSubBG2(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 2, 1, 1, 0x4204);
@@ -174,7 +162,7 @@ void func_ov003_020bd6bc(Ov003CutinBackground* self, s32 index) {
     func_0200d858(&self->maps[0], 0, 0, 0);
     func_0200d858(&self->maps[1], 0, 0, 0);
 }
-void func_ov003_020bd9b4(Ov003CutinBackground* self, s32 index) {
+static void func_ov003_020bd9b4(Ov003CutinBackground* self, s32 index) {
     const CutinResources* resources = &data_ov003_020dd854[index];
     Display_InitMainBG1(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 0, 3, 0, 0x400C);
     Display_InitMainBG2(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 2, 3, 1, 0x420C);
@@ -199,7 +187,7 @@ void func_ov003_020bd9b4(Ov003CutinBackground* self, s32 index) {
     func_0200d858(&self->maps[1], 0, 0, 0);
 }
 
-void func_ov003_020bdcb8(Ov003CutinTask* self, s32 index) {
+static void func_ov003_020bdcb8(Ov003CutinTask* self, s32 index) {
     Display_InitMainBG3(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 4, 1, 1, 0x4404);
     g_DisplaySettings.controls[0].windows &= ~4;
     g_DisplaySettings.engineState[0].bgSettings[3].priority = 1;
@@ -256,10 +244,10 @@ void func_ov003_020be194(Ov003CutinTask* self) {
     func_0200d954(1, 3);
     DatMgr_ReleaseData(self->overlayPack);
 }
-void func_ov003_020be208(Ov003CutinTask* self) {}
-void func_ov003_020be20c(Ov003CutinTask* self) {}
+static void func_ov003_020be208(Ov003CutinTask* self) {}
+void        func_ov003_020be20c(Ov003CutinTask* self) {}
 
-void func_ov003_020be210(Ov003CutinTask* self) {
+static void func_ov003_020be210(Ov003CutinTask* self) {
     if (self->timer == 0)
         self->timer = 15;
     if (self->timer > 0) {
@@ -272,7 +260,7 @@ void func_ov003_020be210(Ov003CutinTask* self) {
     if (self->timer <= 0)
         func_ov003_020bd418(self, func_ov003_020be2a8);
 }
-void func_ov003_020be2a8(Ov003CutinTask* self) {
+static void func_ov003_020be2a8(Ov003CutinTask* self) {
     if (self->timer == 0)
         self->timer = 80;
     if (self->timer == 20)
@@ -291,7 +279,7 @@ void func_ov003_020be2a8(Ov003CutinTask* self) {
     if (--self->timer <= 0)
         func_ov003_020bd418(self, func_ov003_020be3d0);
 }
-void func_ov003_020be3d0(Ov003CutinTask* self) {
+static void func_ov003_020be3d0(Ov003CutinTask* self) {
     switch (self->phase) {
         case 0:
             self->timer = 15;
@@ -303,7 +291,7 @@ void func_ov003_020be3d0(Ov003CutinTask* self) {
             break;
     }
 }
-s32 func_ov003_020be420(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020be420(TaskPool* pool, Task* task, void* args) {
     Ov003CutinTask* self = task->data;
     Ov003CutinArgs* arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
@@ -347,7 +335,7 @@ s32 func_ov003_020be420(TaskPool* pool, Task* task, void* args) {
     EasyFade_FadeBothDisplays(0, 0, 0x800);
     return 1;
 }
-s32 func_ov003_020be59c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020be59c(TaskPool* pool, Task* task, void* args) {
     Ov003CutinTask* self = task->data;
     if (self->update != NULL)
         self->update(self);
@@ -365,31 +353,31 @@ s32 func_ov003_020be59c(TaskPool* pool, Task* task, void* args) {
     return self->active;
 }
 
-char data_ov003_020e5184[28] = "Apl_Fuk/Grp_BtlSpecial3.bin";
+static char data_ov003_020e5184[28] = "Apl_Fuk/Grp_BtlSpecial3.bin";
 
-char data_ov003_020e51a0[28] = "Apl_Fuk/Grp_BtlSpecial2.bin";
+static char data_ov003_020e51a0[28] = "Apl_Fuk/Grp_BtlSpecial2.bin";
 
-char data_ov003_020e51bc[32] = "Apl_Fuk/Grp_BtlBgEff22_SCR.bin";
+static char data_ov003_020e51bc[32] = "Apl_Fuk/Grp_BtlBgEff22_SCR.bin";
 
-char data_ov003_020e51dc[32] = "Apl_Fuk/Grp_BtlSpecialBito.bin";
+static char data_ov003_020e51dc[32] = "Apl_Fuk/Grp_BtlSpecialBito.bin";
 
-char data_ov003_020e51fc[32] = "Apl_Fuk/Grp_BtlSpecialSiki.bin";
+static char data_ov003_020e51fc[32] = "Apl_Fuk/Grp_BtlSpecialSiki.bin";
 
-char data_ov003_020e521c[36] = "Apl_Fuk/Grp_BtlSpecial2_Bito.bin";
+static char data_ov003_020e521c[36] = "Apl_Fuk/Grp_BtlSpecial2_Bito.bin";
 
-char data_ov003_020e5240[36] = "Apl_Fuk/Grp_BtlSpecialYoshua.bin";
+static char data_ov003_020e5240[36] = "Apl_Fuk/Grp_BtlSpecialYoshua.bin";
 
-char data_ov003_020e5264[36] = "Apl_Fuk/Grp_BtlSpecial2_Sini.bin";
+static char data_ov003_020e5264[36] = "Apl_Fuk/Grp_BtlSpecial2_Sini.bin";
 
-char data_ov003_020e5288[36] = "Apl_Fuk/Grp_BtlSpecial2_Shiki.bin";
+static char data_ov003_020e5288[36] = "Apl_Fuk/Grp_BtlSpecial2_Shiki.bin";
 
-char data_ov003_020e52ac[36] = "Apl_Fuk/Grp_BtlSpecialYoshua1.bin";
+static char data_ov003_020e52ac[36] = "Apl_Fuk/Grp_BtlSpecialYoshua1.bin";
 
-char data_ov003_020e52d0[36] = "Apl_Fuk/Grp_BtlSpecialYoshua2a.bin";
+static char data_ov003_020e52d0[36] = "Apl_Fuk/Grp_BtlSpecialYoshua2a.bin";
 
-char data_ov003_020e52f4[36] = "Apl_Fuk/Grp_BtlSpecial2_Yoshua.bin";
+static char data_ov003_020e52f4[36] = "Apl_Fuk/Grp_BtlSpecial2_Yoshua.bin";
 
-char data_ov003_020e5318[36] = "Apl_Fuk/Grp_BtlSpecialYoshua2b.bin";
+static char data_ov003_020e5318[36] = "Apl_Fuk/Grp_BtlSpecialYoshua2b.bin";
 
 const BinIdentifier data_ov003_020dd77c = {5, data_ov003_020e52d0};
 
@@ -417,31 +405,31 @@ const BinIdentifier data_ov003_020dd7d4 = {5, data_ov003_020e52f4};
 
 const BinIdentifier data_ov003_020dd7dc = {3, data_ov003_020e51a0};
 
-const CutinTable3 data_ov003_020dd7e4 = {
+static const CutinTable3 data_ov003_020dd7e4 = {
     {1021, 1023, 1025}
 };
 
-const CutinTable3 data_ov003_020dd7f0 = {
+static const CutinTable3 data_ov003_020dd7f0 = {
     {1009, 1011, 1013}
 };
 
-const CutinTable3 data_ov003_020dd7fc = {
+static const CutinTable3 data_ov003_020dd7fc = {
     {1008, 1010, 1012}
 };
 
-const CutinTable3 data_ov003_020dd808 = {
+static const CutinTable3 data_ov003_020dd808 = {
     {1014, 1016, 1018}
 };
 
-const CutinTable3 data_ov003_020dd814 = {
+static const CutinTable3 data_ov003_020dd814 = {
     {1015, 1017, 1019}
 };
 
-const CutinTable3 data_ov003_020dd820 = {
+static const CutinTable3 data_ov003_020dd820 = {
     {1020, 1022, 1024}
 };
 
-const CutinTable3 data_ov003_020dd82c = {
+static const CutinTable3 data_ov003_020dd82c = {
     {10, 11, 12}
 };
 
@@ -451,7 +439,7 @@ const TaskStages data_ov003_020dd844 = {
     {func_ov003_020be420, func_ov003_020be59c, func_ov003_020be658, func_ov003_020be660}
 };
 
-const CutinResources data_ov003_020dd854[6] = {
+static const CutinResources data_ov003_020dd854[6] = {
     {4, 4, 1, {2, 3}},
     {5, 4, 1, {2, 3}},
     {6, 4, 1, {2, 3}},
@@ -460,4 +448,4 @@ const CutinResources data_ov003_020dd854[6] = {
     {9, 4, 1, {2, 3}},
 };
 
-s32 data_ov003_020e71d4;
+static s32 data_ov003_020e71d4;

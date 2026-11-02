@@ -1,6 +1,8 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
+#include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Combat/Noise/Private/Boss01.h"
@@ -8,6 +10,7 @@
 #include "Engine/Core/OamMgr.h"
 #include "Engine/Math/Random.h"
 #include <nitro/fx.h>
+#include <nitro/mi/cpumem.h>
 
 typedef struct Boss01_RG {
     /* 0x000 */ Ov003EnemyActor base;
@@ -22,16 +25,16 @@ typedef struct Boss01_RG {
     /* 0x1DC */ s32 unk_1DC;
 } Boss01_RG; // Size: 0x1E0
 
-s32 Boss01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 Boss01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static s32 data_ov016_021292c0[8];
 
 const TaskHandle Tsk_Boss01_RG = {"Tsk_Boss01_RG", Boss01_RG_RunTask, sizeof(Boss01_RG)};
 
-void Boss01_MoveState_FlyAcross(Boss01_RG* rg);
+static void Boss01_MoveState_FlyAcross(Boss01_RG* rg);
 
 // Nonmatching: One branch points to wrong address
-s32 Boss01_RG_IsInBounds(Boss01_RG* rg) {
+static s32 Boss01_RG_IsInBounds(Boss01_RG* rg) {
     BOOL var_r3 = TRUE;
     BOOL var_ip = (rg->base.actor.isFlipped == 0) && (rg->base.actor.position.x < -0x80000);
 
@@ -51,24 +54,24 @@ s32 Boss01_RG_IsInBounds(Boss01_RG* rg) {
     return var_r3;
 }
 
-void func_ov016_02125bb8(Boss01_RG* rg) {
+static void func_ov016_02125bb8(Boss01_RG* rg) {
     rg->unk_1D4 = (rg->base.actor.isFlipped != 0) ? 0x4000 : -0x4000;
 }
 
-void Boss01_RG_SetState(Boss01_RG* rg, void (*callback)(Boss01_RG*)) {
-    func_ov003_020c427c();
+static void Boss01_RG_SetState(Boss01_RG* rg, void (*callback)(Boss01_RG*)) {
+    ((void (*)())func_ov003_020c427c)();
     rg->unk_1CC = callback;
     rg->unk_1C8 = 0;
     rg->unk_1C0 = 0;
 }
 
-void Boss01_MoveState_WaitToFly(Boss01_RG* rg) {
+static void Boss01_MoveState_WaitToFly(Boss01_RG* rg) {
     if (*data_ov016_021292c0 == 5) {
         Boss01_RG_SetState(rg, Boss01_MoveState_FlyAcross);
     }
 }
 
-void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
+static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
     if ((rg->unk_1D8 != 0 && arg1 != 0) || (rg->unk_1D8 == 0 && arg1 == 0)) {
         return;
     }
@@ -105,11 +108,11 @@ void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
                 }
                 break;
         }
-        var_r4 = func_ov003_02084984(&var_r4->base.node.prev);
+        var_r4 = func_ov003_02084984((CombatListNode*)&var_r4->base.node.prev);
     }
 }
 
-void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
+static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
     Boss01_RG* temp_r4 = data_ov003_020e71b8->unk3D89C;
     Boss01*    temp_r6 = (Boss01*)rg->base.partner;
     Boss01*    temp_r5 = temp_r6->unk_188;
@@ -125,8 +128,8 @@ void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
 
         rg->base.actor.position.y = temp_r4->base.actor.position.y;
         rg->base.actor.position.z = -0x40000;
-        func_ov003_020c4c1c(rg);
-        func_ov003_020c4988(rg);
+        func_ov003_020c4c1c(&rg->base);
+        func_ov003_020c4988(&rg->base);
         if (temp_r5 != NULL) {
             rg->unk_1DC  = BtlObs_RG_CreateTask(temp_r5->unk_002, &((CombatActor*)data_ov003_020e71b8->unk3D89C)->baseArgs);
             s32 var_r0_2 = FX32_CONVERT(temp_r5->unk_76);
@@ -182,18 +185,18 @@ void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
         var_r1_2 = -var_r1_2;
     }
     if (var_r0_6 < var_r1_2) {
-        func_ov003_020c5b0c(232, rg);
+        ((s32(*)())func_ov003_020c5b0c)(232, rg);
     }
     Boss01_Eff_CreateTask((Boss01*)rg);
     if (Boss01_RG_IsInBounds(rg) != 0) {
-        func_ov003_020c4a34(rg);
+        func_ov003_020c4a34(&rg->base);
         if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->taskPool, &rg->unk_1DC) != 0) {
             Boss01* temp_r0_5 = EasyTask_GetTaskData(&data_ov003_020e71b8->taskPool, rg->unk_1DC);
             if (temp_r0_5->unk_54 & 2) {
                 rg->base.unk_188 = NULL;
             } else {
                 temp_r0_5->unk_18C |= 0x1000;
-                func_ov003_020c4ff4();
+                ((s32(*)())func_ov003_020c4ff4)();
             }
         } else {
             rg->base.unk_188 = NULL;
@@ -209,21 +212,21 @@ void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
     rg->unk_1C0++;
 }
 
-void func_ov016_021260b4(Boss01_RG* bossRG) {
-    if (func_ov003_020c6f40() == 0) {
+static void func_ov016_021260b4(Boss01_RG* bossRG) {
+    if (((s32(*)())func_ov003_020c6f40)() == 0) {
         bossRG->unk_1D0 = 0;
     }
 }
 
-s32 Boss01_RG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 Boss01_RG_Init(TaskPool* pool, Task* task, void* args) {
     SpriteAnimationEx anim;
     Boss01_RG*        bossRG = task->data;
 
     MI_CpuSet(bossRG, 0, sizeof(Boss01_RG));
-    func_ov003_020c3efc(bossRG, args);
+    func_ov003_020c3efc(&bossRG->base, args);
     func_ov016_021256c0(&anim, 1, 0);
     CombatSprite_Load(&bossRG->base.sprite, &anim);
-    func_ov003_020c4c1c(bossRG);
+    func_ov003_020c4c1c(&bossRG->base);
     bossRG->base.actor.flags |= 0x10000000;
     bossRG->base.actor.zGravity   = 0;
     bossRG->base.actor.position.x = -0x80000;
@@ -235,7 +238,7 @@ s32 Boss01_RG_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 Boss01_RG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 Boss01_RG_Update(TaskPool* pool, Task* task, void* args) {
     Boss01_RG* bossRG = task->data;
 
     if (func_ov003_020c3bf0(bossRG) != 0) {
@@ -254,7 +257,7 @@ s32 Boss01_RG_Update(TaskPool* pool, Task* task, void* args) {
     return bossRG->unk_1D0;
 }
 
-s32 Boss01_RG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 Boss01_RG_Render(TaskPool* pool, Task* task, void* args) {
     s16        spA, sp8;
     Boss01_RG* bossRG = task->data;
 
@@ -270,15 +273,15 @@ s32 Boss01_RG_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 Boss01_RG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 Boss01_RG_Destroy(TaskPool* pool, Task* task, void* args) {
     Boss01_RG* bossRG = task->data;
 
     CombatSprite_Release(&bossRG->base.sprite);
-    func_ov003_020c4a34(bossRG);
+    func_ov003_020c4a34(&bossRG->base);
     return 1;
 }
 
-s32 Boss01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 Boss01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov016_02128fc8 = {
         .initialize = Boss01_RG_Init,
         .update     = Boss01_RG_Update,

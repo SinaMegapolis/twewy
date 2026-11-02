@@ -14,7 +14,7 @@ const BinIdentifier data_ov016_02128f88 = {3, "Apl_Mor/Grp_Boss01b.bin"};
 const BinIdentifier data_ov016_02128f90 = {3, "Apl_Mor/Grp_Boss01c.bin"};
 const BinIdentifier data_ov016_02128f98 = {3, "Apl_Mor/Grp_Boss01s.bin"};
 
-const Ov016AnimConfig data_ov016_02128f70 = {
+static const Ov016AnimConfig data_ov016_02128f70 = {
     {1, 3, 2, 0},
     &data_ov016_02128f88, (const Ov016SpriteParams*)&data_ov016_02128f70, 0, 4, 0xD0, 0
 };

@@ -17,16 +17,16 @@ typedef struct BtlEnm026Icon {
     /* 0x12E */ u16          unk_12E;
     /* 0x130 */ s32          unk_130;
 } BtlEnm026Icon; // Size: 0x134
-s32         func_ov015_02126860(TaskPool* pool, Task* task, void* args, s32 stage);
-extern char data_ov015_0212846c[20];
-extern char data_ov015_02128480[32];
-extern char data_ov015_021284a0[32];
+static s32  func_ov015_02126860(TaskPool* pool, Task* task, void* args, s32 stage);
+static char data_ov015_0212846c[20];
+static char data_ov015_02128480[32];
+static char data_ov015_021284a0[32];
 
-const BinIdentifier data_ov015_02128228 = {3, data_ov015_021284a0};
+static const BinIdentifier data_ov015_02128228 = {3, data_ov015_021284a0};
 
-const BinIdentifier data_ov015_02128230 = {3, data_ov015_02128480};
+static const BinIdentifier data_ov015_02128230 = {3, data_ov015_02128480};
 
-const SpriteAnimEntry data_ov015_02128238[13] = {
+static const SpriteAnimEntry data_ov015_02128238[13] = {
     {0x1, 0x3, 0x2, 0x0},
     {0x1, 0x3, 0x2, 0x1},
     {0x1, 0x3, 0x2, 0x2},
@@ -44,13 +44,13 @@ const SpriteAnimEntry data_ov015_02128238[13] = {
 
 const TaskHandle Tsk_BtlEnm026_Icon = {data_ov015_0212846c, func_ov015_02126860, 0x134};
 
-char data_ov015_0212846c[20] = "Tsk_BtlEnm026_Icon";
+static char data_ov015_0212846c[20] = "Tsk_BtlEnm026_Icon";
 
-char data_ov015_02128480[32] = "Apl_Hor/Grp_BtlEnm026_Bdg.bin";
+static char data_ov015_02128480[32] = "Apl_Hor/Grp_BtlEnm026_Bdg.bin";
 
-char data_ov015_021284a0[32] = "Apl_Hor/Grp_BtlEnm026_Icon.bin";
+static char data_ov015_021284a0[32] = "Apl_Hor/Grp_BtlEnm026_Icon.bin";
 
-s32 func_ov015_021261d8(BtlEnm026Icon* data, Enm026IconSpawn* args) {
+static s32 func_ov015_021261d8(BtlEnm026Icon* data, Enm026IconSpawn* args) {
     BtlEnm026* owner = args->unk_00;
     s32        r5    = 0;
 
@@ -107,7 +107,7 @@ s32 func_ov015_021261d8(BtlEnm026Icon* data, Enm026IconSpawn* args) {
     return 1;
 }
 
-s32 func_ov015_02126464(BtlEnm026Icon* data) {
+static s32 func_ov015_02126464(BtlEnm026Icon* data) {
     BtlEnm026* owner = data->unk_120;
 
     if (data->unk_124 != 2) {
@@ -176,7 +176,7 @@ s32 func_ov015_02126464(BtlEnm026Icon* data) {
     return 1;
 }
 
-s32 func_ov015_02126660(BtlEnm026Icon* data) {
+static s32 func_ov015_02126660(BtlEnm026Icon* data) {
     BtlEnm026* owner  = data->unk_120;
     s32        engine = (func_ov003_020c37f8(&data->unk_00) != 0);
     s32        px;
@@ -228,14 +228,14 @@ s32 func_ov015_02126660(BtlEnm026Icon* data) {
     return 1;
 }
 
-s32 func_ov015_0212683c(BtlEnm026Icon* data) {
+static s32 func_ov015_0212683c(BtlEnm026Icon* data) {
     CombatSprite_Release(&data->unk_00);
     CombatSprite_Release(&data->unk_60);
     CombatSprite_Release(&data->unk_C0);
     return 1;
 }
 
-s32 func_ov015_02126860(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov015_02126860(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm026Icon* data = task->data;
 
     switch (stage) {

@@ -4,6 +4,7 @@
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
+#include <nitro/mi/cpumem.h>
 
 // The battle status popup ("SD"/"ATK" style labels): a sprite that follows one battle unit and
 // swaps its animation whenever the unit's periodic effect mode changes.
@@ -32,20 +33,21 @@ typedef struct BtlPop_State {
 // Forward declarations
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_0209ca18(BtlPop_State* data);
-s32  func_ov003_0209ca90(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209cb24(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209ccc0(s32 engine, CombatActor* actor);
+static s32 func_ov003_0209ca90(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209cb24(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209cb70(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209cc44(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209cc58(TaskPool* pool, Task* task, void* args, s32 stage);
 
 // ---------------------------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e3cd8[0x14] = "Tsk_BtlPop_State";
+static char data_ov003_020e3cd8[0x14] = "Tsk_BtlPop_State";
 
-const TaskHandle data_ov003_020d80dc = {data_ov003_020e3cd8, func_ov003_0209cc58, 0x6C};
+static const TaskHandle data_ov003_020d80dc = {data_ov003_020e3cd8, func_ov003_0209cc58, 0x6C};
 
-const TaskStages data_ov003_020d80e8 = {
+static const TaskStages data_ov003_020d80e8 = {
     .initialize = func_ov003_0209ca90,
     .update     = func_ov003_0209cb24,
     .render     = func_ov003_0209cb70,
@@ -53,7 +55,7 @@ const TaskStages data_ov003_020d80e8 = {
 };
 
 /// One entry per periodic effect mode: the label sprites of the status icon.
-const SpriteAnimEntry data_ov003_020d80f8[5] = {
+static const SpriteAnimEntry data_ov003_020d80f8[5] = {
     {0x3A, 0x3C, 0x3B, 0},
     {0x3A, 0x3C, 0x3B, 1},
     {0x3A, 0x3C, 0x3B, 2},
@@ -69,7 +71,7 @@ extern BinIdentifier data_ov003_020d7800;
 
 /// Picks the label sprite for the unit's current periodic effect mode. Mode 0 (no effect) hides
 /// the popup by clearing `active`; modes 1..4 map onto the four sprite table entries.
-void func_ov003_0209ca18(BtlPop_State* data) {
+static void func_ov003_0209ca18(BtlPop_State* data) {
     if (data->effectMode == 0) {
         data->active = 0;
         return;
@@ -93,7 +95,7 @@ void func_ov003_0209ca18(BtlPop_State* data) {
 // Nonmatching: the two stack arguments of the LoadFromTable call are evaluated in the opposite
 // order, so mwcc materialises them in r1/r12 instead of the consecutive r0/r1 that let the
 // target merge the pair into one `stmia`. Code size and every operand are identical.
-s32 func_ov003_0209ca90(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ca90(TaskPool* pool, Task* task, void* args) {
     BtlPop_State*     data    = task->data;
     BtlPop_StateArgs* popArgs = args;
 
@@ -108,7 +110,7 @@ s32 func_ov003_0209ca90(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209cb24(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209cb24(TaskPool* pool, Task* task, void* args) {
     BtlPop_State* data = task->data;
 
     if (data->actor->flags & 4) {
@@ -122,7 +124,7 @@ s32 func_ov003_0209cb24(TaskPool* pool, Task* task, void* args) {
     return data->active;
 }
 
-s32 func_ov003_0209cb70(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209cb70(TaskPool* pool, Task* task, void* args) {
     BtlPop_State* data  = task->data;
     CombatActor*  actor = data->actor;
     s32           posX;
@@ -147,12 +149,12 @@ s32 func_ov003_0209cb70(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209cc44(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209cc44(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
-s32 func_ov003_0209cc58(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209cc58(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d80e8;
 
     if (func_ov003_0208b690(stage) != 0) {

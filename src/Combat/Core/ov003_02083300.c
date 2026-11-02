@@ -3,12 +3,14 @@
 #include "Combat/Core/CombatBgRes.h"
 #include "Combat/Core/CombatBgTiles.h"
 #include "Combat/Core/CombatSpriteSlot.h"
+#include "Engine/Core/DMA.h"
 #include "Engine/File/DatMgr.h"
 #include "Engine/Resources/BgResMgr.h"
 #include "Engine/Resources/PaletteMgr.h"
 #include "SpriteMgr.h"
 
 #include <nitro/fx.h>
+#include <nitro/g2.h>
 
 /// A longer command (0x14 bytes) used by `func_ov003_02083700`; the extra operands select the
 /// sprite slot and the palette window.
@@ -38,20 +40,6 @@ typedef struct Ov003CameraPathPos {
 extern const Ov003CameraPath data_ov003_020da2c0[];
 /// Camera path table for the sub engine.
 extern const Ov003CameraPath data_ov003_020d9c94[];
-
-extern s32 G2_GetBG1CharPtr(void);
-extern s32 G2_GetBG2CharPtr(void);
-extern s32 G2S_GetBG1CharPtr(void);
-extern s32 func_02036974(void);
-
-extern void func_02001b44(s32 mode, s32 dst, const void* src, s32 size);
-
-extern void func_ov003_020d3eb4(Ov003SpriteSlot* slot, BinIdentifier* iden, const void* anims, void* charDest, u16 arg4,
-                                u16 arg5);
-extern void func_ov003_020d3f44(Ov003SpriteSlot* slot, PaletteResource* palette, BinIdentifier* iden, u16 engine, u8 palStart,
-                                u8 palCount);
-extern void func_ov003_020d3fd8(Ov003SpriteSlot* slot);
-extern void func_ov003_020d40fc(Ov003SpriteSlot* slot);
 
 void func_ov003_02083300(Ov003BgResState* state, s32 engine, BinIdentifier* iden) {
     s32 i;

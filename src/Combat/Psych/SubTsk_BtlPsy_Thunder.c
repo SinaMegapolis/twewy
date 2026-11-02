@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc978;
+static const TaskHandle data_ov003_020dc978;
 
 void func_ov003_020b3050(CombatList* list, Ov003TargetEntry* entry) {
     if (entry == NULL)
@@ -46,7 +46,7 @@ s32 func_ov003_020b3108(Ov003EffectState* effect, CombatList* targets, s32* fini
     return func_ov003_020a6000(&data_ov003_020dc978, &args);
 }
 
-s32 func_ov003_020b3134(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b3134(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003ThunderArgs* arg = args;
     Ov003Thunder*     self;
     switch (stage) {
@@ -94,5 +94,5 @@ s32 func_ov003_020b3134(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4dc8[24] = "SubTsk_BtlPsy_Thunder";
-const TaskHandle data_ov003_020dc978     = {data_ov003_020e4dc8, func_ov003_020b3134, sizeof(Ov003Thunder)};
+static char             data_ov003_020e4dc8[24] = "SubTsk_BtlPsy_Thunder";
+static const TaskHandle data_ov003_020dc978     = {data_ov003_020e4dc8, func_ov003_020b3134, sizeof(Ov003Thunder)};

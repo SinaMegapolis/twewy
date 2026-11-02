@@ -890,57 +890,57 @@ func_ov009_02120b5c kind:function(arm,size=0x38) addr:0x02120b5c
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Noise/BtlEnm003/BtlEnm003_RG.c
 //////////////////////////////////////////////////////////////////////
-func_ov009_02120b94 kind:function(arm,size=0x50) addr:0x02120b94
-BtlEnm003_RG_SetState kind:function(arm,size=0x34) addr:0x02120be4
-func_ov009_02120c18 kind:function(arm,size=0x30) addr:0x02120c18
-func_ov009_02120c48 kind:function(arm,size=0x28) addr:0x02120c48
-func_ov009_02120c70 kind:function(arm,size=0xa8) addr:0x02120c70
-func_ov009_02120d18 kind:function(arm,size=0x4c) addr:0x02120d18
-func_ov009_02120d64 kind:function(arm,size=0x6c) addr:0x02120d64
-func_ov009_02120dd0 kind:function(arm,size=0x194) addr:0x02120dd0
-func_ov009_02120f64 kind:function(arm,size=0x194) addr:0x02120f64
-func_ov009_021210f8 kind:function(arm,size=0x184) addr:0x021210f8
-func_ov009_0212127c kind:function(arm,size=0x2c) addr:0x0212127c
-func_ov009_021212a8 kind:function(arm,size=0x1c) addr:0x021212a8
-func_ov009_021212c4 kind:function(arm,size=0x30) addr:0x021212c4
-BtlEnm003_RG_Init kind:function(arm,size=0x64) addr:0x021212f4
-BtlEnm003_RG_Update kind:function(arm,size=0xf0) addr:0x02121358
-BtlEnm003_RG_Render kind:function(arm,size=0x14) addr:0x02121448
-BtlEnm003_RG_Destroy kind:function(arm,size=0x14) addr:0x0212145c
-BtlEnm003_RG_RunTask kind:function(arm,size=0x48) addr:0x02121470
+func_ov009_02120b94 kind:function(arm,size=0x50) addr:0x02120b94 local
+BtlEnm003_RG_SetState kind:function(arm,size=0x34) addr:0x02120be4 local
+func_ov009_02120c18 kind:function(arm,size=0x30) addr:0x02120c18 local
+func_ov009_02120c48 kind:function(arm,size=0x28) addr:0x02120c48 local
+func_ov009_02120c70 kind:function(arm,size=0xa8) addr:0x02120c70 local
+func_ov009_02120d18 kind:function(arm,size=0x4c) addr:0x02120d18 local
+func_ov009_02120d64 kind:function(arm,size=0x6c) addr:0x02120d64 local
+func_ov009_02120dd0 kind:function(arm,size=0x194) addr:0x02120dd0 local
+func_ov009_02120f64 kind:function(arm,size=0x194) addr:0x02120f64 local
+func_ov009_021210f8 kind:function(arm,size=0x184) addr:0x021210f8 local
+func_ov009_0212127c kind:function(arm,size=0x2c) addr:0x0212127c local
+func_ov009_021212a8 kind:function(arm,size=0x1c) addr:0x021212a8 local
+func_ov009_021212c4 kind:function(arm,size=0x30) addr:0x021212c4 local
+BtlEnm003_RG_Init kind:function(arm,size=0x64) addr:0x021212f4 local
+BtlEnm003_RG_Update kind:function(arm,size=0xf0) addr:0x02121358 local
+BtlEnm003_RG_Render kind:function(arm,size=0x14) addr:0x02121448 local
+BtlEnm003_RG_Destroy kind:function(arm,size=0x14) addr:0x0212145c local
+BtlEnm003_RG_RunTask kind:function(arm,size=0x48) addr:0x02121470 local
 
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Noise/BtlEnm003/BtlEnm003_UG.c
 //////////////////////////////////////////////////////////////////////
-func_ov009_021214b8 kind:function(arm,size=0x2c) addr:0x021214b8
-func_ov009_021214e4 kind:function(arm,size=0x50) addr:0x021214e4
-func_ov009_02121534 kind:function(arm,size=0x40) addr:0x02121534
-func_ov009_02121574 kind:function(arm,size=0xc4) addr:0x02121574
-func_ov009_02121638 kind:function(arm,size=0x58) addr:0x02121638
-func_ov009_02121690 kind:function(arm,size=0x50) addr:0x02121690
-func_ov009_021216e0 kind:function(arm,size=0x5c) addr:0x021216e0
-BtlEnm003_UG_SetState kind:function(arm,size=0x34) addr:0x0212173c
-func_ov009_02121770 kind:function(arm,size=0x30) addr:0x02121770
-func_ov009_021217a0 kind:function(arm,size=0x3c) addr:0x021217a0
-func_ov009_021217dc kind:function(arm,size=0x154) addr:0x021217dc
-func_ov009_02121930 kind:function(arm,size=0x68) addr:0x02121930
-func_ov009_02121998 kind:function(arm,size=0x164) addr:0x02121998
-func_ov009_02121afc kind:function(arm,size=0xac) addr:0x02121afc
-func_ov009_02121ba8 kind:function(arm,size=0x200) addr:0x02121ba8
-func_ov009_02121da8 kind:function(arm,size=0x1fc) addr:0x02121da8
-func_ov009_02121fa4 kind:function(arm,size=0x3fc) addr:0x02121fa4
-func_ov009_021223a0 kind:function(arm,size=0x18c) addr:0x021223a0
-func_ov009_0212252c kind:function(arm,size=0x2c) addr:0x0212252c
-func_ov009_02122558 kind:function(arm,size=0x2c) addr:0x02122558
-func_ov009_02122584 kind:function(arm,size=0x2c) addr:0x02122584
-func_ov009_021225b0 kind:function(arm,size=0x2c) addr:0x021225b0
-func_ov009_021225dc kind:function(arm,size=0x1c) addr:0x021225dc
-func_ov009_021225f8 kind:function(arm,size=0x30) addr:0x021225f8
-BtlEnm003_UG_Init kind:function(arm,size=0x64) addr:0x02122628
-BtlEnm003_UG_Update kind:function(arm,size=0x168) addr:0x0212268c
-BtlEnm003_UG_Render kind:function(arm,size=0x14) addr:0x021227f4
-BtlEnm003_UG_Destroy kind:function(arm,size=0x14) addr:0x02122808
-BtlEnm003_UG_RunTask kind:function(arm,size=0x48) addr:0x0212281c
+func_ov009_021214b8 kind:function(arm,size=0x2c) addr:0x021214b8 local
+func_ov009_021214e4 kind:function(arm,size=0x50) addr:0x021214e4 local
+func_ov009_02121534 kind:function(arm,size=0x40) addr:0x02121534 local
+func_ov009_02121574 kind:function(arm,size=0xc4) addr:0x02121574 local
+func_ov009_02121638 kind:function(arm,size=0x58) addr:0x02121638 local
+func_ov009_02121690 kind:function(arm,size=0x50) addr:0x02121690 local
+func_ov009_021216e0 kind:function(arm,size=0x5c) addr:0x021216e0 local
+BtlEnm003_UG_SetState kind:function(arm,size=0x34) addr:0x0212173c local
+func_ov009_02121770 kind:function(arm,size=0x30) addr:0x02121770 local
+func_ov009_021217a0 kind:function(arm,size=0x3c) addr:0x021217a0 local
+func_ov009_021217dc kind:function(arm,size=0x154) addr:0x021217dc local
+func_ov009_02121930 kind:function(arm,size=0x68) addr:0x02121930 local
+func_ov009_02121998 kind:function(arm,size=0x164) addr:0x02121998 local
+func_ov009_02121afc kind:function(arm,size=0xac) addr:0x02121afc local
+func_ov009_02121ba8 kind:function(arm,size=0x200) addr:0x02121ba8 local
+func_ov009_02121da8 kind:function(arm,size=0x1fc) addr:0x02121da8 local
+func_ov009_02121fa4 kind:function(arm,size=0x3fc) addr:0x02121fa4 local
+func_ov009_021223a0 kind:function(arm,size=0x18c) addr:0x021223a0 local
+func_ov009_0212252c kind:function(arm,size=0x2c) addr:0x0212252c local
+func_ov009_02122558 kind:function(arm,size=0x2c) addr:0x02122558 local
+func_ov009_02122584 kind:function(arm,size=0x2c) addr:0x02122584 local
+func_ov009_021225b0 kind:function(arm,size=0x2c) addr:0x021225b0 local
+func_ov009_021225dc kind:function(arm,size=0x1c) addr:0x021225dc local
+func_ov009_021225f8 kind:function(arm,size=0x30) addr:0x021225f8 local
+BtlEnm003_UG_Init kind:function(arm,size=0x64) addr:0x02122628 local
+BtlEnm003_UG_Update kind:function(arm,size=0x168) addr:0x0212268c local
+BtlEnm003_UG_Render kind:function(arm,size=0x14) addr:0x021227f4 local
+BtlEnm003_UG_Destroy kind:function(arm,size=0x14) addr:0x02122808 local
+BtlEnm003_UG_RunTask kind:function(arm,size=0x48) addr:0x0212281c local
 
 
 data_ov009_02122864 kind:data(any) addr:0x02122864

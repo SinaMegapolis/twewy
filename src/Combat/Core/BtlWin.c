@@ -4,6 +4,7 @@
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
 // The victory screen (`Tsk_BtlWin`): two banner sprites slide in from the sides of the screen, the partner (or the
@@ -35,23 +36,19 @@ typedef struct BtlWin {
 
 extern const BinIdentifier data_ov003_020d7818;
 
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
-extern void func_ov003_0208b278(u32 state);
+static void func_ov003_020a147c(BtlWin* self);
+static void func_ov003_020a14c8(BtlWin* self);
+static s32  func_ov003_020a15a4(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a1608(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a163c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a16ac(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020a16cc(TaskPool* pool, Task* task, void* args, s32 stage);
 
-void func_ov003_020a13f8(BtlWin* self);
-void func_ov003_020a147c(BtlWin* self);
-void func_ov003_020a14c8(BtlWin* self);
-s32  func_ov003_020a15a4(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a1608(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a163c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a16ac(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020a16cc(TaskPool* pool, Task* task, void* args, s32 stage);
-
-char             data_ov003_020e3e18[12] = "Tsk_BtlWin";
+static char      data_ov003_020e3e18[12] = "Tsk_BtlWin";
 const TaskHandle data_ov003_020d8810     = {data_ov003_020e3e18, func_ov003_020a16cc, sizeof(BtlWin)};
 
 /// The stage table of the screen: build, update, draw, release.
-const TaskStages data_ov003_020d881c = {
+static const TaskStages data_ov003_020d881c = {
     func_ov003_020a15a4,
     func_ov003_020a1608,
     func_ov003_020a163c,
@@ -62,14 +59,14 @@ const TaskStages data_ov003_020d881c = {
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_020a0f08(BtlWin* self, BtlWinState state) {
+static void func_ov003_020a0f08(BtlWin* self, BtlWinState state) {
     self->state = state;
     self->phase = 0;
     self->timer = 0;
 }
 
 /// Loads a banner sprite for `engine`.
-void func_ov003_020a0f1c(s32 engine, CombatSprite* sprite) {
+static void func_ov003_020a0f1c(s32 engine, CombatSprite* sprite) {
     SpriteAnimationEx anim;
 
     CombatSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
@@ -88,7 +85,7 @@ void func_ov003_020a0f1c(s32 engine, CombatSprite* sprite) {
 }
 
 /// The generic victory line; `weak` picks the line for a hard fought win.
-void func_ov003_020a0fac(s32 weak) {
+static void func_ov003_020a0fac(s32 weak) {
     u16 line;
 
     if (weak) {
@@ -110,7 +107,7 @@ void func_ov003_020a0fac(s32 weak) {
 }
 
 /// The partner's own victory line.
-void func_ov003_020a1038(s32 weak) {
+static void func_ov003_020a1038(s32 weak) {
     s32 line;
 
     if (weak) {
@@ -170,7 +167,7 @@ void func_ov003_020a1038(s32 weak) {
 }
 
 /// Plays the victory line of the boss of this battle. Returns 0 when the battle has no boss line.
-s32 func_ov003_020a11c8(void) {
+static s32 func_ov003_020a11c8(void) {
     s32 result = 1;
 
     switch (data_ov003_020e71b8->unk3D88E) {
@@ -240,7 +237,7 @@ s32 func_ov003_020a11c8(void) {
 }
 
 /// Picks and plays the victory line.
-void func_ov003_020a1374(void) {
+static void func_ov003_020a1374(void) {
     s32 weak = 0;
     s32 other;
 
@@ -268,7 +265,7 @@ void func_ov003_020a1374(void) {
 }
 
 /// The banners slide in.
-void func_ov003_020a13f8(BtlWin* self) {
+static void func_ov003_020a13f8(BtlWin* self) {
     if (self->timer == 0) {
         self->timer = 30;
         func_ov003_02087f00(SEIDX_SE_NOISEERASED01, 0x80);
@@ -285,7 +282,7 @@ void func_ov003_020a13f8(BtlWin* self) {
 }
 
 /// The victory line plays while the banners wait.
-void func_ov003_020a147c(BtlWin* self) {
+static void func_ov003_020a147c(BtlWin* self) {
     if (self->timer == 0) {
         func_ov003_020a1374();
         self->timer = 100;
@@ -298,7 +295,7 @@ void func_ov003_020a147c(BtlWin* self) {
 }
 
 /// The banners slide out and the screen fades.
-void func_ov003_020a14c8(BtlWin* self) {
+static void func_ov003_020a14c8(BtlWin* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -328,7 +325,7 @@ void func_ov003_020a14c8(BtlWin* self) {
     }
 }
 
-s32 func_ov003_020a15a4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a15a4(TaskPool* pool, Task* task, void* args) {
     BtlWin* self = task->data;
 
     MI_CpuSet(self, 0, sizeof(*self));
@@ -341,7 +338,7 @@ s32 func_ov003_020a15a4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a1608(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a1608(TaskPool* pool, Task* task, void* args) {
     BtlWin* self = task->data;
 
     if (self->state != NULL) {
@@ -352,7 +349,7 @@ s32 func_ov003_020a1608(TaskPool* pool, Task* task, void* args) {
     return self->running;
 }
 
-s32 func_ov003_020a163c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a163c(TaskPool* pool, Task* task, void* args) {
     BtlWin* self = task->data;
 
     CombatSprite_SetPosition(&self->sprites[1], (self->subX * 0x10) >> 16, 0x60);
@@ -365,7 +362,7 @@ s32 func_ov003_020a163c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a16ac(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a16ac(TaskPool* pool, Task* task, void* args) {
     BtlWin* self = task->data;
 
     CombatSprite_Release(&self->sprites[0]);
@@ -373,7 +370,7 @@ s32 func_ov003_020a16ac(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a16cc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a16cc(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d881c;
 
     return stages.iter[stage](pool, task, args);

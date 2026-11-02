@@ -1,6 +1,8 @@
+#include "Player/Inventory.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/File/DatMgr.h"
 #include "Field/FieldRegion.h"
+#include "Player/Stats.h"
 #include "Save.h"
 #include "common_data.h"
 #include <nitro/types.h>
@@ -408,7 +410,7 @@ static void Inventory_AddMasteredPin(u16 pinIdx, s32 pinID, u8 flag) {
     }
 }
 
-void Inventory_AddStockItem(u16 arg0, s32 arg1, u8 arg2) {
+static void Inventory_AddStockItem(u16 arg0, s32 arg1, u8 arg2) {
     gSaveData.inventoryItems[arg0].itemID                     = arg1;
     gSaveData.inventoryItems[arg0].flags.bits.unk_04          = arg2;
     gSaveData.inventoryItems[arg0].flags.bits.abilityUnlocked = 0;
@@ -1016,7 +1018,7 @@ s32 func_02023f60(u32 arg0, u32 arg1) {
     return 1;
 }
 
-u32 Inventory_GetNoiseReportCount(void) {
+u16 Inventory_GetNoiseReportCount(void) {
     MainData* mainData = &gSaveState.unk_20;
 
     u32 var_r0 = 0;
@@ -1035,7 +1037,7 @@ u32 Inventory_GetNoiseReportCount(void) {
 }
 
 // Nonmatching
-s32 func_020240e0(u16 arg0, void* arg1) {
+static s32 func_020240e0(u16 arg0, void* arg1) {
     for (u16 deck = 0; deck < 4; deck++) {
         for (u16 slot = 0; slot < 6; slot++) {
             if ((arg0 == gSaveData.pinLayouts[deck][slot].pinID) &&
@@ -1074,20 +1076,20 @@ u16 Inventory_GetMasteredPinCount(void) {
     return var_r5;
 }
 
-u32 Inventory_GetCollectedItemCount(void) {
-    u32 var_r0 = 0;
-
+u16 Inventory_GetCollectedItemCount(void) {
+    u16       var_r0   = 0;
     MainData* mainData = &gSaveState.unk_20;
-
-    for (u16 i = 0; i < 472; i++) {
+    u16       i;
+    for (i = 0; i < 472; i++) {
         if (mainData->inventoryItems[i].itemID != 0xFFFF) {
             var_r0 = (u16)(var_r0 + 1);
         }
     }
 
-    u32 temp_r1 = gSaveState.unk_20.experience.unk_2 << 0x17;
-    if (var_r0 <= (temp_r1 >> 0x17)) {
-        var_r0 = (temp_r1 >> 0x17);
+    u32 temp_r1 = gSaveState.unk_20.experience.unk_2 << 23;
+    if (var_r0 <= (temp_r1 >> 23)) {
+        var_r0 = temp_r1;
+        var_r0 >>= 23;
     }
     return var_r0;
 }

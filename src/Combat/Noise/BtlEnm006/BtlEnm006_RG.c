@@ -6,10 +6,10 @@
 
 #include <nitro/mi/cpumem.h>
 
-s16        func_ov010_02126830(BtlEnm006* data, void* arg1);
-extern s32 func_ov010_021269d0(TaskPool* pool, Task* task, void* args, s32 stage);
-extern s32 func_ov010_02126a20(BtlEnm006*, void*);
-extern s32 func_ov010_02126a94(BtlEnm006*);
+static s16 func_ov010_02126830(BtlEnm006* data, void* arg1);
+static s32 func_ov010_021269d0(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov010_02126a20(BtlEnm006*, void*);
+static s32 func_ov010_02126a94(BtlEnm006*);
 
 /// One corner of the hexagon the RG patrols, relative to the screen centre.
 typedef struct Enm006Waypoint {
@@ -20,23 +20,27 @@ typedef struct Enm006Waypoint {
     /* 0x0C */ s32 unk_0C; // facing for that leg
 } Enm006Waypoint;          // Size: 0x10
 
-extern void func_ov010_021259e8(BtlEnm006*);
-extern void func_ov010_02125c80(BtlEnm006*);
-extern void func_ov010_02125b28(BtlEnm006*);
-extern s32  func_ov010_021265ac(BtlEnm006*, s32);
-extern void func_ov010_02125de4(BtlEnm006*);
-extern char data_ov010_021293a4[20];
+static void func_ov010_021259e8(BtlEnm006*);
+static void func_ov010_02125c80(BtlEnm006*);
+static void func_ov010_02125b28(BtlEnm006*);
+static s32  func_ov010_021265ac(BtlEnm006*, s32);
+static void func_ov010_02125de4(BtlEnm006*);
+static char data_ov010_021293a4[20];
+static s32  func_ov010_0212688c(BtlEnm006* data);
+static s32  func_ov010_021268c4(void* arg0, void* arg1);
+static s32  func_ov010_02126c18(BtlEnm006* data);
+static s32  func_ov010_02126c28(BtlEnm006* data);
 
 const TaskHandle Tsk_BtlEnm006_RG = {data_ov010_021293a4, func_ov010_021269d0, 0x1FC};
 
 /// Palette per variant (`unk_080`) and damage level (`unk_1E8`).
-const u16 data_ov010_02129238[3][4] = {
+static const u16 data_ov010_02129238[3][4] = {
     {19, 20, 21, 22},
     {19, 20, 21, 22},
     {19, 20, 21, 22},
 };
 
-const Enm006Waypoint data_ov010_02129250[6] = {
+static const Enm006Waypoint data_ov010_02129250[6] = {
     { 0x60000,        0, 2, 0, 1},
     { 0x40000, -0x18000, 2, 0, 0},
     {-0x40000, -0x18000, 0, 0, 0},
@@ -45,16 +49,16 @@ const Enm006Waypoint data_ov010_02129250[6] = {
     { 0x40000,  0x18000, 0, 0, 1},
 };
 
-char data_ov010_021293a4[20] = "Tsk_BtlEnm006_RG";
+static char data_ov010_021293a4[20] = "Tsk_BtlEnm006_RG";
 
-void func_ov010_02125910(BtlEnm006* data, void* arg1) {
+static void func_ov010_02125910(BtlEnm006* data, void* arg1) {
     func_ov003_020c427c(&data->base);
     data->unk_1C8 = arg1;
     data->unk_1C4 = 0;
     data->unk_1C0 = 0;
 }
 
-void func_ov010_02125938(BtlEnm006* data) {
+static void func_ov010_02125938(BtlEnm006* data) {
     if (func_ov003_020c4e0c(data) != 0) {
         if (RNG_Next(0x64) < 0x4B) {
             func_ov010_02125910(data, (void*)func_ov010_02125c80);
@@ -66,7 +70,7 @@ void func_ov010_02125938(BtlEnm006* data) {
     }
 }
 
-void func_ov010_02125998(BtlEnm006* data) {
+static void func_ov010_02125998(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         data->unk_1C0++;
         data->base.unk_188 = data->base.partner->unk_188;
@@ -77,7 +81,7 @@ void func_ov010_02125998(BtlEnm006* data) {
     func_ov010_02125910(data, (void*)func_ov010_021259e8);
 }
 
-void func_ov010_021259e8(BtlEnm006* data) {
+static void func_ov010_021259e8(BtlEnm006* data) {
     s32 arrived;
     if (((u16*)data->base.unk_188)[1] != 0) {
         data->unk_1DC = data->unk_1E0 = data->unk_1E4 = 0;
@@ -103,7 +107,7 @@ void func_ov010_021259e8(BtlEnm006* data) {
     data->unk_1C0 = data->unk_1C0 + 1;
 }
 
-void func_ov010_02125b28(BtlEnm006* data) {
+static void func_ov010_02125b28(BtlEnm006* data) {
     CombatSprite* cs = &data->base.sprite;
     switch (data->unk_1C4) {
         case 0:
@@ -148,7 +152,7 @@ void func_ov010_02125b28(BtlEnm006* data) {
     }
 }
 
-void func_ov010_02125c80(BtlEnm006* data) {
+static void func_ov010_02125c80(BtlEnm006* data) {
     switch (data->unk_1C4) {
         case 0:
             if (func_ov003_020c6230(&data->base) != 0) {
@@ -185,7 +189,7 @@ void func_ov010_02125c80(BtlEnm006* data) {
     }
 }
 
-void func_ov010_02125de4(BtlEnm006* data) {
+static void func_ov010_02125de4(BtlEnm006* data) {
     CombatSprite* cs = &data->base.sprite;
     switch (data->unk_1C4) {
         case 0:
@@ -349,7 +353,7 @@ void func_ov010_02125de4(BtlEnm006* data) {
     }
 }
 
-void func_ov010_0212636c(BtlEnm006* data) {
+static void func_ov010_0212636c(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         data->unk_1C0++;
         data->unk_1DC = data->unk_1E0 = data->unk_1E4 = 0;
@@ -360,7 +364,7 @@ void func_ov010_0212636c(BtlEnm006* data) {
     func_ov010_02125910(data, (void*)func_ov010_021259e8);
 }
 
-void func_ov010_021263c4(BtlEnm006* data) {
+static void func_ov010_021263c4(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
         data->unk_1C0++;
         data->unk_1DC = data->unk_1E0 = data->unk_1E4 = 0;
@@ -371,7 +375,7 @@ void func_ov010_021263c4(BtlEnm006* data) {
     func_ov010_02125910(data, (void*)func_ov010_021259e8);
 }
 
-s32 func_ov010_02126420(BtlEnm006* data) {
+static s32 func_ov010_02126420(BtlEnm006* data) {
     s32 result = func_ov003_020c703c(&data->base);
     if (result == 0) {
         data->unk_1CC = result = 0;
@@ -379,7 +383,7 @@ s32 func_ov010_02126420(BtlEnm006* data) {
     return result;
 }
 
-s32 func_ov010_0212643c(BtlEnm006* data) {
+static s32 func_ov010_0212643c(BtlEnm006* data) {
     s32 bestD = 0x7FFFFFFF;
     s32 best  = 0x7FFFFFFF - 0x80000000;
     s32 cx    = func_ov003_020cb744(1);
@@ -423,7 +427,7 @@ s32 func_ov010_0212643c(BtlEnm006* data) {
     return best;
 }
 
-s32 func_ov010_021265ac(BtlEnm006* data, s32 arg1) {
+static s32 func_ov010_021265ac(BtlEnm006* data, s32 arg1) {
     if (arg1 == 0) {
         data->unk_1F0 = 0;
         data->unk_1EC = func_ov010_0212643c(data);
@@ -504,18 +508,18 @@ bump:
     return 0;
 }
 
-s16 func_ov010_02126830(BtlEnm006* data, void* arg1) {
+static s16 func_ov010_02126830(BtlEnm006* data, void* arg1) {
     return func_ov003_020cb910(&data->unk_1DC, &data->unk_1E0, &data->unk_1E4, data->base.actor.position.x,
                                data->base.actor.position.y, data->base.actor.position.z, data->unk_1D0, data->unk_1D4,
                                data->unk_1D8, arg1);
 }
 
-s32 func_ov010_0212688c(BtlEnm006* data) {
+static s32 func_ov010_0212688c(BtlEnm006* data) {
     return func_ov003_020cba54(data->base.actor.position.x, data->base.actor.position.y, data->base.actor.position.z,
                                data->unk_1D0, data->unk_1D4, data->unk_1D8);
 }
 
-s32 func_ov010_021268c4(void* arg0, void* arg1) {
+static s32 func_ov010_021268c4(void* arg0, void* arg1) {
     BtlEnm006* data = arg0;
     if (func_ov003_020cc354(arg1) != 0) {
         return 0;
@@ -525,7 +529,7 @@ s32 func_ov010_021268c4(void* arg0, void* arg1) {
                                data->base.actor.position.z, 0x10000, 0x10000, 0x20000);
 }
 
-void func_ov010_02126934(BtlEnm006* data, u16 arg1) {
+static void func_ov010_02126934(BtlEnm006* data, u16 arg1) {
     data->unk_1E8 = data->unk_1E8 + arg1;
     if (data->unk_1E8 >= 4) {
         data->unk_1E8 = 3;
@@ -538,7 +542,7 @@ void func_ov010_02126934(BtlEnm006* data, u16 arg1) {
     data->base.actor.flags |= 0x40000000;
 }
 
-s32 func_ov010_021269d0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov010_021269d0(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* data = task->data;
     switch (stage) {
         case 0:
@@ -553,7 +557,7 @@ s32 func_ov010_021269d0(TaskPool* pool, Task* task, void* args, s32 stage) {
     return 1;
 }
 
-s32 func_ov010_02126a20(BtlEnm006* data, void* arg1) {
+static s32 func_ov010_02126a20(BtlEnm006* data, void* arg1) {
     MI_CpuSet(data, 0, 0x1FC);
     func_ov003_020c3efc(&data->base, arg1);
     func_ov003_020c44ac(&data->base);
@@ -568,7 +572,7 @@ s32 func_ov010_02126a20(BtlEnm006* data, void* arg1) {
     return 1;
 }
 
-s32 func_ov010_02126a94(BtlEnm006* data) {
+static s32 func_ov010_02126a94(BtlEnm006* data) {
     s32 flag = 0;
     if (data->unk_1C8 != (void*)func_ov010_02125998) {
         if (func_ov003_020c3bf0(data) != 0) {
@@ -620,12 +624,12 @@ s32 func_ov010_02126a94(BtlEnm006* data) {
     return data->unk_1CC;
 }
 
-s32 func_ov010_02126c18(BtlEnm006* data) {
+static s32 func_ov010_02126c18(BtlEnm006* data) {
     func_ov003_020c4878(data);
     return 1;
 }
 
-s32 func_ov010_02126c28(BtlEnm006* data) {
+static s32 func_ov010_02126c28(BtlEnm006* data) {
     func_ov003_020c48fc(data);
     return 1;
 }

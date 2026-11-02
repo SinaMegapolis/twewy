@@ -3,9 +3,8 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc638;
+static const TaskHandle data_ov003_020dc638;
+static Vec2p            func_ov003_020a904c(s32 radius, s32 fixedRadius);
 
 s32 func_ov003_020a8e74(s32 x, s32 y, s32 engine, s32 kind, s32 radius, s32 fixedRadius, s32 lifetime) {
     Ov003BrilliantArgs args;
@@ -20,7 +19,7 @@ s32 func_ov003_020a8e74(s32 x, s32 y, s32 engine, s32 kind, s32 radius, s32 fixe
     return func_ov003_020a6000(&data_ov003_020dc638, &args);
 }
 
-s32 func_ov003_020a8ec4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a8ec4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003BrilliantArgs*   arg = args;
     Ov003BrilliantEffect* effect;
     switch (stage) {
@@ -63,7 +62,7 @@ s32 func_ov003_020a8ec4(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-Vec2p func_ov003_020a904c(s32 radius, s32 fixedRadius) {
+static Vec2p func_ov003_020a904c(s32 radius, s32 fixedRadius) {
     Vec2p offset;
     u16   angle;
     if (fixedRadius == 0)
@@ -86,5 +85,5 @@ void func_ov003_020a910c(u32 id, s32 x, s32 y) {
         effect->position.y = y;
     }
 }
-char             data_ov003_020e49bc[28] = "CmnTsk_BtlPsy_EffBrilliant";
-const TaskHandle data_ov003_020dc638     = {data_ov003_020e49bc, func_ov003_020a8ec4, sizeof(Ov003BrilliantEffect)};
+static char             data_ov003_020e49bc[28] = "CmnTsk_BtlPsy_EffBrilliant";
+static const TaskHandle data_ov003_020dc638     = {data_ov003_020e49bc, func_ov003_020a8ec4, sizeof(Ov003BrilliantEffect)};

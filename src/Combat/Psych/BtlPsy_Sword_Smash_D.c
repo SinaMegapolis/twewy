@@ -15,14 +15,14 @@ typedef struct BtlPsySmash {
     /* 0x10 */ s32 active;
 } BtlPsySmash; // Size: 0x14
 
-void func_ov003_020956c4(BtlPsySmash*);
+static void func_ov003_020956c4(BtlPsySmash*);
 
-void func_ov003_020953b4(BtlPsySmash* smash, void (*update)(BtlPsySmash*)) {
+static void func_ov003_020953b4(BtlPsySmash* smash, void (*update)(BtlPsySmash*)) {
     smash->update = update;
     smash->state  = 0;
     smash->timer  = 0;
 }
-s32 func_ov003_020953c8(void) {
+static s32 func_ov003_020953c8(void) {
     if (func_ov003_02085cfc(6)) {
         Ov003Global* global = data_ov003_020e71b8;
         if (global->touchWork.held != NULL && global->touchWork.held->unk_00 == 0)
@@ -30,7 +30,7 @@ s32 func_ov003_020953c8(void) {
     }
     return 0;
 }
-void func_ov003_02095428(s32 tier) {
+static void func_ov003_02095428(s32 tier) {
     Ov003PsychEffectArgs args;
     CombatActor*         actor = data_ov003_020e71b8->unk3D898;
     s32                  kind;
@@ -54,21 +54,21 @@ void func_ov003_02095428(s32 tier) {
     func_ov003_020a89c8(&args, RNG_Next(16) << 12, 0x1000, 0x1000);
     func_ov003_020a88a8(&args);
 }
-void func_ov003_020954e4(void) {
+static void func_ov003_020954e4(void) {
     Ov003PsychEffectArgs args;
     CombatActor*         actor = data_ov003_020e71b8->unk3D898;
     func_ov003_020a88c0(&args, actor->position.x, actor->position.y, actor->position.z - (actor->unk_76 << 12), 2, 0xD3);
     func_ov003_020a899c(&args, 0);
     func_ov003_020a88a8(&args);
 }
-void func_ov003_02095548(BtlPsySmash* smash) {
+static void func_ov003_02095548(BtlPsySmash* smash) {
     if (smash->particleTimer == 0) {
         smash->particleTimer = 6;
         func_ov003_02095428(smash->tier);
     }
     smash->particleTimer--;
 }
-void func_ov003_0209557c(Ov003EffectState* effect, s32 tier) {
+static void func_ov003_0209557c(Ov003EffectState* effect, s32 tier) {
     switch (tier) {
         case 0:
             effect->unk_0C = effect->unk_0C * 10 / 100;
@@ -81,7 +81,7 @@ void func_ov003_0209557c(Ov003EffectState* effect, s32 tier) {
             break;
     }
 }
-void func_ov003_02095608(BtlPsySmash* smash) {
+static void func_ov003_02095608(BtlPsySmash* smash) {
     func_ov003_02095548(smash);
     smash->timer++;
     if (smash->timer >= 60) {
@@ -102,7 +102,7 @@ void func_ov003_02095608(BtlPsySmash* smash) {
     func_ov003_02087250(smash->effect, data_ov003_020e71b8->unk3D898, smash->tier);
     smash->active = 0;
 }
-void func_ov003_020956c4(BtlPsySmash* smash) {
+static void func_ov003_020956c4(BtlPsySmash* smash) {
     if (smash->timer == 0) {
         func_ov003_02087f28(0xB6, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
         smash->timer = 21;
@@ -116,7 +116,7 @@ void func_ov003_020956c4(BtlPsySmash* smash) {
     func_ov003_02087250(smash->effect, data_ov003_020e71b8->unk3D898, smash->tier);
     smash->active = 0;
 }
-s32 func_ov003_02095764(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02095764(TaskPool* pool, Task* task, void* args) {
     BtlPsySmash*       smash = task->data;
     Ov003EffectState** arg   = args;
     MI_CpuSet(smash, 0, sizeof(*smash));
@@ -129,7 +129,7 @@ s32 func_ov003_02095764(TaskPool* pool, Task* task, void* args) {
     func_ov003_02087f28(0xB5, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
     return 1;
 }
-s32 func_ov003_020957e4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020957e4(TaskPool* pool, Task* task, void* args) {
     BtlPsySmash* smash = task->data;
     if (func_ov003_020a63a8(smash->effect))
         return 0;
@@ -137,19 +137,20 @@ s32 func_ov003_020957e4(TaskPool* pool, Task* task, void* args) {
         smash->update(smash);
     return smash->active;
 }
-s32 func_ov003_0209581c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209581c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
-s32 func_ov003_02095824(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02095824(TaskPool* pool, Task* task, void* args) {
     data_ov003_020e71b8->unk3D8C8 = 0;
     return 1;
 }
 
-s32              func_ov003_02095844(TaskPool* pool, Task* task, void* args, s32 stage);
-char             data_ov003_020e3bb8[28] = "Tsk_BtlPsy_Sword_Smash_D";
-const TaskHandle data_ov003_020d7e10     = {data_ov003_020e3bb8, func_ov003_02095844, sizeof(BtlPsySmash)};
-const TaskStages data_ov003_020d7e1c = {func_ov003_02095764, func_ov003_020957e4, func_ov003_0209581c, func_ov003_02095824};
-s32              func_ov003_02095844(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32              func_ov003_02095844(TaskPool* pool, Task* task, void* args, s32 stage);
+static char             data_ov003_020e3bb8[28] = "Tsk_BtlPsy_Sword_Smash_D";
+static const TaskHandle data_ov003_020d7e10     = {data_ov003_020e3bb8, func_ov003_02095844, sizeof(BtlPsySmash)};
+static const TaskStages data_ov003_020d7e1c     = {func_ov003_02095764, func_ov003_020957e4, func_ov003_0209581c,
+                                                   func_ov003_02095824};
+static s32              func_ov003_02095844(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7e1c;
     return stages.iter[stage](pool, task, args);
 }

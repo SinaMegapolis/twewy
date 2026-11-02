@@ -1,4 +1,6 @@
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
@@ -562,15 +564,15 @@ s32 BtlFeat02_Step_LoadPhase1Resources(BtlFeat02* feat) {
     void* var_r0_5 = Data_GetPackEntryData(feat->phasePackData, 10);
     feat->unk_370  = (void*)(var_r0_5 + 4);
 
-    func_0200d1d8(&feat->unk_2DC, 1, 2, 0, &feat->unk_354, 1, 2);
-    func_0200d1d8(&feat->unk_32C, 1, 3, 0, &feat->unk_360, 1, 1);
-    func_0200d1d8(&feat->unk_2B4, 0, 2, 0, &feat->unk_36C, 1, 2);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_2DC, 1, 2, 0, &feat->unk_354, 1, 2);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_32C, 1, 3, 0, &feat->unk_360, 1, 1);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_2B4, 0, 2, 0, &feat->unk_36C, 1, 2);
 
     func_0200d954(0, 3);
 
-    func_0200d858(&feat->unk_2DC, 1, 0, 0);
-    func_0200d858(&feat->unk_32C, 1, 0, 0);
-    func_0200d858(&feat->unk_2B4, 1, 0, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_2DC, 1, 0, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_32C, 1, 0, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_2B4, 1, 0, 0);
 
     PaletteMgr_Flush(g_PaletteManagers[1], feat->subPalette);
     PaletteMgr_Flush(g_PaletteManagers[0], feat->mainPalette);
@@ -691,12 +693,12 @@ s32 func_ov004_020eed18(BtlFeat02* feat, u16 arg1) {
     feat->rapidFrameSubPackData = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7c4, (s32)(&var_r3[0])[temp_r4 + 1], 0);
     feat->unk_354               = (void*)(feat->rapidFrameMainPackData->buffer + 4);
     feat->unk_36C               = (void*)(feat->rapidFrameSubPackData->buffer + 4);
-    func_0200d1d8(&feat->unk_2DC, 1, 2, 0, feat + 0x354, 1, 1);
-    func_0200d1d8(&feat->unk_2B4, 0, 2, 0, feat + 0x36C, 1, 1);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_2DC, 1, 2, 0, feat + 0x354, 1, 1);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_2B4, 0, 2, 0, feat + 0x36C, 1, 1);
     func_0200d954(0, 3);
-    func_0200d858(&feat->unk_2DC, 1, 0, 0);
-    func_0200d858(&feat->unk_32C, 1, 0, 0);
-    func_0200d858(&feat->unk_2B4, 1, 0, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_2DC, 1, 0, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_32C, 1, 0, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_2B4, 1, 0, 0);
     return 0x30;
 }
 
@@ -722,7 +724,7 @@ s32 BtlFeat02_Step_LoadPhase2Resources(BtlFeat02* feat) {
     void* var_r0  = Data_GetPackEntryData(feat->phasePackData, 4);
     feat->unk_360 = (void*)(var_r0 + 4);
 
-    func_0200d1d8(&feat->unk_32C, 1, 3, 0, &feat->unk_360, 1, 1);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_32C, 1, 3, 0, &feat->unk_360, 1, 1);
     PaletteMgr_Flush(g_PaletteManagers[1], feat->subPalette);
     PaletteMgr_Flush(g_PaletteManagers[0], feat->mainPalette);
     feat->bgLayerAOffsetH = 0;
@@ -838,13 +840,13 @@ s32 BtlFeat02_Step_LoadFinalPhaseResources(BtlFeat02* feat) {
     void* var_r0_4 = Data_GetPackEntryData(feat->phasePackData, 9);
     feat->unk_36C  = (void*)(var_r0_4 + 4);
 
-    func_0200d1d8(&feat->unk_2DC, 1, 2, 0, &feat->unk_354, 1, 1);
-    func_0200d1d8(&feat->unk_32C, 1, 3, 0, &feat->unk_360, 1, 2);
-    func_0200d1d8(&feat->unk_2B4, 0, 2, 0, &feat->unk_36C, 1, 1);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_2DC, 1, 2, 0, &feat->unk_354, 1, 1);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_32C, 1, 3, 0, &feat->unk_360, 1, 2);
+    func_0200d1d8((ScreenMapEntry*)&feat->unk_2B4, 0, 2, 0, &feat->unk_36C, 1, 1);
     func_0200d954(0, 3);
-    func_0200d858(&feat->unk_2DC, 1, 0, 0);
-    func_0200d858(&feat->unk_32C, 1, 1, 0);
-    func_0200d858(&feat->unk_2B4, 1, 0, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_2DC, 1, 0, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_32C, 1, 1, 0);
+    func_0200d858((ScreenMapEntry*)&feat->unk_2B4, 1, 0, 0);
     PaletteMgr_Flush(g_PaletteManagers[1], feat->subPalette);
     PaletteMgr_Flush(g_PaletteManagers[0], feat->mainPalette);
     feat->shakeAmpLimit        = 0x4000;
@@ -881,7 +883,7 @@ s32 BtlFeat02_Step_UpdateFinalPhaseShakeAndTimeout(BtlFeat02* feat) {
     feat->bgLayerBOffsetV += 0xB000;
 
     if (feat->shakeCallbackCooldown == 0) {
-        func_ov003_020bd150(0, BtlFeat02_ApplyRandomScreenShakeCallback, feat);
+        func_ov003_020bd150(0, (Ov003SnapshotCallback)BtlFeat02_ApplyRandomScreenShakeCallback, feat);
         feat->shakeCallbackCooldown = 2;
     } else {
         feat->shakeCallbackCooldown--;
@@ -990,7 +992,7 @@ s32 BtlFeat02_Update(TaskPool* pool, Task* task, void* args) {
         return 0;
     }
 
-    func_ov003_020bd150(1, func_ov004_020efab8, feat);
+    func_ov003_020bd150(1, (Ov003SnapshotCallback)func_ov004_020efab8, feat);
     CombatSprite_Update(&feat->phaseSpriteMainLeft);
     CombatSprite_Update(&feat->phaseSpriteMainRight);
     if (SpriteMgr_IsAnimationFinished(&feat->phaseSpriteSubLeft.sprite) == 0) {

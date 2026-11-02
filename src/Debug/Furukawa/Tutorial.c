@@ -18,10 +18,8 @@
 #include "SndMgrSeIdx.h"
 #include "common_data.h"
 #include <nitro/gx.h>
+#include <nitro/mi/cpumem.h>
 #include <nitro/types.h>
-
-// Forward declarations of external functions
-extern void MI_CpuFill(s32, void*, s32);
 
 // Local structures
 typedef struct {

@@ -11,9 +11,6 @@
 #include <nitro/math.h>
 
 void func_02047ec8(void* head, u32 num, u32 width, s32 (*compare)(u16*, u16*), void* buffer);
-u16  Inventory_GetNoiseReportCount(void);
-u16  Inventory_GetMasteredPinCount(void);
-u16  Inventory_GetCollectedItemCount(void);
 
 s32 TusinSet_IsPointInRect(s32 x, s32 y, s32 left, s32 top, s16 width, s16 height) {
     if ((x >= left) && (x <= (left + width)) && (y >= top) && (y <= (top + height))) {

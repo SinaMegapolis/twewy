@@ -59,4 +59,6 @@ void             func_ov013_02125e90(BtlEnm015*);
 void             func_ov013_02125ed0(BtlEnm015*);
 void             func_ov013_02125efc(BtlEnm015*);
 
+s32 func_ov013_02127370(TaskPool* pool, Task* task, void* args, s32 stage);
+
 #endif // COMBAT_NOISE_PRIVATE_BTLENM015_H

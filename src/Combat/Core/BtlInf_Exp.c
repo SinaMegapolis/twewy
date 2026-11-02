@@ -14,7 +14,7 @@ typedef struct BtlInfExp {
 extern const BinIdentifier data_ov003_020d7800;
 
 // Extract decimal digits least-significant first, saturating to the five-digit HUD.
-s32 func_ov003_0209d8a0(s32* digits, s32 value) {
+static s32 func_ov003_0209d8a0(s32* digits, s32 value) {
     s32 remainder;
     if (value < 0)
         value = 0;
@@ -37,7 +37,7 @@ s32 func_ov003_0209d8a0(s32* digits, s32 value) {
     return value >= 10 ? 2 : 1;
 }
 
-void func_ov003_0209d9a8(BtlInfExp* panel) {
+static void func_ov003_0209d9a8(BtlInfExp* panel) {
     s32 digits[5];
     s32 i;
     panel->value      = gSaveData.battleExpToNextLevel;
@@ -47,7 +47,7 @@ void func_ov003_0209d9a8(BtlInfExp* panel) {
     }
 }
 
-s32 func_ov003_0209da30(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209da30(TaskPool* pool, Task* task, void* args) {
     BtlInfExp* panel = task->data;
     s32        i;
     CombatSprite_LoadDirect(1, &panel->label, &data_ov003_020d7800, 7, 9, 8, 0x3F, 0);
@@ -62,7 +62,7 @@ s32 func_ov003_0209da30(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209db08(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209db08(TaskPool* pool, Task* task, void* args) {
     BtlInfExp* panel = task->data;
     s32        i;
     if (gSaveData.battleMaxLevel < 100 && panel->value != gSaveData.battleExpToNextLevel) {
@@ -77,7 +77,7 @@ s32 func_ov003_0209db08(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209dba8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209dba8(TaskPool* pool, Task* task, void* args) {
     BtlInfExp* panel = task->data;
     s32        i;
     s16        x;
@@ -92,7 +92,7 @@ s32 func_ov003_0209dba8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209dc3c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209dc3c(TaskPool* pool, Task* task, void* args) {
     BtlInfExp* panel = task->data;
     s32        i;
     CombatSprite_Release(&panel->label);
@@ -101,17 +101,17 @@ s32 func_ov003_0209dc3c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-extern const TaskStages data_ov003_020d8180;
-s32                     func_ov003_0209dc74(TaskPool* pool, Task* task, void* args, s32 stage) {
+static const TaskStages data_ov003_020d8180;
+static s32              func_ov003_0209dc74(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8180;
     if (func_ov003_0208b690((u16)stage))
         return 1;
     return stages.iter[stage](pool, task, args);
 }
 
-char             data_ov003_020e3d1c[16] = "Tsk_BtlInf_Exp";
-const TaskHandle data_ov003_020d8174     = {data_ov003_020e3d1c, func_ov003_0209dc74, sizeof(BtlInfExp)};
-const TaskStages data_ov003_020d8180     = {
+static char             data_ov003_020e3d1c[16] = "Tsk_BtlInf_Exp";
+const TaskHandle        data_ov003_020d8174     = {data_ov003_020e3d1c, func_ov003_0209dc74, sizeof(BtlInfExp)};
+static const TaskStages data_ov003_020d8180     = {
     func_ov003_0209da30,
     func_ov003_0209db08,
     func_ov003_0209dba8,

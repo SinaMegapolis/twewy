@@ -7,29 +7,6 @@
 #include "SndMgr.h"
 #include <nitro/mi/cpumem.h>
 
-/// The task parameter: the shot to snapshot, the root shot it repeats and the placement ranges of the roots.
-typedef struct Ov003EnemyShotRootLaserArgs {
-    /* 0x00 */ Ov003EnemyShotSource* source;
-    /* 0x04 */ u16                   ownerAnimation;
-    /* 0x06 */ u16                   reserved06;
-    /* 0x08 */ Ov003EnemyShotSource* childSource;
-    /* 0x0C */ u16                   childAnimation;
-    /* 0x0E */ u16                   kind;
-    /* 0x10 */ s16                   animation; // flash animation, < 0 for none
-    /* 0x12 */ s16                   spacing;
-    /* 0x14 */ s16                   horizontalMin;
-    /* 0x16 */ s16                   horizontalMax;
-    /* 0x18 */ s16                   verticalMin;
-    /* 0x1A */ s16                   verticalMax;
-    /* 0x1C */ s32                   speed;
-    /* 0x20 */ s16                   delay;
-    /* 0x22 */ s16                   length;
-    /* 0x24 */ u16                   override;
-    /* 0x26 */ u16                   reserved26;
-    /* 0x28 */ SndMgrSeIdx           sound;
-    /* 0x2C */ SndMgrSeIdx           sound2;
-} Ov003EnemyShotRootLaserArgs; // Size: 0x30
-
 typedef struct Ov003EnemyShotRootLaser {
     /* 0x00 */ Ov003EnemyShotSource owner;  // the source snapshot
     /* 0x2C */ Ov003EnemyShotSource source; // the root shot source
@@ -54,7 +31,7 @@ typedef struct Ov003EnemyShotRootLaser {
     /* 0xE4 */ SndMgrSeIdx          sound2;
 } Ov003EnemyShotRootLaser; // Size: 0xE8
 
-extern const TaskHandle data_ov003_020e0ca4;
+static const TaskHandle data_ov003_020e0ca4;
 
 void func_ov003_020d1538(Ov003EnemyShotRootLaserArgs* args) {
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov003_020e0ca4, NULL, 0, NULL, args);
@@ -62,7 +39,7 @@ void func_ov003_020d1538(Ov003EnemyShotRootLaserArgs* args) {
 
 /// Lays the roots of the beam across the screen from the shot's position, alternating a vertical and a horizontal
 /// root, and stops once the next root would fall outside the camera.
-s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
+static s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
     Ov003CutinActor* target = data_ov003_020e71b8->unk3D898;
     Ov003Camera*     camera = &data_ov003_020e71b8->unk3D7C0[0];
     u16              parity = 0;
@@ -115,7 +92,7 @@ s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
     return 1;
 }
 
-s32 func_ov003_020d19b0(Ov003EnemyShotRootLaser* self, Ov003EnemyShotRootLaserArgs* args) {
+static s32 func_ov003_020d19b0(Ov003EnemyShotRootLaser* self, Ov003EnemyShotRootLaserArgs* args) {
     MI_CpuSet(self, 0, sizeof(*self));
     MI_CpuCopyU8(args->source, &self->owner, sizeof(Ov003EnemyShotSource));
     self->owner.animation = args->ownerAnimation;
@@ -146,7 +123,7 @@ s32 func_ov003_020d19b0(Ov003EnemyShotRootLaser* self, Ov003EnemyShotRootLaserAr
     return 1;
 }
 
-s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
+static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
     if (func_ov003_020c3c28())
         return 0;
     switch (self->state) {
@@ -185,7 +162,7 @@ s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
     return 1;
 }
 
-s32 func_ov003_020d1c98(Ov003EnemyShotRootLaser* self) {
+static s32 func_ov003_020d1c98(Ov003EnemyShotRootLaser* self) {
     s16 x, y;
     s32 rootX, rootY, rootZ;
     if (self->sprite.sprite.resourceData != NULL) {
@@ -201,14 +178,14 @@ s32 func_ov003_020d1c98(Ov003EnemyShotRootLaser* self) {
     return 1;
 }
 
-s32 func_ov003_020d1d44(Ov003EnemyShotRootLaser* self) {
+static s32 func_ov003_020d1d44(Ov003EnemyShotRootLaser* self) {
     func_ov003_020d117c(&self->list);
     if (self->sprite.sprite.resourceData != NULL)
         CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020d1d70(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d1d70(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotRootLaser* self = task->data;
     switch (stage) {
         case 0:
@@ -224,8 +201,8 @@ s32 func_ov003_020d1d70(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6d2c[28] = "Tsk_BtlEnmShot_RootLaser";
-const TaskHandle data_ov003_020e0ca4     = {data_ov003_020e6d2c, func_ov003_020d1d70, sizeof(Ov003EnemyShotRootLaser)};
+static char             data_ov003_020e6d2c[28] = "Tsk_BtlEnmShot_RootLaser";
+static const TaskHandle data_ov003_020e0ca4     = {data_ov003_020e6d2c, func_ov003_020d1d70, sizeof(Ov003EnemyShotRootLaser)};
 
 /// Fires `count` copies of the shot on a circle of `radius`, spread `step` apart (in angle units) and centred on `angle`.
 void func_ov003_020d1dc0(Ov003EnemyShotSource* source, s32 radius, u16 angle, u16 step, u16 count) {

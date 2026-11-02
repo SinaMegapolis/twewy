@@ -13,7 +13,6 @@ void                func_020415a4(void);
 s32                 func_02041680(RTCDate* date);
 s32                 func_020417e0(RTCDate* date, RTCTime* time);
 s64                 func_02041f14(RTCDate* date, RTCTime* time);
-void                Stats_AddExperience(u32 exp);
 extern EquippedPin* data_ov038_0209a204[6];
 
 const u16 data_ov044_0208ec32[7] = {260, 259, 258, 257, 256, 255, 254};

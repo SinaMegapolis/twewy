@@ -21,6 +21,7 @@
 #include "Engine/Overlay/OverlayManager.h"
 #include "Engine/Resources/PaletteMgr.h"
 #include "Engine/Resources/ResourceMgr.h"
+#include "Player/Inventory.h"
 #include "Save.h"
 #include "common_data.h"
 
@@ -55,34 +56,16 @@ typedef struct Ov003EncounterEntry {
 } Ov003EncounterEntry; // Size: 0x8
 
 // ---------------------------------------------------------------------------------------------
-// External functions
-// ---------------------------------------------------------------------------------------------
-
-extern s32 func_020243d4(u32 arg0);
-
-extern void func_ov003_0208a234(u16 arg0, const Ov003AttackArgs* args, Ov003EnemyActor* unit);
-extern s32  func_ov003_0208a25c(CombatActor* actor);
-
-extern s32 func_ov003_020a3498(CombatSprite* cSprite, s32 arg1, s32 arg2, s32 index, u16 arg4);
-
-// Defined in this unit.
-
-s32  func_ov003_020a62b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-s32  func_ov003_020a632c(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-void func_ov003_020a652c(Ov003AttackInfo* info, s32 force, u16 amount);
-s32  func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount);
-s32  func_ov003_020a6c7c(s32 arg0);
-s32  func_ov003_020a6cc4(s32 arg0);
-
-// ---------------------------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------------------------
 
+static void func_ov003_020a6bb8(s16* out, Ov003EnemyActor* unit);
+
 /// Animation ids handed to `func_ov003_020a3498`, indexed by the caller's set number.
-const u32 data_ov003_020dc560[2] = {0xCF, 0xA3};
+static const u32 data_ov003_020dc560[2] = {0xCF, 0xA3};
 
 /// Encounter id â‡’ per-encounter hit kind.
-const Ov003EncounterEntry data_ov003_020dc568[11] = {
+static const Ov003EncounterEntry data_ov003_020dc568[11] = {
     {0xA7,  0x56, 0},
     {0xA8,  0x6B, 0},
     {0xA9,  0x63, 0},
@@ -378,7 +361,7 @@ void func_ov003_020a64d0(Ov003EffectState* effect, s16 arg1) {
 }
 
 /// Overrides the info record's side bit and amount field.
-void func_ov003_020a652c(Ov003AttackInfo* info, s32 force, u16 amount) {
+static void func_ov003_020a652c(Ov003AttackInfo* info, s32 force, u16 amount) {
     if (force != 0) {
         info->flags = (info->flags & ~0x1000) | (((u32)force << 31) >> 19);
     }
@@ -452,7 +435,7 @@ s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s
 
 /// Segment-segment intersection test; both segments are axis-aligned bounding boxes first.
 // Nonmatching: the d < 0 acceptance arm is emitted with inverted branch polarity.
-s32 func_ov003_020a67d4(s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3, s32 x4, s32 y4) {
+static s32 func_ov003_020a67d4(s32 x1, s32 y1, s32 x2, s32 y2, s32 x3, s32 y3, s32 x4, s32 y4) {
     s32 lo;
     s32 hi;
     s32 d;
@@ -538,7 +521,7 @@ block_t2:
 }
 
 /// Whether `unit`'s screen-space bounding box overlaps (x1, y1)-(x2, y2).
-s32 func_ov003_020a6924(Ov003EnemyActor* unit, s32 x1, s32 y1, s32 x2, s32 y2) {
+static s32 func_ov003_020a6924(Ov003EnemyActor* unit, s32 x1, s32 y1, s32 x2, s32 y2) {
     s16 halfW   = unit->actor.unk_70;
     s16 halfH   = unit->actor.unk_72;
     s16 centerX = unit->actor.screenX;
@@ -608,7 +591,7 @@ s32 func_ov003_020a6b84(Ov003AttackStreak* streak, u16 arg1, Ov003EnemyActor* un
 }
 
 /// Clears `*out` when the current encounter uses the same hit kind as `unit`.
-void func_ov003_020a6bb8(s16* out, Ov003EnemyActor* unit) {
+static void func_ov003_020a6bb8(s16* out, Ov003EnemyActor* unit) {
     u32 i;
 
     for (i = 0; i < 0xB; i++) {

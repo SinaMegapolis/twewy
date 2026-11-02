@@ -225,4 +225,7 @@ static inline void* Data_GetPackEntryData(Data* data, s32 entryIndex) {
     DatMgr_ReleaseData(                                                                                                   \
         DatMgr_LoadRawDataWithOffset((dataType), &(bufferVar), sizeof(bufferVar), (iden), ((index) * sizeof(bufferVar))))
 
+s32  func_020274ac(void* dst, s32 id, const BinIdentifier* file);
+void func_020274e4(void* dst, s32 state, s32 index, const BinIdentifier* file);
+
 #endif // DATMGR_H

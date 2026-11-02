@@ -3,8 +3,7 @@
 #include "Display.h"
 #include "Field/Battle/FieldBattleSetup.h"
 #include "Field/Tasks/Fld_UGFade.h"
-
-extern void func_02026590(s32*, s32, u16);
+#include "main_02026528.h"
 
 typedef struct {
     /* 0x00 */ s32  blendCoeff0;

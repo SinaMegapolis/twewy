@@ -8,15 +8,16 @@ typedef struct BtlFieldShake {
     s32             timer;
 } BtlFieldShake; // Size: 0x20
 
-extern const TaskHandle data_ov003_020dc620;
+static s32 func_ov003_020a8718(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020a8780(TaskPool* pool, Task* task, void* args, s32 stage);
 
 // Nonmatching: mwcc emits the referenced shake handle/name before the unreferenced absorb pair.
-char             data_ov003_020e4980[20] = "Tsk_BtlPsyAbsorb";
-char             data_ov003_020e4994[20] = "Tsk_BtlPsy_FldShake";
-const TaskHandle data_ov003_020dc614     = {data_ov003_020e4980, func_ov003_020a8718, 0};
-const TaskHandle data_ov003_020dc620     = {data_ov003_020e4994, func_ov003_020a8780, sizeof(BtlFieldShake)};
+static char             data_ov003_020e4980[20] = "Tsk_BtlPsyAbsorb";
+static char             data_ov003_020e4994[20] = "Tsk_BtlPsy_FldShake";
+const TaskHandle        data_ov003_020dc614     = {data_ov003_020e4980, func_ov003_020a8718, 0};
+static const TaskHandle data_ov003_020dc620     = {data_ov003_020e4994, func_ov003_020a8780, sizeof(BtlFieldShake)};
 
-s32 func_ov003_020a8718(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a8718(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectSlots* slots = &data_ov003_020e71b8->effectSlots;
     switch (stage) {
         case 0:
@@ -34,7 +35,7 @@ void func_ov003_020a8768(void) {
     s32 args;
     func_ov003_020a6000(&data_ov003_020dc620, &args);
 }
-s32 func_ov003_020a8780(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a8780(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlFieldShake* shake;
     switch (stage) {
         default:

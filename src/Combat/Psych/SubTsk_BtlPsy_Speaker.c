@@ -2,15 +2,14 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32         func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const s32   data_ov003_020dd074[2];
-extern const Vec2p data_ov003_020dd088[6];
-extern const Vec2p data_ov003_020dd0b8[8];
-extern const Vec2p data_ov003_020dd0f8[9];
-extern const Vec2p data_ov003_020dd140[9];
-extern const Vec2p data_ov003_020dd188[9];
+static const s32   data_ov003_020dd074[2];
+static const Vec2p data_ov003_020dd088[6];
+static const Vec2p data_ov003_020dd0b8[8];
+static const Vec2p data_ov003_020dd0f8[9];
+static const Vec2p data_ov003_020dd140[9];
+static const Vec2p data_ov003_020dd188[9];
 
-extern const TaskHandle data_ov003_020dd07c;
+static const TaskHandle data_ov003_020dd07c;
 
 s32 func_ov003_020b9be0(Ov003EffectState* effect, s32 x, s32 y, s32 kind, const s32* phase) {
     Ov003SpeakerArgs args;
@@ -150,10 +149,10 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e5014[24] = "SubTsk_BtlPsy_Speaker";
-const s32        data_ov003_020dd074[2]  = {0xD4, 0xD9};
-const TaskHandle data_ov003_020dd07c     = {data_ov003_020e5014, func_ov003_020b9c18, sizeof(Ov003Speaker)};
-const Vec2p      data_ov003_020dd088[6]  = {
+static char             data_ov003_020e5014[24] = "SubTsk_BtlPsy_Speaker";
+static const s32        data_ov003_020dd074[2]  = {0xD4, 0xD9};
+static const TaskHandle data_ov003_020dd07c     = {data_ov003_020e5014, func_ov003_020b9c18, sizeof(Ov003Speaker)};
+static const Vec2p      data_ov003_020dd088[6]  = {
     {0x1000, 0x1000},
     {0x1000, 0x1000},
     {0x1000, 0x1000},
@@ -162,7 +161,7 @@ const Vec2p      data_ov003_020dd088[6]  = {
     { 0x800,  0x800}
 };
 
-const Vec2p data_ov003_020dd0b8[8] = {
+static const Vec2p data_ov003_020dd0b8[8] = {
     { 0x800,  0x800},
     { 0x800,  0x800},
     {0x2000,  0x4CD},
@@ -173,7 +172,7 @@ const Vec2p data_ov003_020dd0b8[8] = {
     {0x1000, 0x1000}
 };
 
-const Vec2p data_ov003_020dd0f8[9] = {
+static const Vec2p data_ov003_020dd0f8[9] = {
     {0x1000, 0x1000},
     {0x1000, 0x1000},
     {0x1000, 0x1000},
@@ -185,7 +184,7 @@ const Vec2p data_ov003_020dd0f8[9] = {
     {0x1000, 0x1333}
 };
 
-const Vec2p data_ov003_020dd140[9] = {
+static const Vec2p data_ov003_020dd140[9] = {
     {0x1000, 0x1000},
     {0x1000, 0x1000},
     {0x1000, 0x1000},
@@ -197,7 +196,7 @@ const Vec2p data_ov003_020dd140[9] = {
     {0x1333, 0x1333}
 };
 
-const Vec2p data_ov003_020dd188[9] = {
+static const Vec2p data_ov003_020dd188[9] = {
     {0x1000, 0x1000},
     {0x1000, 0x1000},
     {0x1000, 0x1000},

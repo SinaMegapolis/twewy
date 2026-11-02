@@ -1,8 +1,12 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatSprite.h"
+#include "Combat/Noise/BtlEnm.h"
 #include "Combat/Noise/Private/Boss01.h"
+#include "Engine/Math/Random.h"
+#include <nitro/mi/cpumem.h>
 
 typedef struct BtlObs_RG {
     /* 0x000 */ Ov003EnemyActor base;
@@ -41,7 +45,7 @@ static void BtlObs_RG_StateIdle(BtlObs_RG* obs) {
 
 static void BtlObs_RG_StateHit(BtlObs_RG* obs) {
     obs->base.actor.flags |= 6;
-    func_ov003_020c4a34(obs);
+    func_ov003_020c4a34(&obs->base);
 
     if (data_ov003_020e71b8->unk3D8A0 == obs) {
         data_ov003_020e71b8->unk3D8A0 = NULL;
@@ -89,14 +93,14 @@ static s32 BtlObs_RG_Init(TaskPool* pool, Task* task, void* args) {
     obs->unk_284 = *spawnArgs->unk_C;
 
     func_ov003_02086404(1, &obs->base.sprite, spawnArgs->unk_2);
-    func_ov003_020864dc(obs, spawnArgs->unk_2);
+    func_ov003_020864dc((CombatActor*)obs, spawnArgs->unk_2);
     obs->unk_1C2 = spawnArgs->unk_2;
 
     if (RNG_Next(2) != 0) {
         CombatSprite_SetFlip(&obs->base.sprite, 1);
     }
 
-    func_ov003_020c4988(obs);
+    func_ov003_020c4988(&obs->base);
     obs->unk_294 = 1;
     BtlObs_RG_SetState(obs, BtlObs_RG_StateIdle);
     return 1;
@@ -137,7 +141,7 @@ static s32 BtlObs_RG_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlObs_RG* obs = task->data;
 
     CombatSprite_Release(&obs->base.sprite);
-    func_ov003_020c4a34(obs);
+    func_ov003_020c4a34(&obs->base);
     if (data_ov003_020e71b8->unk3D8A0 == obs) {
         data_ov003_020e71b8->unk3D8A0 = NULL;
     }

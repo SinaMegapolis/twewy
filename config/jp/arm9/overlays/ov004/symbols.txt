@@ -1,7 +1,7 @@
-func_ov004_020e7800 kind:function(arm,size=0x1c) addr:0x020e7800
+func_ov004_020e7360 kind:function(arm,size=0x1c) addr:0x020e7800
 func_ov004_020e781c kind:function(arm,size=0x20) addr:0x020e781c
 func_ov004_020e783c kind:function(arm,size=0x90) addr:0x020e783c
-func_ov004_020e78cc kind:function(arm,size=0x38) addr:0x020e78cc
+func_ov004_020e742c kind:function(arm,size=0x38) addr:0x020e78cc
 func_ov004_020e7904 kind:function(arm,size=0x2c) addr:0x020e7904
 func_ov004_020e7930 kind:function(arm,size=0x7c) addr:0x020e7930
 func_ov004_020e79ac kind:function(arm,size=0xcc) addr:0x020e79ac
@@ -52,34 +52,34 @@ BtlArm_Doll_Update kind:function(arm,size=0x3c) addr:0x020ea97c
 BtlArm_Doll_Render kind:function(arm,size=0x68) addr:0x020ea9b8
 BtlArm_Doll_Destroy kind:function(arm,size=0x20) addr:0x020eaa20
 func_ov004_020eaa40 kind:function(arm,size=0x68) addr:0x020eaa40
-func_ov004_020eaaa8 kind:function(arm,size=0x14) addr:0x020eaaa8
-func_ov004_020eaabc kind:function(arm,size=0xa8) addr:0x020eaabc
-func_ov004_020eab64 kind:function(arm,size=0x40) addr:0x020eab64
-func_ov004_020eaba4 kind:function(arm,size=0x7c) addr:0x020eaba4
-func_ov004_020eac20 kind:function(arm,size=0x48) addr:0x020eac20
-func_ov004_020eac68 kind:function(arm,size=0x84) addr:0x020eac68
-func_ov004_020eacec kind:function(arm,size=0xb8) addr:0x020eacec
-func_ov004_020eada4 kind:function(arm,size=0x9c) addr:0x020eada4
-func_ov004_020eae40 kind:function(arm,size=0x74) addr:0x020eae40
-BtlCmd_Esp_Init kind:function(arm,size=0x78) addr:0x020eaeb4
-func_ov004_020eaf2c kind:function(arm,size=0x2c) addr:0x020eaf2c
-BtlCmd_Esp_Render kind:function(arm,size=0x4c) addr:0x020eaf58
-BtlCmd_Esp_Destroy kind:function(arm,size=0x18) addr:0x020eafa4
-func_ov004_020eafbc kind:function(arm,size=0x68) addr:0x020eafbc
+func_ov004_020eaaa8 kind:function(arm,size=0x14) addr:0x020eaaa8 local
+func_ov004_020eaabc kind:function(arm,size=0xa8) addr:0x020eaabc local
+func_ov004_020eab64 kind:function(arm,size=0x40) addr:0x020eab64 local
+func_ov004_020eaba4 kind:function(arm,size=0x7c) addr:0x020eaba4 local
+func_ov004_020eac20 kind:function(arm,size=0x48) addr:0x020eac20 local
+func_ov004_020eac68 kind:function(arm,size=0x84) addr:0x020eac68 local
+func_ov004_020eacec kind:function(arm,size=0xb8) addr:0x020eacec local
+func_ov004_020eada4 kind:function(arm,size=0x9c) addr:0x020eada4 local
+func_ov004_020eae40 kind:function(arm,size=0x74) addr:0x020eae40 local
+BtlCmd_Esp_Init kind:function(arm,size=0x78) addr:0x020eaeb4 local
+func_ov004_020eaf2c kind:function(arm,size=0x2c) addr:0x020eaf2c local
+BtlCmd_Esp_Render kind:function(arm,size=0x4c) addr:0x020eaf58 local
+BtlCmd_Esp_Destroy kind:function(arm,size=0x18) addr:0x020eafa4 local
+func_ov004_020eafbc kind:function(arm,size=0x68) addr:0x020eafbc local
 BtlCmd_Esp_CreateTask kind:function(arm,size=0x50) addr:0x020eb024
-func_ov004_020eb074 kind:function(arm,size=0xcc) addr:0x020eb074
-func_ov004_020eb140 kind:function(arm,size=0xdc) addr:0x020eb140
-func_ov004_020eb21c kind:function(arm,size=0x18c) addr:0x020eb21c
-func_ov004_020eb3a8 kind:function(arm,size=0x7c) addr:0x020eb3a8
-func_ov004_020eb424 kind:function(arm,size=0x54) addr:0x020eb424
-func_ov004_020eb478 kind:function(arm,size=0x9c) addr:0x020eb478
-func_ov004_020eb514 kind:function(arm,size=0x38) addr:0x020eb514
-func_ov004_020eb54c kind:function(arm,size=0x48) addr:0x020eb54c
-BtlCard_Esp_Init kind:function(arm,size=0xac) addr:0x020eb594
-BtlCard_Esp_Update kind:function(arm,size=0x2c) addr:0x020eb640
-BtlCard_Esp_Render kind:function(arm,size=0x2c) addr:0x020eb66c
-BtlCard_Esp_Destroy kind:function(arm,size=0x28) addr:0x020eb698
-BtlCard_Esp_RunTask kind:function(arm,size=0x68) addr:0x020eb6c0
+func_ov004_020eac00 kind:function(arm,size=0xcc) addr:0x020eb074 local
+func_ov004_020eaccc kind:function(arm,size=0xdc) addr:0x020eb140 local
+func_ov004_020eada8 kind:function(arm,size=0x18c) addr:0x020eb21c local
+func_ov004_020eaf34 kind:function(arm,size=0x7c) addr:0x020eb3a8 local
+func_ov004_020eafb0 kind:function(arm,size=0x54) addr:0x020eb424 local
+func_ov004_020eb004 kind:function(arm,size=0x9c) addr:0x020eb478 local
+func_ov004_020eb0a0 kind:function(arm,size=0x38) addr:0x020eb514 local
+func_ov004_020eb0d8 kind:function(arm,size=0x48) addr:0x020eb54c local
+BtlCard_Esp_Init kind:function(arm,size=0xac) addr:0x020eb594 local
+BtlCard_Esp_Update kind:function(arm,size=0x2c) addr:0x020eb640 local
+BtlCard_Esp_Render kind:function(arm,size=0x2c) addr:0x020eb66c local
+BtlCard_Esp_Destroy kind:function(arm,size=0x28) addr:0x020eb698 local
+BtlCard_Esp_RunTask kind:function(arm,size=0x68) addr:0x020eb6c0 local
 BtlEff_Doll_Init kind:function(arm,size=0x78) addr:0x020eb728
 BtlEff_Doll_Update kind:function(arm,size=0x40) addr:0x020eb7a0
 BtlEff_Doll_Render kind:function(arm,size=0x88) addr:0x020eb7e0
@@ -214,12 +214,9 @@ data_ov004_020f0634 kind:data(any) addr:0x020f0634
 data_ov004_020f0644 kind:data(any) addr:0x020f0644
 data_ov004_020f06cc kind:data(any) addr:0x020f06cc
 data_ov004_020f06d8 kind:data(any) addr:0x020f06d8
-data_ov004_020f06e8 kind:data(any) addr:0x020f06e8 ambiguous
-data_ov004_020f06f4 kind:data(any) addr:0x020f06f4
-data_ov004_020f0704 kind:data(any) addr:0x020f0704
-data_ov004_020f0706 kind:data(any) addr:0x020f0706
-data_ov004_020f0708 kind:data(any) addr:0x020f0708
-data_ov004_020f070a kind:data(any) addr:0x020f070a
+Tsk_BtlCard_Esp kind:data(any) addr:0x020f06e8 ambiguous
+@2576 kind:data(any) addr:0x020f06f4 local
+data_ov004_020f0290 kind:data(any) addr:0x020f0704 local
 Tsk_BtlEff_Doll kind:data(any) addr:0x020f07cc
 data_ov004_020f07d8 kind:data(any) addr:0x020f07d8
 data_ov004_020f07e8 kind:data(any) addr:0x020f07e8
@@ -263,7 +260,7 @@ data_ov004_020f0a14 kind:data(any) addr:0x020f0a14
 data_ov004_020f0b40 kind:data(any) addr:0x020f0b40
 data_ov004_020f0b50 kind:data(any) addr:0x020f0b50
 data_ov004_020f0b60 kind:data(any) addr:0x020f0b60
-data_ov004_020f0b70 kind:data(any) addr:0x020f0b70
+@2441 kind:data(any) addr:0x020f0b70 local
 data_ov004_020f0b80 kind:data(any) addr:0x020f0b80
 data_ov004_020f0b90 kind:data(any) addr:0x020f0b90
 data_ov004_020f0b94 kind:data(any) addr:0x020f0b94

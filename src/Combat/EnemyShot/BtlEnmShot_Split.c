@@ -1,9 +1,9 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyShot.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
-extern void             func_020265d4(s32* dst, s32 target, u16 weight);
-extern const TaskHandle data_ov003_020e0cd4;
+static const TaskHandle data_ov003_020e0cd4;
 
 s32 func_ov003_020d2bc0(Ov003EnemyShotSplitArgs* args) {
     TaskPool* pool;
@@ -14,7 +14,7 @@ s32 func_ov003_020d2bc0(Ov003EnemyShotSplitArgs* args) {
     return EasyTask_CreateTask(pool, &data_ov003_020e0cd4, NULL, 0, NULL, args);
 }
 
-s32 func_ov003_020d2c24(Ov003EnemyShotSplit* self, Ov003EnemyShotSplitArgs* args) {
+static s32 func_ov003_020d2c24(Ov003EnemyShotSplit* self, Ov003EnemyShotSplitArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     MI_CpuSet(self, 0, sizeof(*self));
     MI_CpuCopyU8(args->source, &self->source, sizeof(self->source));
@@ -39,7 +39,7 @@ s32 func_ov003_020d2c24(Ov003EnemyShotSplit* self, Ov003EnemyShotSplitArgs* args
     return 1;
 }
 
-s32 func_ov003_020d2d2c(Ov003EnemyShotSplit* self) {
+static s32 func_ov003_020d2d2c(Ov003EnemyShotSplit* self) {
     if (func_ov003_020ccb9c(&self->source, &self->sprite))
         return 0;
     func_020265d4(&self->source.core.position.x, self->target.x, (u16)self->travelFrames);
@@ -74,7 +74,7 @@ s32 func_ov003_020d2d2c(Ov003EnemyShotSplit* self) {
     return 1;
 }
 
-s32 func_ov003_020d2ebc(Ov003EnemyShotSplit* self) {
+static s32 func_ov003_020d2ebc(Ov003EnemyShotSplit* self) {
     if (self->source.visual != NULL) {
         s16 x, y;
         func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
@@ -86,13 +86,13 @@ s32 func_ov003_020d2ebc(Ov003EnemyShotSplit* self) {
     return 1;
 }
 
-s32 func_ov003_020d2f40(Ov003EnemyShotSplit* self) {
+static s32 func_ov003_020d2f40(Ov003EnemyShotSplit* self) {
     if (self->source.visual != NULL)
         CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020d2f60(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d2f60(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotSplit* self = task->data;
     switch (stage) {
         case 0:
@@ -108,5 +108,5 @@ s32 func_ov003_020d2f60(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6d94[24] = "Tsk_BtlEnmShot_Split";
-const TaskHandle data_ov003_020e0cd4     = {data_ov003_020e6d94, func_ov003_020d2f60, sizeof(Ov003EnemyShotSplit)};
+static char             data_ov003_020e6d94[24] = "Tsk_BtlEnmShot_Split";
+static const TaskHandle data_ov003_020e0cd4     = {data_ov003_020e6d94, func_ov003_020d2f60, sizeof(Ov003EnemyShotSplit)};

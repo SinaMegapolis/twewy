@@ -1,9 +1,13 @@
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
+#include "main_02026528.h"
+#include <nitro/mi/cpumem.h>
 
 extern BinIdentifier data_ov003_020d7808;
 
@@ -38,19 +42,19 @@ typedef struct {
     /* 0x8 */ s32 unk_8;
 } BtlCmd_Esp_Args;
 
-void func_ov004_020ea930(BtlCmd_Esp* cmd);
-void func_ov004_020ea9cc(BtlCmd_Esp* cmd);
-s32  BtlCmd_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static void func_ov004_020ea930(BtlCmd_Esp* cmd);
+static void func_ov004_020ea9cc(BtlCmd_Esp* cmd);
+static s32  BtlCmd_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle Tsk_BtlCmd_Esp = {"Tsk_BtlCmd_Esp", BtlCmd_Esp_RunTask, 0x84};
+static const TaskHandle Tsk_BtlCmd_Esp = {"Tsk_BtlCmd_Esp", BtlCmd_Esp_RunTask, 0x84};
 
-void func_ov004_020ea634(BtlCmd_Esp* cmd, void (*arg1)(BtlCmd_Esp*)) {
+static void func_ov004_020ea634(BtlCmd_Esp* cmd, void (*arg1)(BtlCmd_Esp*)) {
     cmd->unk_74 = arg1;
     cmd->unk_7A = 0;
     cmd->unk_78 = 0;
 }
 
-void func_ov004_020ea648(CombatSprite* arg0, u16 arg1) {
+static void func_ov004_020ea648(CombatSprite* arg0, u16 arg1) {
     SpriteAnimationEx sp0;
 
     CombatSprite_InitAnim(&sp0.anim, 1, &data_ov003_020d7808);
@@ -69,7 +73,7 @@ void func_ov004_020ea648(CombatSprite* arg0, u16 arg1) {
     func_ov003_02082730(arg0, 2);
 }
 
-s32 func_ov004_020ea6f0(EspUnk* arg0, u16 arg1) {
+static s32 func_ov004_020ea6f0(EspUnk* arg0, u16 arg1) {
     if (arg0->unk_00 != arg1) {
         arg0->unk_CA |= 4;
         return 0;
@@ -81,9 +85,9 @@ s32 func_ov004_020ea6f0(EspUnk* arg0, u16 arg1) {
     return 1;
 }
 
-s32 func_ov004_020ea730(u16 arg0) {
+static s32 func_ov004_020ea730(u16 arg0) {
     s16*    temp_r0 = func_ov003_02086e94();
-    EspUnk* var_r5  = func_ov003_0208495c(temp_r0 + 2);
+    EspUnk* var_r5  = func_ov003_0208495c((CombatList*)(temp_r0 + 2));
     while (var_r5 != NULL) {
         if (var_r5->unk_CC == *temp_r0) {
             if (func_ov004_020ea6f0(var_r5, arg0) != 0) {
@@ -92,27 +96,27 @@ s32 func_ov004_020ea730(u16 arg0) {
         } else if ((var_r5->unk_CC > *temp_r0) && (var_r5->unk_00 == arg0)) {
             var_r5->unk_CA |= 0x10;
         }
-        var_r5 = func_ov003_02084984(&var_r5->unk_DC);
+        var_r5 = func_ov003_02084984((CombatListNode*)&var_r5->unk_DC);
     }
     return 0;
 }
 
-s32 func_ov004_020ea7ac(void) {
-    EspUnk* var_r0 = func_ov003_0208495c(func_ov003_02086e94() + 4);
+static s32 func_ov004_020ea7ac(void) {
+    EspUnk* var_r0 = func_ov003_0208495c((CombatList*)((u8*)func_ov003_02086e94() + 4));
     while (var_r0 != NULL) {
         if ((var_r0->unk_CA & 2) == 0 && (var_r0->unk_CA & 1)) {
             return 0;
         }
-        var_r0 = func_ov003_02084984(&var_r0->unk_DC);
+        var_r0 = func_ov003_02084984((CombatListNode*)&var_r0->unk_DC);
     }
     return 1;
 }
 
-s32 func_ov004_020ea7f4(void) {
+static s32 func_ov004_020ea7f4(void) {
     s16* temp_r0 = func_ov003_02086e94();
     s32  var_r5  = 0;
 
-    EspUnk* temp = func_ov003_0208495c(temp_r0 + 2);
+    EspUnk* temp = func_ov003_0208495c((CombatList*)(temp_r0 + 2));
     while (temp != NULL) {
         if (temp->unk_CC == *temp_r0) {
             if (temp->unk_CA & 8) {
@@ -122,14 +126,14 @@ s32 func_ov004_020ea7f4(void) {
             }
             break;
         } else {
-            temp = func_ov003_02084984(&temp->unk_DC);
+            temp = func_ov003_02084984((CombatListNode*)&temp->unk_DC);
         }
     }
     *temp_r0 += 1;
     return var_r5;
 }
 
-void func_ov004_020ea878(BtlCmd_Esp* cmd) {
+static void func_ov004_020ea878(BtlCmd_Esp* cmd) {
     s16*    temp_r0;
     EspUnk* temp_r0_2;
 
@@ -156,7 +160,7 @@ void func_ov004_020ea878(BtlCmd_Esp* cmd) {
     }
 }
 
-void func_ov004_020ea930(BtlCmd_Esp* cmd) {
+static void func_ov004_020ea930(BtlCmd_Esp* cmd) {
     switch (cmd->unk_7A) {
         case 0: {
             if (func_ov004_020ea7ac()) {
@@ -181,7 +185,7 @@ void func_ov004_020ea930(BtlCmd_Esp* cmd) {
     }
 }
 
-void func_ov004_020ea9cc(BtlCmd_Esp* cmd) {
+static void func_ov004_020ea9cc(BtlCmd_Esp* cmd) {
     switch (cmd->unk_7A) {
         case 0: {
             CombatSprite_SetAnim(&cmd->sprite, cmd->unk_00 + 10, 0);
@@ -198,7 +202,7 @@ void func_ov004_020ea9cc(BtlCmd_Esp* cmd) {
     }
 }
 
-s32 BtlCmd_Esp_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCmd_Esp_Init(TaskPool* pool, Task* task, void* args) {
     BtlCmd_Esp*      cmd     = task->data;
     BtlCmd_Esp_Args* cmdArgs = args;
 
@@ -215,7 +219,7 @@ s32 BtlCmd_Esp_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlCmd_Esp_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCmd_Esp_Update(TaskPool* pool, Task* task, void* args) {
     BtlCmd_Esp* cmd = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 6) {
@@ -228,7 +232,7 @@ s32 BtlCmd_Esp_Update(TaskPool* pool, Task* task, void* args) {
     return cmd->unk_80;
 }
 
-s32 BtlCmd_Esp_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCmd_Esp_Render(TaskPool* pool, Task* task, void* args) {
     BtlCmd_Esp* cmd = task->data;
 
     if (cmd->unk_7C != 0) {
@@ -238,14 +242,14 @@ s32 BtlCmd_Esp_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlCmd_Esp_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCmd_Esp_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlCmd_Esp* cmd = task->data;
 
     CombatSprite_Release(&cmd->sprite);
     return 1;
 }
 
-s32 BtlCmd_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlCmd_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = {
         .initialize = BtlCmd_Esp_Init,
         .update     = BtlCmd_Esp_Update,

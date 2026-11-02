@@ -1,26 +1,20 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "SndMgr.h"
+#include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32  func_02026528(s32, s32);
-extern void func_02026590(s32*, s32, u16);
-extern void func_020265d4(s32*, s32, u16);
-extern s32  func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s16  func_ov003_020a40cc(Ov003TouchActor*, s32);
-extern s32  func_ov003_020a62b8(s32, s32, s32, s32);
-
 /// Task handle owned by the neighbouring `BtlPsy_PsychoFall_Z` unit.
-extern const TaskHandle data_ov003_020dca40;
+static const TaskHandle data_ov003_020dca40;
 
 // One bounded table replaces retail's three interior symbol views.
-const Ov003PsychoTuningTable data_ov003_020dca4c = {
+static const Ov003PsychoTuningTable data_ov003_020dca4c = {
     {{{10, 10, 10}, {30, 60, 90}, 0x400}, {{10, 10, 10}, {30, 60, 90}, 0x400}, {{10, 10, 10}, {30, 60, 90}, 0x400}},
     0,
 };
 
 /// Size class of an enemy: 0 = small, 1 = medium, 2 = large.
-s32 func_ov003_020b4e2c(u32 size) {
+static s32 func_ov003_020b4e2c(u32 size) {
     if (size < 0xC)
         return 0;
     if (size < 0x20)
@@ -39,7 +33,7 @@ void func_ov003_020b4e48(Ov003EnemyActor* unit, Ov003PsychoHitContext* context) 
 }
 
 // Nonmatching: bounded tuning records replace the retail table's interior symbol views.
-s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychoUnitArgs* arg = args;
     Ov003PsychoUnit*     self;
     switch (stage) {
@@ -176,5 +170,5 @@ s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4e9c[24] = "SubTsk_BtlPsy_Psycho_T";
-const TaskHandle data_ov003_020dca40     = {data_ov003_020e4e9c, func_ov003_020b4e8c, sizeof(Ov003PsychoUnit)};
+static char             data_ov003_020e4e9c[24] = "SubTsk_BtlPsy_Psycho_T";
+static const TaskHandle data_ov003_020dca40     = {data_ov003_020e4e9c, func_ov003_020b4e8c, sizeof(Ov003PsychoUnit)};

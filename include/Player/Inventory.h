@@ -108,4 +108,21 @@ s32 func_0202366c(u32 arg0, s32 arg1);
 
 s32 func_020236a0(void);
 
+BOOL Inventory_AreAllEquippedPinSlotsEmpty(void);
+u16  Inventory_GetCollectedItemCount(void);
+u16  Inventory_GetMasteredPinCount(void);
+u16  Inventory_GetNoiseReportCount(void);
+void Inventory_SetStarterPins(void);
+BOOL Savefile_AcquiredAllSecretReports(void);
+void Stats_AddExperience(s32 exp);
+s32  func_02023b7c(u16 itemID);
+s32  func_02023be8(u16 itemID, s32 arg1);
+void func_02023d3c(u32 arg0);
+s32  func_02023d88(u32 arg0);
+BOOL func_02023dd4(u32 arg0);
+u16  func_020242ac(s32 arg0);
+s32  func_020243d4(u32 arg0);
+s32  func_02024434(s32 arg0);
+void func_02024558(void);
+
 #endif // PLAYER_INVENTORY_H

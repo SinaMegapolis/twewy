@@ -2,7 +2,9 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc99c;
+static const TaskHandle data_ov003_020dc99c;
+static s32              func_ov003_020b3edc(Ov003LockOnThunderT* self);
+static s32              func_ov003_020b3fac(Ov003LockOnThunderT* self);
 
 s32 func_ov003_020b3da8(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_02085dc8(1);
@@ -17,7 +19,7 @@ s32 func_ov003_020b3da8(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b3e04(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b3e04(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs*  arg = args;
     Ov003LockOnThunderT* self;
     switch (stage) {
@@ -51,7 +53,7 @@ s32 func_ov003_020b3e04(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-s32 func_ov003_020b3edc(Ov003LockOnThunderT* self) {
+static s32 func_ov003_020b3edc(Ov003LockOnThunderT* self) {
     if (!self->ready || func_ov003_020a63a8(self->effect)) {
         func_ov003_020a6464(0);
         self->cancelled = 1;
@@ -75,7 +77,7 @@ s32 func_ov003_020b3edc(Ov003LockOnThunderT* self) {
     return 1;
 }
 
-s32 func_ov003_020b3fac(Ov003LockOnThunderT* self) {
+static s32 func_ov003_020b3fac(Ov003LockOnThunderT* self) {
     if (!self->cancelled) {
         if (self->finished) {
             func_ov003_020a6464(0);
@@ -97,5 +99,5 @@ s32 func_ov003_020b3fac(Ov003LockOnThunderT* self) {
     return 1;
 }
 
-char             data_ov003_020e4e18[28] = "Tsk_BtlPsy_LockOnThunder_T";
-const TaskHandle data_ov003_020dc99c     = {data_ov003_020e4e18, func_ov003_020b3e04, sizeof(Ov003LockOnThunderT)};
+static char             data_ov003_020e4e18[28] = "Tsk_BtlPsy_LockOnThunder_T";
+static const TaskHandle data_ov003_020dc99c     = {data_ov003_020e4e18, func_ov003_020b3e04, sizeof(Ov003LockOnThunderT)};

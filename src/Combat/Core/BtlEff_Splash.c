@@ -3,6 +3,7 @@
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/Math/Random.h"
 #include <nitro/fx.h>
+#include <nitro/mi/cpumem.h>
 
 // The task reserves sixteen 0x74-byte particles.
 typedef struct BtlSplashParticle {
@@ -29,15 +30,17 @@ typedef struct BtlEffSplashArgs {
     s32 independent;
 } BtlEffSplashArgs;
 extern const BinIdentifier data_ov003_020d77d8, data_ov003_020d77e0, data_ov003_020d77e8, data_ov003_020d77f0;
-extern void                func_ov003_0208b2fc(s32* x, s32* y, s32 angle, s32 scale);
-void                       func_ov003_0209f8b0(BtlEffSplash*);
-void                       func_ov003_0209f9c4(BtlEffSplash*);
-void                       func_ov003_0209fa14(BtlEffSplash*);
-void                       func_ov003_0209fae0(BtlEffSplash*);
-char                       data_ov003_020e3dd4[20] = "Tsk_BtlEff_Splash";
-const TaskHandle           data_ov003_020d86f0     = {data_ov003_020e3dd4, func_ov003_0209fc40, 0x760};
-const TaskStages data_ov003_020d86fc = {func_ov003_0209fb1c, func_ov003_0209fb8c, func_ov003_0209fbec, func_ov003_0209fc2c};
-void             func_ov003_0209f7c4(CombatSprite* sprite, u16 anim) {
+static s32                 func_ov003_0209fb1c(TaskPool* pool, Task* task, void* args);
+static s32                 func_ov003_0209fb8c(TaskPool* pool, Task* task, void* args);
+static s32                 func_ov003_0209fbec(TaskPool* pool, Task* task, void* args);
+static s32                 func_ov003_0209fc2c(TaskPool* pool, Task* task, void* args);
+static s32                 func_ov003_0209fc40(TaskPool* pool, Task* task, void* args, s32 stage);
+
+static char             data_ov003_020e3dd4[20] = "Tsk_BtlEff_Splash";
+static const TaskHandle data_ov003_020d86f0     = {data_ov003_020e3dd4, func_ov003_0209fc40, 0x760};
+static const TaskStages data_ov003_020d86fc     = {func_ov003_0209fb1c, func_ov003_0209fb8c, func_ov003_0209fbec,
+                                                   func_ov003_0209fc2c};
+static void             func_ov003_0209f7c4(CombatSprite* sprite, u16 anim) {
     switch (data_ov003_020e71b8->unk3D88D) {
         case 1:
             CombatSprite_LoadDirect(1, sprite, &data_ov003_020d77e8, 0x28, 0x2a, 0x29, 0x2c, anim);
@@ -51,7 +54,7 @@ void             func_ov003_0209f7c4(CombatSprite* sprite, u16 anim) {
             break;
     }
 }
-void func_ov003_0209f8b0(BtlEffSplash* data) {
+static void func_ov003_0209f8b0(BtlEffSplash* data) {
     s32                angle = RNG_Next(0x100) << 8;
     u16                anim;
     s32                i;
@@ -73,7 +76,7 @@ void func_ov003_0209f8b0(BtlEffSplash* data) {
     }
 }
 // Nonmatching: use the callee's declared u16 angle rather than an incompatible call signature.
-void func_ov003_0209f9c4(BtlEffSplash* data) {
+static void func_ov003_0209f9c4(BtlEffSplash* data) {
     s32                i;
     BtlSplashParticle* particle;
     for (i = 0; i < data->count; i++) {
@@ -82,7 +85,7 @@ void func_ov003_0209f9c4(BtlEffSplash* data) {
         CombatSprite_Update(&particle->sprite);
     }
 }
-void func_ov003_0209fa14(BtlEffSplash* data) {
+static void func_ov003_0209fa14(BtlEffSplash* data) {
     s32                x, y, key;
     s32                i;
     BtlSplashParticle* particle;
@@ -103,7 +106,7 @@ void func_ov003_0209fa14(BtlEffSplash* data) {
         CombatSprite_Render(&particle->sprite);
     }
 }
-void func_ov003_0209fae0(BtlEffSplash* data) {
+static void func_ov003_0209fae0(BtlEffSplash* data) {
     s32                i;
     BtlSplashParticle* particle;
     for (i = 0; i < data->count; i++) {
@@ -111,7 +114,7 @@ void func_ov003_0209fae0(BtlEffSplash* data) {
         CombatSprite_Release(&particle->sprite);
     }
 }
-s32 func_ov003_0209fb1c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209fb1c(TaskPool* pool, Task* task, void* args) {
     BtlEffSplash*     data = task->data;
     BtlEffSplashArgs* p    = args;
     MI_CpuSet(data, 0, sizeof(*data));
@@ -126,7 +129,7 @@ s32 func_ov003_0209fb1c(TaskPool* pool, Task* task, void* args) {
     func_ov003_0209f8b0(data);
     return 1;
 }
-s32 func_ov003_0209fb8c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209fb8c(TaskPool* pool, Task* task, void* args) {
     BtlEffSplash* data = task->data;
     if (!data->independent && (data_ov003_020e71b8->unk3D878 & 6))
         return 1;
@@ -137,18 +140,18 @@ s32 func_ov003_0209fb8c(TaskPool* pool, Task* task, void* args) {
     func_ov003_0209f9c4(data);
     return data->active;
 }
-s32 func_ov003_0209fbec(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209fbec(TaskPool* pool, Task* task, void* args) {
     BtlEffSplash* data = task->data;
     if (!data->independent && (data_ov003_020e71b8->unk3D878 & 6))
         return 1;
     func_ov003_0209fa14(data);
     return 1;
 }
-s32 func_ov003_0209fc2c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209fc2c(TaskPool* pool, Task* task, void* args) {
     func_ov003_0209fae0(task->data);
     return 1;
 }
-s32 func_ov003_0209fc40(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209fc40(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d86fc;
     return stages.iter[stage](pool, task, args);
 }

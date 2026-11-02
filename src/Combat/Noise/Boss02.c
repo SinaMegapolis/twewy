@@ -1,62 +1,61 @@
+#include "Combat/Noise/Boss02.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
+#include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss03.h"
+#include "Engine/Core/Interrupts.h"
+#include "Engine/Math/Random.h"
+#include "Engine/Resources/ScreenMapper.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 #include <nitro/fx.h>
+#include <nitro/g2.h>
+#include <nitro/mi/cpumem.h>
 
-extern void func_0200d858(void*, s32, s32, void*);
-extern void func_0200d954(s32, s32);
-extern void func_02026590(s32* dst, s32 target, u16 weight);
-extern s32  func_02036974();
-
-void func_ov017_02125c6c(void* arg0);
-void func_ov017_02128568(void* arg0);
-void func_ov017_02128664(void* arg0);
-void func_ov017_02128d2c(void* arg0);
-void func_ov017_02128f98(void* arg0);
-void func_ov017_02128ebc(void* arg0);
-void func_ov017_02128de0(void* arg0);
-void func_ov017_0212928c(void* arg0);
-void func_ov017_021298e0(void* arg0);
-void func_ov017_0212a270(void* arg0);
-void func_ov017_0212a37c(void* arg0);
-void func_ov017_0212ac58(void* arg0);
-void BtlBoss02_Badge_CreateTask(s16 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u16 arg5);
-void func_ov017_0212aea4(void* arg0);
-void func_ov017_0212b660(void* arg0);
-void func_ov017_0212bf3c(void* arg0);
-void func_ov017_0212bee0(void* arg0);
-void func_ov017_0212c698(void* arg0);
-void func_ov017_0212c508(void* arg0);
-void func_ov017_0212c5b8(void* arg0);
-void func_ov017_0212c628(void* arg0);
-void func_ov017_0212da28();
-void func_ov017_0212dbd8(void* arg0);
-void func_ov017_0212df88(void* arg0);
-void func_ov017_0212e6b8(void* arg0);
-void func_ov017_0212e740(void* arg0);
-void func_ov017_0212e97c(void* arg0);
-void func_ov017_0212ebc0(void* arg0);
-void func_ov017_0212eaec(void* arg0);
-void func_ov017_0212ea24(void* arg0);
-void func_ov017_0212f280(void* arg0);
-void func_ov017_0212f18c(void* arg0);
-void func_ov017_0212fbc4();
-void func_ov017_0212fc70();
-void func_ov017_0212fd18(void* arg0);
-void func_ov017_0212fe1c(void* arg0);
-void func_ov017_0212ff54(CombatSprite* arg0, CombatSprite* arg1);
-void func_ov017_0212ffcc(s32, s32);
-void func_ov017_0212ffe4(s32, s32, s32);
-void func_ov017_02130130(void*, void*);
-void func_ov017_02130148();
-void func_ov017_0213015c();
-void func_ov017_02130178(s32, s32, s32, s32);
-void func_ov017_021301e0();
-void func_ov017_0213021c(void*);
-void func_ov017_02130280(void*);
+static void func_ov017_02128568(void* arg0);
+static void func_ov017_02128664(void* arg0);
+static void func_ov017_02128d2c(void* arg0);
+static void func_ov017_02128f98(void* arg0);
+static void func_ov017_02128ebc(void* arg0);
+static void func_ov017_02128de0(void* arg0);
+static void func_ov017_0212928c(void* arg0);
+static void func_ov017_021298e0(void* arg0);
+static void func_ov017_0212a270(void* arg0);
+static void func_ov017_0212a37c(void* arg0);
+static void func_ov017_0212ac58(void* arg0);
+static void BtlBoss02_Badge_CreateTask(s16 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u16 arg5);
+static void func_ov017_0212aea4(void* arg0);
+static void func_ov017_0212b660(void* arg0);
+static void func_ov017_0212bf3c(void* arg0);
+static void func_ov017_0212bee0(void* arg0);
+static void func_ov017_0212c698(void* arg0);
+static void func_ov017_0212c508(void* arg0);
+static void func_ov017_0212c5b8(void* arg0);
+static void func_ov017_0212c628(void* arg0);
+static void func_ov017_0212da28();
+static void func_ov017_0212dbd8(void* arg0);
+static void func_ov017_0212df88(void* arg0);
+static void func_ov017_0212e6b8(void* arg0);
+static void func_ov017_0212e740(void* arg0);
+static void func_ov017_0212e97c(void* arg0);
+static void func_ov017_0212ebc0(void* arg0);
+static void func_ov017_0212eaec(void* arg0);
+static void func_ov017_0212ea24(void* arg0);
+static void func_ov017_0212f280(void* arg0);
+static void func_ov017_0212f18c(void* arg0);
+static void func_ov017_0212fbc4();
+static void func_ov017_0212fc70();
+static void func_ov017_0212fd18(void* arg0);
+static void func_ov017_0212fe1c(void* arg0);
+static void func_ov017_0212ff54(CombatSprite* arg0, CombatSprite* arg1);
+static void func_ov017_0212ffcc(s32, s32);
+static void func_ov017_0212ffe4(s32, s32, s32);
+static void func_ov017_02130130(void*, void*);
+static void func_ov017_0213021c(void*);
+static void func_ov017_02130280(void*);
 
 extern s32 gSaveState;
 
@@ -159,20 +158,20 @@ extern BinIdentifier    data_ov017_02141530;
 extern SubroutineArgs   data_ov017_02142020;
 extern s32              data_ov017_02142030;
 
-void func_ov017_021263dc(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_021263dc(void* arg0, void (*arg1)(void*)) {
     ((Boss03*)arg0)->unkDC = (s32)arg1;
     ((Boss03*)arg0)->unkDA = 0;
     ((Boss03*)arg0)->unkD8 = 0;
 }
 
-void func_ov017_021263f0(void* arg0) {
+static void func_ov017_021263f0(void* arg0) {
     Display_SetBGOffset(((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)((Boss03*)arg0)->unk0)->unk28 - 0x80000,
                         ((Boss03*)((Boss03*)arg0)->unk0)->unk40 - 0x60000);
     Display_SetBGOffset(((Boss03*)arg0)->unk50, ((Boss03*)arg0)->unk54, ((Boss03*)((Boss03*)arg0)->unk0)->unk28 - 0x80000,
                         ((Boss03*)((Boss03*)arg0)->unk0)->unk40 - 0x60000);
 }
 
-void func_ov017_021264e4(void* arg0) {
+static void func_ov017_021264e4(void* arg0) {
     s32   temp_r1;
     s32*  var_r4;
     u16   temp_r2;
@@ -208,7 +207,7 @@ void func_ov017_021264e4(void* arg0) {
     func_02001b44(7, func_02036974() + 0x7800, var_r4 + 4, var_r5);
 }
 
-void func_ov017_021265e4(void* arg0) {
+static void func_ov017_021265e4(void* arg0) {
     s16 temp_r1;
 
     if (((Boss03*)arg0)->unkD8 == 0) {
@@ -314,8 +313,10 @@ s32 func_ov017_0212665c(void* arg1, u16* arg2) {
     func_0200d858(temp_r4 + 0x28, 0, 1, 0);
     func_ov003_020d3b6c(temp_r4 + 0x88, ((Boss03*)temp_r4)->unk8, 0xD, 1, 0, 0);
     func_ov003_020d3b6c(temp_r4 + 0xAC, ((Boss03*)temp_r4)->unkC, 0x11, 1, 0, 0);
-    func_ov003_020d3bec(temp_r4 + 0x88, &data_ov017_0214166c, temp_r4 + 0x28, temp_r4 + 0x78, &data_ov017_021416a4);
-    func_ov003_020d3bec(temp_r4 + 0xAC, &data_ov017_0214166c, temp_r4 + 0x28, temp_r4 + 0x7C, &data_ov017_021416cc);
+    func_ov003_020d3bec(temp_r4 + 0x88, (BinIdentifier*)&data_ov017_0214166c, temp_r4 + 0x28, temp_r4 + 0x78,
+                        (const Ov003AnimFrame*)&data_ov017_021416a4);
+    func_ov003_020d3bec(temp_r4 + 0xAC, (BinIdentifier*)&data_ov017_0214166c, temp_r4 + 0x28, temp_r4 + 0x7C,
+                        (const Ov003AnimFrame*)&data_ov017_021416cc);
     func_ov003_020d3c98(temp_r4 + 0x88, temp_r4 + 0xAC);
     ((Boss03*)temp_r4)->unk10 = DatMgr_LoadPackEntry(1, 0, 0, (BinIdentifier*)&data_ov017_0214166c, 0xB, 0);
     ((Boss03*)temp_r4)->unk14 = DatMgr_LoadPackEntry(1, 0, 0, (BinIdentifier*)&data_ov017_0214166c, 0xC, 0);
@@ -409,24 +410,24 @@ void func_ov017_02126b9c(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_02126be4(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_02126be4(void* arg0, void (*arg1)(void*)) {
     ((Boss03*)arg0)->unk1D8 = arg1;
     ((Boss03*)arg0)->unk1D4 = 0;
     ((Boss03*)arg0)->unk1D2 = 0;
 }
 
-void func_ov017_02126bfc(void* arg0) {
+static void func_ov017_02126bfc(void* arg0) {
     Display_SetBGOffset(((Boss03*)arg0)->unk1C, ((Boss03*)arg0)->unk20, ((Boss03*)((Boss03*)arg0)->unk0)->unk28 - 0x80000,
                         ((Boss03*)((Boss03*)arg0)->unk0)->unk40 - 0x60000);
     Display_SetBGOffset(((Boss03*)arg0)->unk44, ((Boss03*)arg0)->unk48, ((Boss03*)((Boss03*)arg0)->unk0)->unk28 - 0x180000,
                         ((Boss03*)((Boss03*)arg0)->unk0)->unk40 - 0x60000);
 }
 
-void func_ov017_02126cf0(void* arg0) {
+static void func_ov017_02126cf0(void* arg0) {
     func_ov003_020d3cac(arg0 + 0x7C);
 }
 
-s32 func_ov017_02126d00(void* arg1, void* arg2, void* arg3, s32 arg4, s32 arg5) {
+static s32 func_ov017_02126d00(void* arg1, void* arg2, void* arg3, s32 arg4, s32 arg5) {
     s16   temp_r0;
     s32   var_r4;
     void* var_r3;
@@ -451,7 +452,7 @@ s32 func_ov017_02126d00(void* arg1, void* arg2, void* arg3, s32 arg4, s32 arg5) 
     return var_r4;
 }
 
-void func_ov017_02126d90(void* arg1, void* arg2) {
+static void func_ov017_02126d90(void* arg1, void* arg2) {
     data_ov017_02143988.unkA = (s16)(data_ov017_02143988.unkA - (*(Boss03**)((u8*)arg1 + 8))->unk4);
     data_ov017_02143988.unk6 = (s16)(data_ov017_02143988.unk6 - 1);
     data_ov017_02143988.unk2 = (s16)(data_ov017_02143988.unk2 - 1);
@@ -459,7 +460,7 @@ void func_ov017_02126d90(void* arg1, void* arg2) {
     ((Boss03*)arg1)->unk8    = NULL;
 }
 
-s32 func_ov017_02126dd4(void* arg1, void* arg2, void* arg3, s32 arg4, s32 arg5) {
+static s32 func_ov017_02126dd4(void* arg1, void* arg2, void* arg3, s32 arg4, s32 arg5) {
     s32   sp20;
     s32   sp1C;
     void* sp18;
@@ -494,7 +495,7 @@ s32 func_ov017_02126dd4(void* arg1, void* arg2, void* arg3, s32 arg4, s32 arg5) 
     return var_r4;
 }
 
-void func_ov017_02126eb4(void* arg1, void* arg2) {
+static void func_ov017_02126eb4(void* arg1, void* arg2) {
     data_ov017_02143988.unkA = (s16)(data_ov017_02143988.unkA - (*(Boss03**)((u8*)arg1 + 8))->unk4);
     data_ov017_02143988.unk6 = (s16)(data_ov017_02143988.unk6 - 1);
     data_ov017_02143988.unk8 = (s16)(data_ov017_02143988.unk8 - 1);
@@ -502,7 +503,7 @@ void func_ov017_02126eb4(void* arg1, void* arg2) {
     ((Boss03*)arg1)->unk8    = NULL;
 }
 
-void* func_ov017_02126ef8(void* arg0) {
+static void* func_ov017_02126ef8(void* arg0) {
     void* var_r5;
     s32   temp_c;
     u16   temp_r1;
@@ -523,7 +524,7 @@ loop_1:
     return var_r5;
 }
 
-s32 func_ov017_02126f30(s16 arg0, void* arg1) {
+static s32 func_ov017_02126f30(s16 arg0, void* arg1) {
     s32 var_r2;
 
     var_r2 = 0;
@@ -533,7 +534,7 @@ s32 func_ov017_02126f30(s16 arg0, void* arg1) {
     return var_r2;
 }
 
-void func_ov017_02126f54(void* arg0) {
+static void func_ov017_02126f54(void* arg0) {
     void* var_lr;
     s32   temp_r1;
     s32   var_ip;
@@ -561,7 +562,7 @@ void func_ov017_02126f54(void* arg0) {
     data_ov017_02143988.unk4  = -1;
 }
 
-void func_ov017_02126fd0(void* arg0) {
+static void func_ov017_02126fd0(void* arg0) {
     if (data_ov017_02143988.unk24 == 0) {
         return;
     }
@@ -571,7 +572,7 @@ void func_ov017_02126fd0(void* arg0) {
     func_ov017_02126d90(arg0, &data_ov017_021439a4);
 }
 
-void func_ov017_02127020(void* arg0) {
+static void func_ov017_02127020(void* arg0) {
     void* var_r6;
     s32   var_r5;
 
@@ -586,7 +587,7 @@ void func_ov017_02127020(void* arg0) {
     } while (var_r5 < 3);
 }
 
-void func_ov017_0212707c(s32* arg0, s32* arg1) {
+static void func_ov017_0212707c(s32* arg0, s32* arg1) {
     u32   temp_r0;
     void* temp_r2;
 
@@ -596,7 +597,7 @@ void func_ov017_0212707c(s32* arg0, s32* arg1) {
     *arg1   = RNG_Next((s32)(temp_r0 + (temp_r0 >> 0x1F)) >> 0xD) << 0xC;
 }
 
-s32 func_ov017_021270bc(void) {
+static s32 func_ov017_021270bc(void) {
     void* var_r3;
     s32   var_r2;
 
@@ -614,7 +615,7 @@ loop_1:
     goto loop_1;
 }
 
-s32 func_ov017_021270fc(void) {
+static s32 func_ov017_021270fc(void) {
     void* var_r3;
     s32   var_r2;
 
@@ -632,7 +633,7 @@ loop_1:
     goto loop_1;
 }
 
-void func_ov017_0212713c(void) {
+static void func_ov017_0212713c(void) {
     if (RNG_Next(0x64) < 0x14U) {
         data_ov017_02143988.unkC = func_ov017_02126ef8(&data_ov017_02142df4);
         data_ov017_02143988.unk0 = 0x14;
@@ -642,7 +643,7 @@ void func_ov017_0212713c(void) {
     data_ov017_02143988.unk0  = 0x14;
 }
 
-void func_ov017_02127194(void* arg0) {
+static void func_ov017_02127194(void* arg0) {
     s32 sp8;
     s32 sp4;
     s32 temp_r0;
@@ -684,13 +685,13 @@ block_6:
     func_ov017_0212713c();
 }
 
-void func_ov017_021272f4(void* arg0) {
+static void func_ov017_021272f4(void* arg0) {
     func_ov017_02126fd0(arg0);
     func_ov017_02127020(arg0);
     func_ov017_02127194(arg0);
 }
 
-void func_ov017_02127314(void* arg0) {
+static void func_ov017_02127314(void* arg0) {
     void* temp_r4;
 
     temp_r4 = data_ov003_020e71b8->unk3D7C0;
@@ -698,13 +699,13 @@ void func_ov017_02127314(void* arg0) {
     func_ov003_020846ac(arg0, ((Boss03*)temp_r4)->unk4, ((Boss03*)temp_r4)->unk10, 0);
 }
 
-void func_ov017_02127358(void* arg0) {
-    func_ov003_020846fc(((Boss03*)arg0)->unk1CC, ((Boss03*)arg0)->unk1C0);
-    func_ov003_020846fc(((Boss03*)arg0)->unk1CC, ((Boss03*)arg0)->unk1C4);
-    func_ov003_020846fc(((Boss03*)arg0)->unk1CC, ((Boss03*)arg0)->unk1C8);
+static void func_ov017_02127358(void* arg0) {
+    func_ov003_020846fc((CombatList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C0);
+    func_ov003_020846fc((CombatList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C4);
+    func_ov003_020846fc((CombatList*)(((Boss03*)arg0)->unk1CC), (CombatList*)(((Boss03*)arg0)->unk1C8));
 }
 
-s32 func_ov017_02127388(void* arg1, void* arg2) {
+static s32 func_ov017_02127388(void* arg1, void* arg2) {
     void* var_ip;
     s32   var_r3;
 
@@ -722,7 +723,7 @@ loop_1:
     goto loop_1;
 }
 
-s32 func_ov017_021273cc(void* arg1, void* arg2) {
+static s32 func_ov017_021273cc(void* arg1, void* arg2) {
     void* var_ip;
     s32   var_r3;
 
@@ -740,7 +741,7 @@ loop_1:
     goto loop_1;
 }
 
-void func_ov017_02127410(s16 arg0) {
+static void func_ov017_02127410(s16 arg0) {
     s32 var_lr;
 
     var_lr = 0;
@@ -756,7 +757,7 @@ loop_1:
     goto loop_1;
 }
 
-void func_ov017_02127448(s16 arg0) {
+static void func_ov017_02127448(s16 arg0) {
     s32 temp_ip;
     s32 var_lr;
 
@@ -774,7 +775,7 @@ loop_1:
     goto loop_1;
 }
 
-void func_ov017_02127480(void* arg0, void* arg1) {
+static void func_ov017_02127480(void* arg0, void* arg1) {
     if ((*(Boss03**)((u8*)arg1 + 4))->unk58 & 0x200) {
         return;
     }
@@ -783,7 +784,7 @@ void func_ov017_02127480(void* arg0, void* arg1) {
     func_ov017_02126d90(arg0, arg1);
 }
 
-void func_ov017_021274c8(void* arg1) {
+static void func_ov017_021274c8(void* arg1) {
     void* temp_r1;
 
     temp_r1 = ((Boss03*)arg1)->unk4;
@@ -819,7 +820,7 @@ void func_ov017_02127514(void* arg0) {
             var_r0 = func_ov003_02084984(var_r0 + 0x28);
         } while (var_r0 != NULL);
     }
-    var_r5 = func_ov003_0208495c(((Boss03*)arg0)->unk1C8);
+    var_r5 = func_ov003_0208495c((CombatList*)(((Boss03*)arg0)->unk1C8));
     if (var_r5 != NULL) {
         do {
             if ((((Boss03*)var_r5)->unk1C & 0x10) && (func_ov017_02127388(arg0, var_r5) != 0)) {
@@ -840,7 +841,7 @@ void func_ov017_02127514(void* arg0) {
     } while (var_r5_2 != NULL);
 }
 
-void func_ov017_02127624(void* arg0) {
+static void func_ov017_02127624(void* arg0) {
     s32   temp_r0;
     s32   temp_r0_2;
     void* temp_r2;
@@ -867,7 +868,7 @@ void func_ov017_02127624(void* arg0) {
             var_r0 = func_ov003_02084984(var_r0 + 0x28);
         } while (var_r0 != NULL);
     }
-    var_r4 = func_ov003_0208495c(((Boss03*)arg0)->unk1C8);
+    var_r4 = func_ov003_0208495c((CombatList*)(((Boss03*)arg0)->unk1C8));
     if (var_r4 != NULL) {
         do {
             if (((Boss03*)var_r4)->unk1C & 0x10) {
@@ -900,17 +901,17 @@ void func_ov017_02127624(void* arg0) {
     } while (var_r4_2 != NULL);
 }
 
-void func_ov017_02127774(void* arg0) {
+static void func_ov017_02127774(void* arg0) {
     ((Boss03*)arg0)->unkF8  = 0;
     ((Boss03*)arg0)->unk1D0 = 0x48;
     func_ov017_02127314(arg0 + 0xC4);
     ((Boss03*)arg0)->unk1C0 = func_ov003_020846f0(0);
     ((Boss03*)arg0)->unk1C4 = func_ov003_020846f0(1);
-    ((Boss03*)arg0)->unk1C8 = func_ov003_020846f0(3);
-    ((Boss03*)arg0)->unk1CC = func_ov003_020846f0(4);
+    ((Boss03*)arg0)->unk1C8 = (void*)func_ov003_020846f0(3);
+    ((Boss03*)arg0)->unk1CC = (void*)func_ov003_020846f0(4);
 }
 
-void func_ov017_021277cc(void* arg0) {
+static void func_ov017_021277cc(void* arg0) {
     s16   temp_r0_2;
     s16   temp_r1_2;
     s32   temp_r2;
@@ -950,7 +951,7 @@ void func_ov017_021277cc(void* arg0) {
                                    ((temp_r2_2 >> 0xC) | ((MULT_HI(temp_r0_2, temp_r5_3) + M2C_CARRY(temp_r2_2)) << 0x14)));
 }
 
-void func_ov017_021278e4(void* arg0) {
+static void func_ov017_021278e4(void* arg0) {
     void* var_r5;
     s32   var_r4;
 
@@ -969,7 +970,7 @@ void func_ov017_021278e4(void* arg0) {
     } while (var_r4 < 3);
 }
 
-void func_ov017_0212794c(void* arg0) {
+static void func_ov017_0212794c(void* arg0) {
     u16 temp_r0;
     u16 temp_r0_2;
     u32 temp_r2;
@@ -981,13 +982,13 @@ void func_ov017_0212794c(void* arg0) {
             ((Boss03*)arg0)->unkF8 = 3U;
             ((Boss03*)arg0)->unkFA = (u16)(RNG_Next(0x12C) + 0x5DC);
             ((Boss03*)arg0)->unkFC = 0x1C8U;
-            func_ov003_020d3c2c(arg0 + 0x7C, &data_ov017_02141a44);
-            func_ov003_020d3c2c(arg0 + 0xA0, &data_ov017_0214186c);
+            func_ov003_020d3c2c(arg0 + 0x7C, (const Ov003AnimFrame*)&data_ov017_02141a44);
+            func_ov003_020d3c2c(arg0 + 0xA0, (const Ov003AnimFrame*)&data_ov017_0214186c);
             func_ov003_020d3c98(arg0 + 0x7C, arg0 + 0xA0);
             ((Boss03*)arg0)->unk1D0 = 0x48;
         } else {
-            func_ov003_020d3c2c(arg0 + 0x7C, &data_ov017_0214179c);
-            func_ov003_020d3c2c(arg0 + 0xA0, &data_ov017_02141804);
+            func_ov003_020d3c2c(arg0 + 0x7C, (const Ov003AnimFrame*)&data_ov017_0214179c);
+            func_ov003_020d3c2c(arg0 + 0xA0, (const Ov003AnimFrame*)&data_ov017_02141804);
             func_ov003_020d3c98(arg0 + 0x7C, arg0 + 0xA0);
             ((Boss03*)arg0)->unkF8 = 0U;
             ((Boss03*)arg0)->unkFA = (u16)(RNG_Next(0x12C) + 0x12C);
@@ -1012,8 +1013,8 @@ void func_ov017_0212794c(void* arg0) {
     if (temp_r0_2 != 0) {
         ((Boss03*)arg0)->unkFC = (u16)(temp_r0_2 - 1);
         if ((((Boss03*)arg0)->unkFC == 0) && (((Boss03*)arg0)->unkF8 == 3)) {
-            func_ov003_020d3c2c(arg0 + 0x7C, &data_ov017_0214172c);
-            func_ov003_020d3c2c(arg0 + 0xA0, &data_ov017_02141764);
+            func_ov003_020d3c2c(arg0 + 0x7C, (const Ov003AnimFrame*)&data_ov017_0214172c);
+            func_ov003_020d3c2c(arg0 + 0xA0, (const Ov003AnimFrame*)&data_ov017_02141764);
             func_ov003_020d3c98(arg0 + 0x7C, arg0 + 0xA0);
             ((Boss03*)arg0)->unkF8 = 1U;
             temp_r2_2              = data_ov003_020e71b8->unk3D7C0[0].unk_0C;
@@ -1026,7 +1027,7 @@ void func_ov017_0212794c(void* arg0) {
     ((Boss03*)arg0)->unkFA = (u16)(((Boss03*)arg0)->unkFA - 1);
 }
 
-void func_ov017_02127b88(void* arg0) {
+static void func_ov017_02127b88(void* arg0) {
     if (((Boss03*)arg0)->unkF8 == 1) {
         func_ov017_021278e4(arg0);
         func_ov017_02127358(arg0);
@@ -1038,7 +1039,7 @@ void func_ov017_02127b88(void* arg0) {
     func_ov017_0212794c(arg0);
 }
 
-void func_ov017_02127bcc(void* arg0) {
+static void func_ov017_02127bcc(void* arg0) {
     s16 temp_r1;
 
     if (((Boss03*)arg0)->unk1D2 == 0) {
@@ -1160,9 +1161,11 @@ s32 func_ov017_02127c40(void* arg1, u16* arg2) {
     func_0200d1d8(temp_r4 + 0x1C, 0, 1, 0, temp_r4 + 0x6C, 1, 2);
     func_0200d1d8(temp_r4 + 0x44, 0, 2, 0, temp_r4 + 0x74, 1, 2);
     func_ov003_020d3b6c(temp_r4 + 0x7C, ((Boss03*)temp_r4)->unk8, 1, 1, 0, 0);
-    func_ov003_020d3bec(temp_r4 + 0x7C, &data_ov017_0214171c, temp_r4 + 0x1C, temp_r4 + 0x70, &data_ov017_0214179c);
+    func_ov003_020d3bec(temp_r4 + 0x7C, (BinIdentifier*)&data_ov017_0214171c, temp_r4 + 0x1C, temp_r4 + 0x70,
+                        (const Ov003AnimFrame*)&data_ov017_0214179c);
     func_ov003_020d3b6c(temp_r4 + 0xA0, ((Boss03*)temp_r4)->unkC, 1, 1, 0, 0);
-    func_ov003_020d3bec(temp_r4 + 0xA0, &data_ov017_0214171c, temp_r4 + 0x44, temp_r4 + 0x78, &data_ov017_02141804);
+    func_ov003_020d3bec(temp_r4 + 0xA0, (BinIdentifier*)&data_ov017_0214171c, temp_r4 + 0x44, temp_r4 + 0x78,
+                        (const Ov003AnimFrame*)&data_ov017_02141804);
     func_ov003_020d3c98(temp_r4 + 0x7C, temp_r4 + 0xA0);
     func_0200d858(temp_r4 + 0x1C, 0, 0, 0);
     func_0200d858(temp_r4 + 0x44, 0, 0, 0);
@@ -1173,8 +1176,8 @@ s32 func_ov017_02127c40(void* arg1, u16* arg2) {
     data_ov003_020e71b8->unk3D7C0[0].unk_02 = 0;
     data_ov003_020e71b8->unk3D7C0[1].unk_02 = 0;
     ((Boss03*)temp_r4)->unkFA               = (s16)(RNG_Next(0x12C) + 0x12C);
-    func_ov003_02083a2c(0, 0, 0x140, 0x200, 0x1F0, 0);
-    func_ov003_02083a2c(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    ((void (*)())func_ov003_02083a2c)(0, 0, 0x140, 0x200, 0x1F0, 0);
+    ((void (*)())func_ov003_02083a2c)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
     ((Boss03*)temp_r5)->unk18 = (s32)(0x130000 - ((Boss03*)temp_r5)->unk8);
     ((Boss03*)temp_r5)->unk1C = FX_Atan2Idx(0, 0x140);
     if ((arg2 != NULL) && (*arg2 != 0)) {
@@ -1269,19 +1272,19 @@ void func_ov017_021282f8(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_02128340(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_02128340(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk28C = arg1;
     ((Boss03*)arg0)->unk288 = 0;
     ((Boss03*)arg0)->unk280 = 0;
 }
 
-s32 func_ov017_02128364(void* arg0) {
+static s32 func_ov017_02128364(void* arg0) {
     do {
     } while (((Boss03*)arg0)->unk290 == RNG_Next(4));
 }
 
-void func_ov017_02128388(void* arg0) {
+static void func_ov017_02128388(void* arg0) {
     s32 temp_r1;
     s32 temp_r1_2;
     s32 temp_r1_3;
@@ -1297,14 +1300,14 @@ void func_ov017_02128388(void* arg0) {
     ((Boss03*)arg0)->unk1B4 = temp_r1_3;
 }
 
-void func_ov017_02128414(void* arg0) {
+static void func_ov017_02128414(void* arg0) {
     if (func_ov003_020c5bfc(arg0) != 0) {
         return;
     }
     func_ov017_02128340(arg0, func_ov017_02128568);
 }
 
-void func_ov017_0212843c(void* arg0) {
+static void func_ov017_0212843c(void* arg0) {
     s16 sp14;
     s32 sp10;
     s32 spC;
@@ -1335,7 +1338,7 @@ void func_ov017_0212843c(void* arg0) {
     func_ov017_02128340(arg0, func_ov017_02128568);
 }
 
-void func_ov017_02128568(void* arg0) {
+static void func_ov017_02128568(void* arg0) {
     s32 temp_r1;
 
     if (((Boss03*)arg0)->unk280 == 0) {
@@ -1359,7 +1362,7 @@ void func_ov017_02128568(void* arg0) {
     func_ov017_02128340(arg0, func_ov017_02128568);
 }
 
-void func_ov017_02128614(void* arg0) {
+static void func_ov017_02128614(void* arg0) {
     ((Boss03*)arg0)->unk298 = 0;
     CombatSprite_SetAnimFromTable(arg0 + 0x84, 0, 0);
     func_ov003_020c4b1c(arg0);
@@ -1368,7 +1371,7 @@ void func_ov017_02128614(void* arg0) {
     func_ov017_02128340(arg0, func_ov017_02128664);
 }
 
-void func_ov017_02128664(void* arg0) {
+static void func_ov017_02128664(void* arg0) {
     if (data_ov017_021439d6 != 2) {
         return;
     }
@@ -1378,7 +1381,7 @@ void func_ov017_02128664(void* arg0) {
     func_ov017_02128340(arg0, func_ov017_02128568);
 }
 
-void func_ov017_021286b4(void* arg0) {
+static void func_ov017_021286b4(void* arg0) {
     if (((Boss03*)arg0)->unk280 == 0) {
         ((Boss03*)arg0)->unk84 = (s32)((((Boss03*)arg0)->unk84 & ~0x60) | 0x40);
         if (((Boss03*)arg0)->unk294 == 1) {
@@ -1396,11 +1399,11 @@ void func_ov017_021286b4(void* arg0) {
     ((Boss03*)arg0)->unk298 = 0;
 }
 
-void func_ov017_02128754(void* arg0) {
+static void func_ov017_02128754(void* arg0) {
     ((Boss03*)arg0)->unk298 = 1;
 }
 
-void func_ov017_02128760(void* arg0) {
+static void func_ov017_02128760(void* arg0) {
     void* temp_r4;
     void* var_r0;
 
@@ -1549,14 +1552,14 @@ void func_ov017_02128b34(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_02128b7c(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_02128b7c(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_02128ba0(void* arg0) {
+static void func_ov017_02128ba0(void* arg0) {
     s16 temp_r2_2;
     s16 temp_r3;
     s32 temp_r1;
@@ -1576,7 +1579,7 @@ void func_ov017_02128ba0(void* arg0) {
         (s32)(((Boss03*)arg0)->unk2C + ((temp_r2_3 >> 0xC) | ((MULT_HI(temp_r2_2, temp_r1) + M2C_CARRY(temp_r2_3)) << 0x14)));
 }
 
-void func_ov017_02128c24(void* arg0) {
+static void func_ov017_02128c24(void* arg0) {
     s32 temp_z;
 
     temp_z                 = func_ov003_020c5bfc(arg0) == 0;
@@ -1587,7 +1590,7 @@ void func_ov017_02128c24(void* arg0) {
     func_ov017_02128b7c(arg0, func_ov017_02128d2c);
 }
 
-void func_ov017_02128c58(void* arg0) {
+static void func_ov017_02128c58(void* arg0) {
     s32 temp_r1;
 
     func_ov003_020c4b5c(arg0);
@@ -1613,7 +1616,7 @@ void func_ov017_02128c58(void* arg0) {
     func_ov017_02128b7c(arg0, func_ov017_0212928c);
 }
 
-void func_ov017_02128d2c(void* arg0) {
+static void func_ov017_02128d2c(void* arg0) {
     s32 temp_r1;
 
     func_ov003_020c4b5c(arg0);
@@ -1638,7 +1641,7 @@ void func_ov017_02128d2c(void* arg0) {
     func_ov017_02128b7c(arg0, (void (*)(void*))func_ov017_02128de0);
 }
 
-void func_ov017_02128de0(void* arg0) {
+static void func_ov017_02128de0(void* arg0) {
     s32 temp_r1;
     s32 var_r0;
 
@@ -1669,7 +1672,7 @@ void func_ov017_02128de0(void* arg0) {
     func_ov017_02128b7c(arg0, (void (*)(void*))func_ov017_02128f98);
 }
 
-void func_ov017_02128ebc(void* arg0) {
+static void func_ov017_02128ebc(void* arg0) {
     s32 temp_r1;
     s32 var_r0;
 
@@ -1700,7 +1703,7 @@ void func_ov017_02128ebc(void* arg0) {
     func_ov017_02128b7c(arg0, (void (*)(void*))func_ov017_02128f98);
 }
 
-void func_ov017_02128f98(void* arg0) {
+static void func_ov017_02128f98(void* arg0) {
     s16   sp14;
     s32   sp10;
     s32   spC;
@@ -1739,7 +1742,7 @@ void func_ov017_02128f98(void* arg0) {
     func_ov017_02128b7c(arg0, (void (*)(void*))func_ov017_02128d2c);
 }
 
-void func_ov017_021290a4(void* arg0) {
+static void func_ov017_021290a4(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         ((Boss03*)arg0)->unk84 = (s32)((((Boss03*)arg0)->unk84 & ~0x60) | 0x40);
         if (((Boss03*)arg0)->unk1DC == 1) {
@@ -1755,9 +1758,9 @@ void func_ov017_021290a4(void* arg0) {
     func_ov017_02128b7c(arg0, (void (*)(void*))func_ov017_02128c58);
 }
 
-void func_ov017_02129134(void) {}
+static void func_ov017_02129134(void) {}
 
-void func_ov017_02129138(void* arg0) {
+static void func_ov017_02129138(void* arg0) {
     s32 temp_r0;
 
     temp_r0 = ((Boss03*)arg0)->unk1C8;
@@ -1791,7 +1794,7 @@ void func_ov017_02129138(void* arg0) {
     }
 }
 
-void func_ov017_0212928c(void* arg0) {
+static void func_ov017_0212928c(void* arg0) {
     s32 temp_r0;
 
     temp_r0 = ((Boss03*)arg0)->unk1C8;
@@ -1824,7 +1827,7 @@ void func_ov017_0212928c(void* arg0) {
     }
 }
 
-void func_ov017_021293c4(void* arg0) {
+static void func_ov017_021293c4(void* arg0) {
     if (data_ov017_021439d4.unk0 == 1) {
         if (func_ov003_020c72b4(arg0, 0, 3) != 0) {
             return;
@@ -1845,9 +1848,9 @@ s32 func_ov017_02129438(void* arg1, s32 arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
-    temp_r5 = func_ov003_020c3c88(temp_r4);
+    temp_r5 = func_ov003_020c3c88((Ov003EnemyActor*)temp_r4);
     MI_CpuSet(temp_r4, 0, 0x1F0);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     ((Boss03*)temp_r4)->unk1E4 = 1;
     ((Boss03*)temp_r4)->unk1E8 = 1;
     ((Boss03*)temp_r4)->unk1EC = 1;
@@ -1855,10 +1858,10 @@ s32 func_ov017_02129438(void* arg1, s32 arg2) {
     data_ov017_021439d4.unk0   = 0;
     data_ov017_021439d4.unk2   = 0;
     CombatSprite_LoadFromTable(0, (CombatSprite*)temp_r4 + 0x84, &data_ov017_02141518, &data_ov017_02141568, 0, 0xD, 0x120);
-    func_ov003_020880e4(0, temp_r4 + 0xE4, temp_r4);
-    func_ov003_020c49c8(temp_r4);
+    func_ov003_020880e4(0, (CombatSprite*)(temp_r4 + 0xE4), (Ov003EnemyActor*)temp_r4);
+    func_ov003_020c49c8((Ov003EnemyActor*)temp_r4);
     func_ov003_02084634(&((Ov003EnemyActor*)temp_r4)->collider, 1, ((Boss03*)temp_r5)->unk3, ((Boss03*)temp_r5)->unk4);
-    func_ov003_020c4b5c(temp_r4);
+    func_ov003_020c4b5c((Ov003EnemyActor*)temp_r4);
     func_ov017_02128b7c(temp_r4, (void (*)(void*))func_ov017_02128c24);
     func_ov017_02130280(temp_r4);
     ((Boss03*)temp_r4)->unk54 = (s32)(((Boss03*)temp_r4)->unk54 | 0x08000040);
@@ -1922,7 +1925,7 @@ s32 func_ov017_0212952c(void* arg1) {
     if (temp_r1_3 != NULL) {
         temp_r1_3(temp_r4);
     }
-    func_ov003_020c4668(temp_r4);
+    func_ov003_020c4668((Ov003EnemyActor*)temp_r4);
     return ((Boss03*)temp_r4)->unk1E8;
 }
 
@@ -1945,18 +1948,18 @@ void func_ov017_0212971c(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_02129764(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_02129764(void* arg0, void (*arg1)(void*)) {
     ((Boss03*)arg0)->unk98 = arg1;
     ((Boss03*)arg0)->unk94 = 0;
     ((Boss03*)arg0)->unk90 = 0;
 }
 
-void func_ov017_02129778(void* arg0) {
+static void func_ov017_02129778(void* arg0) {
     Display_SetBGOffset(((Boss03*)arg0)->unk10, ((Boss03*)arg0)->unk14, ((Boss03*)((Boss03*)arg0)->unk0)->unk28 - 0x80000,
                         ((Boss03*)((Boss03*)arg0)->unk0)->unk40 - 0x100000);
 }
 
-void func_ov017_021297f8(void* arg0) {
+static void func_ov017_021297f8(void* arg0) {
     SubroutineArgs subroutine_arg0;
     u16            spA;
     u16            sp8;
@@ -1977,7 +1980,7 @@ loop_1:
     func_ov017_02129764(arg0, ((s32*)&subroutine_arg0)[var_r3]);
 }
 
-void func_ov017_02129878(void* arg0) {
+static void func_ov017_02129878(void* arg0) {
     s16 temp_r1;
 
     if (((Boss03*)arg0)->unk90 == 0) {
@@ -1994,11 +1997,11 @@ void func_ov017_02129878(void* arg0) {
     func_ov017_02129764(arg0, func_ov017_021298e0);
 }
 
-void func_ov017_021298e0(void* arg0) {
+static void func_ov017_021298e0(void* arg0) {
     if (((Boss03*)arg0)->unk90 == 0) {
-        func_ov003_020d3c2c(arg0 + 0x48, &data_ov017_02141c88);
+        func_ov003_020d3c2c(arg0 + 0x48, (const Ov003AnimFrame*)&data_ov017_02141c88);
         ((Boss03*)arg0)->unk64 = (u16)(((Boss03*)arg0)->unk64 & ~1);
-        func_ov003_020d3c2c(arg0 + 0x6C, &data_ov017_02141cb0);
+        func_ov003_020d3c2c(arg0 + 0x6C, (const Ov003AnimFrame*)&data_ov017_02141cb0);
         ((Boss03*)arg0)->unk88 = (u16)(((Boss03*)arg0)->unk88 & ~1);
     }
     ((Boss03*)arg0)->unk90 = (s16)(((Boss03*)arg0)->unk90 + 1);
@@ -2010,9 +2013,9 @@ void func_ov017_021298e0(void* arg0) {
 
 void func_ov017_02129958(void* arg0) {
     if (((Boss03*)arg0)->unk90 == 0) {
-        func_ov003_020d3c2c(arg0 + 0x48, &data_ov017_02141cd8);
+        func_ov003_020d3c2c(arg0 + 0x48, (const Ov003AnimFrame*)&data_ov017_02141cd8);
         ((Boss03*)arg0)->unk64 = (u16)(((Boss03*)arg0)->unk64 & ~1);
-        func_ov003_020d3c2c(arg0 + 0x6C, &data_ov017_02141d40);
+        func_ov003_020d3c2c(arg0 + 0x6C, (const Ov003AnimFrame*)&data_ov017_02141d40);
         ((Boss03*)arg0)->unk88 = (u16)(((Boss03*)arg0)->unk88 & ~1);
     }
     ((Boss03*)arg0)->unk90 = (s16)(((Boss03*)arg0)->unk90 + 1);
@@ -2111,16 +2114,18 @@ s32 func_ov017_021299d0(void* arg1, u16* arg2) {
         var_r0_4  = temp_r1_6 + ((Boss03*)temp_r1_6)->unk130;
     }
     ((Boss03*)temp_r4)->unk44 = (void*)(var_r0_4 + 4);
-    func_0200d1d8(temp_r4 + 0x10, 0, 1, 0, temp_r4 + 0x38, 2, 2);
-    func_0200d858(temp_r4 + 0x10, 0, 0, 0);
-    func_ov003_020d3b6c(temp_r4 + 0x48, 0, 0, 1, 0, 0);
-    func_ov003_020d3bec(temp_r4 + 0x48, &data_ov017_02141c68, temp_r4 + 0x10, temp_r4 + 0x38, &data_ov017_02141c88);
-    func_ov003_020d3b6c(temp_r4 + 0x6C, 0, 0, 1, 0, 0);
-    func_ov003_020d3bec(temp_r4 + 0x6C, &data_ov017_02141c68, temp_r4 + 0x10, temp_r4 + 0x3C, &data_ov017_02141cb0);
+    func_0200d1d8((ScreenMapEntry*)(temp_r4 + 0x10), 0, 1, 0, temp_r4 + 0x38, 2, 2);
+    func_0200d858((ScreenMapEntry*)(temp_r4 + 0x10), 0, 0, 0);
+    func_ov003_020d3b6c((Ov003AnimLayer*)(temp_r4 + 0x48), 0, 0, 1, 0, 0);
+    func_ov003_020d3bec((Ov003AnimLayer*)(temp_r4 + 0x48), (BinIdentifier*)&data_ov017_02141c68, temp_r4 + 0x10,
+                        temp_r4 + 0x38, (const Ov003AnimFrame*)&data_ov017_02141c88);
+    func_ov003_020d3b6c((Ov003AnimLayer*)(temp_r4 + 0x6C), 0, 0, 1, 0, 0);
+    func_ov003_020d3bec((Ov003AnimLayer*)(temp_r4 + 0x6C), (BinIdentifier*)&data_ov017_02141c68, temp_r4 + 0x10,
+                        temp_r4 + 0x3C, (const Ov003AnimFrame*)&data_ov017_02141cb0);
     data_ov003_020e71b8->unk3D7C0[0].unk_02 = 0;
     data_ov003_020e71b8->unk3D7C0[1].unk_02 = 0;
-    func_ov003_02083a2c(0, 0x40, 0x140, 0x1C0, 0x1E0, 0);
-    func_ov003_02083a2c(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    ((void (*)())func_ov003_02083a2c)(0, 0x40, 0x140, 0x1C0, 0x1E0, 0);
+    ((void (*)())func_ov003_02083a2c)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
     ((Boss03*)temp_r5)->unk18 = (s32)(0x160000 - ((Boss03*)temp_r5)->unk8);
     ((Boss03*)temp_r5)->unk1C = FX_Atan2Idx(0, 0x140);
     if ((arg2 != NULL) && (*arg2 != 0)) {
@@ -2156,8 +2161,8 @@ s32 func_ov017_02129d78(void* arg1) {
     if (temp_r1 != NULL) {
         temp_r1(temp_r4);
     }
-    func_ov003_020d3cac(temp_r4 + 0x48);
-    func_ov003_020d3cac(temp_r4 + 0x6C);
+    func_ov003_020d3cac((Ov003AnimLayer*)(temp_r4 + 0x48));
+    func_ov003_020d3cac((Ov003AnimLayer*)(temp_r4 + 0x6C));
     func_ov017_0212fe1c(((Boss03*)temp_r4)->unk0);
     func_ov017_02129778(temp_r4);
     return 1;
@@ -2193,21 +2198,21 @@ void func_ov017_02129e5c(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_02129ea4(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_02129ea4(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk28C = arg1;
     ((Boss03*)arg0)->unk288 = 0;
     ((Boss03*)arg0)->unk280 = 0;
 }
 
-s16 func_ov017_02129ec8(void* arg0) {
+static s16 func_ov017_02129ec8(void* arg0) {
     do {
 
     } while (((Boss03*)arg0)->unk290 == RNG_Next(4));
     ((Boss03*)arg0)->unk298 = 1;
 }
 
-void func_ov017_02129ef8(void* arg0) {
+static void func_ov017_02129ef8(void* arg0) {
     s32 temp_r1;
     s32 temp_r1_2;
     s32 temp_r1_3;
@@ -2223,7 +2228,7 @@ void func_ov017_02129ef8(void* arg0) {
     ((Boss03*)arg0)->unk1B4 = temp_r1_3;
 }
 
-void func_ov017_02129f84(void* arg0) {
+static void func_ov017_02129f84(void* arg0) {
     s32   sp18;
     s32   sp14;
     s32   sp10;
@@ -2265,7 +2270,7 @@ loop_1:
     ((Boss03*)arg0)->unk298 = 0;
 }
 
-void func_ov017_0212a08c(void* arg0) {
+static void func_ov017_0212a08c(void* arg0) {
     void* var_r7;
     s32   var_r6;
 
@@ -2282,7 +2287,7 @@ void func_ov017_0212a08c(void* arg0) {
     } while (var_r6 < 5);
 }
 
-void func_ov017_0212a0f8(s32) {
+static void func_ov017_0212a0f8(s32) {
     s32 var_r3;
 
     var_r3 = 0;
@@ -2290,7 +2295,7 @@ loop_1:
     s32 taskid = *(s32*)((char*)&data_ov017_02143a04 + (var_r3 * 4));
     if (taskid != -1) {
         EasyTask_GetTaskData(&data_ov003_020e71b8->taskPool, taskid);
-        func_ov003_020c4ff4();
+        ((s32(*)())func_ov003_020c4ff4)();
         return;
     }
     var_r3 += 1;
@@ -2300,14 +2305,14 @@ loop_1:
     goto loop_1;
 }
 
-void func_ov017_0212a148(void* arg0) {
+static void func_ov017_0212a148(void* arg0) {
     if (func_ov003_020c5bfc(arg0) != 0) {
         return;
     }
     func_ov017_02129ea4(arg0, func_ov017_0212a270);
 }
 
-void func_ov017_0212a170(void* arg0) {
+static void func_ov017_0212a170(void* arg0) {
     s32 temp_r0_2;
     u32 temp_r0;
 
@@ -2347,7 +2352,7 @@ void func_ov017_0212a170(void* arg0) {
     }
 }
 
-void func_ov017_0212a270(void* arg0) {
+static void func_ov017_0212a270(void* arg0) {
     s32 temp_r1;
 
     if (((Boss03*)arg0)->unk280 == 0) {
@@ -2379,7 +2384,7 @@ void func_ov017_0212a270(void* arg0) {
     }
 }
 
-void func_ov017_0212a37c(void* arg0) {
+static void func_ov017_0212a37c(void* arg0) {
     s16   sp14;
     s32   sp10;
     s32   spC;
@@ -2410,7 +2415,7 @@ void func_ov017_0212a37c(void* arg0) {
     func_ov017_02129ea4(arg0, func_ov017_0212a270);
 }
 
-void func_ov017_0212a4a8(void* arg0) {
+static void func_ov017_0212a4a8(void* arg0) {
     if (((Boss03*)arg0)->unk280 == 0) {
         if (((Boss03*)arg0)->unk294 == 1) {
             func_ov017_02130178(1, 0x4E0, 0x4E1, ((Boss03*)arg0)->unk28);
@@ -2428,7 +2433,7 @@ void func_ov017_0212a4a8(void* arg0) {
     func_ov003_020c4b1c(arg0);
 }
 
-void func_ov017_0212a548(void* arg0) {
+static void func_ov017_0212a548(void* arg0) {
     if (((Boss03*)arg0)->unk280 != 0) {
         return;
     }
@@ -2442,7 +2447,7 @@ s32 func_ov017_0212a568(void* arg1, s32 arg2) {
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0x2A0);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     data_ov017_02143980        = (s16)((Boss03*)temp_r4)->unk7C;
     ((Boss03*)temp_r4)->unk29C = 1;
     ((Boss03*)temp_r4)->unk298 = 1;
@@ -2459,8 +2464,8 @@ s32 func_ov017_0212a568(void* arg1, s32 arg2) {
     } while (var_r2 < 5);
     temp_r2                   = data_ov003_020e71b8->unk3D898;
     ((Boss03*)temp_r2)->unk54 = (s32)(((Boss03*)temp_r2)->unk54 | 0x40000000);
-    func_ov003_020c44ac(temp_r4);
-    func_ov003_020c4b1c(temp_r4);
+    func_ov003_020c44ac((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c4b1c((Ov003EnemyActor*)temp_r4);
     func_ov017_0212ff54((CombatSprite*)(temp_r4 + 0x220), (CombatSprite*)(temp_r4 + 0x1C0));
     func_ov017_02129ea4(temp_r4, func_ov017_0212a148);
     func_ov017_0213021c(temp_r4);
@@ -2526,7 +2531,7 @@ s32 func_ov017_0212a6a4(void* arg1) {
     if (temp_r1_2 != NULL) {
         temp_r1_2(temp_r4);
     }
-    func_ov003_020c4628(temp_r4);
+    func_ov003_020c4628((Ov003EnemyActor*)temp_r4);
     func_ov017_0212ffcc(temp_r4 + 0x220, temp_r4 + 0x1C0);
     func_ov017_0213015c();
     return ((Boss03*)temp_r4)->unk29C;
@@ -2559,26 +2564,26 @@ void func_ov017_0212a840(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212a888(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_0212a888(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-s16 func_ov017_0212a8ac(void* arg0) {
+static s16 func_ov017_0212a8ac(void* arg0) {
     void* temp_r2;
 
     temp_r2 = data_ov003_020e71b8->unk3D898;
     FX_Atan2Idx(((Boss03*)temp_r2)->unk2C - ((Boss03*)arg0)->unk2C, ((Boss03*)temp_r2)->unk28 - ((Boss03*)arg0)->unk28);
 }
 
-s16 func_ov017_0212a8e4(void* arg0) {
+static s16 func_ov017_0212a8e4(void* arg0) {
     FX_Atan2Idx(((Boss03*)data_ov017_021439e0)->unk4 - ((Boss03*)arg0)->unk2C,
                 ((Boss03*)data_ov017_021439e0)->unk0 - ((Boss03*)arg0)->unk28);
 }
 
-s32 func_ov017_0212a910(void* arg0) {
+static s32 func_ov017_0212a910(void* arg0) {
     s32   temp_ip;
     s32   temp_r1;
     u32   temp_r1_2;
@@ -2594,7 +2599,7 @@ s32 func_ov017_0212a910(void* arg0) {
             ((temp_r1_2 >> 0xC) | ((MULT_HI(temp_ip, temp_ip) + M2C_CARRY(temp_r1_2)) << 0x14)));
 }
 
-s32 func_ov017_0212a974(void* arg0) {
+static s32 func_ov017_0212a974(void* arg0) {
     s16 temp_r6;
     s32 temp_r0;
     s32 var_r1;
@@ -2629,7 +2634,7 @@ s32 func_ov017_0212a974(void* arg0) {
     return var_r4;
 }
 
-void func_ov017_0212aa1c(void* arg0) {
+static void func_ov017_0212aa1c(void* arg0) {
     s16 temp_r2_2;
     s16 temp_r3;
     s32 temp_r1;
@@ -2649,7 +2654,7 @@ void func_ov017_0212aa1c(void* arg0) {
         (s32)(((Boss03*)arg0)->unk2C + ((temp_r2_3 >> 0xC) | ((MULT_HI(temp_r2_2, temp_r1) + M2C_CARRY(temp_r2_3)) << 0x14)));
 }
 
-void func_ov017_0212aaa0(void* arg0) {
+static void func_ov017_0212aaa0(void* arg0) {
     s32   var_r5;
     s32   var_r7;
     u32   temp_r2;
@@ -2692,7 +2697,7 @@ void func_ov017_0212aaa0(void* arg0) {
     ((Boss03*)arg0)->unk1D0 = EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov017_02141dfc, 0, 0, 0, arg0);
 }
 
-void func_ov017_0212ac58(void* arg0) {
+static void func_ov017_0212ac58(void* arg0) {
     s32 temp_ret;
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
@@ -2767,7 +2772,7 @@ void func_ov017_0212adbc(void* arg0) {
     ((Boss03*)arg0)->unk1D4 = 4;
 }
 
-void func_ov017_0212aea4(void* arg0) {
+static void func_ov017_0212aea4(void* arg0) {
     s32 temp_r1;
     s32 temp_r5;
     s32 temp_ret;
@@ -2791,7 +2796,7 @@ void func_ov017_0212aea4(void* arg0) {
     ((Boss03*)arg0)->unk1D4 = 0;
 }
 
-void func_ov017_0212af5c(void* arg0) {
+static void func_ov017_0212af5c(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         if (((Boss03*)arg0)->unk1E0 == 1) {
             func_ov017_02130178(0, 0x4E0, 0x4E1, ((Boss03*)arg0)->unk28);
@@ -2807,11 +2812,11 @@ void func_ov017_0212af5c(void* arg0) {
     ((Boss03*)arg0)->unk1D4 = 0;
 }
 
-void func_ov017_0212afe8(void* arg0) {
+static void func_ov017_0212afe8(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C | 1);
-        func_ov003_020bb48c(0, *(s32*)((u8*)&gSaveState + 0x3020 + 0x141), 0x105, ((Boss03*)arg0)->unk28,
-                            ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30, 0);
+        ((s32(*)())func_ov003_020bb48c)(0, *(s32*)((u8*)&gSaveState + 0x3020 + 0x141), 0x105, ((Boss03*)arg0)->unk28,
+                                        ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30, 0);
         if (((Boss03*)arg0)->unk1D0 != -1) {
             EasyTask_DeleteTask(&data_ov003_020e71b8->unk_10118, ((Boss03*)arg0)->unk1D0);
             ((Boss03*)arg0)->unk1D0 = -1;
@@ -2825,14 +2830,14 @@ s32 func_ov017_0212b088(void* arg1, s32 arg2) {
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0x1EC);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     ((Boss03*)temp_r4)->unk1E4 = 1;
     ((Boss03*)temp_r4)->unk1E8 = 1;
     ((Boss03*)temp_r4)->unk1D4 = 0;
     ((Boss03*)temp_r4)->unk1D6 = 0;
     data_ov017_02143984        = temp_r4;
-    func_ov003_020c4520(temp_r4);
-    func_ov003_020c4b5c(temp_r4);
+    func_ov003_020c4520((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c4b5c((Ov003EnemyActor*)temp_r4);
     func_ov017_0212a888(temp_r4, func_ov017_0212aaa0);
     func_ov017_02130280(temp_r4);
     ((Boss03*)temp_r4)->unk54 = (s32)(((Boss03*)temp_r4)->unk54 | 0x08000000);
@@ -2872,7 +2877,7 @@ s32 func_ov017_0212b114(void* arg1) {
         temp_r1(temp_r4);
     }
     ((Boss03*)temp_r4)->unk1D6 = (u16)data_ov017_021439dc.unk0;
-    func_ov003_020c4668(temp_r4);
+    func_ov003_020c4668((Ov003EnemyActor*)temp_r4);
     return ((Boss03*)temp_r4)->unk1E8;
 }
 
@@ -2895,7 +2900,7 @@ void func_ov017_0212b270(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-s32 func_ov017_0212b2b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+static s32 func_ov017_0212b2b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     s32 temp_ip;
     s32 temp_r3;
     s32 temp_r5;
@@ -2933,7 +2938,7 @@ s32 func_ov017_0212b2b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 ar
     return var_r4;
 }
 
-u16 func_ov017_0212b340(void* arg0) {
+static u16 func_ov017_0212b340(void* arg0) {
     s32    temp_r4;
     s32    temp_r6;
     s32    temp_r6_2;
@@ -2980,7 +2985,7 @@ loop_5:
     return (u16)var_r5;
 }
 
-void func_ov017_0212b428(void* arg0) {
+static void func_ov017_0212b428(void* arg0) {
     func_ov017_0212b660(arg0);
     if (((Boss03*)arg0)->unk586 != 1) {
         func_ov017_02130178(0, 0x4E0, 0x56C, (*(Boss03**)arg0)->unk28);
@@ -2993,7 +2998,7 @@ void func_ov017_0212b428(void* arg0) {
     CombatSprite_Update(arg0 + 0x484);
 }
 
-void func_ov017_0212b508(void* arg0) {
+static void func_ov017_0212b508(void* arg0) {
     if (((Boss03*)arg0)->unk586 != 1) {
         return;
     }
@@ -3001,7 +3006,7 @@ void func_ov017_0212b508(void* arg0) {
     CombatSprite_Release(arg0 + 0x484);
 }
 
-void func_ov017_0212b53c(void* arg0) {
+static void func_ov017_0212b53c(void* arg0) {
     s16    temp_r1_2;
     s32    var_r5;
     s32    var_r9;
@@ -3042,7 +3047,7 @@ void func_ov017_0212b53c(void* arg0) {
     } while (var_r9 < 3);
 }
 
-void func_ov017_0212b660(void* arg0) {
+static void func_ov017_0212b660(void* arg0) {
     s32   var_r5;
     void* var_r6;
 
@@ -3072,8 +3077,8 @@ s32 func_ov017_0212b6a4(void* arg1, void* arg2) {
     var_r9                     = temp_r7 + 4;
     var_r10                    = temp_r7 + 0x184;
     do {
-        func_ov003_02087fe0(0, var_r9, 4);
-        func_ov003_02087fe0(0, var_r10, 2);
+        func_ov003_02087fe0(0, (CombatSprite*)var_r9, 4);
+        func_ov003_02087fe0(0, (CombatSprite*)var_r10, 2);
         var_r8 += 1;
         var_r9 += 0x60;
         var_r10 += 0x60;
@@ -3299,14 +3304,14 @@ void func_ov017_0212bca4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212bcec(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_0212bcec(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_0212bd10(void* arg0) {
+static void func_ov017_0212bd10(void* arg0) {
     s32 temp_r0;
     s32 temp_r0_2;
     s32 temp_r2;
@@ -3325,7 +3330,7 @@ void func_ov017_0212bd10(void* arg0) {
     func_ov017_0212bcec(arg0, func_ov017_0212bf3c);
 }
 
-void func_ov017_0212bdcc(void* arg0) {
+static void func_ov017_0212bdcc(void* arg0) {
     s32 temp_r0;
     s32 temp_r0_2;
     s32 temp_r0_3;
@@ -3346,7 +3351,7 @@ void func_ov017_0212bdcc(void* arg0) {
     ((Boss03*)arg0)->unk1B4 = temp_r0_3;
 }
 
-void func_ov017_0212be84(void* arg0) {
+static void func_ov017_0212be84(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov017_02130178(1, 0x4E3, 0x56C, ((Boss03*)arg0)->unk28);
     }
@@ -3357,7 +3362,7 @@ void func_ov017_0212be84(void* arg0) {
     func_ov017_0212bcec(arg0, func_ov017_0212bee0);
 }
 
-void func_ov017_0212bee0(void* arg0) {
+static void func_ov017_0212bee0(void* arg0) {
     s32 temp_r1;
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
@@ -3373,14 +3378,14 @@ void func_ov017_0212bee0(void* arg0) {
     func_ov017_0212bdcc(arg0);
 }
 
-void func_ov017_0212bf3c(void* arg0) {
+static void func_ov017_0212bf3c(void* arg0) {
     if (data_ov017_021439ec != 1) {
         return;
     }
     func_ov017_0212bcec(arg0, func_ov017_0212bee0);
 }
 
-void func_ov017_0212bf64(void* arg0) {
+static void func_ov017_0212bf64(void* arg0) {
     s32 temp_r0;
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
@@ -3404,13 +3409,13 @@ void func_ov017_0212bf64(void* arg0) {
     }
 }
 
-void func_ov017_0212c018(void* arg0) {
+static void func_ov017_0212c018(void* arg0) {
     s32 var_r0;
 
     if (data_ov017_021439ec == 1) {
-        var_r0 = func_ov003_020c6f90();
+        var_r0 = ((s32(*)())func_ov003_020c6f90)();
     } else {
-        var_r0 = func_ov003_020c6f40();
+        var_r0 = ((s32(*)())func_ov003_020c6f40)();
     }
     ((Boss03*)arg0)->unk1DC = 1;
     if (var_r0 != 0) {
@@ -3428,7 +3433,7 @@ s32 func_ov017_0212c078(void* arg1, s32 arg2) {
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0x1E0);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     data_ov017_02143980        = (s16)((Boss03*)temp_r4)->unk7C;
     ((Boss03*)temp_r4)->unk1D8 = 1;
     ((Boss03*)temp_r4)->unk1DC = 0;
@@ -3446,8 +3451,8 @@ s32 func_ov017_0212c078(void* arg1, s32 arg2) {
     temp_r1                    = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)temp_r4)->unk1D4 * 0xC));
     ((Boss03*)temp_r4)->unk30  = temp_r1;
     ((Boss03*)temp_r4)->unk1B4 = temp_r1;
-    func_ov003_020c44ac(temp_r4);
-    func_ov003_020c4b1c(temp_r4);
+    func_ov003_020c44ac((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c4b1c((Ov003EnemyActor*)temp_r4);
     func_ov017_0212bcec(temp_r4, func_ov017_0212be84);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov017_02141e84, 0, 0, 0, temp_r4);
     func_ov017_0213021c(temp_r4);
@@ -3506,7 +3511,7 @@ s32 func_ov017_0212c20c(void* arg1) {
         ((Boss03*)temp_r4)->unk54 = (s32)(((Boss03*)temp_r4)->unk54 & ~0x10 & ~0x20);
         data_ov017_021439f0       = temp_r4;
     }
-    func_ov003_020c4628(temp_r4);
+    func_ov003_020c4628((Ov003EnemyActor*)temp_r4);
     func_ov017_0213015c();
     return ((Boss03*)temp_r4)->unk1D8;
 }
@@ -3538,14 +3543,14 @@ void func_ov017_0212c360(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212c3a8(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_0212c3a8(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_0212c3cc(void* arg0) {
+static void func_ov017_0212c3cc(void* arg0) {
     s32   temp_r6;
     void* temp_r4;
 
@@ -3556,7 +3561,7 @@ void func_ov017_0212c3cc(void* arg0) {
     ((Boss03*)arg0)->unk2C = (s32)(((Boss03*)temp_r4)->unk8 + (RNG_Next(temp_r6 - 0x20) << 0xC) + 0x10000);
 }
 
-void func_ov017_0212c42c(void* arg0) {
+static void func_ov017_0212c42c(void* arg0) {
     s16 temp_r2_2;
     s16 temp_r3;
     s32 temp_r1;
@@ -3576,20 +3581,20 @@ void func_ov017_0212c42c(void* arg0) {
         (s32)(((Boss03*)arg0)->unk2C + ((temp_r2_3 >> 0xC) | ((MULT_HI(temp_r2_2, temp_r1) + M2C_CARRY(temp_r2_3)) << 0x14)));
 }
 
-void func_ov017_0212c4b0(void* arg0) {
+static void func_ov017_0212c4b0(void* arg0) {
     data_ov017_021439ec = 1;
     func_ov017_0212c3cc(arg0);
     func_ov017_0212c3a8(arg0, func_ov017_0212c698);
 }
 
-void func_ov017_0212c4e0(void* arg0) {
+static void func_ov017_0212c4e0(void* arg0) {
     if (func_ov003_020c5bfc(arg0) != 0) {
         return;
     }
     func_ov017_0212c3a8(arg0, func_ov017_0212c508);
 }
 
-void func_ov017_0212c508(void* arg0) {
+static void func_ov017_0212c508(void* arg0) {
     s32 temp_r1;
     u32 temp_r0;
     u32 temp_r1_2;
@@ -3618,7 +3623,7 @@ void func_ov017_0212c508(void* arg0) {
     func_ov017_0212c3a8(arg0, func_ov017_0212c628);
 }
 
-void func_ov017_0212c5b8(void* arg0) {
+static void func_ov017_0212c5b8(void* arg0) {
     s32 temp_r1;
 
     func_ov003_020c4b5c(arg0);
@@ -3636,7 +3641,7 @@ void func_ov017_0212c5b8(void* arg0) {
     func_ov017_0212c3a8(arg0, func_ov017_0212c508);
 }
 
-void func_ov017_0212c628(void* arg0) {
+static void func_ov017_0212c628(void* arg0) {
     s32 temp_r1;
 
     func_ov003_020c4b5c(arg0);
@@ -3654,14 +3659,14 @@ void func_ov017_0212c628(void* arg0) {
     func_ov017_0212c3a8(arg0, func_ov017_0212c508);
 }
 
-void func_ov017_0212c698(void* arg0) {
+static void func_ov017_0212c698(void* arg0) {
     if (data_ov017_021439ec != 0) {
         return;
     }
     func_ov017_0212c3a8(arg0, func_ov017_0212c508);
 }
 
-void func_ov017_0212c6c0(void* arg0) {
+static void func_ov017_0212c6c0(void* arg0) {
     s32 temp_r0;
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
@@ -3682,16 +3687,16 @@ void func_ov017_0212c6c0(void* arg0) {
     ((Boss03*)arg0)->unk1DC = 0;
 }
 
-void func_ov017_0212c758(void* arg0) {
+static void func_ov017_0212c758(void* arg0) {
     s32 var_r0;
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c3acc(0, 0x4E5, ((Boss03*)arg0)->unk28);
     }
     if (data_ov017_021439ec == 0) {
-        var_r0 = func_ov003_020c6f90();
+        var_r0 = ((s32(*)())func_ov003_020c6f90)();
     } else {
-        var_r0 = func_ov003_020c6f68();
+        var_r0 = ((s32(*)())func_ov003_020c6f68)();
     }
     ((Boss03*)arg0)->unk1DC = 1;
     ((Boss03*)arg0)->unk1C0 = (s32)(((Boss03*)arg0)->unk1C0 + 1);
@@ -3705,13 +3710,13 @@ s32 func_ov017_0212c7c8(void* arg1, s32 arg2) {
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0x1E4);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     ((Boss03*)temp_r4)->unk1E0 = 1;
     ((Boss03*)temp_r4)->unk1DC = 0;
     data_ov017_021439ec        = 0;
     data_ov017_021439f0        = temp_r4;
-    func_ov003_020c4520(temp_r4);
-    func_ov003_020c4b5c(temp_r4);
+    func_ov003_020c4520((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c4b5c((Ov003EnemyActor*)temp_r4);
     func_ov017_0212c3a8(temp_r4, func_ov017_0212c4e0);
     func_ov017_02130280(temp_r4);
     ((Boss03*)temp_r4)->unk54 = (s32)(((Boss03*)temp_r4)->unk54 | 0x08000000);
@@ -3749,7 +3754,7 @@ s32 func_ov017_0212c8a4(void* arg1) {
         ((Boss03*)temp_r4)->unk54 = (s32)(((Boss03*)temp_r4)->unk54 & ~0x10 & ~0x20);
         data_ov017_021439f0       = temp_r4;
     }
-    func_ov003_020c4668(temp_r4);
+    func_ov003_020c4668((Ov003EnemyActor*)temp_r4);
     return ((Boss03*)temp_r4)->unk1E0;
 }
 
@@ -3780,7 +3785,7 @@ void func_ov017_0212c9ec(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-u16 func_ov017_0212ca34(void*) {
+static u16 func_ov017_0212ca34(void*) {
     s16    temp_r0;
     s16    temp_r4;
     s16    var_r2;
@@ -3810,7 +3815,7 @@ s32 func_ov017_0212cab0(void* arg1, void* arg2) {
     var_r7                     = temp_r4 + 4;
     ((Boss03*)temp_r4)->unk184 = 0;
     do {
-        func_ov003_02087fe0(1, var_r7, 2);
+        func_ov003_02087fe0(1, (CombatSprite*)var_r7, 2);
         var_r6 += 1;
         var_r7 += 0x60;
     } while (var_r6 < 4);
@@ -3889,7 +3894,7 @@ void func_ov017_0212cc18(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-u16 func_ov017_0212cc60(void*) {
+static u16 func_ov017_0212cc60(void*) {
     s16   var_r0;
     void* temp_ip;
 
@@ -3916,7 +3921,7 @@ s32 func_ov017_0212cccc(void* arg1, void* arg2) {
     var_r7                     = temp_r4 + 4;
     ((Boss03*)temp_r4)->unk184 = 0;
     do {
-        func_ov003_02087fe0(0, var_r7, 2);
+        func_ov003_02087fe0(0, (CombatSprite*)var_r7, 2);
         var_r6 += 1;
         var_r7 += 0x60;
     } while (var_r6 < 4);
@@ -3995,13 +4000,13 @@ void func_ov017_0212ce34(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212ce7c(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_0212ce7c(void* arg0, void (*arg1)(void*)) {
     ((Boss03*)arg0)->unk44 = arg1;
     ((Boss03*)arg0)->unk42 = 0;
     ((Boss03*)arg0)->unk40 = 0;
 }
 
-void func_ov017_0212ce90(void* arg0) {
+static void func_ov017_0212ce90(void* arg0) {
     s16 temp_r1;
 
     if (((Boss03*)arg0)->unk40 == 0) {
@@ -4019,7 +4024,7 @@ void func_ov017_0212ce90(void* arg0) {
     func_ov017_0212ce7c(arg0, NULL);
 }
 
-void func_ov017_0212cf08(void* arg0) {
+static void func_ov017_0212cf08(void* arg0) {
     Display_SetBGOffset(((Boss03*)arg0)->unk10, ((Boss03*)arg0)->unk14, ((Boss03*)((Boss03*)arg0)->unk0)->unk28 - 0x80000,
                         ((Boss03*)((Boss03*)arg0)->unk0)->unk40 - 0x60000);
 }
@@ -4077,8 +4082,8 @@ s32 func_ov017_0212cf88(void* arg1, u16* arg2) {
         var_r0    = temp_r1_3 + ((Boss03*)temp_r1_3)->unk8;
     }
     ((Boss03*)temp_r4)->unk38 = (void*)(var_r0 + 4);
-    func_0200d1d8(temp_r4 + 0x10, 1, 1, 0, temp_r4 + 0x38, 1, 1);
-    func_0200d858(temp_r4 + 0x10, 1, 1, 0);
+    func_0200d1d8((ScreenMapEntry*)(temp_r4 + 0x10), 1, 1, 0, temp_r4 + 0x38, 1, 1);
+    func_0200d858((ScreenMapEntry*)(temp_r4 + 0x10), 1, 1, 0);
     if (*arg2 == 0) {
         temp_r3                     = ((Boss03*)temp_r4)->unk0;
         ((Boss03*)temp_r3)->unk28   = (s32)((Boss03*)temp_r3)->unk34;
@@ -4138,18 +4143,18 @@ void func_ov017_0212d234(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212d27c(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_0212d27c(void* arg0, void (*arg1)(void*)) {
     ((Boss03*)arg0)->unk40 = arg1;
     ((Boss03*)arg0)->unk3E = 0;
     ((Boss03*)arg0)->unk3C = 0;
 }
 
-void func_ov017_0212d290(void* arg0) {
+static void func_ov017_0212d290(void* arg0) {
     Display_SetBGOffset(((Boss03*)arg0)->unk10, ((Boss03*)arg0)->unk14, ((Boss03*)((Boss03*)arg0)->unk0)->unk28 - 0x80000,
                         ((Boss03*)((Boss03*)arg0)->unk0)->unk40 - 0x60000);
 }
 
-void func_ov017_0212d310(void* arg0) {
+static void func_ov017_0212d310(void* arg0) {
     s16 temp_r1;
 
     if (((Boss03*)arg0)->unk3C == 0) {
@@ -4222,12 +4227,12 @@ s32 func_ov017_0212d374(void* arg1, u16* arg2) {
         var_r0    = temp_r1_3 + ((Boss03*)temp_r1_3)->unk8;
     }
     ((Boss03*)temp_r4)->unk38 = (void*)(var_r0 + 4);
-    func_0200d1d8(temp_r4 + 0x10, 0, 1, 0, temp_r4 + 0x38, 1, 1);
-    func_0200d858(temp_r4 + 0x10, 1, 1, 0);
+    func_0200d1d8((ScreenMapEntry*)(temp_r4 + 0x10), 0, 1, 0, temp_r4 + 0x38, 1, 1);
+    func_0200d858((ScreenMapEntry*)(temp_r4 + 0x10), 1, 1, 0);
     data_ov003_020e71b8->unk3D7C0[0].unk_02 = 0;
     data_ov003_020e71b8->unk3D7C0[1].unk_02 = 0;
-    func_ov003_02083a2c(0, 0x20, 0x140, 0x1E0, 0, 0);
-    func_ov003_02083a2c(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    ((void (*)())func_ov003_02083a2c)(0, 0x20, 0x140, 0x1E0, 0, 0);
+    ((void (*)())func_ov003_02083a2c)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
     temp_r6                   = data_ov003_020e71b8->unk3D7C0;
     ((Boss03*)temp_r6)->unk18 = (s32)(0x100000 - ((Boss03*)temp_r6)->unk8);
     ((Boss03*)temp_r6)->unk1C = FX_Atan2Idx(0, 0x140);
@@ -4296,7 +4301,7 @@ void func_ov017_0212d6e8(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212d730(void) {
+static void func_ov017_0212d730(void) {
     s16   temp_r1;
     s32   temp_r1_3;
     s32   var_r1;
@@ -4336,14 +4341,14 @@ void func_ov017_0212d730(void) {
     data_ov017_021439f4.unk8 = (s32)(data_ov017_021439f4.unk8 - data_ov017_021439f4.unk4);
 }
 
-void func_ov017_0212d8bc(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_0212d8bc(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_0212d8e0(void* arg0) {
+static void func_ov017_0212d8e0(void* arg0) {
     s32   temp_r7;
     s32   var_r8;
     void* var_r9;
@@ -4375,7 +4380,7 @@ void func_ov017_0212d8e0(void* arg0) {
     func_ov017_0212d8bc(arg0, func_ov017_0212da28);
 }
 
-void func_ov017_0212da28(void) {}
+static void func_ov017_0212da28(void) {}
 
 s32 func_ov017_0212da2c(void* arg1) {
     void** temp_r4;
@@ -4422,12 +4427,12 @@ void func_ov017_0212daf0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212db38(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_0212db38(void* arg0, void (*arg1)(void*)) {
     ((Boss03*)arg0)->unk78 = arg1;
     ((Boss03*)arg0)->unk7E = 0;
 }
 
-void func_ov017_0212db48(void* arg0) {
+static void func_ov017_0212db48(void* arg0) {
     if (((Boss03*)arg0)->unk7E == 0) {
         func_ov003_020c3acc(1, 0x2F3, ((Boss03*)arg0)->unk68);
     }
@@ -4443,7 +4448,7 @@ void func_ov017_0212db48(void* arg0) {
     func_ov017_02130178(1, 0x550, 0x56C, ((Boss03*)arg0)->unk68);
 }
 
-void func_ov017_0212dbd8(void* arg0) {
+static void func_ov017_0212dbd8(void* arg0) {
     s32 temp_r0;
     s32 temp_r1;
     s32 temp_r1_2;
@@ -4555,12 +4560,12 @@ void func_ov017_0212dec4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212df0c(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_0212df0c(void* arg0, void (*arg1)(void*)) {
     ((Boss03*)arg0)->unk78 = arg1;
     ((Boss03*)arg0)->unk7E = 0;
 }
 
-void func_ov017_0212df1c(void* arg0) {
+static void func_ov017_0212df1c(void* arg0) {
     if (((Boss03*)arg0)->unk7E == 0) {
         func_ov003_020c3acc(0, 0x2F3, ((Boss03*)arg0)->unk68);
     }
@@ -4572,7 +4577,7 @@ void func_ov017_0212df1c(void* arg0) {
     func_ov017_02130178(0, 0x4DD, 0x4DE, ((Boss03*)arg0)->unk68);
 }
 
-void func_ov017_0212df88(void* arg0) {
+static void func_ov017_0212df88(void* arg0) {
     s32 temp_r0;
     s32 temp_r1;
     s32 temp_r6;
@@ -4670,14 +4675,14 @@ void func_ov017_0212e1d4(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212e21c(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_0212e21c(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_0212e240(void* arg0) {
+static void func_ov017_0212e240(void* arg0) {
     s16 temp_r1_2;
     s16 temp_r1_4;
     s16 temp_r1_6;
@@ -4725,11 +4730,11 @@ void func_ov017_0212e240(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s32)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-void func_ov017_0212e36c(void* arg0) {
+static void func_ov017_0212e36c(void* arg0) {
     func_ov017_0212e21c(arg0, func_ov017_0212e240);
 }
 
-void func_ov017_0212e380(void* arg0) {
+static void func_ov017_0212e380(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c3acc(1, 0x2FD, ((Boss03*)arg0)->unk28);
         ((Boss03*)arg0)->unk1C0 = (s32)(((Boss03*)arg0)->unk1C0 + 1);
@@ -4745,15 +4750,15 @@ s32 func_ov017_0212e3d8(void* arg1, s32 arg2) {
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0x1DC);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     ((Boss03*)temp_r4)->unk1D8 = 1;
     ((Boss03*)temp_r4)->unk1D0 = 0x1000;
     ((Boss03*)temp_r4)->unk1D6 = 0xA;
     ((Boss03*)temp_r4)->unk38  = 0;
     ((Boss03*)temp_r4)->unk3C  = 0;
-    func_ov003_020c4988(temp_r4);
-    func_ov003_020c44ac(temp_r4);
-    func_ov003_020c4b1c(temp_r4);
+    func_ov003_020c4988((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c44ac((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c4b1c((Ov003EnemyActor*)temp_r4);
     func_ov017_0212e21c(temp_r4, func_ov017_0212e240);
     return 1;
 }
@@ -4800,7 +4805,7 @@ s32 func_ov017_0212e458(void* arg1) {
     if (temp_r1_2 != NULL) {
         temp_r1_2(temp_r4);
     }
-    func_ov003_020c4628(temp_r4);
+    func_ov003_020c4628((Ov003EnemyActor*)temp_r4);
     return ((Boss03*)temp_r4)->unk1D8;
 }
 
@@ -4831,21 +4836,21 @@ void func_ov017_0212e558(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212e5a0(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_0212e5a0(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_0212e5c4(void* arg0) {
+static void func_ov017_0212e5c4(void* arg0) {
     if (func_ov003_020c5bfc(arg0) != 0) {
         return;
     }
     func_ov017_0212e5a0(arg0, func_ov017_0212e6b8);
 }
 
-void func_ov017_0212e5ec(void* arg0) {
+static void func_ov017_0212e5ec(void* arg0) {
     s16   sp14;
     s32   sp10;
     s32   spC;
@@ -4874,7 +4879,7 @@ void func_ov017_0212e5ec(void* arg0) {
     func_ov017_0212e5a0(arg0, func_ov017_0212e6b8);
 }
 
-void func_ov017_0212e6b8(void* arg0) {
+static void func_ov017_0212e6b8(void* arg0) {
     s32 temp_r1;
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
@@ -4894,8 +4899,8 @@ void func_ov017_0212e6b8(void* arg0) {
     func_ov017_0212e5a0(arg0, func_ov017_0212e740);
 }
 
-void func_ov017_0212e740(void* arg0) {
-    if (func_ov003_020c5e98() != 0) {
+static void func_ov017_0212e740(void* arg0) {
+    if (((s32(*)())func_ov003_020c5e98)() != 0) {
         return;
     }
     func_ov017_0212e5a0(arg0, func_ov017_0212e6b8);
@@ -4907,12 +4912,12 @@ s32 func_ov017_0212e774(void* arg1, s32 arg2) {
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0x1DC);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     ((Boss03*)temp_r4)->unk1D8 = 1;
     ((Boss03*)temp_r4)->unk54  = (s32)(((Boss03*)temp_r4)->unk54 | 0x30);
-    func_ov003_020c4988(temp_r4);
-    func_ov003_020c44ac(temp_r4);
-    func_ov003_020c4b1c(temp_r4);
+    func_ov003_020c4988((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c44ac((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c4b1c((Ov003EnemyActor*)temp_r4);
     func_ov017_0212e5a0(temp_r4, func_ov017_0212e5c4);
     return 1;
 }
@@ -4930,7 +4935,7 @@ s32 func_ov017_0212e7e0(void* arg1) {
     if (temp_r1 != NULL) {
         temp_r1(temp_r4);
     }
-    func_ov003_020c4628(temp_r4);
+    func_ov003_020c4628((Ov003EnemyActor*)temp_r4);
     return ((Boss03*)temp_r4)->unk1D8;
 }
 
@@ -4961,14 +4966,14 @@ void func_ov017_0212e864(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212e8ac(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_0212e8ac(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-void func_ov017_0212e8d0(void* arg0) {
+static void func_ov017_0212e8d0(void* arg0) {
     s16 temp_r2_2;
     s16 temp_r3;
     s32 temp_r1;
@@ -4988,14 +4993,14 @@ void func_ov017_0212e8d0(void* arg0) {
         (s32)(((Boss03*)arg0)->unk2C + ((temp_r2_3 >> 0xC) | ((MULT_HI(temp_r2_2, temp_r1) + M2C_CARRY(temp_r2_3)) << 0x14)));
 }
 
-void func_ov017_0212e954(void* arg0) {
+static void func_ov017_0212e954(void* arg0) {
     if (func_ov003_020c5bfc(arg0) != 0) {
         return;
     }
     func_ov017_0212e8ac(arg0, func_ov017_0212e97c);
 }
 
-void func_ov017_0212e97c(void* arg0) {
+static void func_ov017_0212e97c(void* arg0) {
     s32 temp_r1;
 
     func_ov003_020c4b5c(arg0);
@@ -5019,7 +5024,7 @@ void func_ov017_0212e97c(void* arg0) {
     func_ov017_0212e8ac(arg0, func_ov017_0212ea24);
 }
 
-void func_ov017_0212ea24(void* arg0) {
+static void func_ov017_0212ea24(void* arg0) {
     s32 var_r0;
 
     func_ov003_020c4b5c(arg0);
@@ -5045,7 +5050,7 @@ void func_ov017_0212ea24(void* arg0) {
     func_ov017_0212e8ac(arg0, func_ov017_0212ebc0);
 }
 
-void func_ov017_0212eaec(void* arg0) {
+static void func_ov017_0212eaec(void* arg0) {
     s32 temp_r0;
     s32 var_r0;
 
@@ -5073,7 +5078,7 @@ void func_ov017_0212eaec(void* arg0) {
     func_ov017_0212e8ac(arg0, func_ov017_0212ebc0);
 }
 
-void func_ov017_0212ebc0(void* arg0) {
+static void func_ov017_0212ebc0(void* arg0) {
     s16   sp14;
     s32   sp10;
     s32   spC;
@@ -5102,7 +5107,7 @@ void func_ov017_0212ebc0(void* arg0) {
     func_ov017_0212e8ac(arg0, func_ov017_0212e97c);
 }
 
-void func_ov017_0212ec84(void* arg0) {
+static void func_ov017_0212ec84(void* arg0) {
     if (func_ov003_020c65cc(arg0, 3) != 0) {
         return;
     }
@@ -5114,12 +5119,12 @@ s32 func_ov017_0212ecb0(void* arg1, s32 arg2) {
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0x1E0);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     ((Boss03*)temp_r4)->unk1D8 = 1;
     ((Boss03*)temp_r4)->unk1DC = 1;
     ((Boss03*)temp_r4)->unk54  = (s32)(((Boss03*)temp_r4)->unk54 | 0x30);
-    func_ov003_020c4520(temp_r4);
-    func_ov003_020c4b5c(temp_r4);
+    func_ov003_020c4520((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c4b5c((Ov003EnemyActor*)temp_r4);
     func_ov017_0212e8ac(temp_r4, func_ov017_0212e954);
     return 1;
 }
@@ -5148,7 +5153,7 @@ s32 func_ov017_0212ed18(void* arg1) {
     if (temp_r1 != NULL) {
         temp_r1(temp_r4);
     }
-    func_ov003_020c4668(temp_r4);
+    func_ov003_020c4668((Ov003EnemyActor*)temp_r4);
     return ((Boss03*)temp_r4)->unk1DC;
 }
 
@@ -5157,7 +5162,7 @@ s32 func_ov017_0212edac(void* arg1) {
 
     temp_r0                   = ((Boss03*)arg1)->unk18;
     ((Boss03*)temp_r0)->unk54 = (s32)(((Boss03*)temp_r0)->unk54 | 0x80000000);
-    func_ov003_020c48b0();
+    ((void (*)())func_ov003_020c48b0)();
     return 1;
 }
 
@@ -5175,19 +5180,19 @@ void func_ov017_0212ede0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212ee28(void* arg0, void (*arg1)(void*)) {
-    func_ov003_020c427c();
+static void func_ov017_0212ee28(void* arg0, void (*arg1)(void*)) {
+    ((void (*)())func_ov003_020c427c)();
     ((Boss03*)arg0)->unk1CC = arg1;
     ((Boss03*)arg0)->unk1C8 = 0;
     ((Boss03*)arg0)->unk1C0 = 0;
 }
 
-u16 func_ov017_0212ee4c(void* arg0) {
+static u16 func_ov017_0212ee4c(void* arg0) {
     do {
     } while (((Boss03*)arg0)->unk1D0 == RNG_Next(4));
 }
 
-void func_ov017_0212ee70(void* arg0) {
+static void func_ov017_0212ee70(void* arg0) {
     s32 temp_r1;
     s32 temp_r1_2;
     s32 temp_r1_3;
@@ -5203,7 +5208,7 @@ void func_ov017_0212ee70(void* arg0) {
     ((Boss03*)arg0)->unk1B4 = temp_r1_3;
 }
 
-void func_ov017_0212eefc(void* arg0) {
+static void func_ov017_0212eefc(void* arg0) {
     s32   sp18;
     s32   sp14;
     s32   sp10;
@@ -5240,7 +5245,7 @@ loop_1:
     goto loop_1;
 }
 
-void func_ov017_0212eff8(void* arg0) {
+static void func_ov017_0212eff8(void* arg0) {
     void* var_r7;
     s32   var_r6;
 
@@ -5257,14 +5262,14 @@ void func_ov017_0212eff8(void* arg0) {
     } while (var_r6 < 2);
 }
 
-void func_ov017_0212f064(void* arg0) {
+static void func_ov017_0212f064(void* arg0) {
     if (func_ov003_020c5bfc(arg0) != 0) {
         return;
     }
     func_ov017_0212ee28(arg0, func_ov017_0212f18c);
 }
 
-void func_ov017_0212f08c(void* arg0) {
+static void func_ov017_0212f08c(void* arg0) {
     s32 temp_r0_2;
     u32 temp_r0;
 
@@ -5304,7 +5309,7 @@ void func_ov017_0212f08c(void* arg0) {
     }
 }
 
-void func_ov017_0212f18c(void* arg0) {
+static void func_ov017_0212f18c(void* arg0) {
     s32 temp_r1;
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
@@ -5333,7 +5338,7 @@ void func_ov017_0212f18c(void* arg0) {
     }
 }
 
-void func_ov017_0212f280(void* arg0) {
+static void func_ov017_0212f280(void* arg0) {
     s16   sp14;
     s32   sp10;
     s32   spC;
@@ -5364,13 +5369,13 @@ void func_ov017_0212f280(void* arg0) {
     func_ov017_0212ee28(arg0, func_ov017_0212f18c);
 }
 
-void func_ov017_0212f3ac(void* arg0) {
-    if (func_ov003_020c703c() == 0) {
+static void func_ov017_0212f3ac(void* arg0) {
+    if (((s32(*)())func_ov003_020c703c)() == 0) {
         ((Boss03*)arg0)->unk1D8 = 0;
     }
 }
 
-void func_ov017_0212f3c8(void* arg0) {
+static void func_ov017_0212f3c8(void* arg0) {
     if (func_ov003_020c72b4(arg0, 0, 3) != 0) {
         return;
     }
@@ -5384,7 +5389,7 @@ s32 func_ov017_0212f3f8(void* arg1, s32 arg2) {
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0x1DC);
-    func_ov003_020c3efc(temp_r4, arg2);
+    func_ov003_020c3efc((Ov003EnemyActor*)temp_r4, arg2);
     data_ov017_02143980        = (u16)((Boss03*)temp_r4)->unk7C;
     ((Boss03*)temp_r4)->unk1D8 = 1;
     ((Boss03*)temp_r4)->unk1D2 = 0;
@@ -5400,10 +5405,10 @@ s32 func_ov017_0212f3f8(void* arg1, s32 arg2) {
     } while (var_r2 < 2);
     temp_r2                   = data_ov003_020e71b8->unk3D898;
     ((Boss03*)temp_r2)->unk54 = (s32)(((Boss03*)temp_r2)->unk54 | 0x40000000);
-    func_ov003_020c4988(temp_r4);
-    func_ov003_020c44ac(temp_r4);
-    func_ov003_020c4b1c(temp_r4);
-    func_ov003_020c3e88(temp_r4, 0x2F);
+    func_ov003_020c4988((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c44ac((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c4b1c((Ov003EnemyActor*)temp_r4);
+    func_ov003_020c3e88((Ov003CutinActor*)temp_r4, 0x2F);
     func_ov017_0212ee28(temp_r4, func_ov017_0212f064);
     ((Boss03*)temp_r4)->unk54 = (s32)(((Boss03*)temp_r4)->unk54 | 0x08000000);
     func_ov017_02130148();
@@ -5445,7 +5450,7 @@ s32 func_ov017_0212f4f0(void* arg1) {
     if (temp_r1_2 != NULL) {
         temp_r1_2(temp_r4);
     }
-    func_ov003_020c4628(temp_r4);
+    func_ov003_020c4628((Ov003EnemyActor*)temp_r4);
     func_ov017_0213015c();
     return ((Boss03*)temp_r4)->unk1D8;
 }
@@ -5473,12 +5478,12 @@ void func_ov017_0212f61c(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[arg3])(arg0, arg1, arg2);
 }
 
-void func_ov017_0212f664(void* arg0, void (*arg1)(void*)) {
+static void func_ov017_0212f664(void* arg0, void (*arg1)(void*)) {
     ((Boss03*)arg0)->unk84 = arg1;
     ((Boss03*)arg0)->unk88 = 0;
 }
 
-void func_ov017_0212f674(void* arg0) {
+static void func_ov017_0212f674(void* arg0) {
     s16 temp_r0;
     s16 temp_r1;
     s32 temp_ip;
@@ -5525,7 +5530,7 @@ void func_ov017_0212f674(void* arg0) {
     }
 }
 
-void func_ov017_0212f784(void* arg0) {
+static void func_ov017_0212f784(void* arg0) {
     if (((Boss03*)arg0)->unk88 == 0) {
         ((Boss03*)arg0)->unk8A = (u16)(RNG_Next(0x3C) + 0x78);
     }
@@ -5643,7 +5648,7 @@ s32 func_ov017_0212fb0c(void* arg1) {
     return 1;
 }
 
-s32 BtlBoss02_Badge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlBoss02_Badge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     SubroutineArgs subroutine_arg0;
     subroutine_arg0.unk0 = data_ov017_02142020.unk0;
     subroutine_arg0.unk4 = (s32)data_ov017_02142020.unk4;
@@ -5652,9 +5657,9 @@ s32 BtlBoss02_Badge_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     ((void (*)(s32, s32, s32))((s32*)&subroutine_arg0)[stage])(pool, task, args);
 }
 
-const TaskHandle Tsk_BtlBoss02_Badge = {"Tsk_BtlBoss02_Badge", BtlBoss02_Badge_RunTask, 0x94};
+static const TaskHandle Tsk_BtlBoss02_Badge = {"Tsk_BtlBoss02_Badge", BtlBoss02_Badge_RunTask, 0x94};
 
-void BtlBoss02_Badge_CreateTask(s16 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u16 arg5) {
+static void BtlBoss02_Badge_CreateTask(s16 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u16 arg5) {
     s32 sp18;
     s32 sp14;
     s32 sp10;
@@ -5671,7 +5676,7 @@ void BtlBoss02_Badge_CreateTask(s16 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &Tsk_BtlBoss02_Badge, 0, 0, 0, &sp8);
 }
 
-void func_ov017_0212fbc4(void) {
+static void func_ov017_0212fbc4(void) {
     Display_InitSubBG1(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 0, 1, 0, 0x4004);
     Display_InitSubBG2(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 2, 3, 1, 0x420C);
     g_DisplaySettings.engineState[1].bgSettings[1].priority = 2;
@@ -5679,7 +5684,7 @@ void func_ov017_0212fbc4(void) {
     g_DisplaySettings.controls[1].layers                    = (s32)(((g_DisplaySettings.controls[1].layers & ~1) | 6) & ~8);
 }
 
-void func_ov017_0212fc70(void) {
+static void func_ov017_0212fc70(void) {
     Display_InitMainBG1(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 0, 1, 0, 0x4004);
     Display_InitMainBG2(DISPLAY_BGMODE_TEXT, GX_BG_SIZE_TEXT_512x256, GX_BG_COLORS_16, 2, 3, 1, 0x420C);
     g_DisplaySettings.engineState[0].bgSettings[1].priority = 2;
@@ -5687,7 +5692,7 @@ void func_ov017_0212fc70(void) {
     g_DisplaySettings.controls[0].layers                    = (s32)((g_DisplaySettings.controls[0].layers | 6) & ~8);
 }
 
-void func_ov017_0212fd18(void* arg0) {
+static void func_ov017_0212fd18(void* arg0) {
     s32 temp_r1;
     s32 temp_r1_2;
     s32 temp_r2;
@@ -5740,7 +5745,7 @@ void func_ov017_0212fd18(void* arg0) {
     }
 }
 
-void func_ov017_0212fe1c(void* arg0) {
+static void func_ov017_0212fe1c(void* arg0) {
     s32 temp_ip;
     s32 temp_r1;
     s32 temp_r1_2;
@@ -5807,17 +5812,17 @@ void func_ov017_0212fe1c(void* arg0) {
     ((Boss03*)arg0)->unk40 = (s32)(((Boss03*)arg0)->unk40 + (((Boss03*)arg0)->unk48 + ((Boss03*)arg0)->unk4C));
 }
 
-void func_ov017_0212ff54(CombatSprite* arg0, CombatSprite* arg1) {
+static void func_ov017_0212ff54(CombatSprite* arg0, CombatSprite* arg1) {
     CombatSprite_LoadFromTable(0, arg0, &data_ov017_02141528, &data_ov017_021415a8, 0x12, 4, 0x10);
     CombatSprite_LoadFromTable(0, arg1, &data_ov017_02141510, &data_ov017_021415a8, 0x11, 0x16, 0x20);
 }
 
-void func_ov017_0212ffcc(s32 arg0, s32 arg1) {
+static void func_ov017_0212ffcc(s32 arg0, s32 arg1) {
     CombatSprite_Update(arg0);
     CombatSprite_Update(arg1);
 }
 
-void func_ov017_0212ffe4(s32 arg0, s32 arg1, s32 arg2) {
+static void func_ov017_0212ffe4(s32 arg0, s32 arg1, s32 arg2) {
     SubroutineArgs subroutine_arg0;
     s16            sp2[4];
     void*          var_r3;
@@ -5865,7 +5870,7 @@ void func_ov017_0212ffe4(s32 arg0, s32 arg1, s32 arg2) {
     CombatSprite_Render(arg1);
 }
 
-void func_ov017_02130130(void* arg0, void* arg1) {
+static void func_ov017_02130130(void* arg0, void* arg1) {
     CombatSprite_Release(arg0);
     CombatSprite_Release(arg1);
 }
@@ -5901,7 +5906,7 @@ void func_ov017_021301e0(void) {
     data_ov017_02143a18.unk6 = (s16)data_ov003_020e71b8->unk3D8DE;
 }
 
-void func_ov017_0213021c(void* arg0) {
+static void func_ov017_0213021c(void* arg0) {
     data_ov003_020e71b8->unk3D8D8 = (s16)data_ov017_02143a18.unk0;
     data_ov003_020e71b8->unk3D8DA = (s16)data_ov017_02143a18.unk2;
     data_ov003_020e71b8->unk3D8DC = (s16)data_ov017_02143a18.unk4;
@@ -5910,7 +5915,7 @@ void func_ov017_0213021c(void* arg0) {
     ((Boss03*)arg0)->unk6E        = (s16)data_ov017_02143a18.unk2;
 }
 
-void func_ov017_02130280(void* arg0) {
+static void func_ov017_02130280(void* arg0) {
     ((Boss03*)arg0)->unk6C = (s16)data_ov017_02143a18.unk0;
     ((Boss03*)arg0)->unk6E = (s16)data_ov017_02143a18.unk2;
 }

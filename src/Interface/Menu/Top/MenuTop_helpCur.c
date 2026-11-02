@@ -1,6 +1,5 @@
 #include "Interface/Menu/Top.h"
-
-extern s32 Inventory_IsHelpSeen(s32 arg0);
+#include "Player/Inventory.h"
 
 typedef struct {
     /* 0x00 */ Sprite         sprites[3];

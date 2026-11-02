@@ -1,4 +1,5 @@
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Engine/Math/Random.h"
@@ -114,7 +115,8 @@ s32 Boss01s_FlyRG_Curve_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    func_ov003_02084348(func_ov003_020c3908(curve), &spA, &sp8, curve->unk_60.x, curve->unk_60.y, curve->unk_60.z);
+    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)curve), &spA, &sp8, curve->unk_60.x, curve->unk_60.y,
+                        curve->unk_60.z);
     CombatSprite_SetPosition(&curve->sprite, spA, sp8);
     func_ov003_02082730(&curve->sprite, 0x7FFFFFFF);
     CombatSprite_Render(&curve->sprite);

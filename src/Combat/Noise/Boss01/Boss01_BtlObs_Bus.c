@@ -1,8 +1,10 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Combat/Noise/Private/Boss01.h"
+#include <nitro/mi/cpumem.h>
 
 typedef struct BtlObs_Bus {
     /* 0x000 */ char         unk_000[0x2];
@@ -23,7 +25,7 @@ typedef struct {
     /* 0x0 */ u32 unk_0;
 } BtlObs_Bus_Args;
 
-s32 BtlObs_Bus_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlObs_Bus_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static const u16 data_ov016_02129120[] = {1, 3, 2, 0, 4, 6, 5, 0, 7, 9, 8, 0, 0x5000, 0};
 
@@ -31,16 +33,13 @@ static const BinIdentifier Iden_BtlObs_Bus = {3, "Apl_Mor/Grp_Boss01bus.bin"};
 
 static const TaskHandle Tsk_BtlObs_Bus = {"Tsk_BtlObs_Bus", BtlObs_Bus_RunTask, 0x198};
 
-extern s16 func_ov003_020843b0(s32, s32);
-extern s16 func_ov003_020843ec(s32, s32, s32);
-
-void BtlObs_Bus_SetState(BtlObs_Bus* arg0, void (*arg1)(BtlObs_Bus*)) {
+static void BtlObs_Bus_SetState(BtlObs_Bus* arg0, void (*arg1)(BtlObs_Bus*)) {
     arg0->unk_188 = arg1;
     arg0->unk_18C = 0;
     arg0->unk_18E = 0;
 }
 
-void BtlObs_Bus_OnPhaseStart(BtlObs_Bus* obs) {
+static void BtlObs_Bus_OnPhaseStart(BtlObs_Bus* obs) {
     if (obs->actor.flags & 0x200) {
         if ((*data_ov016_021292c0 == 2) && (obs->unk_124.sprite.resourceData == obs->unk_0C4.sprite.resourceData)) {
             obs->actor.unk_70 = 60;
@@ -48,24 +47,24 @@ void BtlObs_Bus_OnPhaseStart(BtlObs_Bus* obs) {
             CombatSprite_SetAnimFromTable(&obs->unk_0C4, 2, 0);
             CombatSprite_SetPaletteSource(&obs->unk_0C4, 11);
             CombatSprite_Release(&obs->unk_124);
-            func_ov003_020880e4(0, &obs->unk_124, &obs->actor);
+            func_ov003_020880e4(0, &obs->unk_124, (Ov003EnemyActor*)&obs->actor);
         }
     }
 }
 
-void BtlObs_Bus_StateIdle(BtlObs_Bus* obs) {
+static void BtlObs_Bus_StateIdle(BtlObs_Bus* obs) {
     return;
 }
 
-void BtlObs_Bus_StateStop(BtlObs_Bus* obs) {
+static void BtlObs_Bus_StateStop(BtlObs_Bus* obs) {
     obs->unk_194 = 0;
 }
 
-void BtlObs_Bus_StateEnd(BtlObs_Bus* obs) {
+static void BtlObs_Bus_StateEnd(BtlObs_Bus* obs) {
     return;
 }
 
-void BtlObs_Bus_StateHitFlash(BtlObs_Bus* obs) {
+static void BtlObs_Bus_StateHitFlash(BtlObs_Bus* obs) {
     if (obs->unk_18E == 0) {
         obs->actor.flags |= 0x10;
     }
@@ -86,7 +85,7 @@ void BtlObs_Bus_StateHitFlash(BtlObs_Bus* obs) {
     }
 }
 
-s32 BtlObs_Bus_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlObs_Bus_Init(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus*      obs     = task->data;
     BtlObs_Bus_Args* busArgs = (BtlObs_Bus_Args*)args;
 
@@ -111,7 +110,7 @@ s32 BtlObs_Bus_Init(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus* obs = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x1000) {
@@ -138,7 +137,7 @@ s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
     return obs->unk_194;
 }
 
-s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus* obs = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x1000) {
@@ -169,7 +168,7 @@ s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlObs_Bus_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlObs_Bus_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus* obs = task->data;
 
     CombatSprite_Release(&obs->unk_0C4);
@@ -177,7 +176,7 @@ s32 BtlObs_Bus_Destroy(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 BtlObs_Bus_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlObs_Bus_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages data_ov016_02129110 = {
         .initialize = BtlObs_Bus_Init,
         .update     = BtlObs_Bus_Update,

@@ -19,14 +19,11 @@ typedef struct BtlPause {
 
 extern const BinIdentifier data_ov003_020d7800;
 extern const TaskHandle    data_ov003_020d8848;
-extern const TaskStages    data_ov003_020d8854;
-
-extern void func_ov003_0208b278(u32 state);
-extern void func_ov003_020a3a40(void);
+static const TaskStages    data_ov003_020d8854;
 
 // The two touch reads are one comparison chain over the touch state.
 // Nonmatching: the target CSEs the touch base pointer between the x and y loads; mwcc reloads it.
-void func_ov003_020a210c(BtlPause* self) {
+static void func_ov003_020a210c(BtlPause* self) {
     s16  touchX;
     s16  touchY;
     BOOL overButton;
@@ -63,7 +60,7 @@ void func_ov003_020a210c(BtlPause* self) {
     func_ov003_0208b278(5);
 }
 
-s32 func_ov003_020a21d8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a21d8(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
     s32       anim;
 
@@ -87,7 +84,7 @@ s32 func_ov003_020a21d8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a2330(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a2330(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x10000) {
@@ -118,7 +115,7 @@ s32 func_ov003_020a2330(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a2458(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a2458(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
 
     if (data_ov003_020e71b8->unk3D87C != 0) {
@@ -133,7 +130,7 @@ s32 func_ov003_020a2458(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a24b4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a24b4(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
 
     CombatSprite_Release(&self->sprites[0]);
@@ -142,7 +139,7 @@ s32 func_ov003_020a24b4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a24dc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a24dc(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8854;
 
     return stages.iter[stage](pool, task, args);
@@ -154,11 +151,11 @@ s32 func_ov003_020a250c(void) {
 
 /// `Tsk_BtlPause` is pooled into the `.data` of the unit before this one; the two names below belong to
 /// the handles of the units after it.
-extern char      data_ov003_020e3e34[];
-char             data_ov003_020e3e44[12] = "Tsk_BtlDbg";
-char             data_ov003_020e3e50[20] = "Tsk_BtlInf_ShowVal";
-const TaskHandle data_ov003_020d8848     = {data_ov003_020e3e34, func_ov003_020a24dc, sizeof(BtlPause)};
-const TaskStages data_ov003_020d8854     = {
+extern char             data_ov003_020e3e34[];
+char                    data_ov003_020e3e44[12] = "Tsk_BtlDbg";
+char                    data_ov003_020e3e50[20] = "Tsk_BtlInf_ShowVal";
+const TaskHandle        data_ov003_020d8848     = {data_ov003_020e3e34, func_ov003_020a24dc, sizeof(BtlPause)};
+static const TaskStages data_ov003_020d8854     = {
     func_ov003_020a21d8,
     func_ov003_020a2330,
     func_ov003_020a2458,

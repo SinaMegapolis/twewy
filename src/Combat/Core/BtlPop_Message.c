@@ -3,10 +3,10 @@
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
+#include <nitro/mi/cpumem.h>
 
 extern BinIdentifier data_ov003_020d7800;
-
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
 
 /// Task data of the short message popup (`Tsk_BtlPop_Message`): a single sprite that slides
 /// down towards its target Z, fades in, then fades out.
@@ -30,24 +30,24 @@ typedef struct BtlPop_MessageArgs {
     /* 0x10 */ s32 z;
 } BtlPop_MessageArgs; // Size: 0x14
 
-s32 func_ov003_0209c688(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209c794(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209c840(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209c8b8(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209c91c(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_0209c688(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209c794(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209c840(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209c8b8(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209c91c(TaskPool* pool, Task* task, void* args, s32 stage);
 
-char data_ov003_020e3cc4[0x14] = "Tsk_BtlPop_Message";
+static char data_ov003_020e3cc4[0x14] = "Tsk_BtlPop_Message";
 
-const TaskHandle data_ov003_020d80c0 = {data_ov003_020e3cc4, func_ov003_0209c91c, 0x78};
+static const TaskHandle data_ov003_020d80c0 = {data_ov003_020e3cc4, func_ov003_0209c91c, 0x78};
 
-const TaskStages data_ov003_020d80cc = {
+static const TaskStages data_ov003_020d80cc = {
     func_ov003_0209c688,
     func_ov003_0209c794,
     func_ov003_0209c840,
     func_ov003_0209c8b8,
 };
 
-s32 func_ov003_0209c688(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c688(TaskPool* pool, Task* task, void* args) {
     BtlPop_Message*     pop = task->data;
     BtlPop_MessageArgs* p   = args;
     s32                 animIndex;
@@ -77,7 +77,7 @@ s32 func_ov003_0209c688(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209c794(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c794(TaskPool* pool, Task* task, void* args) {
     BtlPop_Message* pop = task->data;
 
     switch (pop->phase) {
@@ -107,7 +107,7 @@ s32 func_ov003_0209c794(TaskPool* pool, Task* task, void* args) {
     return pop->active;
 }
 
-s32 func_ov003_0209c840(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c840(TaskPool* pool, Task* task, void* args) {
     BtlPop_Message* pop = task->data;
     s32             posX;
     s32             posY;
@@ -124,7 +124,7 @@ s32 func_ov003_0209c840(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209c8b8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209c8b8(TaskPool* pool, Task* task, void* args) {
     BtlPop_Message* pop = task->data;
 
     if (pop->sprite.sprite.bits_0_1 == 0) {
@@ -136,7 +136,7 @@ s32 func_ov003_0209c8b8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209c91c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209c91c(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d80cc;
 
     if (func_ov003_0208b690(stage) != 0) {

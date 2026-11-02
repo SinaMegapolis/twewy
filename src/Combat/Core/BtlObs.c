@@ -13,12 +13,7 @@ typedef struct BtlObs {
     /* 0x190 */ s32 active;
 } BtlObs; // Size: 0x194
 
-extern void func_ov003_02086680(Ov003EffectActor*, Ov003EffectSpawn*);
-extern void func_ov003_020866f8(Ov003EffectActor*);
-extern void func_ov003_02086770(Ov003EffectActor*);
-extern s32  func_ov003_0208a25c(CombatActor*);
-
-void func_ov003_020941ac(BtlObs* obs, void (*update)(BtlObs*)) {
+static void func_ov003_020941ac(BtlObs* obs, void (*update)(BtlObs*)) {
     obs->update = update;
     obs->state  = 0;
     obs->timer  = 0;
@@ -26,13 +21,13 @@ void func_ov003_020941ac(BtlObs* obs, void (*update)(BtlObs*)) {
     obs->effect.actor.flags &= ~0x400;
 }
 
-s32 func_ov003_020941d4(CombatActor* actor) {
+static s32 func_ov003_020941d4(CombatActor* actor) {
     if (actor->xVelocity != 0 || actor->yVelocity != 0)
         return 0;
     return actor->position.z >= 0;
 }
 
-void func_ov003_02094200(BtlObs* obs) {
+static void func_ov003_02094200(BtlObs* obs) {
     if (obs->state == 0) {
         if (obs->effect.sprite.flags & 1)
             CombatSprite_SetAnimFromTable(&obs->sprites[0], 2, 0);
@@ -46,11 +41,11 @@ void func_ov003_02094200(BtlObs* obs) {
     }
 }
 
-void func_ov003_02094288(BtlObs* obs) {
+static void func_ov003_02094288(BtlObs* obs) {
     obs->active = 0;
 }
 
-void func_ov003_02094294(BtlObs* obs) {
+static void func_ov003_02094294(BtlObs* obs) {
     if (obs->state != 0)
         return;
     obs->effect.actor.flags |= 0x200;
@@ -59,7 +54,7 @@ void func_ov003_02094294(BtlObs* obs) {
     obs->state++;
 }
 
-void func_ov003_020942e8(BtlObs* obs) {
+static void func_ov003_020942e8(BtlObs* obs) {
     if (obs->state == 0) {
         obs->effect.actor.flags |= 0x400;
         if (obs->effect.id == 0)
@@ -80,7 +75,7 @@ void func_ov003_020942e8(BtlObs* obs) {
 }
 
 // Nonmatching: mwcc predicates the final three stores instead of returning before them.
-void func_ov003_020943ac(BtlObs* obs) {
+static void func_ov003_020943ac(BtlObs* obs) {
     if (obs->timer == 0)
         obs->effect.actor.flags |= 0x10;
     if (obs->timer < 20) {
@@ -99,7 +94,7 @@ void func_ov003_020943ac(BtlObs* obs) {
     obs->active  = 0;
 }
 
-s32 func_ov003_02094444(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02094444(TaskPool* pool, Task* task, void* args) {
     BtlObs*           obs   = task->data;
     Ov003EffectSpawn* spawn = args;
     func_ov003_02086680(&obs->effect, spawn);
@@ -116,7 +111,7 @@ s32 func_ov003_02094444(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020944f0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020944f0(TaskPool* pool, Task* task, void* args) {
     BtlObs* obs = task->data;
     switch (CombatActor_PopPendingCommand(&obs->effect.actor)) {
         case 1:
@@ -140,7 +135,7 @@ s32 func_ov003_020944f0(TaskPool* pool, Task* task, void* args) {
     return obs->active;
 }
 
-s32 func_ov003_020945a4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020945a4(TaskPool* pool, Task* task, void* args) {
     BtlObs* obs = task->data;
     if (obs->visible) {
         CombatActor_Render(&obs->effect.actor, &obs->sprites[0]);
@@ -149,7 +144,7 @@ s32 func_ov003_020945a4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020945d8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020945d8(TaskPool* pool, Task* task, void* args) {
     BtlObs* obs = task->data;
     CombatSprite_Release(&obs->sprites[0]);
     CombatSprite_Release(&obs->sprites[1]);
@@ -157,14 +152,15 @@ s32 func_ov003_020945d8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-extern const TaskStages data_ov003_020d7d14;
-s32                     func_ov003_02094600(TaskPool* pool, Task* task, void* args, s32 stage) {
+static const TaskStages data_ov003_020d7d14;
+static s32              func_ov003_02094600(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7d14;
     if (func_ov003_0208b690((u16)stage))
         return 1;
     return stages.iter[stage](pool, task, args);
 }
 
-char             data_ov003_020e3b4c[12] = "Tsk_BtlObs";
-const TaskHandle data_ov003_020d7d08     = {data_ov003_020e3b4c, func_ov003_02094600, sizeof(BtlObs)};
-const TaskStages data_ov003_020d7d14 = {func_ov003_02094444, func_ov003_020944f0, func_ov003_020945a4, func_ov003_020945d8};
+static char             data_ov003_020e3b4c[12] = "Tsk_BtlObs";
+const TaskHandle        data_ov003_020d7d08     = {data_ov003_020e3b4c, func_ov003_02094600, sizeof(BtlObs)};
+static const TaskStages data_ov003_020d7d14     = {func_ov003_02094444, func_ov003_020944f0, func_ov003_020945a4,
+                                                   func_ov003_020945d8};

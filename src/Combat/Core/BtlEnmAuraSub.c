@@ -6,6 +6,7 @@
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 
 #include <nitro/mi/cpumem.h>
 
@@ -21,46 +22,37 @@ extern const BinIdentifier data_ov003_020e0b90;
 
 // External functions.
 
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
-extern void func_ov003_02082a04(s32 engine, Sprite* sprite, const BinIdentifier* iden, const SpriteAnimEntry* table, u16 entry,
-                                s32 palette, s32 paletteCount);
-extern void func_ov003_02082a90(s32 engine, Sprite* sprite, const BinIdentifier* iden, u16 entry, u16 arg4, u16 arg5,
-                                s32 palette, s32 anim);
-extern void func_ov003_0208b2fc(s32* x, s32* y, s32 angle, s32 scale);
+static s32 func_ov003_020ca9e4(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020caacc(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020cab4c(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020cabd0(TaskPool* pool, Task* task, void* args);
 
-s32 func_ov003_020ca9e4(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020caacc(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020cab4c(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020cabd0(TaskPool* pool, Task* task, void* args);
-
-s32 func_ov003_020cabf0(TaskPool* pool, Task* task, void* args, s32 stage);
-
-// Defined in this unit.
+static s32 func_ov003_020cabf0(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// `TaskHandle.taskName` of `data_ov003_020e0bd4`.
-char data_ov003_020e6ba0[0x14] = "Tsk_BtlEnmAuraSub";
+static char data_ov003_020e6ba0[0x14] = "Tsk_BtlEnmAuraSub";
 
 /// The enemy aura sheet, named for the task-handle table.
-char data_ov003_020e6bb4[0x1C] = "Apl_Mor/Grp_BtlEnmAura.bin";
+static char data_ov003_020e6bb4[0x1C] = "Apl_Mor/Grp_BtlEnmAura.bin";
 
 /// The animation entry `func_ov003_020ca9e4` loads the burst sprite from.
-const SpriteAnimEntry data_ov003_020e0bc4[1] = {
+static const SpriteAnimEntry data_ov003_020e0bc4[1] = {
     {0x01, 0x03, 0x02, 0x01},
 };
-const BinIdentifier data_ov003_020e0bcc = {3, data_ov003_020e6bb4};
+static const BinIdentifier data_ov003_020e0bcc = {3, data_ov003_020e6bb4};
 
 /// The enemy aura sprite sheet the flames are loaded from.
 
 /// `Tsk_BtlEnmAuraSub`.
 /// The four stage functions `func_ov003_020cabf0` dispatches on.
-const TaskStages data_ov003_020e0be0 = {
+static const TaskStages data_ov003_020e0be0 = {
     func_ov003_020ca9e4,
     func_ov003_020caacc,
     func_ov003_020cab4c,
     func_ov003_020cabd0,
 };
 
-const TaskHandle data_ov003_020e0bd4 = {data_ov003_020e6ba0, func_ov003_020cabf0, 0x774};
+static const TaskHandle data_ov003_020e0bd4 = {data_ov003_020e6ba0, func_ov003_020cabf0, 0x774};
 
 /// Sets the enemy aura state to `mode` unless the aura is already engaged this frame.
 void func_ov003_020ca6a8(Ov003CutinActor* unit) {
@@ -95,7 +87,7 @@ s16 func_ov003_020ca728(Ov003CutinActor* unit) {
 
 /// Gives every flame the same start position, a random angle and spread around the aura, a random
 /// drift speed and a random first animation.
-void func_ov003_020ca7b0(s32 engine, BtlAuraSub* aura) {
+static void func_ov003_020ca7b0(s32 engine, BtlAuraSub* aura) {
     s32           i;
     s32           palette;
     u32           spread;
@@ -122,7 +114,7 @@ void func_ov003_020ca7b0(s32 engine, BtlAuraSub* aura) {
             flame->riseSpeed = (RNG_Next(3) + 1) << 12;
             anim             = RNG_Next(2);
         }
-        func_ov003_02082a90(engine, &flame->sprite.sprite, &data_ov003_020e0b90, 4, 6, 5, palette, anim);
+        CombatSprite_LoadDirectNoProto(engine, &flame->sprite, &data_ov003_020e0b90, 4, 6, 5, palette, anim);
         CombatSprite_SetAnim((CombatSprite*)flame, (u16)anim, 1);
         i++;
         spread += 0x1000;
@@ -131,7 +123,7 @@ void func_ov003_020ca7b0(s32 engine, BtlAuraSub* aura) {
 }
 
 /// Advances the still-running flames and records whether any of them is left.
-void func_ov003_020ca8cc(BtlAuraSub* aura) {
+static void func_ov003_020ca8cc(BtlAuraSub* aura) {
     BtlAuraFlame* flame;
     s32           i;
     s32           active;
@@ -154,7 +146,7 @@ void func_ov003_020ca8cc(BtlAuraSub* aura) {
 }
 
 /// Draws every still-running flame, depth-sorted against the shared enemy sort palette.
-void func_ov003_020ca934(BtlAuraSub* aura) {
+static void func_ov003_020ca934(BtlAuraSub* aura) {
     s32              i;
     s32              sortKey;
     Ov003CutinActor* owner;
@@ -180,7 +172,7 @@ void func_ov003_020ca934(BtlAuraSub* aura) {
 }
 
 /// Releases the sixteen flame sprites.
-void func_ov003_020ca9bc(BtlAuraSub* aura) {
+static void func_ov003_020ca9bc(BtlAuraSub* aura) {
     s32           i;
     BtlAuraFlame* flame;
 
@@ -194,7 +186,7 @@ void func_ov003_020ca9bc(BtlAuraSub* aura) {
 }
 
 /// Task stage 0: seeds the record, picks the screen-side palette and spawns the flames.
-s32 func_ov003_020ca9e4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020ca9e4(TaskPool* pool, Task* task, void* args) {
     BtlAuraSub*  aura = task->data;
     BtlAuraArgs* p    = args;
     s32          engine;
@@ -214,7 +206,7 @@ s32 func_ov003_020ca9e4(TaskPool* pool, Task* task, void* args) {
         aura->y -= 0xC0000;
         palette = 7;
     }
-    func_ov003_02082a04(engine, &aura->sprite.sprite, &data_ov003_020e0bcc, data_ov003_020e0bc4, 0, palette, 0x90);
+    CombatSprite_LoadFromTableNoProto(engine, &aura->sprite, &data_ov003_020e0bcc, data_ov003_020e0bc4, 0, palette, 0x90);
     CombatSprite_SetPosition(&aura->sprite, (s32)(aura->x * 0x10) >> 16, (s32)(aura->y * 0x10) >> 16);
     func_ov003_020ca7b0(engine, aura);
     func_ov003_02087f00(SEIDX_SE_GREEN_LIGHT, (s32)(aura->x * 0x10) >> 16);
@@ -222,7 +214,7 @@ s32 func_ov003_020ca9e4(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 1: runs the descent timer, updates the flames and reports whether the aura is done.
-s32 func_ov003_020caacc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020caacc(TaskPool* pool, Task* task, void* args) {
     BtlAuraSub* aura = task->data;
 
     if (func_ov003_020c9008() != 0) {
@@ -243,7 +235,7 @@ s32 func_ov003_020caacc(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 2: draws the burst that follows the aura down while its timer runs, then the flames.
-s32 func_ov003_020cab4c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020cab4c(TaskPool* pool, Task* task, void* args) {
     BtlAuraSub*      aura = task->data;
     Ov003CutinActor* owner;
 
@@ -265,7 +257,7 @@ s32 func_ov003_020cab4c(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 3: releases the burst sprite and the flames.
-s32 func_ov003_020cabd0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020cabd0(TaskPool* pool, Task* task, void* args) {
     BtlAuraSub* aura = task->data;
 
     CombatSprite_Release(&aura->sprite);
@@ -274,7 +266,7 @@ s32 func_ov003_020cabd0(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task dispatcher: runs `stage` of the enemy aura's stage table.
-s32 func_ov003_020cabf0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020cabf0(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020e0be0;
 
     return stages.iter[stage](pool, task, args);

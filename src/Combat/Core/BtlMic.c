@@ -1,11 +1,11 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatMic.h"
 #include "Combat/Core/CombatTouch.h"
 #include "Engine/Core/System.h"
 #include <nitro/mi/cpumem.h>
 
-extern void             func_02040770(BtlMicSampling* sampling);
-extern const TaskHandle data_ov003_020dc228;
+static const TaskHandle data_ov003_020dc228;
 
 void func_ov003_020a5080(void) {
     BtlMicInput* input = &data_ov003_020e71b8->microphone;
@@ -36,7 +36,7 @@ static inline BOOL BtlMic_IsSuppressed(void) {
     return FALSE;
 }
 
-s32 func_ov003_020a5120(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a5120(TaskPool* pool, Task* task, void* args, s32 stage) {
     switch (stage) {
         default:
         case 0:
@@ -82,5 +82,5 @@ s32 func_ov003_020a51c0(void) {
     return count == 6;
 }
 
-char             data_ov003_020e48b0[12] = "Tsk_BtlMic";
-const TaskHandle data_ov003_020dc228     = {data_ov003_020e48b0, func_ov003_020a5120, sizeof(BtlMicInput*)};
+static char             data_ov003_020e48b0[12] = "Tsk_BtlMic";
+static const TaskHandle data_ov003_020dc228     = {data_ov003_020e48b0, func_ov003_020a5120, sizeof(BtlMicInput*)};

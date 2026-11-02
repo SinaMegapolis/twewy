@@ -1,6 +1,8 @@
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatCutin.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Resources/ScreenMapper.h"
 #include <nitro/mi/cpumem.h>
 #include <nitro/reg.h>
 #include <stddef.h>
@@ -66,34 +68,30 @@ typedef char check_Cutin01_timer[(offsetof(BtlCutIn01, timer) == 0x250) ? 1 : -1
 typedef char check_Cutin01_subActive[(offsetof(BtlCutIn01, subActive) == 0x26C) ? 1 : -1];
 
 extern const BinIdentifier            data_ov003_020d7828, data_ov003_020dd7ac;
-extern const Cutin01Resources         data_ov003_020dd8f8[4];
-extern const Cutin01SpriteLayout      data_ov003_020dd890;
-extern const Ov003CutinPaletteEntries data_ov003_020dd89c;
-extern const SpriteAnimEntry          data_ov003_020dd8b8[2], data_ov003_020dd8c8[6];
-extern const TaskStages               data_ov003_020dd8a8;
-extern Cutin01Step                    data_ov003_020e535c[15];
+static const Cutin01Resources         data_ov003_020dd8f8[4];
+static const Cutin01SpriteLayout      data_ov003_020dd890;
+static const Ov003CutinPaletteEntries data_ov003_020dd89c;
+static const SpriteAnimEntry          data_ov003_020dd8b8[2], data_ov003_020dd8c8[6];
+static const TaskStages               data_ov003_020dd8a8;
+static Cutin01Step                    data_ov003_020e535c[15];
 extern u8                             data_ov003_020e71d9;
-extern void                           func_0200d858(ScreenMapEntry*, s32, s32, s32);
-extern void                           func_0200d954(s32, s32);
-extern void                           func_ov003_020bd2c8(s32 kind, s32 index);
-extern void                           func_ov003_020bd370(s32 kind, s32 index);
 
-void func_ov003_020be71c(BtlCutIn01* self) {
+static void func_ov003_020be71c(BtlCutIn01* self) {
     self->programIndex++;
     self->subTimer  = 0;
     self->subPhase  = 0;
     self->subActive = 0;
 }
-void func_ov003_020be740(BtlCutIn01* self, const Cutin01Step* program) {
+static void func_ov003_020be740(BtlCutIn01* self, const Cutin01Step* program) {
     self->program = program;
 }
-s32 func_ov003_020be748(BtlCutIn01* self) {
+static s32 func_ov003_020be748(BtlCutIn01* self) {
     EasyFade_FadeBothDisplays(0, 0x10, 0x1000);
     return 1;
 }
 
 // Nonmatching: display-state store scheduling.
-s32 func_ov003_020be764(BtlCutIn01* self) {
+static s32 func_ov003_020be764(BtlCutIn01* self) {
     g_DisplaySettings.controls[0].windows |= 4;
     g_DisplaySettings.engineState[0].windowObj            = 8;
     g_DisplaySettings.engineState[0].windowObjEffects     = 0;
@@ -129,11 +127,11 @@ s32 func_ov003_020be764(BtlCutIn01* self) {
     return 0;
 }
 
-s32 func_ov003_020be974(BtlCutIn01* self) {
+static s32 func_ov003_020be974(BtlCutIn01* self) {
     func_ov003_020be71c(self);
     return 2;
 }
-s32 func_ov003_020be984(BtlCutIn01* self) {
+static s32 func_ov003_020be984(BtlCutIn01* self) {
     PaletteMgr_ReleaseResource(g_PaletteManagers[0], self->scenes[0].palettes[1]);
     PaletteMgr_ReleaseResource(g_PaletteManagers[1], self->scenes[0].palettes[0]);
     PaletteMgr_ReleaseResource(g_PaletteManagers[0], self->scenes[1].palettes[1]);
@@ -158,18 +156,18 @@ s32 func_ov003_020be984(BtlCutIn01* self) {
     func_ov003_020be71c(self);
     return 0;
 }
-s32 func_ov003_020beab4(BtlCutIn01* self) {
+static s32 func_ov003_020beab4(BtlCutIn01* self) {
     EasyFade_FadeBothDisplays(0, 0, 0x800);
     func_ov003_020be71c(self);
     return 0;
 }
-s32 func_ov003_020beadc(BtlCutIn01* self) {
+static s32 func_ov003_020beadc(BtlCutIn01* self) {
     EasyFade_FadeBothDisplays(0, 0x10, 0x1000);
     func_ov003_020be71c(self);
     return 0;
 }
 
-void func_ov003_020beb04(BtlCutIn01* self, u16 kind) {
+static void func_ov003_020beb04(BtlCutIn01* self, u16 kind) {
     self->overlayPack                = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7ac, 2, 0);
     Ov003CutinPaletteEntries entries = data_ov003_020dd89c;
     void*                    palette = Data_GetPackEntryData(self->overlayPack, entries.entries[kind]);
@@ -195,7 +193,7 @@ void func_ov003_020beb04(BtlCutIn01* self, u16 kind) {
 }
 
 // Nonmatching: resource loading and map/sprite register allocation.
-void func_ov003_020bee48(BtlCutIn01* self, u16 kind) {
+static void func_ov003_020bee48(BtlCutIn01* self, u16 kind) {
     const Cutin01Resources* variant = &data_ov003_020dd8f8[kind + 1];
     const Cutin01Resources* base    = &data_ov003_020dd8f8[0];
     Cutin01Scene*           first   = &self->scenes[0];
@@ -256,19 +254,19 @@ void func_ov003_020bee48(BtlCutIn01* self, u16 kind) {
     second->x = 0x100000;
 }
 
-s32 func_ov003_020bf4b0(BtlCutIn01* self) {
+static s32 func_ov003_020bf4b0(BtlCutIn01* self) {
     func_ov003_020bee48(self, self->kind);
     func_ov003_020be71c(self);
     return 2;
 }
-s32 func_ov003_020bf4d4(BtlCutIn01* self) {
+static s32 func_ov003_020bf4d4(BtlCutIn01* self) {
     self->speed  = 0x6000;
     self->delay  = 0;
     self->active = 1;
     func_ov003_020be71c(self);
     return 2;
 }
-s32 func_ov003_020bf500(BtlCutIn01* self) {
+static s32 func_ov003_020bf500(BtlCutIn01* self) {
     self->scenes[0].x += self->speed;
     self->scenes[1].x -= self->speed;
     if (self->scenes[0].x > 0x16000) {
@@ -285,30 +283,30 @@ s32 func_ov003_020bf500(BtlCutIn01* self) {
     }
     return 0;
 }
-s32 func_ov003_020bf594(BtlCutIn01* self) {
+static s32 func_ov003_020bf594(BtlCutIn01* self) {
     CombatSprite_SetAnimFromTable(&self->scenes[0].sprite, 1, 1);
     CombatSprite_SetAnimFromTable(&self->scenes[1].sprite, self->kind * 2 + 1, 1);
     self->timer = 0x1E;
     func_ov003_020be71c(self);
     return 2;
 }
-s32 func_ov003_020bf5ec(BtlCutIn01* self) {
+static s32 func_ov003_020bf5ec(BtlCutIn01* self) {
     self->timer--;
     if (self->timer == 0)
         func_ov003_020be71c(self);
     return 0;
 }
-s32 func_ov003_020bf618(BtlCutIn01* self) {
+static s32 func_ov003_020bf618(BtlCutIn01* self) {
     self->delay = 0x1E;
     func_ov003_020be71c(self);
     return 2;
 }
-s32 func_ov003_020bf634(BtlCutIn01* self) {
+static s32 func_ov003_020bf634(BtlCutIn01* self) {
     self->delay = 5;
     func_ov003_020be71c(self);
     return 2;
 }
-s32 func_ov003_020bf650(BtlCutIn01* self) {
+static s32 func_ov003_020bf650(BtlCutIn01* self) {
     if (self->delay != 0)
         self->delay--;
     else
@@ -316,7 +314,7 @@ s32 func_ov003_020bf650(BtlCutIn01* self) {
     return 0;
 }
 
-s32 func_ov003_020bf678(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bf678(TaskPool* pool, Task* task, void* args) {
     BtlCutIn01* self = task->data;
     MI_CpuSet(self, 0, sizeof(*self));
     func_ov003_020be740(self, data_ov003_020e535c);
@@ -337,7 +335,7 @@ s32 func_ov003_020bf678(TaskPool* pool, Task* task, void* args) {
 }
 
 // Nonmatching: step dispatch and screen-map offset register allocation.
-s32 func_ov003_020bf708(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bf708(TaskPool* pool, Task* task, void* args) {
     BtlCutIn01* self = task->data;
     if (self->program[self->programIndex] == NULL)
         return 0;
@@ -374,7 +372,7 @@ s32 func_ov003_020bf708(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020bfa80(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bfa80(TaskPool* pool, Task* task, void* args) {
     BtlCutIn01*   self   = task->data;
     Cutin01Scene* second = &self->scenes[1];
     if (!self->active)
@@ -389,7 +387,7 @@ s32 func_ov003_020bfa80(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Render(&second->sprite);
     return 1;
 }
-s32 func_ov003_020bfb44(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bfb44(TaskPool* pool, Task* task, void* args) {
     return 0;
 }
 s32 func_ov003_020bfb4c(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -397,19 +395,20 @@ s32 func_ov003_020bfb4c(TaskPool* pool, Task* task, void* args, s32 stage) {
     return stages.iter[stage](pool, task, args);
 }
 
-const Cutin01SpriteLayout data_ov003_020dd890 = {
+static const Cutin01SpriteLayout data_ov003_020dd890 = {
     {   8,   12,   16},
     {0x60, 0x50, 0x40}
 };
-const Ov003CutinPaletteEntries data_ov003_020dd89c = {
+static const Ov003CutinPaletteEntries data_ov003_020dd89c = {
     {8, 9, 10}
 };
-const TaskStages data_ov003_020dd8a8 = {func_ov003_020bf678, func_ov003_020bf708, func_ov003_020bfa80, func_ov003_020bfb44};
-const SpriteAnimEntry data_ov003_020dd8b8[2] = {
+static const TaskStages      data_ov003_020dd8a8    = {func_ov003_020bf678, func_ov003_020bf708, func_ov003_020bfa80,
+                                                       func_ov003_020bfb44};
+static const SpriteAnimEntry data_ov003_020dd8b8[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1}
 };
-const SpriteAnimEntry data_ov003_020dd8c8[6] = {
+static const SpriteAnimEntry data_ov003_020dd8c8[6] = {
     { 5,  7,  6, 0},
     { 5,  7,  6, 1},
     { 9, 11, 10, 0},
@@ -417,14 +416,14 @@ const SpriteAnimEntry data_ov003_020dd8c8[6] = {
     {13, 15, 14, 0},
     {13, 15, 14, 1}
 };
-const Cutin01Resources data_ov003_020dd8f8[4] = {
+static const Cutin01Resources data_ov003_020dd8f8[4] = {
     {0xA, 5, 1, 2, 3, 4, 0xFFFF, {0}},
     {0xB, 5, 1, 2, 3, 4, 0xFFFF, {0}},
     {0xC, 5, 1, 2, 3, 4, 0xFFFF, {0}},
     {0xD, 6, 1, 2, 3, 4,      5, {0}}
 };
-char        data_ov003_020e534c[16] = "Tsk_BtlCutIn01";
-Cutin01Step data_ov003_020e535c[15] = {func_ov003_020be764, func_ov003_020be974, func_ov003_020bf4b0, func_ov003_020beab4,
-                                       func_ov003_020bf4d4, func_ov003_020bf500, func_ov003_020bf634, func_ov003_020bf650,
-                                       func_ov003_020bf594, func_ov003_020bf5ec, func_ov003_020beadc, func_ov003_020bf618,
-                                       func_ov003_020bf650, func_ov003_020be984, func_ov003_020be748};
+char               data_ov003_020e534c[16] = "Tsk_BtlCutIn01";
+static Cutin01Step data_ov003_020e535c[15] = {
+    func_ov003_020be764, func_ov003_020be974, func_ov003_020bf4b0, func_ov003_020beab4, func_ov003_020bf4d4,
+    func_ov003_020bf500, func_ov003_020bf634, func_ov003_020bf650, func_ov003_020bf594, func_ov003_020bf5ec,
+    func_ov003_020beadc, func_ov003_020bf618, func_ov003_020bf650, func_ov003_020be984, func_ov003_020be748};

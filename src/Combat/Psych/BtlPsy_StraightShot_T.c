@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dcf2c;
+static const TaskHandle data_ov003_020dcf2c;
 
 s32 func_ov003_020b8c1c(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(2))
@@ -15,7 +15,7 @@ s32 func_ov003_020b8c1c(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b8c74(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b8c74(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003StraightShot* self;
     switch (stage) {
@@ -81,8 +81,8 @@ s32 func_ov003_020b8c74(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char                        data_ov003_020e4fa4[28] = "Tsk_BtlPsy_StraightShot_T";
-const TaskHandle            data_ov003_020dcf2c     = {data_ov003_020e4fa4, func_ov003_020b8c74, sizeof(Ov003StraightShot)};
+static char                 data_ov003_020e4fa4[28] = "Tsk_BtlPsy_StraightShot_T";
+static const TaskHandle     data_ov003_020dcf2c     = {data_ov003_020e4fa4, func_ov003_020b8c74, sizeof(Ov003StraightShot)};
 const Ov003StraightShotKind data_ov003_020dcf38[10] = {
     { 5,  6, 0, {0}, 0x2000, 1, {0}},
     {10, 10, 0, {0}, 0x2000, 1, {0}},

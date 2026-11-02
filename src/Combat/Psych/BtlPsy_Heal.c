@@ -3,15 +3,15 @@
 #include "SndMgrSeIdx.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle          data_ov003_020dca9c;
-extern const Ov003HealAnimations data_ov003_020dcaa8[2][4];
-extern char                      data_ov003_020e4f00[12];
+static const TaskHandle          data_ov003_020dca9c;
+static const Ov003HealAnimations data_ov003_020dcaa8[2][4];
+static char                      data_ov003_020e4f00[12];
 
 s32 func_ov003_020b6368(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 0;
 }
 
-s32 func_ov003_020b6370(void* args) {
+static s32 func_ov003_020b6370(void* args) {
     Ov003HealArgs* arg    = args;
     CombatActor*   player = func_ov003_020a6438();
     s32            amount = data_ov003_020e71b8->unk3D8D2 * arg->effect->params[1] / 100;
@@ -48,7 +48,7 @@ s32 func_ov003_020b6498(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-Ov003TouchActor* func_ov003_020b6520(void) {
+static Ov003TouchActor* func_ov003_020b6520(void) {
     Ov003TouchActor* best      = NULL;
     s32              threshold = 0;
     Ov003TouchActor* actor     = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC);
@@ -66,7 +66,7 @@ Ov003TouchActor* func_ov003_020b6520(void) {
     return best;
 }
 
-s32 func_ov003_020b65d8(void* args) {
+static s32 func_ov003_020b65d8(void* args) {
     Ov003HealArgs* arg = args;
     if (data_ov003_020e71b8->unk3D8D0 >= data_ov003_020e71b8->unk3D8D2) {
         if (!func_ov003_020b68ec(arg->effect, data_ov003_020e71b8->unk3D898) &&
@@ -104,7 +104,7 @@ s32 func_ov003_020b66b4(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b6724(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b6724(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003HealArgs*  arg = args;
     Ov003PsychArgs* self;
     switch (stage) {
@@ -183,10 +183,10 @@ s32 func_ov003_020b68ec(Ov003EffectState* effect, CombatActor* actor) {
     }
 }
 
-const Ov003HealAnimations data_ov003_020dcaa8[2][4] = {
+static const Ov003HealAnimations data_ov003_020dcaa8[2][4] = {
     {{0xF2, 0x102}, {0xF5, 0xF7}, {0xF5, 0xF7}, {0xF5, 0xF7}},
     { {0xF8, 0xFA}, {0xF8, 0xFA}, {0xF8, 0xFA}, {0xF9, 0xFA}}
 };
-char             data_ov003_020e4ef0[16] = "Tsk_BtlPsy_Heal";
-char             data_ov003_020e4f00[12] = "ARG_Heal_AT";
-const TaskHandle data_ov003_020dca9c     = {data_ov003_020e4ef0, func_ov003_020b6724, sizeof(Ov003PsychArgs)};
+static char             data_ov003_020e4ef0[16] = "Tsk_BtlPsy_Heal";
+static char             data_ov003_020e4f00[12] = "ARG_Heal_AT";
+static const TaskHandle data_ov003_020dca9c     = {data_ov003_020e4ef0, func_ov003_020b6724, sizeof(Ov003PsychArgs)};

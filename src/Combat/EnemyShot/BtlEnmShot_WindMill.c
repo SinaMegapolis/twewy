@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0cec;
+static const TaskHandle data_ov003_020e0cec;
 
 s32 func_ov003_020d33f0(Ov003EnemyShotSource* source, s32 speed, u16 angle, u16 angleStep, u16 count, u16 interval, u16 bursts,
                         s32 yScale) {
@@ -24,7 +24,7 @@ s32 func_ov003_020d33f0(Ov003EnemyShotSource* source, s32 speed, u16 angle, u16 
     return EasyTask_CreateTask(pool, &data_ov003_020e0cec, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020d349c(Ov003EnemyShotWindMill* self, Ov003EnemyShotWindMillArgs* args) {
+static s32 func_ov003_020d349c(Ov003EnemyShotWindMill* self, Ov003EnemyShotWindMillArgs* args) {
     MI_CpuSet(self, 0, sizeof(*self));
     MI_CpuCopyU8(args->source, &self->source, sizeof(self->source));
     self->speed     = args->speed;
@@ -38,7 +38,7 @@ s32 func_ov003_020d349c(Ov003EnemyShotWindMill* self, Ov003EnemyShotWindMillArgs
     return 1;
 }
 
-s32 func_ov003_020d350c(Ov003EnemyShotWindMill* self) {
+static s32 func_ov003_020d350c(Ov003EnemyShotWindMill* self) {
     if (data_ov003_020e71b8->unk3D878 & 0x40)
         return 1;
     if (!func_ov003_020cce34(self->source.core.owner->base.sprite.sprite.bits_0_1))
@@ -77,15 +77,15 @@ s32 func_ov003_020d350c(Ov003EnemyShotWindMill* self) {
     return 1;
 }
 
-s32 func_ov003_020d369c(Ov003EnemyShotWindMill* self) {
+static s32 func_ov003_020d369c(Ov003EnemyShotWindMill* self) {
     return 1;
 }
 
-s32 func_ov003_020d36a4(Ov003EnemyShotWindMill* self) {
+static s32 func_ov003_020d36a4(Ov003EnemyShotWindMill* self) {
     return 1;
 }
 
-s32 func_ov003_020d36ac(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d36ac(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotWindMill* self = task->data;
     switch (stage) {
         case 0:
@@ -101,5 +101,5 @@ s32 func_ov003_020d36ac(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6dc0[24] = "Tsk_BtlEnmShot_WindMill";
-const TaskHandle data_ov003_020e0cec     = {data_ov003_020e6dc0, func_ov003_020d36ac, sizeof(Ov003EnemyShotWindMill)};
+static char             data_ov003_020e6dc0[24] = "Tsk_BtlEnmShot_WindMill";
+static const TaskHandle data_ov003_020e0cec     = {data_ov003_020e6dc0, func_ov003_020d36ac, sizeof(Ov003EnemyShotWindMill)};

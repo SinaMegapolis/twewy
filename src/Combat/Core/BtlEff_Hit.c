@@ -25,13 +25,17 @@ typedef struct BtlEff_HitArgs {
 /// Named battle sprite-page identifiers.
 extern const BinIdentifier data_ov003_020d77f8;
 
-// Defined in this unit.
+static s32 func_ov003_0209ea94(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209ebd0(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209ebfc(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209ec9c(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209ed08(TaskPool* pool, Task* task, void* args, s32 stage);
 
-char data_ov003_020e3d90[0x10] = "Tsk_BtlEff_Hit";
+static char data_ov003_020e3d90[0x10] = "Tsk_BtlEff_Hit";
 
-const TaskHandle data_ov003_020d8410 = {data_ov003_020e3d90, func_ov003_0209ed08, sizeof(CombatHitEffect)};
+static const TaskHandle data_ov003_020d8410 = {data_ov003_020e3d90, func_ov003_0209ed08, sizeof(CombatHitEffect)};
 
-const TaskStages data_ov003_020d841c = {
+static const TaskStages data_ov003_020d841c = {
     func_ov003_0209ea94,
     func_ov003_0209ebd0,
     func_ov003_0209ebfc,
@@ -40,7 +44,7 @@ const TaskStages data_ov003_020d841c = {
 
 // One real array owns all 26 records, including the retail interior symbol
 // data_ov003_020d8434. Keep indexed accesses within this declared object.
-const CombatHitParams data_ov003_020d842c[26] = {
+static const CombatHitParams data_ov003_020d842c[26] = {
     {  {8, 10, 9, 0}, 1, 4, 64,  1, 113},
     {{11, 13, 12, 0}, 1, 4, 80,  1, 114},
     {{20, 22, 21, 0}, 1, 4, 64,  1, 115},
@@ -72,7 +76,7 @@ const CombatHitParams data_ov003_020d842c[26] = {
 /// Loads the hit sprite from record `args->id`, positions it, plays its SE and accounts for it in
 /// the per-screen live effect count. Returns 0 when the sprite could not be loaded.
 // Nonmatching: select the named effect resource object instead of cross-object indexing.
-s32 func_ov003_0209ea94(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ea94(TaskPool* pool, Task* task, void* args) {
     CombatHitEffect*       eff = task->data;
     BtlEff_HitArgs*        p   = args;
     const CombatHitParams* def;
@@ -106,7 +110,7 @@ s32 func_ov003_0209ea94(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Advances the hit sprite and stops it once its animation has played out.
-s32 func_ov003_0209ebd0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ebd0(TaskPool* pool, Task* task, void* args) {
     CombatHitEffect* eff = task->data;
 
     if (SpriteMgr_IsAnimationFinished(&eff->effect.sprite.sprite) != 0) {
@@ -118,7 +122,7 @@ s32 func_ov003_0209ebd0(TaskPool* pool, Task* task, void* args) {
 
 /// Draws the hit sprite at its world position, depth-sorted by Y. The main-screen half is drawn a
 /// little lower than its projected Y.
-s32 func_ov003_0209ebfc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ebfc(TaskPool* pool, Task* task, void* args) {
     CombatHitEffect* eff = task->data;
     s32              posX;
     s32              posY;
@@ -140,7 +144,7 @@ s32 func_ov003_0209ebfc(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Releases the hit sprite and drops it from the per-screen live effect count.
-s32 func_ov003_0209ec9c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ec9c(TaskPool* pool, Task* task, void* args) {
     CombatHitEffect* eff = task->data;
 
     if (eff->effect.sprite.sprite.bits_0_1 == 1) {
@@ -154,7 +158,7 @@ s32 func_ov003_0209ec9c(TaskPool* pool, Task* task, void* args) {
 
 /// Task dispatcher: runs `stage` of the hit effect's stage table unless the encounter cutscene is
 /// running, which freezes every effect task.
-s32 func_ov003_0209ed08(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209ed08(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d841c;
 
     if (func_ov003_0208b690((u16)stage) != 0) {

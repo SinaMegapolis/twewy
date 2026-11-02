@@ -1,6 +1,7 @@
 #ifndef COMBAT_NOISE_BOSS03_H
 #define COMBAT_NOISE_BOSS03_H
 
+#include "Engine/EasyTask.h"
 #include "SndMgr.h"
 #include "SpriteMgr.h"
 #include <nitro/types.h>
@@ -241,5 +242,8 @@ struct Boss03 {
     /* 0x588 */ s16  unk588;
     /* 0x58A */ char pad_58A[0x6];
 };
+
+void func_ov017_021302f0(void*);
+s32  func_ov017_02137bd0(TaskPool* pool, Task* task, void* args, s32 stage);
 
 #endif /* COMBAT_NOISE_BOSS03_H */

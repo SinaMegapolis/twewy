@@ -2,12 +2,11 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dcea8;
+static const TaskHandle data_ov003_020dcea8;
 // One contiguous kind table indexed by effect variant.
-extern const Ov003StraightShotSKind data_ov003_020dceb4[10];
+static const Ov003StraightShotSKind data_ov003_020dceb4[10];
 
-s32 func_ov003_020b87a0(Ov003EffectContext* context, Ov003EffectState* effect);
-s32 func_ov003_020b8ab8(Ov003StraightShotS* self);
+static s32 func_ov003_020b8ab8(Ov003StraightShotS* self);
 
 s32 func_ov003_020b87a0(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085ec0(0))
@@ -23,7 +22,7 @@ s32 func_ov003_020b87a0(Ov003EffectContext* context, Ov003EffectState* effect) {
 // The phase-1 payload pointer lives in a block-local `state` so mwcc keeps it in r4,
 // matching the target's allocation.
 // Nonmatching: objdiff reports addend differences for calls to the local volley helper.
-s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychArgs*     arg = args;
     Ov003StraightShotS* self;
     switch (stage) {
@@ -104,7 +103,7 @@ s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 // Nonmatching: the args.kind load is scheduled one instruction earlier than in the target.
 // Nonmatching: an independent kind-table load is scheduled one instruction earlier than retail.
-s32 func_ov003_020b8ab8(Ov003StraightShotS* self) {
+static s32 func_ov003_020b8ab8(Ov003StraightShotS* self) {
     // Declaration order picks which callee-saved register each live value gets.
     s32                           left;
     CombatActor*                  player;
@@ -149,9 +148,9 @@ s32 func_ov003_020b8ab8(Ov003StraightShotS* self) {
     return func_ov003_020a5aa4(self->effect);
 }
 
-char                         data_ov003_020e4f88[28] = "Tsk_BtlPsy_StraightShot_S";
-const TaskHandle             data_ov003_020dcea8     = {data_ov003_020e4f88, func_ov003_020b87f8, sizeof(Ov003StraightShotS)};
-const Ov003StraightShotSKind data_ov003_020dceb4[10] = {
+static char             data_ov003_020e4f88[28] = "Tsk_BtlPsy_StraightShot_S";
+static const TaskHandle data_ov003_020dcea8     = {data_ov003_020e4f88, func_ov003_020b87f8, sizeof(Ov003StraightShotS)};
+static const Ov003StraightShotSKind data_ov003_020dceb4[10] = {
     {0x0C, 1, 1, 0, 0, 0x2000},
     {0x0D, 3, 0, 0, 0, 0x2000},
     {0x0D, 3, 0, 0, 1, 0x2000},

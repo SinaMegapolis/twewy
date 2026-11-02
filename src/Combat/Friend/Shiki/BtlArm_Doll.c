@@ -1,12 +1,11 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
-
-extern Vec* func_ov003_0208a114(u16);
 
 extern BinIdentifier data_ov003_020d77e0;
 
@@ -143,11 +142,11 @@ void func_ov004_020e9430(BtlArm_Doll* doll) {
     ArmUnk* var_r0;
 
     if (doll->unk_158 != 0) {
-        var_r0 = func_ov003_0208c810(doll->actor.position.x, doll->unk_15C, 1);
+        var_r0 = (void*)func_ov003_0208c810(doll->actor.position.x, doll->unk_15C, 1);
     } else {
-        var_r0 = func_ov003_0208c810(doll->actor.position.x, doll->unk_15C, 0);
+        var_r0 = (void*)func_ov003_0208c810(doll->actor.position.x, doll->unk_15C, 0);
         if (var_r0 == NULL) {
-            var_r0 = func_ov003_0208c810(doll->actor.position.x, doll->unk_15C, 1);
+            var_r0 = (void*)func_ov003_0208c810(doll->actor.position.x, doll->unk_15C, 1);
         }
     }
     if (var_r0 != NULL) {
@@ -188,12 +187,12 @@ void func_ov004_020e951c(BtlArm_Doll* doll) {
 
     var_r4 = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
     while (var_r4 != NULL) {
-        if (func_ov003_0208c79c(var_r4, doll->unk_15C) != 0) {
+        if (func_ov003_0208c79c((void*)var_r4, doll->unk_15C) != 0) {
             var_r5 += var_r4->actor.position.y;
             var_r6 += var_r4->actor.position.z - (var_r4->actor.unk_76 << 0xC);
             var_r7 += 1;
         }
-        var_r4 = func_ov003_02084984(&var_r4->unk_178);
+        var_r4 = func_ov003_02084984((void*)&var_r4->unk_178);
     }
 
     doll->unk_160 = ((BtlArm_Doll*)data_ov003_020e71b8->unk3D89C)->actor.position.x;
@@ -214,13 +213,13 @@ s32 func_ov004_020e95ec(BtlArm_Doll* doll, u16 arg1, s32 arg2, s32 arg3) {
         var_r5 = doll->actor.position.x + (arg2 << 0xC);
     }
     s32 temp_r4 = doll->actor.position.z + (arg3 << 0xC);
-    Vec vec     = *func_ov003_0208a114(arg1);
+    Vec vec     = *(const Vec*)func_ov003_0208a114(arg1);
 
     if (func_ov003_020a3330(0x21) != 0) {
         vec.z = (vec.z & ~0xF80000) | ((u32)(func_ov003_020a3468(0x21) << 0x1B) >> 8);
     }
 
-    if (func_ov003_0208a164(&vec, data_ov003_020e71b8->unk3D89C + 4, var_r5, doll->actor.position.y, temp_r4) == 1) {
+    if (func_ov003_0208a164((void*)&vec, data_ov003_020e71b8->unk3D89C + 4, var_r5, doll->actor.position.y, temp_r4) == 1) {
         return 1;
     }
     return 0;
@@ -372,7 +371,7 @@ void func_ov004_020e9b54(BtlArm_Doll* doll) {
 
     if ((doll->unk_148 != NULL) && (doll->unk_17E == 8)) {
         var_r4 = 0;
-        if (func_ov003_0208c79c(doll->unk_148, doll->unk_15C) != 0) {
+        if (func_ov003_0208c79c((void*)doll->unk_148, doll->unk_15C) != 0) {
             if (doll->unk_158 != 0) {
                 var_r0 = 16;
             } else {
@@ -597,7 +596,7 @@ s32 BtlArm_Doll_Init(TaskPool* pool, Task* task, void* args) {
     doll->actor.position.z = 0;
     doll->actor.zGravity   = 0x400;
     CombatSprite_LoadFromTable(1, &doll->unk_07C, &data_ov003_020d77e0, data_ov004_020f01d0, 0U, 63, 20);
-    func_ov003_020880e4(1, &doll->unk_0DC, doll);
+    func_ov003_020880e4(1, &doll->unk_0DC, (void*)doll);
     doll->unk_140 = doll->actor.position.x;
     doll->unk_144 = doll->actor.position.y;
     doll->unk_174 = 0;
@@ -631,7 +630,7 @@ s32 BtlArm_Doll_Render(TaskPool* pool, Task* task, void* args) {
     }
     doll->actor.position.z += doll->unk_174;
     CombatActor_Render(&doll->actor, &doll->unk_07C);
-    func_ov003_0208810c(&doll->unk_0DC, doll);
+    func_ov003_0208810c(&doll->unk_0DC, (void*)doll);
     doll->actor.position.z -= doll->unk_174;
     return 1;
 }

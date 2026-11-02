@@ -8,7 +8,7 @@ typedef struct BtlBlackHollCharge {
     /* 0x08 */ u8                reserved[0x60];
 } BtlBlackHollCharge; // Size: 0x68
 
-extern const TaskHandle data_ov003_020dc6dc;
+static const TaskHandle data_ov003_020dc6dc;
 
 s32 func_ov003_020ab1c4(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_020a63e4())
@@ -23,7 +23,7 @@ s32 func_ov003_020ab1c4(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020ab240(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ab240(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState**  arg = args;
     BtlBlackHollCharge* charge;
     switch (stage) {
@@ -58,5 +58,5 @@ s32 func_ov003_020ab240(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4a9c[24] = "Tsk_BtlPsy_BlackHoll";
-const TaskHandle data_ov003_020dc6dc     = {data_ov003_020e4a9c, func_ov003_020ab240, sizeof(BtlBlackHollCharge)};
+static char             data_ov003_020e4a9c[24] = "Tsk_BtlPsy_BlackHoll";
+static const TaskHandle data_ov003_020dc6dc     = {data_ov003_020e4a9c, func_ov003_020ab240, sizeof(BtlBlackHollCharge)};

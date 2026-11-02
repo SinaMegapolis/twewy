@@ -45,28 +45,24 @@ typedef struct BtlEnm010LserArgs {
     /* 0x14 */ s32              unk_14;
 } BtlEnm010LserArgs;
 
-extern char data_ov011_0212cbe8[20];
+static char data_ov011_0212cbe8[20];
 
-s32 func_ov011_02125cf8(TaskPool* pool, Task* task, void* args, s32 stage);
-s32 func_ov011_02125d48(BtlEnm010Lser* data, BtlEnm010LserArgs* args);
-s32 func_ov011_02125e14(BtlEnm010Lser* data);
-s32 func_ov011_02125f24(BtlEnm010Lser* data);
-s32 func_ov011_02126064(BtlEnm010Lser* data);
-s32 func_ov011_02126354(BtlEnm010Lser* data);
-s32 func_ov011_021265a8(BtlEnm010Lser* data);
+static s32 func_ov011_02125cf8(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov011_02125d48(BtlEnm010Lser* data, BtlEnm010LserArgs* args);
+static s32 func_ov011_02125e14(BtlEnm010Lser* data);
+static s32 func_ov011_02125f24(BtlEnm010Lser* data);
+static s32 func_ov011_02126064(BtlEnm010Lser* data);
+static s32 func_ov011_02126354(BtlEnm010Lser* data);
+static s32 func_ov011_021265a8(BtlEnm010Lser* data);
 
-extern s32 func_ov011_021260e8(BtlEnm010Lser* data);
-extern s32 func_ov011_02125e14(BtlEnm010Lser* data);
-extern s32 func_ov011_02126354(BtlEnm010Lser* data);
-extern s32 func_ov011_021265a8(BtlEnm010Lser* data);
-extern s32 func_ov011_02125d48(BtlEnm010Lser* data, BtlEnm010LserArgs* args);
+static s32 func_ov011_021260e8(BtlEnm010Lser* data);
 
-const TaskHandle data_ov011_0212c118 = {(const char*)data_ov011_0212cbe8, func_ov011_02125cf8, 596};
+static const TaskHandle data_ov011_0212c118 = {(const char*)data_ov011_0212cbe8, func_ov011_02125cf8, 596};
 
-const s32 data_ov011_0212c124[3] = {-32768, -65536, 0};
+static const s32 data_ov011_0212c124[3] = {-32768, -65536, 0};
 
-char data_ov011_0212cbe8[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
-                                0x30, 0x31, 0x30, 0x5F, 0x4C, 0x73, 0x65, 0x72, 0x00, 0x00};
+static char data_ov011_0212cbe8[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
+                                       0x30, 0x31, 0x30, 0x5F, 0x4C, 0x73, 0x65, 0x72, 0x00, 0x00};
 
 s32 func_ov011_02125b98(Ov003EnemyActor* owner, s32 arg1) {
     BtlEnm010LserArgs args;
@@ -82,13 +78,13 @@ s32 func_ov011_02125b98(Ov003EnemyActor* owner, s32 arg1) {
     return EasyTask_CreateTask(pool, &data_ov011_0212c118, 0, 0, 0, &args);
 }
 
-void func_ov011_02125c00(s32* outX, s32* outY, s32* outZ, CombatActor* owner, s32 index) {
+static void func_ov011_02125c00(s32* outX, s32* outY, s32* outZ, CombatActor* owner, s32 index) {
     *outX = (owner->isFlipped == 0) ? owner->position.x - 0x40000 : owner->position.x + 0x40000;
     *outY = owner->position.y;
     *outZ = owner->position.z + data_ov011_0212c124[index];
 }
 
-void func_ov011_02125c44(CombatActor* owner, BtlEnm010LserRec* rec, CombatSprite* sprite, s32 enabled) {
+static void func_ov011_02125c44(CombatActor* owner, BtlEnm010LserRec* rec, CombatSprite* sprite, s32 enabled) {
     s32 v = rec->unk_04 + rec->unk_08;
 
     rec->unk_04 = v;
@@ -114,7 +110,7 @@ void func_ov011_02125c44(CombatActor* owner, BtlEnm010LserRec* rec, CombatSprite
     rec->unk_08 = 0 - (RNG_Next(0x1001) + 0x1000);
 }
 
-s32 func_ov011_02125cf8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov011_02125cf8(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm010Lser* data = task->data;
 
     switch (stage) {
@@ -131,7 +127,7 @@ s32 func_ov011_02125cf8(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-s32 func_ov011_02125d48(BtlEnm010Lser* data, BtlEnm010LserArgs* args) {
+static s32 func_ov011_02125d48(BtlEnm010Lser* data, BtlEnm010LserArgs* args) {
     s32           i;
     CombatSprite* sp;
 
@@ -162,7 +158,7 @@ s32 func_ov011_02125d48(BtlEnm010Lser* data, BtlEnm010LserArgs* args) {
     return 1;
 }
 
-s32 func_ov011_02125e14(BtlEnm010Lser* data) {
+static s32 func_ov011_02125e14(BtlEnm010Lser* data) {
     s32           result = 0;
     s32           i;
     CombatSprite* sp;
@@ -202,7 +198,7 @@ s32 func_ov011_02125e14(BtlEnm010Lser* data) {
     return result;
 }
 
-s32 func_ov011_02125f24(BtlEnm010Lser* data) {
+static s32 func_ov011_02125f24(BtlEnm010Lser* data) {
     s32               flag;
     s32               i;
     CombatSprite*     sp;
@@ -244,7 +240,7 @@ s32 func_ov011_02125f24(BtlEnm010Lser* data) {
     return 1;
 }
 
-s32 func_ov011_02126064(BtlEnm010Lser* data) {
+static s32 func_ov011_02126064(BtlEnm010Lser* data) {
     if (data->unk_00 == NULL) {
         return 0;
     }
@@ -262,7 +258,7 @@ s32 func_ov011_02126064(BtlEnm010Lser* data) {
     return 1;
 }
 
-s32 func_ov011_021260e8(BtlEnm010Lser* data) {
+static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
     s32 mode;
 
     if (((u32)(data->unk_250 << 28) >> 31) != 0) {
@@ -329,7 +325,7 @@ s32 func_ov011_021260e8(BtlEnm010Lser* data) {
     return 1;
 }
 
-s32 func_ov011_02126354(BtlEnm010Lser* data) {
+static s32 func_ov011_02126354(BtlEnm010Lser* data) {
     s16               t1;
     s16               t0;
     s32               acc0;
@@ -386,7 +382,7 @@ s32 func_ov011_02126354(BtlEnm010Lser* data) {
     return 1;
 }
 
-s32 func_ov011_021265a8(BtlEnm010Lser* data) {
+static s32 func_ov011_021265a8(BtlEnm010Lser* data) {
     s32           i;
     CombatSprite* sp;
 

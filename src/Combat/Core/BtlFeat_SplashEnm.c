@@ -51,27 +51,27 @@ typedef struct BtlFeatSplashEnm {
 
 extern s32 data_ov003_020e71e0;
 
-s32 func_ov003_020bc088(BtlFeatSplashEnm* self);
-s32 func_ov003_020bc0ac(BtlFeatSplashEnm* self);
-s32 func_ov003_020bc080(BtlFeatSplashEnm* self);
-s32 func_ov003_020bc25c(BtlFeatSplashEnm* self);
-s32 func_ov003_020bc280(BtlFeatSplashEnm* self);
-s32 func_ov003_020bc538(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020bc5d4(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020bc638(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020bc640(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020bc648(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020bc088(BtlFeatSplashEnm* self);
+static s32 func_ov003_020bc0ac(BtlFeatSplashEnm* self);
+static s32 func_ov003_020bc080(BtlFeatSplashEnm* self);
+static s32 func_ov003_020bc25c(BtlFeatSplashEnm* self);
+static s32 func_ov003_020bc280(BtlFeatSplashEnm* self);
+static s32 func_ov003_020bc538(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020bc5d4(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020bc638(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020bc640(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020bc648(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// The script of mode 1: both enemy lists in turn.
-BtlFeatSplashEnmStep data_ov003_020e50d4[3] = {func_ov003_020bc088, func_ov003_020bc0ac, func_ov003_020bc080};
+static BtlFeatSplashEnmStep data_ov003_020e50d4[3] = {func_ov003_020bc088, func_ov003_020bc0ac, func_ov003_020bc080};
 /// The script of mode 0: random splashes.
-BtlFeatSplashEnmStep data_ov003_020e50e0[3] = {func_ov003_020bc25c, func_ov003_020bc280, func_ov003_020bc080};
+static BtlFeatSplashEnmStep data_ov003_020e50e0[3] = {func_ov003_020bc25c, func_ov003_020bc280, func_ov003_020bc080};
 
-char             data_ov003_020e50ec[0x18] = "Tsk_BtlFeat_SplashEnm";
-const TaskHandle data_ov003_020dd40c       = {data_ov003_020e50ec, func_ov003_020bc648, sizeof(BtlFeatSplashEnm)};
+static char             data_ov003_020e50ec[0x18] = "Tsk_BtlFeat_SplashEnm";
+static const TaskHandle data_ov003_020dd40c       = {data_ov003_020e50ec, func_ov003_020bc648, sizeof(BtlFeatSplashEnm)};
 
 /// The stage table of the task: build, update, draw, release.
-const TaskStages data_ov003_020dd418 = {
+static const TaskStages data_ov003_020dd418 = {
     func_ov003_020bc538,
     func_ov003_020bc5d4,
     func_ov003_020bc638,
@@ -82,19 +82,19 @@ const TaskStages data_ov003_020dd418 = {
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_020bc068(BtlFeatSplashEnm* self) {
+static void func_ov003_020bc068(BtlFeatSplashEnm* self) {
     self->step++;
 }
 
-void func_ov003_020bc078(BtlFeatSplashEnm* self, BtlFeatSplashEnmStep* steps) {
+static void func_ov003_020bc078(BtlFeatSplashEnm* self, BtlFeatSplashEnmStep* steps) {
     self->steps = steps;
 }
 
-s32 func_ov003_020bc080(BtlFeatSplashEnm* self) {
+static s32 func_ov003_020bc080(BtlFeatSplashEnm* self) {
     return 1;
 }
 
-s32 func_ov003_020bc088(BtlFeatSplashEnm* self) {
+static s32 func_ov003_020bc088(BtlFeatSplashEnm* self) {
     self->timer  = 0;
     self->shots  = 0;
     self->ticks  = 0;
@@ -103,7 +103,7 @@ s32 func_ov003_020bc088(BtlFeatSplashEnm* self) {
     return 2;
 }
 
-s32 func_ov003_020bc0ac(BtlFeatSplashEnm* self) {
+static s32 func_ov003_020bc0ac(BtlFeatSplashEnm* self) {
     self->ticks++;
     if (self->timer == 0) {
         self->timer = self->args.start;
@@ -138,7 +138,7 @@ s32 func_ov003_020bc0ac(BtlFeatSplashEnm* self) {
     return 0;
 }
 
-s32 func_ov003_020bc25c(BtlFeatSplashEnm* self) {
+static s32 func_ov003_020bc25c(BtlFeatSplashEnm* self) {
     self->timer = 0;
     self->shots = 0;
     self->delay = self->args.start;
@@ -146,7 +146,7 @@ s32 func_ov003_020bc25c(BtlFeatSplashEnm* self) {
     return 0;
 }
 
-s32 func_ov003_020bc280(BtlFeatSplashEnm* self) {
+static s32 func_ov003_020bc280(BtlFeatSplashEnm* self) {
     s32 x;
     s32 y;
     s32 z;
@@ -194,7 +194,7 @@ s32 func_ov003_020bc280(BtlFeatSplashEnm* self) {
     return 0;
 }
 
-s32 func_ov003_020bc538(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bc538(TaskPool* pool, Task* task, void* args) {
     BtlFeatSplashEnm*     self  = task->data;
     BtlFeatSplashEnmArgs* param = args;
 
@@ -213,7 +213,7 @@ s32 func_ov003_020bc538(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020bc5d4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bc5d4(TaskPool* pool, Task* task, void* args) {
     BtlFeatSplashEnm* self = task->data;
     s32               result;
 
@@ -229,15 +229,15 @@ s32 func_ov003_020bc5d4(TaskPool* pool, Task* task, void* args) {
     return data_ov003_020e71e0 != 1;
 }
 
-s32 func_ov003_020bc638(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bc638(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020bc640(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bc640(TaskPool* pool, Task* task, void* args) {
     return 0;
 }
 
-s32 func_ov003_020bc648(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020bc648(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020dd418;
 
     return stages.iter[stage](pool, task, args);

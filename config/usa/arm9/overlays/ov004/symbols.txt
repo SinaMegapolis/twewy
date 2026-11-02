@@ -63,38 +63,38 @@ func_ov004_020ea5cc kind:function(arm,size=0x68) addr:0x020ea5cc
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Friend/Shiki/BtlCmd_Esp.c
 //////////////////////////////////////////////////////////////////////
-func_ov004_020ea634 kind:function(arm,size=0x14) addr:0x020ea634
-func_ov004_020ea648 kind:function(arm,size=0xa8) addr:0x020ea648
-func_ov004_020ea6f0 kind:function(arm,size=0x40) addr:0x020ea6f0
-func_ov004_020ea730 kind:function(arm,size=0x7c) addr:0x020ea730
-func_ov004_020ea7ac kind:function(arm,size=0x48) addr:0x020ea7ac
-func_ov004_020ea7f4 kind:function(arm,size=0x84) addr:0x020ea7f4
-func_ov004_020ea878 kind:function(arm,size=0xb8) addr:0x020ea878
-func_ov004_020ea930 kind:function(arm,size=0x9c) addr:0x020ea930
-func_ov004_020ea9cc kind:function(arm,size=0x74) addr:0x020ea9cc
-BtlCmd_Esp_Init kind:function(arm,size=0x78) addr:0x020eaa40
-BtlCmd_Esp_Update kind:function(arm,size=0x4c) addr:0x020eaab8
-BtlCmd_Esp_Render kind:function(arm,size=0x4c) addr:0x020eab04
-BtlCmd_Esp_Destroy kind:function(arm,size=0x18) addr:0x020eab50
-BtlCmd_Esp_RunTask kind:function(arm,size=0x48) addr:0x020eab68
+func_ov004_020ea634 kind:function(arm,size=0x14) addr:0x020ea634 local
+func_ov004_020ea648 kind:function(arm,size=0xa8) addr:0x020ea648 local
+func_ov004_020ea6f0 kind:function(arm,size=0x40) addr:0x020ea6f0 local
+func_ov004_020ea730 kind:function(arm,size=0x7c) addr:0x020ea730 local
+func_ov004_020ea7ac kind:function(arm,size=0x48) addr:0x020ea7ac local
+func_ov004_020ea7f4 kind:function(arm,size=0x84) addr:0x020ea7f4 local
+func_ov004_020ea878 kind:function(arm,size=0xb8) addr:0x020ea878 local
+func_ov004_020ea930 kind:function(arm,size=0x9c) addr:0x020ea930 local
+func_ov004_020ea9cc kind:function(arm,size=0x74) addr:0x020ea9cc local
+BtlCmd_Esp_Init kind:function(arm,size=0x78) addr:0x020eaa40 local
+BtlCmd_Esp_Update kind:function(arm,size=0x4c) addr:0x020eaab8 local
+BtlCmd_Esp_Render kind:function(arm,size=0x4c) addr:0x020eab04 local
+BtlCmd_Esp_Destroy kind:function(arm,size=0x18) addr:0x020eab50 local
+BtlCmd_Esp_RunTask kind:function(arm,size=0x48) addr:0x020eab68 local
 BtlCmd_Esp_CreateTask kind:function(arm,size=0x50) addr:0x020eabb0
 
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Friend/Shiki/BtlCard_Esp.c
 //////////////////////////////////////////////////////////////////////
-func_ov004_020eac00 kind:function(arm,size=0xcc) addr:0x020eac00
-func_ov004_020eaccc kind:function(arm,size=0xdc) addr:0x020eaccc
-func_ov004_020eada8 kind:function(arm,size=0x18c) addr:0x020eada8
-func_ov004_020eaf34 kind:function(arm,size=0x7c) addr:0x020eaf34
-func_ov004_020eafb0 kind:function(arm,size=0x54) addr:0x020eafb0
-func_ov004_020eb004 kind:function(arm,size=0x9c) addr:0x020eb004
-func_ov004_020eb0a0 kind:function(arm,size=0x38) addr:0x020eb0a0
-func_ov004_020eb0d8 kind:function(arm,size=0x48) addr:0x020eb0d8
-BtlCard_Esp_Init kind:function(arm,size=0xac) addr:0x020eb120
-BtlCard_Esp_Update kind:function(arm,size=0x2c) addr:0x020eb1cc
-BtlCard_Esp_Render kind:function(arm,size=0x2c) addr:0x020eb1f8
-BtlCard_Esp_Destroy kind:function(arm,size=0x28) addr:0x020eb224
-BtlCard_Esp_RunTask kind:function(arm,size=0x68) addr:0x020eb24c
+func_ov004_020eac00 kind:function(arm,size=0xcc) addr:0x020eac00 local
+func_ov004_020eaccc kind:function(arm,size=0xdc) addr:0x020eaccc local
+func_ov004_020eada8 kind:function(arm,size=0x18c) addr:0x020eada8 local
+func_ov004_020eaf34 kind:function(arm,size=0x7c) addr:0x020eaf34 local
+func_ov004_020eafb0 kind:function(arm,size=0x54) addr:0x020eafb0 local
+func_ov004_020eb004 kind:function(arm,size=0x9c) addr:0x020eb004 local
+func_ov004_020eb0a0 kind:function(arm,size=0x38) addr:0x020eb0a0 local
+func_ov004_020eb0d8 kind:function(arm,size=0x48) addr:0x020eb0d8 local
+BtlCard_Esp_Init kind:function(arm,size=0xac) addr:0x020eb120 local
+BtlCard_Esp_Update kind:function(arm,size=0x2c) addr:0x020eb1cc local
+BtlCard_Esp_Render kind:function(arm,size=0x2c) addr:0x020eb1f8 local
+BtlCard_Esp_Destroy kind:function(arm,size=0x28) addr:0x020eb224 local
+BtlCard_Esp_RunTask kind:function(arm,size=0x68) addr:0x020eb24c local
 
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Friend/Shiki/BtlEff_Doll.c
@@ -274,7 +274,7 @@ data_ov004_020f01d0 kind:data(any) addr:0x020f01d0 local
 //////////////////////////////////////////////////////////////////////
 // src/Combat/Friend/Shiki/BtlCmd_Esp.c
 //////////////////////////////////////////////////////////////////////
-Tsk_BtlCmd_Esp kind:data(any) addr:0x020f0258
+Tsk_BtlCmd_Esp kind:data(any) addr:0x020f0258 local
 @1515 kind:data(any) addr:0x020f0264 local
 
 //////////////////////////////////////////////////////////////////////

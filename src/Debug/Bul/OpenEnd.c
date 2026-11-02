@@ -499,7 +499,7 @@ static const OverlayProcess OvlProc_OpenEnd = {
     .exit = OpenEnd_Destroy,
 };
 
-void ProcessOverlay_OpenEnd(OpenEndState* state) {
+void ProcessOverlay_OpenEnd(void* state) {
     u32 stage = MainOvlDisp_GetProcessStage();
     if (stage == PROCESS_STAGE_EXIT) {
         OpenEnd_Destroy(state);

@@ -9,6 +9,7 @@
 #include "Player/Inventory.h"
 #include "Save.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 #include <nitro/fx.h>
 #include <nitro/mi/cpumem.h>
 
@@ -62,71 +63,37 @@ extern const BinIdentifier data_ov003_020d7800;
 extern const TaskHandle    data_ov003_020d882c;
 extern const s16           data_0205e4e0[];
 
-extern Ov003ActionEffect* func_ov003_02087358(void);
-extern void               func_ov003_020872b4(Ov003ActionEffect* effect);
-extern u16                func_ov003_0208765c(u16* state, s32 value, s32 arg2);
-extern s32                func_ov003_020a58d4(void);
-extern s32                func_ov003_020a58c4(void);
-extern void               func_ov003_0209f000(s16 animIndex);
-extern void               func_ov003_0209c568(s32 arg0);
-extern s32                func_ov003_0208cae0(s32 includePins);
-extern void               func_ov003_0208b278(u32 state);
-extern void               func_ov003_02083000(s32 arg0, void* actor);
-extern void               func_ov003_02083074(void* actor);
-extern void               func_ov003_02087540(s32 arg0);
-extern void               func_02026590(s32* value, s32 target, u16 step);
+static void func_ov003_02090288(BtlPlayer00* self);
+static void func_ov003_02090588(BtlPlayer00* self);
+static void func_ov003_02090688(BtlPlayer00* self);
+static void func_ov003_020908c4(BtlPlayer00* self);
+static void func_ov003_02090a5c(BtlPlayer00* self);
+static void func_ov003_02090c18(BtlPlayer00* self);
+static void func_ov003_02090ec4(BtlPlayer00* self);
+static void func_ov003_02090f50(BtlPlayer00* self);
+static void func_ov003_020910ac(BtlPlayer00* self);
+static void func_ov003_02091214(BtlPlayer00* self);
+static void func_ov003_02091468(BtlPlayer00* self);
+static void func_ov003_02091680(BtlPlayer00* self);
+static void func_ov003_02091850(BtlPlayer00* self);
+static void func_ov003_02091a14(BtlPlayer00* self);
+static void func_ov003_02091b7c(BtlPlayer00* self);
+static void func_ov003_02091d10(BtlPlayer00* self);
+static void func_ov003_02091ea0(BtlPlayer00* self);
+static void func_ov003_02091fcc(BtlPlayer00* self);
+static void func_ov003_020920c8(BtlPlayer00* self);
+static void func_ov003_0209228c(BtlPlayer00* self);
+static s32  func_ov003_020924c0(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02092690(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02092880(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_02092914(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_0209293c(TaskPool* pool, Task* task, void* args, s32 stage);
 
-void func_ov003_0208f384(BtlPlayer00* self, BtlPlayer00State state);
-void func_ov003_0208f39c(BtlPlayer00* self, const BtlPlayer00Step* step);
-void func_ov003_0208f418(CombatSprite* sprite, s32 x);
-void func_ov003_0208f498(BtlPlayer00* self, s32 flag);
-void func_ov003_0208f564(BtlPlayer00* self);
-void func_ov003_0208f5e0(BtlPlayer00* self, s32 flag);
-BOOL func_ov003_0208f624(BtlPlayer00* self);
-BOOL func_ov003_0208f664(BtlPlayer00* self);
-BOOL func_ov003_0208f8d4(BtlPlayer00* self);
-void func_ov003_0208f998(BtlPlayer00* self, CombatActor* target, s32 near);
-void func_ov003_0208fa78(BtlPlayer00* self, s32 mode);
-BOOL func_ov003_0208fc24(BtlPlayer00* self, u16 id, s32 x, s32 z);
-BOOL func_ov003_0208fc7c(BtlPlayer00* self, u16 id, s32 x, s32 z);
-void func_ov003_0208fd6c(BtlPlayer00* self, s32 x, s32 z, s32 flag);
-void func_ov003_0208fde0(BtlPlayer00* self);
-void func_ov003_0208fe10(BtlPlayer00* self);
-void func_ov003_0208fff8(BtlPlayer00* self);
-void func_ov003_02090288(BtlPlayer00* self);
-void func_ov003_02090318(BtlPlayer00* self);
-void func_ov003_0209040c(BtlPlayer00* self);
-void func_ov003_0209052c(BtlPlayer00* self);
-void func_ov003_02090588(BtlPlayer00* self);
-void func_ov003_02090688(BtlPlayer00* self);
-void func_ov003_020908c4(BtlPlayer00* self);
-void func_ov003_02090a5c(BtlPlayer00* self);
-void func_ov003_02090c18(BtlPlayer00* self);
-void func_ov003_02090ec4(BtlPlayer00* self);
-void func_ov003_02090f50(BtlPlayer00* self);
-void func_ov003_020910ac(BtlPlayer00* self);
-void func_ov003_02091214(BtlPlayer00* self);
-void func_ov003_02091468(BtlPlayer00* self);
-void func_ov003_02091680(BtlPlayer00* self);
-void func_ov003_02091850(BtlPlayer00* self);
-void func_ov003_02091a14(BtlPlayer00* self);
-void func_ov003_02091b7c(BtlPlayer00* self);
-void func_ov003_02091d10(BtlPlayer00* self);
-void func_ov003_02091ea0(BtlPlayer00* self);
-void func_ov003_02091fcc(BtlPlayer00* self);
-void func_ov003_020920c8(BtlPlayer00* self);
-void func_ov003_0209228c(BtlPlayer00* self);
-s32  func_ov003_020924c0(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02092690(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02092880(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02092914(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209293c(TaskPool* pool, Task* task, void* args, s32 stage);
-
-char             data_ov003_020e3b08[16] = "Tsk_BtlPlayer00";
+static char      data_ov003_020e3b08[16] = "Tsk_BtlPlayer00";
 const TaskHandle data_ov003_020d7944     = {data_ov003_020e3b08, func_ov003_0209293c, sizeof(BtlPlayer00)};
 
 /// The stage table of the player: build, update, draw, release.
-const TaskStages data_ov003_020d7950 = {
+static const TaskStages data_ov003_020d7950 = {
     func_ov003_020924c0,
     func_ov003_02092690,
     func_ov003_02092880,
@@ -134,7 +101,7 @@ const TaskStages data_ov003_020d7950 = {
 };
 
 /// The scripted steps of the three attack animations.
-const BtlPlayer00Step data_ov003_020d7960[5] = {
+static const BtlPlayer00Step data_ov003_020d7960[5] = {
     { 0, -2, 0},
     { 3, -3, 0},
     { 6, -8, 0},
@@ -142,7 +109,7 @@ const BtlPlayer00Step data_ov003_020d7960[5] = {
     {-1,  0, 0},
 };
 
-const BtlPlayer00Step data_ov003_020d797e[6] = {
+static const BtlPlayer00Step data_ov003_020d797e[6] = {
     { 0,  0, -3},
     { 3, -9,  0},
     { 6, -8,  1},
@@ -151,7 +118,7 @@ const BtlPlayer00Step data_ov003_020d797e[6] = {
     {-1,  0,  0},
 };
 
-const BtlPlayer00Step data_ov003_020d79a2[7] = {
+static const BtlPlayer00Step data_ov003_020d79a2[7] = {
     { 2, -3, 0},
     { 3, -6, 0},
     { 6, -9, 0},
@@ -162,7 +129,7 @@ const BtlPlayer00Step data_ov003_020d79a2[7] = {
 };
 
 /// The animation table of the player sprite.
-const SpriteAnimEntry data_ov003_020d79cc[48] = {
+static const SpriteAnimEntry data_ov003_020d79cc[48] = {
     {   1,    3,    2,   0},
     {   1,    3,    2,   3},
     {   1,    3,    2,   1},
@@ -239,14 +206,14 @@ static inline u16 BtlPlayer00_Tick(CombatSprite* sprite) {
 // States
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_0208f384(BtlPlayer00* self, BtlPlayer00State state) {
+static void func_ov003_0208f384(BtlPlayer00* self, BtlPlayer00State state) {
     self->update = state;
     self->phase  = 0;
     self->timer  = 0;
 }
 
 /// Plays a scripted move: at the step whose frame is the current timer the player jumps.
-void func_ov003_0208f39c(BtlPlayer00* self, const BtlPlayer00Step* step) {
+static void func_ov003_0208f39c(BtlPlayer00* self, const BtlPlayer00Step* step) {
     s32 timer;
 
     if (step->frame == -1) {
@@ -271,7 +238,7 @@ void func_ov003_0208f39c(BtlPlayer00* self, const BtlPlayer00Step* step) {
 }
 
 /// Footstep sounds of the walk animation.
-void func_ov003_0208f418(CombatSprite* sprite, s32 x) {
+static void func_ov003_0208f418(CombatSprite* sprite, s32 x) {
     u16 tick;
 
     if (sprite->sprite.bit_11 != 1) {
@@ -289,7 +256,7 @@ void func_ov003_0208f418(CombatSprite* sprite, s32 x) {
 }
 
 /// A voice line of the player when hit (`flag` != 0) or when attacking.
-void func_ov003_0208f498(BtlPlayer00* self, s32 flag) {
+static void func_ov003_0208f498(BtlPlayer00* self, s32 flag) {
     if (flag != 0) {
         switch (RNG_Next(2)) {
             case 0:
@@ -319,7 +286,7 @@ void func_ov003_0208f498(BtlPlayer00* self, s32 flag) {
 }
 
 /// The partner's voice line.
-void func_ov003_0208f564(BtlPlayer00* self) {
+static void func_ov003_0208f564(BtlPlayer00* self) {
     Ov003Global* global = data_ov003_020e71b8;
 
     switch (global->unk3D88D) {
@@ -335,7 +302,7 @@ void func_ov003_0208f564(BtlPlayer00* self) {
     }
 }
 
-void func_ov003_0208f5e0(BtlPlayer00* self, s32 flag) {
+static void func_ov003_0208f5e0(BtlPlayer00* self, s32 flag) {
     if (flag != 0) {
         func_ov003_02087804(1);
         return;
@@ -348,7 +315,7 @@ void func_ov003_0208f5e0(BtlPlayer00* self, s32 flag) {
 }
 
 /// Takes the oldest queued attack as the one to play.
-BOOL func_ov003_0208f624(BtlPlayer00* self) {
+static BOOL func_ov003_0208f624(BtlPlayer00* self) {
     Ov003ActionEffect* effect = func_ov003_02087358();
 
     if (effect == NULL) {
@@ -360,7 +327,7 @@ BOOL func_ov003_0208f624(BtlPlayer00* self) {
 }
 
 /// Starts the attack the touch recognizer asked for. Returns whether one started.
-BOOL func_ov003_0208f664(BtlPlayer00* self) {
+static BOOL func_ov003_0208f664(BtlPlayer00* self) {
     switch (func_ov003_020a58d4()) {
         case 1:
             if (func_ov003_0208f624(self)) {
@@ -432,7 +399,7 @@ BOOL func_ov003_0208f664(BtlPlayer00* self) {
 }
 
 /// Starts a drag when the stylus travelled far from where it came down.
-BOOL func_ov003_0208f8d4(BtlPlayer00* self) {
+static BOOL func_ov003_0208f8d4(BtlPlayer00* self) {
     Ov003Global* global;
     s32          dx;
     s32          dy;
@@ -451,7 +418,7 @@ BOOL func_ov003_0208f8d4(BtlPlayer00* self) {
 }
 
 /// Walks towards `target`, to its side (`near` keeps the player at most a screen away from the borders).
-void func_ov003_0208f998(BtlPlayer00* self, CombatActor* target, s32 near) {
+static void func_ov003_0208f998(BtlPlayer00* self, CombatActor* target, s32 near) {
     s32 targetX;
     s32 goal;
     s32 targetY;
@@ -493,7 +460,7 @@ void func_ov003_0208f998(BtlPlayer00* self, CombatActor* target, s32 near) {
 }
 
 /// Follows the stylus: the player glides towards the touch point (`mode` != 0 is the quick follow).
-void func_ov003_0208fa78(BtlPlayer00* self, s32 mode) {
+static void func_ov003_0208fa78(BtlPlayer00* self, s32 mode) {
     s32 vx;
     s32 vy;
 
@@ -545,7 +512,7 @@ void func_ov003_0208fa78(BtlPlayer00* self, s32 mode) {
 }
 
 /// Casts the hit box `id` of the current attack `x`,`z` pixels in front of the player.
-BOOL func_ov003_0208fc24(BtlPlayer00* self, u16 id, s32 x, s32 z) {
+static BOOL func_ov003_0208fc24(BtlPlayer00* self, u16 id, s32 x, s32 z) {
     Ov003EffectState* effect = self->command.state;
     s32               hitX;
 
@@ -559,7 +526,7 @@ BOOL func_ov003_0208fc24(BtlPlayer00* self, u16 id, s32 x, s32 z) {
 }
 
 /// The same for a multi-hit attack: counts the hits and puts the finishing flag on the last one.
-BOOL func_ov003_0208fc7c(BtlPlayer00* self, u16 id, s32 x, s32 z) {
+static BOOL func_ov003_0208fc7c(BtlPlayer00* self, u16 id, s32 x, s32 z) {
     Ov003EffectState* effect = self->command.state;
     s32               hits   = effect->unk_08;
     s32               last   = hits >= effect->flag;
@@ -593,7 +560,7 @@ BOOL func_ov003_0208fc7c(BtlPlayer00* self, u16 id, s32 x, s32 z) {
     return TRUE;
 }
 
-void func_ov003_0208fd6c(BtlPlayer00* self, s32 x, s32 z, s32 flag) {
+static void func_ov003_0208fd6c(BtlPlayer00* self, s32 x, s32 z, s32 flag) {
     s32 hitX;
     s32 hitZ;
 
@@ -611,7 +578,7 @@ void func_ov003_0208fd6c(BtlPlayer00* self, s32 x, s32 z, s32 flag) {
 }
 
 /// The first state of a battle: waits for the battle to start.
-void func_ov003_0208fde0(BtlPlayer00* self) {
+static void func_ov003_0208fde0(BtlPlayer00* self) {
     if (data_ov003_020e71b8->unk3D874 != 2) {
         return;
     }
@@ -619,7 +586,7 @@ void func_ov003_0208fde0(BtlPlayer00* self) {
 }
 
 /// Stands up from a hit.
-void func_ov003_0208fe10(BtlPlayer00* self) {
+static void func_ov003_0208fe10(BtlPlayer00* self) {
     if (self->actor.periodicEffectMode == 4 && func_ov003_020a58c4() == 3 && func_ov003_0208f624(self)) {
         func_ov003_0208f384(self, func_ov003_0209228c);
         return;
@@ -672,7 +639,7 @@ void func_ov003_0208fe10(BtlPlayer00* self) {
 }
 
 /// Knocked into the air and falling down.
-void func_ov003_0208fff8(BtlPlayer00* self) {
+static void func_ov003_0208fff8(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -738,7 +705,7 @@ void func_ov003_0208fff8(BtlPlayer00* self) {
 }
 
 /// Gets up with the help of the revive item.
-void func_ov003_02090288(BtlPlayer00* self) {
+static void func_ov003_02090288(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             CombatSprite_SetAnimFromTable(&self->sprite, 13, 1);
@@ -756,7 +723,7 @@ void func_ov003_02090288(BtlPlayer00* self) {
 }
 
 /// The battle ends in a win: the player cheers.
-void func_ov003_02090318(BtlPlayer00* self) {
+static void func_ov003_02090318(BtlPlayer00* self) {
     if (data_ov003_020e71b8->unk3D874 != 2) {
         return;
     }
@@ -777,7 +744,7 @@ void func_ov003_02090318(BtlPlayer00* self) {
 }
 
 /// The battle ends in a loss: the player collapses.
-void func_ov003_0209040c(BtlPlayer00* self) {
+static void func_ov003_0209040c(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             func_ov003_02084694(&self->collider, 1);
@@ -807,7 +774,7 @@ void func_ov003_0209040c(BtlPlayer00* self) {
     func_ov003_02083ab0(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
 }
 
-void func_ov003_0209052c(BtlPlayer00* self) {
+static void func_ov003_0209052c(BtlPlayer00* self) {
     if (func_ov003_0208f664(self)) {
         return;
     }
@@ -821,7 +788,7 @@ void func_ov003_0209052c(BtlPlayer00* self) {
 }
 
 /// Idle: stands, walks in place and waits for the stylus.
-void func_ov003_02090588(BtlPlayer00* self) {
+static void func_ov003_02090588(BtlPlayer00* self) {
     self->flags &= ~2;
     switch (func_ov003_0208765c(&self->comboState, data_ov003_020e71b8->unk3D8D6, self->timer)) {
         case 1:
@@ -846,7 +813,7 @@ void func_ov003_02090588(BtlPlayer00* self) {
 }
 
 /// Dragged by the stylus.
-void func_ov003_02090688(BtlPlayer00* self) {
+static void func_ov003_02090688(BtlPlayer00* self) {
     Ov003Global* global;
     s32          dx;
     s32          dy;
@@ -894,7 +861,7 @@ void func_ov003_02090688(BtlPlayer00* self) {
 }
 
 /// The dash: the stylus is far away and the player runs to it.
-void func_ov003_020908c4(BtlPlayer00* self) {
+static void func_ov003_020908c4(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -936,7 +903,7 @@ void func_ov003_020908c4(BtlPlayer00* self) {
 }
 
 /// The dodge roll.
-void func_ov003_02090a5c(BtlPlayer00* self) {
+static void func_ov003_02090a5c(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -980,7 +947,7 @@ void func_ov003_02090a5c(BtlPlayer00* self) {
 }
 
 /// A slash combo: three animations by the kind of the queued attack, hits at frame 10.
-void func_ov003_02090c18(BtlPlayer00* self) {
+static void func_ov003_02090c18(BtlPlayer00* self) {
     if (self->timer == 0) {
         func_ov003_0208f5e0(self, self->command.state->unk_08 >= self->command.state->flag);
         switch (self->command.angle) {
@@ -1047,7 +1014,7 @@ void func_ov003_02090c18(BtlPlayer00* self) {
     self->timer++;
 }
 
-void func_ov003_02090ec4(BtlPlayer00* self) {
+static void func_ov003_02090ec4(BtlPlayer00* self) {
     if (self->timer == 0) {
         CombatSprite_SetAnimFromTable(&self->sprite, 0x2B, 1);
         self->timer++;
@@ -1062,7 +1029,7 @@ void func_ov003_02090ec4(BtlPlayer00* self) {
     }
 }
 
-void func_ov003_02090f50(BtlPlayer00* self) {
+static void func_ov003_02090f50(BtlPlayer00* self) {
     u16 tick;
 
     if (self->timer == 0) {
@@ -1096,7 +1063,7 @@ void func_ov003_02090f50(BtlPlayer00* self) {
     self->timer++;
 }
 
-void func_ov003_020910ac(BtlPlayer00* self) {
+static void func_ov003_020910ac(BtlPlayer00* self) {
     if (self->timer == 0) {
         func_ov003_0208f5e0(self, 0);
         func_ov003_0209e9f8(0, 1, self->actor.position.x, self->actor.position.y, 0, self->actor.isFlipped != 0);
@@ -1128,7 +1095,7 @@ void func_ov003_020910ac(BtlPlayer00* self) {
     self->timer++;
 }
 
-void func_ov003_02091214(BtlPlayer00* self) {
+static void func_ov003_02091214(BtlPlayer00* self) {
     Ov003EffectState* effect = self->command.state;
     s32               speed  = effect->params[0];
     u16               tick;
@@ -1180,7 +1147,7 @@ void func_ov003_02091214(BtlPlayer00* self) {
     self->timer++;
 }
 
-void func_ov003_02091468(BtlPlayer00* self) {
+static void func_ov003_02091468(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -1239,7 +1206,7 @@ void func_ov003_02091468(BtlPlayer00* self) {
     }
 }
 
-void func_ov003_02091680(BtlPlayer00* self) {
+static void func_ov003_02091680(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -1291,7 +1258,7 @@ void func_ov003_02091680(BtlPlayer00* self) {
     }
 }
 
-void func_ov003_02091850(BtlPlayer00* self) {
+static void func_ov003_02091850(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             if (data_ov003_020e71b8->unk3D8C8 != 0) {
@@ -1344,7 +1311,7 @@ void func_ov003_02091850(BtlPlayer00* self) {
     }
 }
 
-void func_ov003_02091a14(BtlPlayer00* self) {
+static void func_ov003_02091a14(BtlPlayer00* self) {
     u16 tick;
 
     if (self->timer == 0) {
@@ -1379,7 +1346,7 @@ void func_ov003_02091a14(BtlPlayer00* self) {
     self->timer++;
 }
 
-void func_ov003_02091b7c(BtlPlayer00* self) {
+static void func_ov003_02091b7c(BtlPlayer00* self) {
     u16 tick;
 
     if (self->timer == 0) {
@@ -1414,7 +1381,7 @@ void func_ov003_02091b7c(BtlPlayer00* self) {
 }
 
 /// Held up in the air by the stylus.
-void func_ov003_02091d10(BtlPlayer00* self) {
+static void func_ov003_02091d10(BtlPlayer00* self) {
     s16 sine;
 
     switch (self->phase) {
@@ -1449,7 +1416,7 @@ void func_ov003_02091d10(BtlPlayer00* self) {
     func_ov003_02087f28(0x150, self->actor.position.x);
 }
 
-void func_ov003_02091ea0(BtlPlayer00* self) {
+static void func_ov003_02091ea0(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -1475,7 +1442,7 @@ void func_ov003_02091ea0(BtlPlayer00* self) {
     }
 }
 
-void func_ov003_02091fcc(BtlPlayer00* self) {
+static void func_ov003_02091fcc(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -1501,7 +1468,7 @@ void func_ov003_02091fcc(BtlPlayer00* self) {
 }
 
 /// Drags the marker with the stylus: the player is carried along.
-void func_ov003_020920c8(BtlPlayer00* self) {
+static void func_ov003_020920c8(BtlPlayer00* self) {
     if (self->timer == 0) {
         self->flags |= 2;
         self->actor.flags |= 0x10;
@@ -1536,7 +1503,7 @@ void func_ov003_020920c8(BtlPlayer00* self) {
 }
 
 /// A special: the queued effect hits for a share of the gauge.
-void func_ov003_0209228c(BtlPlayer00* self) {
+static void func_ov003_0209228c(BtlPlayer00* self) {
     Ov003EffectState* effect = self->command.state;
     u16               anim;
     s32               hitFrame;
@@ -1598,7 +1565,7 @@ void func_ov003_0209228c(BtlPlayer00* self) {
 // Task
 // ---------------------------------------------------------------------------------------------
 
-s32 func_ov003_020924c0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020924c0(TaskPool* pool, Task* task, void* args) {
     BtlPlayer00* self = task->data;
     Ov003Global* global;
 
@@ -1633,7 +1600,7 @@ s32 func_ov003_020924c0(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02092690(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02092690(TaskPool* pool, Task* task, void* args) {
     BtlPlayer00* self = task->data;
     s32          flags;
 
@@ -1668,8 +1635,8 @@ s32 func_ov003_02092690(TaskPool* pool, Task* task, void* args) {
     if (self->update != NULL) {
         self->update(self);
     }
-    func_ov003_02083000(0, self);
-    func_ov003_02083074(self);
+    CombatActor_UpdateEffects(0, &self->actor);
+    CombatActor_UpdatePhysics(&self->actor);
     func_ov003_02087458(0, &self->gaugeTimer);
     func_ov003_02087540(0);
     if (self->collider.hitMask != 0) {
@@ -1691,7 +1658,7 @@ s32 func_ov003_02092690(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02092880(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02092880(TaskPool* pool, Task* task, void* args) {
     BtlPlayer00* self = task->data;
 
     if (!(self->flags & 1)) {
@@ -1709,7 +1676,7 @@ s32 func_ov003_02092880(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_02092914(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02092914(TaskPool* pool, Task* task, void* args) {
     BtlPlayer00* self = task->data;
 
     CombatSprite_Release(&self->sprite);
@@ -1718,7 +1685,7 @@ s32 func_ov003_02092914(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209293c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209293c(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7950;
 
     if (func_ov003_0208b690(stage)) {

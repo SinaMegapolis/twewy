@@ -155,4 +155,7 @@ void ADXT_ExecServer();
 
 void ADXT_StartFname(ADXT adxt, const char* filename);
 
+void ADXT_SetExtraInfo(ADXT adxt, char flag);
+void func_02016900(void);
+
 #endif // ADXT_H

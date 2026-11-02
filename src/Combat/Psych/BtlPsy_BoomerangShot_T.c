@@ -2,9 +2,9 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32                      func_ov003_020a62b8(s32, s32, s32, s32);
-extern const TaskHandle         data_ov003_020dce28;
-extern const Ov003BoomerangKind data_ov003_020dce34[3];
+static const TaskHandle         data_ov003_020dce28;
+static const Ov003BoomerangKind data_ov003_020dce34[3];
+static s32                      func_ov003_020b81cc(Ov003BoomerangShotT* self);
 
 s32 func_ov003_020b7f9c(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(2))
@@ -17,7 +17,7 @@ s32 func_ov003_020b7f9c(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b7ff4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b7ff4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychArgs*      arg = args;
     Ov003BoomerangShotT* self;
     switch (stage) {
@@ -80,7 +80,7 @@ s32 func_ov003_020b7ff4(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-s32 func_ov003_020b81cc(Ov003BoomerangShotT* self) {
+static s32 func_ov003_020b81cc(Ov003BoomerangShotT* self) {
     s32          originY;
     CombatActor* player;
     s32          angle;
@@ -135,9 +135,9 @@ s32 func_ov003_020b81cc(Ov003BoomerangShotT* self) {
     return func_ov003_020a5aa4(self->effect);
 }
 
-char                     data_ov003_020e4f54[28] = "Tsk_BtlPsy_BoomerangShot_T";
-const TaskHandle         data_ov003_020dce28     = {data_ov003_020e4f54, func_ov003_020b7ff4, sizeof(Ov003BoomerangShotT)};
-const Ov003BoomerangKind data_ov003_020dce34[3]  = {
+static char                     data_ov003_020e4f54[28] = "Tsk_BtlPsy_BoomerangShot_T";
+static const TaskHandle         data_ov003_020dce28 = {data_ov003_020e4f54, func_ov003_020b7ff4, sizeof(Ov003BoomerangShotT)};
+static const Ov003BoomerangKind data_ov003_020dce34[3] = {
     {17, 0x2000},
     {17, 0x2000},
     {18, 0x2000}

@@ -1,6 +1,8 @@
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
+#include "main_02026528.h"
 #include <nitro/fx.h>
 
 /// MARK: Boss01s_FlyUG
@@ -13,9 +15,6 @@ typedef struct {
     /* 0x7A */ s16          unk_7A;
     /* 0x7C */ s16          unk_7C;
 } Boss01s_FlyUG; // Size: 0x80
-
-extern void func_02026590(s32, s32, u16);
-extern void func_020265d4(s32, s32, u16);
 
 s32 Boss01s_FlyUG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -136,7 +135,8 @@ s32 Boss01s_FlyUG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    func_ov003_02084348(func_ov003_020c3908(flyUG), &spA, &sp8, flyUG->unk_60.x, flyUG->unk_60.y, flyUG->unk_60.z);
+    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)flyUG), &spA, &sp8, flyUG->unk_60.x, flyUG->unk_60.y,
+                        flyUG->unk_60.z);
     CombatSprite_SetPosition(&flyUG->sprite, spA, sp8);
     func_ov003_02082730(&flyUG->sprite, 0x7FFFFFFF);
     CombatSprite_Render(&flyUG->sprite);

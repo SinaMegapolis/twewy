@@ -3,9 +3,7 @@
 #include "Display.h"
 #include "Engine/EasyTask.h"
 #include "Field/Tasks/Fld_LargeGingo.h"
-
-extern void func_02026590(s32* value, s32 target, u16 frames);
-extern void func_020265d4(s32* value, s32 target, u16 scale);
+#include "main_02026528.h"
 
 typedef struct {
     /* 0x00 */ u16 timer;

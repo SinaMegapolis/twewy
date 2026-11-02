@@ -14,9 +14,6 @@
 
 void func_0203a96c(u8* macAddress);
 s32  func_020417e0(RTCDate* date, RTCTime* time);
-u16  Inventory_GetNoiseReportCount(void);
-u16  Inventory_GetMasteredPinCount(void);
-u16  Inventory_GetCollectedItemCount(void);
 
 s32 Save_IsPointInRect(s32 x, s32 y, s32 left, s32 top, s16 width, s16 height) {
     if ((x >= left) && (x <= (left + width)) && (y >= top) && (y <= (top + height))) {

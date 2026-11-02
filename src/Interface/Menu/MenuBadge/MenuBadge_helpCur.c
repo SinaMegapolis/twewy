@@ -1,4 +1,5 @@
 #include "Interface/Menu/MenuBadge.h"
+#include "Player/Inventory.h"
 
 typedef struct {
     /* 0x00 */ Sprite           sprites[3];
@@ -10,8 +11,6 @@ typedef struct {
     /* 0x0 */ s32              dataType;
     /* 0x4 */ MenuBadgeObject* menuBadge;
 } MenuBadge_helpCur_Args;
-
-extern s32 Inventory_IsHelpSeen(s32 arg0);
 
 static SpriteFrameInfo* MenuBadge_helpCur_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
 static s32              MenuBadge_helpCur_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);

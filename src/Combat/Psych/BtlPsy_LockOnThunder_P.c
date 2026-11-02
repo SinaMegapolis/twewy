@@ -3,9 +3,9 @@
 #include "SndMgrSeIdx.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32              func_ov003_020a632c(s32, s32, s32, s32);
-extern const TaskHandle data_ov003_020dc990;
+static const TaskHandle data_ov003_020dc990;
+static s32              func_ov003_020b3bdc(Ov003LockOnThunderP* self);
+static s32              func_ov003_020b3d5c(Ov003LockOnThunderP* self);
 
 s32 func_ov003_020b39c0(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_020a63e4())
@@ -18,7 +18,7 @@ s32 func_ov003_020b39c0(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b3a14(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b3a14(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState**   arg = args;
     Ov003LockOnThunderP* self;
     switch (stage) {
@@ -75,7 +75,7 @@ s32 func_ov003_020b3a14(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-s32 func_ov003_020b3bdc(Ov003LockOnThunderP* self) {
+static s32 func_ov003_020b3bdc(Ov003LockOnThunderP* self) {
     s32 stop = 0;
     if (!func_ov003_020a5aa4(self->effect) || func_ov003_020a63a8(self->effect)) {
         func_ov003_020a6464(0);
@@ -110,7 +110,7 @@ s32 func_ov003_020b3bdc(Ov003LockOnThunderP* self) {
     return 1;
 }
 
-s32 func_ov003_020b3d5c(Ov003LockOnThunderP* self) {
+static s32 func_ov003_020b3d5c(Ov003LockOnThunderP* self) {
     if (self->finished)
         return 0;
     if (Sprite_HasAnimation(&self->sprite.sprite)) {
@@ -121,5 +121,5 @@ s32 func_ov003_020b3d5c(Ov003LockOnThunderP* self) {
     return 1;
 }
 
-char             data_ov003_020e4dfc[28] = "Tsk_BtlPsy_LockOnThunder_P";
-const TaskHandle data_ov003_020dc990     = {data_ov003_020e4dfc, func_ov003_020b3a14, sizeof(Ov003LockOnThunderP)};
+static char             data_ov003_020e4dfc[28] = "Tsk_BtlPsy_LockOnThunder_P";
+static const TaskHandle data_ov003_020dc990     = {data_ov003_020e4dfc, func_ov003_020b3a14, sizeof(Ov003LockOnThunderP)};

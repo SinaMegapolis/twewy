@@ -5,18 +5,18 @@
 
 #include <nitro/mi/cpumem.h>
 
-void func_ov013_02125eb4(BtlEnm015*);
+static void func_ov013_02125eb4(BtlEnm015*);
 
-const BinIdentifier data_ov013_02127484 = {3, "Apl_Hor/Grp_BtlEnm015.bin"};
-const BinIdentifier data_ov013_0212748c = {3, "Apl_Hor/Grp_BtlEnm015b.bin"};
-const BinIdentifier data_ov013_02127494 = {3, "Apl_Hor/Grp_BtlEnm015a.bin"};
+static const BinIdentifier data_ov013_02127484 = {3, "Apl_Hor/Grp_BtlEnm015.bin"};
+static const BinIdentifier data_ov013_0212748c = {3, "Apl_Hor/Grp_BtlEnm015b.bin"};
+static const BinIdentifier data_ov013_02127494 = {3, "Apl_Hor/Grp_BtlEnm015a.bin"};
 
-const SpriteAnimEntry data_ov013_02127454[2] = {
+static const SpriteAnimEntry data_ov013_02127454[2] = {
     {0x10, 0x12, 0x11, 0},
     {0x16, 0x18, 0x17, 0},
 };
 
-const SpriteAnimEntry data_ov013_0212749c[8] = {
+static const SpriteAnimEntry data_ov013_0212749c[8] = {
     {0x1, 0x3, 0x2, 0},
     {0x4, 0x6, 0x5, 0},
     {0x4, 0x6, 0x5, 1},
@@ -32,11 +32,11 @@ const SpriteAnimEntry data_ov013_021274dc[2] = {
     {0x13, 0x15, 0x14, 0},
 };
 
-const BtlSpriteDesc data_ov013_02127444 = {&data_ov013_02127484, data_ov013_0212749c, 0, 0x19, 0x2BC};
+static const BtlSpriteDesc data_ov013_02127444 = {&data_ov013_02127484, data_ov013_0212749c, 0, 0x19, 0x2BC};
 
-const BtlSpriteDesc data_ov013_02127474 = {&data_ov013_0212748c, data_ov013_0212749c, 0, 0x19, 0x2BC};
+static const BtlSpriteDesc data_ov013_02127474 = {&data_ov013_0212748c, data_ov013_0212749c, 0, 0x19, 0x2BC};
 
-const BtlSpriteDesc data_ov013_02127464 = {&data_ov013_02127494, data_ov013_0212749c, 0, 0x19, 0x2C8};
+static const BtlSpriteDesc data_ov013_02127464 = {&data_ov013_02127494, data_ov013_0212749c, 0, 0x19, 0x2C8};
 
 const BtlSpriteDesc* data_ov013_02127540[3] = {
     &data_ov013_02127444,
@@ -118,7 +118,7 @@ void func_ov013_02125838(BtlEnm015* arg0) {
     }
 }
 
-s16 func_ov013_021258f0(BtlEnm015* arg0) {
+static s16 func_ov013_021258f0(BtlEnm015* arg0) {
     s16 maxHp = arg0->base.actor.maxHp;
     s16 v     = arg0->unk_1D6;
     s32 ten   = maxHp / 10;
@@ -298,7 +298,7 @@ void func_ov013_02125e90(BtlEnm015* arg0) {
     func_ov013_02125b64(arg0, arg0->unk_1C8);
 }
 
-void func_ov013_02125eb4(BtlEnm015* arg0) {
+static void func_ov013_02125eb4(BtlEnm015* arg0) {
     if (func_ov003_020ccfec(&arg0->base) == 0) {
         arg0->unk_1CC = 0;
     }

@@ -2,9 +2,9 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32                          func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const TaskHandle             data_ov003_020dd1dc;
-extern const Ov003StreetLiveSpeaker data_ov003_020dd1e8[5];
+static const TaskHandle             data_ov003_020dd1dc;
+static const Ov003StreetLiveSpeaker data_ov003_020dd1e8[5];
+static void                         func_ov003_020ba68c(Ov003StreetLive* self);
 
 s32 func_ov003_020ba2e8(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (func_ov003_020a5b18(0x36))
@@ -19,7 +19,7 @@ s32 func_ov003_020ba2e8(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychArgs*  arg = args;
     Ov003StreetLive* self;
     switch (stage) {
@@ -117,15 +117,15 @@ s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-void func_ov003_020ba68c(Ov003StreetLive* self) {
+static void func_ov003_020ba68c(Ov003StreetLive* self) {
     CombatActor* player = func_ov003_020a6438();
     func_ov003_020ba08c(self->effect, player->position.x - 0x1E000, player->position.y - 0x52000);
     func_ov003_02087f28(0x5A, player->position.x - 0x1E000);
 }
 
-char                         data_ov003_020e5048[24] = "Tsk_BtlPsy_StreetLive";
-const TaskHandle             data_ov003_020dd1dc     = {data_ov003_020e5048, func_ov003_020ba350, sizeof(Ov003StreetLive)};
-const Ov003StreetLiveSpeaker data_ov003_020dd1e8[5]  = {
+static char                         data_ov003_020e5048[24] = "Tsk_BtlPsy_StreetLive";
+static const TaskHandle             data_ov003_020dd1dc = {data_ov003_020e5048, func_ov003_020ba350, sizeof(Ov003StreetLive)};
+static const Ov003StreetLiveSpeaker data_ov003_020dd1e8[5] = {
     {-30, -58, 0},
     { 10, -55, 1},
     { 44, -42, 1},

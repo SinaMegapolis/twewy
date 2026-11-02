@@ -2,6 +2,7 @@
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
+#include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Core/CombatList.h"
 #include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
@@ -63,20 +64,7 @@ extern const TaskHandle data_ov021_020f78b4;
 extern const TaskHandle data_ov021_020f798c;
 extern const TaskHandle data_ov008_020e7a68;
 
-extern void func_ov003_0208380c(void);
-extern void func_ov003_020838d8(void);
-extern void func_ov003_0208b2fc(s32* x, s32* y, s32 angle, s32 scale);
-extern s32  func_ov003_020a2f7c(TaskPool* pool, ...);
-void        func_ov003_02084dc0(void);
-void        func_ov003_02084ee4(void);
-
-void  func_ov003_02084880(CombatListNode* node, CombatListNode** head, CombatListNode** tail);
-void  func_ov003_020848b4(CombatListNode* node, CombatListNode** head, CombatListNode** tail);
-void  func_ov003_02084924(CombatListNode* node, CombatListNode** head, CombatListNode** tail, CombatListNode* before);
-void* func_ov003_02084970(CombatList* list);
-void  func_ov003_02084514(Ov003Collider* a, Ov003Collider* b);
-
-CombatList data_ov003_020e71a0[3];
+static CombatList data_ov003_020e71a0[3];
 
 const u32 data_ov003_020d4f74[85][3] = {
     {0x08080808, 0x0000408E, 0x0000002D},
@@ -176,14 +164,14 @@ Ov003SpriteTemplate data_ov003_020e38f0 = {
 // ---------------------------------------------------------------------------------------------
 
 /// The brand trend byte of save slot `index`.
-u8 func_ov003_02083950(s32 index) {
+static u8 func_ov003_02083950(s32 index) {
     BrandTrend* trend = &gSaveData.brandTrends[index];
 
     return trend->ranking[0];
 }
 
 /// Picks the battle index (the chapter's battle table row) from the mode and the save.
-void func_ov003_02083968(void) {
+static void func_ov003_02083968(void) {
     gSaveData.unk_3232 = 0;
     switch (gSaveData.unk_3138) {
         case 0:
@@ -488,7 +476,7 @@ s32 func_ov003_02084460(s32 index, s32 screenY, s32 z) {
 // ---------------------------------------------------------------------------------------------
 
 /// The collider list of `side`.
-CombatList* func_ov003_02084498(s32 side) {
+static CombatList* func_ov003_02084498(s32 side) {
     switch (side) {
         case 0:
             return &data_ov003_020e71a0[0];
@@ -505,7 +493,7 @@ CombatList* func_ov003_02084498(s32 side) {
 }
 
 /// Clears the hit mask of every collider in `list`.
-void func_ov003_020844e8(CombatList* list) {
+static void func_ov003_020844e8(CombatList* list) {
     Ov003Collider* collider = func_ov003_0208495c(list);
 
     if (collider == NULL) {
@@ -518,7 +506,7 @@ void func_ov003_020844e8(CombatList* list) {
 }
 
 /// Pushes two colliders apart when they overlap.
-void func_ov003_02084514(Ov003Collider* a, Ov003Collider* b) {
+static void func_ov003_02084514(Ov003Collider* a, Ov003Collider* b) {
     s32 radii = a->radius + b->radius;
     s32 dx    = a->x - b->x;
     s32 dy    = a->y - b->y;
@@ -618,7 +606,7 @@ void func_ov003_020846fc(CombatList* listA, CombatList* listB) {
 }
 
 /// The same, skipping colliders that are switched off.
-void func_ov003_02084758(CombatList* listA, CombatList* listB) {
+static void func_ov003_02084758(CombatList* listA, CombatList* listB) {
     Ov003Collider* a = func_ov003_0208495c(listA);
 
     if (a == NULL) {
@@ -674,7 +662,7 @@ void func_ov003_0208481c(void) {
 // ---------------------------------------------------------------------------------------------
 
 /// Appends `node` at the tail.
-void func_ov003_02084880(CombatListNode* node, CombatListNode** head, CombatListNode** tail) {
+static void func_ov003_02084880(CombatListNode* node, CombatListNode** head, CombatListNode** tail) {
     if (*head == NULL) {
         *head = node;
     }
@@ -687,7 +675,7 @@ void func_ov003_02084880(CombatListNode* node, CombatListNode** head, CombatList
 }
 
 /// Unlinks `node`.
-void func_ov003_020848b4(CombatListNode* node, CombatListNode** head, CombatListNode** tail) {
+static void func_ov003_020848b4(CombatListNode* node, CombatListNode** head, CombatListNode** tail) {
     if (node->prev == NULL) {
         if (node->next == NULL) {
             *head = NULL;
@@ -706,7 +694,7 @@ void func_ov003_020848b4(CombatListNode* node, CombatListNode** head, CombatList
 }
 
 /// Links `node` in front of `before` (or at the tail when there is no `before`).
-void func_ov003_02084924(CombatListNode* node, CombatListNode** head, CombatListNode** tail, CombatListNode* before) {
+static void func_ov003_02084924(CombatListNode* node, CombatListNode** head, CombatListNode** tail, CombatListNode* before) {
     if (before != NULL) {
         node->next   = before;
         node->prev   = before->prev;
@@ -765,7 +753,7 @@ void func_ov003_02084a08(CombatList* list, CombatListNode* before, CombatListNod
 // ---------------------------------------------------------------------------------------------
 
 /// Clamps setting `index` into [`lo`, `hi`].
-void func_ov003_02084a30(s32 index, s32 lo, s32 hi) {
+static void func_ov003_02084a30(s32 index, s32 lo, s32 hi) {
     s32* values = OV003_SAVE->settings.values;
     s32  value  = values[index];
 
@@ -778,10 +766,10 @@ void func_ov003_02084a30(s32 index, s32 lo, s32 hi) {
     }
 }
 
-void func_ov003_02084d90(s32 index, s32 value);
+static void func_ov003_02084d90(s32 index, s32 value);
 
 /// Loads the default settings.
-void func_ov003_02084a54(void) {
+static void func_ov003_02084a54(void) {
     func_ov003_02084d90(0, 0);
     func_ov003_02084d90(1, 0);
     func_ov003_02084d90(2, 0);
@@ -857,7 +845,7 @@ s32 func_ov003_02084d80(s32 index) {
     return ((s32*)&OV003_SAVE->settings.values)[index];
 }
 
-void func_ov003_02084d90(s32 index, s32 value) {
+static void func_ov003_02084d90(s32 index, s32 value) {
     ((s32*)&OV003_SAVE->settings.values)[index] = value;
 }
 
@@ -874,7 +862,7 @@ s32 func_ov003_02084db0(void) {
 // ---------------------------------------------------------------------------------------------
 
 /// Draws the hit circles of the player and of every enemy.
-void func_ov003_02084dc0(void) {
+static void func_ov003_02084dc0(void) {
     CombatActor* player = data_ov003_020e71b8->unk3D898;
     CombatActor* actor;
     u8*          item;
@@ -904,7 +892,7 @@ void func_ov003_02084dc0(void) {
 }
 
 /// Draws the hit boxes of the player and of every enemy.
-void func_ov003_02084ee4(void) {
+static void func_ov003_02084ee4(void) {
     CombatActor* player = data_ov003_020e71b8->unk3D898;
     CombatActor* actor;
     u8*          item;
@@ -972,7 +960,7 @@ void func_ov003_0208508c(void) {
 // ---------------------------------------------------------------------------------------------
 
 /// Distance between the middle of an actor's box and a screen point.
-s32 func_ov003_02085104(CombatActor* actor, s32 x, s32 y) {
+static s32 func_ov003_02085104(CombatActor* actor, s32 x, s32 y) {
     s32 centerY = actor->screenY + (12 - actor->unk_72) / 2;
     s32 dx      = (x << 12) - (actor->screenX << 12);
     s32 dy      = (y << 12) - (centerY << 12);
@@ -981,7 +969,7 @@ s32 func_ov003_02085104(CombatActor* actor, s32 x, s32 y) {
 }
 
 /// Whether segment (x0,y0)-(x1,y1) crosses segment (ax,ay)-(bx,by).
-BOOL func_ov003_02085164(s32 x0, s32 y0, s32 x1, s32 y1, s32 ax, s32 ay, s32 bx, s32 by) {
+static BOOL func_ov003_02085164(s32 x0, s32 y0, s32 x1, s32 y1, s32 ax, s32 ay, s32 bx, s32 by) {
     s32 lo;
     s32 hi;
     s32 denominator;
@@ -1024,12 +1012,12 @@ BOOL func_ov003_02085164(s32 x0, s32 y0, s32 x1, s32 y1, s32 ax, s32 ay, s32 bx,
 }
 
 /// A quick short touch.
-BOOL func_ov003_020852b4(BtlTouchWork* touch) {
+static BOOL func_ov003_020852b4(BtlTouchWork* touch) {
     return touch->holdFrames < 12 && touch->distance < 0x10000;
 }
 
 /// Counts taps; the fifth quick tap starts the tap effect.
-BOOL func_ov003_020852d0(BtlTouchWork* touch) {
+static BOOL func_ov003_020852d0(BtlTouchWork* touch) {
     if (!(touch->flags & 2)) {
         return FALSE;
     }
@@ -1045,7 +1033,7 @@ BOOL func_ov003_020852d0(BtlTouchWork* touch) {
 }
 
 /// A short touch that travelled far: a flick.
-BOOL func_ov003_02085358(BtlTouchWork* touch) {
+static BOOL func_ov003_02085358(BtlTouchWork* touch) {
     if (!(touch->flags & 4)) {
         return FALSE;
     }
@@ -1056,7 +1044,7 @@ BOOL func_ov003_02085358(BtlTouchWork* touch) {
 }
 
 /// A long touch that stays near where it started.
-BOOL func_ov003_0208538c(BtlTouchWork* touch) {
+static BOOL func_ov003_0208538c(BtlTouchWork* touch) {
     s32 dx;
     s32 dy;
 
@@ -1080,7 +1068,7 @@ BOOL func_ov003_0208538c(BtlTouchWork* touch) {
 }
 
 /// A fast back and forth scribble.
-BOOL func_ov003_0208540c(BtlTouchWork* touch) {
+static BOOL func_ov003_0208540c(BtlTouchWork* touch) {
     s32 speed;
 
     if (!(touch->flags & 0x20)) {
@@ -1122,7 +1110,7 @@ BOOL func_ov003_0208540c(BtlTouchWork* touch) {
 }
 
 /// Whether the current touch point is on `actor`.
-BOOL func_ov003_02085564(CombatActor* actor) {
+static BOOL func_ov003_02085564(CombatActor* actor) {
     s32 x     = data_ov003_020e71b8->touchWork.x;
     s32 y     = data_ov003_020e71b8->touchWork.y;
     s32 flags = actor->flags;
@@ -1161,7 +1149,7 @@ BOOL func_ov003_02085564(CombatActor* actor) {
 }
 
 /// Whether segment (x0,y0)-(x1,y1) touches the box of `actor`.
-BOOL func_ov003_02085638(CombatActor* actor, s32 x0, s32 y0, s32 x1, s32 y1) {
+static BOOL func_ov003_02085638(CombatActor* actor, s32 x0, s32 y0, s32 x1, s32 y1) {
     s32 left   = actor->screenX - actor->unk_70;
     s32 right  = actor->screenX + actor->unk_70;
     s32 bottom = actor->screenY;
@@ -1207,7 +1195,7 @@ BOOL func_ov003_02085638(CombatActor* actor, s32 x0, s32 y0, s32 x1, s32 y1) {
 }
 
 /// Keeps `actor` as the best candidate when the stroke crosses it near its middle.
-void func_ov003_020857e0(CombatActor** best, s32* bestDistance, CombatActor* actor) {
+static void func_ov003_020857e0(CombatActor** best, s32* bestDistance, CombatActor* actor) {
     Ov003Global* global = data_ov003_020e71b8;
     s16          x1     = global->touchWork.endX;
     s16          x0     = global->touchWork.startX;
@@ -1226,7 +1214,7 @@ void func_ov003_020857e0(CombatActor** best, s32* bestDistance, CombatActor* act
 }
 
 /// Keeps `actor` as the best candidate when the touch point is on it and closer than the current best.
-void func_ov003_02085888(CombatActor** best, s32* bestDistance, CombatActor* actor) {
+static void func_ov003_02085888(CombatActor** best, s32* bestDistance, CombatActor* actor) {
     s32 distance;
 
     if (!func_ov003_02085564(actor)) {
@@ -1239,7 +1227,7 @@ void func_ov003_02085888(CombatActor** best, s32* bestDistance, CombatActor* act
     }
 }
 
-void func_ov003_020858e4(CombatActor** best, s32* bestDistance) {
+static void func_ov003_020858e4(CombatActor** best, s32* bestDistance) {
     CombatActor* actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
 
     if (actor == NULL) {
@@ -1251,7 +1239,7 @@ void func_ov003_020858e4(CombatActor** best, s32* bestDistance) {
     } while (actor != NULL);
 }
 
-void func_ov003_02085934(CombatActor** best, s32* bestDistance) {
+static void func_ov003_02085934(CombatActor** best, s32* bestDistance) {
     u8* item = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8B4);
 
     if (item == NULL) {
@@ -1264,7 +1252,7 @@ void func_ov003_02085934(CombatActor** best, s32* bestDistance) {
 }
 
 /// The actor under the touch point, the player first and then the closest enemy.
-CombatActor* func_ov003_02085984(void) {
+static CombatActor* func_ov003_02085984(void) {
     CombatActor* best     = NULL;
     s32          distance = 0x7FFFFFFF;
 
@@ -1277,7 +1265,7 @@ CombatActor* func_ov003_02085984(void) {
 }
 
 /// The stylus came down.
-void func_ov003_020859f8(BtlTouchWork* touch) {
+static void func_ov003_020859f8(BtlTouchWork* touch) {
     CombatActor* actor = func_ov003_02085984();
 
     if (actor != NULL) {
@@ -1302,7 +1290,7 @@ void func_ov003_020859f8(BtlTouchWork* touch) {
 }
 
 /// The stylus came up.
-void func_ov003_02085a70(BtlTouchWork* touch) {
+static void func_ov003_02085a70(BtlTouchWork* touch) {
     s32 dx;
     s32 dy;
 
@@ -1317,7 +1305,7 @@ void func_ov003_02085a70(BtlTouchWork* touch) {
 }
 
 /// Re-targets the held actor when the stylus slid off it.
-void func_ov003_02085afc(BtlTouchWork* touch) {
+static void func_ov003_02085afc(BtlTouchWork* touch) {
     if (touch->held != NULL) {
         if (func_ov003_02085564(touch->held)) {
             return;
@@ -1329,7 +1317,7 @@ void func_ov003_02085afc(BtlTouchWork* touch) {
 }
 
 /// Classifies the touch of this frame: 0 none, 1 down, 2/3/4 tap kinds, 5 hold, 6 drag, 7 scribble.
-s32 func_ov003_02085b34(BtlTouchWork* touch) {
+static s32 func_ov003_02085b34(BtlTouchWork* touch) {
     if (TouchInput_WasTouchReleased()) {
         if (func_ov003_020852b4(touch)) {
             if (func_ov003_020852d0(touch)) {

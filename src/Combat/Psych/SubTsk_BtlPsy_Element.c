@@ -4,10 +4,18 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-char             data_ov003_020e4c04[24] = "SubTsk_BtlPsy_Element";
-const TaskHandle data_ov003_020dc7ac     = {data_ov003_020e4c04, func_ov003_020ae46c, sizeof(Ov003Element)};
+static s32          func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage);
+static void         func_ov003_020ae890(Ov003Element* self);
+static void         func_ov003_020ae8b4(Ov003Element* self);
+static void         func_ov003_020aedf0(Ov003Element* self);
+static void         func_ov003_020aee9c(Ov003Element* self);
+static void         func_ov003_020aefc0(Ov003Element* self);
+static CombatActor* func_ov003_020af1e0(Ov003Element* self);
 
-const Ov003ElementKind data_ov003_020dc7b8[8] = {
+static char             data_ov003_020e4c04[24] = "SubTsk_BtlPsy_Element";
+static const TaskHandle data_ov003_020dc7ac     = {data_ov003_020e4c04, func_ov003_020ae46c, sizeof(Ov003Element)};
+
+static const Ov003ElementKind data_ov003_020dc7b8[8] = {
     { 0x49, 0x4A, 0x4B, 0x15D, 0x21},
     { 0x49, 0x4A, 0x4B, 0x16E, 0x21},
     { 0x4C, 0x4D, 0x4E, 0x15E, 0x22},
@@ -17,11 +25,6 @@ const Ov003ElementKind data_ov003_020dc7b8[8] = {
     {0x56C, 0x47, 0x48, 0x15F, 0x26},
     {0x56C, 0x47, 0x48, 0x15F, 0x27},
 };
-
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32 func_ov003_020a51c0(void);
-extern s32 func_ov003_020a632c(s32, s32, s32, s32);
-extern s32 func_ov003_020a62b8(s32, s32, s32, s32);
 
 s32 func_ov003_020ae414(Ov003EffectState* effect, s32 mode, s32 kind, s16 x, s16 y, s32 angle, s32 speed, s32 scale,
                         s32 uses) {
@@ -39,7 +42,7 @@ s32 func_ov003_020ae414(Ov003EffectState* effect, s32 mode, s32 kind, s16 x, s16
 }
 
 // Nonmatching: typed table merges retail interior symbols.
-s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003ElementArgs* arg = args;
     Ov003Element*     self;
     switch (stage) {
@@ -145,12 +148,12 @@ s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-void func_ov003_020ae890(Ov003Element* self) {
+static void func_ov003_020ae890(Ov003Element* self) {
     self->position.x += self->velocity.x;
     self->position.y += self->velocity.y;
 }
 
-void func_ov003_020ae8b4(Ov003Element* self) {
+static void func_ov003_020ae8b4(Ov003Element* self) {
     self->position.x += FX_Mul(self->deflectionSpeed, COS2(FX_SinCosTable_, self->deflectionAngle));
     self->position.y += FX_Mul(self->deflectionSpeed, SIN2(FX_SinCosTable_, self->deflectionAngle));
     if (self->deflectionSpeed > 0) {
@@ -161,7 +164,7 @@ void func_ov003_020ae8b4(Ov003Element* self) {
 }
 
 // Nonmatching: Preview temporaries and register allocation differ.
-void func_ov003_020ae980(Ov003Element* self) {
+static void func_ov003_020ae980(Ov003Element* self) {
     if (self->turnTimer == 0) {
         u16 angle;
         for (;;) {
@@ -184,7 +187,7 @@ void func_ov003_020ae980(Ov003Element* self) {
 }
 
 // Nonmatching: Preview temporaries and register allocation differ.
-void func_ov003_020aeb0c(Ov003Element* self) {
+static void func_ov003_020aeb0c(Ov003Element* self) {
     if (self->turnTimer == 0) {
         self->paused = !self->paused;
         if (self->paused) {
@@ -216,7 +219,7 @@ void func_ov003_020aeb0c(Ov003Element* self) {
 }
 
 // Nonmatching: Vector temporary layout and load scheduling differ.
-void func_ov003_020aecbc(Ov003Element* self) {
+static void func_ov003_020aecbc(Ov003Element* self) {
     if (self->turnTimer != 0) {
         self->turnTimer--;
         return;
@@ -238,7 +241,7 @@ void func_ov003_020aecbc(Ov003Element* self) {
 }
 
 // Nonmatching: Empty mode branches use different return sequences.
-void func_ov003_020aedf0(Ov003Element* self) {
+static void func_ov003_020aedf0(Ov003Element* self) {
     switch (self->mode) {
         case 2:
             if (self->target != NULL && !(self->target->flags & 4))
@@ -264,7 +267,7 @@ void func_ov003_020aedf0(Ov003Element* self) {
     }
 }
 
-void func_ov003_020aee9c(Ov003Element* self) {
+static void func_ov003_020aee9c(Ov003Element* self) {
     s32 low  = func_ov003_0208442c(0, 0) + self->radius;
     s32 high = func_ov003_0208442c(0, 256) - self->radius;
     if (self->position.x < low) {
@@ -294,7 +297,7 @@ void func_ov003_020aee9c(Ov003Element* self) {
 }
 
 // Nonmatching: Unified descriptor table relocations and register allocation differ.
-void func_ov003_020aefc0(Ov003Element* self) {
+static void func_ov003_020aefc0(Ov003Element* self) {
     s32 attackId = data_ov003_020dc7b8[self->kind].attackId;
     s32 hit      = 0;
     if (attackId == 0x16F && func_ov003_020a51c0())
@@ -336,7 +339,7 @@ void func_ov003_020aefc0(Ov003Element* self) {
 }
 
 // Nonmatching: Projection and list setup scheduling differ.
-CombatActor* func_ov003_020af1e0(Ov003Element* self) {
+static CombatActor* func_ov003_020af1e0(Ov003Element* self) {
     CombatActor*     best    = NULL;
     s32              nearest = 0x7FFFFFFF;
     s32              x       = func_ov003_020843b0(0, self->position.x);

@@ -45,4 +45,6 @@ void MI_CpuClear24(register u32* dest);
 // Atomically swap a value with a memory location, returning the old value
 u32 MI_CpuSwap(register u32 value, register u32* addr);
 
+void func_0203aafc(s32 dmaNo, void* dest, u32 data, u32 size);
+
 #endif // MI_CPUMEM_H

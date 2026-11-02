@@ -18,10 +18,6 @@
 void func_0203a96c(u8* macAddress);
 s32  func_020417e0(RTCDate* date, RTCTime* time);
 s64  func_02041f14(RTCDate* date, RTCTime* time);
-void Stats_AddExperience(u32 exp);
-u16  Inventory_GetNoiseReportCount(void);
-u16  Inventory_GetMasteredPinCount(void);
-u16  Inventory_GetCollectedItemCount(void);
 
 #ifdef REGION_USA
 extern EquippedPin* Tusin_SurePins[6];

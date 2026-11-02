@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0c68;
+static const TaskHandle data_ov003_020e0c68;
 
 s32 func_ov003_020cf81c(Ov003EnemyShotSource* source, s32 speed, u16 count, u16 interval, s32 fixedAim, s32 rotate, u16 angle,
                         s32 stopOnCrossing) {
@@ -25,7 +25,7 @@ s32 func_ov003_020cf81c(Ov003EnemyShotSource* source, s32 speed, u16 count, u16 
     return EasyTask_CreateTask(pool, &data_ov003_020e0c68, NULL, 0, NULL, &args);
 }
 
-void func_ov003_020cf8d4(Ov003EnemyShotMachineGun* self) {
+static void func_ov003_020cf8d4(Ov003EnemyShotMachineGun* self) {
     TaskPool* pool;
     if (self->source.core.owner->base.sprite.sprite.bits_0_1 == 0)
         pool = &data_ov003_020e71b8->unk_00000;
@@ -47,7 +47,7 @@ void func_ov003_020cf8d4(Ov003EnemyShotMachineGun* self) {
     }
 }
 
-s32 func_ov003_020cf990(Ov003EnemyShotMachineGun* self) {
+static s32 func_ov003_020cf990(Ov003EnemyShotMachineGun* self) {
     if (!func_ov003_020cce34(self->source.core.owner->base.sprite.sprite.bits_0_1))
         return 1;
     if (self->source.core.owner->base.actor.flags & 2)
@@ -89,7 +89,7 @@ s32 func_ov003_020cf990(Ov003EnemyShotMachineGun* self) {
     return 0;
 }
 
-s32 func_ov003_020cfad8(Ov003EnemyShotMachineGun* self, Ov003EnemyShotMachineGunArgs* args) {
+static s32 func_ov003_020cfad8(Ov003EnemyShotMachineGun* self, Ov003EnemyShotMachineGunArgs* args) {
     MI_CpuSet(self, 0, sizeof(*self));
     MI_CpuCopyU8(args->source, &self->source, sizeof(self->source));
     self->speed     = args->speed;
@@ -126,7 +126,7 @@ s32 func_ov003_020cfad8(Ov003EnemyShotMachineGun* self, Ov003EnemyShotMachineGun
     return 1;
 }
 
-s32 func_ov003_020cfc9c(Ov003EnemyShotMachineGun* self) {
+static s32 func_ov003_020cfc9c(Ov003EnemyShotMachineGun* self) {
     if (func_ov003_020cf990(self))
         return 0;
     if (func_ov003_020c3c28())
@@ -164,14 +164,14 @@ s32 func_ov003_020cfc9c(Ov003EnemyShotMachineGun* self) {
     return 1;
 }
 
-s32 func_ov003_020cfe7c(Ov003EnemyShotMachineGun* self) {
+static s32 func_ov003_020cfe7c(Ov003EnemyShotMachineGun* self) {
     return 1;
 }
-s32 func_ov003_020cfe84(Ov003EnemyShotMachineGun* self) {
+static s32 func_ov003_020cfe84(Ov003EnemyShotMachineGun* self) {
     return 1;
 }
 
-s32 func_ov003_020cfe8c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020cfe8c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotMachineGun* self = task->data;
     switch (stage) {
         case 0:
@@ -187,5 +187,5 @@ s32 func_ov003_020cfe8c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6cac[28] = "Tsk_BtlEnmShot_MachineGun";
-const TaskHandle data_ov003_020e0c68     = {data_ov003_020e6cac, func_ov003_020cfe8c, sizeof(Ov003EnemyShotMachineGun)};
+static char             data_ov003_020e6cac[28] = "Tsk_BtlEnmShot_MachineGun";
+static const TaskHandle data_ov003_020e0c68     = {data_ov003_020e6cac, func_ov003_020cfe8c, sizeof(Ov003EnemyShotMachineGun)};

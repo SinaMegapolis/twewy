@@ -37,4 +37,7 @@ void             FieldScan_Update(FieldEventManager* mgr);
 s16              FieldTalk_GetKeywordCount(void);
 BOOL             FieldEvent_IsDebugSkipHeld(void);
 
+u8   Field_GetCurrentZone(void);
+BOOL func_ov030_020af834(s32 arg0, s32 arg1);
+
 #endif // FIELD_BATTLE_FIELDBATTLESETUP_H

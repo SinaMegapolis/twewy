@@ -167,7 +167,7 @@ void func_02001ae8(s32 funcIdx, u32* param_2, void* addr, u32 count) {
     DMA_OpHandlers[funcIdx](&data);
 }
 
-BOOL func_02001b44(s32 idx, s32 arg1, DmaRequest* req, s32 arg3) {
+BOOL func_02001b44(s32 idx, s32 arg1, const void* req, s32 arg3) {
     DmaRequest* temp_r0;
 
     if ((Interrupts_IsVBlankInterrupted() == 0) || ((u32)data_02066a5c.active.addr >= data_02066a5c.active.size)) {

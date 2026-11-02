@@ -5,11 +5,14 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32              func_ov003_020a62b8(s32, s32, s32, s32);
-extern const TaskHandle data_ov003_020dc984;
+static const TaskHandle data_ov003_020dc984;
+static void             func_ov003_020b3464(Ov003Thunder* self);
+static void             func_ov003_020b35c0(Ov003Thunder* self);
+static void             func_ov003_020b3698(Ov003Thunder* self);
+static s32              func_ov003_020b38d4(Ov003LockOnThunder* self);
+static s32              func_ov003_020b39ac(Ov003LockOnThunder* self);
 
-void func_ov003_020b3284(Ov003Thunder* self) {
+static void func_ov003_020b3284(Ov003Thunder* self) {
     if (func_ov003_020a6568(&self->args.effect->streak, 0x16B, (Ov003EnemyActor*)self->target, self->position.x, 0, 0) == 1) {
         Ov003PsychEffectArgs effect;
         func_ov003_020a8908(&effect, (s16)(self->position.x >> 12), (s16)(self->position.y >> 12), 2,
@@ -19,18 +22,18 @@ void func_ov003_020b3284(Ov003Thunder* self) {
     func_ov003_020b3078(self->args.targets);
 }
 
-void func_ov003_020b3308(Ov003Thunder* self) {
+static void func_ov003_020b3308(Ov003Thunder* self) {
     self->target = func_ov003_020b3094(self->args.targets)->actor;
 }
 
-s32 func_ov003_020b3324(Ov003Thunder* self) {
+static s32 func_ov003_020b3324(Ov003Thunder* self) {
     Ov003TargetEntry* entry = func_ov003_020b3094(self->args.targets);
     if (entry == NULL)
         return 0;
     return entry->actor == self->target;
 }
 
-void func_ov003_020b3358(Ov003Thunder* self) {
+static void func_ov003_020b3358(Ov003Thunder* self) {
     if (func_ov003_020b30d8(self->args.targets)) {
         func_ov003_020b3698(self);
         return;
@@ -67,7 +70,7 @@ void func_ov003_020b3400(Ov003Thunder* self) {
     self->position.y    = target->screenY * 0x1000;
 }
 
-void func_ov003_020b3464(Ov003Thunder* self) {
+static void func_ov003_020b3464(Ov003Thunder* self) {
     self->phase = 1;
     CombatSprite_Release(&self->sprite);
     func_ov003_020a3498(&self->sprite, 2, 1, self->args.effect->index + 4, 0);
@@ -91,7 +94,7 @@ void func_ov003_020b34c0(Ov003Thunder* self) {
     self->position.y += FX_Mul(self->speed, SIN2(FX_SinCosTable_, self->angle));
 }
 
-void func_ov003_020b35c0(Ov003Thunder* self) {
+static void func_ov003_020b35c0(Ov003Thunder* self) {
     self->phase = 2;
     CombatSprite_Release(&self->sprite);
     func_ov003_020a3498(&self->sprite, 2, 1, self->args.effect->index + 8, 1);
@@ -114,7 +117,7 @@ void func_ov003_020b362c(Ov003Thunder* self) {
     self->position.y    = (target->screenY - target->unk_76) * 0x1000;
 }
 
-void func_ov003_020b3698(Ov003Thunder* self) {
+static void func_ov003_020b3698(Ov003Thunder* self) {
     self->phase = 3;
     CombatSprite_Release(&self->sprite);
     func_ov003_020a3498(&self->sprite, 2, 1, self->args.effect->index + 4, 0);
@@ -144,7 +147,7 @@ s32 func_ov003_020b37c8(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b3834(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b3834(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState**  arg = args;
     Ov003LockOnThunder* self;
     switch (stage) {
@@ -172,7 +175,7 @@ s32 func_ov003_020b3834(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-s32 func_ov003_020b38d4(Ov003LockOnThunder* self) {
+static s32 func_ov003_020b38d4(Ov003LockOnThunder* self) {
     BtlTouchWork* touch = func_ov003_020a62a0();
     s32           stop  = 0;
     if (!func_ov003_020a5aa4(self->effect) || func_ov003_020a63a8(self->effect)) {
@@ -195,9 +198,9 @@ s32 func_ov003_020b38d4(Ov003LockOnThunder* self) {
     return 1;
 }
 
-s32 func_ov003_020b39ac(Ov003LockOnThunder* self) {
+static s32 func_ov003_020b39ac(Ov003LockOnThunder* self) {
     return self->finished == 0;
 }
 
-char             data_ov003_020e4de0[28] = "Tsk_BtlPsy_LockOnThunder_D";
-const TaskHandle data_ov003_020dc984     = {data_ov003_020e4de0, func_ov003_020b3834, sizeof(Ov003LockOnThunder)};
+static char             data_ov003_020e4de0[28] = "Tsk_BtlPsy_LockOnThunder_D";
+static const TaskHandle data_ov003_020dc984     = {data_ov003_020e4de0, func_ov003_020b3834, sizeof(Ov003LockOnThunder)};

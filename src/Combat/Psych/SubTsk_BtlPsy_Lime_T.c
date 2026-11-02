@@ -4,9 +4,7 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32              func_ov003_020a62b8(s32, s32, s32, s32);
-extern const TaskHandle data_ov003_020dc960;
+static const TaskHandle data_ov003_020dc960;
 
 s32 func_ov003_020b292c(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (func_ov003_020a5b18(effect->state))
@@ -22,7 +20,7 @@ s32 func_ov003_020b292c(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 // Nonmatching: the initial animation call schedules its sprite address before the final zero argument.
-s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003Lime*         self;
     switch (stage) {
@@ -129,5 +127,5 @@ s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4d98[24] = "SubTsk_BtlPsy_Lime_T";
-const TaskHandle data_ov003_020dc960     = {data_ov003_020e4d98, func_ov003_020b2998, sizeof(Ov003Lime)};
+static char             data_ov003_020e4d98[24] = "SubTsk_BtlPsy_Lime_T";
+static const TaskHandle data_ov003_020dc960     = {data_ov003_020e4d98, func_ov003_020b2998, sizeof(Ov003Lime)};

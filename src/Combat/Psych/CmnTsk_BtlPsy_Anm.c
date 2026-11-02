@@ -2,9 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc62c;
+static const TaskHandle data_ov003_020dc62c;
 
 s32 func_ov003_020a88a8(Ov003PsychEffectArgs* args) {
     return func_ov003_020a6000(&data_ov003_020dc62c, args);
@@ -79,7 +77,7 @@ void func_ov003_020a8a28(Ov003PsychEffectArgs* args, u16 value) {
     args->unk_50 = value;
 }
 
-s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychEffectArgs* arg = args;
     Ov003PsychAnimation*  anim;
     switch (stage) {
@@ -196,5 +194,5 @@ s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e49a8[20] = "CmnTsk_BtlPsy_Anm";
-const TaskHandle data_ov003_020dc62c     = {data_ov003_020e49a8, func_ov003_020a8a3c, sizeof(Ov003PsychAnimation)};
+static char             data_ov003_020e49a8[20] = "CmnTsk_BtlPsy_Anm";
+static const TaskHandle data_ov003_020dc62c     = {data_ov003_020e49a8, func_ov003_020a8a3c, sizeof(Ov003PsychAnimation)};

@@ -19,8 +19,6 @@
 #include <nitro/fx.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_0202599c(s32 flagIndex);
-
 typedef struct {
     /* 0x0 */ const FieldPos* center;
     /* 0x4 */ const FieldPos* startPos;

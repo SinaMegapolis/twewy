@@ -2,6 +2,7 @@
 #include "CriSndMgr.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Core/DMA.h"
 #include "Engine/Core/HBlank.h"
 #include "Engine/Core/Interrupts.h"
 #include "Engine/Core/Memory.h"
@@ -83,14 +84,9 @@ typedef struct {
     /* 0x24038 */ TusinObject       tusin;
 } TusinState; // Size: 0x24624 (JP: 0x244A0)
 
-void GX_LoadBgPltt(void* src, u32 offset, u32 size);
-void GX_LoadObjPltt(void* src, u32 offset, u32 size);
-void GXs_LoadBgPltt(void* src, u32 offset, u32 size);
-void GXs_LoadObjPltt(void* src, u32 offset, u32 size);
 void func_0202b878(void);
 s32  func_020417e0(RTCDate* date, RTCTime* time);
 void func_020415a4(void);
-BOOL func_02001b44(s32, s32, void*, s32);
 void func_02041060(s32* status);
 
 // The wireless library (USA overlay 40, JP overlay 39) is not decompiled yet.

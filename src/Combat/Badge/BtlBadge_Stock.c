@@ -16,7 +16,7 @@ extern const BinIdentifier data_ov003_020dc044;
 // Nonmatching: the target keeps the task data in a low callee-saved register from the prologue on,
 // so its stage 0 animation descriptor needs one more callee-saved register and the constant stores
 // come out in a different order; the stage 1/2/3 logic matches.
-s32 func_ov003_020a7eb0(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020a7eb0(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// The payload of the task: the touch actor followed by the badge sprites.
 typedef struct BtlBadgeStock {
@@ -28,8 +28,8 @@ typedef struct BtlBadgeStock {
     /* 0x236 */ u8              unk_236[2];
 } BtlBadgeStock;                            // Size: 0x238
 
-char             data_ov003_020e4954[0x14] = "Tsk_BtlBadge_Stock";
-const TaskHandle data_ov003_020dc5fc       = {data_ov003_020e4954, func_ov003_020a7eb0, sizeof(BtlBadgeStock)};
+static char             data_ov003_020e4954[0x14] = "Tsk_BtlBadge_Stock";
+static const TaskHandle data_ov003_020dc5fc       = {data_ov003_020e4954, func_ov003_020a7eb0, sizeof(BtlBadgeStock)};
 
 void func_ov003_020a7e68(Ov003PinAction* action) {
     Ov003PinAction* args = action;
@@ -38,12 +38,12 @@ void func_ov003_020a7e68(Ov003PinAction* action) {
 }
 
 /// Shows `count` remaining uses on the bar: its animation id is offset by the count.
-void func_ov003_020a82d0(BtlBadgeStock* self, s16 count) {
+static void func_ov003_020a82d0(BtlBadgeStock* self, s16 count) {
     CombatSprite_SetAnim(&self->badge, (u16)(count + 0xA), 0);
     self->shownCount = count;
 }
 
-s32 func_ov003_020a7eb0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a7eb0(TaskPool* pool, Task* task, void* args, s32 stage) {
     switch (stage) {
         case 0: {
             BtlBadgeStock*    self  = task->data;

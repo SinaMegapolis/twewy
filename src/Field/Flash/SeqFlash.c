@@ -1,3 +1,4 @@
+#include "Combat/Core/CombatApi.h"
 #include "Field/FieldRegion.h"
 
 #include "CriSndMgr.h"
@@ -14,6 +15,7 @@
 #include "Field/Flash/SeqFlash.h"
 #include "Field/Flash/SeqFlashSel.h"
 #include "Field/Scene/FieldSeq.h"
+#include "Player/Inventory.h"
 #include "Save.h"
 #include "SndMgr.h"
 #include <nitro/gx.h>
@@ -822,8 +824,6 @@ extern void func_020218ec(void);
 extern s64  func_0203a444(void);
 extern void func_0203a4e4(s64 tick);
 extern void func_02041134(s32 trigger, s32 arg1, s32 arg2);
-extern BOOL Savefile_AcquiredAllSecretReports(void);
-extern void func_ov003_0208ec74(void);
 extern void func_ov042_020824a0(void);
 extern void ProcessOverlay_Result(void);
 extern void ProcessOverlay_Save(void);

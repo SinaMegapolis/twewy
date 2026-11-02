@@ -1,13 +1,19 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Engine/Math/Random.h"
+#include "SndMgr.h"
 #include "SndMgrSeIdx.h"
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32              func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount);
-extern const TaskHandle data_ov003_020dc794;
+static const TaskHandle data_ov003_020dc794;
+static void             func_ov003_020adbec(Ov003ElementK* self);
+static void             func_ov003_020adc8c(Ov003ElementK* self);
+static void             func_ov003_020adcb4(Ov003ElementKRay* ray);
+static void             func_ov003_020adcd8(Ov003ElementKRay* ray, s32 level, s32 direction);
+static void             func_ov003_020add40(Ov003ElementKRay* ray, s16 x, s16 y, Ov003EffectState* effect);
+static void             func_ov003_020ade3c(Ov003ElementKRay* ray, s32 x, s32 y);
+static void             func_ov003_020ade74(Ov003ElementKRay* ray);
 
 s32 func_ov003_020ad720(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(7))
@@ -20,7 +26,7 @@ s32 func_ov003_020ad720(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003ElementK*     self;
     switch (stage) {
@@ -134,7 +140,7 @@ s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-void func_ov003_020adbec(Ov003ElementK* self) {
+static void func_ov003_020adbec(Ov003ElementK* self) {
     self->phase++;
     self->heldFrames     = 0;
     self->releasedFrames = 0;
@@ -152,18 +158,18 @@ void func_ov003_020adbec(Ov003ElementK* self) {
     self->directionIndex = 0;
 }
 
-void func_ov003_020adc8c(Ov003ElementK* self) {
+static void func_ov003_020adc8c(Ov003ElementK* self) {
     self->phase = 5;
     func_ov003_020a35b8(&self->sprite, 0x79, 1);
     func_ov003_020a6464(0);
 }
 
-void func_ov003_020adcb4(Ov003ElementKRay* ray) {
+static void func_ov003_020adcb4(Ov003ElementKRay* ray) {
     ray->active = 0;
     func_ov003_020a3498(&ray->sprite, 2, 1, 0x7A, 1);
 }
 
-void func_ov003_020adcd8(Ov003ElementKRay* ray, s32 level, s32 direction) {
+static void func_ov003_020adcd8(Ov003ElementKRay* ray, s32 level, s32 direction) {
     ray->active   = 1;
     ray->angle    = direction * 0x2000;
     s32 animation = direction & 1 ? 0x7A : 0x7E;
@@ -173,7 +179,7 @@ void func_ov003_020adcd8(Ov003ElementKRay* ray, s32 level, s32 direction) {
     CombatSprite_SetAffineTransform(&ray->sprite, (direction / 2) * 0x4000, 0x1000, 0x1000, 0);
 }
 
-void func_ov003_020add40(Ov003ElementKRay* ray, s16 x, s16 y, Ov003EffectState* effect) {
+static void func_ov003_020add40(Ov003ElementKRay* ray, s16 x, s16 y, Ov003EffectState* effect) {
     if (!ray->active)
         return;
     if (SpriteMgr_IsAnimationFinished(&ray->sprite.sprite)) {
@@ -186,7 +192,7 @@ void func_ov003_020add40(Ov003ElementKRay* ray, s16 x, s16 y, Ov003EffectState* 
     CombatSprite_Update(&ray->sprite);
 }
 
-void func_ov003_020ade3c(Ov003ElementKRay* ray, s32 x, s32 y) {
+static void func_ov003_020ade3c(Ov003ElementKRay* ray, s32 x, s32 y) {
     if (!ray->active)
         return;
     CombatSprite_SetPosition(&ray->sprite, x, y);
@@ -194,9 +200,9 @@ void func_ov003_020ade3c(Ov003ElementKRay* ray, s32 x, s32 y) {
     CombatSprite_Render(&ray->sprite);
 }
 
-void func_ov003_020ade74(Ov003ElementKRay* ray) {
+static void func_ov003_020ade74(Ov003ElementKRay* ray) {
     CombatSprite_Release(&ray->sprite);
 }
 
-char             data_ov003_020e4bd4[24] = "SubTsk_BtlPsy_ElementK";
-const TaskHandle data_ov003_020dc794     = {data_ov003_020e4bd4, func_ov003_020ad778, sizeof(Ov003ElementK)};
+static char             data_ov003_020e4bd4[24] = "SubTsk_BtlPsy_ElementK";
+static const TaskHandle data_ov003_020dc794     = {data_ov003_020e4bd4, func_ov003_020ad778, sizeof(Ov003ElementK)};

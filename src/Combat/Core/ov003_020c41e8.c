@@ -11,8 +11,10 @@
 #include "Engine/Math/Rect.h"
 #include "Save.h"
 #include "SndMgr.h"
+#include "main_02026528.h"
 
 #include <nitro/fx.h>
+#include <nitro/mi/cpumem.h>
 
 // ---------------------------------------------------------------------------------------------
 // Types
@@ -43,10 +45,13 @@ typedef struct Ov02071cf0State {
 // Data owned by this unit
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e69c0[0x1C] = "Apl_Mor/Grp_BtlBoss16.bin";
-char data_ov003_020e69dc[0x1C] = "Apl_Mor/Grp_BtlBoss15.bin";
-char data_ov003_020e69f8[0x1C] = "Apl_Mor/Grp_BtlBoss15b.bin";
-char data_ov003_020e6a14[0x1C] = "Apl_Mor/Grp_BtlBoss16b.bin";
+static s32 func_ov003_020c59cc(Ov003EnemyActor* actor);
+static s32 func_ov003_020c59e0(Ov003EnemyActor* actor);
+
+static char data_ov003_020e69c0[0x1C] = "Apl_Mor/Grp_BtlBoss16.bin";
+static char data_ov003_020e69dc[0x1C] = "Apl_Mor/Grp_BtlBoss15.bin";
+static char data_ov003_020e69f8[0x1C] = "Apl_Mor/Grp_BtlBoss15b.bin";
+static char data_ov003_020e6a14[0x1C] = "Apl_Mor/Grp_BtlBoss16b.bin";
 
 /// Sprite resource descriptors: a resource kind plus the pack the sprite is loaded from.
 typedef struct Ov003CutinSpriteRes {
@@ -59,9 +64,9 @@ const Ov003CutinSpriteRes data_ov003_020e06fc    = {3, data_ov003_020e6a14};
 const Ov003CutinSpriteRes data_ov003_020e0704    = {3, data_ov003_020e69dc};
 const u32                 data_ov003_020e070c[4] = {3, (u32)data_ov003_020e69f8, 0x14, 0x00010000};
 
-const u32 data_ov003_020e071c[1]    = {0x56C};
-const u32 data_ov003_020e0720[1]    = {0x18F};
-const u32 data_ov003_020e0724[0xB5] = {
+static const u32 data_ov003_020e071c[1]    = {0x56C};
+static const u32 data_ov003_020e0720[1]    = {0x18F};
+static const u32 data_ov003_020e0724[0xB5] = {
     0x191, 0x181, 0x188, 0x189, 0x192, 0x199, 0x19A, 0x19B, 0x1A0, 0x1A1, 0x1B1, 0x1A9, 0x1AA, 0x1C6, 0x1C7, 0x1C8, 0x1D2,
     0x1D4, 0x1D5, 0x1E6, 0x1E7, 0x1E8, 0x1F6, 0x1F7, 0x1F8, 0x204, 0x206, 0x207, 0x215, 0x216, 0x217, 0x21F, 0x221, 0x222,
     0x229, 0x22A, 0x22B, 0x238, 0x23A, 0x23B, 0x56C, 0x243, 0x244, 0x254, 0x255, 0x256, 0x266, 0x267, 0x268, 0x275, 0x276,
@@ -94,30 +99,6 @@ extern const TaskHandle data_ov003_020e0b74;
 extern void**           data_ov003_020e6a44[];
 
 // ---------------------------------------------------------------------------------------------
-// External functions
-// ---------------------------------------------------------------------------------------------
-
-extern void func_02026590(s32* dst, s32 target, u16 weight);
-
-extern s32  func_ov003_0208a028(s32 mode, Ov003EnemyActor* unit, u16 attackId);
-extern void func_ov003_0208a234(s32 arg0, s32 arg1, CombatActor* actor);
-extern s32  func_ov003_0208a25c(CombatActor* actor);
-extern void func_ov003_0208c970(s32 engine, s16 arg1);
-extern void func_ov003_0208c9e0(s32 engine, s16 arg1);
-extern BOOL func_ov003_0208ca04(s32 arg0, u32 arg1);
-
-// Defined by the previous unit (0x020c2064..0x020c41e8).
-
-// Defined by the following unit (0x020c703c..).
-
-// ---------------------------------------------------------------------------------------------
-// Forward declarations (the retail unit defines these in address order)
-// ---------------------------------------------------------------------------------------------
-
-void func_ov003_020c439c(Ov003EnemyActor* actor, SpriteAnimationEx* anim);
-void func_ov003_020c4428(Ov003CutinActor* actor, SpriteAnimationEx* anim);
-
-// ---------------------------------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------------------------------
 
@@ -137,7 +118,7 @@ void func_ov003_020c41e8(Ov003CutinActor* actor) {
     actor->base.unk_1BC         = 0x1000;
 }
 
-void func_ov003_020c4264(Ov003EnemyActor* actor) {}
+static void func_ov003_020c4264(Ov003EnemyActor* actor) {}
 
 /// Releases the main sprite's resources.
 void func_ov003_020c4268(Ov003CutinActor* actor) {
@@ -148,7 +129,7 @@ void func_ov003_020c427c(Ov003EnemyActor* actor) {
     func_ov003_020c37bc(actor);
 }
 
-void func_ov003_020c4288(Ov003EnemyActor* actor) {
+static void func_ov003_020c4288(Ov003EnemyActor* actor) {
     actor->actor.flags &= ~0x80000000;
     if (actor->sprite.paletteMode == 1) {
         CombatSprite_SetPaletteMode(&actor->sprite, 0);
@@ -202,7 +183,7 @@ void func_ov003_020c439c(Ov003EnemyActor* actor, SpriteAnimationEx* anim) {
 }
 
 /// Same as `func_ov003_020c439c`, but without the frame offset/animation index overrides.
-void func_ov003_020c4428(Ov003CutinActor* actor, SpriteAnimationEx* anim) {
+static void func_ov003_020c4428(Ov003CutinActor* actor, SpriteAnimationEx* anim) {
     const BtlSpriteDesc*   params = func_ov003_020c3c6c(&actor->base);
     const SpriteAnimEntry* entry  = &params->table[params->entry];
 
@@ -216,7 +197,7 @@ void func_ov003_020c4428(Ov003CutinActor* actor, SpriteAnimationEx* anim) {
     anim->animTable       = NULL;
 }
 
-s32 func_ov003_020c44a4(Ov003EnemyActor* actor) {
+static s32 func_ov003_020c44a4(Ov003EnemyActor* actor) {
     return 1;
 }
 
@@ -537,7 +518,7 @@ void func_ov003_020c4cc4(Ov003EnemyActor* actor, s32 command) {
 }
 
 /// Returns 1 if `value` is already in `table`.
-s32 func_ov003_020c4cf0(s32 value, s32* table, s32 count) {
+static s32 func_ov003_020c4cf0(s32 value, s32* table, s32 count) {
     s32 i;
 
     for (i = 0; i < count; i++) {
@@ -549,7 +530,7 @@ s32 func_ov003_020c4cf0(s32 value, s32* table, s32 count) {
 }
 
 /// Stores `value` into the first free slot of `table`.
-s32 func_ov003_020c4d20(s32 value, s32* table, s32 count) {
+static s32 func_ov003_020c4d20(s32 value, s32* table, s32 count) {
     s32 i;
 
     for (i = 0; i < count; i++) {
@@ -562,7 +543,7 @@ s32 func_ov003_020c4d20(s32 value, s32* table, s32 count) {
 }
 
 /// Clears every slot of `table` holding `value`.
-void func_ov003_020c4d54(s32 value, s32* table, s32 count) {
+static void func_ov003_020c4d54(s32 value, s32* table, s32 count) {
     s32 i;
 
     for (i = 0; i < count; i++) {
@@ -580,11 +561,11 @@ void func_ov003_020c4da8(void) {
     func_ov003_020c4cf0(0, (s32*)data_ov003_020e7204, (s32)g_Cutin->unk_03);
 }
 
-s32 func_ov003_020c4dcc(s32 value) {
+static s32 func_ov003_020c4dcc(s32 value) {
     func_ov003_020c4cf0(value, (s32*)data_ov003_020e722c, (s32)g_Cutin->unk_02);
 }
 
-s32 func_ov003_020c4dec(s32 value) {
+static s32 func_ov003_020c4dec(s32 value) {
     return func_ov003_020c4cf0(value, (s32*)data_ov003_020e7204, (s32)g_Cutin->unk_03);
 }
 
@@ -626,7 +607,7 @@ void func_ov003_020c4f00(Ov003EnemyActor* actor) {
 }
 
 /// True if any actor on `list` has cut-in instance id `id`.
-s32 func_ov003_020c4f20(s32 id, CombatList* list) {
+static s32 func_ov003_020c4f20(s32 id, CombatList* list) {
     Ov003CutinActor* entry = func_ov003_0208495c(list);
 
     while (entry != NULL) {
@@ -647,7 +628,7 @@ void func_ov003_020c4f80(s32 id) {
 }
 
 /// Knocks the actor out: zero HP, defeat command, "defeated" flag.
-void func_ov003_020c4fa0(Ov003EnemyActor* actor) {
+static void func_ov003_020c4fa0(Ov003EnemyActor* actor) {
     actor->actor.currentHp = 0;
     CombatActor_SetPendingCommand(&actor->actor, 3);
     actor->actor.flags |= 4;
@@ -755,7 +736,7 @@ s32 func_ov003_020c5220(Ov003EnemyActor* actor) {
 }
 
 /// True if the actor's box does not overlap any actor on the sub-screen list.
-s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
+static s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
     s32              hitbox[4];
     s32              other[4];
     s32              result;
@@ -785,7 +766,7 @@ s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
 }
 
 /// Counts the sub-screen cut-in actors, and how many of them are "large" (width > 0x40).
-void func_ov003_020c54e0(s32* over, s32* total) {
+static void func_ov003_020c54e0(s32* over, s32* total) {
     Ov003CutinActor* entry;
 
     *over  = 0;
@@ -801,7 +782,7 @@ void func_ov003_020c54e0(s32* over, s32* total) {
 }
 
 /// Picks a randomised rise speed for the cut-in, scaled by how crowded the sub screen is.
-void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u16 arg3) {
+static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u16 arg3) {
     s32 over;
     s32 total;
     s32 maxSpeed;
@@ -905,11 +886,11 @@ s32 func_ov003_020c59a0(Ov003EnemyActor* actor) {
     return func_ov003_020c59e0(actor);
 }
 
-s32 func_ov003_020c59cc(Ov003EnemyActor* actor) {
+static s32 func_ov003_020c59cc(Ov003EnemyActor* actor) {
     return actor->actor.flags & 0x4006;
 }
 
-s32 func_ov003_020c59e0(Ov003EnemyActor* actor) {
+static s32 func_ov003_020c59e0(Ov003EnemyActor* actor) {
     return actor->actor.flags & 0x4606;
 }
 
@@ -957,7 +938,7 @@ void func_ov003_020c5ac0(s32 arg0, s32 arg1, Ov003CutinActor* actor, s32 arg3, s
     actor->base.actor.zVelocity = arg5;
     actor->base.actor.unk_58    = 0;
     CombatActor_SetPendingCommand(&actor->base.actor, 5);
-    func_ov003_0208a234(arg1, arg0 + 4, &actor->base.actor);
+    func_ov003_0208a234(arg1, arg0 + 4, &actor->base);
 }
 
 s32 func_ov003_020c5b0c(u16 id, void* owner, s32 arg2) {
@@ -1571,7 +1552,7 @@ s32 func_ov003_020c6c2c(Ov003EnemyActor* actor, u16 anim) {
     }
 }
 
-void func_ov003_020c6e0c(Ov003EnemyActor* actor) {
+static void func_ov003_020c6e0c(Ov003EnemyActor* actor) {
     actor->flags18C = (u16)((actor->flags18C | 0x40) & ~0x20);
     func_ov003_020c4ee0(actor);
     func_ov003_020c4a34(actor);
@@ -1580,12 +1561,12 @@ void func_ov003_020c6e0c(Ov003EnemyActor* actor) {
     }
 }
 
-void func_ov003_020c6e58(Ov003EnemyActor* actor) {
+static void func_ov003_020c6e58(Ov003EnemyActor* actor) {
     func_ov003_020c4f00(actor);
 }
 
 /// Final cut-in sequence: camera fade-out and sprite release.
-s32 func_ov003_020c6e64(Ov003EnemyActor* actor) {
+static s32 func_ov003_020c6e64(Ov003EnemyActor* actor) {
     if (actor->unk_1A4 == 0) {
         if (!(actor->flags18C & 0x1000)) {
             s32 hasPartner = ((actor->actor.flags & 0x2000) && (actor->partner != NULL)) ? 1 : 0;

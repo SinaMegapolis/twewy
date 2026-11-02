@@ -3,9 +3,7 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc70c;
+static const TaskHandle data_ov003_020dc70c;
 
 void func_ov003_020ab7f8(Ov003EffectState* effect, s32 x, s32 y, s32 z) {
     Ov003PsychPositionArgs args;
@@ -16,7 +14,7 @@ void func_ov003_020ab7f8(Ov003EffectState* effect, s32 x, s32 y, s32 z) {
     func_ov003_020a6000(&data_ov003_020dc70c, &args);
 }
 
-s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychPositionArgs* arg = args;
     Ov003FireWorks*         self;
     switch (stage) {
@@ -103,5 +101,5 @@ s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4ae0[24] = "SubTsk_BtlPsy_FireWorks";
-const TaskHandle data_ov003_020dc70c     = {data_ov003_020e4ae0, func_ov003_020ab828, sizeof(Ov003FireWorks)};
+static char             data_ov003_020e4ae0[24] = "SubTsk_BtlPsy_FireWorks";
+static const TaskHandle data_ov003_020dc70c     = {data_ov003_020e4ae0, func_ov003_020ab828, sizeof(Ov003FireWorks)};

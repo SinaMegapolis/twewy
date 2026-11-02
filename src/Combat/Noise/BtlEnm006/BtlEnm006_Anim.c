@@ -2,23 +2,23 @@
 #include "Combat/Noise/Private/BtlEnm006.h"
 
 /// One of the `Tsk_BtlEnm006` asset variants.
-extern char                  data_ov010_0212932c[28];
-extern char                  data_ov010_02129348[28];
-extern char                  data_ov010_02129364[28];
-extern const BinIdentifier   data_ov010_02129050[3];
-extern const SpriteAnimEntry data_ov010_02129068[17];
-extern const SpriteAnimEntry data_ov010_021290f0[14];
-extern const SpriteAnimEntry data_ov010_02129178[17];
+static char                  data_ov010_0212932c[28];
+static char                  data_ov010_02129348[28];
+static char                  data_ov010_02129364[28];
+static const BinIdentifier   data_ov010_02129050[3];
+static const SpriteAnimEntry data_ov010_02129068[17];
+static const SpriteAnimEntry data_ov010_021290f0[14];
+static const SpriteAnimEntry data_ov010_02129178[17];
 
 typedef struct Enm006VariantTail {
     /* 0x00 */ BtlSpriteDesc   variant;
     /* 0x10 */ SpriteAnimEntry anim[3];
 } Enm006VariantTail; // Size: 0x28
 
-const BtlSpriteDesc data_ov010_02129008 = {&data_ov010_02129050[2], data_ov010_021290f0, 0, 0x13, 0x160};
-const BtlSpriteDesc data_ov010_02129018 = {&data_ov010_02129050[1], data_ov010_02129068, 0, 0x13, 0x150};
+static const BtlSpriteDesc data_ov010_02129008 = {&data_ov010_02129050[2], data_ov010_021290f0, 0, 0x13, 0x160};
+static const BtlSpriteDesc data_ov010_02129018 = {&data_ov010_02129050[1], data_ov010_02129068, 0, 0x13, 0x150};
 
-const Enm006VariantTail data_ov010_02129028 = {
+static const Enm006VariantTail data_ov010_02129028 = {
     {&data_ov010_02129050[0], data_ov010_02129178, 0, 0x13, 0x150},
     {
      {19, 20, 21, 22},
@@ -27,13 +27,13 @@ const Enm006VariantTail data_ov010_02129028 = {
      },
 };
 
-const BinIdentifier data_ov010_02129050[3] = {
+static const BinIdentifier data_ov010_02129050[3] = {
     {3, data_ov010_0212932c},
     {3, data_ov010_02129348},
     {3, data_ov010_02129364},
 };
 
-const SpriteAnimEntry data_ov010_02129068[17] = {
+static const SpriteAnimEntry data_ov010_02129068[17] = {
     { 1,  3,  2, 0},
     { 1,  3,  2, 1},
     { 1,  3,  2, 2},
@@ -53,7 +53,7 @@ const SpriteAnimEntry data_ov010_02129068[17] = {
     {13, 15, 14, 1},
 };
 
-const SpriteAnimEntry data_ov010_021290f0[14] = {
+static const SpriteAnimEntry data_ov010_021290f0[14] = {
     { 1,  3,  2, 0},
     { 1,  3,  2, 1},
     { 1,  3,  2, 2},
@@ -76,7 +76,7 @@ const SpriteAnimEntry data_ov010_02129160[3] = {
     {13, 15, 14, 1},
 };
 
-const SpriteAnimEntry data_ov010_02129178[17] = {
+static const SpriteAnimEntry data_ov010_02129178[17] = {
     { 1,  3,  2, 0},
     { 1,  3,  2, 1},
     { 1,  3,  2, 2},
@@ -102,9 +102,9 @@ BtlSpriteDesc* data_ov010_02129320[3] = {
     &data_ov010_02129008,
 };
 
-char data_ov010_0212932c[28] = "Apl_Suy/Grp_BtlEnm006.bin";
-char data_ov010_02129348[28] = "Apl_Suy/Grp_BtlEnm006a.bin";
-char data_ov010_02129364[28] = "Apl_Suy/Grp_BtlEnm006b.bin";
+static char data_ov010_0212932c[28] = "Apl_Suy/Grp_BtlEnm006.bin";
+static char data_ov010_02129348[28] = "Apl_Suy/Grp_BtlEnm006a.bin";
+static char data_ov010_02129364[28] = "Apl_Suy/Grp_BtlEnm006b.bin";
 
 BinIdentifier* func_ov010_021256c0(s32 index) {
     return (BinIdentifier*)&data_ov010_02129050[index];

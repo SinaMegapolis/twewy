@@ -29,9 +29,9 @@
 #include "Player/Inventory.h"
 #include "Save.h"
 #include "SndMgr.h"
+#include "main_02026528.h"
 #include <nitro/fx.h>
 
-extern void      func_02026590(s32* value, s32 target, u16 frames);
 extern const u32 data_0205a124[];
 
 u8 Field_GetAreaZone(u32 area) {
@@ -266,7 +266,7 @@ FieldPos* Field_GetCameraOrigin(void) {
     return &data_ov030_02109d60->origin;
 }
 
-BOOL func_ov030_020af9b4(void) {
+static BOOL func_ov030_020af9b4(void) {
     if (gSaveData.battleCount != 1) {
         return FALSE;
     }
@@ -278,7 +278,7 @@ BOOL func_ov030_020af9b4(void) {
     return FALSE;
 }
 
-BOOL func_ov030_020afa04(void) {
+static BOOL func_ov030_020afa04(void) {
     for (s32 i = 0; i < gSaveData.scanSymbolCount; i++) {
         if (gSaveData.scanSymbols[i].state == 2 && gSaveData.scanSymbols[i].category == 8) {
             return TRUE;
@@ -287,7 +287,7 @@ BOOL func_ov030_020afa04(void) {
     return FALSE;
 }
 
-BOOL func_ov030_020afa58(void) {
+static BOOL func_ov030_020afa58(void) {
     for (s32 i = 0; i < gSaveData.scanSymbolCount; i++) {
         if (gSaveData.scanSymbols[i].state == 2) {
             s16 category = gSaveData.scanSymbols[i].category;

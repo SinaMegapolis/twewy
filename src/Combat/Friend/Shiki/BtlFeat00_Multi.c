@@ -1,15 +1,15 @@
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
+#include "main_02026528.h"
 
 extern s32           data_ov003_020e71e0;
 extern BinIdentifier data_ov003_020d77d8;
 extern BinIdentifier data_ov003_020d77e0;
-
-extern void func_02026590(s32, s32, u16);
 
 typedef struct BtlFeat00_Multi {
     /* 0x00 */ CombatSprite sprite;

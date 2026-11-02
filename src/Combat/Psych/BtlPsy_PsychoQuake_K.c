@@ -4,8 +4,7 @@
 #include "SndMgr.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const TaskHandle data_ov003_020dc8dc;
+static const TaskHandle data_ov003_020dc8dc;
 
 s32 func_ov003_020b05b8(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(7))
@@ -18,7 +17,7 @@ s32 func_ov003_020b05b8(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003PsychoQuake*  self;
     switch (stage) {
@@ -156,5 +155,5 @@ s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4cd4[28] = "Tsk_BtlPsy_PsychoQuake_K";
-const TaskHandle data_ov003_020dc8dc     = {data_ov003_020e4cd4, func_ov003_020b0610, sizeof(Ov003PsychoQuake)};
+static char             data_ov003_020e4cd4[28] = "Tsk_BtlPsy_PsychoQuake_K";
+static const TaskHandle data_ov003_020dc8dc     = {data_ov003_020e4cd4, func_ov003_020b0610, sizeof(Ov003PsychoQuake)};

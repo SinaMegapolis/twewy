@@ -11,11 +11,10 @@
 #include "Engine/Math/Rect.h"
 #include "Engine/Overlay/OverlayDispatcher.h"
 #include "Engine/Resources/PaletteMgr.h"
+#include "Engine/Resources/ScreenMapper.h"
 #include "FixedPoint.h"
 #include "common_data.h"
 #include <string.h>
-
-extern void func_0200d954(s32 engine, s32 arg);
 
 #ifdef REGION_USA
     #define GRPCHECK_BIN_ID 38
@@ -6820,9 +6819,6 @@ void* func_ov038_020827e4(s32 arg0, s32 arg1, s32* arg2, s32 arg3, s32 arg4, u32
     }
 }
 
-s32  func_0200d1d8(void* entry, s32 engineId, s32 bgLayer, void* tilemap, void* tileData, s32 width, s32 height);
-void func_0200d858(void* entry, s32 wrapH, s32 wrapV, void* defaultTile);
-
 // Nonmatching: scheduling and register allocation
 void func_ov038_0208287c(GrpCheckBg* bg, GrpCheckBgParams* params) {
     MI_CpuSet(bg, 0, sizeof(GrpCheckBg));
@@ -6879,19 +6875,19 @@ void func_ov038_0208287c(GrpCheckBg* bg, GrpCheckBgParams* params) {
     } else if ((params->unk_28 != 0) && (params->unk_2C == 0) && (params->unk_2E != 0)) {
         bg->tile1 = Data_GetPackEntryData(bg->data, params->unk_2A) + 4;
         bg->tile3 = Data_GetPackEntryData(bg->data, params->unk_2E) + 4;
-        func_0200d1d8(&bg->screenMap1, params->unk_00, params->unk_04, 0, &bg->tile1, 1, 1);
-        func_0200d1d8(&bg->screenMap2, params->unk_00, params->unk_08, 0, &bg->tile3, 1, 1);
-        func_0200d858(&bg->screenMap1, params->unk_0C, params->unk_10, 0);
-        func_0200d858(&bg->screenMap2, params->unk_0C, params->unk_10, 0);
+        func_0200d1d8((ScreenMapEntry*)&bg->screenMap1, params->unk_00, params->unk_04, 0, &bg->tile1, 1, 1);
+        func_0200d1d8((ScreenMapEntry*)&bg->screenMap2, params->unk_00, params->unk_08, 0, &bg->tile3, 1, 1);
+        func_0200d858((ScreenMapEntry*)&bg->screenMap1, params->unk_0C, params->unk_10, 0);
+        func_0200d858((ScreenMapEntry*)&bg->screenMap2, params->unk_0C, params->unk_10, 0);
     } else {
         bg->tile1 = Data_GetPackEntryData(bg->data, params->unk_2A) + 4;
         bg->tile2 = Data_GetPackEntryData(bg->data, params->unk_2C) + 4;
         bg->tile3 = Data_GetPackEntryData(bg->data, params->unk_2E) + 4;
         bg->tile4 = Data_GetPackEntryData(bg->data, params->unk_30) + 4;
-        func_0200d1d8(&bg->screenMap1, params->unk_00, params->unk_04, 0, &bg->tile1, 1, 2);
-        func_0200d1d8(&bg->screenMap2, params->unk_00, params->unk_08, 0, &bg->tile3, 1, 2);
-        func_0200d858(&bg->screenMap1, params->unk_0C, params->unk_10, 0);
-        func_0200d858(&bg->screenMap2, params->unk_0C, params->unk_10, 0);
+        func_0200d1d8((ScreenMapEntry*)&bg->screenMap1, params->unk_00, params->unk_04, 0, &bg->tile1, 1, 2);
+        func_0200d1d8((ScreenMapEntry*)&bg->screenMap2, params->unk_00, params->unk_08, 0, &bg->tile3, 1, 2);
+        func_0200d858((ScreenMapEntry*)&bg->screenMap1, params->unk_0C, params->unk_10, 0);
+        func_0200d858((ScreenMapEntry*)&bg->screenMap2, params->unk_0C, params->unk_10, 0);
     }
 }
 

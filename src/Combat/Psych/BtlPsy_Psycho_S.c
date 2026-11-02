@@ -2,7 +2,8 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dca84;
+static const TaskHandle data_ov003_020dca84;
+static Ov003EnemyActor* func_ov003_020b5f04(s32 index);
 
 s32 func_ov003_020b5d54(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(4))
@@ -19,7 +20,7 @@ s32 func_ov003_020b5d54(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs*  arg = args;
     Ov003PsychUnitTimer* self;
     switch (stage) {
@@ -55,7 +56,7 @@ s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-Ov003EnemyActor* func_ov003_020b5f04(s32 index) {
+static Ov003EnemyActor* func_ov003_020b5f04(s32 index) {
     Ov003EnemyActor* secondary = NULL;
     Ov003EnemyActor* primary   = (Ov003EnemyActor*)func_ov003_02085ec0(2);
     if (primary != NULL && !func_ov003_020a60ec(primary, 5))
@@ -72,5 +73,5 @@ Ov003EnemyActor* func_ov003_020b5f04(s32 index) {
     return NULL;
 }
 
-char             data_ov003_020e4ec8[20] = "Tsk_BtlPsy_Psycho_S";
-const TaskHandle data_ov003_020dca84     = {data_ov003_020e4ec8, func_ov003_020b5dc4, sizeof(Ov003PsychUnitTimer)};
+static char             data_ov003_020e4ec8[20] = "Tsk_BtlPsy_Psycho_S";
+static const TaskHandle data_ov003_020dca84     = {data_ov003_020e4ec8, func_ov003_020b5dc4, sizeof(Ov003PsychUnitTimer)};

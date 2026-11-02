@@ -119,4 +119,6 @@ inline void G3X_AlphaBlend(BOOL param1) {
 } // extern "C"
 #endif
 
+void func_020370cc(fx16 sin, fx16 cos);
+
 #endif

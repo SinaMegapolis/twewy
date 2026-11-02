@@ -3,9 +3,9 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc8d0;
+static const TaskHandle data_ov003_020dc8d0;
+static s32              func_ov003_020b03b4(Ov003EnemyAirFlow* self);
+static s32              func_ov003_020b0470(Ov003EnemyAirFlow* self);
 
 s32 func_ov003_020b0188(Ov003EffectState* effect, Ov003EnemyActor* unit, s32* releaseFlag) {
     s32 allowed = func_ov003_020a60ec(unit, 4);
@@ -18,7 +18,7 @@ s32 func_ov003_020b0188(Ov003EffectState* effect, Ov003EnemyActor* unit, s32* re
     return func_ov003_020a6000(&data_ov003_020dc8d0, &args);
 }
 
-s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyAirFlowArgs* arg = args;
     Ov003EnemyAirFlow*     self;
     switch (stage) {
@@ -87,7 +87,7 @@ s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-s32 func_ov003_020b03b4(Ov003EnemyAirFlow* self) {
+static s32 func_ov003_020b03b4(Ov003EnemyAirFlow* self) {
     Ov003EnemyActor* unit = self->unit;
     unit->actor.position.z += self->zVelocity;
     self->zVelocity += 0x6000;
@@ -104,7 +104,7 @@ s32 func_ov003_020b03b4(Ov003EnemyAirFlow* self) {
     return 0;
 }
 
-s32 func_ov003_020b0470(Ov003EnemyAirFlow* self) {
+static s32 func_ov003_020b0470(Ov003EnemyAirFlow* self) {
     s32 oldX, oldY, oldZ;
 
     Ov003EnemyActor* unit = self->unit;
@@ -135,5 +135,5 @@ s32 func_ov003_020b0470(Ov003EnemyAirFlow* self) {
     }
     return 1;
 }
-char             data_ov003_020e4cb8[28] = "SubTsk_BtlPsy_EnemyAirFlow";
-const TaskHandle data_ov003_020dc8d0     = {data_ov003_020e4cb8, func_ov003_020b01d8, sizeof(Ov003EnemyAirFlow)};
+static char             data_ov003_020e4cb8[28] = "SubTsk_BtlPsy_EnemyAirFlow";
+static const TaskHandle data_ov003_020dc8d0     = {data_ov003_020e4cb8, func_ov003_020b01d8, sizeof(Ov003EnemyAirFlow)};

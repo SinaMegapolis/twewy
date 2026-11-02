@@ -20,12 +20,12 @@ typedef struct BtlEffSwordSpawn {
 
 extern const BinIdentifier data_ov003_020d77d8;
 
-extern const TaskHandle      data_ov003_020d8634;
-extern const TaskStages      data_ov003_020d8640;
-extern const SpriteAnimEntry data_ov003_020d8650[];
+static const TaskHandle      data_ov003_020d8634;
+static const TaskStages      data_ov003_020d8640;
+static const SpriteAnimEntry data_ov003_020d8650[];
 
 /// Task init: clears the effect sprite and loads the slash animation named by the spawn parameter.
-s32 func_ov003_0209ee18(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ee18(TaskPool* pool, Task* task, void* args) {
     CombatSprite*     sprite = task->data;
     BtlEffSwordSpawn* spawn  = args;
 
@@ -37,7 +37,7 @@ s32 func_ov003_0209ee18(TaskPool* pool, Task* task, void* args) {
 
 /// Task update: retires the effect once the battle leaves the effect-visible state, the hit-stun
 /// is over, or the slash animation has finished.
-s32 func_ov003_0209ee94(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ee94(TaskPool* pool, Task* task, void* args) {
     CombatSprite* sprite = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x40) {
@@ -54,7 +54,7 @@ s32 func_ov003_0209ee94(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task render: pins the slash to the main display's target actor and sorts it in front of it.
-s32 func_ov003_0209eef0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209eef0(TaskPool* pool, Task* task, void* args) {
     CombatSprite* sprite = task->data;
     CombatActor*  actor  = data_ov003_020e71b8->unk3D898;
     s32           posX;
@@ -74,13 +74,13 @@ s32 func_ov003_0209eef0(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task cleanup: releases the slash sprite.
-s32 func_ov003_0209ef84(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ef84(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
 /// Four-stage task dispatcher.
-s32 func_ov003_0209ef98(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209ef98(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8640;
 
     if (func_ov003_0208b690((u16)stage) != 0) {
@@ -98,18 +98,18 @@ void func_ov003_0209f000(s16 animIndex) {
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov003_020d8634, NULL, 0, NULL, &anim);
 }
 
-char data_ov003_020e3da0[0x14] = "Tsk_BtlEff_Sword";
+static char data_ov003_020e3da0[0x14] = "Tsk_BtlEff_Sword";
 
-const TaskHandle data_ov003_020d8634 = {data_ov003_020e3da0, func_ov003_0209ef98, sizeof(CombatSprite)};
+static const TaskHandle data_ov003_020d8634 = {data_ov003_020e3da0, func_ov003_0209ef98, sizeof(CombatSprite)};
 
-const TaskStages data_ov003_020d8640 = {
+static const TaskStages data_ov003_020d8640 = {
     func_ov003_0209ee18,
     func_ov003_0209ee94,
     func_ov003_0209eef0,
     func_ov003_0209ef84,
 };
 
-const SpriteAnimEntry data_ov003_020d8650[10] = {
+static const SpriteAnimEntry data_ov003_020d8650[10] = {
     {0x3B, 0x3D, 0x3C, 0x0},
     {0x3E, 0x40, 0x3F, 0x0},
     {0x41, 0x43, 0x42, 0x0},

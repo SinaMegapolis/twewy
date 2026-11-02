@@ -12,6 +12,7 @@
 #include "Engine/Resources/ScreenMapper.h"
 #include "Save.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 
 #include <nitro/g2.h>
 #include <nitro/math.h>
@@ -62,38 +63,18 @@ typedef struct BtlFieldUG {
 
 extern const BtlFieldDef data_ov003_020da2bc[];
 
-// External functions.
+static s32 func_ov003_0209378c(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_02093b40(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_02093b94(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_02093ba8(TaskPool* pool, Task* task, void* args);
 
-extern void func_0200d858(ScreenMapEntry* entry, s32 wrapH, s32 wrapV, void* defaultTile);
-extern void func_0200d954(s32 engine, s32 bg);
-extern void func_02026590(s32* dst, s32 target, u16 weight);
-extern void func_ov003_02083300(Ov003BgResState* state, s32 engine, BinIdentifier* iden);
-extern void func_ov003_0208335c(Ov003BgResState* state, const Ov003ResCmd* script, void* arg);
-extern void func_ov003_02083390(Ov003BgResState* state);
-extern void func_ov003_020833cc(Ov003BgResState* state);
-extern void func_ov003_0209409c(s32 bgIndex);
-
-// Defined in this unit.
-
-void func_ov003_020933dc(BtlFieldUG* state, void (*update)(BtlFieldUG*));
-void func_ov003_020933f0(void);
-void func_ov003_02093494(BtlFieldUG* state, const Ov003ResCmd** scripts, u16 count);
-void func_ov003_020934c8(Ov003Camera* camera);
-void func_ov003_02093608(BtlFieldUG* state);
-void func_ov003_020936fc(BtlFieldUG* state);
-
-s32 func_ov003_0209378c(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_02093b40(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_02093b94(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_02093ba8(TaskPool* pool, Task* task, void* args);
-
-s32 func_ov003_02093c28(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_02093c28(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// `TaskHandle.taskName` of `data_ov003_020d7b68`.
-char data_ov003_020e3b28[0x10] = "Tsk_BtlField_UG";
+static char data_ov003_020e3b28[0x10] = "Tsk_BtlField_UG";
 
 /// The four stage functions of the field background task.
-const TaskStages data_ov003_020d7b74 = {
+static const TaskStages data_ov003_020d7b74 = {
     func_ov003_0209378c,
     func_ov003_02093b40,
     func_ov003_02093b94,
@@ -104,14 +85,14 @@ const TaskStages data_ov003_020d7b74 = {
 const TaskHandle data_ov003_020d7b68 = {data_ov003_020e3b28, func_ov003_02093c28, 0x108};
 
 /// Resets the fade timer and swaps in the background's scroll-update callback.
-void func_ov003_020933dc(BtlFieldUG* state, void (*update)(BtlFieldUG*)) {
+static void func_ov003_020933dc(BtlFieldUG* state, void (*update)(BtlFieldUG*)) {
     state->update = update;
     state->unk_76 = 0;
     state->timer  = 0;
 }
 
 /// Sets BG1 and BG2 of the main engine up as the two text layers the floor strips are drawn on.
-void func_ov003_020933f0(void) {
+static void func_ov003_020933f0(void) {
     DisplayBGSettings* bg;
 
     bg                 = &g_DisplaySettings.engineState[0].bgSettings[1];
@@ -138,7 +119,7 @@ void func_ov003_020933f0(void) {
 }
 
 /// Starts the scroll script of `rowData` that the save's battle index picks (the first one if it is out of range).
-void func_ov003_02093494(BtlFieldUG* state, const Ov003ResCmd** scripts, u16 count) {
+static void func_ov003_02093494(BtlFieldUG* state, const Ov003ResCmd** scripts, u16 count) {
     u16 index = gSaveData.unk_3232;
 
     if (scripts == NULL)
@@ -150,7 +131,7 @@ void func_ov003_02093494(BtlFieldUG* state, const Ov003ResCmd** scripts, u16 cou
 
 /// Eases the camera's view point toward its target (ignoring drifts that are too small to see), keeping it inside the
 /// floor's bounds.
-void func_ov003_020934c8(Ov003Camera* camera) {
+static void func_ov003_020934c8(Ov003Camera* camera) {
     s32 dx;
     s32 dy;
     s32 dz;
@@ -195,13 +176,13 @@ void func_ov003_020934c8(Ov003Camera* camera) {
 }
 
 /// Parks the two floor strips behind the camera: the near one first, then the far one.
-void func_ov003_02093608(BtlFieldUG* state) {
+static void func_ov003_02093608(BtlFieldUG* state) {
     BtlField_ScrollRow(&state->rowMaps[0], state->camera, 0x80000, 0x60000);
     BtlField_ScrollRow(&state->rowMaps[1], state->camera, 0x180000, 0x60000);
 }
 
 /// Fades the background in with the battle's transition, then hands the task to the live update.
-void func_ov003_020936fc(BtlFieldUG* state) {
+static void func_ov003_020936fc(BtlFieldUG* state) {
     if (state->timer == 0) {
         if (state->camera->pathId == 2 || state->camera->pathId == 30) {
             state->camera->shakeX /= 4;
@@ -219,7 +200,7 @@ void func_ov003_020936fc(BtlFieldUG* state) {
 }
 
 /// Task stage 0: fetches the background's resources and seeds the tilemaps.
-s32 func_ov003_0209378c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209378c(TaskPool* pool, Task* task, void* args) {
     BtlFieldUG*        state = task->data;
     const BtlFieldDef* def;
     void*              palData;
@@ -277,7 +258,7 @@ s32 func_ov003_0209378c(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 1: advances the background every frame.
-s32 func_ov003_02093b40(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02093b40(TaskPool* pool, Task* task, void* args) {
     BtlFieldUG* state = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x1000) {
@@ -292,13 +273,13 @@ s32 func_ov003_02093b40(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 2: re-parks the background behind the camera.
-s32 func_ov003_02093b94(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02093b94(TaskPool* pool, Task* task, void* args) {
     func_ov003_02093608(task->data);
     return 1;
 }
 
 /// Task stage 3: releases the background's resources.
-s32 func_ov003_02093ba8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02093ba8(TaskPool* pool, Task* task, void* args) {
     BtlFieldUG* state = task->data;
 
     BgResMgr_ReleaseChar(g_BgResourceManagers[0], state->charResA);
@@ -313,7 +294,7 @@ s32 func_ov003_02093ba8(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task dispatcher: runs `stage` of the field background's stage table.
-s32 func_ov003_02093c28(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_02093c28(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7b74;
 
     return stages.iter[stage](pool, task, args);

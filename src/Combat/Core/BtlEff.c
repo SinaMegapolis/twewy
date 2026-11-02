@@ -27,20 +27,24 @@ typedef struct BtlEffArgs {
 /// Named battle sprite-page identifiers.
 extern const BinIdentifier data_ov003_020d77d8, data_ov003_020d77f8;
 
-// Defined in this unit.
+static s32 func_ov003_0209e754(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209e864(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209e890(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209e928(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209e990(TaskPool* pool, Task* task, void* args, s32 stage);
 
-char data_ov003_020e3d84[0xC] = "Tsk_BtlEff";
+static char data_ov003_020e3d84[0xC] = "Tsk_BtlEff";
 
-const TaskHandle data_ov003_020d81ec = {data_ov003_020e3d84, func_ov003_0209e990, sizeof(CombatEffect)};
+static const TaskHandle data_ov003_020d81ec = {data_ov003_020e3d84, func_ov003_0209e990, sizeof(CombatEffect)};
 
-const TaskStages data_ov003_020d81f8 = {
+static const TaskStages data_ov003_020d81f8 = {
     func_ov003_0209e754,
     func_ov003_0209e864,
     func_ov003_0209e890,
     func_ov003_0209e928,
 };
 
-const CombatEffectParams data_ov003_020d8208[26] = {
+static const CombatEffectParams data_ov003_020d8208[26] = {
     {{0x32, 0x34, 0x33, 0}, 4, 0x40, 1, 0, 0},
     {{0x38, 0x3A, 0x39, 0}, 4, 0x24, 1, 0, 0},
 };
@@ -48,7 +52,7 @@ const CombatEffectParams data_ov003_020d8208[26] = {
 /// Loads the effect sprite from the record `args->id` selects, positions it and accounts for it in
 /// the per-screen live effect count. Returns 0 when the sprite could not be loaded.
 // Nonmatching: select named resource objects instead of indexing across separate objects.
-s32 func_ov003_0209e754(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e754(TaskPool* pool, Task* task, void* args) {
     CombatEffect*             eff = task->data;
     BtlEffArgs*               p   = args;
     const CombatEffectParams* def;
@@ -79,7 +83,7 @@ s32 func_ov003_0209e754(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Advances the effect and stops it once its animation has played out.
-s32 func_ov003_0209e864(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e864(TaskPool* pool, Task* task, void* args) {
     CombatEffect* eff = task->data;
 
     if (SpriteMgr_IsAnimationFinished(&eff->sprite.sprite) != 0) {
@@ -92,7 +96,7 @@ s32 func_ov003_0209e864(TaskPool* pool, Task* task, void* args) {
 /// Draws the effect at its world position, depth-sorted by Y.
 // Nonmatching: the sort key stays in r5 instead of r6 (mwcc schedules the subtraction after the
 // SetPosition argument copy); the instruction sequence is otherwise identical.
-s32 func_ov003_0209e890(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e890(TaskPool* pool, Task* task, void* args) {
     CombatEffect* eff = task->data;
     s32           posX;
     s32           posY;
@@ -113,7 +117,7 @@ s32 func_ov003_0209e890(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Releases the effect sprite and drops it from the per-screen live effect count.
-s32 func_ov003_0209e928(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e928(TaskPool* pool, Task* task, void* args) {
     CombatEffect* eff = task->data;
 
     if (eff->sprite.sprite.bits_0_1 != 1) {
@@ -127,7 +131,7 @@ s32 func_ov003_0209e928(TaskPool* pool, Task* task, void* args) {
 
 /// Task dispatcher: runs `stage` of the effect's stage table unless the encounter cutscene is
 /// running, which freezes every effect task.
-s32 func_ov003_0209e990(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209e990(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d81f8;
 
     if (func_ov003_0208b690((u16)stage) != 0) {

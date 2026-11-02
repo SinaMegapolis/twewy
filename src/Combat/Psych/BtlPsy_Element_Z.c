@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc870;
+static const TaskHandle data_ov003_020dc870;
 
 s32 func_ov003_020af590(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(6))
@@ -17,7 +17,7 @@ s32 func_ov003_020af590(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020af5fc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020af5fc(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003PsychTrail*   self;
     switch (stage) {
@@ -64,5 +64,5 @@ s32 func_ov003_020af5fc(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4c4c[24] = "Tsk_BtlPsy_Element_Z";
-const TaskHandle data_ov003_020dc870     = {data_ov003_020e4c4c, func_ov003_020af5fc, sizeof(Ov003PsychTrail)};
+static char             data_ov003_020e4c4c[24] = "Tsk_BtlPsy_Element_Z";
+static const TaskHandle data_ov003_020dc870     = {data_ov003_020e4c4c, func_ov003_020af5fc, sizeof(Ov003PsychTrail)};

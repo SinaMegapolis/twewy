@@ -11,7 +11,6 @@
 #include "Save.h"
 #include <nitro/fx/fx_matrix.h>
 
-extern s32  func_0202599c(s32 flagIndex);
 extern void TexVram_Shutdown(void);
 extern void func_02028a44(void);
 

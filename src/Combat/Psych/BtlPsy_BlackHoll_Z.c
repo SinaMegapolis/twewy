@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc6e8;
+static const TaskHandle data_ov003_020dc6e8;
 
 s32 func_ov003_020ab35c(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (func_ov003_020a5b18(0x16) || func_ov003_020a5b18(0x15))
@@ -19,7 +19,7 @@ s32 func_ov003_020ab35c(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020ab3f0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ab3f0(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003PsychTrail*   self;
     switch (stage) {
@@ -60,6 +60,5 @@ s32 func_ov003_020ab3f0(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-extern char      data_ov003_020e4acc[];
-char             data_ov003_020e4ab4[24] = "Tsk_BtlPsy_BlackHoll_Z";
-const TaskHandle data_ov003_020dc6e8     = {data_ov003_020e4ab4, func_ov003_020ab3f0, sizeof(Ov003PsychTrail)};
+static char             data_ov003_020e4ab4[24] = "Tsk_BtlPsy_BlackHoll_Z";
+static const TaskHandle data_ov003_020dc6e8     = {data_ov003_020e4ab4, func_ov003_020ab3f0, sizeof(Ov003PsychTrail)};

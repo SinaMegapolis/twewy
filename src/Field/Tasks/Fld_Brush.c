@@ -10,6 +10,7 @@
 #include "Field/Tasks/Fld_TouchCursor.h"
 #include "Field/Tasks/Fld_TouchSeal.h"
 #include "Field/Tasks/Fld_TouchShine.h"
+#include "Save.h"
 #include "SndMgr.h"
 #include <nitro/types.h>
 
@@ -49,7 +50,6 @@ static const struct BrushTouchTarget Fld_Brush_Targets[14] = {
     {150, 126, 9},
     {167, 138, 7},
 };
-extern s32 func_0202599c(s32 flagIndex);
 static s32 Fld_Brush_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static const TaskHandle Tsk_Fld_Brush = {"Tsk_Fld_Brush", Fld_Brush_RunTask, sizeof(Fld_Brush)};

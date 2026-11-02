@@ -3,9 +3,8 @@
 #include "Field/Event/EventTables.h"
 #include "Field/FieldTypes.h"
 #include "Player/Inventory.h"
+#include "Save.h"
 #include "SpriteMgr.h"
-
-extern s32 func_0202599c(s32 flagIndex);
 
 typedef struct {
     /* 0x00 */ Sprite sprite;

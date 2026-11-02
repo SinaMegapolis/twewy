@@ -1,4 +1,5 @@
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include "EasyFade.h"
@@ -91,7 +92,8 @@ s32 Boss01_Eff_Render(TaskPool* pool, Task* task, void* args) {
     s16         spA, sp8;
     Boss01_Eff* eff = task->data;
 
-    func_ov003_02084348(func_ov003_020c3908(eff), &spA, &sp8, eff->unk_60.unk_0.x, eff->unk_60.unk_0.y, eff->unk_60.unk_0.z);
+    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)eff), &spA, &sp8, eff->unk_60.unk_0.x, eff->unk_60.unk_0.y,
+                        eff->unk_60.unk_0.z);
     CombatSprite_SetPosition(&eff->sprite, spA, sp8);
     CombatSprite_Render(&eff->sprite);
     return 1;
@@ -126,7 +128,7 @@ void Boss01_Eff_CreateTask(Boss01* boss) {
         args.unk_0.z = boss->unk_30 + ((RNG_Next(129) - 64) << 0xC);
         args.unk_C   = temp_r4;
         args.unk_E   = boss->unk_CA & 1;
-        EasyTask_CreateTask(func_ov003_020c3ca4(boss), &Tsk_Boss01_Eff, 0, 0, 0, &args);
+        EasyTask_CreateTask(func_ov003_020c3ca4((Ov003CutinActor*)boss), &Tsk_Boss01_Eff, 0, 0, 0, &args);
         boss->unk_1A4 = 0;
         boss->unk_1A6 = (RNG_Next(11) + 10);
     }

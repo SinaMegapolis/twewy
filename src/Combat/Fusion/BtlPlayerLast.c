@@ -7,28 +7,17 @@
 
 #include <nitro/mi/cpumem.h>
 
-extern void func_ov021_020f11bc(s32, s32*, s32*, s32*);
-extern void func_ov021_020f13b0(void);
-extern s32  func_ov021_020f1174(void);
-
-s32  func_ov007_020e7478(TaskPool* pool, Task* task, void* args);
-s32  func_ov007_020e7534(TaskPool* pool, Task* task, void* args);
-s32  func_ov007_020e756c(TaskPool* pool, Task* task, void* args);
-s32  func_ov007_020e7574(TaskPool* pool, Task* task, void* args);
-s32  func_ov007_020e757c(TaskPool* pool, Task* task, void* args, s32 stage);
-void func_ov007_020e7360(BtlPlayerLast*, void (*)(BtlPlayerLast*));
-void func_ov007_020e7374(BtlPlayerLast*, u16);
-void func_ov007_020e73d8(BtlPlayerLast*);
+static s32 func_ov007_020e757c(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlPlayerLast = {"Tsk_BtlPlayerLast", func_ov007_020e757c, 0x84};
 
-void func_ov007_020e7360(BtlPlayerLast* data, void (*callback)(BtlPlayerLast*)) {
+static void func_ov007_020e7360(BtlPlayerLast* data, void (*callback)(BtlPlayerLast*)) {
     data->unk_7C = callback;
     data->unk_80 = 0;
     data->unk_82 = 0;
 }
 
-void func_ov007_020e7374(BtlPlayerLast* data, u16 arg) {
+static void func_ov007_020e7374(BtlPlayerLast* data, u16 arg) {
     func_ov021_020f11bc((s16)arg, &data->actor.position.x, &data->actor.position.y, &data->actor.position.z);
     data->actor.screenX           = func_ov003_020843b0(1, data->actor.position.x);
     data->actor.screenY           = func_ov003_020843ec(1, data->actor.position.y, data->actor.position.z);
@@ -36,7 +25,7 @@ void func_ov007_020e7374(BtlPlayerLast* data, u16 arg) {
     func_ov021_020f13b0();
 }
 
-void func_ov007_020e73d8(BtlPlayerLast* data) {
+static void func_ov007_020e73d8(BtlPlayerLast* data) {
     s32 state = func_ov021_020f1174();
 
     switch (state) {
@@ -60,7 +49,7 @@ void func_ov007_020e73d8(BtlPlayerLast* data) {
     }
 }
 
-s32 func_ov007_020e7478(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov007_020e7478(TaskPool* pool, Task* task, void* args) {
     BtlPlayerLast* data = task->data;
 
     MI_CpuSet(data, 0, sizeof(BtlPlayerLast));
@@ -80,7 +69,7 @@ s32 func_ov007_020e7478(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov007_020e7534(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov007_020e7534(TaskPool* pool, Task* task, void* args) {
     BtlPlayerLast* data = task->data;
 
     if (data->unk_7C != NULL) {
@@ -91,15 +80,15 @@ s32 func_ov007_020e7534(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov007_020e756c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov007_020e756c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov007_020e7574(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov007_020e7574(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov007_020e757c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov007_020e757c(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = {
         .initialize = func_ov007_020e7478,
         .update     = func_ov007_020e7534,

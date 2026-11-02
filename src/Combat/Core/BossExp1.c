@@ -11,6 +11,7 @@
 #include "Engine/Resources/PaletteMgr.h"
 #include "Engine/Resources/ScreenMapper.h"
 #include "SpriteMgr.h"
+#include "main_02026528.h"
 
 #include <nitro/g2.h>
 #include <nitro/mi/cpumem.h>
@@ -89,28 +90,19 @@ extern char             data_ov003_020e6b64[];
 extern s32              data_ov003_020e7254;
 extern const TaskHandle data_ov003_020d81e0;
 
-extern s32  func_ov003_020c9478(TaskPool* pool, Task* task, void* args, s32 stage);
-extern s32  func_ov003_020bd2b8(void);
-extern s32  func_ov003_02082a04(s32 engine, Sprite* sprite, const BinIdentifier* iden, const SpriteAnimEntry* table, u16 entry,
-                                s32 palette, s32 paletteCount);
-extern void func_020265d4(s32* dst, s32 target, u16 weight);
-extern void func_0200d858(ScreenMapEntry* entry, s32 wrapH, s32 wrapV, void* defaultTile);
-extern void func_0200d954(s32 engine, s32 bg);
+static void func_ov003_020c80b8(BossExp1* self);
+static void func_ov003_020c8328(BossExp1* self);
+static void func_ov003_020c8520(BossExp1* self);
+static void func_ov003_020c86b4(BossExp1* self);
+static void func_ov003_020c8be8(BossExp1* self);
+static void func_ov003_020c8ddc(BossExp1* self);
+static s32  func_ov003_020c8e3c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020c8f30(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020c8f64(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020c8f8c(TaskPool* pool, Task* task, void* args);
+static s32  func_ov003_020c8fc0(TaskPool* pool, Task* task, void* args, s32 stage);
 
-void func_ov003_020c7f58(BossExp1* self);
-void func_ov003_020c80b8(BossExp1* self);
-void func_ov003_020c8328(BossExp1* self);
-void func_ov003_020c8520(BossExp1* self);
-void func_ov003_020c86b4(BossExp1* self);
-void func_ov003_020c8be8(BossExp1* self);
-void func_ov003_020c8ddc(BossExp1* self);
-s32  func_ov003_020c8e3c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020c8f30(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020c8f64(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020c8f8c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_020c8fc0(TaskPool* pool, Task* task, void* args, s32 stage);
-
-const BossExp1Sheet data_ov003_020e0a38 = {
+static const BossExp1Sheet data_ov003_020e0a38 = {
     {3, data_ov003_020e6b48},
     0x14, 0x10
 };
@@ -118,7 +110,7 @@ const BossExp1Sheet data_ov003_020e0a38 = {
 const TaskHandle data_ov003_020e0a48 = {data_ov003_020e6b38, func_ov003_020c8fc0, sizeof(BossExp1)};
 
 /// The stage table of the sequence: build, update, draw, release.
-const TaskStages data_ov003_020e0a54 = {
+static const TaskStages data_ov003_020e0a54 = {
     func_ov003_020c8e3c,
     func_ov003_020c8f30,
     func_ov003_020c8f64,
@@ -126,7 +118,7 @@ const TaskStages data_ov003_020e0a54 = {
 };
 
 /// The animation entries of the group B sprites.
-const SpriteAnimEntry data_ov003_020e0a64[4] = {
+static const SpriteAnimEntry data_ov003_020e0a64[4] = {
     {  1,   3,   2, 0},
     {  4,   6,   5, 0},
     {0xD, 0xF, 0xE, 0},
@@ -134,7 +126,7 @@ const SpriteAnimEntry data_ov003_020e0a64[4] = {
 };
 
 /// What each backdrop group loads.
-const BossExp1Group data_ov003_020e0a84[4] = {
+static const BossExp1Group data_ov003_020e0a84[4] = {
     {1, 0x14, 0x15},
     {2, 0x16, 0x17},
     {1, 0x10, 0x11},
@@ -142,12 +134,12 @@ const BossExp1Group data_ov003_020e0a84[4] = {
 };
 
 /// The animation entries of the flying sprites of each engine.
-const SpriteAnimEntry data_ov003_020e0ab4[2][6] = {
+static const SpriteAnimEntry data_ov003_020e0ab4[2][6] = {
     {{0xA, 0xC, 0xB, 0}, {0xA, 0xC, 0xB, 2}, {0xA, 0xC, 0xB, 2}, {0xA, 0xC, 0xB, 3}, {0xA, 0xC, 0xB, 4}, {0xA, 0xC, 0xB, 5}},
     {      {7, 9, 8, 1},       {7, 9, 8, 1},       {7, 9, 8, 2},       {7, 9, 8, 3},       {7, 9, 8, 4},       {7, 9, 8, 5}},
 };
 
-const BossExp1Fly data_ov003_020e0b14[2][6] = {
+static const BossExp1Fly data_ov003_020e0b14[2][6] = {
     {    {0x56, 0}, {0x34, 0x20}, {0x34, -0x80}, {0x54, 0}, {0x4C, 0}, {0x40, 0}},
     {{0x34, -0x20}, {0x34, 0x80},     {0x4C, 0}, {0x54, 0}, {0x56, 0}, {0x48, 0}},
 };
@@ -292,7 +284,7 @@ s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim) {
 }
 
 /// Puts an actor back into its idle state after its defeat animation.
-void func_ov003_020c7224(Ov003EnemyActor* actor) {
+static void func_ov003_020c7224(Ov003EnemyActor* actor) {
     Ov003ActorParams* params = func_ov003_020c3c88(actor);
 
     actor->flags18C &= ~1;
@@ -347,7 +339,7 @@ s32 func_ov003_020c72b4(Ov003EnemyActor* actor, s32 a, s32 b) {
 // ---------------------------------------------------------------------------------------------
 
 /// Sets BG1 and BG2 of both engines up as the text layers the sequence draws on.
-void func_ov003_020c73a0(void) {
+static void func_ov003_020c73a0(void) {
     s32 e;
 
     for (e = 0; e <= 1; e++) {
@@ -394,7 +386,7 @@ void func_ov003_020c73a0(void) {
 }
 
 /// Restores the windows of the battle screens.
-void func_ov003_020c759c(void) {
+static void func_ov003_020c759c(void) {
     g_DisplaySettings.controls[0].layers |= 1;
     g_DisplaySettings.controls[0].windows                 = 4;
     g_DisplaySettings.engineState[0].windowObj            = 8;
@@ -409,7 +401,7 @@ void func_ov003_020c759c(void) {
 }
 
 /// Loads the characters and the tilemap of backdrop group `group` onto both engines.
-void func_ov003_020c75ec(BossExp1* self, s32 group) {
+static void func_ov003_020c75ec(BossExp1* self, s32 group) {
     s32 kind = data_ov003_020e0a84[group].layer;
     u8* chars;
     u8* screen;
@@ -443,7 +435,7 @@ void func_ov003_020c75ec(BossExp1* self, s32 group) {
 }
 
 /// Releases what `func_ov003_020c75ec` loaded.
-void func_ov003_020c7874(BossExp1* self, s32 group) {
+static void func_ov003_020c7874(BossExp1* self, s32 group) {
     s32 kind = data_ov003_020e0a84[group].layer;
 
     if (kind == 1) {
@@ -461,7 +453,7 @@ void func_ov003_020c7874(BossExp1* self, s32 group) {
 }
 
 /// Loads the group A sprites of `group` onto both engines.
-void func_ov003_020c7940(BossExp1* self, s32 group) {
+static void func_ov003_020c7940(BossExp1* self, s32 group) {
     s32 e;
 
     for (e = 0; e <= 1; e++) {
@@ -477,7 +469,7 @@ void func_ov003_020c7940(BossExp1* self, s32 group) {
     }
 }
 
-void func_ov003_020c79f4(BossExp1* self, s32 group) {
+static void func_ov003_020c79f4(BossExp1* self, s32 group) {
     s32 e;
 
     for (e = 0; e <= 1; e++) {
@@ -489,7 +481,7 @@ void func_ov003_020c79f4(BossExp1* self, s32 group) {
     }
 }
 
-void func_ov003_020c7a54(BossExp1* self) {
+static void func_ov003_020c7a54(BossExp1* self) {
     s32 e;
     s32 i;
 
@@ -503,12 +495,12 @@ void func_ov003_020c7a54(BossExp1* self) {
 }
 
 /// Loads the group B sprite `group` onto both engines.
-void func_ov003_020c7ac0(BossExp1* self, s32 group) {
+static void func_ov003_020c7ac0(BossExp1* self, s32 group) {
     s32 e;
 
     for (e = 0; e <= 1; e++) {
-        self->loadedB[e][group] = func_ov003_02082a04(e, &self->groupB[e][group].sprite, &data_ov003_020e0a38.iden,
-                                                      data_ov003_020e0a64, (u16)group, 0x18, 0);
+        self->loadedB[e][group] = CombatSprite_LoadFromTable(e, &self->groupB[e][group], &data_ov003_020e0a38.iden,
+                                                             data_ov003_020e0a64, (u16)group, 0x18, 0);
         if (self->loadedB[e][group] != 0) {
             CombatSprite_SetPosition(&self->groupB[e][group], 0x80, 0x60);
             func_ov003_02082738(&self->groupB[e][group], 0);
@@ -516,7 +508,7 @@ void func_ov003_020c7ac0(BossExp1* self, s32 group) {
     }
 }
 
-void func_ov003_020c7b6c(BossExp1* self, s32 group) {
+static void func_ov003_020c7b6c(BossExp1* self, s32 group) {
     s32 e;
 
     for (e = 0; e <= 1; e++) {
@@ -527,7 +519,7 @@ void func_ov003_020c7b6c(BossExp1* self, s32 group) {
     }
 }
 
-void func_ov003_020c7bc8(BossExp1* self) {
+static void func_ov003_020c7bc8(BossExp1* self) {
     s32 e;
     s32 i;
 
@@ -540,7 +532,7 @@ void func_ov003_020c7bc8(BossExp1* self) {
     }
 }
 
-void func_ov003_020c7c34(BossExp1* self) {
+static void func_ov003_020c7c34(BossExp1* self) {
     s32 e;
     s32 i;
 
@@ -554,13 +546,13 @@ void func_ov003_020c7c34(BossExp1* self) {
 }
 
 /// Loads the flying sprite `group` onto both engines.
-void func_ov003_020c7ca0(BossExp1* self, s32 group) {
+static void func_ov003_020c7ca0(BossExp1* self, s32 group) {
     s32 e;
 
     for (e = 0; e <= 1; e++) {
         self->loadedC[e][group] =
-            func_ov003_02082a04(e, &self->groupC[e][group].sprite, &data_ov003_020e0a38.iden, data_ov003_020e0ab4[e],
-                                (u16)group, 0x18, (u16)data_ov003_020e0b14[e][group].paletteCount);
+            CombatSprite_LoadFromTable(e, &self->groupC[e][group], &data_ov003_020e0a38.iden, data_ov003_020e0ab4[e],
+                                       (u16)group, 0x18, (u16)data_ov003_020e0b14[e][group].paletteCount);
         if (self->loadedC[e][group] != 0) {
             CombatSprite_SetPosition(&self->groupC[e][group], 0x80, 0x60);
             func_ov003_02082738(&self->groupC[e][group], 0);
@@ -568,7 +560,7 @@ void func_ov003_020c7ca0(BossExp1* self, s32 group) {
     }
 }
 
-void func_ov003_020c7d74(BossExp1* self) {
+static void func_ov003_020c7d74(BossExp1* self) {
     s32 e;
     s32 i;
 
@@ -582,7 +574,7 @@ void func_ov003_020c7d74(BossExp1* self) {
     }
 }
 
-void func_ov003_020c7de8(BossExp1* self) {
+static void func_ov003_020c7de8(BossExp1* self) {
     s32 e;
     s32 i;
 
@@ -596,7 +588,7 @@ void func_ov003_020c7de8(BossExp1* self) {
     }
 }
 
-void func_ov003_020c7e84(BossExp1* self) {
+static void func_ov003_020c7e84(BossExp1* self) {
     s32 e;
     s32 i;
 
@@ -611,14 +603,14 @@ void func_ov003_020c7e84(BossExp1* self) {
     }
 }
 
-void func_ov003_020c7f40(BossExp1* self, BossExp1State state) {
+static void func_ov003_020c7f40(BossExp1* self, BossExp1State state) {
     self->state = state;
     self->timer = 0;
     self->phase = 0;
 }
 
 /// Fades out and waits for the battle screens to be free.
-void func_ov003_020c7f58(BossExp1* self) {
+static void func_ov003_020c7f58(BossExp1* self) {
     switch (self->phase) {
         case 0:
             EasyFade_FadeBothDisplays(2, 0x10, 0x1000);
@@ -646,7 +638,7 @@ void func_ov003_020c7f58(BossExp1* self) {
 }
 
 /// Loads the sequence's resources and flashes the first sprites in.
-void func_ov003_020c80b8(BossExp1* self) {
+static void func_ov003_020c80b8(BossExp1* self) {
     switch (self->phase) {
         case 0: {
             void* palette;
@@ -709,7 +701,7 @@ void func_ov003_020c80b8(BossExp1* self) {
 }
 
 /// The first scene: the sprites of group A flicker, then the screen fades twice.
-void func_ov003_020c8328(BossExp1* self) {
+static void func_ov003_020c8328(BossExp1* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -769,7 +761,7 @@ void func_ov003_020c8328(BossExp1* self) {
 }
 
 /// The second scene: the flying sprites fade in one after the other.
-void func_ov003_020c8520(BossExp1* self) {
+static void func_ov003_020c8520(BossExp1* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -814,7 +806,7 @@ void func_ov003_020c8520(BossExp1* self) {
 }
 
 /// The third scene: two wipes close over both screens.
-void func_ov003_020c86b4(BossExp1* self) {
+static void func_ov003_020c86b4(BossExp1* self) {
     s32 width  = data_ov003_020e0a38.wipeLength;
     s32 height = data_ov003_020e0a38.wipeHeight;
     s32 half   = height / 2;
@@ -900,7 +892,7 @@ void func_ov003_020c86b4(BossExp1* self) {
 }
 
 /// Scrolls all four backdrop layers up by twice the scroll value.
-void func_ov003_020c8a18(BossExp1* self, s32 time) {
+static void func_ov003_020c8a18(BossExp1* self, s32 time) {
     func_020265d4(&self->scroll, 0xA00000, (u16)(0xB9 - time));
     Display_SetEngineBGOffset(&g_DisplaySettings.engineState[self->maps[0][0].engineId], self->maps[0][0].bgLayer, 0,
                               self->scroll * 2);
@@ -913,7 +905,7 @@ void func_ov003_020c8a18(BossExp1* self, s32 time) {
 }
 
 /// The last scene: a second backdrop scrolls past and the screen fades out.
-void func_ov003_020c8be8(BossExp1* self) {
+static void func_ov003_020c8be8(BossExp1* self) {
     switch (self->phase) {
         case 0:
             if (self->timer == 0) {
@@ -972,7 +964,7 @@ void func_ov003_020c8be8(BossExp1* self) {
 }
 
 /// Hands the screens back to the battle.
-void func_ov003_020c8ddc(BossExp1* self) {
+static void func_ov003_020c8ddc(BossExp1* self) {
     func_ov003_020c759c();
     data_ov003_020e71b8->unk3D884 = 0;
     data_ov003_020e71b8->unk3D878 &= ~0x1000;
@@ -981,7 +973,7 @@ void func_ov003_020c8ddc(BossExp1* self) {
     self->running = 0;
 }
 
-s32 func_ov003_020c8e3c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c8e3c(TaskPool* pool, Task* task, void* args) {
     BossExp1*      self  = task->data;
     BossExp1Anims* param = args;
 
@@ -998,7 +990,7 @@ s32 func_ov003_020c8e3c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020c8f30(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c8f30(TaskPool* pool, Task* task, void* args) {
     BossExp1* self = task->data;
 
     if (self->state != NULL) {
@@ -1009,7 +1001,7 @@ s32 func_ov003_020c8f30(TaskPool* pool, Task* task, void* args) {
     return self->running;
 }
 
-s32 func_ov003_020c8f64(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c8f64(TaskPool* pool, Task* task, void* args) {
     BossExp1* self = task->data;
 
     func_ov003_020c7a54(self);
@@ -1018,13 +1010,13 @@ s32 func_ov003_020c8f64(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020c8f8c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020c8f8c(TaskPool* pool, Task* task, void* args) {
     data_ov003_020e71b8->unk3D878 &= ~2;
     data_ov003_020e7254 = 0;
     return 1;
 }
 
-s32 func_ov003_020c8fc0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020c8fc0(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020e0a54;
 
     return stages.iter[stage](pool, task, args);

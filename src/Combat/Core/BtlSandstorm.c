@@ -26,17 +26,16 @@ typedef struct BtlSandstorm {
     /* 0x20 */ s32              offsetY;
 } BtlSandstorm; // Size: 0x24
 
-extern void* BgResMgr_AllocCharExtended(BgResMgr* arg0, void* arg1, s32 arg2, u32 arg3, u32 arg4);
+static s32 func_ov003_0209e2cc(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209e584(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209e5a8(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209e678(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209e70c(TaskPool* pool, Task* task, void* args, s32 stage);
 
-s32 func_ov003_0209e2cc(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209e584(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209e5a8(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_0209e678(TaskPool* pool, Task* task, void* args);
-
-char                data_ov003_020e3d50[20] = "Tsk_BtlSandstorm";
-char                data_ov003_020e3d64[32] = "Apl_Fur/Grp_BtlFld_Noise.bin";
-const BinIdentifier data_ov003_020d81c8     = {3, data_ov003_020e3d64};
-const TaskStages    data_ov003_020d81d0     = {
+static char                data_ov003_020e3d50[20] = "Tsk_BtlSandstorm";
+static char                data_ov003_020e3d64[32] = "Apl_Fur/Grp_BtlFld_Noise.bin";
+static const BinIdentifier data_ov003_020d81c8     = {3, data_ov003_020e3d64};
+static const TaskStages    data_ov003_020d81d0     = {
     func_ov003_0209e2cc,
     func_ov003_0209e584,
     func_ov003_0209e5a8,
@@ -44,7 +43,7 @@ const TaskStages    data_ov003_020d81d0     = {
 };
 const TaskHandle data_ov003_020d81e0 = {data_ov003_020e3d50, func_ov003_0209e70c, sizeof(BtlSandstorm)};
 
-s32 func_ov003_0209e2cc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e2cc(TaskPool* pool, Task* task, void* args) {
     BtlSandstorm*      self = task->data;
     DisplayBGSettings* mbg;
     DisplayBGSettings* sbg;
@@ -108,14 +107,14 @@ s32 func_ov003_0209e2cc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209e584(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e584(TaskPool* pool, Task* task, void* args) {
     if (!(data_ov003_020e71b8->unk3D878 & 0x2000)) {
         return 1;
     }
     return 0;
 }
 
-s32 func_ov003_0209e5a8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e5a8(TaskPool* pool, Task* task, void* args) {
     BtlSandstorm* self = task->data;
 
     self->offsetX += (RNG_Next(0x801) - 0x400) << 12;
@@ -125,7 +124,7 @@ s32 func_ov003_0209e5a8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209e678(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e678(TaskPool* pool, Task* task, void* args) {
     BtlSandstorm* self = task->data;
 
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_MAIN], self->screen);
@@ -138,7 +137,7 @@ s32 func_ov003_0209e678(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209e70c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209e70c(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d81d0;
 
     return stages.iter[stage](pool, task, args);

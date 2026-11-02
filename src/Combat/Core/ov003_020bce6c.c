@@ -1,10 +1,10 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
 
-extern char                data_ov003_020e5170[20];
-extern Ov003ActorSnapshots data_ov003_020e71c8;
+static char                data_ov003_020e5170[20];
+static Ov003ActorSnapshots data_ov003_020e71c8;
 
-u16 func_ov003_020bce6c(CombatList* list) {
+static u16 func_ov003_020bce6c(CombatList* list) {
     u16              count = 0;
     Ov003EnemyActor* unit  = func_ov003_0208495c(list);
     while (unit != NULL) {
@@ -15,7 +15,7 @@ u16 func_ov003_020bce6c(CombatList* list) {
     return count;
 }
 
-u16 func_ov003_020bceac(CombatList* list, Ov003ActorSnapshot** snapshots) {
+static u16 func_ov003_020bceac(CombatList* list, Ov003ActorSnapshot** snapshots) {
     u16                 index   = 0;
     u16                 count   = func_ov003_020bce6c(list);
     Ov003ActorSnapshot* entries = Mem_AllocHeapTail(&gDebugHeap, count * sizeof(*entries));
@@ -33,7 +33,7 @@ u16 func_ov003_020bceac(CombatList* list, Ov003ActorSnapshot** snapshots) {
     return count;
 }
 
-void func_ov003_020bcf64(CombatList* list, s32 command) {
+static void func_ov003_020bcf64(CombatList* list, s32 command) {
     Ov003EnemyActor* unit = func_ov003_0208495c(list);
     while (unit != NULL) {
         CombatActor_SetPendingCommand(&unit->actor, command);
@@ -41,7 +41,7 @@ void func_ov003_020bcf64(CombatList* list, s32 command) {
     }
 }
 
-void func_ov003_020bcf98(CombatList* list, Ov003ActorSnapshot* snapshots, u32 count) {
+static void func_ov003_020bcf98(CombatList* list, Ov003ActorSnapshot* snapshots, u32 count) {
     u16 index = 0;
     if (count == 0)
         return;
@@ -95,5 +95,5 @@ void func_ov003_020bd150(s32 mode, Ov003SnapshotCallback callback, void* args) {
         callback(mode, &entries[i], args);
 }
 
-char                data_ov003_020e5170[20] = "S_FeatEnm_SavePos";
-Ov003ActorSnapshots data_ov003_020e71c8;
+static char                data_ov003_020e5170[20] = "S_FeatEnm_SavePos";
+static Ov003ActorSnapshots data_ov003_020e71c8;

@@ -121,4 +121,6 @@ s32  func_ov011_021282b8(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, u
 s32  func_ov011_02128718(Ov003EnemyActor* owner);
 s32  func_ov011_02128c44(Ov003EnemyActor* owner);
 
+s32 _s32_div_f(s32 dividend, s32 divisor);
+
 #endif /* COMBAT_NOISE_PRIVATE_BTLENM010_H */

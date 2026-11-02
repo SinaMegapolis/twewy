@@ -1,5 +1,6 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
+#include "SndMgr.h"
 #include "SndMgrSeIdx.h"
 #include <nitro/mi/cpumem.h>
 
@@ -8,7 +9,7 @@ typedef struct BtlObjectBombCharge {
     /* 0x08 */ s32                timer;
 } BtlObjectBombCharge; // Size: 0xC
 
-extern const TaskHandle data_ov003_020dc73c;
+static const TaskHandle data_ov003_020dc73c;
 
 s32 func_ov003_020ac36c(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_02085e78(2);
@@ -23,7 +24,7 @@ s32 func_ov003_020ac36c(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020ac3d8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ac3d8(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs*  arg = args;
     BtlObjectBombCharge* self;
     switch (stage) {
@@ -63,5 +64,5 @@ s32 func_ov003_020ac3d8(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4b44[24] = "Tsk_BtlPsy_ObjectBomb_S";
-const TaskHandle data_ov003_020dc73c     = {data_ov003_020e4b44, func_ov003_020ac3d8, sizeof(BtlObjectBombCharge)};
+static char             data_ov003_020e4b44[24] = "Tsk_BtlPsy_ObjectBomb_S";
+static const TaskHandle data_ov003_020dc73c     = {data_ov003_020e4b44, func_ov003_020ac3d8, sizeof(BtlObjectBombCharge)};

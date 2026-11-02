@@ -1,3 +1,4 @@
+#include "Engine/Core/DMA.h"
 #include "Field/FieldRegion.h"
 
 #include "Field/FieldTypes.h"
@@ -45,7 +46,6 @@ typedef struct {
 
 FO3DObjMgrState gFO3DObjMgr;
 
-extern void          func_02001b44(s32 type, u32 dst, const void* src, u32 size);
 extern void          func_020281c0(NNSG3dAnmObj* anmObj, void* resAnm, NNSG3dResMdl* resMdl, NNSG3dResTex* resTex);
 extern void          func_02028250(NNSG3dRenderObj* renderObj, NNSG3dResMdl* resMdl);
 extern void          func_020283c4(NNSG3dRenderObj* renderObj, NNSG3dAnmObj* anmObj);

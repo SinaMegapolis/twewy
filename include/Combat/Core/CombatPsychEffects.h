@@ -78,9 +78,6 @@ typedef struct Ov003Lime {
     /* 0x8C */ CombatSprite      icon;
 } Ov003Lime; // Size: 0xEC
 
-s32 func_ov003_020b2e30(CombatList* list, CombatActor* actor);
-s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage);
-
 typedef struct Ov003LockOnThunderP {
     /* 0x00 */ Ov003EffectState* effect;
     /* 0x04 */ CombatList        targets;
@@ -208,7 +205,6 @@ typedef struct Ov003SlashThunder {
     /* 0x84 */ OamAffineParam    affine;
 } Ov003SlashThunder; // Size: 0x94
 
-extern const Ov003SlashThunderKind data_ov003_020dd00c[4];
 extern const Ov003StraightShotKind data_ov003_020dcf38[10];
 s32                                func_ov003_020b8f3c(Ov003StraightShot* self);
 
@@ -705,7 +701,6 @@ typedef struct Ov003ElementKind {
     s32 animation;
 } Ov003ElementKind; // Size: 0x14
 
-extern const Ov003ElementKind data_ov003_020dc7b8[8];
 s32 func_ov003_020ae414(Ov003EffectState*, s32 mode, s32 kind, s16 x, s16 y, s32 angle, s32 speed, s32 scale, s32 uses);
 
 typedef struct Ov003PsychByteTimer {
@@ -1020,14 +1015,6 @@ s32 func_ov003_020b0188(Ov003EffectState* effect, Ov003EnemyActor* unit, s32* re
 
 s32 func_ov003_020afb64(s32 kind, s32 x, s32 y, s32 angle, s32 speed);
 
-void         func_ov003_020ae980(Ov003Element*);
-void         func_ov003_020aeb0c(Ov003Element*);
-void         func_ov003_020aecbc(Ov003Element*);
-void         func_ov003_020aedf0(Ov003Element*);
-void         func_ov003_020aee9c(Ov003Element*);
-void         func_ov003_020aefc0(Ov003Element*);
-CombatActor* func_ov003_020af1e0(Ov003Element*);
-
 s32  func_ov003_020aced0(Ov003EffectState*);
 void func_ov003_020acef4(s32 taskId);
 void func_ov003_020acf0c(s32 taskId, u16 angle);
@@ -1147,5 +1134,175 @@ typedef struct Ov003ShockWaveBody {
     /* 0xB8 */ u8                trailIndex;
     /* 0xB9 */ u8                pad_B9[3];
 } Ov003ShockWaveBody; // Size: 0xBC
+
+// BtlPsy_Tackle.c
+s32 func_ov003_02094cf8(Ov003EffectContext* context, Ov003EffectState* effect);
+s32 func_ov003_02094d4c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Invisble_D.c
+s32 func_ov003_020950ac(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Sword_Slash_S.c
+s32 func_ov003_02095350(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Sword_Smash_D.c
+s32 func_ov003_0209588c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Sword_Pierce_S.c
+s32 func_ov003_02095ac8(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Sword_Rush_R.c
+s32 func_ov003_02095cac(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Sword_Spin_Z.c
+s32 func_ov003_02095e64(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Sword_Spin_M.c
+s32 func_ov003_02096048(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_AbsorbEffect.c
+s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage);
+
+// SubTsk_BtlPsy_FireStorm_P.c
+s32 func_ov003_020a9830(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_FireWave_D.c
+s32 func_ov003_020a9a58(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_BadgeFormation_A.c
+s32 func_ov003_020a9ec0(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Barrier.c
+s32 func_ov003_020aaa84(Ov003EffectContext* context, Ov003EffectState* effect);
+s32 func_ov003_020aaa9c(Ov003EffectContext* context, Ov003EffectState* effect);
+s32 func_ov003_020aaab8(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_BlackHoll.c
+s32 func_ov003_020ab1c4(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_BlackHoll_Z.c
+s32 func_ov003_020ab35c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_FireWorks_P.c
+s32 func_ov003_020ac1ec(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_ObjectBomb_S.c
+s32 func_ov003_020ac36c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_PsychoBomb_T.c
+s32 func_ov003_020ac4f4(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_ChargeLaser_P.c
+s32 func_ov003_020ac634(Ov003EffectContext* context, Ov003EffectState* effect);
+s32 func_ov003_020ac6bc(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// SubTsk_BtlPsy_ElementK.c
+s32 func_ov003_020ad720(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// SubTsk_BtlPsy_ElementR.c
+s32 func_ov003_020ade84(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Element_S.c
+s32 func_ov003_020af280(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Element_T.c
+s32 func_ov003_020af41c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Element_Z.c
+s32 func_ov003_020af590(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_IceBind.c
+s32 func_ov003_020afdf0(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_RockBind.c
+s32 func_ov003_020b0058(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_PsychoQuake_K.c
+s32 func_ov003_020b05b8(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_PsychoTyphoon_M.c
+s32 func_ov003_020b0b14(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_FireHold.c
+s32 func_ov003_020b0cd4(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_IceHold.c
+s32 func_ov003_020b10d8(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_OpticalHold.c
+s32 func_ov003_020b15dc(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_IcePillar_R.c
+s32 func_ov003_020b1fd4(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_IcePillar_S.c
+s32 func_ov003_020b2710(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// SubTsk_BtlPsy_Lime_T.c
+s32 func_ov003_020b292c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_LockOnThunder_D.c
+s32 func_ov003_020b37c8(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_LockOnThunder_P.c
+s32 func_ov003_020b39c0(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_LockOnThunder_T.c
+s32 func_ov003_020b3da8(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_PsychoFall_T.c
+s32 func_ov003_020b47fc(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_PsychoFall_Z.c
+s32 func_ov003_020b4b60(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Psycho_D.c
+s32 func_ov003_020b537c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Psycho_S.c
+s32 func_ov003_020b5d54(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Psycho_T.c
+s32 func_ov003_020b5f74(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Blur_.c
+void func_ov003_020b6978(s32 animation, s32 x, s32 y, s32 z, s32 angle);
+
+// BtlPsy_BoomerangShot_S.c
+s32 func_ov003_020b7bf4(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_BoomerangShot_T.c
+s32 func_ov003_020b7f9c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_BurstShot_T.c
+s32 func_ov003_020b8398(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_StraightShot_S.c
+s32 func_ov003_020b87a0(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_StraightShot_T.c
+s32 func_ov003_020b8c1c(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// SubTsk_BtlPsy_SlashThunder.c
+s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage);
+
+// BtlPsy_LineThunder_S.c
+s32 func_ov003_020b94b8(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Psychithunder_T.c
+s32 func_ov003_020b9838(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// SubTsk_BtlPsy_Speaker.c
+s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage);
+
+// BtlPsy_StreetLive.c
+s32 func_ov003_020ba2e8(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// SubTsk_BtlPsy_PsychoTerritory_S.c
+s32 func_ov003_020ba6c8(Ov003EffectContext* context, Ov003EffectState* effect);
+s32 func_ov003_020ba714(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_PsychoTerritory_S.c
+s32 func_ov003_020baa58(Ov003EffectContext* context, Ov003EffectState* effect);
 
 #endif

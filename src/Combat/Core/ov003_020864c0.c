@@ -3,6 +3,8 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatSprite.h"
+#include "Combat/Friend/Private/Beat.h"
+#include "Combat/Friend/Private/Shiki.h"
 #include "Combat/Friend/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
@@ -52,21 +54,6 @@
 
 /// Header of the `Ov003ActionEffect` pool: two lists (free, in use) followed by the entries.
 
-// ---------------------------------------------------------------------------------------------
-// External functions
-// ---------------------------------------------------------------------------------------------
-extern void* func_ov003_02084970(CombatList*);
-extern BOOL  func_ov003_0208ca04(s32, u32);
-extern s16   func_ov003_0208ca24(s32, u32);
-extern void  func_ov004_020e739c(s16* arg0, s32 arg1);
-extern void  func_ov005_020e740c(s32, s32);
-extern void  func_ov005_020eb29c(s32, s32, s32);
-extern void  func_ov006_020e73b8(CombatSprite*, s32, s32, s32, s16, s16);
-extern void  func_ov006_020e74b0(s32, s32);
-extern u16   func_ov006_020e7538(s32);
-extern void  func_ov006_020ea6c0(s32, s32, s32);
-extern void  BtlCmd_Esp_CreateTask(s32, s32, s32);
-
 /// The special effect task, owned by overlay 18.
 extern const TaskHandle data_ov018_020ff3a0;
 /// The charge/effect task handles owned by the battle setup unit.
@@ -92,6 +79,10 @@ extern char data_ov003_020e391c[];
 // ---------------------------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------------------------
+
+static const u8 data_ov003_020d72dc[2];
+static const u8 data_ov003_020d72de[2];
+static const u8 data_ov003_020d72e0[0x31C];
 
 /// The battle runtime block; allocated by the battle manager, this unit owns the pointer slot.
 Ov003Global* data_ov003_020e71b8;
@@ -621,7 +612,7 @@ const u8 data_ov003_020d56be[0x6] = {
 
 /// Per-encounter blob: the first four bytes of each encounter id are the drop-rate
 /// weights (summing to 100), the rest is the enemy table the encounter rolls from.
-const u8 data_ov003_020d56c4[0x13EC] = {
+static const u8 data_ov003_020d56c4[0x13EC] = {
     0x00, 0x00, 0x19, 0x19, 0x00, 0x00, 0x19, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -926,138 +917,138 @@ const s8 data_ov003_020d6ab0[0x4FC] = {
 
 const BinIdentifier data_ov003_020d6fac = {3, (char*)&data_ov003_020e391c};
 
-const SpriteAnimEntry data_ov003_020d6fb4[2] = {
+static const SpriteAnimEntry data_ov003_020d6fb4[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
 };
 
-const SpriteAnimEntry data_ov003_020d6fc4[2] = {
+static const SpriteAnimEntry data_ov003_020d6fc4[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 0},
 };
 
-const SpriteAnimEntry data_ov003_020d6fd4[2] = {
+static const SpriteAnimEntry data_ov003_020d6fd4[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
 };
 
-const SpriteAnimEntry data_ov003_020d6fe4[2] = {
+static const SpriteAnimEntry data_ov003_020d6fe4[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
 };
 
-const SpriteAnimEntry data_ov003_020d6ff4[2] = {
+static const SpriteAnimEntry data_ov003_020d6ff4[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
 };
 
-const SpriteAnimEntry data_ov003_020d7004[2] = {
+static const SpriteAnimEntry data_ov003_020d7004[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
 };
 
-const SpriteAnimEntry data_ov003_020d7014[2] = {
+static const SpriteAnimEntry data_ov003_020d7014[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 0},
 };
 
-const SpriteAnimEntry data_ov003_020d7024[3] = {
-    {1, 3, 2, 0},
-    {1, 3, 2, 1},
-    {1, 3, 2, 2},
-};
-
-const SpriteAnimEntry data_ov003_020d703c[3] = {
+static const SpriteAnimEntry data_ov003_020d7024[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d7054[3] = {
+static const SpriteAnimEntry data_ov003_020d703c[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d706c[3] = {
+static const SpriteAnimEntry data_ov003_020d7054[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d7084[3] = {
+static const SpriteAnimEntry data_ov003_020d706c[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d709c[3] = {
+static const SpriteAnimEntry data_ov003_020d7084[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d70b4[3] = {
+static const SpriteAnimEntry data_ov003_020d709c[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d70cc[3] = {
+static const SpriteAnimEntry data_ov003_020d70b4[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d70e4[3] = {
+static const SpriteAnimEntry data_ov003_020d70cc[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d70fc[3] = {
+static const SpriteAnimEntry data_ov003_020d70e4[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d7114[3] = {
+static const SpriteAnimEntry data_ov003_020d70fc[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d712c[3] = {
+static const SpriteAnimEntry data_ov003_020d7114[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d7144[3] = {
+static const SpriteAnimEntry data_ov003_020d712c[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d715c[3] = {
+static const SpriteAnimEntry data_ov003_020d7144[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d7174[3] = {
+static const SpriteAnimEntry data_ov003_020d715c[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d718c[3] = {
+static const SpriteAnimEntry data_ov003_020d7174[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
 };
 
-const SpriteAnimEntry data_ov003_020d71a4[3] = {
+static const SpriteAnimEntry data_ov003_020d718c[3] = {
+    {1, 3, 2, 0},
+    {1, 3, 2, 1},
+    {1, 3, 2, 2},
+};
+
+static const SpriteAnimEntry data_ov003_020d71a4[3] = {
     {1, 3, 2, 0},
     {1, 3, 2, 1},
     {1, 3, 2, 2},
@@ -1093,11 +1084,11 @@ const Ov003AnimSet data_ov003_020d71bc[24] = {
 // The per-actor initialisation table is delinked into three symbols at the first record's
 // second halfword (0x020d72de) and second word (0x020d72e0); the accessors in the code
 // name the piece they land on.
-const u8 data_ov003_020d72dc[2] = {0x00, 0x00};
-const u8 data_ov003_020d72de[2] = {0x02, 0x00};
+static const u8 data_ov003_020d72dc[2] = {0x00, 0x00};
+static const u8 data_ov003_020d72de[2] = {0x02, 0x00};
 
 /// Records 0..24 of `data_ov003_020d72dc`, minus their first two halfwords.
-const u8 data_ov003_020d72e0[0x31C] = {
+static const u8 data_ov003_020d72e0[0x31C] = {
     0x2F, 0x00, 0x00, 0x00, 0x0C, 0x00, 0x20, 0x00, 0xB8, 0x02, 0x00, 0x00, 0x52, 0x00, 0x00, 0x00, 0x33, 0x0F, 0x00, 0x00,
     0xCD, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x64, 0x00, 0x02, 0x00, 0x02, 0x00, 0x30, 0x00, 0x00, 0x00, 0x0D, 0x00, 0x20, 0x00,
     0xB8, 0x02, 0x00, 0x00, 0x5A, 0x00, 0x00, 0x00, 0x33, 0x0F, 0x00, 0x00, 0x9A, 0x09, 0x00, 0x00, 0x00, 0x00, 0xAA, 0x00,
@@ -1147,7 +1138,7 @@ const u8 data_ov003_020d75fc[0x18] = {
 };
 
 /// Frame counts of the three sync-gauge charge steps (one row per mode).
-const s8 data_ov003_020d7614[0xC] = {
+static const s8 data_ov003_020d7614[0xC] = {
     4, 8, 16, 4, 8, 16, 4, 8, 16, 0, 0, 0,
 };
 
@@ -1341,7 +1332,7 @@ void func_ov003_020868c8(u16 value) {
     }
 }
 
-void func_ov003_02086934(Ov003ChargeEntry* entry) {
+static void func_ov003_02086934(Ov003ChargeEntry* entry) {
     Ov003ChargeState* state = data_ov003_020e71b8->chargeState;
 
     if (entry == NULL) {
@@ -1442,7 +1433,7 @@ void func_ov003_02086b14(Ov003ChargeState* state) {
 }
 
 /// Advances the charge step until it covers the accumulated progress. Returns TRUE if it moved.
-s32 func_ov003_02086b88(Ov003EffectCmd* cmd) {
+static s32 func_ov003_02086b88(Ov003EffectCmd* cmd) {
     s32 advanced = 0;
 
     if (cmd->progress >= cmd->next) {
@@ -1571,7 +1562,7 @@ s16* func_ov003_02086e94(void) {
 }
 
 /// Number of charge steps the active partner's sticker grants, clamped to 1..3.
-u8 func_ov003_02086eb0(void) {
+static u8 func_ov003_02086eb0(void) {
     u32 count = 0;
 
     switch (data_ov003_020e71b8->unk3D88D) {
@@ -1750,8 +1741,8 @@ void func_ov003_02087310(void) {
     } while (effect != NULL);
 }
 
-void func_ov003_02087358(void) {
-    func_ov003_0208495c(&data_ov003_020e71b8->actionEffects.active);
+Ov003ActionEffect* func_ov003_02087358(void) {
+    return func_ov003_0208495c(&data_ov003_020e71b8->actionEffects.active);
 }
 
 void func_ov003_02087378(void) {

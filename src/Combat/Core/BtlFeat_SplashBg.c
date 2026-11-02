@@ -63,27 +63,27 @@ extern BinIdentifier data_ov003_020dd7bc;
 extern BinIdentifier data_ov003_020dd7c4;
 extern BinIdentifier data_ov003_020dd7d4;
 
-s32 func_ov003_020bca14(BtlFeatSplashBg* self);
-s32 func_ov003_020bca5c(BtlFeatSplashBg* self);
-s32 func_ov003_020bca0c(BtlFeatSplashBg* self);
-s32 func_ov003_020bcd00(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020bcd50(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020bcdb4(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020bcdbc(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020bcdd0(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020bca14(BtlFeatSplashBg* self);
+static s32 func_ov003_020bca5c(BtlFeatSplashBg* self);
+static s32 func_ov003_020bca0c(BtlFeatSplashBg* self);
+static s32 func_ov003_020bcd00(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020bcd50(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020bcdb4(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020bcdbc(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020bcdd0(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// The script of the task: set up and scroll.
-BtlFeatSplashBgStep data_ov003_020e5104[3] = {func_ov003_020bca14, func_ov003_020bca5c, func_ov003_020bca0c};
+static BtlFeatSplashBgStep data_ov003_020e5104[3] = {func_ov003_020bca14, func_ov003_020bca5c, func_ov003_020bca0c};
 
 /// The characters to load per group row; 0xFFFF for none.
-u16 data_ov003_020e5122[9] = {0xFFFF, 1, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF};
-u16 data_ov003_020e5110[9] = {0xFFFF, 2, 0xFFFF, 0xFFFF, 0xFFFF, 1, 0xFFFF, 0xFFFF, 0xFFFF};
+static u16 data_ov003_020e5122[9] = {0xFFFF, 1, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF};
+static u16 data_ov003_020e5110[9] = {0xFFFF, 2, 0xFFFF, 0xFFFF, 0xFFFF, 1, 0xFFFF, 0xFFFF, 0xFFFF};
 
-char             data_ov003_020e5134[0x18] = "Tsk_BtlFeat_SplashBg";
-const TaskHandle data_ov003_020dd428       = {data_ov003_020e5134, func_ov003_020bcdd0, sizeof(BtlFeatSplashBg)};
+static char             data_ov003_020e5134[0x18] = "Tsk_BtlFeat_SplashBg";
+static const TaskHandle data_ov003_020dd428       = {data_ov003_020e5134, func_ov003_020bcdd0, sizeof(BtlFeatSplashBg)};
 
 /// The stage table of the task: build, update, draw, release.
-const TaskStages data_ov003_020dd440 = {
+static const TaskStages data_ov003_020dd440 = {
     func_ov003_020bcd00,
     func_ov003_020bcd50,
     func_ov003_020bcdb4,
@@ -94,17 +94,17 @@ const TaskStages data_ov003_020dd440 = {
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-void func_ov003_020bc6e8(BtlFeatSplashBg* self) {
+static void func_ov003_020bc6e8(BtlFeatSplashBg* self) {
     self->step++;
 }
 
-void func_ov003_020bc6f8(BtlFeatSplashBg* self, BtlFeatSplashBgStep* steps, const char* name) {
+static void func_ov003_020bc6f8(BtlFeatSplashBg* self, BtlFeatSplashBgStep* steps, const char* name) {
     self->steps = steps;
     self->name  = name;
 }
 
 /// Copies the 0x20 by 0x1A tile map `src` to `dst`, optionally mirrored.
-void func_ov003_020bc704(u16* src, u16* dst, s32 flipX, s32 flipY) {
+static void func_ov003_020bc704(u16* src, u16* dst, s32 flipX, s32 flipY) {
     u16 y;
     u16 x;
 
@@ -128,7 +128,7 @@ void func_ov003_020bc704(u16* src, u16* dst, s32 flipX, s32 flipY) {
 }
 
 /// Rebuilds screen buffer `buffer` from the tile map `index` of the pack and shows it.
-void func_ov003_020bc7a0(BtlFeatSplashBg* self, s32 index, s32 flipX, s32 flipY, u16 buffer) {
+static void func_ov003_020bc7a0(BtlFeatSplashBg* self, s32 index, s32 flipX, s32 flipY, u16 buffer) {
     s32 screen          = self->args.screen;
     u16 half            = screen != 1;
     u16 row             = self->args.group * 3 + self->args.variant;
@@ -184,7 +184,7 @@ void func_ov003_020bc7a0(BtlFeatSplashBg* self, s32 index, s32 flipX, s32 flipY,
 }
 
 /// Loads the characters of the group, when it has any.
-void func_ov003_020bc928(BtlFeatSplashBg* self) {
+static void func_ov003_020bc928(BtlFeatSplashBg* self) {
     s32   screen = self->args.screen;
     u16   row    = self->args.group * 3 + self->args.variant;
     u16   entry  = (screen == 1) ? data_ov003_020e5122[row] : data_ov003_020e5110[row];
@@ -203,11 +203,11 @@ void func_ov003_020bc928(BtlFeatSplashBg* self) {
     }
 }
 
-s32 func_ov003_020bca0c(BtlFeatSplashBg* self) {
+static s32 func_ov003_020bca0c(BtlFeatSplashBg* self) {
     return 1;
 }
 
-s32 func_ov003_020bca14(BtlFeatSplashBg* self) {
+static s32 func_ov003_020bca14(BtlFeatSplashBg* self) {
     func_ov003_020bc7a0(self, 0, 0, 0, self->buffer);
     self->scroll = 0;
     self->tile   = 0;
@@ -216,7 +216,7 @@ s32 func_ov003_020bca14(BtlFeatSplashBg* self) {
     return 0;
 }
 
-s32 func_ov003_020bca5c(BtlFeatSplashBg* self) {
+static s32 func_ov003_020bca5c(BtlFeatSplashBg* self) {
     u32 tile;
 
     self->scroll += self->speed;
@@ -238,7 +238,7 @@ s32 func_ov003_020bca5c(BtlFeatSplashBg* self) {
     return 0;
 }
 
-void func_ov003_020bcb2c(BtlFeatSplashBg* self) {
+static void func_ov003_020bcb2c(BtlFeatSplashBg* self) {
     u16 packs[9] = {0xFFFF, 1, 2, 0xFFFF, 1, 2, 0xFFFF, 15, 16};
     u16 i;
 
@@ -259,7 +259,7 @@ void func_ov003_020bcb2c(BtlFeatSplashBg* self) {
     func_ov003_020bc7a0(self, 0, 0, 0, self->buffer);
 }
 
-void func_ov003_020bcc50(BtlFeatSplashBg* self) {
+static void func_ov003_020bcc50(BtlFeatSplashBg* self) {
     u16 i;
 
     if (self->screen != NULL) {
@@ -282,7 +282,7 @@ void func_ov003_020bcc50(BtlFeatSplashBg* self) {
     }
 }
 
-s32 func_ov003_020bcd00(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bcd00(TaskPool* pool, Task* task, void* args) {
     BtlFeatSplashBg*     self  = task->data;
     BtlFeatSplashBgArgs* param = args;
 
@@ -293,7 +293,7 @@ s32 func_ov003_020bcd00(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020bcd50(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bcd50(TaskPool* pool, Task* task, void* args) {
     BtlFeatSplashBg* self = task->data;
     s32              result;
 
@@ -309,16 +309,16 @@ s32 func_ov003_020bcd50(TaskPool* pool, Task* task, void* args) {
     return data_ov003_020e71e0 != 1;
 }
 
-s32 func_ov003_020bcdb4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bcdb4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020bcdbc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020bcdbc(TaskPool* pool, Task* task, void* args) {
     func_ov003_020bcc50(task->data);
     return 0;
 }
 
-s32 func_ov003_020bcdd0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020bcdd0(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020dd440;
 
     return stages.iter[stage](pool, task, args);

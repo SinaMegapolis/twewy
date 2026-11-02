@@ -43,4 +43,21 @@ BOOL Str_Validate(const char* str, s32 maxLen);
  */
 char* Str_SPrintf(const char* fmt, ...);
 
+typedef struct StrListNode {
+    /* 0x00 */ struct StrListNode* next;
+    /* 0x04 */ u8                  unk_04[0x18];
+    /* 0x1C */ const char*         str;
+} StrListNode;
+
+typedef struct {
+    /* 0x00 */ u8           unk_00[0x20];
+    /* 0x20 */ StrListNode* listA;
+    /* 0x24 */ u8           unk_24[0x1C];
+    /* 0x40 */ StrListNode* listB;
+    /* 0x44 */ u8           unk_44[0x1C];
+    /* 0x60 */ StrListNode* listC;
+} StrListOwner;
+
+s32 func_0200f93c(StrListOwner* owner);
+
 #endif // STR_H

@@ -9,7 +9,7 @@ typedef struct BtlFireWorksCharge {
     /* 0x08 */ s32               reserved;
 } BtlFireWorksCharge; // Size: 0xC
 
-extern const TaskHandle data_ov003_020dc730;
+static const TaskHandle data_ov003_020dc730;
 
 s32 func_ov003_020ac1ec(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_020a63e4())
@@ -22,7 +22,7 @@ s32 func_ov003_020ac1ec(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020ac240(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ac240(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState**  arg = args;
     BtlFireWorksCharge* self;
     switch (stage) {
@@ -65,5 +65,5 @@ s32 func_ov003_020ac240(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4b2c[24] = "Tsk_BtlPsy_FireWorks_P";
-const TaskHandle data_ov003_020dc730     = {data_ov003_020e4b2c, func_ov003_020ac240, sizeof(BtlFireWorksCharge)};
+static char             data_ov003_020e4b2c[24] = "Tsk_BtlPsy_FireWorks_P";
+static const TaskHandle data_ov003_020dc730     = {data_ov003_020e4b2c, func_ov003_020ac240, sizeof(BtlFireWorksCharge)};

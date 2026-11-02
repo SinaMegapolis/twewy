@@ -1,6 +1,7 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatMic.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "EasyFade.h"
@@ -26,6 +27,7 @@
 
 #include <nitro/fx.h>
 #include <nitro/gx.h>
+#include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
 // The touch action actors: creation, per-frame state machine, the touch-hit push-back and the
@@ -40,72 +42,42 @@
 
 /// The psych trail effect object: a point trail plus the two sprites it draws.
 
-// ---------------------------------------------------------------------------------------------
-// External functions
-// ---------------------------------------------------------------------------------------------
-
-/// Defined with a second argument (the armed battle state) in `BtlBadge_ConditionBoot.c`; the callers here never pass
-/// it, so the declaration is deliberately unprototyped.
-extern void func_ov003_020a6f90();
-extern s32  func_020405d4(void);
-extern s32  func_02040ac0(void);
-extern void func_02041030(s32);
-extern void func_02041048(s32);
-
-extern void* func_ov003_02084970(CombatList* list);
-extern s32   func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern void  func_ov003_020a5540(Ov003EffectState*, Ov003TouchActor*);
-extern void  func_ov003_020a563c(Ov003EffectState*);
-extern void  func_ov003_020a58e4(Ov003EffectState*, u16, u8);
-extern s32   func_ov003_020a632c(s16, s16, s16, s16);
-extern s32   func_ov003_020a6c7c(s32);
-extern s32   func_ov003_020a6cc4(s32 arg0);
-
 /// Defined below; the state machine calls itself through these.
-s16                func_ov003_020a40cc(Ov003TouchActor*, s32);
-s32                func_ov003_020a410c(Ov003TouchActor*, s16, s16);
-void               func_ov003_020a45d4(Ov003TouchActor*);
-s32                func_ov003_020a4908(Ov003PsychParams*, u16);
-s32                func_ov003_020a49b4(Ov003PsychParams*, u16);
-s32                func_ov003_020a49c8(Ov003PsychParams*, u16);
-const EquippedPin* func_ov003_020a4a24(s32 deck);
+static s32                func_ov003_020a4908(Ov003PsychParams*, u16);
+static s32                func_ov003_020a49b4(Ov003PsychParams*, u16);
+static s32                func_ov003_020a49c8(Ov003PsychParams*, u16);
+static const EquippedPin* func_ov003_020a4a24(s32 deck);
 
 // ---------------------------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------------------------
 
-extern const BinIdentifier      data_ov003_020dc03c;
-extern const BinIdentifier      data_ov003_020dc044;
-extern const BinIdentifier      data_ov003_020dc04c;
-extern const EquippedPin* const data_ov003_020dc054[12];
-extern const EquippedPin        data_ov003_020dc084[6];
-extern const EquippedPin        data_ov003_020dc0c0[6];
-extern const EquippedPin        data_ov003_020dc0fc[6];
-extern const EquippedPin        data_ov003_020dc138[6];
-extern const EquippedPin        data_ov003_020dc174[6];
-extern const EquippedPin        data_ov003_020dc1b0[6];
-extern const EquippedPin        data_ov003_020dc1ec[6];
-extern char                     data_ov003_020e4868[0x14];
-extern char                     data_ov003_020e487c[0x18];
-extern char                     data_ov003_020e4894[0x1C];
-char                            data_ov003_020e4868[0x14] = "Data/BadgeData.bin";
+extern const BinIdentifier data_ov003_020dc044;
+static const EquippedPin   data_ov003_020dc084[6];
+static const EquippedPin   data_ov003_020dc0c0[6];
+static const EquippedPin   data_ov003_020dc0fc[6];
+static const EquippedPin   data_ov003_020dc138[6];
+static const EquippedPin   data_ov003_020dc174[6];
+static const EquippedPin   data_ov003_020dc1b0[6];
+static const EquippedPin   data_ov003_020dc1ec[6];
+static char                data_ov003_020e4868[0x14] = "Data/BadgeData.bin";
 
-char data_ov003_020e487c[0x18] = "Apl_Tak/Grp_Badge.bin";
+static char data_ov003_020e487c[0x18] = "Apl_Tak/Grp_Badge.bin";
 
-char                data_ov003_020e4894[0x1C] = "Apl_Hir/Grp_BtlBadge.bin";
-const BinIdentifier data_ov003_020dc03c       = {3, (char*)&data_ov003_020e4868};
+static char                data_ov003_020e4894[0x1C] = "Apl_Hir/Grp_BtlBadge.bin";
+static const BinIdentifier data_ov003_020dc03c       = {3, (char*)&data_ov003_020e4868};
 
 const BinIdentifier data_ov003_020dc044 = {3, (char*)&data_ov003_020e4894};
 
-const BinIdentifier data_ov003_020dc04c = {3, (char*)&data_ov003_020e487c};
+static const BinIdentifier data_ov003_020dc04c = {3, (char*)&data_ov003_020e487c};
 
-const EquippedPin* const data_ov003_020dc054[12] = {
+static const EquippedPin* const data_ov003_020dc054[12] = {
     data_ov003_020dc0c0, data_ov003_020dc174, data_ov003_020dc174, data_ov003_020dc174,
     data_ov003_020dc174, data_ov003_020dc174, data_ov003_020dc138, data_ov003_020dc0fc,
     data_ov003_020dc1b0, data_ov003_020dc0c0, data_ov003_020dc084, data_ov003_020dc1ec,
 };
 
-const EquippedPin data_ov003_020dc084[6] = {
+static const EquippedPin data_ov003_020dc084[6] = {
     {0x0105, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
@@ -114,7 +86,7 @@ const EquippedPin data_ov003_020dc084[6] = {
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
 };
 
-const EquippedPin data_ov003_020dc0c0[6] = {
+static const EquippedPin data_ov003_020dc0c0[6] = {
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
@@ -123,7 +95,7 @@ const EquippedPin data_ov003_020dc0c0[6] = {
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
 };
 
-const EquippedPin data_ov003_020dc0fc[6] = {
+static const EquippedPin data_ov003_020dc0fc[6] = {
     {0x010E, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0x010C, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
@@ -132,7 +104,7 @@ const EquippedPin data_ov003_020dc0fc[6] = {
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
 };
 
-const EquippedPin data_ov003_020dc138[6] = {
+static const EquippedPin data_ov003_020dc138[6] = {
     {0x010A, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
@@ -141,7 +113,7 @@ const EquippedPin data_ov003_020dc138[6] = {
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
 };
 
-const EquippedPin data_ov003_020dc174[6] = {
+static const EquippedPin data_ov003_020dc174[6] = {
     {0x0109, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
@@ -150,7 +122,7 @@ const EquippedPin data_ov003_020dc174[6] = {
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
 };
 
-const EquippedPin data_ov003_020dc1b0[6] = {
+static const EquippedPin data_ov003_020dc1b0[6] = {
     {0x0109, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0x010D, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
@@ -159,7 +131,7 @@ const EquippedPin data_ov003_020dc1b0[6] = {
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
 };
 
-const EquippedPin data_ov003_020dc1ec[6] = {
+static const EquippedPin data_ov003_020dc1ec[6] = {
     {0x0022, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0x0063, 0x0000, 0x0000, 0x0000, 0x00, {.raw = 0x01}},
     {0xFFFF, 0x0000, 0x0000, 0x0000, 0x01, {.raw = 0x01}},
@@ -374,7 +346,7 @@ void func_ov003_020a4158(void) {
             radius = (a->radius + b->radius) - 6;
             dx     = a->x - b->x;
             dy     = a->y - b->y;
-            if (FX_Abs(dx) >= radius << 12 || FX_Abs(dy) >= radius << 12) {
+            if (ABS(dx) >= radius << 12 || ABS(dy) >= radius << 12) {
                 continue;
             }
             push = (radius << 12) - FX_Sqrt(FX_Mul(dx, dx) + FX_Mul(dy, dy));
@@ -439,7 +411,7 @@ u32 func_ov003_020a43c8(Ov003TouchActor* actor) {
 
                     func_ov003_020a8300(actor, value, value);
                 } else {
-                    func_ov003_020a6f90(actor);
+                    ((void (*)())func_ov003_020a6f90)(actor);
                 }
             }
             actor->state = 1;
@@ -450,7 +422,7 @@ u32 func_ov003_020a43c8(Ov003TouchActor* actor) {
                     func_ov003_020a8300(actor, slots->unk_20[actor->slot],
                                         func_ov003_020a49b4(&actor->params, actor->unk_00C));
                 } else {
-                    func_ov003_020a6f90(actor);
+                    ((void (*)())func_ov003_020a6f90)(actor);
                 }
             }
             actor->state = 1;
@@ -491,7 +463,7 @@ u32 func_ov003_020a43c8(Ov003TouchActor* actor) {
 }
 
 /// TRUE while both of the partner's psych actions are idle.
-s32 func_ov003_020a4594(void) {
+static s32 func_ov003_020a4594(void) {
     if (func_ov003_020a3330(0x46) != 0 && func_ov003_020a3330(0x47) != 0 && func_ov003_020a3330(0x48) != 0) {
         return 1;
     }
@@ -595,7 +567,7 @@ s32 func_ov003_020a4778(Ov003PsychParams* params, s32 level) {
 
 /// The duration of one use of the actor's action at level `level`.
 // Nonmatching: duration switch: case block layout.
-s32 func_ov003_020a4908(Ov003PsychParams* params, u16 level) {
+static s32 func_ov003_020a4908(Ov003PsychParams* params, u16 level) {
     s32 value = (params->unk_16 * (level - 1)) + params->unk_14;
 
     switch (params->unk_12) {
@@ -624,12 +596,12 @@ s32 func_ov003_020a4908(Ov003PsychParams* params, u16 level) {
 }
 
 // Nonmatching: the target narrows the result to s16 at the return, mwcc keeps it s32.
-s32 func_ov003_020a49b4(Ov003PsychParams* params, u16 level) {
+static s32 func_ov003_020a49b4(Ov003PsychParams* params, u16 level) {
     return (params->unk_1C * (level - 1)) + params->unk_1A;
 }
 
 // Nonmatching: scaled-duration arithmetic shape (FX_Mul/FX_Divide nesting).
-s32 func_ov003_020a49c8(Ov003PsychParams* params, u16 level) {
+static s32 func_ov003_020a49c8(Ov003PsychParams* params, u16 level) {
     s16 value = (params->unk_22 * (level - 1)) + params->unk_20;
 
     if (func_ov003_020a3330(0x49) != 0) {
@@ -639,7 +611,7 @@ s32 func_ov003_020a49c8(Ov003PsychParams* params, u16 level) {
 }
 
 /// The equipped-pin layout of player `deck`.
-const EquippedPin* func_ov003_020a4a24(s32 deck) {
+static const EquippedPin* func_ov003_020a4a24(s32 deck) {
     return data_ov003_020dc054[deck];
 }
 

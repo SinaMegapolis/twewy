@@ -7,19 +7,19 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-s32  func_ov012_02126a4c(BtlEnm014*);
-s32  func_ov012_02126ad8(BtlEnm014*);
-void func_ov012_02126dac(BtlEnm014*);
-void func_ov012_02126e2c(BtlEnm014*);
-void func_ov012_02126ea0(BtlEnm014*);
-void func_ov012_02127134(BtlEnm014*);
-void func_ov012_02127378(BtlEnm014*);
-void func_ov012_02127634(BtlEnm014*);
-s32  func_ov012_021277b0(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32  func_ov012_02126a4c(BtlEnm014*);
+static s32  func_ov012_02126ad8(BtlEnm014*);
+static void func_ov012_02126dac(BtlEnm014*);
+static void func_ov012_02126e2c(BtlEnm014*);
+static void func_ov012_02126ea0(BtlEnm014*);
+static void func_ov012_02127134(BtlEnm014*);
+static void func_ov012_02127378(BtlEnm014*);
+static void func_ov012_02127634(BtlEnm014*);
+static s32  func_ov012_021277b0(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlEnm014_UG = {"Tsk_BtlEnm014_UG", func_ov012_021277b0, 0x1F0};
 
-s32 func_ov012_02126a1c(BtlEnm014* data) {
+static s32 func_ov012_02126a1c(BtlEnm014* data) {
     if (func_ov012_02126ad8(data) != 0) {
         return 1;
     }
@@ -29,7 +29,7 @@ s32 func_ov012_02126a1c(BtlEnm014* data) {
     return 0;
 }
 
-s32 func_ov012_02126a4c(BtlEnm014* data) {
+static s32 func_ov012_02126a4c(BtlEnm014* data) {
     BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
     s32        lo   = data->base.actor.position.x - 0x3C000;
 
@@ -47,7 +47,7 @@ s32 func_ov012_02126a4c(BtlEnm014* data) {
     return 0;
 }
 
-s32 func_ov012_02126ad8(BtlEnm014* data) {
+static s32 func_ov012_02126ad8(BtlEnm014* data) {
     BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
     s32        lo;
 
@@ -69,7 +69,7 @@ s32 func_ov012_02126ad8(BtlEnm014* data) {
     return 0;
 }
 
-void func_ov012_02126b74(BtlEnm014* data) {
+static void func_ov012_02126b74(BtlEnm014* data) {
     BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
     s32        d    = boss->base.actor.position.x - data->unk_1E4;
 
@@ -82,14 +82,14 @@ void func_ov012_02126b74(BtlEnm014* data) {
     data->unk_1E4 = boss->base.actor.position.x;
 }
 
-void func_ov012_02126bb0(BtlEnm014* data) {
+static void func_ov012_02126bb0(BtlEnm014* data) {
     BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
 
     data->unk_1E0.word = 0;
     data->unk_1E4      = boss->base.actor.position.x;
 }
 
-void func_ov012_02126bd8(BtlEnm014* data) {
+static void func_ov012_02126bd8(BtlEnm014* data) {
     if (data->base.spriteIndex == 2) {
         data->unk_1E0.word = 0;
     }
@@ -97,7 +97,7 @@ void func_ov012_02126bd8(BtlEnm014* data) {
     func_ov012_02126bb0(data);
 }
 
-s32 func_ov012_02126c1c(BtlEnm014* data) {
+static s32 func_ov012_02126c1c(BtlEnm014* data) {
     BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
 
     if (!(data->base.sprite.flags46 & 1)) {
@@ -119,7 +119,7 @@ miss:
     return 0;
 }
 
-void func_ov012_02126c74(BtlEnm014* data) {
+static void func_ov012_02126c74(BtlEnm014* data) {
     BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
     s32        dx   = boss->base.actor.position.x - data->base.actor.position.x;
     s32        aim;
@@ -155,7 +155,7 @@ void func_ov012_02126c74(BtlEnm014* data) {
     data->unk_1D8 = FX32_CONVERT(aim) >> 4;
 }
 
-void func_ov012_02126dac(BtlEnm014* data) {
+static void func_ov012_02126dac(BtlEnm014* data) {
     switch (data->unk_1C2) {
         case 0:
             CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
@@ -171,7 +171,7 @@ void func_ov012_02126dac(BtlEnm014* data) {
     }
 }
 
-void func_ov012_02126e2c(BtlEnm014* data) {
+static void func_ov012_02126e2c(BtlEnm014* data) {
     switch (data->unk_1C2) {
         case 0:
             CombatSprite_SetAnimFromTable(&data->base.sprite, 1, 1);
@@ -187,7 +187,7 @@ void func_ov012_02126e2c(BtlEnm014* data) {
     }
 }
 
-void func_ov012_02126ea0(BtlEnm014* data) {
+static void func_ov012_02126ea0(BtlEnm014* data) {
     if (func_ov012_02126a1c(data) != 0) {
         return;
     }
@@ -260,7 +260,7 @@ void func_ov012_02126ea0(BtlEnm014* data) {
     }
 }
 
-void func_ov012_02127134(BtlEnm014* data) {
+static void func_ov012_02127134(BtlEnm014* data) {
     BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
 
     switch (data->unk_1C2) {
@@ -320,7 +320,7 @@ void func_ov012_02127134(BtlEnm014* data) {
     }
 }
 
-void func_ov012_02127378(BtlEnm014* data) {
+static void func_ov012_02127378(BtlEnm014* data) {
     switch (data->unk_1C2) {
         case 0:
             data->unk_1EC = 0;
@@ -387,28 +387,28 @@ void func_ov012_02127378(BtlEnm014* data) {
     }
 }
 
-void func_ov012_02127608(BtlEnm014* data) {
+static void func_ov012_02127608(BtlEnm014* data) {
     if (func_ov003_020c6bc8(&data->base, 7) != 0) {
         return;
     }
     func_ov012_02125768(data, func_ov012_02127634);
 }
 
-void func_ov012_02127634(BtlEnm014* data) {
+static void func_ov012_02127634(BtlEnm014* data) {
     if (func_ov003_020c6c2c(&data->base, 7) != 0) {
         return;
     }
     func_ov012_02125768(data, func_ov012_02126dac);
 }
 
-void func_ov012_02127660(BtlEnm014* data) {
+static void func_ov012_02127660(BtlEnm014* data) {
     if (func_ov003_020c6bac(&data->base, 9) != 0) {
         return;
     }
     func_ov012_02125768(data, func_ov012_02126dac);
 }
 
-s32 func_ov012_0212768c(BtlEnm014* data) {
+static s32 func_ov012_0212768c(BtlEnm014* data) {
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
         case 0:
             break;
@@ -451,7 +451,7 @@ s32 func_ov012_0212768c(BtlEnm014* data) {
     return data->unk_1CC;
 }
 
-s32 func_ov012_021277b0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov012_021277b0(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm014* data = task->data;
 
     switch (stage) {

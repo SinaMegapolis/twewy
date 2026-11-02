@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dd21c;
+static const TaskHandle data_ov003_020dd21c;
 
 s32 func_ov003_020baa58(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_02085cfc(4))
@@ -16,7 +16,7 @@ s32 func_ov003_020baa58(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 // Nonmatching: midpoint-register allocation and boolean instruction ordering differ.
-s32 func_ov003_020baab0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020baab0(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychArgs*      arg = args;
     Ov003PsychByteTimer* self;
     switch (stage) {
@@ -54,9 +54,9 @@ s32 func_ov003_020baab0(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e5080[32]    = "Tsk_BtlPsy_PsychoTerritory_S";
-const TaskHandle data_ov003_020dd21c        = {data_ov003_020e5080, func_ov003_020baab0, sizeof(Ov003PsychByteTimer)};
-const s32        data_ov003_020dd228[13][2] = {
+static char             data_ov003_020e5080[32]    = "Tsk_BtlPsy_PsychoTerritory_S";
+static const TaskHandle data_ov003_020dd21c        = {data_ov003_020e5080, func_ov003_020baab0, sizeof(Ov003PsychByteTimer)};
+const s32               data_ov003_020dd228[13][2] = {
     {0x42, 0x11},
     {0x43, 0x12},
     {0x42, 0x13},

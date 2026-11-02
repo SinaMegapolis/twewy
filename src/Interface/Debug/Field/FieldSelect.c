@@ -7,6 +7,7 @@
 #include "Engine/IO/Str.h"
 #include "Engine/Overlay/OverlayDispatcher.h"
 #include "Engine/Resources/PaletteMgr.h"
+#include "Field/Battle/FieldBattleSetup.h"
 #include "Field/Event/EventFlags.h"
 #include "Field/Scene/FieldSeq.h"
 #include "Field/Tasks/Fld_Wall.h"
@@ -18,7 +19,6 @@ extern void func_02010b84(TextObject* textObj, s32 x, s32 y, s32 width, s32 heig
 extern void BgText_Init(void* textObj, UnkStruct_usedby_02025b68* params);
 extern void BgText_Free(void* textObj);
 
-extern s32  Field_GetCurrentTrendZone(void);
 extern s32  func_ov030_020b7b00(void);
 extern s32  func_ov030_020b7b40(void);
 extern s32  func_ov030_020b7b60(void);

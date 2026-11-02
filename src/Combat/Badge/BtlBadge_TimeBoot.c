@@ -13,7 +13,7 @@
 /// The battle sprite page the badge family loads from (`Apl_Hir/Grp_BtlBadge.bin`).
 extern const BinIdentifier data_ov003_020dc044;
 
-s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// The payload of the task.
 typedef struct BtlBadgeTimeBoot {
@@ -34,8 +34,8 @@ typedef struct BtlBadgeTimeBootArgs {
     /* 0x6 */ s16              total;
 } BtlBadgeTimeBootArgs; // Size: 0x8
 
-char             data_ov003_020e4968[0x18] = "Tsk_BtlBadge_TimeBoot";
-const TaskHandle data_ov003_020dc608       = {data_ov003_020e4968, func_ov003_020a8350, sizeof(BtlBadgeTimeBoot)};
+static char             data_ov003_020e4968[0x18] = "Tsk_BtlBadge_TimeBoot";
+static const TaskHandle data_ov003_020dc608       = {data_ov003_020e4968, func_ov003_020a8350, sizeof(BtlBadgeTimeBoot)};
 
 void func_ov003_020a8300(Ov003TouchActor* actor, s32 duration, s32 arg2) {
     BtlBadgeTimeBootArgs sp8;
@@ -46,7 +46,7 @@ void func_ov003_020a8300(Ov003TouchActor* actor, s32 duration, s32 arg2) {
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc608, NULL, 0, NULL, &sp8);
 }
 
-s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage) {
     switch (stage) {
         case 0: {
             BtlBadgeTimeBoot*     self = task->data;

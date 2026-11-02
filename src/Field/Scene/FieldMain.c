@@ -25,9 +25,8 @@
 #include "Field/Tasks/Fld_TouchShine.h"
 #include "Field/Tasks/Fld_UGFade.h"
 #include "Save.h"
+#include "main_02026528.h"
 #include <nitro/types.h>
-
-extern void func_02026590(s32* value, s32 target, u16 frames);
 
 static s32  FieldMain_GetAreaTitleKind(void);
 static void FieldMain_StepLoadArea(FieldEventManager*);

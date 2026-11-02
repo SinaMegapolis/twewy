@@ -11,13 +11,13 @@ typedef struct BtlEnm015Stamp {
 } BtlEnm015Stamp; // Size: 0x0C
 
 /// Rounds a fixed-point value through a float, matching the original codegen.
-s32 func_ov013_02126700(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov013_02126700(TaskPool* pool, Task* task, void* args, s32 stage);
 
-char data_ov013_021275b4[24] = "Tsk_BtlEnm015_EffStamp";
+static char data_ov013_021275b4[24] = "Tsk_BtlEnm015_EffStamp";
 
 const TaskHandle Tsk_BtlEnm015_EffStamp = {data_ov013_021275b4, func_ov013_02126700, 0xC};
 
-s32 func_ov013_021261e8(s32 arg0, s32 arg1) {
+static s32 func_ov013_021261e8(s32 arg0, s32 arg1) {
     if (arg0 >= func_ov003_020ccedc(0) + 0x18000 || arg0 <= -0x18000) {
         return 1;
     }
@@ -27,7 +27,7 @@ s32 func_ov013_021261e8(s32 arg0, s32 arg1) {
     return 0;
 }
 
-s32 func_ov013_02126254(BtlEnm015Stamp* data) {
+static s32 func_ov013_02126254(BtlEnm015Stamp* data) {
     s32 count = 0;
     s32 i;
 
@@ -88,7 +88,7 @@ s32 func_ov013_02126254(BtlEnm015Stamp* data) {
     return 1;
 }
 
-s32 func_ov013_021265b0(BtlEnm015Stamp* data) {
+static s32 func_ov013_021265b0(BtlEnm015Stamp* data) {
     s32        t     = data->unk_04;
     BtlEnm015* boss  = (BtlEnm015*)data_ov003_020e71b8->unk3D89C;
     BtlEnm015* owner = data->unk_00;
@@ -114,7 +114,7 @@ s32 func_ov013_021265b0(BtlEnm015Stamp* data) {
     return 1;
 }
 
-s32 func_ov013_021266c8(BtlEnm015Stamp* data, Enm015Spawn* args) {
+static s32 func_ov013_021266c8(BtlEnm015Stamp* data, Enm015Spawn* args) {
     MI_CpuSet(data, 0, sizeof(BtlEnm015Stamp));
     data->unk_00 = args->unk_00;
     data->unk_08 = args->unk_14;
@@ -122,7 +122,7 @@ s32 func_ov013_021266c8(BtlEnm015Stamp* data, Enm015Spawn* args) {
     return 1;
 }
 
-s32 func_ov013_02126700(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov013_02126700(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm015Stamp* data  = task->data;
     BtlEnm015*      owner = data->unk_00;
 

@@ -235,4 +235,6 @@ inline BOOL OS_IsRunOnTwl(void) {
 } // extern "C"
 #endif
 
+void OS_WaitForever(void);
+
 #endif

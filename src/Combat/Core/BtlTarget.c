@@ -11,13 +11,13 @@ typedef struct BtlTarget {
 } BtlTarget; // Size: 0xCC
 
 extern const BinIdentifier   data_ov003_020d7800;
-extern const SpriteAnimEntry data_ov003_020d7fec[2];
+static const SpriteAnimEntry data_ov003_020d7fec[2];
 
-void func_ov003_0209abdc(BtlTarget* target, void (*update)(BtlTarget*)) {
+static void func_ov003_0209abdc(BtlTarget* target, void (*update)(BtlTarget*)) {
     target->update = update;
 }
 
-void func_ov003_0209abe4(CombatSprite* sprite, CombatActor* actor) {
+static void func_ov003_0209abe4(CombatSprite* sprite, CombatActor* actor) {
     s32 x;
     s32 y;
     if (actor->flags & 0x20)
@@ -35,7 +35,7 @@ void func_ov003_0209abe4(CombatSprite* sprite, CombatActor* actor) {
     CombatSprite_Render(sprite);
 }
 
-void func_ov003_0209ac8c(BtlTarget* target) {
+static void func_ov003_0209ac8c(BtlTarget* target) {
     if (!SpriteMgr_IsAnimationFinished(&target->sprites[0].sprite))
         return;
     CombatSprite_SetAnimFromTable(&target->sprites[0], 0, 0);
@@ -43,7 +43,7 @@ void func_ov003_0209ac8c(BtlTarget* target) {
     func_ov003_0209abdc(target, NULL);
 }
 
-s32 func_ov003_0209acd0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209acd0(TaskPool* pool, Task* task, void* args) {
     BtlTarget* target = task->data;
     target->active    = 1;
     target->target    = NULL;
@@ -55,7 +55,7 @@ s32 func_ov003_0209acd0(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209ad7c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ad7c(TaskPool* pool, Task* task, void* args) {
     BtlTarget*   target = task->data;
     CombatActor* actor  = data_ov003_020e71b8->unk3D8A0;
     if (actor != NULL && ((actor->flags & 4) || (actor->flags & 0x10))) {
@@ -76,7 +76,7 @@ s32 func_ov003_0209ad7c(TaskPool* pool, Task* task, void* args) {
     return target->active;
 }
 
-s32 func_ov003_0209ae4c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ae4c(TaskPool* pool, Task* task, void* args) {
     BtlTarget* target = task->data;
     if (data_ov003_020e71b8->unk3D874 != 2)
         return 1;
@@ -89,30 +89,30 @@ s32 func_ov003_0209ae4c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209aea8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209aea8(TaskPool* pool, Task* task, void* args) {
     BtlTarget* target = task->data;
     CombatSprite_Release(&target->sprites[0]);
     CombatSprite_Release(&target->sprites[1]);
     return 1;
 }
 
-extern const TaskStages data_ov003_020d7fdc;
-s32                     func_ov003_0209aec8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static const TaskStages data_ov003_020d7fdc;
+static s32              func_ov003_0209aec8(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7fdc;
     if (func_ov003_0208b690((u16)stage))
         return 1;
     return stages.iter[stage](pool, task, args);
 }
 
-char             data_ov003_020e3c80[16] = "Tsk_BtlTarget";
-const TaskHandle data_ov003_020d7fd0     = {data_ov003_020e3c80, func_ov003_0209aec8, sizeof(BtlTarget)};
-const TaskStages data_ov003_020d7fdc     = {
+static char             data_ov003_020e3c80[16] = "Tsk_BtlTarget";
+const TaskHandle        data_ov003_020d7fd0     = {data_ov003_020e3c80, func_ov003_0209aec8, sizeof(BtlTarget)};
+static const TaskStages data_ov003_020d7fdc     = {
     func_ov003_0209acd0,
     func_ov003_0209ad7c,
     func_ov003_0209ae4c,
     func_ov003_0209aea8,
 };
-const SpriteAnimEntry data_ov003_020d7fec[2] = {
+static const SpriteAnimEntry data_ov003_020d7fec[2] = {
     {49, 51, 50, 1},
     {49, 51, 50, 2}
 };

@@ -4,7 +4,7 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0c74;
+static const TaskHandle data_ov003_020e0c74;
 
 s32 func_ov003_020cfedc(Ov003EnemyShotSource* source, u16 angleStep, s16 lifetime, s16 radius, s16 heightRange,
                         s16 minHeight) {
@@ -26,7 +26,7 @@ s32 func_ov003_020cfedc(Ov003EnemyShotSource* source, u16 angleStep, s16 lifetim
     return EasyTask_CreateTask(pool, &data_ov003_020e0c74, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020cff90(Ov003EnemyShotOption* self, Ov003EnemyShotOptionArgs* args) {
+static s32 func_ov003_020cff90(Ov003EnemyShotOption* self, Ov003EnemyShotOptionArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
     MI_CpuSet(self, 0, sizeof(*self));
@@ -46,7 +46,7 @@ s32 func_ov003_020cff90(Ov003EnemyShotOption* self, Ov003EnemyShotOptionArgs* ar
     return 1;
 }
 
-s32 func_ov003_020d0084(Ov003EnemyShotOption* self) {
+static s32 func_ov003_020d0084(Ov003EnemyShotOption* self) {
     s32 radius    = FX32_CONVERT(self->radius);
     s16 minHeight = self->minHeight;
     s16 maxHeight = minHeight + self->heightRange;
@@ -84,7 +84,7 @@ s32 func_ov003_020d0084(Ov003EnemyShotOption* self) {
     return 1;
 }
 
-s32 func_ov003_020d043c(Ov003EnemyShotOption* self) {
+static s32 func_ov003_020d043c(Ov003EnemyShotOption* self) {
     s16 x, y;
     func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
                         self->source.core.position.y, self->source.core.position.z);
@@ -94,12 +94,12 @@ s32 func_ov003_020d043c(Ov003EnemyShotOption* self) {
     return 1;
 }
 
-s32 func_ov003_020d04b4(Ov003EnemyShotOption* self) {
+static s32 func_ov003_020d04b4(Ov003EnemyShotOption* self) {
     CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020d04c8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d04c8(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotOption* self = task->data;
     switch (stage) {
         case 0:
@@ -115,5 +115,5 @@ s32 func_ov003_020d04c8(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6cc8[24] = "Tsk_BtlEnmShot_Option";
-const TaskHandle data_ov003_020e0c74     = {data_ov003_020e6cc8, func_ov003_020d04c8, sizeof(Ov003EnemyShotOption)};
+static char             data_ov003_020e6cc8[24] = "Tsk_BtlEnmShot_Option";
+static const TaskHandle data_ov003_020e0c74     = {data_ov003_020e6cc8, func_ov003_020d04c8, sizeof(Ov003EnemyShotOption)};

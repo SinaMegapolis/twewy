@@ -26,4 +26,10 @@ struct BtlMicInput {
 
 void func_ov003_020a50f4(s32 result, BtlMicInput* input);
 
+s32  func_020405d4(void);
+void func_02040770(BtlMicSampling* sampling);
+s32  func_02040ac0(void);
+void func_02041030(s32);
+void func_02041048(s32);
+
 #endif

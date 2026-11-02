@@ -1,6 +1,8 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAura.h"
+#include "Combat/Noise/Private/Boss15.h"
 #include "Engine/Math/Random.h"
+#include "main_02026528.h"
 #include <stddef.h>
 
 typedef struct BtlEnmAura BtlEnmAura;
@@ -30,17 +32,12 @@ typedef char check_BtlEnmAura_intensity[(offsetof(BtlEnmAura, intensity) == 0x7B
 typedef char check_BtlEnmAuraState[(sizeof(BtlEnmAuraState) == 0x1C) ? 1 : -1];
 
 extern const BinIdentifier   data_ov003_020e0b90;
-extern const TaskHandle      data_ov003_020e0b98;
-extern const SpriteAnimEntry data_ov003_020e0ba4[2];
-extern const TaskStages      data_ov003_020e0bb4;
-extern void                  func_020265d4(s32*, s32, u16);
-extern s32                   func_ov003_020c2008(TaskPool* pool);
-extern void                  func_ov003_020cac38(s32, s32);
-extern s32                   func_ov024_020f10d8(Ov003CutinActor*);
-void                         func_ov003_020c9de8(BtlEnmAura*);
-void                         func_ov003_020ca188(BtlEnmAura*);
+static const TaskHandle      data_ov003_020e0b98;
+static const SpriteAnimEntry data_ov003_020e0ba4[2];
+static const TaskStages      data_ov003_020e0bb4;
+static void                  func_ov003_020ca188(BtlEnmAura*);
 
-void func_ov003_020c96e4(void) {
+static void func_ov003_020c96e4(void) {
     Ov003ActorParams* sub  = func_ov003_020c3c88(&data_ov003_020e7324.ownerSub->base);
     Ov003ActorParams* main = func_ov003_020c3c88(&data_ov003_020e7324.ownerMain->base);
     if (data_ov003_020e7324.activeMain) {
@@ -56,19 +53,19 @@ void func_ov003_020c96e4(void) {
     data_ov003_020e7324.ownerSub->base.actor.unk_08  = sub->unk_0C;
     data_ov003_020e7324.ownerMain->base.actor.unk_08 = main->unk_0C;
 }
-void func_ov003_020c9788(BtlEnmAura* self, BtlEnmAuraUpdate update) {
+static void func_ov003_020c9788(BtlEnmAura* self, BtlEnmAuraUpdate update) {
     self->update = update;
     self->phase  = 0;
     self->timer  = 0;
 }
-void func_ov003_020c97a0(s32* value, s32 target, u16 frames) {
+static void func_ov003_020c97a0(s32* value, s32 target, u16 frames) {
     frames *= 3;
     s32 delta = target - *value;
     if (frames < 1)
         frames = 1;
     *value += delta / frames;
 }
-void func_ov003_020c97dc(Ov003CutinActor* owner) {
+static void func_ov003_020c97dc(Ov003CutinActor* owner) {
     switch ((u32)(owner->base.group - 0x37)) {
         case 0:
         case 1:
@@ -95,7 +92,7 @@ void func_ov003_020c97dc(Ov003CutinActor* owner) {
     }
 }
 // Nonmatching: flame-spawn position and resource register allocation.
-void func_ov003_020c98b0(BtlEnmAura* self, s32 mode) {
+static void func_ov003_020c98b0(BtlEnmAura* self, s32 mode) {
     BtlAuraFlameSprite* flame;
     s32                 engine, palette, x, y, sortKey;
     s16                 anim;
@@ -160,14 +157,14 @@ void func_ov003_020c98b0(BtlEnmAura* self, s32 mode) {
     func_ov003_020849dc(&self->free, &flame->node);
     func_ov003_020849bc(&self->active, &flame->node, flame);
 }
-void func_ov003_020c9b4c(BtlEnmAura* self, BtlAuraFlameSprite* flame) {
+static void func_ov003_020c9b4c(BtlEnmAura* self, BtlAuraFlameSprite* flame) {
     if (flame == NULL)
         return;
     CombatSprite_Release(&flame->sprite);
     func_ov003_020849dc(&self->active, &flame->node);
     func_ov003_020849bc(&self->free, &flame->node, flame);
 }
-void func_ov003_020c9b84(BtlEnmAura* self) {
+static void func_ov003_020c9b84(BtlEnmAura* self) {
     func_ov003_020849ac(&self->free);
     func_ov003_020849ac(&self->active);
     self->cooldown = 0;
@@ -177,7 +174,7 @@ void func_ov003_020c9b84(BtlEnmAura* self) {
         func_ov003_020849bc(&self->free, &flame->node, flame);
     }
 }
-void func_ov003_020c9bd8(BtlEnmAura* self) {
+static void func_ov003_020c9bd8(BtlEnmAura* self) {
     BtlAuraFlameSprite* flame = func_ov003_0208495c(&self->active);
     if (flame == NULL)
         return;
@@ -192,7 +189,7 @@ void func_ov003_020c9bd8(BtlEnmAura* self) {
         }
     } while (flame != NULL);
 }
-void func_ov003_020c9c40(BtlEnmAura* self) {
+static void func_ov003_020c9c40(BtlEnmAura* self) {
     BtlAuraFlameSprite* flame = func_ov003_0208495c(&self->active);
     if (flame == NULL)
         return;
@@ -205,13 +202,13 @@ void func_ov003_020c9c40(BtlEnmAura* self) {
         flame = func_ov003_02084984(&flame->node);
     } while (flame != NULL);
 }
-void func_ov003_020c9cb8(BtlEnmAura* self) {
+static void func_ov003_020c9cb8(BtlEnmAura* self) {
     for (s32 i = 0; i < 16; i++) {
         if (Sprite_HasAnimation(&self->flames[i].sprite.sprite))
             CombatSprite_Release(&self->flames[i].sprite);
     }
 }
-void func_ov003_020c9cf0(BtlEnmAura* self, s32 side) {
+static void func_ov003_020c9cf0(BtlEnmAura* self, s32 side) {
     if (side == 1) {
         self->x = data_ov003_020e7324.ownerSub->base.actor.screenX << 12;
         self->y = (data_ov003_020e7324.ownerSub->base.actor.screenY - 0x20) << 12;
@@ -220,13 +217,13 @@ void func_ov003_020c9cf0(BtlEnmAura* self, s32 side) {
     self->x = data_ov003_020e7324.ownerMain->base.actor.screenX << 12;
     self->y = (data_ov003_020e7324.ownerMain->base.actor.screenY + 0xA0) << 12;
 }
-void func_ov003_020c9d54(BtlEnmAura* self) {
+static void func_ov003_020c9d54(BtlEnmAura* self) {
     if (self->intensity >= 0x1000)
         return;
     self->intensity = 0x1000;
     self->remaining = 0x4B0;
 }
-void func_ov003_020c9d78(BtlEnmAura* self) {
+static void func_ov003_020c9d78(BtlEnmAura* self) {
     if (self->remaining > 0) {
         func_ov003_020c97a0(&self->intensity, 0, (u16)self->remaining);
         self->remaining--;
@@ -239,7 +236,7 @@ void func_ov003_020c9d78(BtlEnmAura* self) {
     data_ov003_020e7324.activeSub  = 0;
     data_ov003_020e7324.activeMain = 0;
 }
-void func_ov003_020c9de8(BtlEnmAura* self) {
+static void func_ov003_020c9de8(BtlEnmAura* self) {
     switch (data_ov003_020e7324.mode) {
         case 1:
             data_ov003_020e7324.mode = 0;
@@ -326,7 +323,7 @@ void func_ov003_020c9de8(BtlEnmAura* self) {
     }
 }
 // Nonmatching: burst state and position register allocation.
-void func_ov003_020ca188(BtlEnmAura* self) {
+static void func_ov003_020ca188(BtlEnmAura* self) {
     s16 screenX;
     s32 screenY;
     if (self->side == 1) {
@@ -378,7 +375,7 @@ void func_ov003_020ca188(BtlEnmAura* self) {
             return;
     }
 }
-s32 func_ov003_020ca344(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020ca344(TaskPool* pool, Task* task, void* args) {
     BtlEnmAura* self               = task->data;
     self->x                        = 0;
     self->y                        = 0;
@@ -397,7 +394,7 @@ s32 func_ov003_020ca344(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c9788(self, func_ov003_020c9de8);
     return 1;
 }
-s32 func_ov003_020ca424(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020ca424(TaskPool* pool, Task* task, void* args) {
     BtlEnmAura* self = task->data;
     if (func_ov003_020c9008())
         return 0;
@@ -412,7 +409,7 @@ s32 func_ov003_020ca424(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c9bd8(self);
     return 1;
 }
-s32 func_ov003_020ca498(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020ca498(TaskPool* pool, Task* task, void* args) {
     BtlEnmAura* self = task->data;
     if (func_ov003_020c3c28())
         return 1;
@@ -437,18 +434,18 @@ s32 func_ov003_020ca498(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c9c40(self);
     return 1;
 }
-s32 func_ov003_020ca5bc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020ca5bc(TaskPool* pool, Task* task, void* args) {
     BtlEnmAura* self = task->data;
     CombatSprite_Release(&self->sprites[0]);
     CombatSprite_Release(&self->sprites[1]);
     func_ov003_020c9cb8(self);
     return 1;
 }
-s32 func_ov003_020ca5e4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ca5e4(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020e0bb4;
     return stages.iter[stage](pool, task, args);
 }
-void func_ov003_020ca62c(Ov003CutinActor* owner) {
+static void func_ov003_020ca62c(Ov003CutinActor* owner) {
     if (func_ov003_020c37f8(&owner->base.sprite)) {
         data_ov003_020e7324.ownerMain = (Ov003CutinActor*)owner->base.partner;
         data_ov003_020e7324.ownerSub  = owner;
@@ -462,15 +459,16 @@ void func_ov003_020ca66c(Ov003CutinActor* owner) {
     EasyTask_CreateTask(func_ov003_020c3ca4(owner), &data_ov003_020e0b98, NULL, 0, NULL, NULL);
 }
 
-extern char           data_ov003_020e6b74[16], data_ov003_020e6b84[28];
-const BinIdentifier   data_ov003_020e0b90    = {3, data_ov003_020e6b84};
-const TaskHandle      data_ov003_020e0b98    = {data_ov003_020e6b74, func_ov003_020ca5e4, sizeof(BtlEnmAura)};
-const SpriteAnimEntry data_ov003_020e0ba4[2] = {
+static char                  data_ov003_020e6b74[16], data_ov003_020e6b84[28];
+const BinIdentifier          data_ov003_020e0b90    = {3, data_ov003_020e6b84};
+static const TaskHandle      data_ov003_020e0b98    = {data_ov003_020e6b74, func_ov003_020ca5e4, sizeof(BtlEnmAura)};
+static const SpriteAnimEntry data_ov003_020e0ba4[2] = {
     {1, 3, 2, 0},
     {1, 3, 2, 2}
 };
-const TaskStages data_ov003_020e0bb4 = {func_ov003_020ca344, func_ov003_020ca424, func_ov003_020ca498, func_ov003_020ca5bc};
-char             data_ov003_020e6b64[16] = "BtlEff_SideMove";
-char             data_ov003_020e6b74[16] = "Tsk_btlEnmAura";
-char             data_ov003_020e6b84[28] = "Apl_Mor/Grp_BtlEnmAura.bin";
-BtlEnmAuraState  data_ov003_020e7324;
+static const TaskStages data_ov003_020e0bb4     = {func_ov003_020ca344, func_ov003_020ca424, func_ov003_020ca498,
+                                                   func_ov003_020ca5bc};
+char                    data_ov003_020e6b64[16] = "BtlEff_SideMove";
+static char             data_ov003_020e6b74[16] = "Tsk_btlEnmAura";
+static char             data_ov003_020e6b84[28] = "Apl_Mor/Grp_BtlEnmAura.bin";
+BtlEnmAuraState         data_ov003_020e7324;

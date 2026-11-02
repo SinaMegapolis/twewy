@@ -19,8 +19,6 @@
 #include "common_data.h"
 #include <nitro/fx.h>
 
-extern s32 func_0202599c(s32 flagIndex);
-
 extern const s16 FX_SinCosTable_[];
 
 static const u16      Fld_Human_BaseOamAttr2[1] = {0};

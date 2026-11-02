@@ -4,21 +4,19 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
 // Retail names the first record's fields as separate objects. Keep both
 // records in one bounded array; the interior aliases still need matching work.
-const Ov003PsychoFallKind data_ov003_020dc9f0[2] = {
+static const Ov003PsychoFallKind data_ov003_020dc9f0[2] = {
     {100, 2, 0, 0, 333, 2, 0x3000, 0},
     { 94, 4, 0, 1, 334, 4, 0x4000, 1},
 };
 
-extern const s32 data_ov003_020dc9c0[4];
-extern const s32 data_ov003_020dc9d0[2][4];
+static const s32 data_ov003_020dc9c0[4];
+static const s32 data_ov003_020dc9d0[2][4];
 
-void func_ov003_020b4788(Ov003PsychoFall* self);
+static void func_ov003_020b4788(Ov003PsychoFall* self);
 
-extern const TaskHandle data_ov003_020dc9b4;
+static const TaskHandle data_ov003_020dc9b4;
 
 s32 func_ov003_020b42b4(Ov003EffectState* effect, s32 index, s32 x, s32 y, s32 z, s32 zStep) {
     Ov003PsychoFallArgs args;
@@ -32,7 +30,7 @@ s32 func_ov003_020b42b4(Ov003EffectState* effect, s32 index, s32 x, s32 y, s32 z
 }
 
 // Nonmatching: only the literal-pool relocation names differ (see the alias note above).
-s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychoFallArgs* arg = args;
     Ov003PsychoFall*     self;
     switch (stage) {
@@ -135,7 +133,7 @@ s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 /// Re-picks the impact icon's frame from the shard's remaining fall distance.
 // Nonmatching: the pool load names data_ov003_020dc9f4, an interior alias of the table above.
-void func_ov003_020b4788(Ov003PsychoFall* self) {
+static void func_ov003_020b4788(Ov003PsychoFall* self) {
     u16 frames = data_ov003_020dc9f0[self->index].frames;
     u16 frame  = frames - (FX_Mul(frames << 12, FX_Divide(-self->z, -self->baseZ)) >> 12);
 
@@ -143,10 +141,10 @@ void func_ov003_020b4788(Ov003PsychoFall* self) {
         return;
     CombatSprite_SetAnim(&self->icon, frame, 1);
 }
-char             data_ov003_020e4e50[28]   = "SubTsk_BtlPsy_PsychoFall_T";
-const TaskHandle data_ov003_020dc9b4       = {data_ov003_020e4e50, func_ov003_020b42f4, sizeof(Ov003PsychoFall)};
-const s32        data_ov003_020dc9c0[4]    = {0x2800, 0x3800, 0x4800, 0x5800};
-const s32        data_ov003_020dc9d0[2][4] = {
+static char             data_ov003_020e4e50[28]   = "SubTsk_BtlPsy_PsychoFall_T";
+static const TaskHandle data_ov003_020dc9b4       = {data_ov003_020e4e50, func_ov003_020b42f4, sizeof(Ov003PsychoFall)};
+static const s32        data_ov003_020dc9c0[4]    = {0x2800, 0x3800, 0x4800, 0x5800};
+static const s32        data_ov003_020dc9d0[2][4] = {
     {0x67, 0x67, 0x67, 0x67},
     {0x61, 0x63, 0x65, 0x67}
 };

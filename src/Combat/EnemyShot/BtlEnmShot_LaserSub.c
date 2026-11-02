@@ -43,7 +43,7 @@ typedef struct Ov003EnemyShotLaserSub {
     /* 0x0FC */ s32                   targetY;
 } Ov003EnemyShotLaserSub; // Size: 0x100
 
-extern const TaskHandle data_ov003_020e0c8c;
+static const TaskHandle data_ov003_020e0c8c;
 
 void func_ov003_020d07a8(Ov003EnemyShotSource* source, CombatList* list, Ov003EnemyShotRoot* root, u16 animation, s16 inset,
                          s16 length, s32 step, s16 delay) {
@@ -60,7 +60,7 @@ void func_ov003_020d07a8(Ov003EnemyShotSource* source, CombatList* list, Ov003En
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov003_020e0c8c, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020d0834(Ov003EnemyShotLaserSub* self, Ov003EnemyShotLaserSubArgs* args) {
+static s32 func_ov003_020d0834(Ov003EnemyShotLaserSub* self, Ov003EnemyShotLaserSubArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
     MI_CpuSet(self, 0, sizeof(*self));
@@ -88,7 +88,7 @@ s32 func_ov003_020d0834(Ov003EnemyShotLaserSub* self, Ov003EnemyShotLaserSubArgs
     return 1;
 }
 
-s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
+static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
     Ov003AttackInfo info;
     s16             x, y;
     s32             boxX, boxY, boxZ;
@@ -196,7 +196,7 @@ s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
     return 1;
 }
 
-s32 func_ov003_020d0ff4(Ov003EnemyShotLaserSub* self) {
+static s32 func_ov003_020d0ff4(Ov003EnemyShotLaserSub* self) {
     s16 x, y;
     s32 scaleX  = self->growX;
     s32 yOffset = 0;
@@ -226,13 +226,13 @@ s32 func_ov003_020d0ff4(Ov003EnemyShotLaserSub* self) {
     return 1;
 }
 
-s32 func_ov003_020d1110(Ov003EnemyShotLaserSub* self) {
+static s32 func_ov003_020d1110(Ov003EnemyShotLaserSub* self) {
     CombatSprite_Release(&self->sprite);
     CombatSprite_Release(&self->sprite2);
     return 1;
 }
 
-s32 func_ov003_020d112c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d112c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotLaserSub* self = task->data;
     switch (stage) {
         case 0:
@@ -276,5 +276,5 @@ Ov003EnemyShotRoot* func_ov003_020d11b8(Ov003EnemyShotRoot* root, u16* angle, s3
     return func_ov003_02084984(&root->node);
 }
 
-char             data_ov003_020e6cfc[24] = "Tsk_BtlEnmShot_LaserSub";
-const TaskHandle data_ov003_020e0c8c     = {data_ov003_020e6cfc, func_ov003_020d112c, sizeof(Ov003EnemyShotLaserSub)};
+static char             data_ov003_020e6cfc[24] = "Tsk_BtlEnmShot_LaserSub";
+static const TaskHandle data_ov003_020e0c8c     = {data_ov003_020e6cfc, func_ov003_020d112c, sizeof(Ov003EnemyShotLaserSub)};

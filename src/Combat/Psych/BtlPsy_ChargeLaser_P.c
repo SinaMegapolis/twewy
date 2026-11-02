@@ -3,8 +3,7 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const TaskHandle data_ov003_020dc754;
+static const TaskHandle data_ov003_020dc754;
 
 // Nonmatching: initialize the unused actor slots rather than copying indeterminate pointers.
 s32 func_ov003_020ac634(Ov003EffectContext* context, Ov003EffectState* effect) {
@@ -41,7 +40,7 @@ s32 func_ov003_020ac6bc(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020ac76c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ac76c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003ChargeLaserArgs* arg = args;
     Ov003ChargeLaser*     self;
     switch (stage) {
@@ -158,5 +157,5 @@ s32 func_ov003_020ac76c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4b74[28] = "Tsk_BtlPsy_ChargeLaser_P";
-const TaskHandle data_ov003_020dc754     = {data_ov003_020e4b74, func_ov003_020ac76c, sizeof(Ov003ChargeLaser)};
+static char             data_ov003_020e4b74[28] = "Tsk_BtlPsy_ChargeLaser_P";
+static const TaskHandle data_ov003_020dc754     = {data_ov003_020e4b74, func_ov003_020ac76c, sizeof(Ov003ChargeLaser)};

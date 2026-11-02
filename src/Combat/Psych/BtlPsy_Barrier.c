@@ -7,7 +7,8 @@ typedef struct BtlBarrierCharge {
     s32              timer;
 } BtlBarrierCharge; // Size: 0x14
 
-extern const TaskHandle data_ov003_020dc6c4;
+static const TaskHandle data_ov003_020dc6c4;
+static s32 func_ov003_020aaad4(Ov003EffectContext* context, Ov003EffectState* effect, s32 automatic, s32 mode, s32 kind);
 
 s32 func_ov003_020aaa84(Ov003EffectContext* context, Ov003EffectState* effect) {
     return func_ov003_020aaad4(context, effect, 0, 0, 0);
@@ -19,7 +20,7 @@ s32 func_ov003_020aaab8(Ov003EffectContext* context, Ov003EffectState* effect) {
     return func_ov003_020aaad4(context, effect, 0, 1, 2);
 }
 
-s32 func_ov003_020aaad4(Ov003EffectContext* context, Ov003EffectState* effect, s32 automatic, s32 mode, s32 kind) {
+static s32 func_ov003_020aaad4(Ov003EffectContext* context, Ov003EffectState* effect, s32 automatic, s32 mode, s32 kind) {
     BtlTouchWork* touch = func_ov003_020a62a0();
     if (func_ov003_020a5b18(0x17) || func_ov003_020a5b18(0x18) || func_ov003_020a5b18(0x19))
         return 0;
@@ -40,7 +41,7 @@ s32 func_ov003_020aaad4(Ov003EffectContext* context, Ov003EffectState* effect, s
     return 1;
 }
 
-s32 func_ov003_020aaba0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020aaba0(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003BarrierArgs* arg = args;
     BtlBarrierCharge* charge;
     switch (stage) {
@@ -85,5 +86,5 @@ s32 func_ov003_020aaba0(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4a70[20] = "Tsk_BtlPsy_Barrier";
-const TaskHandle data_ov003_020dc6c4     = {data_ov003_020e4a70, func_ov003_020aaba0, sizeof(BtlBarrierCharge)};
+static char             data_ov003_020e4a70[20] = "Tsk_BtlPsy_Barrier";
+static const TaskHandle data_ov003_020dc6c4     = {data_ov003_020e4a70, func_ov003_020aaba0, sizeof(BtlBarrierCharge)};

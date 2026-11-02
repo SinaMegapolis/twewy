@@ -1,6 +1,7 @@
 #include "Interface/Menu/MenuBadge.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Core/DMA.h"
 #include "Engine/Core/HBlank.h"
 #include "Engine/Core/Interrupts.h"
 #include "Engine/Core/Memory.h"
@@ -62,17 +63,9 @@ typedef struct {
 
 static MenuBadgeState* data_ov043_020cd280;
 
-void GX_LoadBgPltt(void* src, u32 offset, u32 size);
-void GX_LoadObjPltt(void* src, u32 offset, u32 size);
-void GXs_LoadBgPltt(void* src, u32 offset, u32 size);
-void GXs_LoadObjPltt(void* src, u32 offset, u32 size);
-BOOL func_02001b44(s32, s32, void*, s32);
-void Inventory_SetHelpSeen(s32);
-s32  Inventory_IsHelpSeen(s32);
 void func_0202b878(void);
 
 extern void ProcessOverlay_MenuTop(void* state);
-extern void func_ov027_020e860c(void);
 
 void MenuBadge_RefreshBadgeInfo(MenuBadgeState* state);
 void MenuBadge_RefreshList(MenuBadgeObject* menuBadge, u8 listMode, u16 listTop);

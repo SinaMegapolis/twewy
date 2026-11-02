@@ -3,11 +3,11 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern const BinIdentifier data_ov003_020e0c30;
-extern const TaskHandle    data_ov003_020e0c38;
-Ov003EnemyShotEffectCounts data_ov003_020e7340;
+static const BinIdentifier        data_ov003_020e0c30;
+static const TaskHandle           data_ov003_020e0c38;
+static Ov003EnemyShotEffectCounts data_ov003_020e7340;
 
-s32 func_ov003_020cde74(CombatSprite* source, s32 x, s32 y, s32 z, s32 flip, s32 kind) {
+static s32 func_ov003_020cde74(CombatSprite* source, s32 x, s32 y, s32 z, s32 flip, s32 kind) {
     if (kind == 1 && data_ov003_020e7340.activeParticles > 48)
         return -1;
     Ov003EnemyShotEffectArgs args;
@@ -26,7 +26,7 @@ s32 func_ov003_020cde74(CombatSprite* source, s32 x, s32 y, s32 z, s32 flip, s32
     return EasyTask_CreateTask(pool, &data_ov003_020e0c38, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020cdf34(u32 flags, s32 x, s32 y, s32 z, CombatSprite* source, const s16* timer, s32 flip, s32 kind) {
+static s32 func_ov003_020cdf34(u32 flags, s32 x, s32 y, s32 z, CombatSprite* source, const s16* timer, s32 flip, s32 kind) {
     switch (kind) {
         case 0:
             if (flags & 0x8000)
@@ -50,7 +50,7 @@ s32 func_ov003_020cdff4(Ov003EnemyShotCore* source, s32 flip, s32 kind) {
                                &source->timer, flip, kind);
 }
 
-s32 func_ov003_020ce02c(Ov003EnemyShotEffect* self, Ov003EnemyShotEffectArgs* args) {
+static s32 func_ov003_020ce02c(Ov003EnemyShotEffect* self, Ov003EnemyShotEffectArgs* args) {
     u16 animation;
     MI_CpuSet(self, 0, sizeof(*self));
     self->position.x = args->position.x;
@@ -79,7 +79,7 @@ s32 func_ov003_020ce02c(Ov003EnemyShotEffect* self, Ov003EnemyShotEffectArgs* ar
     return 1;
 }
 
-s32 func_ov003_020ce24c(Ov003EnemyShotEffect* self) {
+static s32 func_ov003_020ce24c(Ov003EnemyShotEffect* self) {
     if (func_ov003_020c3c28())
         return 0;
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
@@ -88,7 +88,7 @@ s32 func_ov003_020ce24c(Ov003EnemyShotEffect* self) {
     return 1;
 }
 
-s32 func_ov003_020ce288(Ov003EnemyShotEffect* self) {
+static s32 func_ov003_020ce288(Ov003EnemyShotEffect* self) {
     s16 x, y;
     func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
                         self->position.z);
@@ -99,14 +99,14 @@ s32 func_ov003_020ce288(Ov003EnemyShotEffect* self) {
     return 1;
 }
 
-s32 func_ov003_020ce318(Ov003EnemyShotEffect* self) {
+static s32 func_ov003_020ce318(Ov003EnemyShotEffect* self) {
     CombatSprite_Release(&self->sprite);
     if (self->kind == 1)
         data_ov003_020e7340.activeParticles--;
     return 1;
 }
 
-s32 func_ov003_020ce34c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ce34c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotEffect* self = task->data;
     switch (stage) {
         case 0:
@@ -122,7 +122,7 @@ s32 func_ov003_020ce34c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char                data_ov003_020e6c2c[20] = "Tsk_BtlEnmShot_Eff";
-char                data_ov003_020e6c40[32] = "Apl_Hor/Grp_BtlEnmShot_Eff.bin";
-const BinIdentifier data_ov003_020e0c30     = {3, data_ov003_020e6c40};
-const TaskHandle    data_ov003_020e0c38     = {data_ov003_020e6c2c, func_ov003_020ce34c, sizeof(Ov003EnemyShotEffect)};
+static char                data_ov003_020e6c2c[20] = "Tsk_BtlEnmShot_Eff";
+static char                data_ov003_020e6c40[32] = "Apl_Hor/Grp_BtlEnmShot_Eff.bin";
+static const BinIdentifier data_ov003_020e0c30     = {3, data_ov003_020e6c40};
+static const TaskHandle    data_ov003_020e0c38     = {data_ov003_020e6c2c, func_ov003_020ce34c, sizeof(Ov003EnemyShotEffect)};

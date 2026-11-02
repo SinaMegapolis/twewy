@@ -22,8 +22,6 @@
 #include <nitro/fx.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_0202599c(s32 flagIndex);
-
 typedef struct Ov030Player Ov030Player;
 typedef void (*Ov030PlayerCallback)(TaskPool*, Ov030Player*);
 

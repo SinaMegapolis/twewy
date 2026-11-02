@@ -58,4 +58,12 @@ BOOL        BgResMgr_ReleaseChar(BgResMgr* mgr, BgResource* resource);
 
 BOOL BgResMgr_ReleaseScreen(BgResMgr* mgr, BgResource* resource);
 
+// BgResMgr.c
+void*       BgResMgr_AllocChar64(BgResMgr* arg0, void* arg1, s32 arg2, u32 arg3, u32 arg4);
+BgResource* BgResMgr_AllocCharAligned(BgResMgr* mgr, UnkSmallStruct_DispBG* arg1, s32 arg2, u32 arg3, u32 arg4);
+void*       BgResMgr_AllocCharExtended(BgResMgr* arg0, void* arg1, s32 arg2, u32 arg3, u32 arg4);
+
+void BgResMgr_LoadCharToVram(BgResMgr* arg0, BgResource* arg1, UnkSmallStruct_DispBG* arg2);
+void BgResMgr_LoadScreenToVram(BgResMgr* arg0, BgResource* arg1, UnkSmallStruct_DispBG* arg2);
+
 #endif // ENGINE_BGRESMGR_H

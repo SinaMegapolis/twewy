@@ -31,7 +31,6 @@
 #include <nitro/gx.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32  func_0202599c(s32 flagIndex);
 extern void TexVram_Init(s32 arg0);
 extern void func_02027b0c(s32 arg0, s32 arg1);
 extern void func_02028a44(void);
@@ -42,10 +41,6 @@ extern void func_02010b50(TextObject* textObj);
 extern void func_02010b84(TextObject* textObj, s32 x, s32 y, s32 width, s32 height);
 extern void BgText_Init(void* textObj, UnkStruct_usedby_02025b68* params);
 extern void BgText_Free(void* textResource);
-extern void GX_LoadBgPltt(void* ptr, u32 offset, u32 size);
-extern void GX_LoadObjPltt(void* ptr, u32 offset, u32 size);
-extern void GXs_LoadBgPltt(void* ptr, u32 offset, u32 size);
-extern u32  GXs_LoadObjPltt(void* ptr, u32 offset, u32 size);
 extern void G3i_OrthoW(s32, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void G3i_LookAt(Vec* eye, Vec* up, Vec* target, s32 arg3, s32 arg4);
 
@@ -334,24 +329,21 @@ void func_ov030_020b6e2c(void) {
     OamMgr_ResetCommandQueues(&g_OamMgr[1]);
 }
 
-u32 func_ov030_020b7330(void) {
-    u32 v = SystemStatusFlags.vblank;
-
-    if (v == 0) {
-        return v;
+void func_ov030_020b7330(void) {
+    if (SystemStatusFlags.vblank) {
+        Display_Commit();
+        DMA_Flush();
+        DC_PurgeRange(g_OamMgr[0].oam, 0x400);
+        GX_LoadOam(g_OamMgr[0].oam, 0, 0x400);
+        DC_PurgeRange(g_OamMgr[1].oam, 0x400);
+        GXs_LoadOam(g_OamMgr[1].oam, 0, 0x400);
+        DC_PurgeRange(g_PaletteBuffers[DISPLAY_MAIN].bg, 0x400);
+        GX_LoadBgPltt(g_PaletteBuffers[DISPLAY_MAIN].bg, 0, 0x200);
+        GX_LoadObjPltt(g_PaletteBuffers[DISPLAY_MAIN].obj, 0, 0x200);
+        DC_PurgeRange(g_PaletteBuffers[DISPLAY_SUB].bg, 0x400);
+        GXs_LoadBgPltt(g_PaletteBuffers[DISPLAY_SUB].bg, 0, 0x200);
+        GXs_LoadObjPltt(g_PaletteBuffers[DISPLAY_SUB].obj, 0, 0x200);
     }
-    Display_Commit();
-    DMA_Flush();
-    DC_PurgeRange(g_OamMgr[0].oam, 0x400);
-    GX_LoadOam(g_OamMgr[0].oam, 0, 0x400);
-    DC_PurgeRange(g_OamMgr[1].oam, 0x400);
-    GXs_LoadOam(g_OamMgr[1].oam, 0, 0x400);
-    DC_PurgeRange(g_PaletteBuffers[DISPLAY_MAIN].bg, 0x400);
-    GX_LoadBgPltt(g_PaletteBuffers[DISPLAY_MAIN].bg, 0, 0x200);
-    GX_LoadObjPltt(g_PaletteBuffers[DISPLAY_MAIN].obj, 0, 0x200);
-    DC_PurgeRange(g_PaletteBuffers[DISPLAY_SUB].bg, 0x400);
-    GXs_LoadBgPltt(g_PaletteBuffers[DISPLAY_SUB].bg, 0, 0x200);
-    return GXs_LoadObjPltt(g_PaletteBuffers[DISPLAY_SUB].obj, 0, 0x200);
 }
 
 void func_ov030_020b7400(void) {

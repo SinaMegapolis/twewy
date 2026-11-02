@@ -5,6 +5,7 @@
 #include "Engine/Core/OamMgr.h"
 #include "Engine/EasyTask.h"
 #include <nitro/fx.h>
+#include <nitro/g3.h>
 #include <nitro/gx/gx_geometry.h>
 #include <nitro/mi/cpumem.h>
 #include <nitro/reg.h>
@@ -38,30 +39,29 @@ typedef struct BtlDbg {
 // Data
 // ---------------------------------------------------------------------------------------------
 
-extern void           func_020370cc(fx16 sin, fx16 cos);
 extern OamAffineParam data_02059ad4;
 extern VtxXY          data_02059ab0[4];
 extern TexCoordQuad   data_02059b14[];
 
-s32 func_ov003_020a2890(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020a28ec(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020a2968(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020a2970(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020a2890(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020a28ec(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020a2968(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_020a2970(TaskPool* pool, Task* task, void* args, s32 stage);
 
 extern char data_ov003_020e3e44[]; // `Tsk_BtlDbg`, pooled into the `.data` of BtlPause
 
-const TaskHandle data_ov003_020d8864 = {data_ov003_020e3e44, func_ov003_020a2970, sizeof(BtlDbg)};
+static const TaskHandle data_ov003_020d8864 = {data_ov003_020e3e44, func_ov003_020a2970, sizeof(BtlDbg)};
 
 /// The stage table of the overlay: build, update, draw, release.
-const TaskStages data_ov003_020d8870 = {
+static const TaskStages data_ov003_020d8870 = {
     func_ov003_020a2890,
     func_ov003_020a28ec,
     func_ov003_020a28f4,
     func_ov003_020a2968,
 };
 
-s32 data_ov003_020e71c0; // the task id
+static s32 data_ov003_020e71c0; // the task id
 
 // The pointer tables below belong to the battle info display; they point into its `.rodata`.
 extern char data_ov003_020d889c[];
@@ -130,7 +130,7 @@ char* data_ov003_020e3ed4[14] = {
 // ---------------------------------------------------------------------------------------------
 
 /// Draws one rectangle: `x`/`y` is its top left corner, the colour comes from `kind`.
-void func_ov003_020a2524(s32 kind, s32 x, s32 y, s32 width, s32 height) {
+static void func_ov003_020a2524(s32 kind, s32 x, s32 y, s32 width, s32 height) {
     OamAffineParam* affine   = &data_02059ad4;
     TexCoordQuad*   texCoord = data_02059b14;
     VtxXY*          vertices = data_02059ab0;
@@ -178,7 +178,7 @@ void func_ov003_020a2524(s32 kind, s32 x, s32 y, s32 width, s32 height) {
 }
 
 /// Draws a posted rectangle, converting its world position to the screen unless its kind says it already is one.
-void func_ov003_020a2794(BtlDbgRect* rect) {
+static void func_ov003_020a2794(BtlDbgRect* rect) {
     s32 x;
     s32 y;
 
@@ -193,7 +193,7 @@ void func_ov003_020a2794(BtlDbgRect* rect) {
 }
 
 /// Moves a rectangle from the free list to the shown list.
-void func_ov003_020a27f0(BtlDbg* self, u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
+static void func_ov003_020a27f0(BtlDbg* self, u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
     BtlDbgRect* rect = func_ov003_0208495c(&self->free);
 
     if (rect == NULL) {
@@ -210,7 +210,7 @@ void func_ov003_020a27f0(BtlDbg* self, u16 kind, u16 life, s32 x, s32 y, s16 wid
 }
 
 /// Moves a rectangle back to the free list.
-void func_ov003_020a285c(BtlDbg* self, BtlDbgRect* rect) {
+static void func_ov003_020a285c(BtlDbg* self, BtlDbgRect* rect) {
     if (rect == NULL) {
         return;
     }
@@ -218,7 +218,7 @@ void func_ov003_020a285c(BtlDbg* self, BtlDbgRect* rect) {
     func_ov003_020849bc(&self->free, &rect->node, rect);
 }
 
-s32 func_ov003_020a2890(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a2890(TaskPool* pool, Task* task, void* args) {
     BtlDbg* self = task->data;
     s32     i;
 
@@ -231,11 +231,11 @@ s32 func_ov003_020a2890(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a28ec(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a28ec(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args) {
     BtlDbg*     self = task->data;
     BtlDbgRect* rect = func_ov003_0208495c(&self->shown);
     BtlDbgRect* next;
@@ -254,11 +254,11 @@ s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a2968(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_020a2968(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_020a2970(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a2970(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d8870;
 
     return stages.iter[stage](pool, task, args);

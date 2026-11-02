@@ -24,6 +24,7 @@
 #include "Save.h"
 #include "common_data.h"
 
+#include <cri/adxt.h>
 #include <nitro/fx.h>
 #include <nitro/gx.h>
 #include <nitro/mi/cpumem.h>
@@ -45,22 +46,6 @@
 /// One queued touch event; the 14-entry pool sits at `Ov003Global + 0x3D4BC`.
 
 /// The 6-byte rendering of the six touch slots that the 3D layer reads back.
-
-// ---------------------------------------------------------------------------------------------
-// External functions
-// ---------------------------------------------------------------------------------------------
-
-extern s32  func_020274ac(void*, s32, const BinIdentifier*);
-extern s32  func_02016900(void);
-extern void ADXT_SetExtraInfo(s32, s32);
-
-extern s32                func_ov003_02083478(Ov003BgResState* state);
-extern s32                func_ov003_020835d4(Ov003BgResState* state);
-extern s32                func_ov003_02083700(Ov003BgResState* state);
-extern s32                func_ov003_020a410c(Ov003TouchActor*, s16, s16);
-extern void               func_ov003_020a45d4(Ov003TouchActor*);
-extern const EquippedPin* func_ov003_020a4718(s32, s32);
-extern s32                func_ov003_020a6cc4(s32 arg0);
 
 /// The per-touch start positions written by `func_ov003_020a39dc` (owned by arm9).
 extern const u8 data_0205c19d[];
@@ -204,221 +189,73 @@ typedef struct Ov003BinIdenEx {
 extern const Ov003ScriptWord         data_ov003_020d9a80[4];
 extern const Ov003ScriptWord         data_ov003_020d9a90[6];
 extern const Ov003ScriptWord         data_ov003_020d9aa8[10];
-extern const u8                      data_ov003_020d9ad0[0x2C];
+static const u8                      data_ov003_020d9ad0[0x2C];
+static void                          func_ov003_020a3924(void);
 extern const u8                      data_ov003_020d9afc[0x18];
-extern const Ov003AnimRecord         data_ov003_020d9b14[1];
-extern const Ov003AnimRecord         data_ov003_020d9b1a[1];
-extern const Ov003AnimRecord         data_ov003_020d9b20[1];
-extern const Ov003AnimRecord         data_ov003_020d9b26[1];
-extern const Ov003AnimRecord         data_ov003_020d9b2c[1];
-extern const Ov003AnimRecord         data_ov003_020d9b32[1];
-extern const Ov003AnimRecord         data_ov003_020d9b38[1];
-extern const Ov003AnimRecord         data_ov003_020d9b3e[1];
-extern const Ov003AnimRecord         data_ov003_020d9b44[1];
-extern const Ov003AnimRecord         data_ov003_020d9b4a[1];
-extern const Ov003AnimRecord         data_ov003_020d9b50[1];
-extern const Ov003AnimRecord         data_ov003_020d9b56[1];
-extern const Ov003AnimRecord         data_ov003_020d9b5c[1];
-extern const Ov003AnimRecord         data_ov003_020d9b62[1];
-extern const Ov003AnimRecord         data_ov003_020d9b68[1];
-extern const Ov003AnimRecord         data_ov003_020d9b6e[1];
-extern const Ov003AnimRecord         data_ov003_020d9b74[1];
-extern const Ov003AnimRecord         data_ov003_020d9b7a[1];
-extern const Ov003AnimRecord         data_ov003_020d9b80[1];
-extern const Ov003AnimRecord         data_ov003_020d9b86[1];
-extern const Ov003AnimRecord         data_ov003_020d9b8c[1];
-extern const Ov003AnimRecord         data_ov003_020d9b92[1];
-extern const Ov003AnimRecord         data_ov003_020d9b98[1];
-extern const Ov003AnimRecord         data_ov003_020d9b9e[1];
-extern const Ov003AnimRecord         data_ov003_020d9ba4[1];
-extern const u8                      data_ov003_020d9baa[0xE];
-extern const BinIdentifier           data_ov003_020d9bb8;
-extern const BinIdentifier           data_ov003_020d9bc0;
-extern const BinIdentifier           data_ov003_020d9bc8;
-extern const BinIdentifier           data_ov003_020d9bd0;
-extern const BinIdentifier           data_ov003_020d9bd8;
-extern const BinIdentifier           data_ov003_020d9be0;
-extern const BinIdentifier           data_ov003_020d9be8;
-extern const BinIdentifier           data_ov003_020d9bf0;
-extern const BinIdentifier           data_ov003_020d9bf8;
-extern const BinIdentifier           data_ov003_020d9c00;
-extern const BinIdentifier           data_ov003_020d9c08;
-extern const BinIdentifier           data_ov003_020d9c10;
-extern const BinIdentifier           data_ov003_020d9c18;
-extern const BinIdentifier           data_ov003_020d9c20;
-extern const BinIdentifier           data_ov003_020d9c28;
-extern const BinIdentifier           data_ov003_020d9c30;
-extern const BinIdentifier           data_ov003_020d9c38;
-extern const BinIdentifier           data_ov003_020d9c40;
-extern const BinIdentifier           data_ov003_020d9c48;
-extern const BinIdentifier           data_ov003_020d9c50;
-extern const BinIdentifier           data_ov003_020d9c58;
-extern const BinIdentifier           data_ov003_020d9c60;
-extern const BinIdentifier           data_ov003_020d9c68;
-extern const BinIdentifier           data_ov003_020d9c70;
-extern const BinIdentifier           data_ov003_020d9c78;
-extern const BinIdentifier           data_ov003_020d9c80[2];
 extern const void* const             data_ov003_020d9c90[1];
 extern const Ov003SubCameraPathTable data_ov003_020d9c94;
 extern const BinIdentifier           data_ov003_020da114;
-extern const BinIdentifier           data_ov003_020da11c;
 extern const BinIdentifier           data_ov003_020da124;
-extern const BinIdentifier           data_ov003_020da12c;
-extern const BinIdentifier           data_ov003_020da134;
-extern const BinIdentifier           data_ov003_020da13c;
-extern const BinIdentifier           data_ov003_020da144;
-extern const BinIdentifier           data_ov003_020da14c;
 extern const BinIdentifier           data_ov003_020da154;
-extern const BinIdentifier           data_ov003_020da15c;
-extern const BinIdentifier           data_ov003_020da164;
 extern const BinIdentifier           data_ov003_020da16c;
 extern const BinIdentifier           data_ov003_020da174;
-extern const BinIdentifier           data_ov003_020da17c;
-extern const BinIdentifier           data_ov003_020da184;
-extern const BinIdentifier           data_ov003_020da18c;
-extern const BinIdentifier           data_ov003_020da194;
-extern const BinIdentifier           data_ov003_020da19c;
-extern const BinIdentifier           data_ov003_020da1a4;
 extern const BinIdentifier           data_ov003_020da1ac;
 extern const BinIdentifier           data_ov003_020da1b4;
-extern const BinIdentifier           data_ov003_020da1bc;
-extern const BinIdentifier           data_ov003_020da1c4;
-extern const BinIdentifier           data_ov003_020da1cc;
-extern const BinIdentifier           data_ov003_020da1d4;
-extern const Ov003BinIdenEx          data_ov003_020da1dc;
-extern const Ov003PathRect           data_ov003_020da1ec;
-extern const Ov003PathRect           data_ov003_020da1f4;
-extern const Ov003PathRect           data_ov003_020da1fc;
-extern const Ov003PathRect           data_ov003_020da204;
-extern const Ov003PathRect           data_ov003_020da20c;
-extern const Ov003PathRect           data_ov003_020da214;
-extern const Ov003PathRect           data_ov003_020da21c;
-extern const Ov003PathRect           data_ov003_020da224;
-extern const Ov003PathRect           data_ov003_020da22c;
-extern const Ov003PathRect           data_ov003_020da234;
-extern const Ov003PathRect           data_ov003_020da23c;
-extern const Ov003PathRect           data_ov003_020da244;
-extern const Ov003PathRect           data_ov003_020da24c;
-extern const Ov003PathRect           data_ov003_020da254;
-extern const Ov003PathRect           data_ov003_020da25c;
-extern const Ov003PathRect           data_ov003_020da264;
-extern const Ov003PathRect           data_ov003_020da26c;
-extern const Ov003PathRect           data_ov003_020da274;
-extern const Ov003PathRect           data_ov003_020da27c;
-extern const Ov003PathRect           data_ov003_020da284;
-extern const Ov003PathRect           data_ov003_020da28c;
-extern const Ov003PathRect           data_ov003_020da294;
-extern const Ov003PathRect           data_ov003_020da29c;
-extern const Ov003PathRect           data_ov003_020da2a4;
-extern const Ov003PathRect           data_ov003_020da2ac;
-extern const Ov003PathRect           data_ov003_020da2b4;
 extern const void* const             data_ov003_020da2bc[1];
 extern const Ov003TouchPathEntry     data_ov003_020da2c0[41];
 extern;
-extern const BinIdentifier        data_ov003_020da73c;
-extern const BinIdentifier        data_ov003_020da744;
-extern const BinIdentifier        data_ov003_020da74c;
-extern const BinIdentifier        data_ov003_020da754;
-extern const BinIdentifier        data_ov003_020da75c;
-extern const BinIdentifier        data_ov003_020da764;
-extern const BinIdentifier        data_ov003_020da76c;
-extern const BinIdentifier        data_ov003_020da774;
-extern const BinIdentifier        data_ov003_020da77c;
-extern const BinIdentifier        data_ov003_020da784;
-extern const BinIdentifier        data_ov003_020da78c;
-extern const BinIdentifier        data_ov003_020da794;
-extern const BinIdentifier        data_ov003_020da79c;
-extern const BinIdentifier        data_ov003_020da7a4;
-extern const BinIdentifier        data_ov003_020da7ac;
-extern const BinIdentifier        data_ov003_020da7b4;
-extern const BinIdentifier        data_ov003_020da7bc;
-extern const BinIdentifier        data_ov003_020da7c4;
-extern const BinIdentifier        data_ov003_020da7cc;
-extern const BinIdentifier        data_ov003_020da7d4;
-extern const BinIdentifier        data_ov003_020da7dc;
-extern const BinIdentifier        data_ov003_020da7e4;
-extern const BinIdentifier        data_ov003_020da7ec;
-extern const BinIdentifier        data_ov003_020da7f4;
-extern const BinIdentifier        data_ov003_020da7fc;
-extern const BinIdentifier        data_ov003_020da804;
-extern const Ov003TouchIconParams data_ov003_020da80c[258];
-extern char                       data_ov003_020e44f8[0x18];
-extern char                       data_ov003_020e4510[0x18];
-extern char                       data_ov003_020e4528[0x1C];
-extern char                       data_ov003_020e4544[0x1C];
-extern char                       data_ov003_020e4560[0x1C];
-extern char                       data_ov003_020e457c[0x1C];
-extern char                       data_ov003_020e4598[0x20];
-extern char                       data_ov003_020e45b8[0x20];
-extern char                       data_ov003_020e45d8[0x20];
-extern char                       data_ov003_020e45f8[0x24];
-extern char                       data_ov003_020e461c[0x24];
-extern char                       data_ov003_020e4640[0x24];
-extern char                       data_ov003_020e4664[0x24];
-extern char                       data_ov003_020e4688[0x24];
-extern char                       data_ov003_020e46ac[0x24];
-extern char                       data_ov003_020e46d0[0x24];
-extern char                       data_ov003_020e46f4[0x24];
-extern char                       data_ov003_020e4718[0x24];
-extern char                       data_ov003_020e473c[0x24];
-extern char                       data_ov003_020e4760[0x24];
-extern char                       data_ov003_020e4784[0x24];
-extern char                       data_ov003_020e47a8[0x24];
-extern char                       data_ov003_020e47cc[0x24];
-extern char                       data_ov003_020e47f0[0x28];
-extern char                       data_ov003_020e4818[0x28];
-extern char                       data_ov003_020e4840[0x28];
-char                              data_ov003_020e44f8[0x18] = "Data/AbilityData.bin";
+extern const BinIdentifier data_ov003_020da744;
+static char                data_ov003_020e44f8[0x18] = "Data/AbilityData.bin";
 
-char data_ov003_020e4510[0x18] = "Apl_Tak/ItemData.bin";
+static char data_ov003_020e4510[0x18] = "Apl_Tak/ItemData.bin";
 
-char data_ov003_020e4528[0x1C] = "Apl_Hir/Grp_BtlCircle.bin";
+static char data_ov003_020e4528[0x1C] = "Apl_Hir/Grp_BtlCircle.bin";
 
-char data_ov003_020e4544[0x1C] = "Apl_Hir/Grp_BtlPsy_Hold.bin";
+static char data_ov003_020e4544[0x1C] = "Apl_Hir/Grp_BtlPsy_Hold.bin";
 
-char data_ov003_020e4560[0x1C] = "Apl_Hir/Grp_BtlPsy_Lime.bin";
+static char data_ov003_020e4560[0x1C] = "Apl_Hir/Grp_BtlPsy_Lime.bin";
 
-char data_ov003_020e457c[0x1C] = "Apl_Hir/Grp_BtlPsy_Bomb.bin";
+static char data_ov003_020e457c[0x1C] = "Apl_Hir/Grp_BtlPsy_Bomb.bin";
 
-char data_ov003_020e4598[0x20] = "Apl_Hir/Grp_BtlPsy_Element.bin";
+static char data_ov003_020e4598[0x20] = "Apl_Hir/Grp_BtlPsy_Element.bin";
 
-char data_ov003_020e45b8[0x20] = "Apl_Hir/Grp_BtlPsy_Recover.bin";
+static char data_ov003_020e45b8[0x20] = "Apl_Hir/Grp_BtlPsy_Recover.bin";
 
-char data_ov003_020e45d8[0x20] = "Apl_Hir/Grp_BtlPsy_Barrier.bin";
+static char data_ov003_020e45d8[0x20] = "Apl_Hir/Grp_BtlPsy_Barrier.bin";
 
-char data_ov003_020e45f8[0x24] = "Apl_Hir/Grp_BtlPsy_BlackHoll.bin";
+static char data_ov003_020e45f8[0x24] = "Apl_Hir/Grp_BtlPsy_BlackHoll.bin";
 
-char data_ov003_020e461c[0x24] = "Apl_Hir/Grp_BtlPsy_ShockWave.bin";
+static char data_ov003_020e461c[0x24] = "Apl_Hir/Grp_BtlPsy_ShockWave.bin";
 
-char data_ov003_020e4640[0x24] = "Apl_Hir/Grp_BtlPsy_Territory.bin";
+static char data_ov003_020e4640[0x24] = "Apl_Hir/Grp_BtlPsy_Territory.bin";
 
-char data_ov003_020e4664[0x24] = "Apl_Hir/Grp_BtlPsy_IcePillar.bin";
+static char data_ov003_020e4664[0x24] = "Apl_Hir/Grp_BtlPsy_IcePillar.bin";
 
-char data_ov003_020e4688[0x24] = "Apl_Hir/Grp_BtlPsy_FieldShake.bin";
+static char data_ov003_020e4688[0x24] = "Apl_Hir/Grp_BtlPsy_FieldShake.bin";
 
-char data_ov003_020e46ac[0x24] = "Apl_Hir/Grp_BtlPsy_DragAttack.bin";
+static char data_ov003_020e46ac[0x24] = "Apl_Hir/Grp_BtlPsy_DragAttack.bin";
 
-char data_ov003_020e46d0[0x24] = "Apl_Hir/Grp_BtlPsy_StreetLive.bin";
+static char data_ov003_020e46d0[0x24] = "Apl_Hir/Grp_BtlPsy_StreetLive.bin";
 
-char data_ov003_020e46f4[0x24] = "Apl_Hir/Grp_BtlPsy_MeteorFall.bin";
+static char data_ov003_020e46f4[0x24] = "Apl_Hir/Grp_BtlPsy_MeteorFall.bin";
 
-char data_ov003_020e4718[0x24] = "Apl_Hir/Grp_BtlPsy_ChargeLaser.bin";
+static char data_ov003_020e4718[0x24] = "Apl_Hir/Grp_BtlPsy_ChargeLaser.bin";
 
-char data_ov003_020e473c[0x24] = "Apl_Hir/Grp_BtlPsy_AttackPaint.bin";
+static char data_ov003_020e473c[0x24] = "Apl_Hir/Grp_BtlPsy_AttackPaint.bin";
 
-char data_ov003_020e4760[0x24] = "Apl_Hir/Grp_BtlPsy_ElectricGen.bin";
+static char data_ov003_020e4760[0x24] = "Apl_Hir/Grp_BtlPsy_ElectricGen.bin";
 
-char data_ov003_020e4784[0x24] = "Apl_Hir/Grp_BtlPsy_ElementBind.bin";
+static char data_ov003_020e4784[0x24] = "Apl_Hir/Grp_BtlPsy_ElementBind.bin";
 
-char data_ov003_020e47a8[0x24] = "Apl_Hir/Grp_BtlPsy_SlashThunder.bin";
+static char data_ov003_020e47a8[0x24] = "Apl_Hir/Grp_BtlPsy_SlashThunder.bin";
 
-char data_ov003_020e47cc[0x24] = "Apl_Hir/Grp_BtlPsy_AbsorbEffect.bin";
+static char data_ov003_020e47cc[0x24] = "Apl_Hir/Grp_BtlPsy_AbsorbEffect.bin";
 
-char data_ov003_020e47f0[0x28] = "Apl_Hir/Grp_BtlPsy_Psychokinesis.bin";
+static char data_ov003_020e47f0[0x28] = "Apl_Hir/Grp_BtlPsy_Psychokinesis.bin";
 
-char data_ov003_020e4818[0x28] = "Apl_Hir/Grp_BtlPsy_LockOnThunder.bin";
+static char data_ov003_020e4818[0x28] = "Apl_Hir/Grp_BtlPsy_LockOnThunder.bin";
 
-char                  data_ov003_020e4840[0x28] = "Apl_Hir/Grp_BtlPsy_BadgeFormation.bin";
+static char           data_ov003_020e4840[0x28] = "Apl_Hir/Grp_BtlPsy_BadgeFormation.bin";
 const Ov003ScriptWord data_ov003_020d9a80[4]    = {
     {.value = (u32)func_ov003_02083478},
     {.value = 0x00030001},
@@ -442,7 +279,7 @@ const Ov003ScriptWord data_ov003_020d9aa8[10] = {
     {.value = (u32)func_ov003_02083470},
 };
 
-const u8 data_ov003_020d9ad0[0x2C] = {
+static const u8 data_ov003_020d9ad0[0x2C] = {
     0x00, 0x00, 0xFE, 0xFF, 0x00, 0x00, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x01,
     0x00, 0x40, 0x00, 0x00, 0x00, 0xFE, 0xFF, 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x00,
     0x04, 0x00, 0x01, 0x00, 0x40, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
@@ -453,161 +290,161 @@ const u8 data_ov003_020d9afc[0x18] = {
     0x03, 0x00, 0x04, 0x00, 0x04, 0x00, 0xC0, 0x0C, 0x03, 0x00, 0x04, 0x00,
 };
 
-const Ov003AnimRecord data_ov003_020d9b14[1] = {
+static const Ov003AnimRecord data_ov003_020d9b14[1] = {
     {8, 0x0036, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b1a[1] = {
+static const Ov003AnimRecord data_ov003_020d9b1a[1] = {
     {8, 0x0036, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b20[1] = {
+static const Ov003AnimRecord data_ov003_020d9b20[1] = {
     {8, 0x003A, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b26[1] = {
+static const Ov003AnimRecord data_ov003_020d9b26[1] = {
     {8, 0x0036, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b2c[1] = {
+static const Ov003AnimRecord data_ov003_020d9b2c[1] = {
     {8, 0x0036, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b32[1] = {
+static const Ov003AnimRecord data_ov003_020d9b32[1] = {
     {8, 0x0048, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b38[1] = {
+static const Ov003AnimRecord data_ov003_020d9b38[1] = {
     {8, 0x003A, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b3e[1] = {
+static const Ov003AnimRecord data_ov003_020d9b3e[1] = {
     {8, 0x0038, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b44[1] = {
+static const Ov003AnimRecord data_ov003_020d9b44[1] = {
     {8, 0x003C, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b4a[1] = {
+static const Ov003AnimRecord data_ov003_020d9b4a[1] = {
     {8, 0x0038, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b50[1] = {
+static const Ov003AnimRecord data_ov003_020d9b50[1] = {
     {8, 0x0030, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b56[1] = {
+static const Ov003AnimRecord data_ov003_020d9b56[1] = {
     {8, 0x0030, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b5c[1] = {
+static const Ov003AnimRecord data_ov003_020d9b5c[1] = {
     {8, 0x0030, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b62[1] = {
+static const Ov003AnimRecord data_ov003_020d9b62[1] = {
     {8, 0x0038, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b68[1] = {
+static const Ov003AnimRecord data_ov003_020d9b68[1] = {
     {8, 0x0038, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b6e[1] = {
+static const Ov003AnimRecord data_ov003_020d9b6e[1] = {
     {61, 0x0033, 0},
 };
 
-const Ov003AnimRecord data_ov003_020d9b74[1] = {
+static const Ov003AnimRecord data_ov003_020d9b74[1] = {
     {8, 0x0034, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b7a[1] = {
+static const Ov003AnimRecord data_ov003_020d9b7a[1] = {
     {8, 0x0040, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b80[1] = {
+static const Ov003AnimRecord data_ov003_020d9b80[1] = {
     {8, 0x0038, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b86[1] = {
+static const Ov003AnimRecord data_ov003_020d9b86[1] = {
     {8, 0x0036, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b8c[1] = {
+static const Ov003AnimRecord data_ov003_020d9b8c[1] = {
     {8, 0x0034, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b92[1] = {
+static const Ov003AnimRecord data_ov003_020d9b92[1] = {
     {8, 0x0028, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b98[1] = {
+static const Ov003AnimRecord data_ov003_020d9b98[1] = {
     {8, 0x0030, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9b9e[1] = {
+static const Ov003AnimRecord data_ov003_020d9b9e[1] = {
     {8, 0x0038, -40},
 };
 
-const Ov003AnimRecord data_ov003_020d9ba4[1] = {
+static const Ov003AnimRecord data_ov003_020d9ba4[1] = {
     {8, 0x0028, -40},
 };
 
-const u8 data_ov003_020d9baa[0xE] = {
+static const u8 data_ov003_020d9baa[0xE] = {
     0x08, 0x00, 0x28, 0x00, 0xD8, 0xFF, 0x08, 0x00, 0x38, 0x00, 0xD8, 0xFF, 0x00, 0x00,
 };
 
-const BinIdentifier data_ov003_020d9bb8 = {3, (char*)&data_ov003_020e40b8};
+static const BinIdentifier data_ov003_020d9bb8 = {3, (char*)&data_ov003_020e40b8};
 
-const BinIdentifier data_ov003_020d9bc0 = {3, (char*)&data_ov003_020e40b8};
+static const BinIdentifier data_ov003_020d9bc0 = {3, (char*)&data_ov003_020e40b8};
 
-const BinIdentifier data_ov003_020d9bc8 = {3, (char*)&data_ov003_020e3f18};
+static const BinIdentifier data_ov003_020d9bc8 = {3, (char*)&data_ov003_020e3f18};
 
-const BinIdentifier data_ov003_020d9bd0 = {3, (char*)&data_ov003_020e41d8};
+static const BinIdentifier data_ov003_020d9bd0 = {3, (char*)&data_ov003_020e41d8};
 
-const BinIdentifier data_ov003_020d9bd8 = {3, (char*)&data_ov003_020e41b8};
+static const BinIdentifier data_ov003_020d9bd8 = {3, (char*)&data_ov003_020e41b8};
 
-const BinIdentifier data_ov003_020d9be0 = {3, (char*)&data_ov003_020e4198};
+static const BinIdentifier data_ov003_020d9be0 = {3, (char*)&data_ov003_020e4198};
 
-const BinIdentifier data_ov003_020d9be8 = {3, (char*)&data_ov003_020e4178};
+static const BinIdentifier data_ov003_020d9be8 = {3, (char*)&data_ov003_020e4178};
 
-const BinIdentifier data_ov003_020d9bf0 = {3, (char*)&data_ov003_020e4158};
+static const BinIdentifier data_ov003_020d9bf0 = {3, (char*)&data_ov003_020e4158};
 
-const BinIdentifier data_ov003_020d9bf8 = {3, (char*)&data_ov003_020e4138};
+static const BinIdentifier data_ov003_020d9bf8 = {3, (char*)&data_ov003_020e4138};
 
-const BinIdentifier data_ov003_020d9c00 = {3, (char*)&data_ov003_020e4118};
+static const BinIdentifier data_ov003_020d9c00 = {3, (char*)&data_ov003_020e4118};
 
-const BinIdentifier data_ov003_020d9c08 = {3, (char*)&data_ov003_020e40f8};
+static const BinIdentifier data_ov003_020d9c08 = {3, (char*)&data_ov003_020e40f8};
 
-const BinIdentifier data_ov003_020d9c10 = {3, (char*)&data_ov003_020e40f8};
+static const BinIdentifier data_ov003_020d9c10 = {3, (char*)&data_ov003_020e40f8};
 
-const BinIdentifier data_ov003_020d9c18 = {3, (char*)&data_ov003_020e40d8};
+static const BinIdentifier data_ov003_020d9c18 = {3, (char*)&data_ov003_020e40d8};
 
-const BinIdentifier data_ov003_020d9c20 = {3, (char*)&data_ov003_020e3f38};
+static const BinIdentifier data_ov003_020d9c20 = {3, (char*)&data_ov003_020e3f38};
 
-const BinIdentifier data_ov003_020d9c28 = {3, (char*)&data_ov003_020e4098};
+static const BinIdentifier data_ov003_020d9c28 = {3, (char*)&data_ov003_020e4098};
 
-const BinIdentifier data_ov003_020d9c30 = {3, (char*)&data_ov003_020e4078};
+static const BinIdentifier data_ov003_020d9c30 = {3, (char*)&data_ov003_020e4078};
 
-const BinIdentifier data_ov003_020d9c38 = {3, (char*)&data_ov003_020e4058};
+static const BinIdentifier data_ov003_020d9c38 = {3, (char*)&data_ov003_020e4058};
 
-const BinIdentifier data_ov003_020d9c40 = {3, (char*)&data_ov003_020e4038};
+static const BinIdentifier data_ov003_020d9c40 = {3, (char*)&data_ov003_020e4038};
 
-const BinIdentifier data_ov003_020d9c48 = {3, (char*)&data_ov003_020e4018};
+static const BinIdentifier data_ov003_020d9c48 = {3, (char*)&data_ov003_020e4018};
 
-const BinIdentifier data_ov003_020d9c50 = {3, (char*)&data_ov003_020e3ff8};
+static const BinIdentifier data_ov003_020d9c50 = {3, (char*)&data_ov003_020e3ff8};
 
-const BinIdentifier data_ov003_020d9c58 = {3, (char*)&data_ov003_020e3fd8};
+static const BinIdentifier data_ov003_020d9c58 = {3, (char*)&data_ov003_020e3fd8};
 
-const BinIdentifier data_ov003_020d9c60 = {3, (char*)&data_ov003_020e3fb8};
+static const BinIdentifier data_ov003_020d9c60 = {3, (char*)&data_ov003_020e3fb8};
 
-const BinIdentifier data_ov003_020d9c68 = {3, (char*)&data_ov003_020e3f98};
+static const BinIdentifier data_ov003_020d9c68 = {3, (char*)&data_ov003_020e3f98};
 
-const BinIdentifier data_ov003_020d9c70 = {3, (char*)&data_ov003_020e3f78};
+static const BinIdentifier data_ov003_020d9c70 = {3, (char*)&data_ov003_020e3f78};
 
-const BinIdentifier data_ov003_020d9c78 = {3, (char*)&data_ov003_020e3f58};
+static const BinIdentifier data_ov003_020d9c78 = {3, (char*)&data_ov003_020e3f58};
 
-const BinIdentifier data_ov003_020d9c80[2] = {
+static const BinIdentifier data_ov003_020d9c80[2] = {
     {3, (char*)&data_ov003_020e3f58},
     {3, (char*)&data_ov003_020e4018},
 };
@@ -786,110 +623,110 @@ const Ov003SubCameraPathTable data_ov003_020d9c94 = {
 
 const BinIdentifier data_ov003_020da114 = {3, (char*)&data_ov003_020e4218};
 
-const BinIdentifier data_ov003_020da11c = {3, (char*)&data_ov003_020e44d8};
+static const BinIdentifier data_ov003_020da11c = {3, (char*)&data_ov003_020e44d8};
 
 const BinIdentifier data_ov003_020da124 = {3, (char*)&data_ov003_020e44b8};
 
-const BinIdentifier data_ov003_020da12c = {3, (char*)&data_ov003_020e4498};
+static const BinIdentifier data_ov003_020da12c = {3, (char*)&data_ov003_020e4498};
 
-const BinIdentifier data_ov003_020da134 = {3, (char*)&data_ov003_020e41f8};
+static const BinIdentifier data_ov003_020da134 = {3, (char*)&data_ov003_020e41f8};
 
-const BinIdentifier data_ov003_020da13c = {3, (char*)&data_ov003_020e4478};
+static const BinIdentifier data_ov003_020da13c = {3, (char*)&data_ov003_020e4478};
 
-const BinIdentifier data_ov003_020da144 = {3, (char*)&data_ov003_020e4458};
+static const BinIdentifier data_ov003_020da144 = {3, (char*)&data_ov003_020e4458};
 
-const BinIdentifier data_ov003_020da14c = {3, (char*)&data_ov003_020e4438};
+static const BinIdentifier data_ov003_020da14c = {3, (char*)&data_ov003_020e4438};
 
 const BinIdentifier data_ov003_020da154 = {3, (char*)&data_ov003_020e4418};
 
-const BinIdentifier data_ov003_020da15c = {3, (char*)&data_ov003_020e43f8};
+static const BinIdentifier data_ov003_020da15c = {3, (char*)&data_ov003_020e43f8};
 
-const BinIdentifier data_ov003_020da164 = {3, (char*)&data_ov003_020e43f8};
+static const BinIdentifier data_ov003_020da164 = {3, (char*)&data_ov003_020e43f8};
 
 const BinIdentifier data_ov003_020da16c = {3, (char*)&data_ov003_020e43d8};
 
 const BinIdentifier data_ov003_020da174 = {3, (char*)&data_ov003_020e43b8};
 
-const BinIdentifier data_ov003_020da17c = {3, (char*)&data_ov003_020e4398};
+static const BinIdentifier data_ov003_020da17c = {3, (char*)&data_ov003_020e4398};
 
-const BinIdentifier data_ov003_020da184 = {3, (char*)&data_ov003_020e4378};
+static const BinIdentifier data_ov003_020da184 = {3, (char*)&data_ov003_020e4378};
 
-const BinIdentifier data_ov003_020da18c = {3, (char*)&data_ov003_020e4358};
+static const BinIdentifier data_ov003_020da18c = {3, (char*)&data_ov003_020e4358};
 
-const BinIdentifier data_ov003_020da194 = {3, (char*)&data_ov003_020e4338};
+static const BinIdentifier data_ov003_020da194 = {3, (char*)&data_ov003_020e4338};
 
-const BinIdentifier data_ov003_020da19c = {3, (char*)&data_ov003_020e4318};
+static const BinIdentifier data_ov003_020da19c = {3, (char*)&data_ov003_020e4318};
 
-const BinIdentifier data_ov003_020da1a4 = {3, (char*)&data_ov003_020e42f8};
+static const BinIdentifier data_ov003_020da1a4 = {3, (char*)&data_ov003_020e42f8};
 
 const BinIdentifier data_ov003_020da1ac = {3, (char*)&data_ov003_020e42d8};
 
 const BinIdentifier data_ov003_020da1b4 = {3, (char*)&data_ov003_020e42b8};
 
-const BinIdentifier data_ov003_020da1bc = {3, (char*)&data_ov003_020e4298};
+static const BinIdentifier data_ov003_020da1bc = {3, (char*)&data_ov003_020e4298};
 
-const BinIdentifier data_ov003_020da1c4 = {3, (char*)&data_ov003_020e4278};
+static const BinIdentifier data_ov003_020da1c4 = {3, (char*)&data_ov003_020e4278};
 
-const BinIdentifier data_ov003_020da1cc = {3, (char*)&data_ov003_020e4258};
+static const BinIdentifier data_ov003_020da1cc = {3, (char*)&data_ov003_020e4258};
 
-const BinIdentifier data_ov003_020da1d4 = {3, (char*)&data_ov003_020e4258};
+static const BinIdentifier data_ov003_020da1d4 = {3, (char*)&data_ov003_020e4258};
 
-const Ov003BinIdenEx data_ov003_020da1dc = {
+static const Ov003BinIdenEx data_ov003_020da1dc = {
     {3, (char*)&data_ov003_020e4238},
     {0x0180, 0x0070, 0x0070, 0x0180}
 };
 
-const Ov003PathRect data_ov003_020da1ec = {512, 192, 192, 384};
+static const Ov003PathRect data_ov003_020da1ec = {512, 192, 192, 384};
 
-const Ov003PathRect data_ov003_020da1f4 = {384, 80, 80, 272};
+static const Ov003PathRect data_ov003_020da1f4 = {384, 80, 80, 272};
 
-const Ov003PathRect data_ov003_020da1fc = {384, 128, 128, 320};
+static const Ov003PathRect data_ov003_020da1fc = {384, 128, 128, 320};
 
-const Ov003PathRect data_ov003_020da204 = {304, 80, 80, 272};
+static const Ov003PathRect data_ov003_020da204 = {304, 80, 80, 272};
 
-const Ov003PathRect data_ov003_020da20c = {384, 128, 128, 384};
+static const Ov003PathRect data_ov003_020da20c = {384, 128, 128, 384};
 
-const Ov003PathRect data_ov003_020da214 = {384, 128, 128, 320};
+static const Ov003PathRect data_ov003_020da214 = {384, 128, 128, 320};
 
-const Ov003PathRect data_ov003_020da21c = {464, 80, 80, 272};
+static const Ov003PathRect data_ov003_020da21c = {464, 80, 80, 272};
 
-const Ov003PathRect data_ov003_020da224 = {384, 128, 128, 320};
+static const Ov003PathRect data_ov003_020da224 = {384, 128, 128, 320};
 
-const Ov003PathRect data_ov003_020da22c = {464, 144, 144, 320};
+static const Ov003PathRect data_ov003_020da22c = {464, 144, 144, 320};
 
-const Ov003PathRect data_ov003_020da234 = {304, 88, 120, 320};
+static const Ov003PathRect data_ov003_020da234 = {304, 88, 120, 320};
 
-const Ov003PathRect data_ov003_020da23c = {304, 88, 120, 320};
+static const Ov003PathRect data_ov003_020da23c = {304, 88, 120, 320};
 
-const Ov003PathRect data_ov003_020da244 = {384, 128, 128, 320};
+static const Ov003PathRect data_ov003_020da244 = {384, 128, 128, 320};
 
-const Ov003PathRect data_ov003_020da24c = {384, 160, 160, 352};
+static const Ov003PathRect data_ov003_020da24c = {384, 160, 160, 352};
 
-const Ov003PathRect data_ov003_020da254 = {384, 128, 128, 320};
+static const Ov003PathRect data_ov003_020da254 = {384, 128, 128, 320};
 
-const Ov003PathRect data_ov003_020da25c = {384, 96, 144, 320};
+static const Ov003PathRect data_ov003_020da25c = {384, 96, 144, 320};
 
-const Ov003PathRect data_ov003_020da264 = {384, 80, 80, 272};
+static const Ov003PathRect data_ov003_020da264 = {384, 80, 80, 272};
 
-const Ov003PathRect data_ov003_020da26c = {464, 80, 80, 288};
+static const Ov003PathRect data_ov003_020da26c = {464, 80, 80, 288};
 
-const Ov003PathRect data_ov003_020da274 = {384, 128, 128, 336};
+static const Ov003PathRect data_ov003_020da274 = {384, 128, 128, 336};
 
-const Ov003PathRect data_ov003_020da27c = {464, 80, 80, 272};
+static const Ov003PathRect data_ov003_020da27c = {464, 80, 80, 272};
 
-const Ov003PathRect data_ov003_020da284 = {464, 128, 80, 320};
+static const Ov003PathRect data_ov003_020da284 = {464, 128, 80, 320};
 
-const Ov003PathRect data_ov003_020da28c = {384, 156, 156, 352};
+static const Ov003PathRect data_ov003_020da28c = {384, 156, 156, 352};
 
-const Ov003PathRect data_ov003_020da294 = {304, 128, 128, 296};
+static const Ov003PathRect data_ov003_020da294 = {304, 128, 128, 296};
 
-const Ov003PathRect data_ov003_020da29c = {464, 128, 128, 336};
+static const Ov003PathRect data_ov003_020da29c = {464, 128, 128, 336};
 
-const Ov003PathRect data_ov003_020da2a4 = {384, 128, 128, 352};
+static const Ov003PathRect data_ov003_020da2a4 = {384, 128, 128, 352};
 
-const Ov003PathRect data_ov003_020da2ac = {384, 128, 128, 352};
+static const Ov003PathRect data_ov003_020da2ac = {384, 128, 128, 352};
 
-const Ov003PathRect data_ov003_020da2b4 = {384, 128, 128, 336};
+static const Ov003PathRect data_ov003_020da2b4 = {384, 128, 128, 336};
 
 const void* const data_ov003_020da2bc[1] = {(const void*)&data_ov003_020da134};
 
@@ -1021,59 +858,59 @@ const Ov003TouchPathEntry data_ov003_020da2c0[41] = {
      (const void*)0x4    },
 };
 
-const BinIdentifier data_ov003_020da73c = {3, (char*)&data_ov003_020e44f8};
+static const BinIdentifier data_ov003_020da73c = {3, (char*)&data_ov003_020e44f8};
 
 const BinIdentifier data_ov003_020da744 = {3, (char*)&data_ov003_020e4510};
 
-const BinIdentifier data_ov003_020da74c = {3, (char*)&data_ov003_020e46ac};
+static const BinIdentifier data_ov003_020da74c = {3, (char*)&data_ov003_020e46ac};
 
-const BinIdentifier data_ov003_020da754 = {3, (char*)&data_ov003_020e4818};
+static const BinIdentifier data_ov003_020da754 = {3, (char*)&data_ov003_020e4818};
 
-const BinIdentifier data_ov003_020da75c = {3, (char*)&data_ov003_020e45f8};
+static const BinIdentifier data_ov003_020da75c = {3, (char*)&data_ov003_020e45f8};
 
-const BinIdentifier data_ov003_020da764 = {3, (char*)&data_ov003_020e4688};
+static const BinIdentifier data_ov003_020da764 = {3, (char*)&data_ov003_020e4688};
 
-const BinIdentifier data_ov003_020da76c = {3, (char*)&data_ov003_020e4598};
+static const BinIdentifier data_ov003_020da76c = {3, (char*)&data_ov003_020e4598};
 
-const BinIdentifier data_ov003_020da774 = {3, (char*)&data_ov003_020e4784};
+static const BinIdentifier data_ov003_020da774 = {3, (char*)&data_ov003_020e4784};
 
-const BinIdentifier data_ov003_020da77c = {3, (char*)&data_ov003_020e4664};
+static const BinIdentifier data_ov003_020da77c = {3, (char*)&data_ov003_020e4664};
 
-const BinIdentifier data_ov003_020da784 = {3, (char*)&data_ov003_020e4840};
+static const BinIdentifier data_ov003_020da784 = {3, (char*)&data_ov003_020e4840};
 
-const BinIdentifier data_ov003_020da78c = {3, (char*)&data_ov003_020e4640};
+static const BinIdentifier data_ov003_020da78c = {3, (char*)&data_ov003_020e4640};
 
-const BinIdentifier data_ov003_020da794 = {3, (char*)&data_ov003_020e457c};
+static const BinIdentifier data_ov003_020da794 = {3, (char*)&data_ov003_020e457c};
 
-const BinIdentifier data_ov003_020da79c = {3, (char*)&data_ov003_020e47f0};
+static const BinIdentifier data_ov003_020da79c = {3, (char*)&data_ov003_020e47f0};
 
-const BinIdentifier data_ov003_020da7a4 = {3, (char*)&data_ov003_020e47cc};
+static const BinIdentifier data_ov003_020da7a4 = {3, (char*)&data_ov003_020e47cc};
 
-const BinIdentifier data_ov003_020da7ac = {3, (char*)&data_ov003_020e4760};
+static const BinIdentifier data_ov003_020da7ac = {3, (char*)&data_ov003_020e4760};
 
-const BinIdentifier data_ov003_020da7b4 = {3, (char*)&data_ov003_020e4528};
+static const BinIdentifier data_ov003_020da7b4 = {3, (char*)&data_ov003_020e4528};
 
-const BinIdentifier data_ov003_020da7bc = {3, (char*)&data_ov003_020e461c};
+static const BinIdentifier data_ov003_020da7bc = {3, (char*)&data_ov003_020e461c};
 
-const BinIdentifier data_ov003_020da7c4 = {3, (char*)&data_ov003_020e45b8};
+static const BinIdentifier data_ov003_020da7c4 = {3, (char*)&data_ov003_020e45b8};
 
-const BinIdentifier data_ov003_020da7cc = {3, (char*)&data_ov003_020e4560};
+static const BinIdentifier data_ov003_020da7cc = {3, (char*)&data_ov003_020e4560};
 
-const BinIdentifier data_ov003_020da7d4 = {3, (char*)&data_ov003_020e45d8};
+static const BinIdentifier data_ov003_020da7d4 = {3, (char*)&data_ov003_020e45d8};
 
-const BinIdentifier data_ov003_020da7dc = {3, (char*)&data_ov003_020e46d0};
+static const BinIdentifier data_ov003_020da7dc = {3, (char*)&data_ov003_020e46d0};
 
-const BinIdentifier data_ov003_020da7e4 = {3, (char*)&data_ov003_020e47a8};
+static const BinIdentifier data_ov003_020da7e4 = {3, (char*)&data_ov003_020e47a8};
 
-const BinIdentifier data_ov003_020da7ec = {3, (char*)&data_ov003_020e46f4};
+static const BinIdentifier data_ov003_020da7ec = {3, (char*)&data_ov003_020e46f4};
 
-const BinIdentifier data_ov003_020da7f4 = {3, (char*)&data_ov003_020e473c};
+static const BinIdentifier data_ov003_020da7f4 = {3, (char*)&data_ov003_020e473c};
 
-const BinIdentifier data_ov003_020da7fc = {3, (char*)&data_ov003_020e4544};
+static const BinIdentifier data_ov003_020da7fc = {3, (char*)&data_ov003_020e4544};
 
-const BinIdentifier data_ov003_020da804 = {3, (char*)&data_ov003_020e4718};
+static const BinIdentifier data_ov003_020da804 = {3, (char*)&data_ov003_020e4718};
 
-const Ov003TouchIconParams data_ov003_020da80c[258] = {
+static const Ov003TouchIconParams data_ov003_020da80c[258] = {
     {&data_ov003_020da754, 3,  1,    {1, 3, 2, 0}, 0,  4, 128, 0},
     {&data_ov003_020da754, 3,  1,    {1, 3, 2, 0}, 0,  5, 128, 0},
     {&data_ov003_020da754, 3,  1,    {1, 3, 2, 0}, 0,  6, 128, 0},
@@ -1369,7 +1206,7 @@ void func_ov003_020a30d4(s32 id, s32 touchIndex, u32 slot) {
 
 /// TRUE when a touch event queued for `touchMode` (0 = any touch, 1 = any-touch events,
 /// 2 = single-touch events) applies to them.
-s32 func_ov003_020a31bc(s32 touchMode, s32 anyTouch) {
+static s32 func_ov003_020a31bc(s32 touchMode, s32 anyTouch) {
     switch (touchMode) {
         case 0:
             break;
@@ -1389,7 +1226,7 @@ s32 func_ov003_020a31bc(s32 touchMode, s32 anyTouch) {
 
 /// TRUE unless the actor of touch slot `slot` is in a state that cannot accept a touch.
 // Nonmatching: mwcc range-folds the `state == 4 || state == 5` test instead of the cmp/cmpne chain.
-s32 func_ov003_020a31fc(s32 slot) {
+static s32 func_ov003_020a31fc(s32 slot) {
     Ov003TouchActor* actor;
 
     if (slot == -1) {
@@ -1412,7 +1249,7 @@ s32 func_ov003_020a31fc(s32 slot) {
 }
 
 /// TRUE when `actionId` is one of the actions a queued touch event grants.
-s32 func_ov003_020a3298(s32 actionId, s32 touchMode) {
+static s32 func_ov003_020a3298(s32 actionId, s32 touchMode) {
     Ov003TouchEvent*        events = data_ov003_020e71b8->touchEvents;
     const Ov003AbilityData* ability;
     s32                     i;
@@ -1450,7 +1287,7 @@ s32 func_ov003_020a3350(s32 actionId) {
 
 /// The amount of `actionId` a queued touch event grants: most actions add the recorded amount,
 /// but a few (the multi-hit ones) report their per-action value directly.
-s32 func_ov003_020a3360(s32 actionId, s32 touchMode) {
+static s32 func_ov003_020a3360(s32 actionId, s32 touchMode) {
     Ov003TouchEvent*        events = data_ov003_020e71b8->touchEvents;
     const Ov003AbilityData* ability;
     s32                     i;
@@ -1648,7 +1485,7 @@ void func_ov003_020a37a8(s32 arg0) {
 }
 
 /// Runs one update of every touch action actor.
-void func_ov003_020a3924(void) {
+static void func_ov003_020a3924(void) {
     Ov003TouchActor* actor;
 
     actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC);
@@ -1675,7 +1512,7 @@ s32 func_ov003_020a3980(void) {
 }
 
 /// Snaps every actor back onto its starting slot position.
-void func_ov003_020a39dc(void) {
+static void func_ov003_020a39dc(void) {
     Ov003TouchActor* actor;
 
     for (actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC); actor != NULL; actor = func_ov003_02084984(&actor->node))

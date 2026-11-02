@@ -3,7 +3,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0ce0;
+static const TaskHandle data_ov003_020e0ce0;
 
 s32 func_ov003_020d2fb0(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 amplitude, u16 phaseStep) {
     Ov003EnemyShotWaveArgs args;
@@ -21,7 +21,7 @@ s32 func_ov003_020d2fb0(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 
     return EasyTask_CreateTask(pool, &data_ov003_020e0ce0, NULL, 0, NULL, &args);
 }
 
-s32 func_ov003_020d3044(Ov003EnemyShotWave* self, Ov003EnemyShotWaveArgs* args) {
+static s32 func_ov003_020d3044(Ov003EnemyShotWave* self, Ov003EnemyShotWaveArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
     s32                         engine = args->source->core.owner->base.sprite.sprite.bits_0_1;
@@ -41,7 +41,7 @@ s32 func_ov003_020d3044(Ov003EnemyShotWave* self, Ov003EnemyShotWaveArgs* args) 
     return 1;
 }
 
-s32 func_ov003_020d3198(Ov003EnemyShotWave* self) {
+static s32 func_ov003_020d3198(Ov003EnemyShotWave* self) {
     s32 engine = func_ov003_020c37f8(&self->sprite) ? 1 : 0;
     if (func_ov003_020ccb9c(&self->source, &self->sprite))
         return 0;
@@ -63,7 +63,7 @@ s32 func_ov003_020d3198(Ov003EnemyShotWave* self) {
     return 1;
 }
 
-s32 func_ov003_020d3304(Ov003EnemyShotWave* self) {
+static s32 func_ov003_020d3304(Ov003EnemyShotWave* self) {
     s16 x, y;
     func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x + self->offsetX,
                         self->source.core.position.y + self->offsetY, self->source.core.position.z);
@@ -73,12 +73,12 @@ s32 func_ov003_020d3304(Ov003EnemyShotWave* self) {
     return 1;
 }
 
-s32 func_ov003_020d338c(Ov003EnemyShotWave* self) {
+static s32 func_ov003_020d338c(Ov003EnemyShotWave* self) {
     CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020d33a0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d33a0(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotWave* self = task->data;
     switch (stage) {
         case 0:
@@ -94,5 +94,5 @@ s32 func_ov003_020d33a0(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6dac[20] = "Tsk_BtlEnmShot_Wave";
-const TaskHandle data_ov003_020e0ce0     = {data_ov003_020e6dac, func_ov003_020d33a0, sizeof(Ov003EnemyShotWave)};
+static char             data_ov003_020e6dac[20] = "Tsk_BtlEnmShot_Wave";
+static const TaskHandle data_ov003_020e0ce0     = {data_ov003_020e6dac, func_ov003_020d33a0, sizeof(Ov003EnemyShotWave)};

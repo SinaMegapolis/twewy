@@ -53,23 +53,17 @@ extern const BinIdentifier data_ov003_020da174;
 extern const BinIdentifier data_ov003_020da1ac;
 extern const BinIdentifier data_ov003_020da1b4;
 
-// External functions.
-
-// Defined in this unit.
-
-void func_ov003_02093c70(BtlFieldFore* fore, BtlFieldForeBand* band, s32 index);
-s32  func_ov003_02093d44(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02093f34(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02093f74(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_0209400c(TaskPool* pool, Task* task, void* args);
-s32  func_ov003_02094054(TaskPool* pool, Task* task, void* args, s32 stage);
-void func_ov003_0209409c(s32 bgIndex);
+static s32 func_ov003_02093d44(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_02093f34(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_02093f74(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209400c(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_02094054(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// `TaskHandle.taskName` of `data_ov003_020d7b84`.
-char data_ov003_020e3b38[0x14] = "Task_BtlField_Fore";
+static char data_ov003_020e3b38[0x14] = "Task_BtlField_Fore";
 
 /// The foreground band table, indexed by background id and band.
-const BtlFieldForeRow data_ov003_020d7ba0[15] = {
+static const BtlFieldForeRow data_ov003_020d7ba0[15] = {
     {    {0x01EB, 0x00BF, 0x0000}, &data_ov003_020da114, 2, 5, 7, 6, 8, 0},
     {{0x01EB, 0x00BF, 0xFFFFFF00}, &data_ov003_020da114, 2, 5, 7, 6, 8, 1},
     {    {0x011C, 0x0080, 0x0000}, &data_ov003_020da124, 2, 5, 7, 6, 8, 0},
@@ -88,10 +82,10 @@ const BtlFieldForeRow data_ov003_020d7ba0[15] = {
 };
 
 /// `Tsk_BtlField_Fore`.
-const TaskHandle data_ov003_020d7b84 = {data_ov003_020e3b38, func_ov003_02094054, 0xDC};
+static const TaskHandle data_ov003_020d7b84 = {data_ov003_020e3b38, func_ov003_02094054, 0xDC};
 
 /// The four stage functions of the foreground task.
-const TaskStages data_ov003_020d7b90 = {
+static const TaskStages data_ov003_020d7b90 = {
     func_ov003_02093d44,
     func_ov003_02093f34,
     func_ov003_02093f74,
@@ -99,7 +93,7 @@ const TaskStages data_ov003_020d7b90 = {
 };
 
 /// Spawns band `index` as `cSprite` and counts it in.
-void func_ov003_02093c70(BtlFieldFore* fore, BtlFieldForeBand* band, s32 index) {
+static void func_ov003_02093c70(BtlFieldFore* fore, BtlFieldForeBand* band, s32 index) {
     SpriteAnimationEx      anim;
     const BtlFieldForeRow* row;
 
@@ -123,7 +117,7 @@ void func_ov003_02093c70(BtlFieldFore* fore, BtlFieldForeBand* band, s32 index) 
 }
 
 /// Task stage 0: spawns the bands the background id asks for.
-s32 func_ov003_02093d44(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02093d44(TaskPool* pool, Task* task, void* args) {
     BtlFieldFore* fore = task->data;
 
     MI_CpuSet(fore, NULL, 0xDC);
@@ -172,7 +166,7 @@ s32 func_ov003_02093d44(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 1: advances every live band.
-s32 func_ov003_02093f34(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02093f34(TaskPool* pool, Task* task, void* args) {
     BtlFieldFore*     fore = task->data;
     BtlFieldForeBand* band;
     s32               i;
@@ -190,7 +184,7 @@ s32 func_ov003_02093f34(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 2: projects and draws the bands.
-s32 func_ov003_02093f74(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_02093f74(TaskPool* pool, Task* task, void* args) {
     BtlFieldFore*     fore = task->data;
     BtlFieldForeBand* band;
     s32               i;
@@ -216,7 +210,7 @@ s32 func_ov003_02093f74(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task stage 3: releases every live band.
-s32 func_ov003_0209400c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209400c(TaskPool* pool, Task* task, void* args) {
     BtlFieldFore*     fore = task->data;
     BtlFieldForeBand* band;
     s32               i;
@@ -235,7 +229,7 @@ s32 func_ov003_0209400c(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task dispatcher: runs `stage` of the foreground's stage table.
-s32 func_ov003_02094054(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_02094054(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7b90;
 
     return stages.iter[stage](pool, task, args);

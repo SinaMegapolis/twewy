@@ -6,12 +6,11 @@
 
 #include <nitro/mi/cpumem.h>
 
-s32  func_ov008_020e7374(TaskPool* pool, Task* task, void* args);
-s32  func_ov008_020e742c(TaskPool* pool, Task* task, void* args);
-s32  func_ov008_020e7464(TaskPool* pool, Task* task, void* args);
-s32  func_ov008_020e746c(TaskPool* pool, Task* task, void* args);
-s32  func_ov008_020e7474(TaskPool* pool, Task* task, void* args, s32 stage);
-void func_ov008_020e7360(BtlPlayerNone*, void (*)(BtlPlayerNone*));
+static s32 func_ov008_020e7374(TaskPool* pool, Task* task, void* args);
+static s32 func_ov008_020e742c(TaskPool* pool, Task* task, void* args);
+static s32 func_ov008_020e7464(TaskPool* pool, Task* task, void* args);
+static s32 func_ov008_020e746c(TaskPool* pool, Task* task, void* args);
+static s32 func_ov008_020e7474(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlPlayerNone = {"Tsk_BtlPlayerNone", func_ov008_020e7474, 0x84};
 
@@ -22,13 +21,13 @@ static const TaskStages data_ov008_020e7a10 = {
     .cleanup    = func_ov008_020e746c,
 };
 
-void func_ov008_020e7360(BtlPlayerNone* data, void (*callback)(BtlPlayerNone*)) {
+static void func_ov008_020e7360(BtlPlayerNone* data, void (*callback)(BtlPlayerNone*)) {
     data->unk_7C = callback;
     data->unk_80 = 0;
     data->unk_82 = 0;
 }
 
-s32 func_ov008_020e7374(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov008_020e7374(TaskPool* pool, Task* task, void* args) {
     BtlPlayerNone* data = task->data;
 
     MI_CpuSet(data, 0, sizeof(BtlPlayerNone));
@@ -48,7 +47,7 @@ s32 func_ov008_020e7374(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov008_020e742c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov008_020e742c(TaskPool* pool, Task* task, void* args) {
     BtlPlayerNone* data = task->data;
 
     if (data->unk_7C != NULL) {
@@ -59,15 +58,15 @@ s32 func_ov008_020e742c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov008_020e7464(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov008_020e7464(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov008_020e746c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov008_020e746c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov008_020e7474(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov008_020e7474(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov008_020e7a10;
 
     if (func_ov003_0208b690(stage) != 0) {

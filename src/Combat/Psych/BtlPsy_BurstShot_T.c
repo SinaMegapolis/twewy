@@ -3,12 +3,11 @@
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dce4c;
+static const TaskHandle data_ov003_020dce4c;
 // One contiguous kind table indexed by effect variant.
-extern const Ov003BurstShotKind data_ov003_020dce58[5];
+static const Ov003BurstShotKind data_ov003_020dce58[5];
 
-s32  func_ov003_020b8398(Ov003EffectContext* context, Ov003EffectState* effect);
-void func_ov003_020b8654(Ov003BurstShot* self);
+static void func_ov003_020b8654(Ov003BurstShot* self);
 
 s32 func_ov003_020b8398(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (!func_ov003_020a63e4())
@@ -21,7 +20,7 @@ s32 func_ov003_020b8398(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychArgs* arg = args;
     Ov003BurstShot* self;
     switch (stage) {
@@ -97,7 +96,7 @@ s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-void func_ov003_020b8654(Ov003BurstShot* self) {
+static void func_ov003_020b8654(Ov003BurstShot* self) {
     // Declaration order picks which callee-saved register each live value gets.
     s32                       left = 0;
     CombatActor*              player;
@@ -141,9 +140,9 @@ void func_ov003_020b8654(Ov003BurstShot* self) {
     func_ov003_020b7b34(originX, originY, -0x27000, args.kind, left, NULL);
 }
 
-char                     data_ov003_020e4f70[24] = "Tsk_BtlPsy_BurstShot_T";
-const TaskHandle         data_ov003_020dce4c     = {data_ov003_020e4f70, func_ov003_020b83ec, sizeof(Ov003BurstShot)};
-const Ov003BurstShotKind data_ov003_020dce58[5]  = {
+static char                     data_ov003_020e4f70[24] = "Tsk_BtlPsy_BurstShot_T";
+static const TaskHandle         data_ov003_020dce4c     = {data_ov003_020e4f70, func_ov003_020b83ec, sizeof(Ov003BurstShot)};
+static const Ov003BurstShotKind data_ov003_020dce58[5]  = {
     {0x15, 0, 0x54, 0x2000},
     {0x16, 0, 0x54, 0x2000},
     {0x15, 1, 0x54, 0x2000},

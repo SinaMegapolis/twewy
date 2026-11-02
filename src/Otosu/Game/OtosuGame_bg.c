@@ -1,7 +1,7 @@
+#include "Engine/Resources/ScreenMapper.h"
 #include "Otosu/OtosuGame.h"
 
 void func_0200d898(void* buf, void* src, s32 w, s32 h);
-void func_0200d858(void* obj, s32 a, s32 b, s32 c);
 
 typedef struct {
     /* 0x00 */ s32 slot;

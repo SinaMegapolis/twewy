@@ -19,22 +19,19 @@
 #include "SndMgr.h"
 #include "SpriteMgr.h"
 #include "common_data.h"
+#include "main_02026528.h"
 
 #include "Combat/Core/CombatApi.h"
 #include <nitro/mi/cpumem.h>
 
-extern void func_020265d4(void*, void*, u16);
-extern void func_ov027_020e860c(void);
-extern void ProcessOverlay_OpenEnd(void);
-
-void func_ov025_020e7f90(ContinueObject* contObj);
-void func_ov025_020e7fdc(ContinueObject* contObj);
+static void func_ov025_020e7f90(ContinueObject* contObj);
+static void func_ov025_020e7fdc(ContinueObject* contObj);
 
 static const char* data_ov025_020e8320 = "Seq_Continue( )";
 
 static const BinIdentifier data_ov025_020e8308 = {25, "Apl_Fur/Grp_Continue.bin"};
 
-void func_ov025_020e7360(void) {
+static void func_ov025_020e7360(void) {
     Interrupts_Init();
     HBlank_Init();
     GX_Init();
@@ -56,7 +53,7 @@ void func_ov025_020e7360(void) {
     Color_CopyRange(g_PaletteBuffers[DISPLAY_SUB].bg, &data_0205a128, 0, 0x200, 1);
 }
 
-void func_ov025_020e749c(void) {
+static void func_ov025_020e749c(void) {
     Display_SetMainBrightness(16);
     Display_SetSubBrightness(16);
     Display_CommitSynced();
@@ -112,7 +109,7 @@ static void Continue_ReleaseVBlank(void) {
     Interrupts_RegisterVBlankCallback(NULL, TRUE);
 }
 
-void func_ov025_020e76b4(ContinueObject* arg0) {
+static void func_ov025_020e76b4(ContinueObject* arg0) {
     arg0->unk_11E0C = DatMgr_LoadRawData(1, NULL, 0, &data_ov025_020e8308);
 
     void* var_r1 = Data_GetPackEntryData(arg0->unk_11E0C, 1);
@@ -137,7 +134,7 @@ void func_ov025_020e76b4(ContinueObject* arg0) {
     PaletteMgr_AllocPalette(g_PaletteManagers[DISPLAY_MAIN], var_r4_2, 0, 0, 7);
 }
 
-void func_ov025_020e785c(ContinueUnkStruct* arg0, s16 arg1, s32 arg2, s16 posX, s16 posY) {
+static void func_ov025_020e785c(ContinueUnkStruct* arg0, s16 arg1, s32 arg2, s16 posX, s16 posY) {
     arg0->unk_60 = arg1;
     arg0->unk_62 = posX;
     arg0->unk_64 = posY;
@@ -172,7 +169,7 @@ static void func_ov025_020e78c8(ContinueObject* contObj, u32 arg1) {
     }
 }
 
-s32 func_ov025_020e797c(ContinueObject* arg0) {
+static s32 func_ov025_020e797c(ContinueObject* arg0) {
     u16 result = 0xFFFF;
 
     TouchCoord touchCoord;
@@ -196,7 +193,7 @@ s32 func_ov025_020e797c(ContinueObject* arg0) {
     return result;
 }
 
-void func_ov025_020e7a20(ContinueObject* arg0) {
+static void func_ov025_020e7a20(ContinueObject* arg0) {
     if (TouchInput_WasTouchPressed() == FALSE) {
         return;
     }
@@ -216,7 +213,7 @@ void func_ov025_020e7a20(ContinueObject* arg0) {
     }
 }
 
-void func_ov025_020e7aac(ContinueObject* contObj) {
+static void func_ov025_020e7aac(ContinueObject* contObj) {
     func_ov025_020e76b4(contObj);
     func_ov025_020e785c(&contObj->unk_11E10[0], 0, 1, 0x80, 0x56);
     func_ov025_020e785c(&contObj->unk_11E10[1], 1, 2, 0x80, 0x6B);
@@ -235,7 +232,7 @@ void func_ov025_020e7aac(ContinueObject* contObj) {
     contObj->unk_120D8 = -0x48000;
 }
 
-void func_ov025_020e7c40(ContinueObject* contObj) {
+static void func_ov025_020e7c40(ContinueObject* contObj) {
     if (contObj->unk_120D0 != 0xFFFF) {
         CombatSprite_Update(&contObj->unk_11FB0);
     }
@@ -247,7 +244,7 @@ void func_ov025_020e7c40(ContinueObject* contObj) {
     CombatSprite_Update(&contObj->unk_12070);
 }
 
-void func_ov025_020e7cb8(ContinueObject* contObj) {
+static void func_ov025_020e7cb8(ContinueObject* contObj) {
     if (contObj->unk_120D0 != 0xFFFF) {
         CombatSprite_Render(&contObj->unk_11FB0);
     }
@@ -261,7 +258,7 @@ void func_ov025_020e7cb8(ContinueObject* contObj) {
     CombatSprite_Render(&contObj->unk_12070);
 }
 
-void func_ov025_020e7d70(ContinueObject* contObj) {
+static void func_ov025_020e7d70(ContinueObject* contObj) {
     CombatSprite_Release(&contObj->unk_11FB0);
     CombatSprite_Release(&contObj->unk_11E10[0].sprite);
     CombatSprite_Release(&contObj->unk_11E10[1].sprite);
@@ -271,7 +268,7 @@ void func_ov025_020e7d70(ContinueObject* contObj) {
     CombatSprite_Release(&contObj->unk_12070);
 }
 
-void func_ov025_020e7dd0(ContinueObject* contObj) {
+static void func_ov025_020e7dd0(ContinueObject* contObj) {
     switch (contObj->unk_120D0) {
         case 0: {
             gSaveData.unk_3142         = 0;
@@ -313,7 +310,7 @@ void func_ov025_020e7dd0(ContinueObject* contObj) {
     }
 }
 
-void func_ov025_020e7f28(ContinueObject* contObj) {
+static void func_ov025_020e7f28(ContinueObject* contObj) {
     if (contObj->unk_120DC == 0) {
         EasyFade_FadeBothDisplays(FADER_LINEAR, 0, 0x1000);
         contObj->unk_120DC++;
@@ -325,7 +322,7 @@ void func_ov025_020e7f28(ContinueObject* contObj) {
     }
 }
 
-void func_ov025_020e7f90(ContinueObject* contObj) {
+static void func_ov025_020e7f90(ContinueObject* contObj) {
     if (contObj->unk_120DC == 0) {
         EasyFade_FadeBothDisplays(FADER_LINEAR, 16, 0x1000);
         contObj->unk_120DC++;
@@ -335,7 +332,7 @@ void func_ov025_020e7f90(ContinueObject* contObj) {
     }
 }
 
-void func_ov025_020e7fdc(ContinueObject* contObj) {
+static void func_ov025_020e7fdc(ContinueObject* contObj) {
     if (contObj->unk_120DC == 0) {
         if (contObj->unk_120DE == 0) {
             contObj->unk_120DE = 16;
@@ -353,7 +350,7 @@ void func_ov025_020e7fdc(ContinueObject* contObj) {
     func_ov025_020e7a20(contObj);
 }
 
-void Continue_Init(ContinueObject* contObj) {
+static void Continue_Init(ContinueObject* contObj) {
     if (contObj == NULL) {
         const char* sequence = data_ov025_020e8320;
         contObj              = Mem_AllocHeapTail(&gDebugHeap, sizeof(ContinueObject));
@@ -378,7 +375,7 @@ void Continue_Init(ContinueObject* contObj) {
     MainOvlDisp_Run();
 }
 
-void Continue_Update(ContinueObject* contObj) {
+static void Continue_Update(ContinueObject* contObj) {
     TouchInput_Update();
     OamMgr_Reset(&g_OamMgr[DISPLAY_MAIN], 0, 0);
     OamMgr_Reset(&g_OamMgr[DISPLAY_SUB], 0, 0);
@@ -399,7 +396,7 @@ void Continue_Update(ContinueObject* contObj) {
     }
 }
 
-void Continue_Destroy(ContinueObject* contObj) {
+static void Continue_Destroy(ContinueObject* contObj) {
     if (contObj != NULL) {
         func_ov025_020e7d70(contObj);
         ResourceMgr_ReleaseResource(

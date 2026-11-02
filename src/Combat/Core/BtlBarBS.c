@@ -6,6 +6,7 @@
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
+#include "main_02026528.h"
 
 #include <nitro/mi/cpumem.h>
 
@@ -30,8 +31,8 @@ typedef struct BtlBarBS {
 
 extern const BinIdentifier data_ov003_020d7800;
 
-extern const TaskHandle data_ov003_020d7fb4;
-extern const TaskStages data_ov003_020d7fc0;
+static const TaskHandle data_ov003_020d7fb4;
+static const TaskStages data_ov003_020d7fc0;
 
 // ---------------------------------------------------------------------------------------------
 // Functions
@@ -39,7 +40,7 @@ extern const TaskStages data_ov003_020d7fc0;
 
 /// Selects the animation of the six gauge sprites: the "filling" set while the gauge is below a
 /// quarter, the idle set otherwise.
-void func_ov003_020999c4(BtlBar* bar) {
+static void func_ov003_020999c4(BtlBar* bar) {
     if (bar->unk_3F8 != 0) {
         CombatSprite_SetAnim(&bar->sprites[6], 1, 0);
         CombatSprite_SetAnim(&bar->sprites[5], 6, 0);
@@ -61,7 +62,7 @@ void func_ov003_020999c4(BtlBar* bar) {
 /// advances the two sampled segment widths.
 // Nonmatching: `oldB` and `bankedA` are allocated to lr/r12 the other way round than the retail
 // build; everything else is instruction-identical.
-void func_ov003_02099a98(BtlBar* bar) {
+static void func_ov003_02099a98(BtlBar* bar) {
     s32 oldB    = bar->unk_3DC;
     s32 oldA    = bar->unk_3DA;
     s32 bankedB = data_ov003_020e71b8->unk3D8DE;
@@ -84,7 +85,7 @@ void func_ov003_02099a98(BtlBar* bar) {
 
 /// Drains the gauge: the mirror image of `func_ov003_02099a98`.
 // Nonmatching: same lr/r12 swap as `func_ov003_02099a98`.
-void func_ov003_02099b94(BtlBar* bar) {
+static void func_ov003_02099b94(BtlBar* bar) {
     s32 oldB    = bar->unk_3DC;
     s32 oldA    = bar->unk_3DA;
     s32 bankedB = data_ov003_020e71b8->unk3D8DE;
@@ -105,7 +106,7 @@ void func_ov003_02099b94(BtlBar* bar) {
 
 /// Clamps both banked segments to at least 3/8 of the gauge's maximum.
 /// Clamps both banked segments to at least 3/8 of the gauge's maximum.
-void func_ov003_02099c90(void) {
+static void func_ov003_02099c90(void) {
     s32 span    = data_ov003_020e71b8->unk3D8DA * 3 / 4;
     s32 width   = span / 2;
     s32 bankedB = data_ov003_020e71b8->unk3D8DE;
@@ -125,7 +126,7 @@ void func_ov003_02099c90(void) {
 }
 
 /// Converts a banked segment value to a bar width in pixels, for a gauge that is filling.
-s32 func_ov003_02099d24(s16 value) {
+static s32 func_ov003_02099d24(s16 value) {
     s32 span  = data_ov003_020e71b8->unk3D8DA * 3 / 4;
     s16 local = value - (s16)(span / 2);
     s32 unit  = data_ov003_020e71b8->unk3D8DA / 4;
@@ -137,7 +138,7 @@ s32 func_ov003_02099d24(s16 value) {
 }
 
 /// Converts a banked segment value to a bar width in pixels.
-s32 func_ov003_02099d98(s16 value) {
+static s32 func_ov003_02099d98(s16 value) {
     s32 span  = data_ov003_020e71b8->unk3D8DA * 3 / 4;
     s16 local = value;
 
@@ -148,7 +149,7 @@ s32 func_ov003_02099d98(s16 value) {
 }
 
 /// Task init: seeds the sync gauge from the partner actor and snaps the bar to it.
-void func_ov003_02099dec(BtlBarBS* bs, CombatActor* actor) {
+static void func_ov003_02099dec(BtlBarBS* bs, CombatActor* actor) {
     BtlBar* bar = &bs->bar;
 
     data_ov003_020e71b8->unk3D8D8 = actor->currentHp;
@@ -185,7 +186,7 @@ void func_ov003_02099dec(BtlBarBS* bs, CombatActor* actor) {
 /// publishes the segment widths and visibility flags the render stage consumes.
 // Nonmatching: the two width selects keep `fixed` and the sampled width in the opposite scratch
 // registers than the retail build (r0/r1); the logic and instruction count are identical.
-void func_ov003_02099f40(BtlBar* bar) {
+static void func_ov003_02099f40(BtlBar* bar) {
     s32 width;
     s32 target;
     s32 fixed;
@@ -331,7 +332,7 @@ void func_ov003_02099f40(BtlBar* bar) {
 }
 
 /// Task init: loads the ten bar sprites, then seeds the gauge from the partner actor in `args`.
-s32 func_ov003_0209a474(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209a474(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
 
     MI_CpuSet(bar, 0, sizeof(BtlBarBS));
@@ -371,7 +372,7 @@ s32 func_ov003_0209a474(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task update.
-s32 func_ov003_0209a77c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209a77c(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
 
     func_ov003_02099f40(bar);
@@ -389,7 +390,7 @@ s32 func_ov003_0209a77c(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task render.
-s32 func_ov003_0209a7e4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209a7e4(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
 
     CombatSprite_SetPosition(&bar->sprites[5], 8, 0xC0);
@@ -459,7 +460,7 @@ s32 func_ov003_0209a7e4(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task cleanup.
-s32 func_ov003_0209aad4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209aad4(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
 
     CombatSprite_Release(&bar->sprites[5]);
@@ -476,7 +477,7 @@ s32 func_ov003_0209aad4(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task dispatcher: calls the stage function for `stage`.
-s32 func_ov003_0209ab34(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209ab34(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d7fc0;
 
     if (func_ov003_0208b690(stage) != 0) {
@@ -494,11 +495,11 @@ void func_ov003_0209ab9c(CombatActor* actor) {
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e3c70[0x10] = "Tsk_BtlBarBS";
+static char data_ov003_020e3c70[0x10] = "Tsk_BtlBarBS";
 
-const TaskHandle data_ov003_020d7fb4 = {data_ov003_020e3c70, func_ov003_0209ab34, sizeof(BtlBarBS)};
+static const TaskHandle data_ov003_020d7fb4 = {data_ov003_020e3c70, func_ov003_0209ab34, sizeof(BtlBarBS)};
 
-const TaskStages data_ov003_020d7fc0 = {
+static const TaskStages data_ov003_020d7fc0 = {
     func_ov003_0209a474,
     func_ov003_0209a77c,
     func_ov003_0209a7e4,

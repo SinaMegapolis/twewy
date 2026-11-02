@@ -6,7 +6,11 @@
 /// Hold-type fire psych: the held actor is engulfed for as long as the touch
 /// stays on it, then the effect switches to its release loop.
 
-extern const TaskHandle data_ov003_020dc8f4;
+static const TaskHandle data_ov003_020dc8f4;
+static Ov003EnemyActor* func_ov003_020b0fa0(void);
+static void             func_ov003_020b0fdc(Ov003EnemyActor* unit);
+static void             func_ov003_020b1024(Ov003EnemyActor* unit);
+static void             func_ov003_020b1094(Ov003EnemyActor* unit, s32 charged);
 
 s32 func_ov003_020b0cd4(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EnemyActor* unit = func_ov003_020b0fa0();
@@ -21,7 +25,7 @@ s32 func_ov003_020b0cd4(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 
-s32 func_ov003_020b0d2c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b0d2c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs* arg = args;
     Ov003FireHold*      self;
     switch (stage) {
@@ -98,7 +102,7 @@ s32 func_ov003_020b0d2c(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 /// The actor currently held by the touch, if it is a live enemy.
-Ov003EnemyActor* func_ov003_020b0fa0(void) {
+static Ov003EnemyActor* func_ov003_020b0fa0(void) {
     if (!func_ov003_02085cfc(7))
         return NULL;
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_020a62a0()->held;
@@ -109,14 +113,14 @@ Ov003EnemyActor* func_ov003_020b0fa0(void) {
     return unit;
 }
 
-void func_ov003_020b0fdc(Ov003EnemyActor* unit) {
+static void func_ov003_020b0fdc(Ov003EnemyActor* unit) {
     Ov003PsychEffectArgs args;
     func_ov003_020a88c0(&args, unit->actor.position.x, unit->actor.position.y, unit->actor.position.z, 2, 0xC2);
     func_ov003_020a899c(&args, 2);
     func_ov003_020a88a8(&args);
 }
 
-void func_ov003_020b1024(Ov003EnemyActor* unit) {
+static void func_ov003_020b1024(Ov003EnemyActor* unit) {
     Ov003PsychEffectArgs args;
     func_ov003_020a88c0(&args, unit->actor.position.x, unit->actor.position.y, unit->actor.position.z, 2, RNG_Next(2) + 0xC3);
     func_ov003_020a899c(&args, 1);
@@ -124,7 +128,7 @@ void func_ov003_020b1024(Ov003EnemyActor* unit) {
     func_ov003_020a88a8(&args);
 }
 
-void func_ov003_020b1094(Ov003EnemyActor* unit, s32 charged) {
+static void func_ov003_020b1094(Ov003EnemyActor* unit, s32 charged) {
     Ov003PsychEffectArgs args;
     s32                  kind = 0xC5;
     if (charged != 0)
@@ -134,5 +138,5 @@ void func_ov003_020b1094(Ov003EnemyActor* unit, s32 charged) {
     func_ov003_020a88a8(&args);
 }
 
-char             data_ov003_020e4d0c[20] = "Tsk_BtlPsy_FireHold";
-const TaskHandle data_ov003_020dc8f4     = {data_ov003_020e4d0c, func_ov003_020b0d2c, sizeof(Ov003FireHold)};
+static char             data_ov003_020e4d0c[20] = "Tsk_BtlPsy_FireHold";
+static const TaskHandle data_ov003_020dc8f4     = {data_ov003_020e4d0c, func_ov003_020b0d2c, sizeof(Ov003FireHold)};

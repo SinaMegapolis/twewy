@@ -3,8 +3,6 @@
 #include "Save.h"
 #include "Util/SysFont.h"
 
-extern s32 func_020243d4(u32 arg0);
-
 typedef struct {
     /* 0x000 */ MenuTopObject* topMenu;
     /* 0x004 */ SysFont        fonts[10];

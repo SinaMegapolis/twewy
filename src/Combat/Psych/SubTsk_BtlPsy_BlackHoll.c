@@ -5,9 +5,7 @@
 #include <nitro/fx/fx_vector.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-
-extern const TaskHandle data_ov003_020dc6d0;
+static const TaskHandle data_ov003_020dc6d0;
 
 void func_ov003_020aacd4(Ov003EffectState* effect, s16 screenX, s16 screenY, s32 mode, s32 radius, s32 minSpeed, s32 maxSpeed,
                          s32 lifetime) {
@@ -24,7 +22,7 @@ void func_ov003_020aacd4(Ov003EffectState* effect, s16 screenX, s16 screenY, s32
 }
 
 // Nonmatching: vector temporaries, render-coordinate narrowing and register allocation differ.
-s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003BlackHollArgs* arg = args;
     Ov003BlackHoll*     self;
     switch (stage) {
@@ -118,5 +116,5 @@ s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage) {
         }
     }
 }
-char             data_ov003_020e4a84[24] = "SubTsk_BtlPsy_BlackHoll";
-const TaskHandle data_ov003_020dc6d0     = {data_ov003_020e4a84, func_ov003_020aad24, sizeof(Ov003BlackHoll)};
+static char             data_ov003_020e4a84[24] = "SubTsk_BtlPsy_BlackHoll";
+static const TaskHandle data_ov003_020dc6d0     = {data_ov003_020e4a84, func_ov003_020aad24, sizeof(Ov003BlackHoll)};

@@ -26,12 +26,12 @@ typedef struct BtlEffDeadSpawn {
 
 extern const BinIdentifier data_ov003_020d7800;
 
-extern const TaskHandle      data_ov003_020d86a8;
-extern const TaskStages      data_ov003_020d86b4;
-extern const SpriteAnimEntry data_ov003_020d86a0[];
+static const TaskHandle      data_ov003_020d86a8;
+static const TaskStages      data_ov003_020d86b4;
+static const SpriteAnimEntry data_ov003_020d86a0[];
 
 /// Picks and plays one of the two death sound effects for the active partner's screen.
-void func_ov003_0209f040(void) {
+static void func_ov003_0209f040(void) {
     u16 rnd = RNG_Next(2);
 
     if (data_ov003_020e71b8->unk3D88D == 0) {
@@ -67,7 +67,7 @@ void func_ov003_0209f040(void) {
 }
 
 /// Picks and plays one of the two death sound effects for the main screen.
-void func_ov003_0209f154(void) {
+static void func_ov003_0209f154(void) {
     u16 rnd = RNG_Next(2);
 
     if (rnd != 0) {
@@ -78,7 +78,7 @@ void func_ov003_0209f154(void) {
 }
 
 /// Plays one of the death sound effects for `engine`'s screen, when the random roll allows it.
-void func_ov003_0209f1b0(u32 engine) {
+static void func_ov003_0209f1b0(u32 engine) {
     if (RNG_Next(2) != 0) {
         return;
     }
@@ -93,7 +93,7 @@ void func_ov003_0209f1b0(u32 engine) {
 // Nonmatching: the retail `CombatSprite_LoadFromTable` materialises its stack arguments in r0/r1
 // and reloads `spawn->engine`, while this build keeps the engine in r0 and uses r1/r12 for the
 // constants (argument-setup scheduling only; the call sequence itself is identical).
-s32 func_ov003_0209f1e0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209f1e0(TaskPool* pool, Task* task, void* args) {
     CombatDeadEffect* state = task->data;
     BtlEffDeadSpawn*  spawn = args;
 
@@ -111,7 +111,7 @@ s32 func_ov003_0209f1e0(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task update: waits for the animation, then plays the death sound and reports the task done.
-s32 func_ov003_0209f28c(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209f28c(TaskPool* pool, Task* task, void* args) {
     CombatDeadEffect* state = task->data;
 
     if (SpriteMgr_IsAnimationFinished(&state->sprite.sprite) != 0) {
@@ -141,7 +141,7 @@ s32 func_ov003_0209f28c(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task render: places the death sprite over the dying enemy and sorts it in front of it.
-s32 func_ov003_0209f338(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209f338(TaskPool* pool, Task* task, void* args) {
     CombatDeadEffect* state  = task->data;
     s32               engine = state->sprite.sprite.bits_0_1;
     s32               posX;
@@ -161,13 +161,13 @@ s32 func_ov003_0209f338(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task cleanup: releases the death sprite.
-s32 func_ov003_0209f3c8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209f3c8(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
 /// Four-stage task dispatcher.
-s32 func_ov003_0209f3dc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209f3dc(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d86b4;
 
     if (func_ov003_0208b690((u16)stage) != 0) {
@@ -188,15 +188,15 @@ void func_ov003_0209f444(s32 engine, s32 x, s32 y, s32 z, s32 hasPartner) {
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d86a8, NULL, 0, NULL, &spawn);
 }
 
-char data_ov003_020e3db4[0x10] = "Tsk_BtlEff_Dead";
+static char data_ov003_020e3db4[0x10] = "Tsk_BtlEff_Dead";
 
-const SpriteAnimEntry data_ov003_020d86a0[1] = {
+static const SpriteAnimEntry data_ov003_020d86a0[1] = {
     {0x22, 0x24, 0x23, 0x0},
 };
 
-const TaskHandle data_ov003_020d86a8 = {data_ov003_020e3db4, func_ov003_0209f3dc, sizeof(CombatDeadEffect)};
+static const TaskHandle data_ov003_020d86a8 = {data_ov003_020e3db4, func_ov003_0209f3dc, sizeof(CombatDeadEffect)};
 
-const TaskStages data_ov003_020d86b4 = {
+static const TaskStages data_ov003_020d86b4 = {
     func_ov003_0209f1e0,
     func_ov003_0209f28c,
     func_ov003_0209f338,

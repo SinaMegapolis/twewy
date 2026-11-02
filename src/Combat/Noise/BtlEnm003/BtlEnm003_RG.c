@@ -1,6 +1,8 @@
 #include "Combat/Core//CombatActor.h"
+#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatSprite.h"
+#include "Combat/Noise/BtlEnm.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
@@ -18,14 +20,14 @@ typedef struct BtlEnm003_RG {
     /* 0x1D4 */ s16  unk_1D4;
 } BtlEnm003_RG; // Size: 0x1D8
 
-void func_ov009_02120d18(BtlEnm003_RG* rg);
-void func_ov009_02120d64(BtlEnm003_RG* rg);
-void func_ov009_02120c70(BtlEnm003_RG* rg);
-void func_ov009_02120dd0(BtlEnm003_RG* rg);
-void func_ov009_02120f64(BtlEnm003_RG* rg);
-void func_ov009_021210f8(BtlEnm003_RG* rg);
-void func_ov009_021212a8(BtlEnm003_RG* rg);
-s32  BtlEnm003_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+static void func_ov009_02120d18(BtlEnm003_RG* rg);
+static void func_ov009_02120d64(BtlEnm003_RG* rg);
+static void func_ov009_02120c70(BtlEnm003_RG* rg);
+static void func_ov009_02120dd0(BtlEnm003_RG* rg);
+static void func_ov009_02120f64(BtlEnm003_RG* rg);
+static void func_ov009_021210f8(BtlEnm003_RG* rg);
+static void func_ov009_021212a8(BtlEnm003_RG* rg);
+static s32  BtlEnm003_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static void (*data_ov009_021255d8[3])(BtlEnm003_RG*) = {
     func_ov009_02120dd0,
@@ -35,11 +37,11 @@ static void (*data_ov009_021255d8[3])(BtlEnm003_RG*) = {
 
 const TaskHandle Tsk_BtlEnm003_RG = {"Tsk_BtlEnm003_RG", BtlEnm003_RG_RunTask, 0x1D8};
 
-const s32 data_ov009_021247b4[2] = {1966125, 25};
-const s32 data_ov009_021247cc[5] = {2621500, 3932160, 40, 1966125, 25};
+static const s32 data_ov009_021247b4[2] = {1966125, 25};
+static const s32 data_ov009_021247cc[5] = {2621500, 3932160, 40, 1966125, 25};
 
-s16 func_ov009_02120b94(BtlEnm003_RG* rg) {
-    s32 var_r0 = func_ov003_020c42ec();
+static s16 func_ov009_02120b94(BtlEnm003_RG* rg) {
+    s32 var_r0 = ((s16(*)())func_ov003_020c42ec)();
 
     if (rg->lifetime > 600) {
         var_r0 *= 3;
@@ -50,33 +52,33 @@ s16 func_ov009_02120b94(BtlEnm003_RG* rg) {
     return var_r0;
 }
 
-void BtlEnm003_RG_SetState(BtlEnm003_RG* rg, void (*callback)(BtlEnm003_RG*)) {
-    func_ov003_020c427c();
+static void BtlEnm003_RG_SetState(BtlEnm003_RG* rg, void (*callback)(BtlEnm003_RG*)) {
+    ((void (*)())func_ov003_020c427c)();
     rg->unk_1CC    = callback;
     rg->statePhase = 0;
     rg->frameCount = 0;
     rg->base.flags18C &= ~0x80;
 }
 
-void func_ov009_02120c18(BtlEnm003_RG* rg) {
+static void func_ov009_02120c18(BtlEnm003_RG* rg) {
     if (rg->base.partner != NULL && rg->base.partner->flags18C & 0x80) {
         BtlEnm003_RG_SetState(rg, func_ov009_021210f8);
     }
 }
 
-void func_ov009_02120c48(BtlEnm003_RG* rg) {
-    if (func_ov003_020c5bfc() == 0) {
+static void func_ov009_02120c48(BtlEnm003_RG* rg) {
+    if (((s32(*)())func_ov003_020c5bfc)() == 0) {
         BtlEnm003_RG_SetState(rg, func_ov009_02120c70);
     }
 }
 
-void func_ov009_02120c70(BtlEnm003_RG* rg) {
+static void func_ov009_02120c70(BtlEnm003_RG* rg) {
     if (rg->frameCount == 0) {
         CombatSprite_SetAnimFromTable(&rg->base.sprite, 0, 0);
         rg->stateDuration = func_ov009_02120b94(rg);
     }
     if (rg->frameCount > rg->stateDuration) {
-        if (func_ov003_020c4348(rg) != 0) {
+        if (func_ov003_020c4348(&rg->base) != 0) {
             if (func_ov003_020c4e0c(rg) != 0) {
                 BtlEnm003_RG_SetState(rg, func_ov009_02120d64);
             }
@@ -89,8 +91,8 @@ void func_ov009_02120c70(BtlEnm003_RG* rg) {
     func_ov009_02120c18(rg);
 }
 
-void func_ov009_02120d18(BtlEnm003_RG* rg) {
-    if (func_ov003_020c5e98() == 0) {
+static void func_ov009_02120d18(BtlEnm003_RG* rg) {
+    if (((s32(*)())func_ov003_020c5e98)() == 0) {
         if (rg->base.flags18C & 0x20) {
             BtlEnm003_RG_SetState(rg, func_ov009_021212a8);
         } else {
@@ -99,7 +101,7 @@ void func_ov009_02120d18(BtlEnm003_RG* rg) {
     }
 }
 
-void func_ov009_02120d64(BtlEnm003_RG* rg) {
+static void func_ov009_02120d64(BtlEnm003_RG* rg) {
     u16 temp_r2 = RNG_Next(100);
     s32 var_r0  = (rg->base.spriteIndex * 6) + (s32)&data_ov009_021247cc;
 
@@ -112,10 +114,10 @@ void func_ov009_02120d64(BtlEnm003_RG* rg) {
 }
 
 // Nonmatching: regswap
-void func_ov009_02120dd0(BtlEnm003_RG* rg) {
+static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
     switch (rg->statePhase) {
         case 0: {
-            if (func_ov003_020c6230() == 0) {
+            if (((s32(*)())func_ov003_020c6230)() == 0) {
                 rg->frameCount = 0;
                 rg->statePhase++;
             }
@@ -148,7 +150,7 @@ void func_ov009_02120dd0(BtlEnm003_RG* rg) {
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->base.actor.position.x = rg->base.unk_1AC;
                 rg->base.actor.position.y = rg->base.unk_1B0;
-                func_ov003_020c4ee0(rg);
+                func_ov003_020c4ee0(&rg->base);
                 BtlEnm003_RG_SetState(rg, func_ov009_02120c70);
             } else {
                 rg->frameCount++;
@@ -158,10 +160,10 @@ void func_ov009_02120dd0(BtlEnm003_RG* rg) {
 }
 
 // Nonmatching: regswap
-void func_ov009_02120f64(BtlEnm003_RG* rg) {
+static void func_ov009_02120f64(BtlEnm003_RG* rg) {
     switch (rg->statePhase) {
         case 0: {
-            if (func_ov003_020c6230() == 0) {
+            if (((s32(*)())func_ov003_020c6230)() == 0) {
                 rg->frameCount = 0;
                 rg->statePhase++;
             }
@@ -194,7 +196,7 @@ void func_ov009_02120f64(BtlEnm003_RG* rg) {
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->base.actor.position.x = rg->base.unk_1AC;
                 rg->base.actor.position.y = rg->base.unk_1B0;
-                func_ov003_020c4ee0(rg);
+                func_ov003_020c4ee0(&rg->base);
                 BtlEnm003_RG_SetState(rg, func_ov009_02120c70);
             } else {
                 rg->frameCount++;
@@ -203,7 +205,7 @@ void func_ov009_02120f64(BtlEnm003_RG* rg) {
     }
 }
 
-void func_ov009_021210f8(BtlEnm003_RG* rg) {
+static void func_ov009_021210f8(BtlEnm003_RG* rg) {
     BtlEnm003_RG* temp_r2 = (BtlEnm003_RG*)rg->base.partner;
 
     switch (rg->statePhase) {
@@ -250,38 +252,38 @@ void func_ov009_021210f8(BtlEnm003_RG* rg) {
     }
 }
 
-void func_ov009_0212127c(BtlEnm003_RG* rg) {
-    if (func_ov003_020c62c4(rg, 2) == 0) {
+static void func_ov009_0212127c(BtlEnm003_RG* rg) {
+    if (func_ov003_020c62c4(&rg->base, 2) == 0) {
         BtlEnm003_RG_SetState(rg, func_ov009_02120c70);
     }
 }
 
-void func_ov009_021212a8(BtlEnm003_RG* rg) {
-    if (func_ov003_020c703c() == 0) {
+static void func_ov009_021212a8(BtlEnm003_RG* rg) {
+    if (((s32(*)())func_ov003_020c703c)() == 0) {
         rg->isAlive = FALSE;
     }
 }
 
-void func_ov009_021212c4(BtlEnm003_RG* rg) {
-    if (func_ov003_020c72b4(rg, 0, 5) == 0) {
+static void func_ov009_021212c4(BtlEnm003_RG* rg) {
+    if (func_ov003_020c72b4(&rg->base, 0, 5) == 0) {
         BtlEnm003_RG_SetState(rg, func_ov009_02120c70);
     }
 }
 
-s32 BtlEnm003_RG_Init(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEnm003_RG_Init(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_RG* rg = task->data;
 
     MI_CpuSet(rg, 0, sizeof(BtlEnm003_RG));
-    func_ov003_020c3efc(rg, args);
-    func_ov003_020c44ac(rg);
-    func_ov003_020c4b1c(rg);
+    func_ov003_020c3efc(&rg->base, args);
+    func_ov003_020c44ac(&rg->base);
+    func_ov003_020c4b1c(&rg->base);
     rg->base.actor.flags |= 0x40000000;
     rg->isAlive = TRUE;
     BtlEnm003_RG_SetState(rg, func_ov009_02120c48);
     return 1;
 }
 
-s32 BtlEnm003_RG_Update(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEnm003_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_RG* rg = task->data;
 
     switch (CombatActor_PopPendingCommand(&rg->base.actor)) {
@@ -305,7 +307,7 @@ s32 BtlEnm003_RG_Update(TaskPool* pool, Task* task, void* args) {
     if (rg->unk_1CC != NULL) {
         rg->unk_1CC(rg);
     }
-    func_ov003_020c4628(rg);
+    func_ov003_020c4628(&rg->base);
     if (rg->unk_1D4 > 0) {
         rg->unk_1D4--;
         if (rg->unk_1D4 == 0) {
@@ -316,21 +318,21 @@ s32 BtlEnm003_RG_Update(TaskPool* pool, Task* task, void* args) {
     return rg->isAlive;
 }
 
-s32 BtlEnm003_RG_Render(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEnm003_RG_Render(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_RG* rg = task->data;
 
     func_ov003_020c4878(rg);
     return 1;
 }
 
-s32 BtlEnm003_RG_Destroy(TaskPool* pool, Task* task, void* args) {
+static s32 BtlEnm003_RG_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_RG* rg = task->data;
 
     func_ov003_020c48fc(rg);
     return 1;
 }
 
-s32 BtlEnm003_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlEnm003_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     const TaskStages stages = {
         .initialize = BtlEnm003_RG_Init,
         .update     = BtlEnm003_RG_Update,

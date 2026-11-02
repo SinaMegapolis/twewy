@@ -20,6 +20,7 @@ src/Combat/Friend/Shiki/BtlCmd_Esp.c:
     .data       start:0x020f0b60 end:0x020f0b70
 
 src/Combat/Friend/Shiki/BtlCard_Esp.c:
+    complete
     .text       start:0x020eb074 end:0x020eb728
     .rodata     start:0x020f06e8 end:0x020f07cc
     .data       start:0x020f0b70 end:0x020f0b80

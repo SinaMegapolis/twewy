@@ -4,7 +4,7 @@
 #include "Combat/Core/CombatApi.h"
 #include <nitro/mi/cpumem.h>
 
-extern char data_ov011_0212cc68[20];
+static char data_ov011_0212cc68[20];
 
 typedef struct BtlEnm010ArmFrame {
     /* 0x00 */ u16 unk_00; // heading upper bound
@@ -13,40 +13,40 @@ typedef struct BtlEnm010ArmFrame {
     /* 0x06 */ u16 unk_06;
 } BtlEnm010ArmFrame;
 
-void              func_ov011_02128e30(BtlEnm010Tatt* data);
-void              func_ov011_02128eb0(BtlEnm010Tatt* data);
-void              func_ov011_02128f10(BtlEnm010TattRec* p, u16 v);
-BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data);
-void              func_ov011_02129188(BtlEnm010Tatt* p, BtlEnm010TattRec* rec);
-void              func_ov011_021293a8(BtlEnm010Tatt* arg0, BtlEnm010TattRec* p);
-void              func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec);
-s32               func_ov011_02129934(TaskPool* pool, Task* task, void* args, s32 stage);
-s32               func_ov011_02129994(BtlEnm010Tatt* data, Ov003EnemyActor** arg1);
-s32               func_ov011_02129b84(BtlEnm010Tatt* data);
-s32               func_ov011_02129cec(BtlEnm010Tatt* data);
-s32               func_ov011_02129ea4(BtlEnm010Tatt* p);
+static void              func_ov011_02128e30(BtlEnm010Tatt* data);
+static void              func_ov011_02128eb0(BtlEnm010Tatt* data);
+static void              func_ov011_02128f10(BtlEnm010TattRec* p, u16 v);
+static BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data);
+static void              func_ov011_02129188(BtlEnm010Tatt* p, BtlEnm010TattRec* rec);
+static void              func_ov011_021293a8(BtlEnm010Tatt* arg0, BtlEnm010TattRec* p);
+static void              func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec);
+static s32               func_ov011_02129934(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32               func_ov011_02129994(BtlEnm010Tatt* data, Ov003EnemyActor** arg1);
+static s32               func_ov011_02129b84(BtlEnm010Tatt* data);
+static s32               func_ov011_02129cec(BtlEnm010Tatt* data);
+static s32               func_ov011_02129ea4(BtlEnm010Tatt* p);
 
 #define NEXT_REC(p) ((p) += sizeof(BtlEnm010TattRec) / sizeof(*(p)))
 
-const s32 data_ov011_0212c230[4] = {-344064, 0, -65536, 0};
+static const s32 data_ov011_0212c230[4] = {-344064, 0, -65536, 0};
 
-const TaskHandle data_ov011_0212c240 = {(const char*)data_ov011_0212cc68, func_ov011_02129934, 592};
+static const TaskHandle data_ov011_0212c240 = {(const char*)data_ov011_0212cc68, func_ov011_02129934, 592};
 
-const s32 data_ov011_0212c24c[4] = {-786432, -589824, -393216, -196608};
+static const s32 data_ov011_0212c24c[4] = {-786432, -589824, -393216, -196608};
 
-const BtlVec2 data_ov011_0212c25c[3] = {
+static const BtlVec2 data_ov011_0212c25c[3] = {
     { -81920, -294912},
     { -81920, -458752},
     {-344064, -458752}
 };
 
-const BtlVec2 data_ov011_0212c274[3] = {
+static const BtlVec2 data_ov011_0212c274[3] = {
     {196608, -131072},
     {196608, -458752},
     {-65536, -458752}
 };
 
-const BtlEnm010ArmFrame data_ov011_0212c28c[16] = {
+static const BtlEnm010ArmFrame data_ov011_0212c28c[16] = {
     { 2366, 10, 1, 0},
     { 6371,  9, 1, 0},
     {10922,  8, 1, 0},
@@ -65,8 +65,8 @@ const BtlEnm010ArmFrame data_ov011_0212c28c[16] = {
     {63351,  1, 0, 0},
 };
 
-char data_ov011_0212cc68[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
-                                0x30, 0x31, 0x30, 0x5F, 0x54, 0x61, 0x74, 0x74, 0x00, 0x00};
+static char data_ov011_0212cc68[20] = {0x54, 0x73, 0x6B, 0x5F, 0x42, 0x74, 0x6C, 0x45, 0x6E, 0x6D,
+                                       0x30, 0x31, 0x30, 0x5F, 0x54, 0x61, 0x74, 0x74, 0x00, 0x00};
 
 s32 func_ov011_02128c44(Ov003EnemyActor* owner) {
     Ov003EnemyActor* arg0;
@@ -81,14 +81,14 @@ s32 func_ov011_02128c44(Ov003EnemyActor* owner) {
     return EasyTask_CreateTask(pool, &data_ov011_0212c240, 0, 0, 0, &arg0);
 }
 
-void func_ov011_02128ca4(BtlEnm010Tatt* data, void (*arg1)(BtlEnm010Tatt*)) {
+static void func_ov011_02128ca4(BtlEnm010Tatt* data, void (*arg1)(BtlEnm010Tatt*)) {
     data->unk_224 = arg1;
     data->unk_228 = 0;
     data->unk_22A = 0;
     data->unk_22C = 0;
 }
 
-void func_ov011_02128cc0(BtlEnm010Tatt* data) {
+static void func_ov011_02128cc0(BtlEnm010Tatt* data) {
     s32               i;
     BtlEnm010TattRec* rec;
 
@@ -130,7 +130,7 @@ void func_ov011_02128cc0(BtlEnm010Tatt* data) {
     func_ov011_02128ca4(data, func_ov011_02128e30);
 }
 
-void func_ov011_02128e30(BtlEnm010Tatt* data) {
+static void func_ov011_02128e30(BtlEnm010Tatt* data) {
     s32  i;
     u16* p;
     u16* q;
@@ -157,7 +157,7 @@ void func_ov011_02128e30(BtlEnm010Tatt* data) {
     func_ov011_02128ca4(data, func_ov011_02128eb0);
 }
 
-void func_ov011_02128eb0(BtlEnm010Tatt* data) {
+static void func_ov011_02128eb0(BtlEnm010Tatt* data) {
     BtlEnm010TattRec* p;
 
     if (data->unk_228 % 60 == 0) {
@@ -169,7 +169,7 @@ void func_ov011_02128eb0(BtlEnm010Tatt* data) {
     data->unk_228 = data->unk_228 + 1;
 }
 
-void func_ov011_02128f10(BtlEnm010TattRec* p, u16 v) {
+static void func_ov011_02128f10(BtlEnm010TattRec* p, u16 v) {
     s32 i;
 
     i = 0;
@@ -187,7 +187,7 @@ void func_ov011_02128f10(BtlEnm010TattRec* p, u16 v) {
     CombatSprite_SetFlip(&p->sprite, data_ov011_0212c28c[i].unk_04);
 }
 
-BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
+static BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
     s32               v;
     s32               d;
     s32               i;
@@ -222,7 +222,7 @@ BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
     return best;
 }
 
-void func_ov011_02129110(BtlEnm010Tatt* p) {
+static void func_ov011_02129110(BtlEnm010Tatt* p) {
     s32               i;
     BtlEnm010TattRec* rec;
 
@@ -241,7 +241,7 @@ void func_ov011_02129110(BtlEnm010Tatt* p) {
     }
 }
 
-void func_ov011_02129188(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
+static void func_ov011_02129188(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
     struct {
         BtlVec2 m;
         s32     org[2];
@@ -278,7 +278,7 @@ void func_ov011_02129188(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
                 rec->unk_60 = 0;
                 rec->unk_64 = 1;
             } else {
-                func_ov003_020cbd30(&f.m, tpl[0], tpl[1], tpl[2], _s32_div_f(FX32_CONVERT(count), limit));
+                func_ov003_020cbd30(&f.m, tpl[0], tpl[1], tpl[2], FX32_CONVERT(count) / limit);
                 rec->unk_68 = (((u32)(p->unk_24C << 31) >> 31) != 0) ? 0 - f.m.x : f.m.x;
                 rec->unk_6C = f.m.y;
                 rec->unk_60 = rec->unk_60 + 1;
@@ -314,7 +314,7 @@ void func_ov011_02129188(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
     }
 }
 
-void func_ov011_021293a8(BtlEnm010Tatt* arg0, BtlEnm010TattRec* p) {
+static void func_ov011_021293a8(BtlEnm010Tatt* arg0, BtlEnm010TattRec* p) {
     if (p->unk_60 == 0) {
         p->unk_60 = p->unk_60 + 1;
         CombatSprite_SetAnimFromTable(&p->sprite, 5, 1);
@@ -328,7 +328,7 @@ void func_ov011_021293a8(BtlEnm010Tatt* arg0, BtlEnm010TattRec* p) {
     p->unk_64 = 0;
 }
 
-void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
+static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
     s32 vx;
     s32 vy;
     s32 idx;
@@ -423,7 +423,7 @@ void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
     }
 }
 
-s32 func_ov011_02129934(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov011_02129934(TaskPool* pool, Task* task, void* args, s32 stage) {
     void* p;
     s32   r;
 
@@ -446,7 +446,7 @@ s32 func_ov011_02129934(TaskPool* pool, Task* task, void* args, s32 stage) {
     return r;
 }
 
-s32 func_ov011_02129994(BtlEnm010Tatt* data, Ov003EnemyActor** arg1) {
+static s32 func_ov011_02129994(BtlEnm010Tatt* data, Ov003EnemyActor** arg1) {
     s32               r;
     s32               i;
     BtlEnm010TattRec* q;
@@ -495,7 +495,7 @@ s32 func_ov011_02129994(BtlEnm010Tatt* data, Ov003EnemyActor** arg1) {
     return 1;
 }
 
-s32 func_ov011_02129b84(BtlEnm010Tatt* data) {
+static s32 func_ov011_02129b84(BtlEnm010Tatt* data) {
     s32               r;
     s32               dir;
     s32               i;
@@ -543,7 +543,7 @@ s32 func_ov011_02129b84(BtlEnm010Tatt* data) {
     return r;
 }
 
-s32 func_ov011_02129cec(BtlEnm010Tatt* data) {
+static s32 func_ov011_02129cec(BtlEnm010Tatt* data) {
     s32               dir;
     s32               vx;
     s32               vy;
@@ -584,7 +584,7 @@ s32 func_ov011_02129cec(BtlEnm010Tatt* data) {
     return 1;
 }
 
-s32 func_ov011_02129ea4(BtlEnm010Tatt* p) {
+static s32 func_ov011_02129ea4(BtlEnm010Tatt* p) {
     s32               i;
     BtlEnm010TattRec* sp;
 

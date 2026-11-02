@@ -5,6 +5,7 @@
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "SpriteMgr.h"
+#include <nitro/mi/cpumem.h>
 
 extern const BinIdentifier data_ov003_020d77f8;
 
@@ -22,25 +23,31 @@ typedef struct BtlEff_WarpArgs {
     /* 0x0C */ s32          z;
 } BtlEff_WarpArgs; // Size: 0x10
 
-char data_ov003_020e3dc4[0x10] = "Tsk_BtlEff_Warp";
+static s32 func_ov003_0209f5e4(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209f694(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209f6c8(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209f6e8(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209f708(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle data_ov003_020d86c4 = {data_ov003_020e3dc4, func_ov003_0209f708, sizeof(BtlEff_Warp)};
+static char data_ov003_020e3dc4[0x10] = "Tsk_BtlEff_Warp";
 
-const TaskStages data_ov003_020d86d0 = {
+static const TaskHandle data_ov003_020d86c4 = {data_ov003_020e3dc4, func_ov003_0209f708, sizeof(BtlEff_Warp)};
+
+static const TaskStages data_ov003_020d86d0 = {
     func_ov003_0209f5e4,
     func_ov003_0209f694,
     func_ov003_0209f6c8,
     func_ov003_0209f6e8,
 };
 
-const SpriteAnimEntry data_ov003_020d86e0[2] = {
+static const SpriteAnimEntry data_ov003_020d86e0[2] = {
     {0x35, 0x37, 0x36, 0},
     {0x35, 0x37, 0x36, 1},
 };
 
 /// Loads one half of the warp effect: animation `animIndex` of the warp sprite, flipped to match
 /// the display actor it belongs to, and marks that half as playing.
-s32 func_ov003_0209f4a0(s32 mode, CombatEffect* sprite, u16 animIndex, s32 flip) {
+static s32 func_ov003_0209f4a0(s32 mode, CombatEffect* sprite, u16 animIndex, s32 flip) {
     CombatSprite_LoadFromTable(mode, &sprite->sprite, &data_ov003_020d77f8, data_ov003_020d86e0, animIndex, 1, 0x30);
     CombatSprite_SetAnimFromTable(&sprite->sprite, animIndex, 1);
     CombatSprite_SetFlip(&sprite->sprite, flip);
@@ -49,7 +56,7 @@ s32 func_ov003_0209f4a0(s32 mode, CombatEffect* sprite, u16 animIndex, s32 flip)
 }
 
 /// Advances one half of the warp effect and stops it once its animation is over.
-void func_ov003_0209f508(CombatEffect* sprite) {
+static void func_ov003_0209f508(CombatEffect* sprite) {
     if (SpriteMgr_IsAnimationFinished(&sprite->sprite.sprite)) {
         sprite->active = 0;
     }
@@ -57,7 +64,7 @@ void func_ov003_0209f508(CombatEffect* sprite) {
 }
 
 /// Draws one half of the warp effect at its world position, depth-sorted by Y.
-void func_ov003_0209f52c(CombatEffect* sprite) {
+static void func_ov003_0209f52c(CombatEffect* sprite) {
     s32 posX;
     s32 posY;
 
@@ -76,19 +83,19 @@ void func_ov003_0209f52c(CombatEffect* sprite) {
     CombatSprite_Render(&sprite->sprite);
 }
 
-void func_ov003_0209f5c8(CombatSprite* sprite) {
+static void func_ov003_0209f5c8(CombatSprite* sprite) {
     CombatSprite_Release(sprite);
 }
 
 /// Moves one half of the warp effect to a world position.
-void func_ov003_0209f5d4(CombatEffect* sprite, s32 x, s32 y, s32 z) {
+static void func_ov003_0209f5d4(CombatEffect* sprite, s32 x, s32 y, s32 z) {
     sprite->position.x = x;
     sprite->position.y = y;
     sprite->position.z = z;
 }
 
 /// Builds the previous-position half and current-position half, both flipped like the actor.
-s32 func_ov003_0209f5e4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209f5e4(TaskPool* pool, Task* task, void* args) {
     BtlEff_Warp*     eff = task->data;
     BtlEff_WarpArgs* p   = args;
     CombatActor*     actor;
@@ -110,7 +117,7 @@ s32 func_ov003_0209f5e4(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task update: advances both halves, keeping the task alive while either is still playing.
-s32 func_ov003_0209f694(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209f694(TaskPool* pool, Task* task, void* args) {
     BtlEff_Warp* eff = task->data;
 
     func_ov003_0209f508(&eff->halves[0]);
@@ -119,7 +126,7 @@ s32 func_ov003_0209f694(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task render: draws both halves.
-s32 func_ov003_0209f6c8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209f6c8(TaskPool* pool, Task* task, void* args) {
     BtlEff_Warp* eff = task->data;
 
     func_ov003_0209f52c(&eff->halves[0]);
@@ -128,7 +135,7 @@ s32 func_ov003_0209f6c8(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task destroy: releases both halves.
-s32 func_ov003_0209f6e8(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209f6e8(TaskPool* pool, Task* task, void* args) {
     BtlEff_Warp* eff = task->data;
 
     func_ov003_0209f5c8(&eff->halves[0].sprite);
@@ -137,7 +144,7 @@ s32 func_ov003_0209f6e8(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Task dispatcher: calls the stage function for `stage` unless the encounter cutscene is running.
-s32 func_ov003_0209f708(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209f708(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d86d0;
 
     if (func_ov003_0208b690(stage) != 0) {

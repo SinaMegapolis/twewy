@@ -6,8 +6,7 @@
 #include "Field/Tasks/Fld_Chain.h"
 #include "SndMgr.h"
 #include "SpriteMgr.h"
-
-extern void func_020265d4(s32* value, s32 target, u16 scale);
+#include "main_02026528.h"
 
 typedef struct {
     /* 0x000 */ Sprite sprites[4];

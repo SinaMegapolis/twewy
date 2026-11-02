@@ -11,11 +11,11 @@ typedef struct BtlEnm015Eff {
     /* 0x6C */ BtlEnm015*   unk_6C;
 } BtlEnm015Eff; // Size: 0x70
 
-s32 func_ov013_021260e8(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov013_021260e8(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlEnm015_Eff = {"Tsk_BtlEnm015_Eff", func_ov013_021260e8, 0x70};
 
-void func_ov013_02125fd0(BtlEnm015Eff* data, Enm015Spawn* args) {
+static void func_ov013_02125fd0(BtlEnm015Eff* data, Enm015Spawn* args) {
     BtlEnm015* owner = args->unk_00;
     s32        flag  = 0;
 
@@ -49,7 +49,7 @@ void func_ov013_02125fd0(BtlEnm015Eff* data, Enm015Spawn* args) {
     CombatSprite_SetFlip(&data->sprite, data->unk_6C->base.sprite.flags46 & 1);
 }
 
-s32 func_ov013_021260e8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov013_021260e8(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlEnm015Eff* data  = task->data;
     BtlEnm015*    owner = data->unk_6C;
 

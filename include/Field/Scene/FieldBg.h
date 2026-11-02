@@ -31,4 +31,8 @@ s32  FieldBg_CheckExit(FieldEventManager* mgr, s32 arg1);
 void FieldBg_SetAreaPopulation(s32 arg0, s32 arg1);
 s32  func_ov030_02084978(FieldEventManager* mgr);
 
+void func_ov030_0208496c(void);
+s32  func_ov030_02084970(FieldEventManager* mgr);
+void func_ov030_02084980(void);
+
 #endif // FIELD_SCENE_FIELDBG_H

@@ -4,6 +4,8 @@
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
+#include "main_02026528.h"
+#include <nitro/mi/cpumem.h>
 
 // The star/score popup: a short-lived task that shows a number (1..99) as star-digit sprites over
 // the unit it belongs to, rising slightly while it fades out.
@@ -34,18 +36,20 @@ typedef struct BtlPop_StarArgs {
 } BtlPop_StarArgs; // Size: 0x6
 
 // ---------------------------------------------------------------------------------------------
-// Forward declarations
-// ---------------------------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------------------------
 
-char data_ov003_020e3cec[0x10] = "Tsk_BtlPop_Star";
+static s32 func_ov003_0209cdd4(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209ce80(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209cef0(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209cfdc(TaskPool* pool, Task* task, void* args);
+static s32 func_ov003_0209cff0(TaskPool* pool, Task* task, void* args, s32 stage);
 
-const TaskHandle data_ov003_020d8120 = {data_ov003_020e3cec, func_ov003_0209cff0, 0x78};
+static char data_ov003_020e3cec[0x10] = "Tsk_BtlPop_Star";
 
-const TaskStages data_ov003_020d812c = {
+static const TaskHandle data_ov003_020d8120 = {data_ov003_020e3cec, func_ov003_0209cff0, 0x78};
+
+static const TaskStages data_ov003_020d812c = {
     .initialize = func_ov003_0209cdd4,
     .update     = func_ov003_0209ce80,
     .render     = func_ov003_0209cef0,
@@ -57,7 +61,6 @@ const TaskStages data_ov003_020d812c = {
 // ---------------------------------------------------------------------------------------------
 
 extern const BinIdentifier data_ov003_020d7800;
-extern void                func_020265d4(s32* dst, s32 target, u16 weight);
 
 // ---------------------------------------------------------------------------------------------
 // Functions
@@ -65,7 +68,7 @@ extern void                func_020265d4(s32* dst, s32 target, u16 weight);
 
 /// Splits `value` (clamped to 0..99) into decimal digits, least significant first, and returns
 /// how many digits are needed. A value of -1 stores a lone `-` glyph.
-s32 func_ov003_0209cd0c(s32* digits, s32 value) {
+static s32 func_ov003_0209cd0c(s32* digits, s32 value) {
     s32 v = value;
 
     if (v == -1) {
@@ -84,13 +87,13 @@ s32 func_ov003_0209cd0c(s32* digits, s32 value) {
 }
 
 /// Loads the popup sprite on the star-digit animation set and parks it under the number.
-void func_ov003_0209cd74(CombatSprite* sprite, s32 variant) {
+static void func_ov003_0209cd74(CombatSprite* sprite, s32 variant) {
     CombatSprite_LoadDirectNoProto(1, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3F, variant);
     func_ov003_02082738(sprite, 0);
     func_ov003_02082730(sprite, 1);
 }
 
-s32 func_ov003_0209cdd4(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209cdd4(TaskPool* pool, Task* task, void* args) {
     BtlPop_Star*     data = task->data;
     BtlPop_StarArgs* p    = args;
     s32              digits[2];
@@ -112,7 +115,7 @@ s32 func_ov003_0209cdd4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209ce80(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209ce80(TaskPool* pool, Task* task, void* args) {
     BtlPop_Star* data = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 6) {
@@ -130,7 +133,7 @@ s32 func_ov003_0209ce80(TaskPool* pool, Task* task, void* args) {
 
 // Nonmatching: `posY`, `half` and the loop offset end up in r9/r6/r8 instead of r6/r8/r9;
 // every instruction and operand is otherwise identical (pure register allocation).
-s32 func_ov003_0209cef0(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209cef0(TaskPool* pool, Task* task, void* args) {
     BtlPop_Star* data = task->data;
     s16          posY;
     s32          posX;
@@ -155,13 +158,13 @@ s32 func_ov003_0209cef0(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209cfdc(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209cfdc(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
 /// Task dispatcher: calls the stage function for `stage`.
-s32 func_ov003_0209cff0(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_0209cff0(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d812c;
 
     return stages.iter[stage](pool, task, args);

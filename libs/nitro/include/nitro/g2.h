@@ -16,6 +16,11 @@ void _G2_SetBlend(u32* reg, u32 srcPlane, u32 dstPlane, u32 srcAlpha, u32 dstAlp
 
 void* G2_GetBG2ScrPtr(void);
 void* G2_GetBG3ScrPtr(void);
+void* G2S_GetBG1CharPtr(void);
+void* G2S_GetBG1ScrPtr(void);
+void* G2_GetBG1CharPtr(void);
+void* G2_GetBG2CharPtr(void);
+void* func_02036974(void);
 void* G2S_func_0001();
 
 inline void G2_SetBG0Priority(u32 value) {

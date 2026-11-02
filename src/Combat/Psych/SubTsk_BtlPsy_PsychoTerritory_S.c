@@ -4,8 +4,7 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-extern s32              func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern const TaskHandle data_ov003_020dd210;
+static const TaskHandle data_ov003_020dd210;
 
 s32 func_ov003_020ba6c8(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_02085dc8(1);
@@ -29,7 +28,7 @@ s32 func_ov003_020ba71c(Ov003EffectState* effect, s32 x, s32 y, s32 angle) {
 }
 
 // Nonmatching: fixed-point endpoint register allocation and scheduling differ.
-s32 func_ov003_020ba74c(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ba74c(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychoTerritoryArgs* arg = args;
     Ov003PsychoTerritory*     self;
     switch (stage) {
@@ -115,5 +114,5 @@ s32 func_ov003_020ba74c(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e5060[32] = "SubTsk_BtlPsy_PsychoTerritory_S";
-const TaskHandle data_ov003_020dd210     = {data_ov003_020e5060, func_ov003_020ba74c, sizeof(Ov003PsychoTerritory)};
+static char             data_ov003_020e5060[32] = "SubTsk_BtlPsy_PsychoTerritory_S";
+static const TaskHandle data_ov003_020dd210     = {data_ov003_020e5060, func_ov003_020ba74c, sizeof(Ov003PsychoTerritory)};

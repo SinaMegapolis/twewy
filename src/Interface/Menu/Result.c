@@ -2,6 +2,7 @@
 #include "CriSndMgr.h"
 #include "Display.h"
 #include "EasyFade.h"
+#include "Engine/Core/DMA.h"
 #include "Engine/Core/HBlank.h"
 #include "Engine/Core/Interrupts.h"
 #include "Engine/Core/Memory.h"
@@ -56,11 +57,6 @@ typedef struct {
 // reorders the equal-size local-array templates in .rodata.
 static ResultState* g_ResultState = NULL;
 
-void       GX_LoadBgPltt(void* src, u32 offset, u32 size);
-void       GX_LoadObjPltt(void* src, u32 offset, u32 size);
-void       GXs_LoadBgPltt(void* src, u32 offset, u32 size);
-void       GXs_LoadObjPltt(void* src, u32 offset, u32 size);
-BOOL       func_02001b44(s32, s32, void*, s32);
 void       func_0202b878(void);
 extern u32 OVERLAY_42_ID;
 extern u32 OVERLAY_45_ID;
@@ -77,7 +73,6 @@ extern void ProcessOverlay_MenuTop(void* state);
 extern void ProcessOverlay_TusinSet(void* state);
 extern void func_ov030_020ae92c(void);
 extern void func_ov030_020b0fe8(void);
-extern void func_ov027_020e860c(void);
 
 void Result_UpdateEvoFlash(ResultState* state);
 void Result_StageFadeIn(ResultState* state);

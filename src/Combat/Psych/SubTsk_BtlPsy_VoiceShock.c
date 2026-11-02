@@ -2,10 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern s32 func_ov003_020a3498(CombatSprite*, s32, s32, s32, u16);
-extern s32 func_ov003_020a632c(s32, s32, s32, s32);
-
-extern const TaskHandle data_ov003_020dd1d0;
+static const TaskHandle data_ov003_020dd1d0;
 
 s32 func_ov003_020ba08c(Ov003EffectState* effect, s32 x, s32 y) {
     Ov003VoiceShockArgs args;
@@ -15,7 +12,7 @@ s32 func_ov003_020ba08c(Ov003EffectState* effect, s32 x, s32 y) {
     return func_ov003_020a6000(&data_ov003_020dd1d0, &args);
 }
 
-s32 func_ov003_020ba0b8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020ba0b8(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003VoiceShockArgs* arg = args;
     Ov003VoiceShock*     self;
     switch (stage) {
@@ -68,6 +65,6 @@ s32 func_ov003_020ba0b8(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-extern char      data_ov003_020e502c[28];
-const TaskHandle data_ov003_020dd1d0     = {data_ov003_020e502c, func_ov003_020ba0b8, sizeof(Ov003VoiceShock)};
-char             data_ov003_020e502c[28] = "SubTsk_BtlPsy_VoiceShock";
+static char             data_ov003_020e502c[28];
+static const TaskHandle data_ov003_020dd1d0     = {data_ov003_020e502c, func_ov003_020ba0b8, sizeof(Ov003VoiceShock)};
+static char             data_ov003_020e502c[28] = "SubTsk_BtlPsy_VoiceShock";

@@ -13,7 +13,7 @@
 /// The battle sprite page the badge family loads from (`Apl_Hir/Grp_BtlBadge.bin`).
 extern const BinIdentifier data_ov003_020dc044;
 
-s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage);
 
 /// The payload of the task: the spawned actor, the badge flag and the badge sprite.
 typedef struct BtlBadgeConditionBoot {
@@ -29,8 +29,8 @@ typedef struct BtlBadgeConditionBootArgs {
     /* 0x4 */ s32              unk_04;
 } BtlBadgeConditionBootArgs;
 
-char             data_ov003_020e48f0[0x1C] = "Tsk_BtlBadge_ConditionBoot";
-const TaskHandle data_ov003_020dc5cc       = {data_ov003_020e48f0, func_ov003_020a6fdc, sizeof(BtlBadgeConditionBoot)};
+static char             data_ov003_020e48f0[0x1C] = "Tsk_BtlBadge_ConditionBoot";
+static const TaskHandle data_ov003_020dc5cc       = {data_ov003_020e48f0, func_ov003_020a6fdc, sizeof(BtlBadgeConditionBoot)};
 
 /// Spawns the badge for `actor`; `arg1` is the battle state the badge was armed in.
 void func_ov003_020a6f90(Ov003TouchActor* actor, s32 arg1) {
@@ -41,7 +41,7 @@ void func_ov003_020a6f90(Ov003TouchActor* actor, s32 arg1) {
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc5cc, NULL, 0, NULL, &sp8);
 }
 
-s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage) {
     switch (stage) {
         default:
         case 0: {

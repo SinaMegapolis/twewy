@@ -5,9 +5,8 @@
 #include "Field/Event/EventFlags.h"
 #include "Field/FieldTypes.h"
 #include "Field/Tasks/Fld_ScanArea.h"
+#include "main_02026528.h"
 #include <nitro/reg.h>
-
-extern void func_02026590(s32* value, s32 target, u16 frames);
 
 typedef struct {
     /* 0x00 */ FieldPos* origin;

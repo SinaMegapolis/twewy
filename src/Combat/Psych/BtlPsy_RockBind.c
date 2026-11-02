@@ -2,7 +2,7 @@
 #include "Combat/Core/CombatPsychEffects.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020dc8c4;
+static const TaskHandle data_ov003_020dc8c4;
 
 s32 func_ov003_020b0058(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_02085dc8(1);
@@ -20,7 +20,7 @@ s32 func_ov003_020b0058(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 // Nonmatching: the final conditional return moves are emitted in reverse order.
-s32 func_ov003_020b00c8(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020b00c8(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003PsychUnitArgs*  arg = args;
     Ov003PsychUnitTimer* self;
     switch (stage) {
@@ -47,5 +47,5 @@ s32 func_ov003_020b00c8(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e4ca4[20] = "Tsk_BtlPsy_RockBind";
-const TaskHandle data_ov003_020dc8c4     = {data_ov003_020e4ca4, func_ov003_020b00c8, sizeof(Ov003PsychUnitTimer)};
+static char             data_ov003_020e4ca4[20] = "Tsk_BtlPsy_RockBind";
+static const TaskHandle data_ov003_020dc8c4     = {data_ov003_020e4ca4, func_ov003_020b00c8, sizeof(Ov003PsychUnitTimer)};

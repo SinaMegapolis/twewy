@@ -19,7 +19,7 @@ typedef struct BtlInfTimer {
 
 extern const BinIdentifier data_ov003_020d7800;
 
-void func_ov003_0209de24(BtlInfTimer* timer, void (*update)(BtlInfTimer*)) {
+static void func_ov003_0209de24(BtlInfTimer* timer, void (*update)(BtlInfTimer*)) {
     timer->update = update;
     timer->state  = 0;
     timer->count  = 0;
@@ -28,7 +28,7 @@ void func_ov003_0209de24(BtlInfTimer* timer, void (*update)(BtlInfTimer*)) {
 // The intermediate seconds are deliberately narrowed to 16 bits before division.
 // The display saturates at 99:59.99 once the frame count reaches 100 minutes.
 // Nonmatching: division scheduling and register allocation in the digit conversion.
-void func_ov003_0209de38(BtlInfTimer* timer) {
+static void func_ov003_0209de38(BtlInfTimer* timer) {
     u32 frames     = gSaveData.battleClearTime;
     u16 hundredths = (frames * 100 / 60) % 100;
     u16 elapsed    = frames / 60;
@@ -52,7 +52,7 @@ void func_ov003_0209de38(BtlInfTimer* timer) {
     timer->minutes[1]    = minutes / 10;
 }
 
-s32 func_ov003_0209dfac(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209dfac(TaskPool* pool, Task* task, void* args) {
     BtlInfTimer* timer = task->data;
 
     MI_CpuSet(timer, 0, sizeof(*timer));
@@ -68,7 +68,7 @@ s32 func_ov003_0209dfac(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-s32 func_ov003_0209e060(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e060(TaskPool* pool, Task* task, void* args) {
     BtlInfTimer* timer = task->data;
     if (timer->update != NULL) {
         timer->update(timer);
@@ -83,7 +83,7 @@ s32 func_ov003_0209e060(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Update(&timer->sprite);                                 \
     CombatSprite_Render(&timer->sprite)
 
-s32 func_ov003_0209e080(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e080(TaskPool* pool, Task* task, void* args) {
     BtlInfTimer* timer = task->data;
     if (timer->visible == 0) {
         return 1;
@@ -104,20 +104,20 @@ s32 func_ov003_0209e080(TaskPool* pool, Task* task, void* args) {
 }
 #undef DRAW_TIMER_DIGIT
 
-s32 func_ov003_0209e270(TaskPool* pool, Task* task, void* args) {
+static s32 func_ov003_0209e270(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(task->data);
     return 1;
 }
 
-extern const TaskStages data_ov003_020d81b8;
-s32                     func_ov003_0209e284(TaskPool* pool, Task* task, void* args, s32 stage) {
+static const TaskStages data_ov003_020d81b8;
+static s32              func_ov003_0209e284(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov003_020d81b8;
     return stages.iter[stage](pool, task, args);
 }
 
-char             data_ov003_020e3d3c[20] = "Tsk_BtlInf_Timer";
-const TaskHandle data_ov003_020d81ac     = {data_ov003_020e3d3c, func_ov003_0209e284, sizeof(BtlInfTimer)};
-const TaskStages data_ov003_020d81b8     = {
+static char             data_ov003_020e3d3c[20] = "Tsk_BtlInf_Timer";
+const TaskHandle        data_ov003_020d81ac     = {data_ov003_020e3d3c, func_ov003_0209e284, sizeof(BtlInfTimer)};
+static const TaskStages data_ov003_020d81b8     = {
     func_ov003_0209dfac,
     func_ov003_0209e060,
     func_ov003_0209e080,

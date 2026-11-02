@@ -3,7 +3,7 @@
 #include "Combat/Core/CombatEnemyShot.h"
 #include <nitro/mi/cpumem.h>
 
-extern const TaskHandle data_ov003_020e0cb0;
+static const TaskHandle data_ov003_020e0cb0;
 
 s32 func_ov003_020d1eec(Ov003EnemyShotSource* source, s32 x, s32 y, s32 z, s32 screenHit, s32 rotate, u16 angle) {
     Ov003EnemyShotSingleArgs args;
@@ -24,7 +24,7 @@ s32 func_ov003_020d1eec(Ov003EnemyShotSource* source, s32 x, s32 y, s32 z, s32 s
 }
 
 // Nonmatching: the two mutually exclusive projection-engine moves are emitted in reverse order.
-s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleArgs* args) {
+static s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
     s32                         engine = args->source->core.owner->base.sprite.sprite.bits_0_1;
@@ -57,7 +57,7 @@ s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleArgs* ar
     return 1;
 }
 
-s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
+static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
     if (data_ov003_020e71b8->unk3D878 & 0x40)
         return 1;
     if (func_ov003_020ccc00(&self->source, &self->sprite))
@@ -81,7 +81,7 @@ s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
     return 1;
 }
 
-s32 func_ov003_020d22e4(Ov003EnemyShotSingle* self) {
+static s32 func_ov003_020d22e4(Ov003EnemyShotSingle* self) {
     s16 x, y;
     func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x, self->source.position.y,
                         self->source.position.z);
@@ -93,12 +93,12 @@ s32 func_ov003_020d22e4(Ov003EnemyShotSingle* self) {
     return 1;
 }
 
-s32 func_ov003_020d2384(Ov003EnemyShotSingle* self) {
+static s32 func_ov003_020d2384(Ov003EnemyShotSingle* self) {
     CombatSprite_Release(&self->sprite);
     return 1;
 }
 
-s32 func_ov003_020d2398(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 func_ov003_020d2398(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EnemyShotSingle* self = task->data;
     switch (stage) {
         case 0:
@@ -114,5 +114,5 @@ s32 func_ov003_020d2398(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-char             data_ov003_020e6d48[24] = "Tsk_BtlEnmShot_Single";
-const TaskHandle data_ov003_020e0cb0     = {data_ov003_020e6d48, func_ov003_020d2398, sizeof(Ov003EnemyShotSingle)};
+static char             data_ov003_020e6d48[24] = "Tsk_BtlEnmShot_Single";
+static const TaskHandle data_ov003_020e0cb0     = {data_ov003_020e6d48, func_ov003_020d2398, sizeof(Ov003EnemyShotSingle)};

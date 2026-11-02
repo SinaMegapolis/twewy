@@ -44,4 +44,8 @@ typedef struct BtlAuraLast {
 extern const TaskHandle Tsk_BtlPlayerLast;
 extern const TaskHandle Tsk_BtlAuraLast;
 
+s32  func_ov021_020f1174(void);
+void func_ov021_020f11bc(s32, s32*, s32*, s32*);
+void func_ov021_020f13b0(void);
+
 #endif // COMBAT_FUSION_BTLFUSION_H
