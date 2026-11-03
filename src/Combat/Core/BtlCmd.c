@@ -15,10 +15,6 @@
 // through a command chain. Three records (the current one and the two it can branch into) each hold sixteen cells and
 // two marker sprites; the pad or the stylus moves along the cells, and the display ends the chain with a sound.
 
-// ---------------------------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------------------------
-
 struct BtlCmd;
 
 typedef void (*BtlCmdState)(struct BtlCmd*);
@@ -90,32 +86,16 @@ typedef struct BtlCmd {
     /* 0x624 */ BtlCmdRecord* otherB;
 } BtlCmd; // Size: 0x628
 
-// ---------------------------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------------------------
-
 extern const BinIdentifier data_ov003_020d7808;
 extern u8                  data_02071cf0[];
+
+static s32 BtlCmd_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+
+const TaskHandle Tsk_BtlCmd = {"Tsk_BtlCmd", BtlCmd_RunTask, sizeof(BtlCmd)};
 
 static void func_ov003_0209842c(BtlCmd* self);
 static void func_ov003_02098458(BtlCmd* self);
 static void func_ov003_0209862c(BtlCmd* self);
-static s32  func_ov003_02098718(TaskPool* pool, Task* task, void* args);
-static s32  func_ov003_020988b4(TaskPool* pool, Task* task, void* args);
-static s32  func_ov003_020989e8(TaskPool* pool, Task* task, void* args);
-static s32  func_ov003_02098b60(TaskPool* pool, Task* task, void* args);
-static s32  func_ov003_02098bc0(TaskPool* pool, Task* task, void* args, s32 stage);
-
-static char      data_ov003_020e3c54[0xC] = "Tsk_BtlCmd";
-const TaskHandle data_ov003_020d7eec      = {data_ov003_020e3c54, func_ov003_02098bc0, sizeof(BtlCmd)};
-
-/// The stage table of the display: build, update, draw, release.
-static const TaskStages data_ov003_020d7ef8 = {
-    func_ov003_02098718,
-    func_ov003_020988b4,
-    func_ov003_020989e8,
-    func_ov003_02098b60,
-};
 
 /// The frames to wait before a held pad is read as pressed again: pairs of (short, long) for each difficulty.
 static const s16 data_ov003_020d7f08[1] = {0};
@@ -133,10 +113,6 @@ static const BtlCmdParams data_ov003_020d7f18[9] = {
     {2, 6, 6, 1, 2, 6, 6},
     {3, 2, 2, 2, 2, 0, 2},
 };
-
-// ---------------------------------------------------------------------------------------------
-// Functions
-// ---------------------------------------------------------------------------------------------
 
 static void func_ov003_02097544(BtlCmd* self, BtlCmdState state) {
     self->state     = state;
@@ -546,11 +522,10 @@ static void func_ov003_02098090(BtlCmd* self, BtlCmdRecord* record) {
     CombatSprite_SetAnim(&self->frame, 0, 0);
     CombatSprite_SetAnim(&self->firstMarker, 8, 0);
     CombatSprite_SetAnim(&self->secondMarker, 11, 0);
-    if (record->first == -1 && record->second == -1) {
-        return;
+    if (!(record->first == -1 && record->second == -1)) {
+        func_ov003_02097d40(self, self->otherA, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
+        func_ov003_02097d40(self, self->otherB, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
     }
-    func_ov003_02097d40(self, self->otherA, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
-    func_ov003_02097d40(self, self->otherB, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
 }
 
 static void func_ov003_020981dc(BtlCmd* self, s32 y) {
@@ -640,11 +615,10 @@ static void func_ov003_020983ac(BtlCmd* self) {
 }
 
 static void func_ov003_0209842c(BtlCmd* self) {
-    if (func_ov003_02086a64() == 0) {
-        return;
+    if (func_ov003_02086a64() != 0) {
+        func_ov003_0208697c();
+        func_ov003_02097544(self, func_ov003_02098458);
     }
-    func_ov003_0208697c();
-    func_ov003_02097544(self, func_ov003_02098458);
 }
 
 static void func_ov003_02098458(BtlCmd* self) {
@@ -731,7 +705,7 @@ static void func_ov003_0209862c(BtlCmd* self) {
     func_ov003_02097544(self, func_ov003_02098484);
 }
 
-static s32 func_ov003_02098718(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCmd_Init(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
     s32     i;
 
@@ -775,7 +749,7 @@ static s32 func_ov003_02098718(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_020988b4(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCmd_Update(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
 
     if (data_ov003_020e71b8->unk3D878 & 0x40) {
@@ -816,7 +790,7 @@ static s32 func_ov003_020988b4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_020989e8(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCmd_Render(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
     s32     px;
     s32     py;
@@ -855,7 +829,7 @@ static s32 func_ov003_020989e8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_02098b60(TaskPool* pool, Task* task, void* args) {
+static s32 BtlCmd_Release(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
     s32     i;
 
@@ -870,10 +844,15 @@ static s32 func_ov003_02098b60(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_02098bc0(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = data_ov003_020d7ef8;
+static s32 BtlCmd_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+    TaskStages stages = {
+        .initialize = BtlCmd_Init,
+        .update     = BtlCmd_Update,
+        .render     = BtlCmd_Render,
+        .cleanup    = BtlCmd_Release,
+    };
 
-    if (func_ov003_0208b690((u16)stage)) {
+    if (func_ov003_0208b690(stage)) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);

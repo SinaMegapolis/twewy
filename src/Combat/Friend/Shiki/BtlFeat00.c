@@ -1,3 +1,4 @@
+#include "Combat/Core/BtlCutIn.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
@@ -6,9 +7,6 @@
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "SndMgr.h"
-
-extern BinIdentifier data_ov003_020dd7dc;
-extern BinIdentifier data_ov003_020dd7c4;
 
 typedef struct {
     /* 0x0 */ s16 x;
@@ -68,8 +66,8 @@ void func_ov004_020eb4d0(BtlFeat00* feat) {
     g_DisplaySettings.controls[1].layers &= ~8;
     Display_SetBGOffset(DISPLAY_SUB, DISPLAY_BG1, 0, 0);
 
-    feat->unk_00 = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7dc, 1, 0);
-    feat->unk_04 = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7c4, 3, 0);
+    feat->unk_00 = DatMgr_LoadPackEntry(1, NULL, 0, &Iden_BtlSpecial2, 1, 0);
+    feat->unk_04 = DatMgr_LoadPackEntry(1, NULL, 0, &Iden_BtlSpecial2_Shiki, 3, 0);
 
     void* var_r1 = Data_GetPackEntryData(feat->unk_00, 3);
     void* var_r4 = Data_GetPackEntryData(feat->unk_00, 4);

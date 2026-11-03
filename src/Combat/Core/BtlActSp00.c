@@ -1,3 +1,4 @@
+#include "Combat/Core/BtlCutIn.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatEnemyShot.h"
@@ -16,8 +17,10 @@ typedef struct BtlActSpArgs {
         struct {
             u16 character, level;
         };
+
         u32 selection;
     };
+
     s32 skipFeature;
 } BtlActSpArgs;
 
@@ -30,8 +33,10 @@ typedef struct BtlActSp {
         struct {
             u16 character, level;
         };
+
         u32 selection;
     };
+
     /* 0x10 */ s32 skipFeature;
     /* 0x14 */ s32 active;
 } BtlActSp;
@@ -39,6 +44,7 @@ typedef struct BtlActSp {
 typedef struct BtlActSpCutins {
     const TaskHandle* entries[3];
 } BtlActSpCutins;
+
 typedef struct BtlActSpFeatures {
     const TaskHandle* entries[3][3];
 } BtlActSpFeatures;
@@ -52,41 +58,39 @@ typedef char check_ActSp_active[(offsetof(BtlActSp, active) == 0x14) ? 1 : -1];
 typedef struct BtlActSpAttackTable {
     u16 entries[3][3];
 } BtlActSpAttackTable;
+
 extern const TaskHandle data_ov024_020f6b7c;
+
 typedef struct BtlActSpStatus {
     s8  level;
     s8  character;
     u8  reserved[6];
     s32 released;
 } BtlActSpStatus;
+
 typedef char          check_ActSpStatus[(sizeof(BtlActSpStatus) == 0xC) ? 1 : -1];
 typedef char          check_ActSpStatus_released[(offsetof(BtlActSpStatus, released) == 8) ? 1 : -1];
 extern BtlActSpStatus data_ov003_020e71d8;
-static void           func_ov003_020c1918(BtlActSp*);
 
-static s32 func_ov003_020c1dbc(TaskPool* pool, Task* task, void* args);
-static s32 func_ov003_020c1e44(TaskPool* pool, Task* task, void* args);
-static s32 func_ov003_020c1e68(TaskPool* pool, Task* task, void* args);
-static s32 func_ov003_020c1e70(TaskPool* pool, Task* task, void* args);
-static s32 func_ov003_020c1ed0(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlActSp00_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-extern const TaskHandle data_ov003_020dd838, data_ov003_020dd978, data_ov003_020dd984;
+static const TaskHandle Tsk_BtlActSp00 = {"Tsk_BtlActSp00", BtlActSp00_RunTask, sizeof(BtlActSp)};
+
+static void func_ov003_020c1918(BtlActSp*);
+
+extern const TaskHandle Tsk_BtlCutIn00, Tsk_BtlCutIn01, Tsk_BtlCutIn02;
 extern const TaskHandle Tsk_BtlFeat00, Tsk_BtlFeat01, Tsk_BtlFeat02;
 extern const TaskHandle data_ov005_020f0570, data_ov005_020f0708, data_ov005_020f0764;
 extern const TaskHandle data_ov006_020f0ac0, data_ov006_020f0b60, data_ov006_020f0d0c;
 
-static char                 data_ov003_020e53e4[16] = "Tsk_BtlActSp00";
-static const TaskHandle     data_ov003_020ddaac     = {data_ov003_020e53e4, func_ov003_020c1ed0, sizeof(BtlActSp)};
-static const BtlActSpCutins data_ov003_020ddab8     = {
-    {&data_ov003_020dd838, &data_ov003_020dd978, &data_ov003_020dd984}
-};
-static const TaskStages          data_ov003_020ddac4 = {func_ov003_020c1dbc, func_ov003_020c1e44, func_ov003_020c1e68,
-                                                        func_ov003_020c1e70};
-static const BtlActSpAttackTable data_ov003_020ddae6 = {
-    {{0x21, 0x23, 0x25}, {0x27, 0x29, 0x2B}, {0x2D, 0x2F, 0x31}}
+static const BtlActSpCutins data_ov003_020ddab8 = {
+    {&Tsk_BtlCutIn00, &Tsk_BtlCutIn01, &Tsk_BtlCutIn02}
 };
 static const BtlActSpAttackTable data_ov003_020ddad4 = {
     {{0x22, 0x24, 0x26}, {0x28, 0x2A, 0x2C}, {0x2E, 0x30, 0x32}}
+};
+static const BtlActSpAttackTable data_ov003_020ddae6 = {
+    {{0x21, 0x23, 0x25}, {0x27, 0x29, 0x2B}, {0x2D, 0x2F, 0x31}}
 };
 static const BtlActSpFeatures data_ov003_020ddaf8 = {
     {{&Tsk_BtlFeat00, &Tsk_BtlFeat01, &Tsk_BtlFeat02},
@@ -106,6 +110,7 @@ static void func_ov003_020c1238(u16 character, u16 level) {
     BtlActSpAttackTable mainAttacks = data_ov003_020ddae6;
     CombatActor*        mainActor   = data_ov003_020e71b8->unk3D898;
     Ov003AttackArgs     args;
+
     args.unk_00           = mainActor->unk_66;
     args.unk_04           = 0x64;
     args.unk_06           = 0x64;
@@ -142,8 +147,9 @@ static void func_ov003_020c1238(u16 character, u16 level) {
             break;
     }
     s32 missing = data_ov003_020e71b8->unk3D8D2 - data_ov003_020e71b8->unk3D8D0;
-    if (missing < heal)
+    if (missing < heal) {
         heal = missing;
+    }
     s32 rounded = heal + ((u32)heal >> 31);
     func_ov003_0208b3cc(0, (heal & 1) + (rounded >> 1));
     func_ov003_0208b3cc(1, (s16)((rounded << 15) >> 16));
@@ -231,6 +237,7 @@ static void func_ov003_020c17bc(void) {
 // Nonmatching: fade-stage register allocation.
 static void func_ov003_020c1848(BtlActSp* self) {
     s16 phase = self->phase;
+
     switch (phase) {
         case 0:
             SndMgr_PlaySEWithPan(SEIDX_SE_FINISHMOVE, 0x80);
@@ -240,12 +247,15 @@ static void func_ov003_020c1848(BtlActSp* self) {
             self->phase++;
             return;
         case 1:
-            if (data_ov003_020e71b8->unk3D878 & 1)
+            if (data_ov003_020e71b8->unk3D878 & 1) {
                 return;
-            if (data_ov003_020e71b8->unk3D7C0[0].unk_02 & 1)
+            }
+            if (data_ov003_020e71b8->unk3D7C0[0].unk_02 & 1) {
                 return;
-            if (data_ov003_020e71b8->unk3D7C0[1].unk_02 & 1)
+            }
+            if (data_ov003_020e71b8->unk3D7C0[1].unk_02 & 1) {
                 return;
+            }
             func_ov003_020c14ec();
             func_ov003_020c1224(self, func_ov003_020c1918);
             return;
@@ -255,6 +265,7 @@ static void func_ov003_020c1848(BtlActSp* self) {
 static void func_ov003_020c1918(BtlActSp* self) {
     BtlActSpCutins   cutins   = data_ov003_020ddab8;
     BtlActSpFeatures features = data_ov003_020ddaf8;
+
     switch (self->phase) {
         case 0:
             PaletteMgr_UnknownLoop(g_PaletteManagers[1]);
@@ -263,18 +274,20 @@ static void func_ov003_020c1918(BtlActSp* self) {
             data_ov003_020e71b8->unk3D8C8 = 0;
             EasyTask_CleanupAllTasks(&data_ov003_020e71b8->unk_201A4);
             Mem_ValidateSequences(&gMainHeap);
-            if (self->character == 3)
-                self->taskId = func_ov003_020be6d0(&data_ov003_020e71b8->unk_34230);
-            else
+            if (self->character == 3) {
+                self->taskId = BtlCutIn00_CreateKariyaYashiroTask(&data_ov003_020e71b8->unk_34230);
+            } else {
                 self->taskId =
                     EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, cutins.entries[self->level], NULL, 0, NULL, NULL);
+            }
             self->phase++;
-            func_ov003_020bd2a8(1);
+            BtlCutIn_SetSpecialKind(1);
             func_ov003_020bd114();
             return;
         case 1:
-            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId))
+            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId)) {
                 return;
+            }
             data_ov003_020e71b8->unk3D884 = 0;
             data_ov003_020e71b8->unk3D888 = 1;
             data_ov003_020e71b8->unk3D878 |= 4;
@@ -283,27 +296,31 @@ static void func_ov003_020c1918(BtlActSp* self) {
                 self->phase++;
                 return;
             }
-            if (self->character == 3)
+            if (self->character == 3) {
                 self->taskId = EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, &data_ov024_020f6b7c, NULL, 0, NULL, NULL);
-            else
+            } else {
                 self->taskId = EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230,
                                                    features.entries[self->character][self->level], NULL, 0, NULL, NULL);
+            }
             self->phase++;
             self->timer = 2;
             return;
         case 2:
-            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId))
+            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId)) {
                 return;
+            }
             data_ov003_020e71d8.released = 1;
             self->phase++;
             self->timer--;
-            if (self->timer)
+            if (self->timer) {
                 return;
+            }
             PaletteMgr_UnknownLoop(g_PaletteManagers[1]);
             return;
         case 3:
-            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId))
+            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId)) {
                 return;
+            }
             data_ov003_020e71b8->unk3D878 &= ~4;
             func_ov003_020bd078();
             data_ov003_020e71b8->unk3D888 = 0;
@@ -313,8 +330,9 @@ static void func_ov003_020c1918(BtlActSp* self) {
             data_ov003_020e71b8->unk3D878 &= ~0x2000;
             func_ov003_02083e50(1);
             func_ov003_020842e0();
-            if (self->character == 3)
+            if (self->character == 3) {
                 return;
+            }
             EasyFade_FadeBothDisplays(0, 0, 0x800);
             return;
         case 4:
@@ -333,10 +351,11 @@ static void func_ov003_020c1918(BtlActSp* self) {
                 self->timer++;
                 return;
             }
-            if (!self->skipFeature)
+            if (!self->skipFeature) {
                 func_ov003_020c1238(self->character, self->level);
-            else
+            } else {
                 func_ov003_020c17bc();
+            }
             data_ov003_020e71b8->unk3D878 &= ~0x10000;
             self->active = 0;
             return;
@@ -344,9 +363,10 @@ static void func_ov003_020c1918(BtlActSp* self) {
 }
 
 // Nonmatching: argument-load scheduling and register allocation.
-static s32 func_ov003_020c1dbc(TaskPool* pool, Task* task, void* args) {
+static s32 BtlActSp00_Init(TaskPool* pool, Task* task, void* args) {
     BtlActSp*     self  = task->data;
     BtlActSpArgs* spawn = args;
+
     data_ov003_020e71b8->unk3D878 |= 2;
     MI_CpuSet(self, 0, sizeof(*self));
     data_ov003_020e71d8.released  = 0;
@@ -359,16 +379,20 @@ static s32 func_ov003_020c1dbc(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_020c1e44(TaskPool* pool, Task* task, void* args) {
+static s32 BtlActSp00_Update(TaskPool* pool, Task* task, void* args) {
     BtlActSp* self = task->data;
-    if (self->update)
+
+    if (self->update) {
         self->update(self);
+    }
     return self->active;
 }
-static s32 func_ov003_020c1e68(TaskPool* pool, Task* task, void* args) {
+
+static s32 BtlActSp00_Render(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
-static s32 func_ov003_020c1e70(TaskPool* pool, Task* task, void* args) {
+
+static s32 BtlActSp00_Release(TaskPool* pool, Task* task, void* args) {
     EasyTask_CleanupAllTasks(&data_ov003_020e71b8->unk_34230);
     func_ov003_020bd078();
     data_ov003_020e71b8->unk3D878 &= ~2;
@@ -376,14 +400,22 @@ static s32 func_ov003_020c1e70(TaskPool* pool, Task* task, void* args) {
     Mem_ValidateSequences(&gMainHeap);
     return 1;
 }
-static s32 func_ov003_020c1ed0(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = data_ov003_020ddac4;
+
+static s32 BtlActSp00_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+    TaskStages stages = {
+        .initialize = BtlActSp00_Init,
+        .update     = BtlActSp00_Update,
+        .render     = BtlActSp00_Render,
+        .cleanup    = BtlActSp00_Release,
+    };
+
     return stages.iter[stage](pool, task, args);
 }
 
 void func_ov003_020c1f18(TaskPool* pool, u16 level) {
     BtlActSpArgs args;
     u16          character;
+
     switch (data_ov003_020e71b8->unk3D88D) {
         case 1:
             character = 1;
@@ -399,10 +431,12 @@ void func_ov003_020c1f18(TaskPool* pool, u16 level) {
     args.level       = level;
     args.character   = character;
     args.skipFeature = 0;
-    EasyTask_CreateTask(pool, &data_ov003_020ddaac, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(pool, &Tsk_BtlActSp00, NULL, 0, NULL, &args);
 }
+
 s32 func_ov003_020c1f94(TaskPool* pool, s32 character) {
     BtlActSpArgs args;
+
     switch (character) {
         case 1:
             args.character = 1;
@@ -417,14 +451,16 @@ s32 func_ov003_020c1f94(TaskPool* pool, s32 character) {
     }
     args.level       = 1;
     args.skipFeature = 1;
-    return EasyTask_CreateTask(pool, &data_ov003_020ddaac, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_BtlActSp00, NULL, 0, NULL, &args);
 }
+
 s32 func_ov003_020c2008(TaskPool* pool) {
     BtlActSpArgs args;
+
     args.character     = 3;
     args.level         = 0;
     args.skipFeature   = 0;
     CombatActor* owner = data_ov003_020e71b8->unk3D89C;
     owner->flags &= ~8;
-    return EasyTask_CreateTask(pool, &data_ov003_020ddaac, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(pool, &Tsk_BtlActSp00, NULL, 0, NULL, &args);
 }

@@ -1,10 +1,9 @@
+#include "Combat/Core/BtlCutIn.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
-
-extern BinIdentifier data_ov003_020dd78c;
 
 typedef enum {
     SIDE_LEFT,
@@ -160,15 +159,15 @@ s32 BtlFeat01_BigMulti_Init(TaskPool* pool, Task* task, void* args) {
 
     bigMulti->side = bigMultiArgs->side;
     if (bigMulti->side == SIDE_RIGHT) {
-        CombatSprite_LoadDirect(bigMulti->side, &bigMulti->overlaySprite, &data_ov003_020dd78c, 11, 13, 12, 3, 3);
+        CombatSprite_LoadDirect(bigMulti->side, &bigMulti->overlaySprite, &Iden_BtlSpecialSiki, 11, 13, 12, 3, 3);
         CombatSprite_SetAnim(&bigMulti->overlaySprite, 3, 0);
     } else {
-        CombatSprite_LoadDirect(bigMulti->side, &bigMulti->overlaySprite, &data_ov003_020dd78c, 11, 13, 12, 4, 3);
+        CombatSprite_LoadDirect(bigMulti->side, &bigMulti->overlaySprite, &Iden_BtlSpecialSiki, 11, 13, 12, 4, 3);
         CombatSprite_SetAnim(&bigMulti->overlaySprite, 3, 0);
     }
 
     if (bigMulti->side == SIDE_LEFT) {
-        CombatSprite_LoadFromTable(bigMulti->side, &bigMulti->mainSprite, &data_ov003_020dd78c, data_ov004_020f0504, 0, 1,
+        CombatSprite_LoadFromTable(bigMulti->side, &bigMulti->mainSprite, &Iden_BtlSpecialSiki, data_ov004_020f0504, 0, 1,
                                    0x50);
         bigMulti->posX         = -0x1E000;
         bigMulti->posY         = 0x64000;
@@ -177,7 +176,7 @@ s32 BtlFeat01_BigMulti_Init(TaskPool* pool, Task* task, void* args) {
         CombatSprite_SetAnimFromTable(&bigMulti->mainSprite, 0, 0);
         CombatSprite_SetFlip(&bigMulti->mainSprite, bigMulti->movePositive);
     } else {
-        CombatSprite_LoadFromTable(bigMulti->side, &bigMulti->mainSprite, &data_ov003_020dd78c, data_ov004_020f0504, 1, 2,
+        CombatSprite_LoadFromTable(bigMulti->side, &bigMulti->mainSprite, &Iden_BtlSpecialSiki, data_ov004_020f0504, 1, 2,
                                    0x50);
         bigMulti->posX         = 0x11E000;
         bigMulti->posY         = 0x64000;

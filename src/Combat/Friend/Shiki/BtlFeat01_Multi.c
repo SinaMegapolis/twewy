@@ -1,11 +1,11 @@
+#include "Combat/Core/BtlCutIn.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
 
-extern BinIdentifier data_ov003_020dd78c;
-extern s32           data_ov003_020e71e0;
+extern s32 data_ov003_020e71e0;
 
 typedef struct BtlFeat01_Multi {
     /* 0x000 */ s32 (**unk_000)(struct BtlFeat01_Multi*);
@@ -134,13 +134,13 @@ s32 BtlFeat01_Multi_Init(TaskPool* pool, Task* task, void* args) {
     if (multi->unk_004 == 1) {
         SpriteAnimEntry* animEntry = &data_ov004_020f04d0[multiArgs->unk_DC];
 
-        CombatSprite_LoadDirect(multiArgs->unk_00, &multi->unk_008, &data_ov003_020dd78c, animEntry->charDataIndex,
+        CombatSprite_LoadDirect(multiArgs->unk_00, &multi->unk_008, &Iden_BtlSpecialSiki, animEntry->charDataIndex,
                                 animEntry->paletteDataIndex, animEntry->frameDataIndex, 3, animEntry->animDataIndex);
         CombatSprite_SetAnim(&multi->unk_008, animEntry->animDataIndex, 0);
     } else {
         SpriteAnimEntry* animEntry = &data_ov004_020f04d0[multiArgs->unk_DC];
 
-        CombatSprite_LoadDirect(multiArgs->unk_00, &multi->unk_008, &data_ov003_020dd78c, animEntry->charDataIndex,
+        CombatSprite_LoadDirect(multiArgs->unk_00, &multi->unk_008, &Iden_BtlSpecialSiki, animEntry->charDataIndex,
                                 animEntry->paletteDataIndex, animEntry->frameDataIndex, 4, animEntry->animDataIndex);
         CombatSprite_SetAnim(&multi->unk_008, animEntry->animDataIndex, 0);
     }

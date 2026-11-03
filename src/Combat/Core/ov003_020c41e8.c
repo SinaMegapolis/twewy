@@ -1,3 +1,4 @@
+#include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
@@ -94,9 +95,8 @@ u32 data_ov003_020e722c[0xA];
 // Data owned by neighbouring units / arm9
 // ---------------------------------------------------------------------------------------------
 
-extern u8               data_ov003_020e6a30[];
-extern const TaskHandle data_ov003_020e0b74;
-extern void**           data_ov003_020e6a44[];
+extern u8     data_ov003_020e6a30[];
+extern void** data_ov003_020e6a44[];
 
 // ---------------------------------------------------------------------------------------------
 // Functions
@@ -1092,7 +1092,7 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
                 func_ov003_020c5924(actor, target);
                 actor->unk_1AC = target[0];
                 actor->unk_1B0 = target[1];
-                EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &data_ov003_020e0b74, NULL, 0, NULL, actor);
+                EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &BtlEff_SideMove, NULL, 0, NULL, actor);
                 func_ov003_020c4cc4(actor, 0x1A);
             }
             if (actor->unk_1A4 < actor->unk_1A6) {

@@ -230,29 +230,9 @@ void             func_ov003_0208b518(s32, Ov003EnemyActor*, s16);
 BOOL             func_ov003_0208c79c(Ov003EnemyActor*, s32);
 Ov003EnemyActor* func_ov003_0208c810(s32, s32, s32);
 void             func_ov003_0208ec74(BtlMgrWork*);
-// BtlBarBS.c
-/// Spawns the BS bar task for the actor that just entered the battle.
-void func_ov003_0209ab9c(CombatActor* actor);
-
-// BtlEff.c
-/// Spawns a hit effect of id `id` on the display engine `mode` at world position (`x`, `y`, `z`),
-/// flipped to match `flip`. Ignored once ten effects are already live on that screen.
-void func_ov003_0209e9f8(s32 mode, s32 id, s32 x, s32 y, s32 z, s32 flip);
-
-// BtlEff_Dead.c
-/// Spawns the death effect on `engine`'s screen at the given world position.
-void func_ov003_0209f444(s32 engine, s32 x, s32 y, s32 z, s32 hasPartner);
-
-// BtlEff_Warp.c
-/// Spawns the warp effect that trails the display actor from (`x`, `y`, `z`) to its new position.
-void func_ov003_0209f770(s32 mode, s32 x, s32 y, s32 z);
-
-void func_ov003_0209fc88(s32, s32, s32, s32, s16, s32);
 
 // BtlDbg.c
 void func_ov003_020a29b8(void);
-/// Posts a debug rectangle for `life` frames. Declared `s32` because a caller forwards the (undefined) return register.
-s32 func_ov003_020a2a04(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height);
 
 // ov003_020a30d4.c
 void func_ov003_020a30d4(s32 id, s32 touchIndex, u32 slot);
@@ -446,10 +426,8 @@ s32  func_ov003_020b66b4(Ov003EffectContext* context, Ov003EffectState* effect);
 void func_ov003_020b67dc(Ov003EffectState* effect, CombatActor* actor);
 s32  func_ov003_020b68ec(Ov003EffectState* effect, CombatActor* actor);
 
-// ov003_020b6b20.c
-s32 func_ov003_020b6b20(Ov003ShockWaveArgs* args);
-
 // BtlPsy_ShockWave_Body.c
+s32  func_ov003_020b6b20(Ov003ShockWaveArgs* args);
 u32  func_ov003_020b6b50(u32 angle, u32 limit);
 s32  func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage);
 void func_ov003_020b7b34(s32 x, s32 y, s32 z, s32 kind, s32 flip, u32* out);
@@ -461,12 +439,6 @@ void func_ov003_020bb570(Ov003CutinActor* actor);
 void func_ov003_020bb580(void*);
 
 s32 func_ov003_020bb48c(s32, s8, u16, s32, s32, s32, s32);
-
-// BtlCutIn00.c
-s32 func_ov003_020be658(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020be660(TaskPool* pool, Task* task, void* args);
-s32 func_ov003_020be688(TaskPool* pool, Task* task, void* args, s32 stage);
-s32 func_ov003_020be6d0(TaskPool* pool);
 
 // BtlActSp00.c
 void func_ov003_020c1f18(TaskPool* pool, u16 level);
@@ -627,13 +599,6 @@ s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim);
 s32 func_ov003_020c72b4(Ov003EnemyActor*, s32, s32);
 s32 func_ov003_020c9008(void);
 
-// BtlEff_SideMove.c
-void func_ov003_020c9018(const BossExp1Anims* anims);
-void func_ov003_020c9118(Ov003EnemyActor*);
-s32  func_ov003_020c9338(Ov003EnemyActor*);
-s32  func_ov003_020c9478(TaskPool* pool, Task* task, void* args, s32 stage);
-
-void func_ov003_020c9064(const SpriteAnimationEx*);
 // BtlEnmShot_Blossom.c
 void             func_ov003_020cb128(s32*, s32, s32);
 void             func_ov003_020cb130(BtlBinSet*, const BtlBinEntry*, u16, s32, const char*);
@@ -726,27 +691,6 @@ s32                    func_ov003_0208a1e8(const Ov003AttackInfo*, void*, s32);
 void                   func_ov003_0208a234(s32 arg0, const Ov003AttackArgs* args, Ov003EnemyActor* unit);
 s32                    func_ov003_0208a25c(CombatActor* actor);
 
-// BtlAuraSub.c
-void func_ov003_020974f8(s32, s32);
-
-// BtlFeat_SplashEnm.c
-void func_ov003_020bc690(u16, u16, s32);
-
-// BtlFeat_SplashBg.c
-void func_ov003_020bce18(s32, u16, u16, u16);
-
-// ov003_020bce6c.c
-
-// BtlEnmShot_Charge.c
-
-// BtlEnmShot_RapidSlow.c
-
-// BtlEnmShot_RootLaser.c
-
-// BtlEnmShot_Spiral.c
-
-// BtlEnmShot_Split.c
-
 // ov003_020d36fc.c
 void func_ov003_020d3858(s32 engine, Ov003EnemyActor* owner, const Ov003SpriteLoadCmd* cmd, Ov003AnimScript* script,
                          const Ov003AnimScriptStep* steps, void* paletteSrc, u16 palIdx, u16 flip);
@@ -778,36 +722,7 @@ void func_ov005_020e740c(s32, s32);
 s32  func_ov005_020e74fc(void* queue, s32 capacity, s32 arg2);
 void func_ov005_020eb29c(s32, s32, s32);
 
-// BtlField_Fore.c
-void func_ov003_0209409c(s32 bgIndex);
-
-// BtlEff_Hit.c
-void func_ov003_0209ed70(u8 id, s32 x, s32 y, s32 z, s32 flip);
-
-// BtlEff_Sword.c
-void func_ov003_0209f000(s16 animIndex);
-
-// BtlEff_Star.c
-s32 func_ov003_020a0244(s32 level, Ov003TouchActor* owner);
-
-// BtlPause.c
-s32 func_ov003_020a250c(void);
-
 // BtlBadge_ConditionBoot.c
 void func_ov003_020a6f90(Ov003TouchActor* actor, s32 arg1);
-
-// BtlCutIn01.c
-s32 func_ov003_020bfb4c(TaskPool* pool, Task* task, void* args, s32 stage);
-
-// btlEnmAura.c
-void func_ov003_020ca66c(Ov003CutinActor* owner);
-
-// BtlEnmAuraSub.c
-void func_ov003_020ca6a8(Ov003CutinActor* unit);
-s16  func_ov003_020ca728(Ov003CutinActor* unit);
-void func_ov003_020cac38(s32 x, s32 y);
-
-// BtlEnm004_Blink.c
-void func_ov003_020cb0b4(Ov003CutinActor* owner, Vec* dir, s32 reverse);
 
 #endif // COMBAT_CORE_COMBATAPI_H

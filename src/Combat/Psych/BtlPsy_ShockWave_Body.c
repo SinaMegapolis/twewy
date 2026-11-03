@@ -17,28 +17,39 @@ static void func_ov003_020b78b0(Ov003ShockWaveBody* self);
 static s32  func_ov003_020b7a9c(Ov003ShockWaveBody* self);
 static s32  func_ov003_020b7ad8(Ov003ShockWaveBody* self);
 
+static char             data_ov003_020e4f1c[28] = "Tsk_BtlPsy_ShockWave_Body";
+static const TaskHandle data_ov003_020dcb04     = {data_ov003_020e4f1c, func_ov003_020b6ba4, sizeof(Ov003ShockWaveBody)};
+
+s32 func_ov003_020b6b20(Ov003ShockWaveArgs* args) {
+    return func_ov003_020a6000(&data_ov003_020dcb04, args);
+}
+
 static s32 func_ov003_020b6b38(s32 kind) {
     return data_ov003_020dcb10[kind].effectAnimation;
 }
 
 u32 func_ov003_020b6b50(u32 angle, u32 limit) {
     if (angle < 0x4000U) {
-        if (angle > limit)
+        if (angle > limit) {
             angle = limit;
+        }
         return angle;
     }
     if (angle < 0x8000U) {
-        if (angle < 0x8000U - limit)
+        if (angle < 0x8000U - limit) {
             angle = 0x8000U - limit;
+        }
         return angle;
     }
     if (angle < 0xC000U) {
-        if (angle > limit + 0x8000U)
+        if (angle > limit + 0x8000U) {
             angle = limit + 0x8000U;
+        }
         return angle;
     }
-    if (angle < 0x10000U - limit)
+    if (angle < 0x10000U - limit) {
         angle = 0x10000U - limit;
+    }
     return angle;
 }
 
@@ -116,8 +127,9 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                     break;
                 case 17:
                 case 18:
-                    if (self->distanceLimit < 0x50000)
+                    if (self->distanceLimit < 0x50000) {
                         self->distanceLimit = 0x50000;
+                    }
                     angle             = (u16)(self->angle + 0x800);
                     self->angle       = angle;
                     self->targetAngle = (u16)(angle - 0x9000);
@@ -163,8 +175,9 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
             if (arg->trail != 0) {
                 s32 sound = data_ov003_020dcb10[self->kind].trailSound;
                 s32 sePan = self->x;
-                if (sound < 0x56C)
+                if (sound < 0x56C) {
                     func_ov003_02087f28(sound, sePan);
+                }
             }
             return 1;
         }
@@ -176,10 +189,12 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                 return 1;
             }
             func_ov003_020b71a0(self);
-            if (!func_ov003_020b7240(self))
+            if (!func_ov003_020b7240(self)) {
                 return 0;
-            if (!func_ov003_020b72b8(self))
+            }
+            if (!func_ov003_020b72b8(self)) {
                 return 0;
+            }
             switch (self->kind) {
                 default:
                 case 0:
@@ -201,22 +216,26 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                     break;
                 case 7:
                     func_ov003_020b76e4(self);
-                    if (!func_ov003_020b7a9c(self))
+                    if (!func_ov003_020b7a9c(self)) {
                         return 0;
+                    }
                     break;
                 case 8:
                     func_ov003_020b7760(self);
-                    if (!func_ov003_020b7a9c(self))
+                    if (!func_ov003_020b7a9c(self)) {
                         return 0;
+                    }
                     break;
                 case 2:
-                    if (!func_ov003_020b77a8(self))
+                    if (!func_ov003_020b77a8(self)) {
                         return 0;
+                    }
                     break;
                 case 5:
                 case 6:
-                    if (!func_ov003_020b7a9c(self))
+                    if (!func_ov003_020b7a9c(self)) {
                         return 0;
+                    }
                     break;
                 case 17:
                 case 18:
@@ -226,8 +245,9 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                     break;
                 case 23:
                 case 26:
-                    if (!func_ov003_020b7ad8(self))
+                    if (!func_ov003_020b7ad8(self)) {
                         return 0;
+                    }
                     break;
             }
             return 1;
@@ -259,8 +279,9 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 static void func_ov003_020b716c(Ov003ShockWaveBody* self) {
-    if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite) != 0)
+    if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite) != 0) {
         func_ov003_020a35b8(&self->sprite, self->animation, 0);
+    }
     CombatSprite_Update(&self->sprite);
 }
 
@@ -279,8 +300,9 @@ static s32 func_ov003_020b7240(Ov003ShockWaveBody* self) {
 
     if (func_ov003_020a6374(x, y, 0x30) == 0) {
         if (self->kind >= 0x11 && self->kind <= 0x14) {
-            if (self->phase == 4)
+            if (self->phase == 4) {
                 return 0;
+            }
             return 1;
         }
         return 0;
@@ -308,14 +330,16 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
     x    = func_ov003_020843b0(0, self->x);
     y    = func_ov003_020843ec(0, self->y, self->z);
     kind = data_ov003_020dcb10[self->kind].attackKind;
-    if (kind == 0x180 && func_ov003_020a51c0() != 0)
+    if (kind == 0x180 && func_ov003_020a51c0() != 0) {
         kind = 0x181;
+    }
     if (func_ov003_020a66f4(&self->effect->streak, (u16)kind, (s16)x, (s16)y, 0, 0) == 1) {
         s32 sound = data_ov003_020dcb10[self->kind].spawnSound;
         s32 sePan = self->x;
 
-        if (sound < 0x56C)
+        if (sound < 0x56C) {
             func_ov003_02087f28(sound, sePan);
+        }
         switch (self->kind - 0x15) {
             case 0:
                 args15.effect     = self->effect;
@@ -395,8 +419,9 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                 return 0;
             default:
             case 2:
-                if (self->mode == 0)
+                if (self->mode == 0) {
                     return 0;
+                }
                 break;
         }
     }
@@ -408,8 +433,9 @@ static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
     s32           x     = func_ov003_020843b0(0, self->x);
     s32           y     = func_ov003_020843ec(0, self->y, self->z);
 
-    if (!func_ov003_02085cfc(2))
+    if (!func_ov003_02085cfc(2)) {
         return;
+    }
     func_ov003_02087f28(0xA5, self->x);
     self->renderAngle = self->angle = func_ov003_020a62d0(x, y, touch->x, touch->y);
 }
@@ -417,8 +443,9 @@ static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
 static void func_ov003_020b7760(Ov003ShockWaveBody* self) {
     BtlTouchWork* touch = &data_ov003_020e71b8->touchWork;
 
-    if (!func_ov003_02085cfc(4))
+    if (!func_ov003_02085cfc(4)) {
         return;
+    }
     func_ov003_02087f28(0xA5, self->x);
     self->renderAngle = self->angle = touch->angle;
 }
@@ -427,10 +454,11 @@ static s32 func_ov003_020b77a8(Ov003ShockWaveBody* self) {
     Ov003ShockWaveArgs args;
     u32                angle = self->angle;
 
-    if (angle >= 0x4000 && angle <= 0xC000)
+    if (angle >= 0x4000 && angle <= 0xC000) {
         self->renderAngle = (u16)(self->renderAngle - 0x2000);
-    else
+    } else {
         self->renderAngle = (u16)(self->renderAngle + 0x2000);
+    }
     if (self->trailIndex <= 2 && self->distance >= 0x18000) {
         args.effect     = self->effect;
         args.kind       = self->kind;
@@ -459,26 +487,30 @@ static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
     s16          targetY;
 
     self->spinTimer = (self->spinTimer + 1) % 8;
-    if (self->spinTimer == 0)
+    if (self->spinTimer == 0) {
         func_ov003_020b6978(self->animation, self->x, self->y, self->z, self->renderAngle);
+    }
     self->renderAngle = (u16)(self->renderAngle - 0x1800);
     switch (self->phase) {
         case 0:
-            if (self->distance < self->distanceLimit)
+            if (self->distance < self->distanceLimit) {
                 return;
+            }
             self->phase        = 1;
             self->acceleration = -self->acceleration;
             return;
         case 1:
             self->angle = (u16)(self->angle - 0x800);
-            if (self->targetAngle != self->angle)
+            if (self->targetAngle != self->angle) {
                 return;
+            }
             self->phase    = 3;
             self->distance = 0;
             return;
         case 2:
-            if (self->speed > 0)
+            if (self->speed > 0) {
                 return;
+            }
             self->phase         = 3;
             self->distanceLimit = self->distance;
             self->distance      = 0;
@@ -490,10 +522,12 @@ static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
             func_ov003_0208b370(&targetX, &targetY, actor->position.x, actor->position.y,
                                 actor->position.z - ((actor->unk_72 / 2) << 12));
             self->angle = func_ov003_020a62d0(x, y, targetX, targetY);
-            if (self->distance >= self->distanceLimit)
+            if (self->distance >= self->distanceLimit) {
                 self->phase = 4;
-            if (func_ov003_020a632c(targetX, targetY, x, y) <= 0x10000)
+            }
+            if (func_ov003_020a632c(targetX, targetY, x, y) <= 0x10000) {
                 self->phase = 4;
+            }
             return;
         case 4:
             self->acceleration = 0xCD;
@@ -501,17 +535,20 @@ static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
 }
 
 static s32 func_ov003_020b7a9c(Ov003ShockWaveBody* self) {
-    if (self->distance >= self->distanceLimit)
+    if (self->distance >= self->distanceLimit) {
         return 0;
-    if (self->distance >= self->distanceLimit / 2)
+    }
+    if (self->distance >= self->distanceLimit / 2) {
         self->scale = 0x1800 - FX_Divide(self->distance, self->distanceLimit);
+    }
     return 1;
 }
 
 static s32 func_ov003_020b7ad8(Ov003ShockWaveBody* self) {
     if (self->mode == 0) {
-        if (self->distance >= self->distanceLimit)
+        if (self->distance >= self->distanceLimit) {
             return 0;
+        }
         if (self->distance >= self->distanceLimit * 7 / 10) {
             self->scale -= 0x1F;
             self->scale -= 0x100;
@@ -531,8 +568,9 @@ void func_ov003_020b7b34(s32 x, s32 y, s32 z, s32 kind, s32 flip, u32* out) {
     }
     func_ov003_020a88c0(&args, x, y, z, 2, func_ov003_020b6b38(kind));
     func_ov003_020a899c(&args, 0);
-    if (flip != 0)
+    if (flip != 0) {
         func_ov003_020a89e4(&args);
+    }
     if (out != NULL) {
         *out = func_ov003_020a88a8(&args);
         return;

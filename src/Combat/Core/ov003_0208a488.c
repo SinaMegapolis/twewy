@@ -1,3 +1,8 @@
+#include "Combat/Core/BtlAura.h"
+#include "Combat/Core/BtlBar.h"
+#include "Combat/Core/BtlEff.h"
+#include "Combat/Core/BtlPhase.h"
+#include "Combat/Core/BtlTch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
@@ -63,16 +68,9 @@ extern const TaskHandle data_ov004_020f0120;
 extern const TaskHandle data_ov005_020f0394;
 extern const TaskHandle data_ov005_020f07a0;
 extern const TaskHandle data_ov005_020f0a94;
-extern const TaskHandle data_ov003_020d7944;
-extern const TaskHandle data_ov003_020d78f0;
-extern const TaskHandle data_ov003_020d7e9c;
-extern const TaskHandle data_ov003_020d7eec;
-extern const TaskHandle data_ov003_020d7f98;
-extern const TaskHandle data_ov003_020d7fd0;
-extern const TaskHandle data_ov003_020d8738;
-extern const TaskHandle data_ov003_020d8764;
-extern const TaskHandle data_ov003_020d8810;
-extern const TaskHandle data_ov003_020d8848;
+extern const TaskHandle Tsk_BtlPlayer00;
+extern const TaskHandle Tsk_BtlCmd;
+extern const TaskHandle Tsk_BtlTarget;
 extern const TaskHandle data_ov003_020dc614;
 extern const TaskHandle data_ov003_020d4f74;
 
@@ -100,9 +98,6 @@ extern u32 OVERLAY_23_ID;
 extern u32 OVERLAY_24_ID;
 extern u32 OVERLAY_25_ID;
 
-/// "Seq_Battle()", the heap sequence name the battle work area is tagged with (owned by BtlTch.c).
-extern char* data_ov003_020e3ac0;
-
 static void func_ov003_0208e830(BtlMgrWork*);
 static void func_ov003_0208eb04(BtlMgrWork*);
 static void func_ov003_0208ec1c(BtlMgrWork*);
@@ -128,6 +123,11 @@ static char data_ov003_020e3a50[0x1C] = "Apl_Fur/Grp_BtlJingle.bin";
 static char data_ov003_020e3a6c[0x1C] = "Apl_Fur/Grp_BtlEffect.bin";
 static char data_ov003_020e3a88[0x1C] = "Apl_Fuk/Grp_BtlSpecial.bin";
 static char data_ov003_020e3aa4[0x1C] = "BtlMgr.c : BtlMgr_Init()";
+
+/// The heap sequence name the battle work area is tagged with.
+static char data_ov003_020e3ac4[16];
+char*       data_ov003_020e3ac0     = data_ov003_020e3ac4;
+static char data_ov003_020e3ac4[16] = "Seq_Battle()";
 
 /// Experience gained is scaled by a percentage that depends on the battle difficulty.
 static const s16 data_ov003_020d77d0[4] = {50, 100, 150, 200};
@@ -646,7 +646,7 @@ void func_ov003_0208afcc(s32 exp) {
     data_ov003_020e71b8->unk3D90A = 0;
     func_ov003_0208ae98((Ov003EnemyActor*)data_ov003_020e71b8->unk3D89C);
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8738, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEff_LvUp, NULL, 0, NULL, NULL);
 }
 
 /// Awards experience, scaled by the battle difficulty.
@@ -835,7 +835,7 @@ BOOL func_ov003_0208b690(u16 encounterId) {
 
 static void func_ov003_0208b6d4(void) {
     func_ov003_0208b278(1);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8764, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlReady, NULL, 0, NULL, NULL);
 }
 
 /// Advances the battle state machine. Runs every frame from the battle task; decides when the battle
@@ -892,7 +892,7 @@ static void func_ov003_0208b71c(void) {
         return;
     }
 
-    if (EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8810, NULL, 0, NULL, NULL) != -1) {
+    if (EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlWin, NULL, 0, NULL, NULL) != -1) {
         func_ov003_0208b278(3);
         ((Ov003EnemyActor*)data_ov003_020e71b8->unk3D898)->actor.flags &= ~0x10;
         ((Ov003EnemyActor*)data_ov003_020e71b8->unk3D89C)->actor.flags &= ~0x10;
@@ -979,25 +979,25 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     func_ov003_020849ac(&data_ov003_020e71b8->unk3D8A4);
     func_ov003_020849ac(&data_ov003_020e71b8->unk3D8AC);
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov003_020d7944, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &Tsk_BtlPlayer00, NULL, 0, NULL, NULL);
 
     switch (data_ov003_020e71b8->unk3D88D) {
         case 0:
             EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlPlayer01, NULL, 0, NULL, NULL);
             EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlCard_Esp, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7e9c, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
         case 1:
             EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &data_ov004_020f0120, NULL, 0, NULL, NULL);
             EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov005_020f0394, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7e9c, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
         case 2:
             EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &data_ov005_020f07a0, NULL, 0, NULL, NULL);
             EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov005_020f0a94, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7e9c, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
         case 4:
@@ -1016,12 +1016,12 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     func_ov003_020a5080();
 
     if (data_ov003_020e71b8->unk3D88D < 3) {
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7eec, NULL, 0, NULL, NULL);
+        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlCmd, NULL, 0, NULL, NULL);
         EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Star, NULL, 0, NULL, NULL);
     }
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7f98, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7fd0, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlBarHP, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlTarget, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Combo, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Exp, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Auto, NULL, 0, NULL, NULL);
@@ -1031,8 +1031,8 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
         EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Timer, NULL, 0, NULL, NULL);
     }
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020d78f0, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020d8848, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Task_BtlTch, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlPause, NULL, 0, NULL, NULL);
 
     func_ov003_020842e0();
     func_ov003_020a29b8();

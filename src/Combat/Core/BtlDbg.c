@@ -1,6 +1,5 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Core/CombatList.h"
 #include "Engine/Core/OamMgr.h"
 #include "Engine/EasyTask.h"
@@ -10,13 +9,11 @@
 #include <nitro/mi/cpumem.h>
 #include <nitro/reg.h>
 
+#include "Combat/Core/BtlDbg.h"
+
 // The battle debug overlay (`Tsk_BtlDbg`): coloured rectangles that other code posts for a number of frames to
 // visualise hit boxes. The task keeps a pool of 0x40 rectangles on two lists (free and shown) and draws every shown
 // rectangle as an untextured quad through the 3D engine.
-
-// ---------------------------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------------------------
 
 /// One rectangle; `kind` picks the colour and, for 2, whether `x`/`y` are screen coordinates.
 typedef struct BtlDbgRect {
@@ -35,35 +32,15 @@ typedef struct BtlDbg {
     /* 0x708 */ CombatList shown;
 } BtlDbg; // Size: 0x710
 
-// ---------------------------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------------------------
-
 extern OamAffineParam data_02059ad4;
 extern VtxXY          data_02059ab0[4];
 extern TexCoordQuad   data_02059b14[];
 
-static s32 func_ov003_020a2890(TaskPool* pool, Task* task, void* args);
-static s32 func_ov003_020a28ec(TaskPool* pool, Task* task, void* args);
-static s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args);
-static s32 func_ov003_020a2968(TaskPool* pool, Task* task, void* args);
-static s32 func_ov003_020a2970(TaskPool* pool, Task* task, void* args, s32 stage);
+static s32 BtlDbg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-static const TaskHandle data_ov003_020d8864 = {"Tsk_BtlDbg", func_ov003_020a2970, sizeof(BtlDbg)};
-
-/// The stage table of the overlay: build, update, draw, release.
-static const TaskStages data_ov003_020d8870 = {
-    func_ov003_020a2890,
-    func_ov003_020a28ec,
-    func_ov003_020a28f4,
-    func_ov003_020a2968,
-};
+static const TaskHandle Tsk_BtlDbg = {"Tsk_BtlDbg", BtlDbg_RunTask, sizeof(BtlDbg)};
 
 static s32 data_ov003_020e71c0; // the task id
-
-// ---------------------------------------------------------------------------------------------
-// Functions
-// ---------------------------------------------------------------------------------------------
 
 /// Draws one rectangle: `x`/`y` is its top left corner, the colour comes from `kind`.
 static void func_ov003_020a2524(s32 kind, s32 x, s32 y, s32 width, s32 height) {
@@ -129,58 +106,56 @@ static void func_ov003_020a2794(BtlDbgRect* rect) {
 }
 
 /// Moves a rectangle from the free list to the shown list.
-static void func_ov003_020a27f0(BtlDbg* self, u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
-    BtlDbgRect* rect = func_ov003_0208495c(&self->free);
+static void func_ov003_020a27f0(BtlDbg* dbg, u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
+    BtlDbgRect* rect = func_ov003_0208495c(&dbg->free);
 
-    if (rect == NULL) {
-        return;
+    if (rect != NULL) {
+        rect->kind   = kind;
+        rect->life   = life;
+        rect->x      = x;
+        rect->y      = y;
+        rect->width  = width;
+        rect->height = height;
+        func_ov003_020849dc(&dbg->free, &rect->node);
+        func_ov003_020849bc(&dbg->shown, &rect->node, rect);
     }
-    rect->kind   = kind;
-    rect->life   = life;
-    rect->x      = x;
-    rect->y      = y;
-    rect->width  = width;
-    rect->height = height;
-    func_ov003_020849dc(&self->free, &rect->node);
-    func_ov003_020849bc(&self->shown, &rect->node, rect);
 }
 
 /// Moves a rectangle back to the free list.
-static void func_ov003_020a285c(BtlDbg* self, BtlDbgRect* rect) {
-    if (rect == NULL) {
-        return;
+static void func_ov003_020a285c(BtlDbg* dbg, BtlDbgRect* rect) {
+    if (rect != NULL) {
+        func_ov003_020849dc(&dbg->shown, &rect->node);
+        func_ov003_020849bc(&dbg->free, &rect->node, rect);
     }
-    func_ov003_020849dc(&self->shown, &rect->node);
-    func_ov003_020849bc(&self->free, &rect->node, rect);
 }
 
-static s32 func_ov003_020a2890(TaskPool* pool, Task* task, void* args) {
-    BtlDbg* self = task->data;
-    s32     i;
+static s32 BtlDbg_Init(TaskPool* pool, Task* task, void* args) {
+    BtlDbg* dbg = task->data;
 
-    MI_CpuSet(self, 0, sizeof(*self));
-    func_ov003_020849ac(&self->free);
-    func_ov003_020849ac(&self->shown);
-    for (i = 0; i < 0x40; i++) {
-        func_ov003_020849bc(&self->free, &self->rects[i].node, &self->rects[i]);
+    MI_CpuSet(dbg, 0, sizeof(*dbg));
+    func_ov003_020849ac(&dbg->free);
+    func_ov003_020849ac(&dbg->shown);
+    for (s32 i = 0; i < 0x40; i++) {
+        func_ov003_020849bc(&dbg->free, &dbg->rects[i].node, &dbg->rects[i]);
     }
     return 1;
 }
 
-static s32 func_ov003_020a28ec(TaskPool* pool, Task* task, void* args) {
+static s32 BtlDbg_Update(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args) {
-    BtlDbg*     self = task->data;
-    BtlDbgRect* rect = func_ov003_0208495c(&self->shown);
+static s32 BtlDbg_Render(TaskPool* pool, Task* task, void* args) {
+    BtlDbg* dbg = task->data;
+
+    BtlDbgRect* rect = func_ov003_0208495c(&dbg->shown);
     BtlDbgRect* next;
 
     while (rect != NULL) {
         func_ov003_020a2794(rect);
         if (rect->life == 0) {
             next = func_ov003_02084984(&rect->node);
-            func_ov003_020a285c(self, rect);
+            func_ov003_020a285c(dbg, rect);
             rect = next;
         } else {
             rect->life--;
@@ -190,27 +165,30 @@ static s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_020a2968(TaskPool* pool, Task* task, void* args) {
+static s32 BtlDbg_Release(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_020a2970(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = data_ov003_020d8870;
-
+static s32 BtlDbg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+    TaskStages stages = {
+        .initialize = BtlDbg_Init,
+        .update     = BtlDbg_Update,
+        .render     = BtlDbg_Render,
+        .cleanup    = BtlDbg_Release,
+    };
     return stages.iter[stage](pool, task, args);
 }
 
 /// Starts the overlay task.
 void func_ov003_020a29b8(void) {
-    data_ov003_020e71c0 = EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8864, NULL, 0, NULL, NULL);
+    data_ov003_020e71c0 = EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlDbg, NULL, 0, NULL, NULL);
 }
 
 /// Posts a rectangle for `life` frames.
-s32 func_ov003_020a2a04(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
-    BtlDbg* self = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, data_ov003_020e71c0);
+void func_ov003_020a2a04(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
+    BtlDbg* dbg = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, data_ov003_020e71c0);
 
-    if (func_ov003_02084d80(1) == 0) {
-        return;
+    if (func_ov003_02084d80(1) != 0) {
+        func_ov003_020a27f0(dbg, kind, life, x, y, width, height);
     }
-    func_ov003_020a27f0(self, kind, life, x, y, width, height);
 }

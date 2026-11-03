@@ -68,46 +68,6 @@ typedef struct Ov003CutinGlobal {
 extern u8 data_ov003_020e71e4[];
 #define g_Cutin ((Ov003CutinGlobal*)data_ov003_020e71e4)
 
-typedef struct Ov003CutinBackground {
-    /* 0x00 */ Data*            pack;
-    /* 0x04 */ BgResource*      characters;
-    /* 0x08 */ PaletteResource* palette;
-    /* 0x0C */ ScreenMapEntry   maps[2];
-    /* 0x5C */ void*            tileData[2];
-    /* 0x64 */ s32              offsets[2];
-} Ov003CutinBackground; // Size: 0x6C
-
-typedef struct Ov003CutinTask {
-    /* 0x000 */ Ov003CutinBackground backgrounds[2];
-    /* 0x0D8 */ u16                  kind;
-    /* 0x0DA */ u16                  voiceKind;
-    /* 0x0DC */ s32                  unk_DC;
-    /* 0x0E0 */ s32                  unk_E0;
-    /* 0x0E4 */ u16                  unk_E4;
-    /* 0x0E6 */ u16                  reserved_E6;
-    /* 0x0E8 */ Data*                overlayPack;
-    /* 0x0EC */ u32                  reserved_EC;
-    /* 0x0F0 */ BgResource*          overlayCharacters[2];
-    /* 0x0F8 */ PaletteResource*     overlayPalettes[2];
-    /* 0x100 */ s16                  overlayTimer;
-    /* 0x102 */ u16                  reserved_102;
-    /* 0x104 */ s32                  overlayOffsets[2];
-    /* 0x10C */ ScreenMapEntry       overlayMaps[2];
-    /* 0x15C */ void*                overlayTileData[2][3];
-    /* 0x174 */ s16                  elapsed;
-    /* 0x176 */ u16                  reserved_176;
-    /* 0x178 */ void (*update)(struct Ov003CutinTask*);
-    /* 0x17C */ s16 timer;
-    /* 0x17E */ s16 phase;
-    /* 0x180 */ s32 active;
-    /* 0x184 */ u32 reserved_184;
-} Ov003CutinTask; // Size: 0x188
-
-typedef struct Ov003CutinArgs {
-    u16 kind;
-    u16 partner;
-} Ov003CutinArgs; // Size: 0x4
-
 typedef struct Ov003ActorSnapshot {
     /* 0x00 */ Ov003EnemyActor* unit;
     /* 0x04 */ CombatActor      actor;
@@ -127,10 +87,6 @@ void func_ov003_020bd020(void);
 void func_ov003_020bd078(void);
 void func_ov003_020bd114(void);
 void func_ov003_020bd150(s32 mode, Ov003SnapshotCallback callback, void* args);
-
-void func_ov003_020be194(Ov003CutinTask* self);
-void func_ov003_020be100(Ov003CutinTask* self);
-void func_ov003_020be20c(Ov003CutinTask* self);
 
 /// One task-spawn record produced while parsing a cut-in script; also the data block the
 /// EasyTask callbacks receive.
@@ -162,13 +118,13 @@ typedef struct Ov003CutinTracks {
     /* 0x06 */ u16  cursor;
 } Ov003CutinTracks; // Size: 0x8
 
-s32  func_ov003_020bd1bc(s32 mode, Ov003ActorSnapshot* entry);
-s32  func_ov003_020bd1ec(s32 mode, Ov003ActorSnapshot* entry);
-void func_ov003_020bd224(s32 mode, Ov003ActorSnapshot* entry, s32 x);
-void func_ov003_020bd260(s32 mode, Ov003ActorSnapshot* entry, s32 y);
-void func_ov003_020bd2a8(s32 kind);
-s32  func_ov003_020bd2b8(void);
-void func_ov003_020bd2c8(s32 kind, s32 index);
-void func_ov003_020bd370(s32 kind, s32 index);
+s32  BtlCutIn_GetSnapshotScreenX(s32 screen, Ov003ActorSnapshot* entry);
+s32  BtlCutIn_GetSnapshotScreenY(s32 screen, Ov003ActorSnapshot* entry);
+void BtlCutIn_SetSnapshotScreenX(s32 screen, Ov003ActorSnapshot* entry, s32 x);
+void BtlCutIn_SetSnapshotScreenY(s32 screen, Ov003ActorSnapshot* entry, s32 y);
+void BtlCutIn_SetSpecialKind(s32 kind);
+s32  BtlCutIn_GetSpecialKind(void);
+void BtlCutIn_PlayFirstVoice(s32 kind, s32 level);
+void BtlCutIn_PlaySecondVoice(s32 kind, s32 level);
 
 #endif

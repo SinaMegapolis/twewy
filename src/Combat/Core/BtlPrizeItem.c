@@ -11,6 +11,7 @@
 typedef struct BtlPrizeLookup {
     s32 record, group;
 } BtlPrizeLookup;
+
 typedef struct BtlPrizeArgs {
     /* 0x00 */ s32 engine;
     /* 0x04 */ s8  grade;
@@ -18,6 +19,7 @@ typedef struct BtlPrizeArgs {
     /* 0x08 */ Vec position;
     /* 0x14 */ s32 mode;
 } BtlPrizeArgs;
+
 typedef struct BtlPrizeItem {
     /* 0x00 */ CombatSprite sprite;
     /* 0x60 */ Vec          position; // Y is stored at triple world scale.
@@ -37,15 +39,18 @@ typedef char                 check_PrizeItem_phase[(offsetof(BtlPrizeItem, phase
 typedef char                 check_PrizeItem_angle[(offsetof(BtlPrizeItem, angle) == 0x84) ? 1 : -1];
 extern const BtlPrizeLookup  data_ov003_020dd228[13], data_ov003_020dd290[96];
 extern const BinIdentifier   data_ov003_020d7800;
-static const TaskHandle      data_ov003_020dd3d8;
+static const TaskHandle      Tsk_BtlPrizeItem;
 static const SpriteAnimEntry data_ov003_020dd3c8, data_ov003_020dd3e4[5];
 static const BinIdentifier   data_ov003_020dd3d0;
+
 typedef union BtlPrizeCount {
     u32 raw;
+
     struct {
         u16 count, reserved;
     };
 } BtlPrizeCount;
+
 static BtlPrizeCount data_ov003_020e71c4;
 static s32           func_ov003_020bb590(Ov003CutinActor*, s32);
 static s32           func_ov003_020bb6d4(const Ov003ActorParams*);
@@ -57,44 +62,54 @@ static s32           func_ov003_020bb8bc(void);
 static s32 func_ov003_020babf8(s32 group, u16 variant) {
     switch ((u32)(group - 0x11)) {
         case 0:
-            if (variant != 1)
+            if (variant != 1) {
                 return -1;
+            }
             break;
         case 1:
-            if (variant != 1)
+            if (variant != 1) {
                 return -1;
+            }
             break;
         case 4:
-            if (variant != 5)
+            if (variant != 5) {
                 return -1;
+            }
             break;
         case 6:
-            if (variant != 0)
+            if (variant != 0) {
                 return -1;
+            }
             break;
         case 7:
-            if (variant != 1)
+            if (variant != 1) {
                 return -1;
+            }
             break;
         case 8:
-            if (variant != 0)
+            if (variant != 0) {
                 return -1;
+            }
             break;
         case 9:
-            if (variant != 1)
+            if (variant != 1) {
                 return -1;
+            }
             break;
         case 10:
-            if (variant != 1)
+            if (variant != 1) {
                 return -1;
+            }
             break;
         case 11:
-            if (variant != 0)
+            if (variant != 0) {
                 return -1;
+            }
             break;
         case 12:
-            if (variant != 0)
+            if (variant != 0) {
                 return -1;
+            }
             break;
         case 2:
             return -1;
@@ -104,9 +119,11 @@ static s32 func_ov003_020babf8(s32 group, u16 variant) {
             return -1;
     }
     s32 index;
-    for (index = 12; index >= 0; index--)
-        if (group == data_ov003_020dd228[index].group)
+    for (index = 12; index >= 0; index--) {
+        if (group == data_ov003_020dd228[index].group) {
             return data_ov003_020dd228[index].record;
+        }
+    }
     return -1;
 }
 
@@ -116,6 +133,7 @@ static s32 func_ov003_020bad24(s32 group, s16 variant) {
     s16 adjusted = variant;
     s32 record   = 0;
     s32 index;
+
     for (index = 0; index < 96; index++) {
         if (group == data_ov003_020dd290[index].group) {
             record = data_ov003_020dd290[index].record;
@@ -137,8 +155,9 @@ static s32 func_ov003_020bad24(s32 group, s16 variant) {
         case 11:
         case 12:
             record = func_ov003_020babf8(group, adjusted);
-            if (record == -1)
+            if (record == -1) {
                 return -1;
+            }
             adjusted = 0;
             break;
         case 15:
@@ -318,25 +337,25 @@ static s32 func_ov003_020bad24(s32 group, s16 variant) {
 static void func_ov003_020bb0f0(s32 group, s16 variant) {
     s32 record = func_ov003_020bad24(group, variant);
 
-    if (record == -1) {
-        return;
-    }
-    if (gSaveData.battleDifficulty >= 1) {
-        if (!gSaveData.unk_326A[record].unk_2 || !gSaveData.unk_326A[record].minimumBattleLevel ||
-            gSaveData.battleLevel < gSaveData.unk_326A[record].minimumBattleLevel)
-        {
-            gSaveData.unk_326A[record].minimumBattleLevel = gSaveData.battleLevel;
+    if (record != -1) {
+        if (gSaveData.battleDifficulty >= 1) {
+            if (!gSaveData.unk_326A[record].unk_2 || !gSaveData.unk_326A[record].minimumBattleLevel ||
+                gSaveData.battleLevel < gSaveData.unk_326A[record].minimumBattleLevel)
+            {
+                gSaveData.unk_326A[record].minimumBattleLevel = gSaveData.battleLevel;
+            }
         }
-    }
-    gSaveData.unk_326A[record].unk_2++;
-    if ((s16)gSaveData.unk_326A[record].unk_2 > 9999) {
-        gSaveData.unk_326A[record].unk_2 = 9999;
+        gSaveData.unk_326A[record].unk_2++;
+        if ((s16)gSaveData.unk_326A[record].unk_2 > 9999) {
+            gSaveData.unk_326A[record].unk_2 = 9999;
+        }
     }
 }
 
 // Nonmatching: best-time selection switch and register allocation.
 void func_ov003_020bb190(s32 group, u32 time, s32 unused) {
     s32 record;
+
     switch (group) {
         case 7:
             record = 0x57;
@@ -402,24 +421,32 @@ void func_ov003_020bb190(s32 group, u32 time, s32 unused) {
         default:
             return;
     }
-    if (gSaveData.battleDifficulty >= 2 && (!gSaveData.bestDefeatTimes[record] || time < gSaveData.bestDefeatTimes[record]))
+    if (gSaveData.battleDifficulty >= 2 && (!gSaveData.bestDefeatTimes[record] || time < gSaveData.bestDefeatTimes[record])) {
         gSaveData.bestDefeatTimes[record] = time;
+    }
     if (group == 0xF && gSaveData.battleDifficulty >= 2 &&
         (!gSaveData.bestDefeatTimes[0x54] || time < gSaveData.bestDefeatTimes[0x54]))
+    {
         gSaveData.bestDefeatTimes[0x54] = time;
-    if (group != 0x1F)
+    }
+    if (group != 0x1F) {
         return;
-    if (gSaveData.battleDifficulty < 2)
+    }
+    if (gSaveData.battleDifficulty < 2) {
         return;
-    if (gSaveData.bestDefeatTimes[0x53] && time >= gSaveData.bestDefeatTimes[0x53])
+    }
+    if (gSaveData.bestDefeatTimes[0x53] && time >= gSaveData.bestDefeatTimes[0x53]) {
         return;
+    }
     gSaveData.bestDefeatTimes[0x53] = time;
 }
 
 static void func_ov003_020bb3e4(s32 group, s16 variant, u32 grade) {
     s32 record = func_ov003_020bad24(group, variant);
-    if (record == -1)
+
+    if (record == -1) {
         return;
+    }
     switch (grade) {
         case 0:
             gSaveData.unk_326A[record].dropFlags |= 8;
@@ -442,34 +469,39 @@ s32 func_ov003_020bb47c(void) {
 
 // Nonmatching: creator argument scheduling.
 s32 func_ov003_020bb48c(s32 engine, s8 grade, u16 item, s32 x, s32 y, s32 z, s32 special) {
-    if (!func_ov003_0208b1e8(item))
+    if (!func_ov003_0208b1e8(item)) {
         return -1;
+    }
     BtlPrizeArgs args;
     MI_CpuSet(&args, 0, sizeof(args));
-    if (engine == 2)
+    if (engine == 2) {
         engine = 0;
+    }
     args.engine     = engine;
     args.grade      = grade;
     args.position.x = x;
     args.position.y = y;
     args.position.z = z;
-    if (item == 0x105)
+    if (item == 0x105) {
         args.mode = 2;
-    else if (special)
+    } else if (special) {
         args.mode = 1;
-    else
+    } else {
         args.mode = 0;
+    }
     TaskPool* pool;
-    if (args.engine == 0)
+    if (args.engine == 0) {
         pool = &data_ov003_020e71b8->unk_00000;
-    else
+    } else {
         pool = &data_ov003_020e71b8->taskPool;
-    return EasyTask_CreateTask(pool, &data_ov003_020dd3d8, NULL, 0, NULL, &args);
+    }
+    return EasyTask_CreateTask(pool, &Tsk_BtlPrizeItem, NULL, 0, NULL, &args);
 }
 
 void func_ov003_020bb570(Ov003CutinActor* actor) {
     func_ov003_020bb590(actor, 0);
 }
+
 void func_ov003_020bb580(void* actor) {
     func_ov003_020bb590(actor, 1);
 }
@@ -477,37 +509,45 @@ void func_ov003_020bb580(void* actor) {
 // Nonmatching: actor/drop-selection register allocation.
 static s32 func_ov003_020bb590(Ov003CutinActor* actor, s32 spawn) {
     s32 result = -1;
-    if (actor->base.group < 0 || actor->base.group >= 60)
+
+    if (actor->base.group < 0 || actor->base.group >= 60) {
         return -1;
+    }
     func_ov003_020bb73c(actor->base.group, actor->base.spriteIndex);
     const Ov003ActorParams* params = data_ov003_020e70ac[actor->base.group][actor->base.spriteIndex];
     s32                     grade  = func_ov003_020bb6d4(params);
-    if (grade == -1)
+    if (grade == -1) {
         return -1;
+    }
     if (spawn) {
         s32 special = 0;
-        if (actor->base.group >= 0x11 && actor->base.group <= 0x1D)
+        if (actor->base.group >= 0x11 && actor->base.group <= 0x1D) {
             special = 1;
+        }
         s32 engine = func_ov003_020c37f8(&actor->base.sprite) ? 1 : 0;
         result =
             func_ov003_020bb48c(engine, func_ov003_020bb878(grade), params->dropItems[grade], actor->base.actor.position.x,
                                 actor->base.actor.position.y, actor->base.actor.position.z, special);
-        if (result != -1)
+        if (result != -1) {
             func_ov003_020bb7c4(actor->base.group, actor->base.spriteIndex, func_ov003_020bb878(grade));
+        }
         return result;
     }
-    if (!func_ov003_0208b1e8(params->dropItems[grade]))
+    if (!func_ov003_0208b1e8(params->dropItems[grade])) {
         return -1;
+    }
     func_ov003_020bb7c4(actor->base.group, actor->base.spriteIndex, func_ov003_020bb878(grade));
     return result;
 }
 
 static s32 func_ov003_020bb6d4(const Ov003ActorParams* params) {
     s8 grade = func_ov003_020bb8bc();
+
     do {
         s32 rate = (u16)data_ov003_020e71b8->unk3D892 * params->dropRates[grade];
-        if (rate > RNG_Next(10000))
+        if (rate > RNG_Next(10000)) {
             return grade;
+        }
         grade--;
     } while (grade >= 0);
     return -1;
@@ -525,9 +565,9 @@ static void func_ov003_020bb73c(s32 group, s16 variant) {
         return;
     }
     func_ov003_020bb0f0(group, variant);
-    if ((u32)(group - 0x2D) > 1)
-        return;
-    func_ov003_020bb0f0(0x2B, variant);
+    if ((u32)(group - 0x2D) <= 1) {
+        func_ov003_020bb0f0(0x2B, variant);
+    }
 }
 
 // Nonmatching: drop-flag helper call layout.
@@ -540,9 +580,9 @@ static void func_ov003_020bb7c4(s32 group, s16 variant, s8 grade) {
         return;
     }
     func_ov003_020bb3e4(group, variant, grade);
-    if ((u32)(group - 0x2D) > 1)
-        return;
-    func_ov003_020bb3e4(0x2B, variant, grade);
+    if ((u32)(group - 0x2D) <= 1) {
+        func_ov003_020bb3e4(0x2B, variant, grade);
+    }
 }
 
 static s32 func_ov003_020bb878(u32 grade) {
@@ -559,6 +599,7 @@ static s32 func_ov003_020bb878(u32 grade) {
             return 0;
     }
 }
+
 static s32 func_ov003_020bb8bc(void) {
     switch (gSaveData.battleDifficulty) {
         case 0:
@@ -576,10 +617,12 @@ static s32 func_ov003_020bb8bc(void) {
 
 static void func_ov003_020bb90c(BtlPrizeItem* self) {
     CombatActor* owner;
-    if (func_ov003_020c37f8(&self->sprite))
+
+    if (func_ov003_020c37f8(&self->sprite)) {
         owner = data_ov003_020e71b8->unk3D89C;
-    else
+    } else {
         owner = data_ov003_020e71b8->unk3D898;
+    }
     FX_Atan2Idx(self->position.x - owner->position.x, self->position.y - FX_Mul(owner->position.y, 0x3000));
     s32 dy       = self->position.y - FX_Mul(owner->position.y, 0x3000);
     s32 dx       = self->position.x - owner->position.x;
@@ -587,17 +630,20 @@ static void func_ov003_020bb90c(BtlPrizeItem* self) {
     s32 distance = FX_Sqrt(FX_Mul(dx, dx) + FX_Mul(dy, dy));
     u16 phase    = self->radius >= distance - 0xC000 ? 1 : 0;
     self->phase  = phase;
-    if (self->phase == 1 && oldPhase == 0)
+    if (self->phase == 1 && oldPhase == 0) {
         self->radius = distance;
+    }
 }
 
 // Nonmatching: sprite-loading and fixed-point register allocation.
 static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
     CombatActor* owner;
-    if (args->engine == 0)
+
+    if (args->engine == 0) {
         owner = data_ov003_020e71b8->unk3D898;
-    else
+    } else {
         owner = data_ov003_020e71b8->unk3D89C;
+    }
     MI_CpuSet(self, 0, sizeof(*self));
     self->position.x = args->position.x;
     self->position.y = FX_Mul(args->position.y, 0x3000);
@@ -622,8 +668,9 @@ static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
         CombatSprite_LoadFromTable(args->engine, &self->sprite, &data_ov003_020dd3d0, &data_ov003_020dd3c8, 0, 4, 4);
         CombatSprite_SetAnimFromTable(&self->sprite, 0, 0);
     } else {
-        if (args->mode == 1)
+        if (args->mode == 1) {
             animation = 4;
+        }
         CombatSprite_LoadFromTable(args->engine, &self->sprite, &data_ov003_020d7800, data_ov003_020dd3e4, animation, 0x3D, 4);
         CombatSprite_SetAnimFromTable(&self->sprite, animation, 0);
     }
@@ -638,21 +685,25 @@ static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
 // Nonmatching: orbit/approach arithmetic and register allocation.
 static s32 func_ov003_020bbc14(BtlPrizeItem* self) {
     CombatActor* owner;
-    if (func_ov003_020c37f8(&self->sprite))
+
+    if (func_ov003_020c37f8(&self->sprite)) {
         owner = data_ov003_020e71b8->unk3D89C;
-    else
+    } else {
         owner = data_ov003_020e71b8->unk3D898;
+    }
     s32 active = 1;
-    if (func_ov003_020c3c28())
+    if (func_ov003_020c3c28()) {
         return 1;
+    }
     func_ov003_020bb90c(self);
     switch (self->phase) {
         case 0: {
             self->angle =
                 FX_Atan2Idx(self->position.x - owner->position.x, self->position.y - FX_Mul(owner->position.y, 0x3000));
             s16 cosine = FX_CosIdx(self->angle);
-            if (cosine < 0)
+            if (cosine < 0) {
                 cosine = -cosine;
+            }
             s32 speed = FX_Mul(cosine + 0x1000, 0xC000);
             self->position.x -= FX_Mul(FX_SinIdx(self->angle), speed);
             self->position.y -= FX_Mul(FX_CosIdx(self->angle), speed);
@@ -670,16 +721,19 @@ static s32 func_ov003_020bbc14(BtlPrizeItem* self) {
     s32 fixed     = height << 12;
     self->targetZ = owner->position.z - (s32)(height > 0 ? 0.5f + (f32)fixed : (f32)fixed - 0.5f);
     func_020265d4(&self->position.z, self->targetZ, self->timer);
-    if (self->timer < 0)
+    if (self->timer < 0) {
         active = 0;
+    }
     CombatSprite_Update(&self->sprite);
     return active;
 }
 
 static s32 func_ov003_020bbec0(BtlPrizeItem* self) {
     s32 engine = func_ov003_020c37f8(&self->sprite) ? 1 : 0;
-    if (func_ov003_020c3c28())
+
+    if (func_ov003_020c3c28()) {
         return 1;
+    }
     s16 x, y;
     func_ov003_02084348(engine, &x, &y, self->position.x, FX_Divide(self->position.y, 0x3000), self->position.z);
     CombatSprite_SetPosition(&self->sprite, x, y);
@@ -706,8 +760,9 @@ static s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
     return 1;
 }
 
-static s32 func_ov003_020bc018(TaskPool* pool, Task* task, void* args, s32 stage) {
+static s32 BtlPrizeItem_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     BtlPrizeItem* self = task->data;
+
     switch (stage) {
         case 0:
             return func_ov003_020bba2c(self, args);
@@ -722,16 +777,15 @@ static s32 func_ov003_020bc018(TaskPool* pool, Task* task, void* args, s32 stage
     }
 }
 
-static char                  data_ov003_020e50a0[20] = "Tsk_BtlPrizeItem";
 static char                  data_ov003_020e50b4[32] = "Apl_Hor/Grp_BtlPrize_Lime.bin";
-static const SpriteAnimEntry data_ov003_020dd3c8     = {1, 3, 2, 0};
 static const BinIdentifier   data_ov003_020dd3d0     = {3, data_ov003_020e50b4};
-static const TaskHandle      data_ov003_020dd3d8     = {data_ov003_020e50a0, func_ov003_020bc018, sizeof(BtlPrizeItem)};
+static const SpriteAnimEntry data_ov003_020dd3c8     = {1, 3, 2, 0};
+static const TaskHandle      Tsk_BtlPrizeItem        = {"Tsk_BtlPrizeItem", BtlPrizeItem_RunTask, sizeof(BtlPrizeItem)};
 static const SpriteAnimEntry data_ov003_020dd3e4[5]  = {
-    {0x37, 0x39, 0x38, 0},
-    {0x37, 0x39, 0x38, 1},
-    {0x37, 0x39, 0x38, 2},
-    {0x37, 0x39, 0x38, 3},
-    {0x37, 0x39, 0x38, 4}
+    {55, 57, 56, 0},
+    {55, 57, 56, 1},
+    {55, 57, 56, 2},
+    {55, 57, 56, 3},
+    {55, 57, 56, 4}
 };
 static BtlPrizeCount data_ov003_020e71c4;

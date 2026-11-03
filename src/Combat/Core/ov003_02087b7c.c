@@ -1,3 +1,5 @@
+#include "Combat/Core/BtlDbg.h"
+#include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPop.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
@@ -427,21 +429,20 @@ s32 func_ov003_02088130(void) {
 
 /// Spawns the attack's own visual effect in front of the attacking unit.
 // Nonmatching: register allocation of the info/hit pointers
-static u32 func_ov003_020881b4(Ov003Hit* hit) {
+static void func_ov003_020881b4(Ov003Hit* hit) {
     const Ov003AttackInfo* info = hit->info;
     u32                    id   = (u32)(info->flags << 0x17) >> 0x1F;
     u8                     halfW;
     u8                     halfH;
 
-    if (id != 0) {
-        return id;
+    if (id == 0) {
+        halfW = info->unk_05;
+        halfH = info->unk_06;
+        if (hit->kind == 3) {
+            func_ov003_020a2a04(2, 0, hit->x - (halfW << 12), hit->y - (halfH << 12), (s16)(halfW * 2), (s16)(halfH * 2));
+        }
+        func_ov003_020a2a04(1, 0, hit->x - (halfW << 12), hit->y - (halfH << 12), (s16)(halfW * 2), (s16)(halfH * 2));
     }
-    halfW = info->unk_05;
-    halfH = info->unk_06;
-    if (hit->kind == 3) {
-        return func_ov003_020a2a04(2, 0, hit->x - (halfW << 12), hit->y - (halfH << 12), (s16)(halfW * 2), (s16)(halfH * 2));
-    }
-    return func_ov003_020a2a04(1, 0, hit->x - (halfW << 12), hit->y - (halfH << 12), (s16)(halfW * 2), (s16)(halfH * 2));
 }
 
 /// Lowers `*damage` to zero when the combo rank is high enough.

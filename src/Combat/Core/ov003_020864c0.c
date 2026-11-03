@@ -1,3 +1,5 @@
+#include "Combat/Core/BtlEff.h"
+#include "Combat/Core/BtlField.h"
 #include "Combat/Core/BtlPop.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
@@ -58,7 +60,6 @@
 /// The special effect task, owned by overlay 18.
 extern const TaskHandle data_ov018_020ff3a0;
 /// The charge/effect task handles owned by the battle setup unit.
-extern const TaskHandle data_ov003_020d7d08;
 
 /// Enemy-id -> command-table index, and the per-command effect/SE id table.
 extern const u8 data_ov003_020da2d7[];
@@ -1210,16 +1211,16 @@ s32 func_ov003_020865a0(u16 id, s32 arg1, s32 arg2, s32* out) {
             handle = &data_ov018_020ff3a0;
             break;
         case 0:
-            handle = &data_ov003_020d7d08;
+            handle = &Tsk_BtlObs;
             break;
         case 1:
-            handle = &data_ov003_020d7d08;
+            handle = &Tsk_BtlObs;
             break;
         case 2:
-            handle = &data_ov003_020d7d08;
+            handle = &Tsk_BtlObs;
             break;
         default:
-            handle = &data_ov003_020d7d08;
+            handle = &Tsk_BtlObs;
             break;
     }
     *out = EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, handle, NULL, 0, NULL, &spawn);

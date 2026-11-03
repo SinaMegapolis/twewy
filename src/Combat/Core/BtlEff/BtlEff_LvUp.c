@@ -1,0 +1,132 @@
+#include "Combat/Core/BtlEff.h"
+#include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatSprite.h"
+
+#include "Combat/Core/CombatApi.h"
+#include <nitro/mi/cpumem.h>
+
+// The level-up effect: a banner and a burst over the partner's head on each screen, played once
+// with the level-up voice. The effect is flagged in battle flag 8 while it runs.
+
+/// One screen's half of the effect.
+typedef struct BtlEffLvUp {
+    /* 0x00 */ CombatSprite sprites[2]; // banner, burst
+} BtlEffLvUp;                           // Size: 0xC0
+
+static s32 BtlEff_LvUp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+
+const TaskHandle Tsk_BtlEff_LvUp = {"Tsk_BtlEff_LvUp", BtlEff_LvUp_RunTask, sizeof(BtlEffLvUp[2])};
+
+extern const BinIdentifier data_ov003_020d7800;
+
+static const SpriteAnimEntry data_ov003_020d8754[2];
+
+// Nonmatching: use the loader's declared u16 palette parameters.
+static void func_ov003_020a0290(s32 engine, BtlEffLvUp* data) {
+    s32 palette;
+
+    if (engine == 0) {
+        palette = 62;
+    } else {
+        palette = 64;
+    }
+    CombatSprite_LoadFromTable(engine, &data->sprites[1], &data_ov003_020d7800, data_ov003_020d8754, 1, palette, 72);
+    CombatSprite_SetAnimFromTable(&data->sprites[1], 1, 1);
+    func_ov003_02082738(&data->sprites[1], 2);
+    CombatSprite_LoadFromTable(engine, &data->sprites[0], &data_ov003_020d7800, data_ov003_020d8754, 0, palette, 52);
+    CombatSprite_SetAnimFromTable(&data->sprites[0], 0, 1);
+    func_ov003_02082738(&data->sprites[0], 2);
+}
+
+static s32 func_ov003_020a033c(BtlEffLvUp* data) {
+    CombatSprite_Update(&data->sprites[0]);
+    CombatSprite_Update(&data->sprites[1]);
+    return !SpriteMgr_IsAnimationFinished(&data->sprites[0].sprite);
+}
+
+static void func_ov003_020a0368(BtlEffLvUp* data) {
+    CombatActor* actor;
+    s32          x;
+
+    if (data->sprites[0].sprite.bits_0_1 == 0) {
+        actor = data_ov003_020e71b8->unk3D898;
+        x     = func_ov003_020843b0(0, actor->position.x);
+    } else {
+        actor = data_ov003_020e71b8->unk3D89C;
+        x     = func_ov003_020843b0(1, actor->position.x);
+    }
+    CombatSprite_SetPosition(&data->sprites[1], x, 96);
+    func_ov003_02082730(&data->sprites[1], 0x7FFFFFFF - actor->position.y);
+    CombatSprite_Render(&data->sprites[1]);
+    CombatSprite_SetPosition(&data->sprites[0], x, 96);
+    func_ov003_02082730(&data->sprites[0], 0);
+    CombatSprite_Render(&data->sprites[0]);
+}
+
+static void func_ov003_020a0418(BtlEffLvUp* data) {
+    CombatSprite_Release(&data->sprites[0]);
+    CombatSprite_Release(&data->sprites[1]);
+}
+
+static s32 BtlEff_LvUp_Init(TaskPool* pool, Task* task, void* args) {
+    BtlEffLvUp* data = task->data;
+
+    MI_CpuSet(data, 0, sizeof(BtlEffLvUp[2]));
+    data_ov003_020e71b8->unk3D878 |= 8;
+    func_ov003_020a0290(0, &data[0]);
+    func_ov003_020a0290(1, &data[1]);
+    func_ov003_02087ed8(SEIDX_SE_BOY_LEVELUP);
+    return 1;
+}
+
+static s32 BtlEff_LvUp_Update(TaskPool* pool, Task* task, void* args) {
+    BtlEffLvUp* data = task->data;
+    s32         active, x;
+
+    active = func_ov003_020a033c(&data[0]);
+    func_ov003_020a033c(&data[1]);
+    x = func_ov003_020843b0(0, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+    // Both effect attachment calls intentionally use the sub-screen actor +4 in retail.
+    func_ov003_0208a1a4(func_ov003_0208a114(31), &((CombatActor*)data_ov003_020e71b8->unk3D89C)->unk_04, x, 0);
+    x = func_ov003_020843b0(1, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+    func_ov003_0208a1a4(func_ov003_0208a114(32), &((CombatActor*)data_ov003_020e71b8->unk3D89C)->unk_04, x, 0);
+    return active;
+}
+
+static s32 BtlEff_LvUp_Render(TaskPool* pool, Task* task, void* args) {
+    BtlEffLvUp* data = task->data;
+
+    func_ov003_020a0368(&data[0]);
+    func_ov003_020a0368(&data[1]);
+    return 1;
+}
+
+static s32 BtlEff_LvUp_Release(TaskPool* pool, Task* task, void* args) {
+    BtlEffLvUp* data = task->data;
+
+    func_ov003_020a0418(&data[0]);
+    func_ov003_020a0418(&data[1]);
+    data_ov003_020e71b8->unk3D878 &= ~8;
+    return 1;
+}
+
+static s32 BtlEff_LvUp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+    TaskStages stages = {
+        .initialize = BtlEff_LvUp_Init,
+        .update     = BtlEff_LvUp_Update,
+        .render     = BtlEff_LvUp_Render,
+        .cleanup    = BtlEff_LvUp_Release,
+    };
+
+    if (func_ov003_0208b690(stage) != 0) {
+        return 1;
+    } else {
+        return stages.iter[stage](pool, task, args);
+    }
+}
+
+static const SpriteAnimEntry data_ov003_020d8754[2] = {
+    {4, 6, 5, 0},
+    {4, 6, 5, 1}
+};

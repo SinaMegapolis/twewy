@@ -1,4 +1,7 @@
+#include "Combat/Core/BtlDbg.h"
+#include "Combat/Core/BtlField.h"
 #include "Combat/Core/BtlInf.h"
+#include "Combat/Core/BtlTch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
@@ -40,12 +43,8 @@ typedef struct Ov003SpriteTemplate {
 // ---------------------------------------------------------------------------------------------
 
 extern u8               data_02071cf0[];
-extern const TaskHandle data_ov003_020d790c;
-extern const TaskHandle data_ov003_020d7928;
 extern const u8         data_ov003_020d75fc[];
-extern const TaskHandle data_ov003_020d81e0;
-extern const TaskHandle data_ov003_020d7b68;
-extern const TaskHandle data_ov003_020d7b4c;
+extern const TaskHandle Tsk_BtlSandstorm;
 
 // Boss background task handles of other overlays.
 extern const TaskHandle data_ov018_020feb70;
@@ -410,11 +409,11 @@ void func_ov003_02083e50(s32 flag) {
             return;
         default:
             if (data_ov003_020e71b8->unk3D88D == 3) {
-                EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7b68, NULL, 0, NULL, &args);
+                EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlField_UG, NULL, 0, NULL, &args);
                 EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov008_020e7a68, NULL, 0, NULL, &args);
             } else {
-                EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7b68, NULL, 0, NULL, &args);
-                EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7b4c, NULL, 0, NULL, &args);
+                EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlField_UG, NULL, 0, NULL, &args);
+                EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlField_RG, NULL, 0, NULL, &args);
             }
             return;
     }
@@ -429,7 +428,7 @@ void func_ov003_020842e0(void) {
         case 0x16:
             break;
         default:
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020d81e0, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlSandstorm, NULL, 0, NULL, NULL);
             break;
     }
 }
@@ -1029,7 +1028,7 @@ static BOOL func_ov003_020852d0(BtlTouchWork* touch) {
     if (touch->tapCount < 5) {
         return FALSE;
     }
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020d790c, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlTch_Click, NULL, 0, NULL, NULL);
     return TRUE;
 }
 
@@ -1325,12 +1324,12 @@ static s32 func_ov003_02085b34(BtlTouchWork* touch) {
                 return 3;
             }
             if (touch->flags & 1) {
-                EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020d790c, NULL, 0, NULL, NULL);
+                EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlTch_Click, NULL, 0, NULL, NULL);
                 return 2;
             }
         }
         if (func_ov003_02085358(touch)) {
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020d7928, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlTch_Slash, NULL, 0, NULL, NULL);
             return 4;
         }
     }

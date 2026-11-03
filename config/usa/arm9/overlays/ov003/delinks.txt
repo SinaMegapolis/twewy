@@ -41,21 +41,21 @@ src/Combat/Core/ov003_02087b7c.c:
 src/Combat/Core/ov003_0208a488.c:
     .text       start:0x0208a488 end:0x0208ee20
     .rodata     start:0x020d77d0 end:0x020d78f0
-    .data       start:0x020e397c end:0x020e3ac0
+    .data       start:0x020e397c end:0x020e3ad4
 
-src/Combat/Core/BtlTch.c:
+src/Combat/Core/BtlTch/BtlTch.c:
     complete
     .text       start:0x0208ee20 end:0x0208efb8
     .rodata     start:0x020d78f0 end:0x020d790c
-    .data       start:0x020e3ac0 end:0x020e3ad4
+    .data       start:0x020e3ad4 end:0x020e3ae0
 
-src/Combat/Core/BtlTch_Click.c:
+src/Combat/Core/BtlTch/BtlTch_Click.c:
     complete
     .text       start:0x0208efb8 end:0x0208f134
     .rodata     start:0x020d790c end:0x020d7928
-    .data       start:0x020e3ad4 end:0x020e3af4
+    .data       start:0x020e3ae0 end:0x020e3af4
 
-src/Combat/Core/BtlTch_Slash.c:
+src/Combat/Core/BtlTch/BtlTch_Slash.c:
     .text       start:0x0208f134 end:0x0208f384
     .rodata     start:0x020d7928 end:0x020d7944
     .data       start:0x020e3af4 end:0x020e3b08
@@ -65,22 +65,22 @@ src/Combat/Core/BtlPlayer00.c:
     .rodata     start:0x020d7944 end:0x020d7b4c
     .data       start:0x020e3b08 end:0x020e3b18
 
-src/Combat/Core/BtlField_RG.c:
+src/Combat/Core/BtlField/BtlField_RG.c:
     .text       start:0x020929a4 end:0x020933dc
     .rodata     start:0x020d7b4c end:0x020d7b68
     .data       start:0x020e3b18 end:0x020e3b28
 
-src/Combat/Core/BtlField_UG.c:
+src/Combat/Core/BtlField/BtlField_UG.c:
     .text       start:0x020933dc end:0x02093c70
     .rodata     start:0x020d7b68 end:0x020d7b84
     .data       start:0x020e3b28 end:0x020e3b38
 
-src/Combat/Core/BtlField_Fore.c:
+src/Combat/Core/BtlField/BtlField_Fore.c:
     .text       start:0x02093c70 end:0x020941ac
     .rodata     start:0x020d7b84 end:0x020d7d08
     .data       start:0x020e3b38 end:0x020e3b4c
 
-src/Combat/Core/BtlObs.c:
+src/Combat/Core/BtlField/BtlObs.c:
     .text       start:0x020941ac end:0x02094668
     .rodata     start:0x020d7d08 end:0x020d7d24
     .data       start:0x020e3b4c end:0x020e3b58
@@ -137,12 +137,12 @@ src/Combat/Psych/BtlPsy_Sword_Spin_M.c:
     .rodata     start:0x020d7e80 end:0x020d7e9c
     .data       start:0x020e3c20 end:0x020e3c38
 
-src/Combat/Core/BtlAura.c:
+src/Combat/Core/BtlAura/BtlAura.c:
     .text       start:0x0209609c end:0x0209703c
     .rodata     start:0x020d7e9c end:0x020d7ec8
     .data       start:0x020e3c38 end:0x020e3c44
 
-src/Combat/Core/BtlAuraSub.c:
+src/Combat/Core/BtlAura/BtlAuraSub.c:
     .text       start:0x0209703c end:0x02097544
     .rodata     start:0x020d7ec8 end:0x020d7eec
     .data       start:0x020e3c44 end:0x020e3c54
@@ -152,12 +152,12 @@ src/Combat/Core/BtlCmd.c:
     .rodata     start:0x020d7eec end:0x020d7f98
     .data       start:0x020e3c54 end:0x020e3c60
 
-src/Combat/Core/BtlBarHP.c:
+src/Combat/Core/BtlBar/BtlBarHP.c:
     .text       start:0x02098c28 end:0x020999c4
     .rodata     start:0x020d7f98 end:0x020d7fb4
     .data       start:0x020e3c60 end:0x020e3c70
 
-src/Combat/Core/BtlBarBS.c:
+src/Combat/Core/BtlBar/BtlBarBS.c:
     .text       start:0x020999c4 end:0x0209abdc
     .rodata     start:0x020d7fb4 end:0x020d7fd0
     .data       start:0x020e3c70 end:0x020e3c80
@@ -233,64 +233,64 @@ src/Combat/Core/BtlSandstorm.c:
     .rodata     start:0x020d81c8 end:0x020d81ec
     .data       start:0x020e3d50 end:0x020e3d84
 
-src/Combat/Core/BtlEff.c:
+src/Combat/Core/BtlEff/BtlEff.c:
     .text       start:0x0209e754 end:0x0209ea94
     .rodata     start:0x020d81ec end:0x020d8410
     .data       start:0x020e3d84 end:0x020e3d90
 
-src/Combat/Core/BtlEff_Hit.c:
+src/Combat/Core/BtlEff/BtlEff_Hit.c:
     .text       start:0x0209ea94 end:0x0209ee18
     .rodata     start:0x020d8410 end:0x020d8634
     .data       start:0x020e3d90 end:0x020e3da0
 
-src/Combat/Core/BtlEff_Sword.c:
+src/Combat/Core/BtlEff/BtlEff_Sword.c:
     complete
     .text       start:0x0209ee18 end:0x0209f040
     .rodata     start:0x020d8634 end:0x020d86a0
     .data       start:0x020e3da0 end:0x020e3db4
 
-src/Combat/Core/BtlEff_Dead.c:
+src/Combat/Core/BtlEff/BtlEff_Dead.c:
     .text       start:0x0209f040 end:0x0209f4a0
     .rodata     start:0x020d86a0 end:0x020d86c4
     .data       start:0x020e3db4 end:0x020e3dc4
 
-src/Combat/Core/BtlEff_Warp.c:
+src/Combat/Core/BtlEff/BtlEff_Warp.c:
     complete
     .text       start:0x0209f4a0 end:0x0209f7c4
     .rodata     start:0x020d86c4 end:0x020d86f0
     .data       start:0x020e3dc4 end:0x020e3dd4
 
-src/Combat/Core/BtlEff_Splash.c:
+src/Combat/Core/BtlEff/BtlEff_Splash.c:
     .text       start:0x0209f7c4 end:0x0209fd48
     .rodata     start:0x020d86f0 end:0x020d870c
     .data       start:0x020e3dd4 end:0x020e3de8
 
-src/Combat/Core/BtlEff_Star.c:
+src/Combat/Core/BtlEff/BtlEff_Star.c:
     .text       start:0x0209fd48 end:0x020a0290
     .rodata     start:0x020d870c end:0x020d8738
     .data       start:0x020e3de8 end:0x020e3df8
 
-src/Combat/Core/BtlEff_LvUp.c:
+src/Combat/Core/BtlEff/BtlEff_LvUp.c:
     .text       start:0x020a0290 end:0x020a060c
     .rodata     start:0x020d8738 end:0x020d8764
     .data       start:0x020e3df8 end:0x020e3e08
 
-src/Combat/Core/BtlReady.c:
+src/Combat/Core/BtlPhase/BtlReady.c:
     .text       start:0x020a060c end:0x020a0f08
     .rodata     start:0x020d8764 end:0x020d8810
     .data       start:0x020e3e08 end:0x020e3e18
 
-src/Combat/Core/BtlWin.c:
+src/Combat/Core/BtlPhase/BtlWin.c:
     .text       start:0x020a0f08 end:0x020a1714
     .rodata     start:0x020d8810 end:0x020d882c
     .data       start:0x020e3e18 end:0x020e3e24
 
-src/Combat/Core/BtlOver.c:
+src/Combat/Core/BtlPhase/BtlOver.c:
     .text       start:0x020a1714 end:0x020a210c
     .rodata     start:0x020d882c end:0x020d8848
     .data       start:0x020e3e24 end:0x020e3e34
 
-src/Combat/Core/BtlPause.c:
+src/Combat/Core/BtlPhase/BtlPause.c:
     .text       start:0x020a210c end:0x020a2524
     .rodata     start:0x020d8848 end:0x020d8864
     .data       start:0x020e3e34 end:0x020e3e44
@@ -704,15 +704,10 @@ src/Combat/Core/ov003_020b69f8.c:
     .text       start:0x020b69f8 end:0x020b6b20
     .rodata     start:0x020dcaf4 end:0x020dcb04
 
-src/Combat/Core/ov003_020b6b20.c:
-    complete
-    .text       start:0x020b6b20 end:0x020b6b38
-    .rodata     start:0x020dcb04 end:0x020dcb10
-    .data       start:0x020e4f1c end:0x020e4f38
-
 src/Combat/Psych/BtlPsy_ShockWave_Body.c:
-    .text       start:0x020b6b38 end:0x020b7bf4
-    .rodata     start:0x020dcb10 end:0x020dce04
+    .text       start:0x020b6b20 end:0x020b7bf4
+    .rodata     start:0x020dcb04 end:0x020dce04
+    .data       start:0x020e4f1c end:0x020e4f38
 
 src/Combat/Psych/BtlPsy_BoomerangShot_S.c:
     complete
@@ -791,12 +786,12 @@ src/Combat/Core/BtlPrizeItem.c:
     .data       start:0x020e50a0 end:0x020e50d4
     .bss        start:0x020e71c4 end:0x020e71c8
 
-src/Combat/Core/BtlFeat_SplashEnm.c:
+src/Combat/Core/BtlFeat/BtlFeat_SplashEnm.c:
     .text       start:0x020bc068 end:0x020bc6e8
     .rodata     start:0x020dd40c end:0x020dd428
     .data       start:0x020e50d4 end:0x020e5104
 
-src/Combat/Core/BtlFeat_SplashBg.c:
+src/Combat/Core/BtlFeat/BtlFeat_SplashBg.c:
     .text       start:0x020bc6e8 end:0x020bce6c
     .rodata     start:0x020dd428 end:0x020dd77c
     .data       start:0x020e5104 end:0x020e5170
@@ -804,28 +799,25 @@ src/Combat/Core/BtlFeat_SplashBg.c:
 src/Combat/Core/ov003_020bce6c.c:
     complete
     .text       start:0x020bce6c end:0x020bd1bc
-    .data       start:0x020e5170 end:0x020e5184
+    .rodata     start:0x020dd77c end:0x020dd7e4
+    .data       start:0x020e5170 end:0x020e533c
     .bss        start:0x020e71c8 end:0x020e71d4
 
-src/Combat/Core/ov003_020bd1bc.c:
-    .text       start:0x020bd1bc end:0x020be658
-    .rodata     start:0x020dd77c end:0x020dd890
-    .data       start:0x020e5184 end:0x020e533c
+src/Combat/Core/BtlCutIn/BtlCutIn00.c:
+    complete
+    .text       start:0x020bd1bc end:0x020be71c
+    .rodata     start:0x020dd7e4 end:0x020dd890
+    .data       start:0x020e533c end:0x020e534c
     .bss        start:0x020e71d4 end:0x020e71d8
 
-src/Combat/Core/BtlCutIn00.c:
-    complete
-    .text       start:0x020be658 end:0x020be71c
-    .data       start:0x020e533c end:0x020e534c
-
-src/Combat/Core/BtlCutIn01.c:
+src/Combat/Core/BtlCutIn/BtlCutIn01.c:
     .text       start:0x020be71c end:0x020bfb94
-    .rodata     start:0x020dd890 end:0x020dd978
+    .rodata     start:0x020dd890 end:0x020dd984
     .data       start:0x020e534c end:0x020e5398
 
-src/Combat/Core/BtlCutIn02.c:
+src/Combat/Core/BtlCutIn/BtlCutIn02.c:
     .text       start:0x020bfb94 end:0x020c1224
-    .rodata     start:0x020dd978 end:0x020ddaac
+    .rodata     start:0x020dd984 end:0x020ddaac
     .data       start:0x020e5398 end:0x020e53e4
 
 src/Combat/Core/BtlActSp00.c:
@@ -848,27 +840,27 @@ src/Combat/Core/ov003_020c41e8.c:
 
 src/Combat/Core/BossExp1.c:
     .text       start:0x020c703c end:0x020c9018
-    .rodata     start:0x020e0a38 end:0x020e0b80
-    .data       start:0x020e6a30 end:0x020e6b38
+    .rodata     start:0x020e0a38 end:0x020e0b74
+    .data       start:0x020e6a30 end:0x020e6b64
 
-src/Combat/Core/BtlEff_SideMove.c:
+src/Combat/Core/BtlEff/BtlEff_SideMove.c:
     .text       start:0x020c9018 end:0x020c96e4
-    .rodata     start:0x020e0b80 end:0x020e0b90
-    .data       start:0x020e6b38 end:0x020e6b64
+    .rodata     start:0x020e0b74 end:0x020e0b90
+    .data       start:0x020e6b64 end:0x020e6b74
     .bss        start:0x020e7254 end:0x020e7324
 
-src/Combat/Core/btlEnmAura.c:
+src/Combat/Core/BtlEnm/btlEnmAura.c:
     .text       start:0x020c96e4 end:0x020ca6a8
     .rodata     start:0x020e0b90 end:0x020e0bc4
-    .data       start:0x020e6b64 end:0x020e6ba0
+    .data       start:0x020e6b74 end:0x020e6ba0
     .bss        start:0x020e7324 end:0x020e7340
 
-src/Combat/Core/BtlEnmAuraSub.c:
+src/Combat/Core/BtlEnm/BtlEnmAuraSub.c:
     .text       start:0x020ca6a8 end:0x020cac84
     .rodata     start:0x020e0bc4 end:0x020e0bf0
     .data       start:0x020e6ba0 end:0x020e6bd0
 
-src/Combat/Core/BtlEnm004_Blink.c:
+src/Combat/Core/BtlEnm/BtlEnm004_Blink.c:
     complete
     .text       start:0x020cac84 end:0x020cb128
     .rodata     start:0x020e0bf0 end:0x020e0c0c

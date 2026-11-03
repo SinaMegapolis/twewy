@@ -1,3 +1,4 @@
+#include "Combat/Core/BtlAura.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"

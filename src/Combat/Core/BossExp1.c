@@ -21,10 +21,6 @@
 // small sprites fills both screens and finally a wipe closes the scene. The first half of the unit is the actor
 // helpers that the enemy tasks use to start and end their defeat animation.
 
-// ---------------------------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------------------------
-
 struct BossExp1;
 
 typedef void (*BossExp1State)(struct BossExp1*);
@@ -80,15 +76,12 @@ typedef struct BossExp1 {
     /* 0xB80 */ s32              scroll;
 } BossExp1; // Size: 0xB84
 
-// ---------------------------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------------------------
-
-extern char             data_ov003_020e6b38[];
-extern char             data_ov003_020e6b48[];
-extern char             data_ov003_020e6b64[];
 extern s32              data_ov003_020e7254;
-extern const TaskHandle data_ov003_020d81e0;
+extern const TaskHandle Tsk_BtlSandstorm;
+
+static s32 BossExp1_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
+
+const TaskHandle Tsk_BossExp1 = {"Tsk_BossExp1", BossExp1_RunTask, sizeof(BossExp1)};
 
 static void func_ov003_020c80b8(BossExp1* self);
 static void func_ov003_020c8328(BossExp1* self);
@@ -96,33 +89,18 @@ static void func_ov003_020c8520(BossExp1* self);
 static void func_ov003_020c86b4(BossExp1* self);
 static void func_ov003_020c8be8(BossExp1* self);
 static void func_ov003_020c8ddc(BossExp1* self);
-static s32  func_ov003_020c8e3c(TaskPool* pool, Task* task, void* args);
-static s32  func_ov003_020c8f30(TaskPool* pool, Task* task, void* args);
-static s32  func_ov003_020c8f64(TaskPool* pool, Task* task, void* args);
-static s32  func_ov003_020c8f8c(TaskPool* pool, Task* task, void* args);
-static s32  func_ov003_020c8fc0(TaskPool* pool, Task* task, void* args, s32 stage);
 
-static const BossExp1Sheet data_ov003_020e0a38 = {
-    {3, data_ov003_020e6b48},
+const BossExp1Sheet data_ov003_020e0a38 = {
+    {3, "Apl_Mor/Grp_BossExp1.bin"},
     0x14, 0x10
-};
-
-const TaskHandle data_ov003_020e0a48 = {data_ov003_020e6b38, func_ov003_020c8fc0, sizeof(BossExp1)};
-
-/// The stage table of the sequence: build, update, draw, release.
-static const TaskStages data_ov003_020e0a54 = {
-    func_ov003_020c8e3c,
-    func_ov003_020c8f30,
-    func_ov003_020c8f64,
-    func_ov003_020c8f8c,
 };
 
 /// The animation entries of the group B sprites.
 static const SpriteAnimEntry data_ov003_020e0a64[4] = {
-    {  1,   3,   2, 0},
-    {  4,   6,   5, 0},
-    {0xD, 0xF, 0xE, 0},
-    {0xD, 0xF, 0xE, 0},
+    { 1,  3,  2, 0},
+    { 4,  6,  5, 0},
+    {13, 15, 14, 0},
+    {13, 15, 14, 0},
 };
 
 /// What each backdrop group loads.
@@ -143,9 +121,6 @@ static const BossExp1Fly data_ov003_020e0b14[2][6] = {
     {    {0x56, 0}, {0x34, 0x20}, {0x34, -0x80}, {0x54, 0}, {0x4C, 0}, {0x40, 0}},
     {{0x34, -0x20}, {0x34, 0x80},     {0x4C, 0}, {0x54, 0}, {0x56, 0}, {0x48, 0}},
 };
-
-/// The task of the flying piece started by `BtlEff_SideMove`.
-const TaskHandle data_ov003_020e0b74 = {data_ov003_020e6b64, func_ov003_020c9478, 0x80};
 
 u8  data_ov003_020e6a30[8] = {0, 0, 0, 0, 1, 0, 0, 0};
 s32 data_ov003_020e6a38[3] = {0, 1, 0};
@@ -211,10 +186,6 @@ void* data_ov003_020e6a44[61] = {
     data_ov024_020f6ba0, data_ov024_020f6ba0, data_ov024_020f6bd4, data_ov024_020f6bd4, data_ov021_020f7a24,
     data_ov003_020e6a30,
 };
-
-// ---------------------------------------------------------------------------------------------
-// Actor helpers
-// ---------------------------------------------------------------------------------------------
 
 s32 func_ov003_020c703c(Ov003EnemyActor* actor) {
     if (actor->flags196.bits.b8 && (actor->actor.flags & 0x2000)) {
@@ -307,7 +278,7 @@ static void func_ov003_020c7224(Ov003EnemyActor* actor) {
 /// Starts an actor's death animation `a` (or `b` in the second variant) and waits for the transition.
 s32 func_ov003_020c72b4(Ov003EnemyActor* actor, s32 a, s32 b) {
     if (actor->unk_1A4 == 0) {
-        switch (func_ov003_020bd2b8()) {
+        switch (BtlCutIn_GetSpecialKind()) {
             case 1:
                 func_ov003_020c38b8(&actor->sprite, a, 0);
                 break;
@@ -333,10 +304,6 @@ s32 func_ov003_020c72b4(Ov003EnemyActor* actor, s32 a, s32 b) {
     func_ov003_020c4af0(actor);
     return 0;
 }
-
-// ---------------------------------------------------------------------------------------------
-// The sequence
-// ---------------------------------------------------------------------------------------------
 
 /// Sets BG1 and BG2 of both engines up as the text layers the sequence draws on.
 static void func_ov003_020c73a0(void) {
@@ -502,7 +469,7 @@ static void func_ov003_020c7ac0(BossExp1* self, s32 group) {
         self->loadedB[e][group] = CombatSprite_LoadFromTable(e, &self->groupB[e][group], &data_ov003_020e0a38.iden,
                                                              data_ov003_020e0a64, (u16)group, 0x18, 0);
         if (self->loadedB[e][group] != 0) {
-            CombatSprite_SetPosition(&self->groupB[e][group], 0x80, 0x60);
+            CombatSprite_SetPosition(&self->groupB[e][group], 128, 96);
             func_ov003_02082738(&self->groupB[e][group], 0);
         }
     }
@@ -554,7 +521,7 @@ static void func_ov003_020c7ca0(BossExp1* self, s32 group) {
             CombatSprite_LoadFromTable(e, &self->groupC[e][group], &data_ov003_020e0a38.iden, data_ov003_020e0ab4[e],
                                        (u16)group, 0x18, (u16)data_ov003_020e0b14[e][group].paletteCount);
         if (self->loadedC[e][group] != 0) {
-            CombatSprite_SetPosition(&self->groupC[e][group], 0x80, 0x60);
+            CombatSprite_SetPosition(&self->groupC[e][group], 128, 96);
             func_ov003_02082738(&self->groupC[e][group], 0);
         }
     }
@@ -625,7 +592,7 @@ static void func_ov003_020c7f58(BossExp1* self) {
                 func_ov003_020c73a0();
                 data_ov003_020e71b8->unk3D884 = 1;
                 data_ov003_020e71b8->unk3D878 &= ~0x2000;
-                EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020d81e0, NULL, 0, NULL, NULL);
+                EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlSandstorm, NULL, 0, NULL, NULL);
                 self->phase++;
                 return;
             }
@@ -973,7 +940,7 @@ static void func_ov003_020c8ddc(BossExp1* self) {
     self->running = 0;
 }
 
-static s32 func_ov003_020c8e3c(TaskPool* pool, Task* task, void* args) {
+static s32 BossExp1_Init(TaskPool* pool, Task* task, void* args) {
     BossExp1*      self  = task->data;
     BossExp1Anims* param = args;
 
@@ -990,7 +957,7 @@ static s32 func_ov003_020c8e3c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_020c8f30(TaskPool* pool, Task* task, void* args) {
+static s32 BossExp1_Update(TaskPool* pool, Task* task, void* args) {
     BossExp1* self = task->data;
 
     if (self->state != NULL) {
@@ -1001,7 +968,7 @@ static s32 func_ov003_020c8f30(TaskPool* pool, Task* task, void* args) {
     return self->running;
 }
 
-static s32 func_ov003_020c8f64(TaskPool* pool, Task* task, void* args) {
+static s32 BossExp1_Render(TaskPool* pool, Task* task, void* args) {
     BossExp1* self = task->data;
 
     func_ov003_020c7a54(self);
@@ -1010,14 +977,19 @@ static s32 func_ov003_020c8f64(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-static s32 func_ov003_020c8f8c(TaskPool* pool, Task* task, void* args) {
+static s32 BossExp1_Release(TaskPool* pool, Task* task, void* args) {
     data_ov003_020e71b8->unk3D878 &= ~2;
     data_ov003_020e7254 = 0;
     return 1;
 }
 
-static s32 func_ov003_020c8fc0(TaskPool* pool, Task* task, void* args, s32 stage) {
-    TaskStages stages = data_ov003_020e0a54;
+static s32 BossExp1_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
+    TaskStages stages = {
+        .initialize = BossExp1_Init,
+        .update     = BossExp1_Update,
+        .render     = BossExp1_Render,
+        .cleanup    = BossExp1_Release,
+    };
 
     return stages.iter[stage](pool, task, args);
 }

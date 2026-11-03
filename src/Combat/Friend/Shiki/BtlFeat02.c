@@ -1,3 +1,5 @@
+#include "Combat/Core/BtlCutIn.h"
+#include "Combat/Core/BtlFeat.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
@@ -126,9 +128,6 @@ s32 BtlFeat02_Step_SetShortDelay(BtlFeat02* feat);
 s32 BtlFeat02_Step_SetLongDelay(BtlFeat02* feat);
 s32 BtlFeat02_Step_UpdateDelay(BtlFeat02* feat);
 s32 BtlFeat02_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
-
-extern BinIdentifier data_ov003_020dd78c;
-extern BinIdentifier data_ov003_020dd7c4;
 
 static u16 data_ov004_020f05a0[];
 
@@ -327,7 +326,7 @@ void BtlFeat02_LoadPhasePairedSprites(BtlFeat02* feat, s32 arg1) {
     s32 temp_r4 = arg1 * 2;
     u32 temp_r7 = (u32)(temp_r4 << 0x10) >> 0xD;
     u16 temp_r6 = data_ov004_020f0570[temp_r7].unk_6;
-    CombatSprite_LoadDirect(1, &feat->phaseSpriteMainLeft, &data_ov003_020dd78c, (s32)data_ov004_020f0570[temp_r7].unk_0,
+    CombatSprite_LoadDirect(1, &feat->phaseSpriteMainLeft, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r7].unk_0,
                             (s32)data_ov004_020f0570[temp_r7].unk_2, data_ov004_020f0570[temp_r7].unk_4, (s32)sp10[arg1],
                             (s32)data_ov004_020f0570[temp_r7].unk_6);
     CombatSprite_SetAnim(&feat->phaseSpriteMainLeft, temp_r6, 0);
@@ -338,7 +337,7 @@ void BtlFeat02_LoadPhasePairedSprites(BtlFeat02* feat, s32 arg1) {
     u32 temp_r7_2 = temp_r4 + 1;
     u32 temp_r3   = (u32)(temp_r7_2 << 0x10) >> 0xD;
     u16 temp_r6_2 = data_ov004_020f0570[temp_r3].unk_6;
-    CombatSprite_LoadDirect(1, &feat->phaseSpriteMainRight, &data_ov003_020dd78c, (s32)data_ov004_020f0570[temp_r3].unk_0,
+    CombatSprite_LoadDirect(1, &feat->phaseSpriteMainRight, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r3].unk_0,
                             (u16)(s32)data_ov004_020f0570[temp_r3].unk_2, (u16)(s32)data_ov004_020f0570[temp_r3].unk_4,
                             (u16)(s32)sp10[arg1], (u16)(s32)temp_r6_2);
     CombatSprite_SetAnim(&feat->phaseSpriteMainRight, (s16)temp_r6_2, 0);
@@ -348,7 +347,7 @@ void BtlFeat02_LoadPhasePairedSprites(BtlFeat02* feat, s32 arg1) {
 
     u32 temp_r3_2 = (u32)(temp_r4 << 0x10) >> 0xD;
     s16 temp_r4_2 = data_ov004_020f0570[temp_r3_2].unk_6;
-    CombatSprite_LoadDirect(0, &feat->phaseSpriteSubLeft, &data_ov003_020dd78c, (s32)data_ov004_020f0570[temp_r3_2].unk_0,
+    CombatSprite_LoadDirect(0, &feat->phaseSpriteSubLeft, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r3_2].unk_0,
                             (u16)(s32)data_ov004_020f0570[temp_r3_2].unk_2, (u16)(s32)data_ov004_020f0570[temp_r3_2].unk_4,
                             (u16)(s32)sp10[arg1], (u16)(s32)temp_r4_2);
     CombatSprite_SetAnim(&feat->phaseSpriteSubLeft, temp_r4_2, 0);
@@ -358,7 +357,7 @@ void BtlFeat02_LoadPhasePairedSprites(BtlFeat02* feat, s32 arg1) {
 
     u32 temp_r6_3 = (u32)(temp_r7_2 << 0x10) >> 0xD;
     s16 temp_r4_3 = data_ov004_020f0570[temp_r6_3].unk_6;
-    CombatSprite_LoadDirect(0, &feat->phaseSpriteSubRight, &data_ov003_020dd78c, (s32)data_ov004_020f0570[temp_r6_3].unk_0,
+    CombatSprite_LoadDirect(0, &feat->phaseSpriteSubRight, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r6_3].unk_0,
                             (u16)(s32)data_ov004_020f0570[temp_r6_3].unk_2, (u16)(s32)data_ov004_020f0570[temp_r6_3].unk_4,
                             (u16)(s32)sp10[arg1], (u16)(s32)temp_r4_3);
     CombatSprite_SetAnim(&feat->phaseSpriteSubRight, temp_r4_3, 0);
@@ -368,11 +367,11 @@ void BtlFeat02_LoadPhasePairedSprites(BtlFeat02* feat, s32 arg1) {
 }
 
 void BtlFeat02_LoadCompanionSpritesDefault(BtlFeat02* feat) {
-    CombatSprite_LoadFromTable(1, &feat->companionSpriteA, &data_ov003_020dd78c, data_ov004_020f0540, 0, 17, 0x50);
+    CombatSprite_LoadFromTable(1, &feat->companionSpriteA, &Iden_BtlSpecialSiki, data_ov004_020f0540, 0, 17, 0x50);
     CombatSprite_SetAnimFromTable(&feat->companionSpriteA, 0, 0);
     CombatSprite_SetFlip(&feat->companionSpriteA, 0);
 
-    CombatSprite_LoadFromTable(1, &feat->companionSpriteB, &data_ov003_020dd78c, data_ov004_020f0540, 1, 25, 0x50);
+    CombatSprite_LoadFromTable(1, &feat->companionSpriteB, &Iden_BtlSpecialSiki, data_ov004_020f0540, 1, 25, 0x50);
     CombatSprite_SetAnimFromTable(&feat->companionSpriteB, 1, 0);
     CombatSprite_SetFlip(&feat->companionSpriteB, 0);
 }
@@ -529,7 +528,7 @@ s32 BtlFeat02_Step_SetupDisplay(BtlFeat02* feat) {
 }
 
 s32 BtlFeat02_Step_LoadPhase1Resources(BtlFeat02* feat) {
-    feat->phasePackData = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7c4, 5, 0);
+    feat->phasePackData = DatMgr_LoadPackEntry(1, NULL, 0, &Iden_BtlSpecial2_Shiki, 5, 0);
 
     void* var_r1      = Data_GetPackEntryData(feat->phasePackData, 2);
     void* var_r4      = Data_GetPackEntryData(feat->phasePackData, 5);
@@ -689,8 +688,8 @@ s32 func_ov004_020eed18(BtlFeat02* feat, u16 arg1) {
         }
     }
     feat->rapidFrameMainPackData =
-        DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7c4, (s32) * (&var_r3[0] + (arg1 * 6)), 0);
-    feat->rapidFrameSubPackData = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7c4, (s32)(&var_r3[0])[temp_r4 + 1], 0);
+        DatMgr_LoadPackEntry(1, NULL, 0, &Iden_BtlSpecial2_Shiki, (s32) * (&var_r3[0] + (arg1 * 6)), 0);
+    feat->rapidFrameSubPackData = DatMgr_LoadPackEntry(1, NULL, 0, &Iden_BtlSpecial2_Shiki, (s32)(&var_r3[0])[temp_r4 + 1], 0);
     feat->unk_354               = (void*)(feat->rapidFrameMainPackData->buffer + 4);
     feat->unk_36C               = (void*)(feat->rapidFrameSubPackData->buffer + 4);
     func_0200d1d8((ScreenMapEntry*)&feat->unk_2DC, 1, 2, 0, feat + 0x354, 1, 1);
@@ -703,7 +702,7 @@ s32 func_ov004_020eed18(BtlFeat02* feat, u16 arg1) {
 }
 
 s32 BtlFeat02_Step_LoadPhase2Resources(BtlFeat02* feat) {
-    feat->phasePackData = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7c4, 6, 0);
+    feat->phasePackData = DatMgr_LoadPackEntry(1, NULL, 0, &Iden_BtlSpecial2_Shiki, 6, 0);
     func_ov004_020eed18(feat, 0);
 
     void* var_r1 = Data_GetPackEntryData(feat->phasePackData, 2);
@@ -742,12 +741,12 @@ s32 BtlFeat02_Step_LoadPhase2Resources(BtlFeat02* feat) {
     feat->companionLayoutMode  = 1;
 
     CombatSprite_Release(&feat->companionSpriteA);
-    CombatSprite_LoadFromTable(1, &feat->companionSpriteA, &data_ov003_020dd78c, data_ov004_020f0550, 0, 0x15, 0x50);
+    CombatSprite_LoadFromTable(1, &feat->companionSpriteA, &Iden_BtlSpecialSiki, data_ov004_020f0550, 0, 0x15, 0x50);
     CombatSprite_SetAnimFromTable(&feat->companionSpriteA, 0, 0);
     CombatSprite_SetFlip(&feat->companionSpriteA, 0);
 
     CombatSprite_Release(&feat->companionSpriteB);
-    CombatSprite_LoadFromTable(1, &feat->companionSpriteB, &data_ov003_020dd78c, data_ov004_020f0550, 1, 0x1D, 0x50);
+    CombatSprite_LoadFromTable(1, &feat->companionSpriteB, &Iden_BtlSpecialSiki, data_ov004_020f0550, 1, 0x1D, 0x50);
     CombatSprite_SetAnimFromTable(&feat->companionSpriteB, 1, 0);
     CombatSprite_SetFlip(&feat->companionSpriteB, 0);
 
@@ -805,7 +804,7 @@ s32 BtlFeat02_Step_UpdateRapidFrameSequence(BtlFeat02* feat) {
 }
 
 s32 BtlFeat02_Step_LoadFinalPhaseResources(BtlFeat02* feat) {
-    feat->phasePackData = DatMgr_LoadPackEntry(1, NULL, 0, &data_ov003_020dd7c4, 7, 0);
+    feat->phasePackData = DatMgr_LoadPackEntry(1, NULL, 0, &Iden_BtlSpecial2_Shiki, 7, 0);
     BtlFeat02_LoadPhasePairedSprites(feat, 2);
 
     g_DisplaySettings.engineState[0].bgSettings[0].priority = 0;

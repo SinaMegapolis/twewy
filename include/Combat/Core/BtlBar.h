@@ -1,7 +1,9 @@
 #ifndef COMBAT_CORE_BTLBAR_H
 #define COMBAT_CORE_BTLBAR_H
 
+#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatSprite.h"
+#include "Engine/EasyTask.h"
 
 /// Task data shared by the HP bar and the BS bar HUDs: ten sprites, then the widths, flags and
 /// drain state the per-frame state machine publishes for the render stage. Each bar mirrors one
@@ -35,4 +37,10 @@ typedef struct BtlBar {
     /* 0x3F8 */ s32          unk_3F8; // low-value warning blink / filling branch is running
 } BtlBar;                             // Size: 0x3FC
 
-#endif                                // COMBAT_CORE_BTLBAR_H
+/// The HP bar HUD of the player and the partner.
+extern const TaskHandle Tsk_BtlBarHP;
+
+/// Spawns the BS bar task for the actor that just entered the battle.
+void func_ov003_0209ab9c(CombatActor* actor);
+
+#endif // COMBAT_CORE_BTLBAR_H
