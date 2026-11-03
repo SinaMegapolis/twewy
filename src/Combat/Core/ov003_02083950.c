@@ -1,3 +1,4 @@
+#include "Combat/Core/BtlInf.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"

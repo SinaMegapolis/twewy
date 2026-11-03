@@ -651,30 +651,30 @@ func_ov003_0209d570 kind:function(arm,size=0x3c) addr:0x0209d570 local
 func_ov003_0209d5ac kind:function(arm,size=0x34) addr:0x0209d5ac local
 func_ov003_0209d5e0 kind:function(arm,size=0xa8) addr:0x0209d5e0 local
 func_ov003_0209d688 kind:function(arm,size=0x28) addr:0x0209d688 local
-func_ov003_0209d6b0 kind:function(arm,size=0xa8) addr:0x0209d6b0 local
-func_ov003_0209d758 kind:function(arm,size=0x28) addr:0x0209d758 local
-func_ov003_0209d780 kind:function(arm,size=0xa4) addr:0x0209d780 local
-func_ov003_0209d824 kind:function(arm,size=0x14) addr:0x0209d824 local
-func_ov003_0209d838 kind:function(arm,size=0x68) addr:0x0209d838 local
+BtlInf_Star_Init kind:function(arm,size=0xa8) addr:0x0209d6b0 local
+BtlInf_Star_Update kind:function(arm,size=0x28) addr:0x0209d758 local
+BtlInf_Star_Render kind:function(arm,size=0xa4) addr:0x0209d780 local
+BtlInf_Star_Release kind:function(arm,size=0x14) addr:0x0209d824 local
+BtlInf_Star_RunTask kind:function(arm,size=0x68) addr:0x0209d838 local
 func_ov003_0209d8a0 kind:function(arm,size=0x108) addr:0x0209d8a0 local
 func_ov003_0209d9a8 kind:function(arm,size=0x88) addr:0x0209d9a8 local
-func_ov003_0209da30 kind:function(arm,size=0xd8) addr:0x0209da30 local
-func_ov003_0209db08 kind:function(arm,size=0xa0) addr:0x0209db08 local
-func_ov003_0209dba8 kind:function(arm,size=0x94) addr:0x0209dba8 local
-func_ov003_0209dc3c kind:function(arm,size=0x38) addr:0x0209dc3c local
-func_ov003_0209dc74 kind:function(arm,size=0x68) addr:0x0209dc74 local
-func_ov003_0209dcdc kind:function(arm,size=0x6c) addr:0x0209dcdc local
-func_ov003_0209dd48 kind:function(arm,size=0x30) addr:0x0209dd48 local
-func_ov003_0209dd78 kind:function(arm,size=0x30) addr:0x0209dd78 local
-func_ov003_0209dda8 kind:function(arm,size=0x14) addr:0x0209dda8 local
-func_ov003_0209ddbc kind:function(arm,size=0x68) addr:0x0209ddbc local
+BtlInf_Exp_Init kind:function(arm,size=0xd8) addr:0x0209da30 local
+BtlInf_Exp_Update kind:function(arm,size=0xa0) addr:0x0209db08 local
+BtlInf_Exp_Render kind:function(arm,size=0x94) addr:0x0209dba8 local
+BtlInf_Exp_Release kind:function(arm,size=0x38) addr:0x0209dc3c local
+BtlInf_Exp_RunTask kind:function(arm,size=0x68) addr:0x0209dc74 local
+BtlInf_Auto_Init kind:function(arm,size=0x6c) addr:0x0209dcdc local
+BtlInf_Auto_Update kind:function(arm,size=0x30) addr:0x0209dd48 local
+BtlInf_Auto_Render kind:function(arm,size=0x30) addr:0x0209dd78 local
+BtlInf_Auto_Release kind:function(arm,size=0x14) addr:0x0209dda8 local
+BtlInf_Auto_RunTask kind:function(arm,size=0x68) addr:0x0209ddbc local
 func_ov003_0209de24 kind:function(arm,size=0x14) addr:0x0209de24 local
 func_ov003_0209de38 kind:function(arm,size=0x174) addr:0x0209de38 local
-func_ov003_0209dfac kind:function(arm,size=0xb4) addr:0x0209dfac local
-func_ov003_0209e060 kind:function(arm,size=0x20) addr:0x0209e060 local
-func_ov003_0209e080 kind:function(arm,size=0x1f0) addr:0x0209e080 local
-func_ov003_0209e270 kind:function(arm,size=0x14) addr:0x0209e270 local
-func_ov003_0209e284 kind:function(arm,size=0x48) addr:0x0209e284 local
+BtlInf_Timer_Init kind:function(arm,size=0xb4) addr:0x0209dfac local
+BtlInf_Timer_Update kind:function(arm,size=0x20) addr:0x0209e060 local
+BtlInf_Timer_Render kind:function(arm,size=0x1f0) addr:0x0209e080 local
+BtlInf_Timer_Release kind:function(arm,size=0x14) addr:0x0209e270 local
+BtlInf_Timer_RunTask kind:function(arm,size=0x48) addr:0x0209e284 local
 func_ov003_0209e2cc kind:function(arm,size=0x2b8) addr:0x0209e2cc local
 func_ov003_0209e584 kind:function(arm,size=0x24) addr:0x0209e584 local
 func_ov003_0209e5a8 kind:function(arm,size=0xd0) addr:0x0209e5a8 local
@@ -814,11 +814,11 @@ func_ov003_020a2a04 kind:function(arm,size=0x84) addr:0x020a2a04
 func_ov003_020a2a88 kind:function(arm,size=0x18) addr:0x020a2a88 local
 func_ov003_020a2aa0 kind:function(arm,size=0xb4) addr:0x020a2aa0 local
 func_ov003_020a2b54 kind:function(arm,size=0x88) addr:0x020a2b54 local
-func_ov003_020a2bdc kind:function(arm,size=0x12c) addr:0x020a2bdc local
-func_ov003_020a2d08 kind:function(arm,size=0x20) addr:0x020a2d08 local
-func_ov003_020a2d28 kind:function(arm,size=0x1ec) addr:0x020a2d28 local
-func_ov003_020a2f14 kind:function(arm,size=0x20) addr:0x020a2f14 local
-func_ov003_020a2f34 kind:function(arm,size=0x48) addr:0x020a2f34 local
+BtlInf_ShowVal_Init kind:function(arm,size=0x12c) addr:0x020a2bdc local
+BtlInf_ShowVal_Update kind:function(arm,size=0x20) addr:0x020a2d08 local
+BtlInf_ShowVal_Render kind:function(arm,size=0x1ec) addr:0x020a2d28 local
+BtlInf_ShowVal_Release kind:function(arm,size=0x20) addr:0x020a2f14 local
+BtlInf_ShowVal_RunTask kind:function(arm,size=0x48) addr:0x020a2f34 local
 func_ov003_020a2f7c kind:function(arm,size=0x90) addr:0x020a2f7c
 func_ov003_020a300c kind:function(arm,size=0x30) addr:0x020a300c
 func_ov003_020a303c kind:function(arm,size=0x98) addr:0x020a303c
@@ -2090,14 +2090,14 @@ Tsk_BtlPop_Star kind:data(any) addr:0x020d8120 local
 @3102 kind:data(any) addr:0x020d812c local
 Tsk_BtlPop_Tech kind:data(any) addr:0x020d813c local
 @3113 kind:data(any) addr:0x020d8148 local
-data_ov003_020d8158 kind:data(any) addr:0x020d8158
-data_ov003_020d8164 kind:data(any) addr:0x020d8164 local
-data_ov003_020d8174 kind:data(any) addr:0x020d8174
-data_ov003_020d8180 kind:data(any) addr:0x020d8180 local
-data_ov003_020d8190 kind:data(any) addr:0x020d8190
-data_ov003_020d819c kind:data(any) addr:0x020d819c local
-data_ov003_020d81ac kind:data(any) addr:0x020d81ac
-data_ov003_020d81b8 kind:data(any) addr:0x020d81b8
+Tsk_BtlInf_Star kind:data(any) addr:0x020d8158
+@3065 kind:data(any) addr:0x020d8164 local
+Tsk_BtlInf_Exp kind:data(any) addr:0x020d8174
+@3039 kind:data(any) addr:0x020d8180 local
+Tsk_BtlInf_Auto kind:data(any) addr:0x020d8190
+@2979 kind:data(any) addr:0x020d819c local
+Tsk_BtlInf_Timer kind:data(any) addr:0x020d81ac
+@3043 kind:data(any) addr:0x020d81b8 local
 data_ov003_020d81c8 kind:data(any) addr:0x020d81c8
 data_ov003_020d81d0 kind:data(any) addr:0x020d81d0
 data_ov003_020d81e0 kind:data(any) addr:0x020d81e0
@@ -2136,8 +2136,8 @@ data_ov003_020d8848 kind:data(any) addr:0x020d8848
 data_ov003_020d8854 kind:data(any) addr:0x020d8854
 data_ov003_020d8864 kind:data(any) addr:0x020d8864
 data_ov003_020d8870 kind:data(any) addr:0x020d8870
-data_ov003_020d8880 kind:data(any) addr:0x020d8880
-data_ov003_020d888c kind:data(any) addr:0x020d888c
+Tsk_BtlInf_ShowVal kind:data(any) addr:0x020d8880 local
+@3083 kind:data(any) addr:0x020d888c local
 data_ov003_020d889c kind:data(any) addr:0x020d889c
 data_ov003_020d88ac kind:data(any) addr:0x020d88ac
 data_ov003_020d88c0 kind:data(any) addr:0x020d88c0
@@ -4113,10 +4113,10 @@ data_ov003_020e3c80 kind:data(any) addr:0x020e3c80 local
 @3010 kind:data(byte[17]) addr:0x020e3cd8 local
 @3026 kind:data(any) addr:0x020e3cec local
 @3026 kind:data(any) addr:0x020e3cfc local
-data_ov003_020e3d0c kind:data(any) addr:0x020e3d0c local
-data_ov003_020e3d1c kind:data(any) addr:0x020e3d1c local
-data_ov003_020e3d2c kind:data(any) addr:0x020e3d2c local
-data_ov003_020e3d3c kind:data(any) addr:0x020e3d3c
+@2979 kind:data(any) addr:0x020e3d0c local
+@2943 kind:data(byte[15]) addr:0x020e3d1c local
+@2939 kind:data(any) addr:0x020e3d2c local
+@2984 kind:data(byte[17]) addr:0x020e3d3c local
 data_ov003_020e3d50 kind:data(any) addr:0x020e3d50
 data_ov003_020e3d64 kind:data(any) addr:0x020e3d64
 data_ov003_020e3d84 kind:data(any) addr:0x020e3d84
@@ -4130,9 +4130,9 @@ data_ov003_020e3df8 kind:data(any) addr:0x020e3df8
 data_ov003_020e3e08 kind:data(any) addr:0x020e3e08
 data_ov003_020e3e18 kind:data(any) addr:0x020e3e18
 data_ov003_020e3e24 kind:data(any) addr:0x020e3e24
-data_ov003_020e3e34 kind:data(any) addr:0x020e3e34
-data_ov003_020e3e44 kind:data(any) addr:0x020e3e44
-data_ov003_020e3e50 kind:data(any) addr:0x020e3e50
+@3205 kind:data(byte[13]) addr:0x020e3e34 local
+@3122 kind:data(byte[11]) addr:0x020e3e44 local
+@2979 kind:data(byte[19]) addr:0x020e3e50 local
 data_ov003_020e3e64 kind:data(any) addr:0x020e3e64
 data_ov003_020e3e68 kind:data(any) addr:0x020e3e68
 data_ov003_020e3e6c kind:data(any) addr:0x020e3e6c

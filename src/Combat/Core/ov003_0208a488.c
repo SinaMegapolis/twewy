@@ -32,6 +32,7 @@
 #include "SndMgr.h"
 #include "common_data.h"
 
+#include "Combat/Core/BtlInf.h"
 #include "Combat/Core/BtlPop.h"
 
 #include <nitro/fx.h>
@@ -68,10 +69,6 @@ extern const TaskHandle data_ov003_020d7e9c;
 extern const TaskHandle data_ov003_020d7eec;
 extern const TaskHandle data_ov003_020d7f98;
 extern const TaskHandle data_ov003_020d7fd0;
-extern const TaskHandle data_ov003_020d8158;
-extern const TaskHandle data_ov003_020d8174;
-extern const TaskHandle data_ov003_020d8190;
-extern const TaskHandle data_ov003_020d81ac;
 extern const TaskHandle data_ov003_020d8738;
 extern const TaskHandle data_ov003_020d8764;
 extern const TaskHandle data_ov003_020d8810;
@@ -1020,18 +1017,18 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
 
     if (data_ov003_020e71b8->unk3D88D < 3) {
         EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7eec, NULL, 0, NULL, NULL);
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8158, NULL, 0, NULL, NULL);
+        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Star, NULL, 0, NULL, NULL);
     }
 
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7f98, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7fd0, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Combo, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8174, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8190, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Exp, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Auto, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc614, NULL, 0, NULL, NULL);
 
     if (func_ov003_020a3330(4) != 0) {
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d81ac, NULL, 0, NULL, NULL);
+        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Timer, NULL, 0, NULL, NULL);
     }
 
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020d78f0, NULL, 0, NULL, NULL);

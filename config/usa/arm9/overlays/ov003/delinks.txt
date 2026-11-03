@@ -205,25 +205,25 @@ src/Combat/Core/BtlPop/BtlPop_Tech.c:
     .rodata     start:0x020d813c end:0x020d8158
     .data       start:0x020e3cfc end:0x020e3d0c
 
-src/Combat/Core/BtlInf_Star.c:
+src/Combat/Core/BtlInf/BtlInf_Star.c:
     complete
     .text       start:0x0209d51c end:0x0209d8a0
     .rodata     start:0x020d8158 end:0x020d8174
     .data       start:0x020e3d0c end:0x020e3d1c
 
-src/Combat/Core/BtlInf_Exp.c:
+src/Combat/Core/BtlInf/BtlInf_Exp.c:
     complete
     .text       start:0x0209d8a0 end:0x0209dcdc
     .rodata     start:0x020d8174 end:0x020d8190
     .data       start:0x020e3d1c end:0x020e3d2c
 
-src/Combat/Core/BtlInf_Auto.c:
+src/Combat/Core/BtlInf/BtlInf_Auto.c:
     complete
     .text       start:0x0209dcdc end:0x0209de24
     .rodata     start:0x020d8190 end:0x020d81ac
     .data       start:0x020e3d2c end:0x020e3d3c
 
-src/Combat/Core/BtlInf_Timer.c:
+src/Combat/Core/BtlInf/BtlInf_Timer.c:
     .text       start:0x0209de24 end:0x0209e2cc
     .rodata     start:0x020d81ac end:0x020d81c8
     .data       start:0x020e3d3c end:0x020e3d50
@@ -288,28 +288,28 @@ src/Combat/Core/BtlWin.c:
 src/Combat/Core/BtlOver.c:
     .text       start:0x020a1714 end:0x020a210c
     .rodata     start:0x020d882c end:0x020d8848
-    .data       start:0x020e3e24 end:0x020e3e44
+    .data       start:0x020e3e24 end:0x020e3e34
 
 src/Combat/Core/BtlPause.c:
     .text       start:0x020a210c end:0x020a2524
     .rodata     start:0x020d8848 end:0x020d8864
-    .data       start:0x020e3e44 end:0x020e3e64
+    .data       start:0x020e3e34 end:0x020e3e44
 
 src/Combat/Core/BtlDbg.c:
     .text       start:0x020a2524 end:0x020a2a88
     .rodata     start:0x020d8864 end:0x020d8880
-    .data       start:0x020e3e64 end:0x020e3f0c
+    .data       start:0x020e3e44 end:0x020e3e50
     .bss        start:0x020e71c0 end:0x020e71c4
 
-src/Combat/Core/BtlInf_ShowVal.c:
+src/Combat/Core/BtlInf/BtlInf_ShowVal.c:
     .text       start:0x020a2a88 end:0x020a30d4
-    .rodata     start:0x020d8880 end:0x020d9a80
-    .data       start:0x020e3f0c end:0x020e44f8
+    .rodata     start:0x020d8880 end:0x020d889c
+    .data       start:0x020e3e50 end:0x020e3e64
 
 src/Combat/Core/ov003_020a30d4.c:
     .text       start:0x020a30d4 end:0x020a3b9c
-    .rodata     start:0x020d9a80 end:0x020dc03c
-    .data       start:0x020e44f8 end:0x020e4868
+    .rodata     start:0x020d889c end:0x020dc03c
+    .data       start:0x020e3e64 end:0x020e4868
 
 src/Combat/Core/ov003_020a3b9c.c:
     .text       start:0x020a3b9c end:0x020a5080

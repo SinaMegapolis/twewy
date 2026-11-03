@@ -49,9 +49,7 @@ static s32 func_ov003_020a28f4(TaskPool* pool, Task* task, void* args);
 static s32 func_ov003_020a2968(TaskPool* pool, Task* task, void* args);
 static s32 func_ov003_020a2970(TaskPool* pool, Task* task, void* args, s32 stage);
 
-extern char data_ov003_020e3e44[]; // `Tsk_BtlDbg`, pooled into the `.data` of BtlPause
-
-static const TaskHandle data_ov003_020d8864 = {data_ov003_020e3e44, func_ov003_020a2970, sizeof(BtlDbg)};
+static const TaskHandle data_ov003_020d8864 = {"Tsk_BtlDbg", func_ov003_020a2970, sizeof(BtlDbg)};
 
 /// The stage table of the overlay: build, update, draw, release.
 static const TaskStages data_ov003_020d8870 = {
@@ -62,68 +60,6 @@ static const TaskStages data_ov003_020d8870 = {
 };
 
 static s32 data_ov003_020e71c0; // the task id
-
-// The pointer tables below belong to the battle info display; they point into its `.rodata`.
-extern char data_ov003_020d889c[];
-extern char data_ov003_020d88c0[];
-extern char data_ov003_020d8998[];
-extern char data_ov003_020d8a10[];
-extern char data_ov003_020d8a38[];
-extern char data_ov003_020d8a60[];
-extern char data_ov003_020d8a88[];
-extern char data_ov003_020d8ab0[];
-extern char data_ov003_020d8ad8[];
-extern char data_ov003_020d8b00[];
-extern char data_ov003_020d8b28[];
-extern char data_ov003_020d8b50[];
-extern char data_ov003_020d8b78[];
-extern char data_ov003_020d8ba0[];
-extern char data_ov003_020d8bc8[];
-extern char data_ov003_020d8bf0[];
-extern char data_ov003_020d8cc0[];
-extern char data_ov003_020d8cec[];
-extern char data_ov003_020d8d18[];
-extern char data_ov003_020d8d44[];
-extern char data_ov003_020d8d70[];
-extern char data_ov003_020d8d9c[];
-extern char data_ov003_020d8dc8[];
-extern char data_ov003_020d8df4[];
-extern char data_ov003_020d8e20[];
-extern char data_ov003_020d8e4c[];
-extern char data_ov003_020d8e78[];
-extern char data_ov003_020d8ea4[];
-extern char data_ov003_020d8ed0[];
-extern char data_ov003_020d8efc[];
-extern char data_ov003_020d8f34[];
-extern char data_ov003_020d8f6c[];
-extern char data_ov003_020d8fa4[];
-extern char data_ov003_020d8fdc[];
-extern char data_ov003_020d9014[];
-extern char data_ov003_020d904c[];
-extern char data_ov003_020d9084[];
-extern char data_ov003_020d90bc[];
-extern char data_ov003_020d90f4[];
-extern char data_ov003_020d912c[];
-extern char data_ov003_020d9164[];
-extern char data_ov003_020d919c[];
-
-char* data_ov003_020e3e64     = data_ov003_020d88c0;
-char* data_ov003_020e3e68     = data_ov003_020d8998;
-char* data_ov003_020e3e6c[13] = {
-    data_ov003_020d8ed0, data_ov003_020d8d18, data_ov003_020d8d44, data_ov003_020d8ea4, data_ov003_020d8d70,
-    data_ov003_020d8d9c, data_ov003_020d8df4, data_ov003_020d8dc8, data_ov003_020d8e78, data_ov003_020d8e4c,
-    data_ov003_020d8e20, data_ov003_020d8cc0, data_ov003_020d8cec,
-};
-char* data_ov003_020e3ea0[13] = {
-    data_ov003_020d90f4, data_ov003_020d8fa4, data_ov003_020d9164, data_ov003_020d8f34, data_ov003_020d8fdc,
-    data_ov003_020d919c, data_ov003_020d9084, data_ov003_020d9014, data_ov003_020d8efc, data_ov003_020d90bc,
-    data_ov003_020d904c, data_ov003_020d8f6c, data_ov003_020d912c,
-};
-char* data_ov003_020e3ed4[14] = {
-    data_ov003_020d8a60, data_ov003_020d8a38, data_ov003_020d8ad8, data_ov003_020d8a10, data_ov003_020d8b28,
-    data_ov003_020d8b78, data_ov003_020d8ab0, data_ov003_020d8b00, data_ov003_020d8bc8, data_ov003_020d8a88,
-    data_ov003_020d8bf0, data_ov003_020d8b50, data_ov003_020d8ba0, data_ov003_020d889c,
-};
 
 // ---------------------------------------------------------------------------------------------
 // Functions

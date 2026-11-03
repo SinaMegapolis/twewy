@@ -149,13 +149,8 @@ s32 func_ov003_020a250c(void) {
     return EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8848, NULL, 0, NULL, NULL);
 }
 
-/// `Tsk_BtlPause` is pooled into the `.data` of the unit before this one; the two names below belong to
-/// the handles of the units after it.
-extern char             data_ov003_020e3e34[];
-char                    data_ov003_020e3e44[12] = "Tsk_BtlDbg";
-char                    data_ov003_020e3e50[20] = "Tsk_BtlInf_ShowVal";
-const TaskHandle        data_ov003_020d8848     = {data_ov003_020e3e34, func_ov003_020a24dc, sizeof(BtlPause)};
-static const TaskStages data_ov003_020d8854     = {
+const TaskHandle        data_ov003_020d8848 = {"Tsk_BtlPause", func_ov003_020a24dc, sizeof(BtlPause)};
+static const TaskStages data_ov003_020d8854 = {
     func_ov003_020a21d8,
     func_ov003_020a2330,
     func_ov003_020a2458,

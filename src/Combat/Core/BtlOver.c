@@ -55,9 +55,7 @@ static s32  func_ov003_020a203c(TaskPool* pool, Task* task, void* args);
 static s32  func_ov003_020a20a4(TaskPool* pool, Task* task, void* args);
 static s32  func_ov003_020a20c4(TaskPool* pool, Task* task, void* args, s32 stage);
 
-// `Tsk_BtlPause` is pooled into the `.data` of this unit.
 static char data_ov003_020e3e24[0x10] = "Task_BtlOver";
-char        data_ov003_020e3e34[0x10] = "Tsk_BtlPause";
 
 const TaskHandle data_ov003_020d882c = {data_ov003_020e3e24, func_ov003_020a20c4, sizeof(BtlOver)};
 

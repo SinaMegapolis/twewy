@@ -254,11 +254,6 @@ void func_ov003_020a29b8(void);
 /// Posts a debug rectangle for `life` frames. Declared `s32` because a caller forwards the (undefined) return register.
 s32 func_ov003_020a2a04(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height);
 
-// BtlInf_ShowVal.c
-s32  func_ov003_020a2f7c(TaskPool* pool, ...);
-void func_ov003_020a300c(void);
-void func_ov003_020a303c(const u16* items, s32 touchIndex);
-
 // ov003_020a30d4.c
 void func_ov003_020a30d4(s32 id, s32 touchIndex, u32 slot);
 s32  func_ov003_020a3340(s32 actionId);
