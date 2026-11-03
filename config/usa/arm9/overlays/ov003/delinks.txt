@@ -168,39 +168,39 @@ src/Combat/Core/BtlTarget.c:
     .rodata     start:0x020d7fd0 end:0x020d7ffc
     .data       start:0x020e3c80 end:0x020e3c90
 
-src/Combat/Core/BtlPop_Num.c:
+src/Combat/Core/BtlPop/BtlPop_Num.c:
     .text       start:0x0209af30 end:0x0209b760
     .rodata     start:0x020d7ffc end:0x020d8018
     .data       start:0x020e3c90 end:0x020e3ca0
 
-src/Combat/Core/BtlPop_Combo.c:
+src/Combat/Core/BtlPop/BtlPop_Combo.c:
     .text       start:0x0209b760 end:0x0209c1a4
     .rodata     start:0x020d8018 end:0x020d8034
     .data       start:0x020e3ca0 end:0x020e3cb4
     .bss        start:0x020e71bc end:0x020e71c0
 
-src/Combat/Core/BtlPop_Rate.c:
+src/Combat/Core/BtlPop/BtlPop_Rate.c:
     .text       start:0x0209c1a4 end:0x0209c688
     .rodata     start:0x020d8034 end:0x020d80c0
     .data       start:0x020e3cb4 end:0x020e3cc4
 
-src/Combat/Core/BtlPop_Message.c:
+src/Combat/Core/BtlPop/BtlPop_Message.c:
     complete
     .text       start:0x0209c688 end:0x0209ca18
     .rodata     start:0x020d80c0 end:0x020d80dc
     .data       start:0x020e3cc4 end:0x020e3cd8
 
-src/Combat/Core/BtlPop_State.c:
+src/Combat/Core/BtlPop/BtlPop_State.c:
     .text       start:0x0209ca18 end:0x0209cd0c
     .rodata     start:0x020d80dc end:0x020d8120
     .data       start:0x020e3cd8 end:0x020e3cec
 
-src/Combat/Core/BtlPop_Star.c:
+src/Combat/Core/BtlPop/BtlPop_Star.c:
     .text       start:0x0209cd0c end:0x0209d088
     .rodata     start:0x020d8120 end:0x020d813c
     .data       start:0x020e3cec end:0x020e3cfc
 
-src/Combat/Core/BtlPop_Tech.c:
+src/Combat/Core/BtlPop/BtlPop_Tech.c:
     .text       start:0x0209d088 end:0x0209d51c
     .rodata     start:0x020d813c end:0x020d8158
     .data       start:0x020e3cfc end:0x020e3d0c

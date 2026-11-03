@@ -1,3 +1,4 @@
+#include "Combat/Core/BtlPop.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "SndMgr.h"

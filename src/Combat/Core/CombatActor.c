@@ -1,4 +1,5 @@
 #include "Combat/Core/CombatActor.h"
+#include "Combat/Core/BtlPop.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include <nitro/fx.h>

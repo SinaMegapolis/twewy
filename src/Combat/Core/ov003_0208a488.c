@@ -32,6 +32,8 @@
 #include "SndMgr.h"
 #include "common_data.h"
 
+#include "Combat/Core/BtlPop.h"
+
 #include <nitro/fx.h>
 #include <nitro/g3.h>
 #include <nitro/gx.h>
@@ -66,7 +68,6 @@ extern const TaskHandle data_ov003_020d7e9c;
 extern const TaskHandle data_ov003_020d7eec;
 extern const TaskHandle data_ov003_020d7f98;
 extern const TaskHandle data_ov003_020d7fd0;
-extern const TaskHandle data_ov003_020d8018;
 extern const TaskHandle data_ov003_020d8158;
 extern const TaskHandle data_ov003_020d8174;
 extern const TaskHandle data_ov003_020d8190;
@@ -1024,7 +1025,7 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
 
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7f98, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d7fd0, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8018, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Combo, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8174, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020d8190, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc614, NULL, 0, NULL, NULL);

@@ -234,19 +234,6 @@ void             func_ov003_0208ec74(BtlMgrWork*);
 /// Spawns the BS bar task for the actor that just entered the battle.
 void func_ov003_0209ab9c(CombatActor* actor);
 
-// BtlPop_Combo.c
-/// Posts a combo increase through the mailbox and records the longest combo of the battle.
-void func_ov003_0209c150(s16 combo);
-
-// BtlPop_Star.c
-/// Spawns a star popup showing `value` at (`x`, `y`).
-s32 func_ov003_0209d038(s32 value, s16 x, s32 y);
-
-// BtlPop_Tech.c
-/// Creates the popup task if a tech was used this frame. The task parameter is a bare `s16` tech
-/// id (a `BtlPop_Tech_Args`), passed by address.
-void func_ov003_0209d4b0(void);
-
 // BtlEff.c
 /// Spawns a hit effect of id `id` on the display engine `mode` at world position (`x`, `y`, `z`),
 /// flipped to match `flip`. Ignored once ten effects are already live on that screen.
@@ -747,10 +734,6 @@ s32                    func_ov003_0208a25c(CombatActor* actor);
 // BtlAuraSub.c
 void func_ov003_020974f8(s32, s32);
 
-// BtlPop_Num.c
-void func_ov003_0209b564(s32, s32, CombatActor*, s32);
-void func_ov003_0209b61c(s32, s32, CombatActor*);
-
 // BtlFeat_SplashEnm.c
 void func_ov003_020bc690(u16, u16, s32);
 
@@ -802,15 +785,6 @@ void func_ov005_020eb29c(s32, s32, s32);
 
 // BtlField_Fore.c
 void func_ov003_0209409c(s32 bgIndex);
-
-// BtlPop_Rate.c
-void func_ov003_0209c568(s32 engine);
-
-// BtlPop_Message.c
-void func_ov003_0209c984(s32 engine, s32 animBase, s32 x, s32 y, s32 z);
-
-// BtlPop_State.c
-s32 func_ov003_0209ccc0(s32 engine, CombatActor* actor);
 
 // BtlEff_Hit.c
 void func_ov003_0209ed70(u8 id, s32 x, s32 y, s32 z, s32 flip);
