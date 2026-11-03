@@ -97,7 +97,11 @@ inline void G3_Vtx(u16 x, u16 y, u16 z) {
 inline void G3_End(void) {
     REG_GFX_FIFO_POLYGONS_END = 0;
 }
-
+inline void G3_Scale(u32 x, u32 y, u32 z) {
+    REG_GFX_FIFO_MATRIX_SCALE = x;
+    REG_GFX_FIFO_MATRIX_SCALE = y;
+    REG_GFX_FIFO_MATRIX_SCALE = z;
+}
 inline void G3_SwapBuffers(u32 sortMode, u32 bufferMode) {
     // Unclear what values these macros have and how they are meant to be combined
     // GX_SORTMODE_MANUAL | GX_BUFFERMODE_Z == 0x1

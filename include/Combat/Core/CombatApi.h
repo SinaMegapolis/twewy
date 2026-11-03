@@ -231,9 +231,6 @@ BOOL             func_ov003_0208c79c(Ov003EnemyActor*, s32);
 Ov003EnemyActor* func_ov003_0208c810(s32, s32, s32);
 void             func_ov003_0208ec74(BtlMgrWork*);
 
-// BtlDbg.c
-void func_ov003_020a29b8(void);
-
 // ov003_020a30d4.c
 void func_ov003_020a30d4(s32 id, s32 touchIndex, u32 slot);
 s32  func_ov003_020a3340(s32 actionId);

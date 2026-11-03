@@ -432,16 +432,14 @@ s32 func_ov003_02088130(void) {
 static void func_ov003_020881b4(Ov003Hit* hit) {
     const Ov003AttackInfo* info = hit->info;
     u32                    id   = (u32)(info->flags << 0x17) >> 0x1F;
-    u8                     halfW;
-    u8                     halfH;
 
     if (id == 0) {
-        halfW = info->unk_05;
-        halfH = info->unk_06;
+        u8 halfW = info->unk_05;
+        u8 halfH = info->unk_06;
         if (hit->kind == 3) {
-            func_ov003_020a2a04(2, 0, hit->x - (halfW << 12), hit->y - (halfH << 12), (s16)(halfW * 2), (s16)(halfH * 2));
+            BtlDbg_PostRect(BTLDBG_KIND_SCREEN, 0, hit->x - I2F(halfW), hit->y - I2F(halfH), halfW * 2, halfH * 2);
         }
-        func_ov003_020a2a04(1, 0, hit->x - (halfW << 12), hit->y - (halfH << 12), (s16)(halfW * 2), (s16)(halfH * 2));
+        BtlDbg_PostRect(BTLDBG_KIND_ATTACK, 0, hit->x - I2F(halfW), hit->y - I2F(halfH), halfW * 2, halfH * 2);
     }
 }
 

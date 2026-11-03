@@ -296,6 +296,7 @@ src/Combat/Core/BtlPhase/BtlPause.c:
     .data       start:0x020e3e34 end:0x020e3e44
 
 src/Combat/Core/BtlDbg.c:
+    complete
     .text       start:0x020a2524 end:0x020a2a88
     .rodata     start:0x020d8864 end:0x020d8880
     .data       start:0x020e3e44 end:0x020e3e50

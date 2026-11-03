@@ -1,5 +1,6 @@
 #include "Combat/Core/BtlAura.h"
 #include "Combat/Core/BtlBar.h"
+#include "Combat/Core/BtlDbg.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPhase.h"
 #include "Combat/Core/BtlTch.h"
@@ -1035,7 +1036,7 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlPause, NULL, 0, NULL, NULL);
 
     func_ov003_020842e0();
-    func_ov003_020a29b8();
+    BtlDbg_CreateTask();
     func_ov003_0208508c();
 }
 

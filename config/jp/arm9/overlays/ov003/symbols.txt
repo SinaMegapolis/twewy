@@ -4392,7 +4392,7 @@ data_ov003_020e715c kind:data(any) addr:0x020e715c
 data_ov003_020e7174 kind:data(any) addr:0x020e7174
 data_ov003_020e7190 kind:data(any) addr:0x020e7190
 data_ov003_020e71a8 kind:data(any) addr:0x020e71a8
-data_ov003_020e71c0 kind:data(any) addr:0x020e71c0
+BtlDbg_TaskId kind:data(any) addr:0x020e71c0
 data_ov003_020e71dc kind:data(any) addr:0x020e71dc
 data_ov003_020e71f4 kind:data(any) addr:0x020e71f4
 data_ov003_020e720c kind:data(any) addr:0x020e720c

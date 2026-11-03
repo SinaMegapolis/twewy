@@ -800,17 +800,17 @@ BtlPause_Update kind:function(arm,size=0x128) addr:0x020a2330 local
 BtlPause_Render kind:function(arm,size=0x5c) addr:0x020a2458 local
 BtlPause_Release kind:function(arm,size=0x28) addr:0x020a24b4 local
 BtlPause_RunTask kind:function(arm,size=0x48) addr:0x020a24dc local
-func_ov003_020a2524 kind:function(arm,size=0x270) addr:0x020a2524 local
-func_ov003_020a2794 kind:function(arm,size=0x5c) addr:0x020a2794 local
-func_ov003_020a27f0 kind:function(arm,size=0x6c) addr:0x020a27f0 local
-func_ov003_020a285c kind:function(arm,size=0x34) addr:0x020a285c local
+BtlDbg_DrawQuad kind:function(arm,size=0x270) addr:0x020a2524 local
+BtlDbg_DrawRect kind:function(arm,size=0x5c) addr:0x020a2794 local
+BtlDbg_AddRect kind:function(arm,size=0x6c) addr:0x020a27f0 local
+BtlDbg_FreeRect kind:function(arm,size=0x34) addr:0x020a285c local
 BtlDbg_Init kind:function(arm,size=0x5c) addr:0x020a2890 local
 BtlDbg_Update kind:function(arm,size=0x8) addr:0x020a28ec local
 BtlDbg_Render kind:function(arm,size=0x74) addr:0x020a28f4 local
 BtlDbg_Release kind:function(arm,size=0x8) addr:0x020a2968 local
 BtlDbg_RunTask kind:function(arm,size=0x48) addr:0x020a2970 local
-func_ov003_020a29b8 kind:function(arm,size=0x4c) addr:0x020a29b8
-func_ov003_020a2a04 kind:function(arm,size=0x84) addr:0x020a2a04
+BtlDbg_CreateTask kind:function(arm,size=0x4c) addr:0x020a29b8
+BtlDbg_PostRect kind:function(arm,size=0x84) addr:0x020a2a04
 func_ov003_020a2a88 kind:function(arm,size=0x18) addr:0x020a2a88 local
 func_ov003_020a2aa0 kind:function(arm,size=0xb4) addr:0x020a2aa0 local
 func_ov003_020a2b54 kind:function(arm,size=0x88) addr:0x020a2b54 local
@@ -4434,7 +4434,7 @@ data_ov003_020e70ac kind:data(any) addr:0x020e70ac
 data_ov003_020e71a0 kind:bss addr:0x020e71a0 local
 data_ov003_020e71b8 kind:bss addr:0x020e71b8
 data_ov003_020e71bc kind:bss addr:0x020e71bc local
-data_ov003_020e71c0 kind:bss addr:0x020e71c0 local
+BtlDbg_TaskId kind:bss addr:0x020e71c0 local
 data_ov003_020e71c4 kind:bss addr:0x020e71c4 local
 data_ov003_020e71c8 kind:bss addr:0x020e71c8 local
 BtlCutIn_SpecialKind kind:bss addr:0x020e71d4 local

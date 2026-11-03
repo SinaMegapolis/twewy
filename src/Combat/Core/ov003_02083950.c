@@ -864,31 +864,31 @@ s32 func_ov003_02084db0(void) {
 /// Draws the hit circles of the player and of every enemy.
 static void func_ov003_02084dc0(void) {
     CombatActor* player = data_ov003_020e71b8->unk3D898;
-    CombatActor* actor;
-    u8*          item;
-    s32          radius = player->unk_70;
+    s16          radius = player->unk_70;
 
-    func_ov003_020a2a04(0, 0, player->position.x - (radius << 12), player->position.y - ((radius / 2) << 12), radius * 2,
-                        radius);
-    actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+    BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, player->position.x - I2F(radius), player->position.y - I2F(radius / 2),
+                    radius * 2, radius);
+
+    CombatActor* actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
     if (actor != NULL) {
         do {
             radius = actor->unk_70;
-            func_ov003_020a2a04(0, 0, actor->position.x - (radius << 12), actor->position.y - ((radius / 2) << 12), radius * 2,
-                                radius);
+            BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, actor->position.x - (radius << 12),
+                            actor->position.y - ((radius / 2) << 12), radius * 2, radius);
+
             actor = func_ov003_02084984(&((Ov003EnemyActor*)actor)->node);
         } while (actor != NULL);
     }
-    item = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8B4);
-    if (item == NULL) {
-        return;
-    }
-    do {
-        radius = ((CombatActor*)(item + 4))->unk_70;
-        func_ov003_020a2a04(0, 0, ((CombatActor*)(item + 4))->position.x - (radius << 12),
+
+    u8* item = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8B4);
+    if (item != NULL) {
+        do {
+            radius = ((CombatActor*)(item + 4))->unk_70;
+            BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, ((CombatActor*)(item + 4))->position.x - (radius << 12),
                             ((CombatActor*)(item + 4))->position.y - ((radius / 2) << 12), radius * 2, radius);
-        item = func_ov003_02084984((CombatListNode*)(item + 0xB8));
-    } while (item != NULL);
+            item = func_ov003_02084984((CombatListNode*)(item + 0xB8));
+        } while (item != NULL);
+    }
 }
 
 /// Draws the hit boxes of the player and of every enemy.
@@ -899,16 +899,15 @@ static void func_ov003_02084ee4(void) {
     s32          radius = player->unk_70;
     s32          height = player->unk_72;
 
-    func_ov003_020a2a04(3, 0, player->position.x - ((radius + 0x18) << 12),
-                        player->position.z + (player->position.y - ((height + 0x12) << 12)), (radius + 0x18) * 2,
-                        height + 0x30);
+    BtlDbg_PostRect(BTLDBG_KIND_HITBOX, 0, player->position.x - ((radius + 0x18) << 12),
+                    player->position.z + (player->position.y - ((height + 0x12) << 12)), (radius + 0x18) * 2, height + 0x30);
     actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
     if (actor != NULL) {
         do {
             radius = actor->unk_70;
             height = actor->unk_72;
-            func_ov003_020a2a04(3, 0, actor->position.x - (radius << 12),
-                                actor->position.z + (actor->position.y - (height << 12)), radius * 2, height + 0xC);
+            BtlDbg_PostRect(BTLDBG_KIND_HITBOX, 0, actor->position.x - (radius << 12),
+                            actor->position.z + (actor->position.y - (height << 12)), radius * 2, height + 0xC);
             actor = func_ov003_02084984(&((Ov003EnemyActor*)actor)->node);
         } while (actor != NULL);
     }
@@ -921,8 +920,8 @@ static void func_ov003_02084ee4(void) {
 
         radius = sub->unk_74;
         height = sub->unk_76;
-        func_ov003_020a2a04(3, 0, sub->position.x - (radius << 12), sub->position.z + (sub->position.y - (height << 12)),
-                            radius * 2, height + 0xC);
+        BtlDbg_PostRect(BTLDBG_KIND_HITBOX, 0, sub->position.x - (radius << 12),
+                        sub->position.z + (sub->position.y - (height << 12)), radius * 2, height + 0xC);
         item = func_ov003_02084984((CombatListNode*)(item + 0xB8));
     } while (item != NULL);
 }

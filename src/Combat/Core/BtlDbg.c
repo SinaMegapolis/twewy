@@ -1,3 +1,4 @@
+#include "Combat/Core/BtlDbg.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatList.h"
@@ -9,13 +10,6 @@
 #include <nitro/mi/cpumem.h>
 #include <nitro/reg.h>
 
-#include "Combat/Core/BtlDbg.h"
-
-// The battle debug overlay (`Tsk_BtlDbg`): coloured rectangles that other code posts for a number of frames to
-// visualise hit boxes. The task keeps a pool of 0x40 rectangles on two lists (free and shown) and draws every shown
-// rectangle as an untextured quad through the 3D engine.
-
-/// One rectangle; `kind` picks the colour and, for 2, whether `x`/`y` are screen coordinates.
 typedef struct BtlDbgRect {
     /* 0x00 */ s32            x;
     /* 0x04 */ s32            y;
@@ -32,6 +26,7 @@ typedef struct BtlDbg {
     /* 0x708 */ CombatList shown;
 } BtlDbg; // Size: 0x710
 
+// todo: OamMgr to claim these
 extern OamAffineParam data_02059ad4;
 extern VtxXY          data_02059ab0[4];
 extern TexCoordQuad   data_02059b14[];
@@ -40,26 +35,27 @@ static s32 BtlDbg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static const TaskHandle Tsk_BtlDbg = {"Tsk_BtlDbg", BtlDbg_RunTask, sizeof(BtlDbg)};
 
-static s32 data_ov003_020e71c0; // the task id
+static s32 BtlDbg_TaskId;
 
-/// Draws one rectangle: `x`/`y` is its top left corner, the colour comes from `kind`.
-static void func_ov003_020a2524(s32 kind, s32 x, s32 y, s32 width, s32 height) {
-    OamAffineParam* affine   = &data_02059ad4;
-    TexCoordQuad*   texCoord = data_02059b14;
-    VtxXY*          vertices = data_02059ab0;
-    s32             rotation;
+static void BtlDbg_DrawQuad(s32 kind, s32 x, s32 y, s32 width, s32 height) {
+    OamAffineParam* affine = &data_02059ad4;
+    TexCoordQuad*   texCoord;
+    VtxXY*          vertices;
+
+    vertices = data_02059ab0;
+    texCoord = data_02059b14;
 
     switch (kind) {
-        case 1:
+        case BTLDBG_KIND_ATTACK:
             REG_GFX_FIFO_VERTEX_COLOR = 0x1F;
             break;
-        case 2:
+        case BTLDBG_KIND_SCREEN:
             REG_GFX_FIFO_VERTEX_COLOR = 0x3DFF;
             break;
-        case 3:
+        case BTLDBG_KIND_HITBOX:
             REG_GFX_FIFO_VERTEX_COLOR = 0x7C00;
             break;
-        case 0:
+        case BTLDBG_KIND_FOOTPRINT:
         default:
             REG_GFX_FIFO_VERTEX_COLOR = 0x7FFF;
             break;
@@ -68,11 +64,10 @@ static void func_ov003_020a2524(s32 kind, s32 x, s32 y, s32 width, s32 height) {
     REG_GFX_FIFO_MATRIX_TRANSLATE = x + ((width << 12) >> 1);
     REG_GFX_FIFO_MATRIX_TRANSLATE = y + ((height << 12) >> 1);
     REG_GFX_FIFO_MATRIX_TRANSLATE = 0x3E8000;
-    rotation                      = (affine->rotation >> 4) * 2;
+
+    s32 rotation = (affine->rotation >> 4) * 2;
     func_020370cc(FX_SinCosTable_[rotation], FX_SinCosTable_[rotation + 1]);
-    REG_GFX_FIFO_MATRIX_SCALE    = width * affine->scaleX;
-    REG_GFX_FIFO_MATRIX_SCALE    = height * affine->scaleY;
-    REG_GFX_FIFO_MATRIX_SCALE    = 0x1000;
+    G3_Scale(width * affine->scaleX, height * affine->scaleY, 0x1000);
     REG_GFX_FIFO_TEXTURE_PARAM   = 0x20000000;
     REG_GFX_FIFO_TEXTURE_PALETTE = 0;
     REG_GFX_FIFO_POLYGON_ATTR    = 0xC0;
@@ -90,23 +85,22 @@ static void func_ov003_020a2524(s32 kind, s32 x, s32 y, s32 width, s32 height) {
     REG_GFX_FIFO_VERTEX_COLOR = 0x7FFF;
 }
 
-/// Draws a posted rectangle, converting its world position to the screen unless its kind says it already is one.
-static void func_ov003_020a2794(BtlDbgRect* rect) {
+static void BtlDbg_DrawRect(BtlDbgRect* rect) {
     s32 x;
     s32 y;
 
-    if (rect->kind == 2) {
+    if (rect->kind == BTLDBG_KIND_SCREEN) {
         x = rect->x;
         y = rect->y;
     } else {
         x = func_ov003_020843b0(0, rect->x) << 12;
         y = func_ov003_020843ec(0, rect->y, 0) << 12;
     }
-    func_ov003_020a2524(rect->kind, x, y, rect->width, rect->height);
+    BtlDbg_DrawQuad(rect->kind, x, y, rect->width, rect->height);
 }
 
 /// Moves a rectangle from the free list to the shown list.
-static void func_ov003_020a27f0(BtlDbg* dbg, u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
+static void BtlDbg_AddRect(BtlDbg* dbg, u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
     BtlDbgRect* rect = func_ov003_0208495c(&dbg->free);
 
     if (rect != NULL) {
@@ -121,8 +115,7 @@ static void func_ov003_020a27f0(BtlDbg* dbg, u16 kind, u16 life, s32 x, s32 y, s
     }
 }
 
-/// Moves a rectangle back to the free list.
-static void func_ov003_020a285c(BtlDbg* dbg, BtlDbgRect* rect) {
+static void BtlDbg_FreeRect(BtlDbg* dbg, BtlDbgRect* rect) {
     if (rect != NULL) {
         func_ov003_020849dc(&dbg->shown, &rect->node);
         func_ov003_020849bc(&dbg->free, &rect->node, rect);
@@ -149,13 +142,11 @@ static s32 BtlDbg_Render(TaskPool* pool, Task* task, void* args) {
     BtlDbg* dbg = task->data;
 
     BtlDbgRect* rect = func_ov003_0208495c(&dbg->shown);
-    BtlDbgRect* next;
-
     while (rect != NULL) {
-        func_ov003_020a2794(rect);
+        BtlDbg_DrawRect(rect);
         if (rect->life == 0) {
-            next = func_ov003_02084984(&rect->node);
-            func_ov003_020a285c(dbg, rect);
+            BtlDbgRect* next = func_ov003_02084984(&rect->node);
+            BtlDbg_FreeRect(dbg, rect);
             rect = next;
         } else {
             rect->life--;
@@ -179,16 +170,14 @@ static s32 BtlDbg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     return stages.iter[stage](pool, task, args);
 }
 
-/// Starts the overlay task.
-void func_ov003_020a29b8(void) {
-    data_ov003_020e71c0 = EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlDbg, NULL, 0, NULL, NULL);
+void BtlDbg_CreateTask(void) {
+    BtlDbg_TaskId = EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlDbg, NULL, 0, NULL, NULL);
 }
 
-/// Posts a rectangle for `life` frames.
-void func_ov003_020a2a04(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
-    BtlDbg* dbg = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, data_ov003_020e71c0);
+void BtlDbg_PostRect(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
+    BtlDbg* dbg = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, BtlDbg_TaskId);
 
     if (func_ov003_02084d80(1) != 0) {
-        func_ov003_020a27f0(dbg, kind, life, x, y, width, height);
+        BtlDbg_AddRect(dbg, kind, life, x, y, width, height);
     }
 }
