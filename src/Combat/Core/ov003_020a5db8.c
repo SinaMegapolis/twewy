@@ -219,7 +219,7 @@ s32 func_ov003_020a6164(Ov003EnemyActor* unit, u16 arg1) {
     if (func_ov003_020a60ec(unit, arg1) == 0) {
         return 0;
     }
-    CombatActor_SetPendingCommand(&unit->actor, 4);
+    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_HOLD);
     unit->actor.unk_58 = arg1;
     return 1;
 }
@@ -229,7 +229,7 @@ void func_ov003_020a6198(Ov003EnemyActor* unit, s32 arg1) {
     if (func_ov003_020a60a8(unit, arg1) == 0) {
         return;
     }
-    CombatActor_SetPendingCommand(&unit->actor, 5);
+    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_RELEASE);
     unit->actor.unk_58 = 0;
     func_ov003_02082fe0(&unit->actor);
     unit->actor.xVelocity = 0;
@@ -246,7 +246,7 @@ void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, Ov003Att
     if (func_ov003_020a60ec(unit, arg1) == 0) {
         return;
     }
-    CombatActor_SetPendingCommand(&unit->actor, 5);
+    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_RELEASE);
     unit->actor.unk_58 = 0;
     func_ov003_0208a234((u16)attackId, args, unit);
     idx                   = (angle >> 4) * 2;

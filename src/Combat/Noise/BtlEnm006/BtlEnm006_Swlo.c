@@ -89,7 +89,7 @@ static s32 func_ov010_021271c0(Enm006Swlo* data, Enm006Spawn* args) {
         target       = args->unk_0C;
         data->unk_0C = target;
         func_ov003_02084694(&target->base.collider, 1);
-        CombatActor_SetPendingCommand(&target->base.actor, 1);
+        CombatActor_SetPendingCommand(&target->base.actor, ACTOR_CMD_HIT);
         func_ov010_021256d0(data->unk_04, data->unk_0C);
     }
     data->unk_30 = (data->unk_30 & ~1) | 1;
@@ -137,7 +137,7 @@ static s32 func_ov010_021272e0(Enm006Swlo* data) {
                 data->unk_08->base.actor.xVelocity = -0x1800;
             }
             data->unk_08->base.actor.zVelocity = -0x5000;
-            CombatActor_SetPendingCommand(&data->unk_08->base.actor, 2);
+            CombatActor_SetPendingCommand(&data->unk_08->base.actor, ACTOR_CMD_KNOCKDOWN);
         } else {
             self = data->unk_0C;
             self->base.flags18C |= 0x1000;

@@ -138,10 +138,9 @@ void         func_ov003_020849ac(CombatList*);
 void         func_ov003_020849bc(CombatList*, CombatListNode*, void*);
 void*        func_ov003_020849dc(CombatList*, CombatListNode*);
 CombatActor* func_ov003_02085dc8(s32);
-// ov003_02086404.c
-s32 func_ov003_02086404(s32 engine, CombatSprite* sprite, u32 id);
 
 // ov003_020864c0.c
+s32  func_ov003_02086404(s32 engine, CombatSprite* sprite, u32 id);
 void func_ov003_020864c0(s32 arg0, CombatSprite* arg1, s32 arg2);
 /// Plays the actor record's sound: the normal SE when `arg0 == 0`, the alternate one otherwise.
 void func_ov003_02086540(s32 arg0, s32 arg1, s32 arg2);

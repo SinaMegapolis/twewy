@@ -129,16 +129,16 @@ static s32 BtlObs_Update(TaskPool* pool, Task* task, void* args) {
     BtlObs* obs = task->data;
 
     switch (CombatActor_PopPendingCommand(&obs->effect.actor)) {
-        case 1:
+        case ACTOR_CMD_HIT:
             func_ov003_020941ac(obs, func_ov003_020943ac);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_020941ac(obs, func_ov003_02094288);
             break;
-        case 4:
+        case ACTOR_CMD_HOLD:
             func_ov003_020941ac(obs, func_ov003_02094294);
             break;
-        case 5:
+        case ACTOR_CMD_RELEASE:
             func_ov003_020941ac(obs, func_ov003_020942e8);
             break;
     }

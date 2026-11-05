@@ -631,7 +631,7 @@ static s32 func_ov003_02088764(Ov003EnemyActor* unit) {
     if (!(unit->actor.flags & 0x40)) {
         return 0;
     }
-    CombatActor_SetPendingCommand(&unit->actor, 7);
+    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_HIT_IGNORED);
     return 1;
 }
 
@@ -693,15 +693,15 @@ static s32 func_ov003_0208882c(Ov003EnemyActor* unit, Ov003Hit* hit) {
 /// Decides the unit's reaction to a hit and applies it.
 // Nonmatching: register allocation of the flags word
 static void func_ov003_020888b0(Ov003EnemyActor* unit, const Ov003AttackInfo* info, s32 arg2) {
-    if (unit->actor.position.z < -0x10000 || unit->actor.pendingCommand == 2 || (unit->actor.flags & 0x4000) ||
-        ((u32)(info->flags << 0xD) >> 0x1C) >= 6U)
+    if (unit->actor.position.z < -0x10000 || unit->actor.pendingCommand == ACTOR_CMD_KNOCKDOWN ||
+        (unit->actor.flags & 0x4000) || ((u32)(info->flags << 0xD) >> 0x1C) >= 6U)
     {
         if (unit->actor.periodicEffectMode == 4) {
             CombatActor_ClearPeriodicEffect(&unit->actor);
         }
-        CombatActor_SetPendingCommand(&unit->actor, 2);
+        CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_KNOCKDOWN);
     } else if (arg2 == 0 && ((u32)(info->flags << 0x11) >> 0x1F) != 1 && !(unit->actor.flags & 0x40000000)) {
-        CombatActor_SetPendingCommand(&unit->actor, 1);
+        CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_HIT);
     }
     unit->actor.unk_10 = info->unk_03;
     unit->actor.unk_12 = (u16)((unit->actor.unk_12 & ~1) | ((u16)((u32)(info->flags << 0x13) >> 0x1F) & 1));
@@ -756,7 +756,7 @@ static void func_ov003_02088abc(Ov003EnemyActor* unit, const Ov003AttackInfo* in
     s32 speed;
     s32 zSpeed;
 
-    if (unit->actor.pendingCommand != 1 && unit->actor.pendingCommand != 2) {
+    if (unit->actor.pendingCommand != ACTOR_CMD_HIT && unit->actor.pendingCommand != ACTOR_CMD_KNOCKDOWN) {
         return;
     }
     variant = (u32)(info->flags << 0xD) >> 0x1C;
@@ -784,7 +784,7 @@ static void func_ov003_02088b5c(s32 mode, Ov003EnemyActor* unit, u16 attackId) {
     s16                      damage;
     s16                      attack;
 
-    if (unit->actor.pendingCommand != 1) {
+    if (unit->actor.pendingCommand != ACTOR_CMD_HIT) {
         return;
     }
     if (attackId == 0) {
@@ -933,7 +933,7 @@ static s32 func_ov003_02088f5c(Ov003EnemyActor* unit, const Ov003AttackInfo* inf
     if (!(unit->actor.flags & 8)) {
         return 0;
     }
-    CombatActor_SetPendingCommand(&unit->actor, 9);
+    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_GUARD);
     if (!(data_ov003_020e71b8->unk3D878 & 0x40000000)) {
         unit->actor.isFlipped = (unit->actor.position.x < x) ? 1 : 0;
     }
@@ -1350,10 +1350,10 @@ static void func_ov003_02089f90(s32 mode, Ov003EnemyActor* unit, u16 variant, s1
 s32 func_ov003_0208a028(s32 mode, Ov003EnemyActor* unit, u16 attackId) {
     s32 flags = unit->actor.flags;
 
-    if ((flags & 4) || (flags & 0x10) || (flags & 0x4000) || unit->actor.pendingCommand == 2) {
+    if ((flags & 4) || (flags & 0x10) || (flags & 0x4000) || unit->actor.pendingCommand == ACTOR_CMD_KNOCKDOWN) {
         return 0;
     }
-    CombatActor_SetPendingCommand(&unit->actor, 1);
+    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_HIT);
     func_ov003_02088b5c(mode, unit, attackId);
     return 1;
 }
@@ -1362,11 +1362,11 @@ s32 func_ov003_0208a028(s32 mode, Ov003EnemyActor* unit, u16 attackId) {
 s32 func_ov003_0208a08c(s32 mode, Ov003EnemyActor* unit, s32 arg2) {
     s32 flags = unit->actor.flags;
 
-    if ((flags & 4) || (flags & 0x10) || (flags & 0x4000) || unit->actor.pendingCommand == 2) {
+    if ((flags & 4) || (flags & 0x10) || (flags & 0x4000) || unit->actor.pendingCommand == ACTOR_CMD_KNOCKDOWN) {
         return 0;
     }
     unit->actor.flags = flags & ~8;
-    CombatActor_SetPendingCommand(&unit->actor, 1);
+    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_HIT);
     if (arg2 > 0) {
         ((void (*)(s32, Ov003EnemyActor*, u16, s32, s32))func_ov003_02089f90)(mode, unit, 4, 0, arg2);
     }
@@ -1467,7 +1467,7 @@ s32 func_ov003_0208a25c(CombatActor* actor) {
         if (hp > 0 && result == 1) {
             actor->currentHp = hp - 1;
             if (actor->currentHp <= 0) {
-                CombatActor_SetPendingCommand(actor, 1);
+                CombatActor_SetPendingCommand(actor, ACTOR_CMD_HIT);
                 actor->flags |= 4;
             }
         }

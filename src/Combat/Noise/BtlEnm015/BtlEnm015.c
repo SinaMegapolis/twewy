@@ -243,14 +243,14 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
 
 s32 func_ov013_02125d24(BtlEnm015* arg0) {
     switch (CombatActor_PopPendingCommand(&arg0->base.actor)) {
-        case 0:
+        case ACTOR_CMD_NONE:
             break;
-        case 1: {
+        case ACTOR_CMD_HIT: {
             arg0->unk_1D6 = (s16)(arg0->unk_1D6 + (s16)(arg0->unk_1D4 - arg0->base.actor.currentHp));
         } break;
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             break;
-        case 3: {
+        case ACTOR_CMD_DEFEAT: {
             func_ov003_02084694(&arg0->base.collider, 1);
             if (arg0->base.flags18C & 0x10) {
                 arg0->base.flags18C |= 0x20;
@@ -258,11 +258,11 @@ s32 func_ov013_02125d24(BtlEnm015* arg0) {
                 func_ov013_02125b64(arg0, (s32)func_ov013_02125eb4);
             }
         } break;
-        case 4:
+        case ACTOR_CMD_HOLD:
             break;
-        case 5:
+        case ACTOR_CMD_RELEASE:
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov013_02125b64(arg0, (s32)func_ov013_02125ed0);
             break;
     }

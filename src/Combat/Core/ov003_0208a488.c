@@ -1,5 +1,6 @@
 #include "Combat/Core/BtlAura.h"
 #include "Combat/Core/BtlBar.h"
+#include "Combat/Core/BtlCmd.h"
 #include "Combat/Core/BtlDbg.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPhase.h"
@@ -70,7 +71,6 @@ extern const TaskHandle data_ov005_020f0394;
 extern const TaskHandle data_ov005_020f07a0;
 extern const TaskHandle data_ov005_020f0a94;
 extern const TaskHandle Tsk_BtlPlayer00;
-extern const TaskHandle Tsk_BtlCmd;
 extern const TaskHandle Tsk_BtlTarget;
 extern const TaskHandle data_ov003_020dc614;
 extern const TaskHandle data_ov003_020d4f74;
@@ -575,7 +575,7 @@ static void func_ov003_0208ae98(Ov003EnemyActor* unit) {
     unit->actor.xVelocity = 0;
     unit->actor.yVelocity = 0;
     unit->actor.flags |= 0x10;
-    CombatActor_SetPendingCommand(&unit->actor, 8);
+    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_LEVEL_UP);
 }
 
 /// Checks that both unit lists only contain idle, on-screen units.

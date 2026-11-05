@@ -626,27 +626,27 @@ static s32 BtlEnm003_UG_Update(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_UG* ug = task->data;
 
     switch (CombatActor_PopPendingCommand(&ug->base.actor)) {
-        case 1:
+        case ACTOR_CMD_HIT:
             func_ov003_02084694(&ug->base.collider, 0);
             BtlEnm003_UG_SetState(ug, func_ov009_0212252c);
             break;
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov003_02084694(&ug->base.collider, 0);
             BtlEnm003_UG_SetState(ug, func_ov009_02122558);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_02084694(&ug->base.collider, 1);
             BtlEnm003_UG_SetState(ug, func_ov009_021225dc);
             break;
-        case 4:
+        case ACTOR_CMD_HOLD:
             func_ov003_02084694(&ug->base.collider, 0);
             BtlEnm003_UG_SetState(ug, func_ov009_02122584);
             break;
-        case 5:
+        case ACTOR_CMD_RELEASE:
             func_ov003_02084694(&ug->base.collider, 0);
             BtlEnm003_UG_SetState(ug, func_ov009_021225b0);
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov003_02084694(&ug->base.collider, 0);
             BtlEnm003_UG_SetState(ug, func_ov009_021225f8);
             break;

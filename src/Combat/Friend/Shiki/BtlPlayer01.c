@@ -1016,7 +1016,7 @@ s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
     BtlPlayer01* player = task->data;
 
     switch (CombatActor_PopPendingCommand(&player->actor)) {
-        case 1:
+        case ACTOR_CMD_HIT:
             if (func_ov003_020a3350(55) != 0) {
                 player->actor.zVelocity = -0x3800;
                 player->unk_14C         = func_ov004_020e7c14;
@@ -1029,7 +1029,7 @@ s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
             }
             break;
 
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             if (!(player->actor.flags & 0x20000) && !(player->actor.flags & 0x4000) && (func_ov003_020a3350(54) != 0)) {
                 player->actor.zVelocity = 0;
                 player->unk_14C         = func_ov004_020e7a84;
@@ -1042,19 +1042,19 @@ s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
             }
             break;
 
-        case 9:
+        case ACTOR_CMD_GUARD:
             player->unk_14C = func_ov004_020e808c;
             player->unk_150 = 0;
             player->unk_152 = 0;
             break;
 
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             player->unk_14C = func_ov004_020e81d0;
             player->unk_150 = 0;
             player->unk_152 = 0;
             break;
 
-        case 8:
+        case ACTOR_CMD_LEVEL_UP:
             player->unk_14C = func_ov004_020e8270;
             player->unk_150 = 0;
             player->unk_152 = 0;

@@ -721,13 +721,13 @@ static s32 BtlBoss03_00_RG_Update(TaskPool* pool, Task* task, void* args) {
     rg->base.unk_188 = rg->base.partner->unk_188;
 
     if (func_ov003_020c3bf0(rg) != 0) {
-        if (rg->base.actor.pendingCommand == 6) {
+        if (rg->base.actor.pendingCommand == ACTOR_CMD_FEAT) {
             CombatActor_PopPendingCommand(&rg->base.actor);
         }
         return 1;
     }
 
-    if (CombatActor_PopPendingCommand(&rg->base.actor) == 6) {
+    if (CombatActor_PopPendingCommand(&rg->base.actor) == ACTOR_CMD_FEAT) {
         rg->base.actor.flags |= 1;
         if (rg->base.actor.flags == 0) {
             func_ov017_02130698(rg, func_ov017_02130990);
@@ -2064,7 +2064,7 @@ static s32 BtlBoss03_01_RG_Update(BtlBoss03_01_RG* rg) {
     rg->base.unk_188 = temp_r4;
 
     if (func_ov003_020c3bf0(rg) != 0) {
-        if (rg->base.actor.pendingCommand == 6) {
+        if (rg->base.actor.pendingCommand == ACTOR_CMD_FEAT) {
             CombatActor_PopPendingCommand(&rg->base.actor);
         }
         return 1;
@@ -2083,13 +2083,13 @@ static s32 BtlBoss03_01_RG_Update(BtlBoss03_01_RG* rg) {
     }
 
     switch (CombatActor_PopPendingCommand(&rg->base.actor)) {
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             if (rg->base.spriteIndex != 0) {
                 func_ov003_02084694(&rg->base.collider, 1);
                 BtlBoss03_01_RG_SetState(rg, func_ov017_02132ac0);
             }
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             rg->base.actor.flags |= 1;
             if (rg->base.actor.flags == 0) {
                 BtlBoss03_01_RG_SetState(rg, func_ov017_02132b0c);
@@ -3450,7 +3450,7 @@ static s32 BtlBoss03_01_UG_Update(TaskPool* pool, Task* task, void* args) {
     }
     temp_r0 = CombatActor_PopPendingCommand(temp_r4);
     switch (temp_r0) { /* irregular */
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             if (((u32)(((Boss03*)temp_r4)->unk224 << 0x1E) >> 0x1F) != 1) {
                 ((Boss03*)temp_r4)->unk38 = 0;
             } else {
@@ -3459,13 +3459,13 @@ static s32 BtlBoss03_01_UG_Update(TaskPool* pool, Task* task, void* args) {
                 func_ov017_02133524(temp_r4, func_ov017_021352ec);
             }
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             if (((Boss03*)temp_r4)->unk80 != 0) {
                 func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 1);
                 func_ov017_02133524(temp_r4, func_ov017_021352a0);
             }
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             temp_r0_2                 = ((Boss03*)temp_r4)->unk54 | 1;
             ((Boss03*)temp_r4)->unk54 = temp_r0_2;
             if (temp_r0_2 == 0) {
@@ -3932,7 +3932,7 @@ static void func_ov017_021364b8(void* arg0) {
                 ((Boss03*)arg0)->unk1F8 = (u8)((((Boss03*)arg0)->unk1F8 & ~1) | 1);
                 func_ov003_020cc784(temp_r4, 0);
                 ((Boss03*)temp_r4)->unk38 = 0;
-                CombatActor_SetPendingCommand(temp_r4, 2);
+                CombatActor_SetPendingCommand(temp_r4, ACTOR_CMD_KNOCKDOWN);
                 ((Boss03*)temp_r4)->unk54     = (s32)(((Boss03*)temp_r4)->unk54 | 0x20000);
                 data_ov003_020e71b8->unk3D878 = (s32)(data_ov003_020e71b8->unk3D878 | 0x80000);
                 ((Boss03*)temp_r4)->unk10     = 0x12C;
@@ -4881,7 +4881,7 @@ static void func_ov017_021380dc(void* arg0) {
             {
                 ((Boss03*)arg0)->unk208 = (u8)((((Boss03*)arg0)->unk208 & ~1) | 1);
                 func_ov003_020cc784(temp_r4, 0);
-                CombatActor_SetPendingCommand(temp_r4, 2);
+                CombatActor_SetPendingCommand(temp_r4, ACTOR_CMD_KNOCKDOWN);
                 ((Boss03*)temp_r4)->unk54     = (s32)(((Boss03*)temp_r4)->unk54 | 0x20000);
                 data_ov003_020e71b8->unk3D878 = (s32)(data_ov003_020e71b8->unk3D878 | 0x80000);
                 ((Boss03*)temp_r4)->unk10     = 0x12C;
@@ -5526,9 +5526,9 @@ static s32 BtlBoss03_02_UG_Update(TaskPool* pool, Task* task, void* args) {
     }
     temp_r0 = CombatActor_PopPendingCommand(temp_r4);
     switch (temp_r0) { /* irregular */
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             break;
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             if (((u32)(((Boss03*)temp_r4)->unk208 << 0x1E) >> 0x1F) == 0) {
                 ((Boss03*)temp_r4)->unk38 = 0;
             } else {
@@ -5537,7 +5537,7 @@ static s32 BtlBoss03_02_UG_Update(TaskPool* pool, Task* task, void* args) {
                 func_ov017_02137c18(temp_r4, func_ov017_02138ce0);
             }
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 0);
             temp_r0_2                 = (((Boss03*)temp_r4)->unk54 & ~0x10000000) | 1;
             ((Boss03*)temp_r4)->unk54 = temp_r0_2;
@@ -6349,12 +6349,12 @@ static s32 BtlBoss03_03_RG_Update(TaskPool* pool, Task* task, void* args) {
         func_ov003_02087f00(SEIDX_MINAMI_N_BTL_FB05, func_ov003_020843b0(1, ((Boss03*)temp_r4)->unk28));
     }
     temp_r0 = CombatActor_PopPendingCommand(temp_r4);
-    switch (temp_r0) { /* switch 1; irregular */
-        case 3:        /* switch 1 */
+    switch (temp_r0) {         /* switch 1; irregular */
+        case ACTOR_CMD_DEFEAT: /* switch 1 */
             func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 1);
             func_ov017_021399dc(temp_r4, func_ov017_0213a674);
             break;
-        case 6: /* switch 1 */
+        case ACTOR_CMD_FEAT: /* switch 1 */
             temp_r0_2                 = ((Boss03*)temp_r4)->unk54 | 1;
             ((Boss03*)temp_r4)->unk54 = temp_r0_2;
             if (temp_r0_2 == 0) {
@@ -6801,7 +6801,7 @@ static void func_ov017_0213b8cc(void* arg0) {
                 ((Boss03*)arg0)->unk200 = (u8)((((Boss03*)arg0)->unk200 & ~1) | 1);
                 func_ov003_020cc784(temp_r4, 0);
                 func_ov003_02084694(arg0 + 0x144, 1);
-                CombatActor_SetPendingCommand(temp_r4, 2);
+                CombatActor_SetPendingCommand(temp_r4, ACTOR_CMD_KNOCKDOWN);
                 ((Boss03*)temp_r4)->unk54     = (s32)(((Boss03*)temp_r4)->unk54 | 0x20000);
                 data_ov003_020e71b8->unk3D878 = (s32)(data_ov003_020e71b8->unk3D878 | 0x80000);
                 ((Boss03*)temp_r4)->unk10     = 0x12C;
@@ -7607,7 +7607,7 @@ static s32 BtlBoss03_04_UG_Update(TaskPool* pool, Task* task, void* args) {
     }
     temp_r0 = CombatActor_PopPendingCommand((CombatActor*)temp_r4);
     switch (temp_r0) { /* irregular */
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             if (((u32)(((Boss03*)temp_r4)->unk200 << 0x1D) >> 0x1F) == 0) {
                 ((Boss03*)temp_r4)->unk38 = 0;
             } else {
@@ -7616,11 +7616,11 @@ static s32 BtlBoss03_04_UG_Update(TaskPool* pool, Task* task, void* args) {
                 func_ov017_0213b454(temp_r4, &func_ov017_0213c7c0);
             }
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 1);
             func_ov017_0213b454(temp_r4, &func_ov017_0213c930);
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 0);
             temp_r0_2                 = (((Boss03*)temp_r4)->unk54 & ~0x10000000) | 1;
             ((Boss03*)temp_r4)->unk54 = temp_r0_2;
@@ -9702,7 +9702,7 @@ static s32 BtlBoss03_NoisAttk_Update(TaskPool* pool, Task* task, void* args) {
             }
             break;
     }
-    CombatActor_SetPendingCommand(((Boss03*)temp_r4)->unkDC, 6);
+    CombatActor_SetPendingCommand(((Boss03*)temp_r4)->unkDC, ACTOR_CMD_FEAT);
     temp_ip = ((Boss03*)temp_r4)->unkD0;
     if (func_ov003_02083ca0(temp_r4 + 0x88, temp_r4 + 0x8C, temp_ip << 0xC,
                             ((s32)(temp_ip + ((u32)temp_ip >> 0x1F)) >> 1) << 0xC) != 0)

@@ -1483,11 +1483,11 @@ s32 func_ov017_02128924(void* arg1) {
     switch (temp_r0) {
         default:
             break;
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov017_02128340(temp_r4, func_ov017_021286b4);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             temp_r1 = ((Boss03*)temp_r4)->unk18C;
             if (temp_r1 & 0x10) {
                 ((Boss03*)temp_r4)->unk18C = (u16)(temp_r1 | 0x20);
@@ -1495,7 +1495,7 @@ s32 func_ov017_02128924(void* arg1) {
                 func_ov017_02128340(temp_r4, func_ov017_02128754);
             }
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov017_02128340(temp_r4, func_ov017_02128760);
             break;
     }
@@ -1888,12 +1888,12 @@ s32 func_ov017_0212952c(void* arg1) {
     switch (temp_r0) {
         default:
             break;
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 0);
             func_ov017_02128b7c(temp_r4, (void (*)(void*))func_ov017_021290a4);
             break;
-        case 7:
+        case ACTOR_CMD_HIT_IGNORED:
             if ((((Boss03*)temp_r4)->unk1EC != 0) && (((Boss03*)temp_r4)->unk1E0 == 0)) {
                 func_ov017_02130178(0, 0x4E8, 0x4E9, ((Boss03*)temp_r4)->unk28);
                 ((Boss03*)temp_r4)->unk1E0 = 0x12C;
@@ -1901,11 +1901,11 @@ s32 func_ov017_0212952c(void* arg1) {
                 ((Boss03*)temp_r4)->unk1EC = 1;
             }
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 1);
             func_ov017_02128b7c(temp_r4, (void (*)(void*))func_ov017_02129134);
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov017_02128b7c(temp_r4, (void (*)(void*))func_ov017_021293c4);
             break;
     }
@@ -2501,24 +2501,24 @@ s32 func_ov017_0212a6a4(void* arg1) {
     temp_r0                    = CombatActor_PopPendingCommand((CombatActor*)temp_r4);
     ((Boss03*)temp_r4)->unk294 = temp_r0;
     switch (temp_r0) {
-        case 0:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
+        case ACTOR_CMD_NONE:
+        case ACTOR_CMD_HOLD:
+        case ACTOR_CMD_RELEASE:
+        case ACTOR_CMD_FEAT:
+        case ACTOR_CMD_HIT_IGNORED:
+        case ACTOR_CMD_LEVEL_UP:
+        case ACTOR_CMD_GUARD:
         case 10:
         case 11:
         case 12:
             break;
         default:
             break;
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov017_02129ea4(temp_r4, func_ov017_0212a4a8);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             temp_r1 = ((Boss03*)temp_r4)->unk18C;
             if (temp_r1 & 0x10) {
                 ((Boss03*)temp_r4)->unk18C = (u16)(temp_r1 | 0x20);
@@ -3475,24 +3475,24 @@ s32 func_ov017_0212c20c(void* arg1) {
     temp_r0                    = CombatActor_PopPendingCommand((CombatActor*)temp_r4);
     ((Boss03*)temp_r4)->unk1D0 = temp_r0;
     switch (temp_r0) {
-        case 0:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
+        case ACTOR_CMD_NONE:
+        case ACTOR_CMD_HOLD:
+        case ACTOR_CMD_RELEASE:
+        case ACTOR_CMD_FEAT:
+        case ACTOR_CMD_HIT_IGNORED:
+        case ACTOR_CMD_LEVEL_UP:
+        case ACTOR_CMD_GUARD:
         case 10:
         case 11:
         case 12:
             break;
         default:
             break;
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov017_0212bcec(temp_r4, func_ov017_0212bf64);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             temp_r1 = ((Boss03*)temp_r4)->unk18C;
             if (temp_r1 & 0x10) {
                 ((Boss03*)temp_r4)->unk18C = (u16)(temp_r1 | 0x20);
@@ -3734,12 +3734,12 @@ s32 func_ov017_0212c8a4(void* arg1) {
     temp_r0                    = CombatActor_PopPendingCommand((CombatActor*)temp_r4);
     ((Boss03*)temp_r4)->unk1D0 = temp_r0;
     switch (temp_r0) { /* irregular */
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 0);
             func_ov017_0212c3a8(temp_r4, func_ov017_0212c6c0);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_02084694(&((Ov003EnemyActor*)temp_r4)->collider, 1);
             func_ov017_0212c3a8(temp_r4, func_ov017_0212c758);
             break;
@@ -4775,24 +4775,24 @@ s32 func_ov017_0212e458(void* arg1) {
     }
     temp_r0 = (u32)CombatActor_PopPendingCommand((CombatActor*)temp_r4);
     switch (temp_r0) {
-        case 0:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
+        case ACTOR_CMD_NONE:
+        case ACTOR_CMD_HOLD:
+        case ACTOR_CMD_RELEASE:
+        case ACTOR_CMD_FEAT:
+        case ACTOR_CMD_HIT_IGNORED:
+        case ACTOR_CMD_LEVEL_UP:
+        case ACTOR_CMD_GUARD:
         case 10:
         case 11:
         case 12:
             break;
         default:
             break;
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov017_0212e21c(temp_r4, func_ov017_0212e36c);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             temp_r1 = ((Boss03*)temp_r4)->unk18C;
             if (temp_r1 & 0x10) {
                 ((Boss03*)temp_r4)->unk18C = (u16)(temp_r1 | 0x20);
@@ -5428,13 +5428,13 @@ s32 func_ov017_0212f4f0(void* arg1) {
     switch (temp_r0) {
         default:
             break;
-        case 1:
+        case ACTOR_CMD_HIT:
             func_ov017_02130178(1, 0x552, 0x56C, ((Boss03*)temp_r4)->unk28);
             break;
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov017_02130178(1, 0x553, 0x56C, ((Boss03*)temp_r4)->unk28);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             temp_r1 = ((Boss03*)temp_r4)->unk18C;
             if (temp_r1 & 0x10) {
                 ((Boss03*)temp_r4)->unk18C = (u16)(temp_r1 | 0x20);
@@ -5442,7 +5442,7 @@ s32 func_ov017_0212f4f0(void* arg1) {
                 func_ov017_0212ee28(temp_r4, func_ov017_0212f3ac);
             }
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov017_0212ee28(temp_r4, func_ov017_0212f3c8);
             break;
     }

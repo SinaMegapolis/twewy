@@ -1,6 +1,7 @@
 #ifndef COMBAT_COMBATCUTIN_H
 #define COMBAT_COMBATCUTIN_H
 
+#include "Combat/Core/BtlFeat.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatActorParams.h"
@@ -67,26 +68,6 @@ typedef struct Ov003CutinGlobal {
 
 extern u8 data_ov003_020e71e4[];
 #define g_Cutin ((Ov003CutinGlobal*)data_ov003_020e71e4)
-
-typedef struct Ov003ActorSnapshot {
-    /* 0x00 */ Ov003EnemyActor* unit;
-    /* 0x04 */ CombatActor      actor;
-    /* 0x80 */ u8               reserved[0x1C];
-} Ov003ActorSnapshot; // Size: 0x9C
-
-typedef struct Ov003ActorSnapshots {
-    /* 0x00 */ u16                 mainCount;
-    /* 0x02 */ u16                 subCount;
-    /* 0x04 */ Ov003ActorSnapshot* sub;
-    /* 0x08 */ Ov003ActorSnapshot* main;
-} Ov003ActorSnapshots; // Size: 0xC
-
-typedef void (*Ov003SnapshotCallback)(s32, Ov003ActorSnapshot*, void*);
-
-void func_ov003_020bd020(void);
-void func_ov003_020bd078(void);
-void func_ov003_020bd114(void);
-void func_ov003_020bd150(s32 mode, Ov003SnapshotCallback callback, void* args);
 
 /// One task-spawn record produced while parsing a cut-in script; also the data block the
 /// EasyTask callbacks receive.

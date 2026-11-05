@@ -117,13 +117,13 @@ static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
     switch (CombatActor_PopPendingCommand(&obs->actor)) {
-        case 1:
+        case ACTOR_CMD_HIT:
             BtlObs_Bus_SetState(obs, BtlObs_Bus_StateHitFlash);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             BtlObs_Bus_SetState(obs, BtlObs_Bus_StateStop);
             break;
-        case 5:
+        case ACTOR_CMD_RELEASE:
             BtlObs_Bus_SetState(obs, BtlObs_Bus_StateEnd);
             break;
     }

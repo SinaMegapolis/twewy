@@ -410,9 +410,9 @@ static void func_ov012_02127660(BtlEnm014* data) {
 
 static s32 func_ov012_0212768c(BtlEnm014* data) {
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
-        case 0:
+        case ACTOR_CMD_NONE:
             break;
-        case 1:
+        case ACTOR_CMD_HIT:
             if (data->base.actor.periodicEffectMode == 4) {
                 func_ov012_02125768(data, func_ov012_021257e8);
             }
@@ -420,20 +420,20 @@ static s32 func_ov012_0212768c(BtlEnm014* data) {
                 data->base.actor.zVelocity = 0;
             }
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_02084694(&data->base.collider, 1);
             func_ov012_02125768(data, func_ov012_02125810);
             break;
-        case 4:
+        case ACTOR_CMD_HOLD:
             func_ov012_02125768(data, func_ov012_02127608);
             break;
-        case 5:
+        case ACTOR_CMD_RELEASE:
             func_ov012_02125768(data, func_ov012_02127634);
             break;
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov012_02125768(data, func_ov012_02127660);
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov012_02125768(data, func_ov012_0212582c);
             break;
     }

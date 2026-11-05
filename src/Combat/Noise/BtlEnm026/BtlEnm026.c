@@ -321,12 +321,12 @@ s32 func_ov015_02125b08(BtlEnm026* data) {
     func_ov015_021257f8(data);
 
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
-        case 0:
+        case ACTOR_CMD_NONE:
             break;
-        case 1:
+        case ACTOR_CMD_HIT:
             func_ov015_02125a64(data, (s32)func_ov015_02125e5c);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_02084694(&data->base.collider, 1);
             if (data->base.flags18C & 0x10) {
                 data->base.flags18C |= 0x20;
@@ -334,16 +334,16 @@ s32 func_ov015_02125b08(BtlEnm026* data) {
                 func_ov015_02125a64(data, (s32)func_ov015_021260c4);
             }
             break;
-        case 4:
+        case ACTOR_CMD_HOLD:
             func_ov015_02125a64(data, (s32)func_ov015_02126158);
             break;
-        case 5:
+        case ACTOR_CMD_RELEASE:
             func_ov015_02125a64(data, (s32)func_ov015_02126184);
             break;
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov015_02125a64(data, (s32)func_ov015_02125f00);
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov015_02125a64(data, (s32)func_ov015_021261ac);
             break;
     }

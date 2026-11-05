@@ -373,7 +373,7 @@ static s32 BtlBoss02_00_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlBoss02_00_RG* rg = task->data;
 
     if (data_ov003_020e71b8->unk3D8D8 < ((data_ov003_020e71b8->unk3D8DA * 75) / 100) && rg->unk_1CC != func_ov017_02125e38) {
-        rg->base.actor.pendingCommand = 3;
+        rg->base.actor.pendingCommand = ACTOR_CMD_DEFEAT;
         data_ov003_020e71b8->unk3D878 |= 0x20000000;
         func_ov017_021301e0();
     }

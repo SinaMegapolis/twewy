@@ -12,6 +12,20 @@ typedef struct Ov003AttackArgs {
     /* 0x06 */ s16 unk_06;
 } Ov003AttackArgs; // Size: 0x8
 
+/// A reaction queued on an actor; its Update pops it and switches to the matching state.
+typedef enum {
+    ACTOR_CMD_NONE        = 0,
+    ACTOR_CMD_HIT         = 1, // flinch from a hit
+    ACTOR_CMD_KNOCKDOWN   = 2, // knocked off its feet: heavy hits, or hits while airborne
+    ACTOR_CMD_DEFEAT      = 3,
+    ACTOR_CMD_HOLD        = 4, // grabbed by a psych (Psychokinesis, Black Hole, Element Bind, Quake)
+    ACTOR_CMD_RELEASE     = 5, // let go by the psych holding it, or thrown
+    ACTOR_CMD_FEAT        = 6, // caught in a partner's Feat: frozen until the cut-in ends
+    ACTOR_CMD_HIT_IGNORED = 7, // hit while flag 0x40 is set: no damage taken
+    ACTOR_CMD_LEVEL_UP    = 8, // the players' battle level went up: HP refilled, level-up flash
+    ACTOR_CMD_GUARD       = 9, // hit while guarding (flag 8)
+} CombatActorCommand;
+
 typedef struct {
     /* 0x00 */ s32 unk_00;
     /* 0x04 */ union {
@@ -36,41 +50,41 @@ typedef struct {
             u16 unk_1C;
         };
     };
-    /* 0x20 */ s32  pendingCommand;
-    /* 0x24 */ BOOL isFlipped;
-    /* 0x28 */ Vec  position;
-    /* 0x34 */ s16  screenX;
-    /* 0x36 */ s16  screenY;
-    /* 0x38 */ s32  zVelocity;
-    /* 0x3C */ s32  zGravity;
-    /* 0x40 */ s32  xVelocity;
-    /* 0x44 */ s32  yVelocity;
-    /* 0x48 */ s32  linearDampingStep;
-    /* 0x4C */ s32  dampingScale;
-    /* 0x50 */ s32  unk_50;
-    /* 0x54 */ s32  flags;
-    /* 0x58 */ s16  unk_58;
-    /* 0x5A */ s16  unk_5A;
-    /* 0x5C */ u16  periodicEffectMode;
-    /* 0x5E */ s16  periodicEffectTimer;
-    /* 0x60 */ s16  periodicEffectAmount;
-    /* 0x62 */ s16  unk_62;
-    /* 0x64 */ s16  unk_64;
-    /* 0x66 */ s16  unk_66;
-    /* 0x68 */ s16  unk_68;
-    /* 0x6A */ s16  unk_6A;
-    /* 0x6C */ s16  currentHp;
-    /* 0x6E */ s16  maxHp;
-    /* 0x70 */ s16  unk_70;
-    /* 0x72 */ s16  unk_72;
-    /* 0x74 */ s16  unk_74;
-    /* 0x76 */ s16  unk_76;
-    /* 0x78 */ s32  unk_78;
+    /* 0x20 */ CombatActorCommand pendingCommand;
+    /* 0x24 */ BOOL               isFlipped;
+    /* 0x28 */ Vec                position;
+    /* 0x34 */ s16                screenX;
+    /* 0x36 */ s16                screenY;
+    /* 0x38 */ s32                zVelocity;
+    /* 0x3C */ s32                zGravity;
+    /* 0x40 */ s32                xVelocity;
+    /* 0x44 */ s32                yVelocity;
+    /* 0x48 */ s32                linearDampingStep;
+    /* 0x4C */ s32                dampingScale;
+    /* 0x50 */ s32                unk_50;
+    /* 0x54 */ s32                flags;
+    /* 0x58 */ s16                unk_58;
+    /* 0x5A */ s16                unk_5A;
+    /* 0x5C */ u16                periodicEffectMode;
+    /* 0x5E */ s16                periodicEffectTimer;
+    /* 0x60 */ s16                periodicEffectAmount;
+    /* 0x62 */ s16                unk_62;
+    /* 0x64 */ s16                unk_64;
+    /* 0x66 */ s16                unk_66;
+    /* 0x68 */ s16                unk_68;
+    /* 0x6A */ s16                unk_6A;
+    /* 0x6C */ s16                currentHp;
+    /* 0x6E */ s16                maxHp;
+    /* 0x70 */ s16                unk_70;
+    /* 0x72 */ s16                unk_72;
+    /* 0x74 */ s16                unk_74;
+    /* 0x76 */ s16                unk_76;
+    /* 0x78 */ s32                unk_78;
 } CombatActor;
 
-void CombatActor_SetPendingCommand(CombatActor* actor, s32 arg1);
+void CombatActor_SetPendingCommand(CombatActor* actor, CombatActorCommand command);
 
-s32 CombatActor_PopPendingCommand(CombatActor* actor);
+CombatActorCommand CombatActor_PopPendingCommand(CombatActor* actor);
 
 void CombatActor_ForceDefeat(CombatActor* actor);
 

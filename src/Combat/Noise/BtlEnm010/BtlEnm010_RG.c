@@ -713,17 +713,17 @@ static s32 func_ov011_02127a64(TaskPool* pool, Task* task, void* args) {
 
     data = task->data;
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov011_021265d4(data, func_ov011_02127628);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             if (data->base.flags18C & 0x10) {
                 data->base.flags18C = data->base.flags18C | 0x20;
             } else {
                 func_ov011_021265d4(data, func_ov011_02127698);
             }
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov011_021265d4(data, func_ov011_021276e0);
             break;
     }

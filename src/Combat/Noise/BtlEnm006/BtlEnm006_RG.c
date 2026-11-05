@@ -583,21 +583,21 @@ static s32 func_ov010_02126a94(BtlEnm006* data) {
         flag = 1;
     }
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             if (flag == 0) {
                 func_ov003_02084694(&data->base.collider, 0);
                 func_ov010_02125910(data, (void*)func_ov010_0212636c);
             }
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             if (data->base.flags18C & 0x10) {
                 data->base.flags18C |= 0x20;
             } else {
                 func_ov010_02125910(data, (void*)func_ov010_02126420);
             }
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             data->base.actor.flags |= 1;
             if (data->base.actor.flags != 0) {
                 break;

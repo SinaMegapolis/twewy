@@ -630,7 +630,7 @@ void func_ov003_020c4f80(s32 id) {
 /// Knocks the actor out: zero HP, defeat command, "defeated" flag.
 static void func_ov003_020c4fa0(Ov003EnemyActor* actor) {
     actor->actor.currentHp = 0;
-    CombatActor_SetPendingCommand(&actor->actor, 3);
+    CombatActor_SetPendingCommand(&actor->actor, ACTOR_CMD_DEFEAT);
     actor->actor.flags |= 4;
 }
 
@@ -928,7 +928,7 @@ s32 func_ov003_020c5a60(Ov003CutinActor* actor) {
 
 void func_ov003_020c5a98(Ov003CutinActor* actor) {
     actor->base.actor.unk_58 = 0;
-    CombatActor_SetPendingCommand(&actor->base.actor, 5);
+    CombatActor_SetPendingCommand(&actor->base.actor, ACTOR_CMD_RELEASE);
     func_ov003_02082fe0(&actor->base.actor);
 }
 
@@ -937,7 +937,7 @@ void func_ov003_020c5ac0(s32 arg0, s32 arg1, Ov003CutinActor* actor, s32 arg3, s
     actor->base.actor.yVelocity = arg4;
     actor->base.actor.zVelocity = arg5;
     actor->base.actor.unk_58    = 0;
-    CombatActor_SetPendingCommand(&actor->base.actor, 5);
+    CombatActor_SetPendingCommand(&actor->base.actor, ACTOR_CMD_RELEASE);
     func_ov003_0208a234(arg1, arg0 + 4, &actor->base);
 }
 

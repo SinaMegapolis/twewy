@@ -1,4 +1,5 @@
 #include "Combat/Core/BtlCutIn.h"
+#include "Combat/Core/BtlFeat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatEnemyShot.h"
@@ -282,7 +283,7 @@ static void func_ov003_020c1918(BtlActSp* self) {
             }
             self->phase++;
             BtlCutIn_SetSpecialKind(1);
-            func_ov003_020bd114();
+            BtlFeat_HaltEnm();
             return;
         case 1:
             if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId)) {
@@ -291,7 +292,7 @@ static void func_ov003_020c1918(BtlActSp* self) {
             data_ov003_020e71b8->unk3D884 = 0;
             data_ov003_020e71b8->unk3D888 = 1;
             data_ov003_020e71b8->unk3D878 |= 4;
-            func_ov003_020bd020();
+            BtlFeat_SaveEnmPos();
             if (self->skipFeature) {
                 self->phase++;
                 return;
@@ -322,7 +323,7 @@ static void func_ov003_020c1918(BtlActSp* self) {
                 return;
             }
             data_ov003_020e71b8->unk3D878 &= ~4;
-            func_ov003_020bd078();
+            BtlFeat_RestoreEnmPos();
             data_ov003_020e71b8->unk3D888 = 0;
             self->phase++;
             self->timer = 0;
@@ -394,7 +395,7 @@ static s32 BtlActSp00_Render(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlActSp00_Release(TaskPool* pool, Task* task, void* args) {
     EasyTask_CleanupAllTasks(&data_ov003_020e71b8->unk_34230);
-    func_ov003_020bd078();
+    BtlFeat_RestoreEnmPos();
     data_ov003_020e71b8->unk3D878 &= ~2;
     data_ov003_020e71b8->unk3D878 &= ~0x20000;
     Mem_ValidateSequences(&gMainHeap);

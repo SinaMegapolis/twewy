@@ -110,9 +110,9 @@ static s32 BtlEff_Fall_Update(TaskPool* pool, Task* task, void* args) {
             }
 
             if (eff->unk_60 == NULL) {
-                CombatActor_SetPendingCommand(eff->unk_64, 3);
+                CombatActor_SetPendingCommand(eff->unk_64, ACTOR_CMD_DEFEAT);
             } else if (((Ov016SpriteParams*)eff->unk_60)->unk2 == 0x19) {
-                CombatActor_SetPendingCommand(eff->unk_60 + 4, 1);
+                CombatActor_SetPendingCommand(eff->unk_60 + 4, ACTOR_CMD_HIT);
             } else {
                 func_ov003_02086654(eff->unk_60);
             }

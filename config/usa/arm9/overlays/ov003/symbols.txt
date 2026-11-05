@@ -1295,14 +1295,18 @@ BtlFeat_SplashBg_Render kind:function(arm,size=0x8) addr:0x020bcdb4 local
 BtlFeat_SplashBg_Release kind:function(arm,size=0x14) addr:0x020bcdbc local
 BtlFeat_SplashBg_RunTask kind:function(arm,size=0x48) addr:0x020bcdd0 local
 func_ov003_020bce18 kind:function(arm,size=0x54) addr:0x020bce18
-func_ov003_020bce6c kind:function(arm,size=0x40) addr:0x020bce6c local
-func_ov003_020bceac kind:function(arm,size=0xb8) addr:0x020bceac local
-func_ov003_020bcf64 kind:function(arm,size=0x34) addr:0x020bcf64 local
-func_ov003_020bcf98 kind:function(arm,size=0x88) addr:0x020bcf98 local
-func_ov003_020bd020 kind:function(arm,size=0x58) addr:0x020bd020
-func_ov003_020bd078 kind:function(arm,size=0x9c) addr:0x020bd078
-func_ov003_020bd114 kind:function(arm,size=0x3c) addr:0x020bd114
-func_ov003_020bd150 kind:function(arm,size=0x6c) addr:0x020bd150
+
+
+BtlFeat_CountActiveEnm kind:function(arm,size=0x40) addr:0x020bce6c local
+BtlFeat_SaveEnmList kind:function(arm,size=0xb8) addr:0x020bceac local
+BtlFeat_SetEnmListCommand kind:function(arm,size=0x34) addr:0x020bcf64 local
+BtlFeat_RestoreEnmList kind:function(arm,size=0x88) addr:0x020bcf98 local
+BtlFeat_SaveEnmPos kind:function(arm,size=0x58) addr:0x020bd020
+BtlFeat_RestoreEnmPos kind:function(arm,size=0x9c) addr:0x020bd078
+BtlFeat_HaltEnm kind:function(arm,size=0x3c) addr:0x020bd114
+BtlFeat_ForEachEnmSnapshot kind:function(arm,size=0x6c) addr:0x020bd150
+
+
 BtlCutIn_GetSnapshotScreenX kind:function(arm,size=0x30) addr:0x020bd1bc
 BtlCutIn_GetSnapshotScreenY kind:function(arm,size=0x38) addr:0x020bd1ec
 BtlCutIn_SetSnapshotScreenX kind:function(arm,size=0x3c) addr:0x020bd224
@@ -4312,7 +4316,7 @@ data_ov003_020e5122 kind:data(any) addr:0x020e5122 local
 @2935 kind:data(byte[21]) addr:0x020e5134 local
 @3279 kind:data(byte[9]) addr:0x020e514c local
 @3298 kind:data(any) addr:0x020e5158 local
-data_ov003_020e5170 kind:data(any) addr:0x020e5170 local
+@3013 kind:data(byte[18]) addr:0x020e5170 local
 Path_BtlSpecial3 kind:data(byte[28]) addr:0x020e5184
 Path_BtlSpecial2 kind:data(byte[28]) addr:0x020e51a0
 Path_BtlBgEff22_SCR kind:data(byte[31]) addr:0x020e51bc
@@ -4436,7 +4440,7 @@ data_ov003_020e71b8 kind:bss addr:0x020e71b8
 data_ov003_020e71bc kind:bss addr:0x020e71bc local
 BtlDbg_TaskId kind:bss addr:0x020e71c0 local
 data_ov003_020e71c4 kind:bss addr:0x020e71c4 local
-data_ov003_020e71c8 kind:bss addr:0x020e71c8 local
+sFeatEnmSnapshots kind:bss addr:0x020e71c8 local
 BtlCutIn_SpecialKind kind:bss addr:0x020e71d4 local
 data_ov003_020e71d8 kind:bss addr:0x020e71d8
 data_ov003_020e71d9 kind:bss addr:0x020e71d9

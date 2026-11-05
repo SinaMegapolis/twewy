@@ -1569,7 +1569,7 @@ static s32 BtlPlayer00_Update(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
     switch (CombatActor_PopPendingCommand(&self->actor)) {
-        case 1:
+        case ACTOR_CMD_HIT:
             if (func_ov003_020a3340(0x37)) {
                 self->actor.zVelocity = -0x3800;
                 func_ov003_0208f384(self, func_ov003_0208fff8);
@@ -1577,7 +1577,7 @@ static s32 BtlPlayer00_Update(TaskPool* pool, Task* task, void* args) {
                 func_ov003_0208f384(self, func_ov003_0208fe10);
             }
             break;
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             flags = self->actor.flags;
             if (!(flags & 0x20000) && !(flags & 0x4000) && func_ov003_020a3340(0x36)) {
                 self->actor.zVelocity = 0;
@@ -1586,10 +1586,10 @@ static s32 BtlPlayer00_Update(TaskPool* pool, Task* task, void* args) {
                 func_ov003_0208f384(self, func_ov003_0208fff8);
             }
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_0208f384(self, func_ov003_02090318);
             break;
-        case 8:
+        case ACTOR_CMD_LEVEL_UP:
             func_ov003_0208f384(self, func_ov003_0209040c);
             break;
     }

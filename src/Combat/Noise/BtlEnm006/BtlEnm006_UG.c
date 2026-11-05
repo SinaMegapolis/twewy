@@ -895,17 +895,17 @@ static s32 func_ov010_02128e80(BtlEnm006* data) {
         }
     }
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
-        case 1:
+        case ACTOR_CMD_HIT:
             func_ov010_02127460(data, (void*)func_ov010_021282b8);
             data->base.actor.zVelocity = 0;
             break;
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             func_ov010_02127460(data, (void*)func_ov010_02128314);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov010_02127460(data, (void*)func_ov010_02128434);
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             data->base.actor.flags |= 1;
             if (data->base.actor.flags != 0) {
                 break;

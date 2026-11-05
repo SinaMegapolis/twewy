@@ -1,4 +1,5 @@
 #include "Combat/Core/BtlCutIn.h"
+#include "Combat/Core/BtlSpecial.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
 #include "EasyFade.h"

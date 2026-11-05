@@ -975,26 +975,26 @@ static s32 func_ov011_0212bac8(TaskPool* pool, Task* task, void* args) {
 
     data = task->data;
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
-        case 2:
+        case ACTOR_CMD_KNOCKDOWN:
             if (((u32)(data->unk_206 << 31) >> 31) == 0) {
                 break;
             }
             func_ov003_02084694(&data->base.collider, 0);
             func_ov011_02129ed0(data, func_ov011_0212b3ec);
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             func_ov003_02084694(&data->base.collider, 1);
             func_ov011_02129ed0(data, func_ov011_0212b4f4);
             break;
-        case 4:
+        case ACTOR_CMD_HOLD:
             func_ov003_02084694(&data->base.collider, 0);
             func_ov011_02129ed0(data, func_ov011_0212b318);
             break;
-        case 5:
+        case ACTOR_CMD_RELEASE:
             func_ov003_02084694(&data->base.collider, 0);
             func_ov011_02129ed0(data, func_ov011_0212b388);
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov011_02129ed0(data, func_ov011_0212b558);
             break;
     }

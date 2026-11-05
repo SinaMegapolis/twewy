@@ -69,16 +69,16 @@ static void CombatActor_ApplyPeriodicEffectTick(s32 arg0, CombatActor* actor) {
     }
 }
 
-void CombatActor_SetPendingCommand(CombatActor* actor, s32 command) {
+void CombatActor_SetPendingCommand(CombatActor* actor, CombatActorCommand command) {
     if ((actor->flags & 4) == 0) {
         actor->pendingCommand = command;
     }
 }
 
-s32 CombatActor_PopPendingCommand(CombatActor* actor) {
-    s32 prev = actor->pendingCommand;
+CombatActorCommand CombatActor_PopPendingCommand(CombatActor* actor) {
+    CombatActorCommand prev = actor->pendingCommand;
 
-    actor->pendingCommand = 0;
+    actor->pendingCommand = ACTOR_CMD_NONE;
     if (actor->unk_5A > 0) {
         actor->unk_5A--;
     }
@@ -88,7 +88,7 @@ s32 CombatActor_PopPendingCommand(CombatActor* actor) {
 void CombatActor_ForceDefeat(CombatActor* actor) {
     if (actor != NULL) {
         actor->currentHp = 0;
-        CombatActor_SetPendingCommand(actor, 3);
+        CombatActor_SetPendingCommand(actor, ACTOR_CMD_DEFEAT);
         actor->flags |= 4;
     }
 }
@@ -178,7 +178,7 @@ void CombatActor_Init(CombatActor* actor, s32 arg1) {
     actor->yVelocity         = 0;
     actor->linearDampingStep = 410;
     actor->dampingScale      = 0x1000;
-    actor->pendingCommand    = 0;
+    actor->pendingCommand    = ACTOR_CMD_NONE;
     actor->isFlipped         = FALSE;
     actor->flags             = 0;
     actor->unk_58            = 0;

@@ -1,5 +1,5 @@
-#include "Combat/Core/BtlCutIn.h"
 #include "Combat/Core/BtlFeat.h"
+#include "Combat/Core/BtlSpecial.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
@@ -882,7 +882,7 @@ s32 BtlFeat02_Step_UpdateFinalPhaseShakeAndTimeout(BtlFeat02* feat) {
     feat->bgLayerBOffsetV += 0xB000;
 
     if (feat->shakeCallbackCooldown == 0) {
-        func_ov003_020bd150(0, (Ov003SnapshotCallback)BtlFeat02_ApplyRandomScreenShakeCallback, feat);
+        BtlFeat_ForEachEnmSnapshot(0, (Ov003SnapshotCallback)BtlFeat02_ApplyRandomScreenShakeCallback, feat);
         feat->shakeCallbackCooldown = 2;
     } else {
         feat->shakeCallbackCooldown--;
@@ -991,7 +991,7 @@ s32 BtlFeat02_Update(TaskPool* pool, Task* task, void* args) {
         return 0;
     }
 
-    func_ov003_020bd150(1, (Ov003SnapshotCallback)func_ov004_020efab8, feat);
+    BtlFeat_ForEachEnmSnapshot(1, (Ov003SnapshotCallback)func_ov004_020efab8, feat);
     CombatSprite_Update(&feat->phaseSpriteMainLeft);
     CombatSprite_Update(&feat->phaseSpriteMainRight);
     if (SpriteMgr_IsAnimationFinished(&feat->phaseSpriteSubLeft.sprite) == 0) {

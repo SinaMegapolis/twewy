@@ -321,7 +321,7 @@ void func_ov015_021278b0(BtlEnm026* data) {
 }
 
 void func_ov015_021278f8(BtlEnm026* data) {
-    if (data->base.actor.pendingCommand == 3 && (data->base.actor.flags & 0x2000)) {
+    if (data->base.actor.pendingCommand == ACTOR_CMD_DEFEAT && (data->base.actor.flags & 0x2000)) {
         data_ov015_02128500.counter1C = data_ov015_02128500.counter1C + 1;
         data->unk_1D4                 = (data_ov015_02128500.counter1C > 2) ? 1 : 3;
         return;
@@ -429,7 +429,7 @@ void func_ov015_02127bd0(BtlEnm026* data) {
 }
 
 void func_ov015_02127c18(BtlEnm026* data) {
-    if (data->base.actor.pendingCommand != 3) {
+    if (data->base.actor.pendingCommand != ACTOR_CMD_DEFEAT) {
         return;
     }
     if (func_ov003_020c37f8(&data->base.sprite) != 0) {
@@ -451,7 +451,7 @@ void func_ov015_02127c68(BtlEnm026* data) {
 void func_ov015_02127ca0(BtlEnm026* data) {
     s32 flag;
 
-    data->base.actor.pendingCommand = 0;
+    data->base.actor.pendingCommand = ACTOR_CMD_NONE;
     if ((u32)data_ov015_02128500.unk14 - 1 <= 2) {
         data_ov015_02128500.result10 = -1;
     }
@@ -465,7 +465,7 @@ void func_ov015_02127ca0(BtlEnm026* data) {
     if (data_ov015_02128500.result10 == -1) {
         return;
     }
-    CombatActor_SetPendingCommand(&data->base.actor, 3);
+    CombatActor_SetPendingCommand(&data->base.actor, ACTOR_CMD_DEFEAT);
     if (func_ov003_020c37f8(&data->base.sprite) == 0) {
         data->base.actor.flags |= 0x2000;
     }
@@ -559,6 +559,6 @@ void func_ov015_02127f90(BtlEnm026* data) {
         return;
     }
     if (data_ov003_020e71b8->unk3D874 == 2) {
-        data->base.actor.pendingCommand = 3;
+        data->base.actor.pendingCommand = ACTOR_CMD_DEFEAT;
     }
 }

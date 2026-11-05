@@ -24,13 +24,9 @@ src/Combat/Core/ov003_02083950.c:
     .data       start:0x020e38f0 end:0x020e391c
     .bss        start:0x020e71a0 end:0x020e71b8
 
-src/Combat/Core/ov003_02086404.c:
-    .text       start:0x02086404 end:0x020864c0
-    .rodata     start:0x020d5370 end:0x020d54f8
-
 src/Combat/Core/ov003_020864c0.c:
-    .text       start:0x020864c0 end:0x02087b7c
-    .rodata     start:0x020d54f8 end:0x020d7620
+    .text       start:0x02086404 end:0x02087b7c
+    .rodata     start:0x020d5370 end:0x020d7620
     .bss        start:0x020e71b8 end:0x020e71bc
 
 src/Combat/Core/ov003_02087b7c.c:
@@ -797,12 +793,16 @@ src/Combat/Core/BtlFeat/BtlFeat_SplashBg.c:
     .rodata     start:0x020dd428 end:0x020dd77c
     .data       start:0x020e5104 end:0x020e5170
 
-src/Combat/Core/ov003_020bce6c.c:
+src/Combat/Core/BtlFeat/BtlFeat_EnmSavePos.c:
     complete
     .text       start:0x020bce6c end:0x020bd1bc
-    .rodata     start:0x020dd77c end:0x020dd7e4
-    .data       start:0x020e5170 end:0x020e533c
+    .data       start:0x020e5170 end:0x020e5184
     .bss        start:0x020e71c8 end:0x020e71d4
+
+src/Combat/Core/BtlSpecial.c:
+    complete
+    .rodata     start:0x020dd77c end:0x020dd7e4
+    .data       start:0x020e5184 end:0x020e533c
 
 src/Combat/Core/BtlCutIn/BtlCutIn00.c:
     complete

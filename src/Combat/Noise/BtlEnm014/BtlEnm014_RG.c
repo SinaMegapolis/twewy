@@ -404,26 +404,26 @@ static void func_ov012_0212684c(BtlEnm014* data) {
 
 static s32 func_ov012_02126898(BtlEnm014* data) {
     switch (CombatActor_PopPendingCommand(&data->base.actor)) {
-        case 0:
+        case ACTOR_CMD_NONE:
             break;
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             if (data->base.actor.periodicEffectMode == 4) {
                 func_ov012_02125768(data, func_ov012_021257e8);
             }
             break;
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             if (data->base.flags18C & 0x10) {
                 data->base.flags18C |= 0x20;
             } else {
                 func_ov012_02125768(data, func_ov012_02125810);
             }
             break;
-        case 4:
+        case ACTOR_CMD_HOLD:
             break;
-        case 5:
+        case ACTOR_CMD_RELEASE:
             break;
-        case 6:
+        case ACTOR_CMD_FEAT:
             func_ov012_02125768(data, func_ov012_0212582c);
             break;
     }

@@ -287,12 +287,12 @@ static s32 BtlEnm003_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_RG* rg = task->data;
 
     switch (CombatActor_PopPendingCommand(&rg->base.actor)) {
-        case 1:
-        case 2:
+        case ACTOR_CMD_HIT:
+        case ACTOR_CMD_KNOCKDOWN:
             BtlEnm003_RG_SetState(rg, func_ov009_0212127c);
             break;
 
-        case 3:
+        case ACTOR_CMD_DEFEAT:
             if (rg->base.flags18C & 0x10) {
                 rg->base.flags18C |= 0x20;
             } else {
@@ -300,7 +300,7 @@ static s32 BtlEnm003_RG_Update(TaskPool* pool, Task* task, void* args) {
             }
             break;
 
-        case 6:
+        case ACTOR_CMD_FEAT:
             BtlEnm003_RG_SetState(rg, func_ov009_021212c4);
             break;
     }
