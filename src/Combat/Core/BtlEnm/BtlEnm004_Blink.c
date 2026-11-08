@@ -79,7 +79,7 @@ static s32 BtlEnm004_Blink_Init(TaskPool* pool, Task* task, void* args) {
         func_ov003_020cac84(FX32_CONVERT(self->count * self->count) / 2, &self->step, &offset);
         Vec_Sub(&self->position, &offset, &self->position);
     }
-    func_ov003_02087fe0(owner->base.sprite.sprite.bits_0_1, &self->glow, 2);
+    CombatHit_LoadSpark(owner->base.sprite.sprite.bits_0_1, &self->glow, 2);
     return 1;
 }
 
@@ -111,14 +111,14 @@ static s32 BtlEnm004_Blink_Update(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlEnm004_Blink_Render(TaskPool* pool, Task* task, void* args) {
     BtlEnm004Blink* self = task->data;
-    s32             x    = func_ov003_020843b0(func_ov003_020c3908(&self->sprite), self->position.x);
-    s32             y    = func_ov003_020843ec(func_ov003_020c3908(&self->sprite), self->position.y, self->position.z);
+    s32             x    = CombatStage_ToScreenX(func_ov003_020c3908(&self->sprite), self->position.x);
+    s32             y    = CombatStage_ToScreenY(func_ov003_020c3908(&self->sprite), self->position.y, self->position.z);
     s32             sort = 0x7FFFFFFF - self->position.y;
 
     CombatSprite_SetPosition(&self->sprite, x, y);
     func_ov003_02082730(&self->sprite, sort);
     CombatSprite_Render(&self->sprite);
-    func_ov003_02088064(&self->glow, self->position.x, self->position.y);
+    CombatHit_DrawSpark(&self->glow, self->position.x, self->position.y);
     return 1;
 }
 

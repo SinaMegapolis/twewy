@@ -29,7 +29,7 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
             self->particleTimer   = 0;
             self->phase           = 0;
             self->timer           = self->args.effect->params[0];
-            func_ov003_020a3498(&self->sprite, 2, 1, 0x99, 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, 0x99, 1);
             return 1;
         case 1: {
             Ov003FireWorks*      self = task->data;
@@ -38,12 +38,12 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
                 case 0:
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         CombatSprite_Restart(&self->sprite);
-                        func_ov003_02087f28(0x54, self->args.position.x);
+                        CombatSe_PlayAtMainX(0x54, self->args.position.x);
                     }
                     if (--self->timer == 0) {
                         self->phase = 1;
                         self->timer = self->args.effect->params[1];
-                        func_ov003_020a35b8(&self->sprite, 0x9A, 1);
+                        CombatPsyAnim_SetAnim(&self->sprite, 0x9A, 1);
                     }
                     if (self->particleTimer == 0) {
                         self->particleTimer = 5;
@@ -59,13 +59,13 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
                 case 1:
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         CombatSprite_Restart(&self->sprite);
-                        func_ov003_02087f28(0x54, self->args.position.x);
+                        CombatSe_PlayAtMainX(0x54, self->args.position.x);
                     }
                     if (--self->timer == 0) {
                         s32 i, angle;
-                        func_ov003_02087f28(0x55, self->args.position.x);
+                        CombatSe_PlayAtMainX(0x55, self->args.position.x);
                         self->phase = 2;
-                        func_ov003_020a35b8(&self->sprite, 0x9B, 1);
+                        CombatPsyAnim_SetAnim(&self->sprite, 0x9B, 1);
                         func_ov003_020a88c0(&burst, self->args.position.x, self->args.position.y, self->args.position.z, 2,
                                             0xA2);
                         func_ov003_020a899c(&burst, 0);
@@ -87,8 +87,8 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003FireWorks* self = task->data;
-            s32             x    = func_ov003_020843b0(0, self->args.position.x);
-            s32             y    = func_ov003_020843ec(0, self->args.position.y, self->args.position.z);
+            s32             x    = CombatStage_ToScreenX(0, self->args.position.x);
+            s32             y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
             CombatSprite_SetPosition(&self->sprite, x, y);
             func_ov003_02082730(&self->sprite, 0x386000);
             CombatSprite_Render(&self->sprite);

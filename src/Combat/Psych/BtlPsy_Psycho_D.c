@@ -13,9 +13,9 @@ static void func_ov003_020b5d40(Ov003PsychoD* self, s32 phase);
 
 s32 func_ov003_020b537c(Ov003EffectContext* context, Ov003EffectState* effect) {
     BtlTouchWork* touch = func_ov003_020a62a0();
-    if (!func_ov003_02085cfc(6))
+    if (!CombatTouch_IsGesture(6))
         return 0;
-    if (func_ov003_02085d3c(1))
+    if (CombatTouch_IsTargetKind(1))
         return 0;
     Ov003EnemyActor* unit = (Ov003EnemyActor*)touch->held;
     if (unit == NULL || &unit->actor != touch->target || (u32)(unit->actor.unk_00 - 1) > 1 || (unit->actor.flags & 0x10))
@@ -61,8 +61,8 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
             self->radius = 0;
             func_ov003_020a6464(1);
             func_ov003_020a5a94(self->effect);
-            func_ov003_020a3498(&self->spriteB, 2, 1, 0xAC, 1);
-            func_ov003_020a3498(&self->spriteA, 2, 1, 0xAD, 0);
+            CombatPsyAnim_Load(&self->spriteB, 2, 1, 0xAC, 1);
+            CombatPsyAnim_Load(&self->spriteA, 2, 1, 0xAD, 0);
             func_ov003_020b5d40(self, 0);
             return 1;
         case 1: {
@@ -86,7 +86,7 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
                 case 2:
                     if (SpriteMgr_IsAnimationFinished(&self->spriteB.sprite)) {
                         CombatSprite_Restart(&self->spriteB);
-                        func_ov003_02087f28(0x5D, self->unit->actor.position.x);
+                        CombatSe_PlayAtMainX(0x5D, self->unit->actor.position.x);
                     }
                     CombatSprite_Update(&self->spriteB);
                     CombatSprite_Update(&self->spriteA);
@@ -124,7 +124,7 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 3:
             self = task->data;
-            func_ov003_02085c78();
+            CombatTouch_Clear();
             func_ov003_020a6464(0);
             CombatSprite_Release(&self->spriteB);
             CombatSprite_Release(&self->spriteA);
@@ -134,15 +134,15 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
 
 static s32 func_ov003_020b5744(Ov003PsychoD* self) {
     Ov003EnemyActor* unit = self->unit;
-    if (!func_ov003_02085cfc(6)) {
+    if (!CombatTouch_IsGesture(6)) {
         func_ov003_020a6198(self->unit, 5);
-        func_ov003_02087f28(0x5C, unit->actor.position.x);
+        CombatSe_PlayAtMainX(0x5C, unit->actor.position.x);
         return 0;
     }
     if (self->timer == 0) {
         if (!func_ov003_020a6164(unit, 5))
             return 0;
-        func_ov003_02087f28(0x5B, unit->actor.position.x);
+        CombatSe_PlayAtMainX(0x5B, unit->actor.position.x);
         self->x     = unit->actor.position.x;
         self->y     = unit->actor.position.y;
         self->timer = 0xA;
@@ -159,7 +159,7 @@ static s32 func_ov003_020b5744(Ov003PsychoD* self) {
         self->timer--;
     }
     if (self->timer <= 0) {
-        func_ov003_02087f28(0x5C, unit->actor.position.x);
+        CombatSe_PlayAtMainX(0x5C, unit->actor.position.x);
         func_ov003_020b5d40(self, 1);
     }
     return 1;
@@ -169,7 +169,7 @@ static s32 func_ov003_020b5744(Ov003PsychoD* self) {
 // branchy 0/1 assignment.
 static s32 func_ov003_020b585c(Ov003PsychoD* self) {
     Ov003EnemyActor* unit = self->unit;
-    if (!func_ov003_02085cfc(6)) {
+    if (!CombatTouch_IsGesture(6)) {
         func_ov003_020a6198(self->unit, 5);
         return 0;
     }
@@ -177,12 +177,12 @@ static s32 func_ov003_020b585c(Ov003PsychoD* self) {
     unit->actor.position.y = self->y;
     unit->actor.position.z = -0x10000;
     unit->actor.zVelocity  = 0;
-    s32 dx                 = data_ov003_020e71b8->touchWork.startX - data_ov003_020e71b8->touchWork.x;
+    s32 dx                 = g_CombatGlobal->touchWork.startX - g_CombatGlobal->touchWork.x;
     if (dx < 0)
         dx = -dx;
     s32 near;
     if (dx <= 4) {
-        s32 dy = data_ov003_020e71b8->touchWork.startY - data_ov003_020e71b8->touchWork.y;
+        s32 dy = g_CombatGlobal->touchWork.startY - g_CombatGlobal->touchWork.y;
         if (dy < 0)
             dy = -dy;
         near = dy <= 4;
@@ -197,11 +197,11 @@ static s32 func_ov003_020b585c(Ov003PsychoD* self) {
 // Nonmatching: the final "above" flag is materialised as a branchy 0/1 value in the target; mwcc
 // if-converts it to movgt here and reloads `unit` in a different order.
 static s32 func_ov003_020b5934(Ov003PsychoD* self) {
-    BtlTouchWork*    touch = &data_ov003_020e71b8->touchWork;
+    BtlTouchWork*    touch = &g_CombatGlobal->touchWork;
     Ov003EnemyActor* unit  = self->unit;
-    if (!func_ov003_02085cfc(6) && !func_ov003_02085cfc(7)) {
+    if (!CombatTouch_IsGesture(6) && !CombatTouch_IsGesture(7)) {
         s16 half = unit->actor.unk_70;
-        if (func_ov003_02083af8(unit->actor.position.x, unit->actor.position.y, half << 12, (half / 2) << 12)) {
+        if (CombatStage_IsOutOfBounds(unit->actor.position.x, unit->actor.position.y, half << 12, (half / 2) << 12)) {
             func_ov003_020b5d40(self, 3);
             return 1;
         }
@@ -212,8 +212,8 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
         case 0: {
             if (self->timer == 0)
                 self->timer = 0xA;
-            s32 x = func_ov003_0208442c(0, data_ov003_020e71b8->touchWork.x);
-            s32 y = func_ov003_02084460(0, (s16)(data_ov003_020e71b8->touchWork.y - (0xC - unit->actor.unk_72) / 2), -0x10000);
+            s32 x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+            s32 y = CombatStage_ToWorldY(0, (s16)(g_CombatGlobal->touchWork.y - (0xC - unit->actor.unk_72) / 2), -0x10000);
             if (self->timer > 0) {
                 func_020265d4(&unit->actor.position.x, x, (u16)self->timer);
                 func_020265d4(&unit->actor.position.y, y, (u16)self->timer);
@@ -229,9 +229,9 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
             break;
         }
         case 1:
-            unit->actor.position.x = func_ov003_0208442c(0, data_ov003_020e71b8->touchWork.x);
+            unit->actor.position.x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
             unit->actor.position.y =
-                func_ov003_02084460(0, (s16)(data_ov003_020e71b8->touchWork.y - (0xC - unit->actor.unk_72) / 2), -0x10000);
+                CombatStage_ToWorldY(0, (s16)(g_CombatGlobal->touchWork.y - (0xC - unit->actor.unk_72) / 2), -0x10000);
             unit->actor.position.z = -0x10000;
             unit->actor.zVelocity  = 0;
             break;
@@ -246,18 +246,18 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
     if (self->radius > 0x5000)
         self->radius = 0x5000;
     s16 half = unit->actor.unk_70;
-    if (func_ov003_02083b8c(&unit->actor.position.y, (half / 2) << 12, unit->actor.position.x)) {
+    if (CombatStage_ClampToFloorTop(&unit->actor.position.y, (half / 2) << 12, unit->actor.position.x)) {
         s32 above = 0;
         if (self->flags & 1)
-            above = ((self->unit->actor.screenY - self->unit->actor.unk_72) - 0x20) > data_ov003_020e71b8->touchWork.y;
+            above = ((self->unit->actor.screenY - self->unit->actor.unk_72) - 0x20) > g_CombatGlobal->touchWork.y;
         if (above) {
             func_ov003_020a6198(self->unit, 5);
             return 0;
         }
     }
     if (self->radius >= 0x1000 && func_ov003_020a6b84(&self->effect->streak, 0x187, unit) == 1)
-        func_ov003_02087f28(0x65, self->unit->actor.position.x);
-    func_ov003_02083ab0(0, unit->actor.position.x, unit->actor.position.y, unit->actor.position.z);
+        CombatSe_PlayAtMainX(0x65, self->unit->actor.position.x);
+    CombatStage_SetCameraTarget(0, unit->actor.position.x, unit->actor.position.y, unit->actor.position.z);
     return 1;
 }
 
@@ -270,7 +270,7 @@ static s32 func_ov003_020b5c84(Ov003PsychoD* self) {
         self->x               = unit->actor.position.x;
         self->y               = unit->actor.position.y;
         s16 half              = unit->actor.unk_70;
-        func_ov003_02083ca0(&self->x, &self->y, half << 12, (half / 2) << 12);
+        CombatStage_ClampXY(&self->x, &self->y, half << 12, (half / 2) << 12);
     }
     if (self->timer > 0) {
         func_020265d4(&unit->actor.position.x, self->x, (u16)self->timer);

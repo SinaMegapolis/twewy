@@ -7,7 +7,7 @@ static const TaskHandle data_ov003_020dd068;
 static void             func_ov003_020b9a14(Ov003Psychithunder* self);
 
 s32 func_ov003_020b9838(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(2))
+    if (!CombatTouch_IsGesture(2))
         return 0;
     Ov003PsychArgs  value = {effect};
     Ov003PsychArgs* arg   = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dd068.taskName);

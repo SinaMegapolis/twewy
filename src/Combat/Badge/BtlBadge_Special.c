@@ -91,7 +91,7 @@ static void func_ov003_02094668(CombatSprite* sprite, s32 index) {
     if (index > 3) {
         return;
     }
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
             partner = index - 1;
             break;
@@ -127,7 +127,7 @@ static s32 func_ov003_0209477c(TaskPool* pool, Task* task, void* args) {
     s32              val  = 0;
 
     MI_CpuSet(self, 0, sizeof(*self));
-    if (!(data_ov003_020e71b8->unk3D88D == 0 || data_ov003_020e71b8->unk3D88D == 1 || data_ov003_020e71b8->unk3D88D == 2)) {
+    if (!(g_CombatGlobal->unk3D88D == 0 || g_CombatGlobal->unk3D88D == 1 || g_CombatGlobal->unk3D88D == 2)) {
         return 0;
     }
     self->actor.state   = 3;
@@ -141,7 +141,7 @@ static s32 func_ov003_0209477c(TaskPool* pool, Task* task, void* args) {
     self->actor.unk_044 = val;
     self->shown         = 0;
     self->timer         = val;
-    func_ov003_020849bc(&data_ov003_020e71b8->unk3D8BC, &self->actor.node, &self->actor);
+    CombatList_Append(&g_CombatGlobal->unk3D8BC, &self->actor.node, &self->actor);
     return 1;
 }
 
@@ -152,7 +152,7 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
     BtlBadgeSpecial* self = task->data;
     s8               index;
 
-    if (data_ov003_020e71b8->unk3D884 != 0 || (data_ov003_020e71b8->unk3D878 & 2) != 0) {
+    if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 2) != 0) {
         return 1;
     }
     if (self->index > 0) {
@@ -162,7 +162,7 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
             self->index = index;
             CombatSprite_Release(&self->actor.sprite);
             func_ov003_020a0244(self->index, &self->actor);
-            func_ov003_02087ed8(SEIDX_SE_GIRL_ESP_FULL);
+            CombatSe_Play(SEIDX_SE_GIRL_ESP_FULL);
             func_ov003_02094668(&self->actor.sprite, self->index);
         }
     } else {
@@ -171,14 +171,14 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
         if (self->index > 0) {
             self->actor.unk_044 = 1;
             func_ov003_020a0244(self->index, &self->actor);
-            func_ov003_02087ed8(SEIDX_SE_GIRL_ESP_FULL);
+            CombatSe_Play(SEIDX_SE_GIRL_ESP_FULL);
             func_ov003_02094668(&self->actor.sprite, self->index);
         }
     }
-    if (self->index > 0 && self->timer <= 0 && data_ov003_020e71b8->unk3D874 == 2 &&
-        (data_ov003_020e71b8->unk3D878 & 0x20000) == 0 && func_ov003_020a3f20(&self->actor) != 0)
+    if (self->index > 0 && self->timer <= 0 && g_CombatGlobal->unk3D874 == 2 && (g_CombatGlobal->unk3D878 & 0x20000) == 0 &&
+        func_ov003_020a3f20(&self->actor) != 0)
     {
-        data_ov003_020e71b8->unk3D878 |= 0x20000;
+        g_CombatGlobal->unk3D878 |= 0x20000;
         func_ov003_02087008();
         self->index         = 0;
         self->actor.unk_044 = 0;

@@ -42,9 +42,9 @@ void func_ov010_02126c38(BtlEnm006* arg0) {
     BtlEnm006* self = arg0;
     TaskPool*  pool;
     if (func_ov003_020c37f8(&self->base.sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_Swirl, 0, 0, 0, &self);
 }
@@ -104,7 +104,7 @@ static s32 func_ov010_02126e58(Enm006Swirl* data) {
     }
     if (data->unk_64 == 0) {
         data->unk_64++;
-        func_ov003_02087f00(SEIDX_SE_006_WATER_SWIRL, func_ov003_020843b0(0, data->unk_00->base.actor.position.x));
+        CombatSe_PlayPanned(SEIDX_SE_006_WATER_SWIRL, CombatStage_ToScreenX(0, data->unk_00->base.actor.position.x));
     }
     s32 w = func_ov003_020cb744(0);
     s32 h = func_ov003_020cb7a4(0);
@@ -154,7 +154,7 @@ static s32 func_ov010_02126fdc(Enm006Swirl* data) {
         s16 sx;
         s16 sy;
         func_ov010_02126c94(data, &x, &y, i);
-        func_ov003_02084348(flag, &sx, &sy, x, y, 0);
+        CombatStage_WorldToScreen(flag, &sx, &sy, x, y, 0);
         CombatSprite_SetPosition(&data->sprite, sx, sy);
         func_ov003_02082730(&data->sprite, 0x7FFFFFFF - y);
         CombatSprite_Render(&data->sprite);

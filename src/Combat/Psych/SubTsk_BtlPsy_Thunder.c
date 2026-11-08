@@ -8,7 +8,7 @@ void func_ov003_020b3050(CombatList* list, Ov003TargetEntry* entry) {
     if (entry == NULL)
         return;
     func_ov003_020a6060(entry->taskId);
-    func_ov003_020849dc(list, &entry->node);
+    CombatList_Remove(list, &entry->node);
 }
 
 void func_ov003_020b3078(CombatList* list) {
@@ -17,15 +17,15 @@ void func_ov003_020b3078(CombatList* list) {
 }
 
 Ov003TargetEntry* func_ov003_020b3094(CombatList* list) {
-    return func_ov003_0208495c(list);
+    return CombatList_GetHead(list);
 }
 
 Ov003TargetEntry* func_ov003_020b30a0(CombatList* list, CombatActor* actor) {
-    Ov003TargetEntry* entry = func_ov003_0208495c(list);
+    Ov003TargetEntry* entry = CombatList_GetHead(list);
     while (entry != NULL) {
         if (entry->actor == actor)
             return entry;
-        entry = func_ov003_02084984(&entry->node);
+        entry = CombatList_GetNext(&entry->node);
     }
     return NULL;
 }

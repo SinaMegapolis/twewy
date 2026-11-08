@@ -237,7 +237,7 @@ static void func_ov026_020e7be8(TutorialObject* object) {
 
 static void func_ov026_020e7bfc(TutorialObject* object) {
     OverlayTag tag;
-    MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, (OverlayCB)&func_ov003_0208ec74, NULL, 0);
+    MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, (OverlayCB)&ProcessOverlay_Battle, NULL, 0);
 }
 
 static void func_ov026_020e7c2c(TutorialObject* object) {

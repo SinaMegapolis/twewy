@@ -40,9 +40,9 @@ s32 func_ov003_020cda50(Ov003EnemyShotSource* source, Ov003EnemyShotSource* seco
     args.velocity.z   = z;
     TaskPool* pool;
     if (!func_ov003_020c37f8(&source->core.owner->base.sprite))
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c24, NULL, 0, NULL, &args);
 }
 
@@ -97,8 +97,8 @@ static s32 func_ov003_020cdc28(Ov003EnemyShotCharge* self) {
             break;
         case 1:
             self->source.core.hitResult =
-                func_ov003_0208a164(func_ov003_0208a114(source->core.attackId), &source->core.owner->base.actor.baseArgs,
-                                    source->core.position.x, source->core.position.y, source->core.position.z);
+                CombatHit_AttackAt(CombatHit_GetAttackInfo(source->core.attackId), &source->core.owner->base.actor.baseArgs,
+                                   source->core.position.x, source->core.position.y, source->core.position.z);
             if (SpriteMgr_IsAnimationFinished(&sprite->sprite))
                 return 0;
             break;
@@ -111,8 +111,8 @@ static s32 func_ov003_020cdd80(Ov003EnemyShotCharge* self) {
     CombatSprite*         sprite = self->activeSprite;
     Ov003EnemyShotSource* source = self->activeSource;
     s16                   x, y;
-    func_ov003_02084348(func_ov003_020c37f8(sprite) ? 1 : 0, &x, &y, source->core.position.x, source->core.position.y,
-                        source->core.position.z);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(sprite) ? 1 : 0, &x, &y, source->core.position.x, source->core.position.y,
+                              source->core.position.z);
     CombatSprite_SetPosition(sprite, x, y);
     s32 depth = source->core.position.y;
     if (depth <= 0)

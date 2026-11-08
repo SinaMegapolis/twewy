@@ -47,9 +47,9 @@ static s32 func_ov003_020ce39c(Ov003EnemyShotSource* source, u16 angle, s32 spee
     args.targetZ = targetZ;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c44, NULL, 0, NULL, &args);
 }
 
@@ -129,9 +129,9 @@ static s32 func_ov003_020ce99c(Ov003EnemyShotFocus* self) {
             self->velocityY -= self->brakeY;
             self->turnTimer--;
             if (self->turnTimer < 0) {
-                func_ov003_02084348(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
-                                    self->source.core.position.z);
-                func_ov003_02084348(engine, &targetX, &targetY, self->targetX, self->targetY, self->targetZ);
+                CombatStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
+                                          self->source.core.position.z);
+                CombatStage_WorldToScreen(engine, &targetX, &targetY, self->targetX, self->targetY, self->targetZ);
                 u16 angle    = (u16)(FX_Atan2Idx((s32)targetY - y, (s32)targetX - x) >> 4);
                 self->brakeX = FX_Mul(self->accel, FX_CosIdx(angle));
                 self->brakeY = FX_Mul(self->accel, FX_SinIdx(angle));
@@ -145,18 +145,18 @@ static s32 func_ov003_020ce99c(Ov003EnemyShotFocus* self) {
     }
     self->source.core.position.x += self->velocityX;
     self->source.core.position.y += self->velocityY;
-    func_ov003_02084348(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
-                        self->source.core.position.z);
-    self->source.core.hitResult = func_ov003_0208a1a4(func_ov003_0208a114(self->source.core.attackId),
-                                                      &self->source.core.owner->base.actor.baseArgs, x, y);
+    CombatStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
+                              self->source.core.position.z);
+    self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
+                                                           &self->source.core.owner->base.actor.baseArgs, x, y);
     CombatSprite_Update(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020ceb9c(Ov003EnemyShotFocus* self) {
     s16 x, y;
-    func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                        self->source.core.position.y, self->source.core.position.z);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                              self->source.core.position.y, self->source.core.position.z);
     CombatSprite_SetPosition(&self->sprite, x, y);
     func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     CombatSprite_Render(&self->sprite);

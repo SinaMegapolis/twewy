@@ -14,7 +14,7 @@ typedef struct BtlPsySpinM {
 static void func_ov003_02095ed0(BtlPsySpinM* self) {
     if (func_ov003_020a50cc()) {
         func_ov003_02087310();
-        func_ov003_02087250(self->effect, data_ov003_020e71b8->unk3D898, 0);
+        func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, 0);
         self->timer = 8;
     }
     if (self->timer > 0)
@@ -28,16 +28,16 @@ static s32 func_ov003_02095f3c(TaskPool* pool, Task* task, void* args) {
     BtlPsySpinM*       self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
-    data_ov003_020e71b8->unk3D8C8 = 1;
-    self->effect                  = *arg;
-    self->timer                   = 0;
-    self->active                  = 1;
-    func_ov003_02087250(self->effect, data_ov003_020e71b8->unk3D898, 0);
+    g_CombatGlobal->unk3D8C8 = 1;
+    self->effect             = *arg;
+    self->timer              = 0;
+    self->active             = 1;
+    func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, 0);
     return 1;
 }
 static s32 func_ov003_02095fa0(TaskPool* pool, Task* task, void* args) {
     BtlPsySpinM* self = task->data;
-    if (!data_ov003_020e71b8->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
+    if (!g_CombatGlobal->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
         func_ov003_02087310();
         return 0;
     }

@@ -29,15 +29,15 @@ s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage) {
             effect = task->data;
             MI_CpuSet(effect, 0, sizeof(*effect));
             effect->slots      = arg->slots;
-            touch              = &data_ov003_020e71b8->touchWork;
-            effect->position.x = func_ov003_0208442c(0, touch->x);
-            effect->position.y = func_ov003_02084460(0, touch->y, 0x1000);
+            touch              = &g_CombatGlobal->touchWork;
+            effect->position.x = CombatStage_ToWorldX(0, touch->x);
+            effect->position.y = CombatStage_ToWorldY(0, touch->y, 0x1000);
             effect->position.z = 0x1000;
             effect->slots->unk_15++;
             // FX32_CONVERT deliberately evaluates RNG_Next twice per axis, as in retail.
             effect->position.x += FX32_CONVERT((RNG_Next(5) - 2) << 3);
             effect->position.y += FX32_CONVERT((RNG_Next(5) - 2) << 3);
-            func_ov003_020a3498(&effect->sprite, 2, 1, RNG_Next(5) + 0xB0, 0);
+            CombatPsyAnim_Load(&effect->sprite, 2, 1, RNG_Next(5) + 0xB0, 0);
             return 1;
         }
         case 1: {
@@ -69,8 +69,8 @@ s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage) {
         case 2: {
             s32 x, y;
             effect = task->data;
-            x      = func_ov003_020843b0(0, effect->position.x);
-            y      = func_ov003_020843ec(0, effect->position.y, effect->position.z);
+            x      = CombatStage_ToScreenX(0, effect->position.x);
+            y      = CombatStage_ToScreenY(0, effect->position.y, effect->position.z);
             CombatSprite_SetPosition(&effect->sprite, x, y);
             func_ov003_02082730(&effect->sprite, effect->position.y + 0x1F4000);
             CombatSprite_Render(&effect->sprite);

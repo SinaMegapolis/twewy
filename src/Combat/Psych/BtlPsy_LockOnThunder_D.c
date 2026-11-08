@@ -49,10 +49,10 @@ static void func_ov003_020b3358(Ov003Thunder* self) {
 
 void func_ov003_020b33a4(Ov003Thunder* self) {
     self->phase = 0;
-    func_ov003_020a3498(&self->sprite, 2, 1, self->args.effect->index, 1);
+    CombatPsyAnim_Load(&self->sprite, 2, 1, self->args.effect->index, 1);
     self->angle = 0x4000;
     func_ov003_020b3308(self);
-    func_ov003_02087f28(0x14B, self->target->position.x);
+    CombatSe_PlayAtMainX(0x14B, self->target->position.x);
 }
 
 void func_ov003_020b3400(Ov003Thunder* self) {
@@ -73,8 +73,8 @@ void func_ov003_020b3400(Ov003Thunder* self) {
 static void func_ov003_020b3464(Ov003Thunder* self) {
     self->phase = 1;
     CombatSprite_Release(&self->sprite);
-    func_ov003_020a3498(&self->sprite, 2, 1, self->args.effect->index + 4, 0);
-    func_ov003_02087f28(0x14B, self->target->position.x);
+    CombatPsyAnim_Load(&self->sprite, 2, 1, self->args.effect->index + 4, 0);
+    CombatSe_PlayAtMainX(0x14B, self->target->position.x);
 }
 
 void func_ov003_020b34c0(Ov003Thunder* self) {
@@ -97,9 +97,9 @@ void func_ov003_020b34c0(Ov003Thunder* self) {
 static void func_ov003_020b35c0(Ov003Thunder* self) {
     self->phase = 2;
     CombatSprite_Release(&self->sprite);
-    func_ov003_020a3498(&self->sprite, 2, 1, self->args.effect->index + 8, 1);
+    CombatPsyAnim_Load(&self->sprite, 2, 1, self->args.effect->index + 8, 1);
     self->angle = (u16)(self->angle + 0x4000);
-    func_ov003_02087f28(0x14B, self->target->position.x);
+    CombatSe_PlayAtMainX(0x14B, self->target->position.x);
 }
 
 void func_ov003_020b362c(Ov003Thunder* self) {
@@ -120,9 +120,9 @@ void func_ov003_020b362c(Ov003Thunder* self) {
 static void func_ov003_020b3698(Ov003Thunder* self) {
     self->phase = 3;
     CombatSprite_Release(&self->sprite);
-    func_ov003_020a3498(&self->sprite, 2, 1, self->args.effect->index + 4, 0);
+    CombatPsyAnim_Load(&self->sprite, 2, 1, self->args.effect->index + 4, 0);
     self->angle = (u16)(self->angle + (RNG_Next(0x1001) + 0x1000));
-    func_ov003_02087f00(SEIDX_SE_BOY_THUNDER, (s16)(self->position.x >> 12));
+    CombatSe_PlayPanned(SEIDX_SE_BOY_THUNDER, (s16)(self->position.x >> 12));
 }
 
 void func_ov003_020b371c(Ov003Thunder* self) {
@@ -135,9 +135,9 @@ void func_ov003_020b371c(Ov003Thunder* self) {
 }
 
 s32 func_ov003_020b37c8(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(6))
+    if (!CombatTouch_IsGesture(6))
         return 0;
-    if (func_ov003_02085d3c(1))
+    if (CombatTouch_IsTargetKind(1))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc984.taskName);
     *arg                   = effect;
@@ -182,7 +182,7 @@ static s32 func_ov003_020b38d4(Ov003LockOnThunder* self) {
         func_ov003_020a6464(0);
         stop = 1;
     }
-    if (!func_ov003_02085cfc(6) || stop) {
+    if (!CombatTouch_IsGesture(6) || stop) {
         func_ov003_020a6464(0);
         if (func_ov003_020b30d8(&self->targets))
             return 0;
@@ -192,7 +192,7 @@ static s32 func_ov003_020b38d4(Ov003LockOnThunder* self) {
     }
     func_ov003_020a5a94(self->effect);
     func_ov003_020a6494(touch->x);
-    CombatActor* actor = func_ov003_02085e78(1);
+    CombatActor* actor = CombatTouch_GetDragged(1);
     if (actor != NULL && !func_ov003_020b30f0(&self->targets, actor))
         func_ov003_020b3014(&self->targets, actor);
     return 1;

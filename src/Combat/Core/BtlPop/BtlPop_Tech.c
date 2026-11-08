@@ -81,10 +81,9 @@ static s32 BtlPop_Tech_Init(TaskPool* pool, Task* task, void* args) {
 
     tech->techId     = params->techId;
     tech->digitCount = func_ov003_0209d088(digits, params->techId);
-    tech->x          = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x;
-    tech->y          = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y;
-    tech->z          = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.z -
-              (((CombatActor*)data_ov003_020e71b8->unk3D898)->unk_76 << 12);
+    tech->x          = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
+    tech->y          = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
+    tech->z = ((CombatActor*)g_CombatGlobal->unk3D898)->position.z - (((CombatActor*)g_CombatGlobal->unk3D898)->unk_76 << 12);
     tech->targetZ = tech->z - 0x20000;
     tech->state   = 0;
     tech->timer   = 0;
@@ -118,7 +117,7 @@ static s32 BtlPop_Tech_Update(TaskPool* pool, Task* task, void* args) {
             }
             tech->timer--;
             if (tech->timer <= 0) {
-                func_ov003_0208afcc(tech->techId);
+                BtlMgr_AddExp(tech->techId);
                 return 0;
             }
         } break;
@@ -129,8 +128,8 @@ static s32 BtlPop_Tech_Update(TaskPool* pool, Task* task, void* args) {
 // Nonmatching: regalloc
 static s32 BtlPop_Tech_Render(TaskPool* pool, Task* task, void* args) {
     BtlPop_Tech* tech = task->data;
-    s32          posX = func_ov003_020843b0(0, tech->x);
-    s16          posY = (s16)(func_ov003_020843ec(0, tech->y, tech->z) - 8);
+    s32          posX = CombatStage_ToScreenX(0, tech->x);
+    s16          posY = (s16)(CombatStage_ToScreenY(0, tech->y, tech->z) - 8);
     s32          half = (tech->digitCount * 7) / 2 - 7;
     s32          offset;
     s32          i;
@@ -174,9 +173,9 @@ static s32 BtlPop_Tech_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 void func_ov003_0209d4b0(void) {
-    if (data_ov003_020e71b8->unk3D8FA > 0) {
-        BtlPop_TechArgs params = {data_ov003_020e71b8->unk3D8FA};
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Tech, NULL, 0, NULL, &params);
-        data_ov003_020e71b8->unk3D8FA = 0;
+    if (g_CombatGlobal->unk3D8FA > 0) {
+        BtlPop_TechArgs params = {g_CombatGlobal->unk3D8FA};
+        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Tech, NULL, 0, NULL, &params);
+        g_CombatGlobal->unk3D8FA = 0;
     }
 }

@@ -32,7 +32,7 @@ static s32 func_ov003_020afbc4(TaskPool* pool, Task* task, void* args, s32 stage
             self->acceleration = 0x11F;
             self->ticks        = 0;
             self->rotation     = 0;
-            func_ov003_020a3498(&self->sprite, 2, 1, self->kind + 0xFC, 0);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, self->kind + 0xFC, 0);
             return 1;
         case 1:
             self = task->data;

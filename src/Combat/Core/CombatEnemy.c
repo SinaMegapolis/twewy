@@ -4,6 +4,7 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatCutin.h"
+#include "Combat/Core/CombatEnemyGroup.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Engine/Core/Memory.h"
@@ -16,23 +17,11 @@
 #include <nitro/fx.h>
 #include <nitro/mi/cpumem.h>
 
-// Battle cut-in ("act") actors. Each cut-in is a pair of `Ov003CutinActor`s (main/sub) that play
-// a scripted camera/actor swoop; the tracks they follow are 3D points copied out of the cut-in
-// command tables in the large .rodata block at the end of this file.
-//
-// The `data_ov003_020e71e4` block is four adjacent .bss objects; the state view below spans them
-// so the two halves can be addressed by name.
-//
-// Nonmatching: 45/60 functions are instruction-identical; the rest are structurally complete but
-// still differ in register allocation or in the recovered cut-in actor/track layout (worst:
-// func_ov003_020c3814). The owned .rodata tables have the right contents and sizes, but mwcc orders
-// same-size objects differently from the delinked target.
+/// Bit view shared by the noise parameter flags (`flags16`) and the actor flags (`flags196`).
 
-/// Bit view shared by the cut-in parameter flags (`flags16`) and the actor flags (`flags196`).
+/// Per-actor parameter record reached through `CombatEnemyParam_Table[group][sprite]`.
 
-/// Per-actor parameter record reached through `data_ov003_020e70ac[group][sprite]`.
-
-/// Bit view of one cut-in command word.
+/// Bit view of one noise command word.
 typedef union Ov003CutinCmd {
     /* 0x0 */ u16 raw;
     struct {
@@ -43,7 +32,7 @@ typedef union Ov003CutinCmd {
     } bits;
 } Ov003CutinCmd; // Size: 0x2
 
-/// Bit view of the global cut-in state byte (`g_Cutin->flags`).
+/// Bit view of the global noise state byte (`g_Cutin->flags`).
 
 /// The four adjacent .bss objects at 0x020e71e4..0x020e7204, as one block.
 
@@ -51,12 +40,9 @@ static u8 data_ov003_020e71e8[];
 static u8 data_ov003_020e71ec[];
 static u8 data_ov003_020e71f8[];
 
-extern u8       data_ov003_020e722c[];
-extern u8       data_ov003_020e7204[];
-extern const s8 data_ov003_020e09f8[];
-extern u8       data_ov003_020e6a38[];
-extern void**   data_ov003_020e6a44[];
-extern u8       data_02071cf0[];
+extern u8 data_ov003_020e722c[];
+extern u8 data_ov003_020e7204[];
+extern u8 data_02071cf0[];
 
 // Data owned by this unit.
 static void*             data_ov003_020e53f4[];
@@ -71,16 +57,13 @@ static Ov003Camera*      func_ov003_020c3a48(u32 index);
 static s32               func_ov003_020c3a70(u32 index);
 static void              func_ov003_020c3b6c(u16* tracks);
 static void              func_ov003_020c3e68(Ov003EnemyActor* main, Ov003EnemyActor* sub);
-extern const s8          data_ov003_020e09f8[];
 
 // Data owned by neighbouring units / arm9.
-extern u8     data_ov003_020e6a38[];
-extern void** data_ov003_020e6a44[];
-extern u8     data_ov003_020e7204[];
-extern u8     data_ov003_020e722c[];
-extern u8     data_02071cf0[];
+extern u8 data_ov003_020e7204[];
+extern u8 data_ov003_020e722c[];
+extern u8 data_02071cf0[];
 
-/// Clears every motion track of a cut-in track buffer.
+/// Clears every motion track of a noise track buffer.
 
 void func_ov003_020c2064(Ov003CutinTracks* tracks) {
     s32 i;
@@ -103,7 +86,7 @@ void func_ov003_020c20b8(Ov003CutinTracks* tracks, Vec* data, u16 count) {
     func_ov003_020c2064(tracks);
 }
 
-/// Lays one frame of the cut-in out: every motion track that is non-zero positions the main and
+/// Lays one frame of the noise out: every motion track that is non-zero positions the main and
 /// sub actor sprites, then the current track is written back so the animation advances.
 void func_ov003_020c20d4(Ov003CutinTracks* tracks, Ov003CutinActor* actor) {
     s32 limit;
@@ -131,11 +114,11 @@ void func_ov003_020c20d4(Ov003CutinTracks* tracks, Ov003CutinActor* actor) {
                 actor->base.actor.position.y = tracks->tracks[i].y;
                 actor->base.actor.position.z = tracks->tracks[i].z;
                 if (actor->base.sprite.sprite.bits_0_1 == 0) {
-                    posX = func_ov003_020843b0(0, actor->base.actor.position.x);
-                    posY = func_ov003_020843ec(0, actor->base.actor.position.y, actor->base.actor.position.z);
+                    posX = CombatStage_ToScreenX(0, actor->base.actor.position.x);
+                    posY = CombatStage_ToScreenY(0, actor->base.actor.position.y, actor->base.actor.position.z);
                 } else {
-                    posX = func_ov003_020843b0(1, actor->base.actor.position.x);
-                    posY = func_ov003_020843ec(1, actor->base.actor.position.y, actor->base.actor.position.z);
+                    posX = CombatStage_ToScreenX(1, actor->base.actor.position.x);
+                    posY = CombatStage_ToScreenY(1, actor->base.actor.position.y, actor->base.actor.position.z);
                 }
                 if (i == current) {
                     spriteIndex = tracks->count;
@@ -146,7 +129,7 @@ void func_ov003_020c20d4(Ov003CutinTracks* tracks, Ov003CutinActor* actor) {
                 CombatSprite_SetPosition(&actor->base.sprite, posX, posY);
                 func_ov003_02082730(&actor->base.sprite, limit + (spriteIndex << 12));
                 CombatSprite_Render(&actor->base.sprite);
-                func_ov003_0208810c(&actor->base.subSprite, &actor->base.actor);
+                CombatHit_DrawSparkOnActor(&actor->base.subSprite, &actor->base.actor);
             }
             offset += 0xC;
             i++;
@@ -160,7 +143,7 @@ void func_ov003_020c20d4(Ov003CutinTracks* tracks, Ov003CutinActor* actor) {
     tracks->cursor++;
 }
 
-/// Scales `value` by `scale / total` while the cut-in slow-motion flag is off.
+/// Scales `value` by `scale / total` while the noise slow-motion flag is off.
 static void func_ov003_020c228c(s32 value, s32 total) {
     s32 v = value;
 
@@ -177,7 +160,7 @@ static void func_ov003_020c2324(s32 value, s32 total) {
     }
     func_ov003_0208af9c(0, (u16)v);
 }
-/// Default cut-in layout, used when the battle does not select a scripted one.
+/// Default noise layout, used when the battle does not select a scripted one.
 static void func_ov003_020c23bc(void) {
     Ov003CutinCmdData mainData;
     Ov003CutinCmdData subData;
@@ -205,7 +188,7 @@ static void func_ov003_020c23bc(void) {
         u16 b = func_ov003_020c2b3c(j);
         s32 c = func_ov003_020c2b3c(k);
 
-        params                                            = (Ov003ActorParams*)data_ov003_020e70ac[a][b];
+        params                                            = (Ov003ActorParams*)CombatEnemyParam_Table[a][b];
         ((Ov003CutinFlags8*)data_ov003_020e71e8)->bits.b1 = params->flags16.bits.b10;
         ((Ov003CutinFlags8*)data_ov003_020e71e8)->bits.b2 = params->flags16.bits.b11;
         subData.group                                     = a;
@@ -221,12 +204,12 @@ static void func_ov003_020c23bc(void) {
                     sumX += params->unk_28;
                     sumY += params->unk_2A;
                 }
-                subData.x  = RNG_Next((u32)(data_ov003_020e71b8->unk3D7C0[0].unk_0C >> 12)) << 12;
-                subData.y  = RNG_Next((u32)(data_ov003_020e71b8->unk3D7C0[0].unk_10 >> 12)) << 12;
+                subData.x  = RNG_Next((u32)(g_CombatGlobal->unk3D7C0[0].unk_0C >> 12)) << 12;
+                subData.y  = RNG_Next((u32)(g_CombatGlobal->unk3D7C0[0].unk_10 >> 12)) << 12;
                 subData.z  = 0;
-                mainData.x = RNG_Next((u32)(data_ov003_020e71b8->unk3D7C0[1].unk_0C >> 12)) << 12;
+                mainData.x = RNG_Next((u32)(g_CombatGlobal->unk3D7C0[1].unk_0C >> 12)) << 12;
                 mainData.z = 0;
-                mainData.y = RNG_Next((u32)(data_ov003_020e71b8->unk3D7C0[1].unk_10 >> 12)) << 12;
+                mainData.y = RNG_Next((u32)(g_CombatGlobal->unk3D7C0[1].unk_10 >> 12)) << 12;
                 func_ov003_020c3cec(data_ov003_020e68d0[subData.group], data_ov003_020e67e0[mainData.group], (u32*)&subData,
                                     (u32*)&mainData);
             }
@@ -240,7 +223,7 @@ static void func_ov003_020c23bc(void) {
     func_ov003_020c2324(sumY, num);
 }
 
-/// Scripted cut-in layout: walks the 12-bit command list in `data_ov003_020e53f4[index]`.
+/// Scripted noise layout: walks the 12-bit command list in `data_ov003_020e53f4[index]`.
 static void func_ov003_020c2624(u16* script) {
     Ov003CutinCmdData mainData;
     Ov003CutinCmdData subData;
@@ -258,7 +241,7 @@ static void func_ov003_020c2624(u16* script) {
     while (cursor->bits.group != 0x3C) {
         ((Ov003CutinFlags8*)data_ov003_020e71e8)->bits.b0 = cursor->bits.flag;
         params                                            = (Ov003ActorParams*)
-            data_ov003_020e70ac[((Ov003CutinCmd*)script)->bits.group][((Ov003CutinCmd*)script)->bits.sprite];
+            CombatEnemyParam_Table[((Ov003CutinCmd*)script)->bits.group][((Ov003CutinCmd*)script)->bits.sprite];
         ((Ov003CutinFlags8*)data_ov003_020e71e8)->bits.b1 = params->flags16.bits.b10;
         ((Ov003CutinFlags8*)data_ov003_020e71e8)->bits.b2 = params->flags16.bits.b11;
         cursor++;
@@ -273,7 +256,7 @@ static void func_ov003_020c2624(u16* script) {
             s32 point = ((Ov003CutinCmd*)script)->bits.point;
 
             params = (Ov003ActorParams*)
-                data_ov003_020e70ac[((Ov003CutinCmd*)script)->bits.group][((Ov003CutinCmd*)script)->bits.sprite];
+                CombatEnemyParam_Table[((Ov003CutinCmd*)script)->bits.group][((Ov003CutinCmd*)script)->bits.sprite];
             if (g_Cutin->flags.bits.b0 != 0) {
                 if (((Ov003CutinCmd*)script)->bits.flag != 0) {
                     num++;
@@ -288,33 +271,27 @@ static void func_ov003_020c2624(u16* script) {
             subData.group  = ((Ov003CutinCmd*)script)->bits.group;
             subData.sprite = (s16)((Ov003CutinCmd*)script)->bits.sprite;
             subData.flags  = (subData.flags & ~1) | ((Ov003CutinCmd*)script)->bits.flag;
-            subData.x =
-                ((s32*)data_ov003_020e05d4)[point * 2] +
-                ((s32)(data_ov003_020e71b8->unk3D7C0[0].unk_0C + ((u32)data_ov003_020e71b8->unk3D7C0[0].unk_0C >> 31)) >> 1);
-            subData.y =
-                ((s32*)data_ov003_020e05d4)[point * 2 + 1] +
-                ((s32)(data_ov003_020e71b8->unk3D7C0[0].unk_10 + ((u32)data_ov003_020e71b8->unk3D7C0[0].unk_10 >> 31)) >> 1);
+            subData.x      = ((s32*)data_ov003_020e05d4)[point * 2] +
+                        ((s32)(g_CombatGlobal->unk3D7C0[0].unk_0C + ((u32)g_CombatGlobal->unk3D7C0[0].unk_0C >> 31)) >> 1);
+            subData.y = ((s32*)data_ov003_020e05d4)[point * 2 + 1] +
+                        ((s32)(g_CombatGlobal->unk3D7C0[0].unk_10 + ((u32)g_CombatGlobal->unk3D7C0[0].unk_10 >> 31)) >> 1);
             subData.z =
                 -(s32)((params->unk_19 > 0) ? (0.5f + (f32)(params->unk_19 << 12)) : ((f32)(params->unk_19 << 12) - 0.5f));
             mainData.group  = ((Ov003CutinCmd*)script)->bits.group;
             mainData.sprite = (s16)((Ov003CutinCmd*)script)->bits.sprite;
             mainData.flags  = (mainData.flags & ~1) | ((Ov003CutinCmd*)script)->bits.flag;
-            mainData.x =
-                ((s32*)data_ov003_020e0664)[point * 2] +
-                ((s32)(data_ov003_020e71b8->unk3D7C0[1].unk_0C + ((u32)data_ov003_020e71b8->unk3D7C0[1].unk_0C >> 31)) >> 1);
-            mainData.y =
-                ((s32*)data_ov003_020e0664)[point * 2 + 1] +
-                ((s32)(data_ov003_020e71b8->unk3D7C0[1].unk_10 + ((u32)data_ov003_020e71b8->unk3D7C0[1].unk_10 >> 31)) >> 1);
+            mainData.x      = ((s32*)data_ov003_020e0664)[point * 2] +
+                         ((s32)(g_CombatGlobal->unk3D7C0[1].unk_0C + ((u32)g_CombatGlobal->unk3D7C0[1].unk_0C >> 31)) >> 1);
+            mainData.y = ((s32*)data_ov003_020e0664)[point * 2 + 1] +
+                         ((s32)(g_CombatGlobal->unk3D7C0[1].unk_10 + ((u32)g_CombatGlobal->unk3D7C0[1].unk_10 >> 31)) >> 1);
             mainData.z =
                 -(s32)((params->unk_19 > 0) ? (0.5f + (f32)(params->unk_19 << 12)) : ((f32)(params->unk_19 << 12) - 0.5f));
             if ((first == 1) && (RNG_Next(2) != 0)) {
                 subData.x =
-                    ((s32)(data_ov003_020e71b8->unk3D7C0[0].unk_0C + ((u32)data_ov003_020e71b8->unk3D7C0[0].unk_0C >> 31)) >>
-                     1) -
+                    ((s32)(g_CombatGlobal->unk3D7C0[0].unk_0C + ((u32)g_CombatGlobal->unk3D7C0[0].unk_0C >> 31)) >> 1) -
                     ((s32*)data_ov003_020e05d4)[point * 2];
                 mainData.x =
-                    ((s32)(data_ov003_020e71b8->unk3D7C0[1].unk_0C + ((u32)data_ov003_020e71b8->unk3D7C0[1].unk_0C >> 31)) >>
-                     1) -
+                    ((s32)(g_CombatGlobal->unk3D7C0[1].unk_0C + ((u32)g_CombatGlobal->unk3D7C0[1].unk_0C >> 31)) >> 1) -
                     ((s32*)data_ov003_020e0664)[point * 2];
             }
             func_ov003_020c3cec(data_ov003_020e68d0[subData.group], data_ov003_020e67e0[mainData.group], (u32*)&subData,
@@ -326,7 +303,7 @@ static void func_ov003_020c2624(u16* script) {
     func_ov003_020c228c(sumX, num);
     func_ov003_020c2324(sumY, num);
 }
-/// Starts cut-in `index` (0 = the default layout) and kicks off its actors.
+/// Starts noise `index` (0 = the default layout) and kicks off its actors.
 void func_ov003_020c2a34(s32 index) {
     func_ov003_020c3b6c((u16*)&data_ov003_020e71e4);
     if (index > 0x4FA) {
@@ -351,24 +328,24 @@ static void func_ov003_020c2a7c(void) {
     func_ov003_020c2b4c(8, 0);
 }
 
-/// (Re)initialises the shared save-resident cut-in slot table.
+/// (Re)initialises the shared save-resident noise slot table.
 void func_ov003_020c2af0(void) {
-    if (OV003_SAVE->cutin.magic == 0x06128248) {
+    if (gCombatCutinSave.magic == 0x06128248) {
         return;
     }
-    MI_CpuSet(&OV003_SAVE->cutin, 0, 0x34);
+    MI_CpuSet(&gCombatCutinSave, 0, 0x34);
     func_ov003_020c2a7c();
-    OV003_SAVE->cutin.unk_28 = 0;
-    OV003_SAVE->cutin.unk_2C = 0;
-    OV003_SAVE->cutin.magic  = 0x06128248;
+    gCombatCutinSave.unk_28 = 0;
+    gCombatCutinSave.unk_2C = 0;
+    gCombatCutinSave.magic  = 0x06128248;
 }
 
 u32 func_ov003_020c2b3c(s32 index) {
-    return ((u32*)&OV003_SAVE->cutin.slots)[index];
+    return gCombatCutinSave.slots[index];
 }
 
 static void func_ov003_020c2b4c(s32 index, s32 value) {
-    ((u32*)&OV003_SAVE->cutin.slots)[index] = value;
+    gCombatCutinSave.slots[index] = value;
 }
 
 void func_ov003_020c2b5c(Ov003CutinActor* actor) {
@@ -387,7 +364,7 @@ void func_ov003_020c2b68(Ov003CutinActor* actor) {
 
 /// True while the actor is safely inside the camera bounds.
 s32 func_ov003_020c2bbc(Ov003CutinActor* actor) {
-    Ov003Global*     p     = data_ov003_020e71b8;
+    Ov003Global*     p     = g_CombatGlobal;
     Ov003Camera*     cam   = &p->unk3D7C0[0];
     Ov003CutinActor* other = (Ov003CutinActor*)p->unk3D898;
 
@@ -406,7 +383,7 @@ s32 func_ov003_020c2bbc(Ov003CutinActor* actor) {
     return 1;
 }
 
-/// Three-phase approach/attack/leave state machine used by the normal cut-in attack.
+/// Three-phase approach/attack/leave state machine used by the normal noise attack.
 s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 targetY, s32 targetZ, s32 arg5) {
     u16 anim0;
     u16 anim1;
@@ -467,10 +444,8 @@ s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 t
             actor->base.actor.position.x += actor->velocityX;
             actor->base.actor.position.y += actor->velocityY;
             actor->base.actor.position.z += actor->velocityZ;
-            if ((actor->base.actor.isFlipped == 1 &&
-                 actor->base.actor.position.x > data_ov003_020e71b8->unk3D7C0[1].unk_0C / 2) ||
-                (actor->base.actor.isFlipped == 0 &&
-                 actor->base.actor.position.x < data_ov003_020e71b8->unk3D7C0[1].unk_0C / 2))
+            if ((actor->base.actor.isFlipped == 1 && actor->base.actor.position.x > g_CombatGlobal->unk3D7C0[1].unk_0C / 2) ||
+                (actor->base.actor.isFlipped == 0 && actor->base.actor.position.x < g_CombatGlobal->unk3D7C0[1].unk_0C / 2))
             {
                 actor->base.unk_1AC = actor->targetX;
                 actor->base.unk_1B0 = actor->targetY;
@@ -504,7 +479,7 @@ s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 t
     }
 }
 
-/// Projectile-like cut-in attack state machine (fly toward the target, then leave).
+/// Projectile-like noise attack state machine (fly toward the target, then leave).
 s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spread) {
     s32              animFar;
     u16              anim1;
@@ -521,8 +496,8 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
     anim3   = animBase + 3;
     anim4   = animBase + 4;
     animFar = animBase + 5;
-    other   = (Ov003CutinActor*)data_ov003_020e71b8->unk3D898;
-    limit   = data_ov003_020e71b8->unk3D7C0[0].unk_0C;
+    other   = (Ov003CutinActor*)g_CombatGlobal->unk3D898;
+    limit   = g_CombatGlobal->unk3D7C0[0].unk_0C;
     switch (actor->state) {
         case 0:
             if (actor->timer == 0) {
@@ -594,17 +569,7 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
 }
 
 static void func_ov003_020c32a4(Ov003CutinActor* src, Ov003CutinActor* dst) {
-    u16 lo;
-    u16 hi;
-
-    lo                                   = *(u16*)&src->base.actor.unk_04; // copied as raw halfwords
-    hi                                   = *(u16*)&src->base.actor.unk_06;
-    dst->base.actor.unk_04               = lo;
-    dst->base.actor.unk_06               = hi;
-    hi                                   = *(u16*)&src->base.actor.unk_0A;
-    lo                                   = *(u16*)&src->base.actor.unk_08;
-    dst->base.actor.unk_08               = lo;
-    dst->base.actor.unk_0A               = hi;
+    dst->base.actor.baseArgs             = src->base.actor.baseArgs;
     dst->base.actor.periodicEffectMode   = src->base.actor.periodicEffectMode;
     dst->base.actor.periodicEffectTimer  = src->base.actor.periodicEffectTimer;
     dst->base.actor.periodicEffectAmount = src->base.actor.periodicEffectAmount;
@@ -758,14 +723,13 @@ s32 func_ov003_020c37f8(CombatSprite* sprite) {
     return sprite->sprite.bits_0_1 == 1;
 }
 
-/// Fills an animation descriptor from a cut-in actor parameter table and loads it into a sprite.
-void func_ov003_020c3814(s32 arg0, CombatSprite* sprite, s32 unused, const u8* table, u16 index, u16 arg4, u16 arg5, s16 arg6,
-                         u16 arg7, s16 arg8) {
+/// Fills an animation descriptor from a noise parameter table and loads it into a sprite.
+void func_ov003_020c3814(s32 engine, CombatSprite* sprite, const BinIdentifier* iden, const u8* table, u16 index, u16 arg4,
+                         u16 arg5, s16 arg6, u16 arg7, s16 arg8) {
     SpriteAnimationEx      out;
     const SpriteAnimEntry* entry;
-    s32                    engine = arg0;
 
-    CombatSprite_InitAnim(&out.anim, engine, NULL);
+    CombatSprite_InitAnim(&out.anim, engine, iden);
     out.anim.bits_10_11 = 1;
     entry               = &((const SpriteAnimEntry*)table)[index];
     out.anim.unk_1C     = entry->charDataIndex;
@@ -817,7 +781,7 @@ static s32 func_ov003_020c3950(u32 index) {
 
 /// Clamps `*value` to the camera's horizontal bounds.
 s32 func_ov003_020c3960(s32* value, s32 margin) {
-    Ov003Global* p   = data_ov003_020e71b8;
+    Ov003Global* p   = g_CombatGlobal;
     Ov003Camera* cam = &p->unk3D7C0[0];
     s32          v   = *value;
     s32          ret = 0;
@@ -832,7 +796,7 @@ s32 func_ov003_020c3960(s32* value, s32 margin) {
     return ret;
 }
 
-/// Rotates a 2D offset so it points along the vector between the cut-in actor and its target.
+/// Rotates a 2D offset so it points along the vector between the noise and its target.
 void func_ov003_020c39b0(Vec* src, Vec* dst) {
     s32 x  = src->x;
     s32 y  = src->y;
@@ -847,7 +811,7 @@ void func_ov003_020c39b0(Vec* src, Vec* dst) {
 }
 
 TaskPool* func_ov003_020c3a10(u32 index) {
-    Ov003Global* p = data_ov003_020e71b8;
+    Ov003Global* p = g_CombatGlobal;
 
     g_Cutin->cameraMain = p;
     g_Cutin->cameraSub  = &p->taskPool;
@@ -856,11 +820,11 @@ TaskPool* func_ov003_020c3a10(u32 index) {
 }
 
 static Ov003Camera* func_ov003_020c3a48(u32 index) {
-    return &data_ov003_020e71b8->unk3D7C0[func_ov003_020c3950(index)];
+    return &g_CombatGlobal->unk3D7C0[func_ov003_020c3950(index)];
 }
 
 static s32 func_ov003_020c3a70(u32 index) {
-    Ov003Global* p        = data_ov003_020e71b8;
+    Ov003Global* p        = g_CombatGlobal;
     void*        mainTask = p->unk3D898;
 
     g_Cutin->taskMain = mainTask;
@@ -870,19 +834,19 @@ static s32 func_ov003_020c3a70(u32 index) {
 }
 
 u32 func_ov003_020c3aac(u32 id) {
-    return ((u32)func_ov003_0208a114(id)->flags << 23) >> 31;
+    return ((u32)CombatHit_GetAttackInfo(id)->flags << 23) >> 31;
 }
 
 void func_ov003_020c3acc(s32 engine, void* arg1, s32 arg2) {
     switch (engine) {
         case 0:
-            func_ov003_02087f28(arg1, arg2);
+            CombatSe_PlayAtMainX(arg1, arg2);
             return;
         case 1:
-            func_ov003_02087f64(arg1, arg2);
+            CombatSe_PlayAtSubX(arg1, arg2);
             return;
         case 2:
-            func_ov003_02087f28(arg1, arg2);
+            CombatSe_PlayAtMainX(arg1, arg2);
             return;
     }
 }
@@ -922,7 +886,7 @@ static void func_ov003_020c3b6c(u16* tracks) {
 }
 
 void func_ov003_020c3ba8(s32 x, s32 y) {
-    Ov003Global*     p      = data_ov003_020e71b8;
+    Ov003Global*     p      = g_CombatGlobal;
     Ov003CutinActor* sub    = p->unk3D89C;
     Ov003Camera*     camera = &p->unk3D7C0[1];
 
@@ -930,21 +894,21 @@ void func_ov003_020c3ba8(s32 x, s32 y) {
     sub->base.actor.position.x = x;
     camera->unk_24             = y;
     sub->base.actor.position.y = y;
-    func_ov003_02083ab0(1, sub->base.actor.position.x, y, sub->base.actor.position.z);
+    CombatStage_SetCameraTarget(1, sub->base.actor.position.x, y, sub->base.actor.position.z);
 }
 
 s32 func_ov003_020c3bf0(void* actor) {
-    if ((data_ov003_020e71b8->unk3D878 & 2) && (func_ov003_020c9008() == 0)) {
+    if ((g_CombatGlobal->unk3D878 & 2) && (func_ov003_020c9008() == 0)) {
         return 1;
     }
     return 0;
 }
 
 s32 func_ov003_020c3c28(void) {
-    return data_ov003_020e71b8->unk3D878 & 2;
+    return g_CombatGlobal->unk3D878 & 2;
 }
 
-/// Resets a cut-in script buffer (0x14 bytes: cursor data, count, flags and three words).
+/// Resets a noise script buffer (0x14 bytes: cursor data, count, flags and three words).
 void func_ov003_020c3c44(Ov003CutinScript* buffer, void* data, s16 count) {
     buffer->data  = data;
     buffer->count = count;
@@ -955,11 +919,11 @@ void func_ov003_020c3c44(Ov003CutinScript* buffer, void* data, s16 count) {
 }
 
 const BtlSpriteDesc* func_ov003_020c3c6c(Ov003EnemyActor* actor) {
-    return (const BtlSpriteDesc*)data_ov003_020e6a44[actor->group][actor->spriteIndex];
+    return (const BtlSpriteDesc*)CombatEnemyGroup_SpriteDescs[actor->group][actor->spriteIndex];
 }
 
 Ov003ActorParams* func_ov003_020c3c88(Ov003EnemyActor* actor) {
-    return (Ov003ActorParams*)data_ov003_020e70ac[actor->group][actor->spriteIndex];
+    return (Ov003ActorParams*)CombatEnemyParam_Table[actor->group][actor->spriteIndex];
 }
 
 TaskPool* func_ov003_020c3ca4(Ov003CutinActor* actor) {
@@ -985,7 +949,7 @@ void func_ov003_020c3cec(const TaskHandle* mainHandle, const TaskHandle* subHand
     func_ov003_020c3d28(subHandle, mainHandle, subData, mainData, &main, &sub);
 }
 
-/// Creates the two EasyTasks driving a cut-in actor pair and links the two task data blocks.
+/// Creates the two EasyTasks driving a noise pair and links the two task data blocks.
 s32 func_ov003_020c3d28(const TaskHandle* subHandle, const TaskHandle* mainHandle, void* subData, void* mainData, s32* mainOut,
                         s32* subOut) {
     s32   mainId;
@@ -999,25 +963,25 @@ s32 func_ov003_020c3d28(const TaskHandle* subHandle, const TaskHandle* mainHandl
         return 0;
     }
     if (mainHandle != NULL) {
-        mainId  = EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, mainHandle, NULL, 0, NULL, mainData);
+        mainId  = EasyTask_CreateTask(&g_CombatGlobal->unk_00000, mainHandle, NULL, 0, NULL, mainData);
         *subOut = mainId;
         if (mainId == -1) {
             return 0;
         }
     }
     if (subHandle != NULL) {
-        subId    = EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, subHandle, NULL, 0, NULL, subData);
+        subId    = EasyTask_CreateTask(&g_CombatGlobal->taskPool, subHandle, NULL, 0, NULL, subData);
         *mainOut = subId;
         if (subId == -1) {
             if (*subOut != -1) {
-                EasyTask_DeleteTask(&data_ov003_020e71b8->unk_00000, *subOut);
+                EasyTask_DeleteTask(&g_CombatGlobal->unk_00000, *subOut);
             }
             return 0;
         }
     }
     if ((subHandle != NULL) && (mainHandle != NULL)) {
-        mainBlock = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_00000, *subOut);
-        subBlock  = EasyTask_GetTaskData(&data_ov003_020e71b8->taskPool, *mainOut);
+        mainBlock = EasyTask_GetTaskData(&g_CombatGlobal->unk_00000, *subOut);
+        subBlock  = EasyTask_GetTaskData(&g_CombatGlobal->taskPool, *mainOut);
         func_ov003_020c3e68(mainBlock, subBlock);
     }
     g_Cutin->unk_00++;
@@ -1050,10 +1014,10 @@ s32 func_ov003_020c3ec0(CombatActor* actor) {
     return 1;
 }
 
-/// Initialises one cut-in actor from a spawn record and its parameter block.
+/// Initialises one noise from a spawn record and its parameter block.
 /// Declared `int`: noise callers treat it like an undeclared (implicitly `int`) function.
 s32 func_ov003_020c3efc(Ov003EnemyActor* actor, Ov003CutinCmdData* spawn) {
-    Ov003ActorParams* params = (Ov003ActorParams*)data_ov003_020e70ac[spawn->group][spawn->sprite];
+    Ov003ActorParams* params = (Ov003ActorParams*)CombatEnemyParam_Table[spawn->group][spawn->sprite];
 
     CombatActor_Init(&actor->actor, 1);
     actor->group              = spawn->group;
@@ -1104,7 +1068,7 @@ s32 func_ov003_020c3efc(Ov003EnemyActor* actor, Ov003CutinCmdData* spawn) {
     actor->unk_1B4            = actor->actor.position.z;
     actor->unk_1B8            = 0x1000;
     actor->unk_1BC            = 0x1000;
-    SndMgr_TrackSeqArc(data_ov003_020e09f8[actor->group]);
+    SndMgr_TrackSeqArc(CombatEnemyGroup_SoundArc[actor->group]);
 }
 
 extern const TaskHandle data_ov009_02122970;
@@ -1189,7 +1153,7 @@ extern const TaskHandle data_ov024_020f68d8;
 
 // ---------------------------------------------------------------------------------------------
 // Data objects owned by this unit (see tmp/e_gendata.py). The large .rodata run 0x020ddb1c..
-// 0x020e06f4 is the cut-in command/string table set; every 4-byte chunk is a separate symbol in
+// 0x020e06f4 is the noise command/string table set; every 4-byte chunk is a separate symbol in
 // the retail object, so they are reproduced one array per symbol.
 // ---------------------------------------------------------------------------------------------
 static const u8 data_ov003_020ddb1c[0x4] = {

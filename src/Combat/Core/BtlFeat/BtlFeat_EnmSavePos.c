@@ -17,11 +17,11 @@ static Ov003ActorSnapshots sFeatEnmSnapshots;
 /// Count the number of active enemy units in the list.
 static u16 BtlFeat_CountActiveEnm(CombatList* list) {
     u16              count = 0;
-    Ov003EnemyActor* unit  = func_ov003_0208495c(list);
+    Ov003EnemyActor* unit  = CombatList_GetHead(list);
     while (unit != NULL) {
         if ((unit->actor.flags & 4) == 0)
             count++;
-        unit = func_ov003_02084984(&unit->node);
+        unit = CombatList_GetNext(&unit->node);
     }
     return count;
 }
@@ -33,63 +33,63 @@ static u16 BtlFeat_SaveEnmList(CombatList* list, Ov003ActorSnapshot** snapshots)
     Ov003ActorSnapshot* entries = Mem_AllocHeapTail(&gDebugHeap, count * sizeof(*entries));
     Mem_SetSequence(&gDebugHeap, entries, "S_FeatEnm_SavePos");
     *snapshots            = entries;
-    Ov003EnemyActor* unit = func_ov003_0208495c(list);
+    Ov003EnemyActor* unit = CombatList_GetHead(list);
     while (unit != NULL) {
         if (!(unit->actor.flags & 4)) {
             entries[index].actor = unit->actor;
             entries[index].unit  = unit;
             index++;
         }
-        unit = func_ov003_02084984(&unit->node);
+        unit = CombatList_GetNext(&unit->node);
     }
     return count;
 }
 
 /// Set a pending command for all active enemy units in the list.
 static void BtlFeat_SetEnmListCommand(CombatList* list, CombatActorCommand command) {
-    Ov003EnemyActor* unit = func_ov003_0208495c(list);
+    Ov003EnemyActor* unit = CombatList_GetHead(list);
     while (unit != NULL) {
         CombatActor_SetPendingCommand(&unit->actor, command);
-        unit = func_ov003_02084984(&unit->node);
+        unit = CombatList_GetNext(&unit->node);
     }
 }
 
 /// Restore the state of enemy units from snapshots.
 static void BtlFeat_RestoreEnmList(CombatList* list, Ov003ActorSnapshot* snapshots, u32 count) {
     for (u16 i = 0; i < count; i++) {
-        Ov003EnemyActor* unit = func_ov003_0208495c(list);
+        Ov003EnemyActor* unit = CombatList_GetHead(list);
         while (unit != NULL) {
             if (snapshots[i].unit == unit) {
                 unit->actor = snapshots[i].actor;
                 break;
             }
-            unit = func_ov003_02084984(&unit->node);
+            unit = CombatList_GetNext(&unit->node);
         }
     }
 }
 
 void BtlFeat_SaveEnmPos(void) {
-    sFeatEnmSnapshots.mainCount = BtlFeat_SaveEnmList(&data_ov003_020e71b8->unk3D8AC, &sFeatEnmSnapshots.main);
-    sFeatEnmSnapshots.subCount  = BtlFeat_SaveEnmList(&data_ov003_020e71b8->unk3D8A4, &sFeatEnmSnapshots.sub);
+    sFeatEnmSnapshots.mainCount = BtlFeat_SaveEnmList(&g_CombatGlobal->unk3D8AC, &sFeatEnmSnapshots.main);
+    sFeatEnmSnapshots.subCount  = BtlFeat_SaveEnmList(&g_CombatGlobal->unk3D8A4, &sFeatEnmSnapshots.sub);
 }
 
 void BtlFeat_RestoreEnmPos(void) {
     if (sFeatEnmSnapshots.main != NULL) {
-        BtlFeat_RestoreEnmList(&data_ov003_020e71b8->unk3D8AC, sFeatEnmSnapshots.main, sFeatEnmSnapshots.mainCount);
+        BtlFeat_RestoreEnmList(&g_CombatGlobal->unk3D8AC, sFeatEnmSnapshots.main, sFeatEnmSnapshots.mainCount);
         Mem_Free(&gDebugHeap, sFeatEnmSnapshots.main);
         sFeatEnmSnapshots.main = NULL;
     }
 
     if (sFeatEnmSnapshots.sub != NULL) {
-        BtlFeat_RestoreEnmList(&data_ov003_020e71b8->unk3D8A4, sFeatEnmSnapshots.sub, sFeatEnmSnapshots.subCount);
+        BtlFeat_RestoreEnmList(&g_CombatGlobal->unk3D8A4, sFeatEnmSnapshots.sub, sFeatEnmSnapshots.subCount);
         Mem_Free(&gDebugHeap, sFeatEnmSnapshots.sub);
         sFeatEnmSnapshots.sub = NULL;
     }
 }
 
 void BtlFeat_HaltEnm(void) {
-    BtlFeat_SetEnmListCommand(&data_ov003_020e71b8->unk3D8AC, ACTOR_CMD_FEAT);
-    BtlFeat_SetEnmListCommand(&data_ov003_020e71b8->unk3D8A4, ACTOR_CMD_FEAT);
+    BtlFeat_SetEnmListCommand(&g_CombatGlobal->unk3D8AC, ACTOR_CMD_FEAT);
+    BtlFeat_SetEnmListCommand(&g_CombatGlobal->unk3D8A4, ACTOR_CMD_FEAT);
 }
 
 void BtlFeat_ForEachEnmSnapshot(s32 mode, Ov003SnapshotCallback callback, void* args) {

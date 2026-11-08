@@ -33,7 +33,7 @@ static const TaskHandle data_ov003_020dc5e4       = {data_ov003_020e4924, func_o
 void func_ov003_020a7640(Ov003PinAction* action) {
     Ov003PinAction* args = action;
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc5e4, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5e4, NULL, 0, NULL, &args);
 }
 
 static s32 func_ov003_020a7688(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -44,7 +44,7 @@ static s32 func_ov003_020a7688(TaskPool* pool, Task* task, void* args, s32 stage
             SpriteAnimationEx anim;
 
             MI_CpuSet(self, 0, sizeof(*self));
-            func_ov003_020a3b9c(actor, *(void**)args);
+            BtlBadgeActor_Init(actor, *(void**)args);
             CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
             anim.anim.bits_10_11 = 0;
             anim.anim.unk_1E     = 0;
@@ -73,12 +73,11 @@ static s32 func_ov003_020a7688(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003TouchActor* actor = &self->actor;
             s32              state;
 
-            if (data_ov003_020e71b8->unk3D884 != 0 || (data_ov003_020e71b8->unk3D878 & 6) != 0 ||
-                (data_ov003_020e71b8->unk3D878 & 0x40) != 0)
+            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
             {
                 return 1;
             }
-            state = func_ov003_020a43c8(actor);
+            state = BtlBadgeActor_RunRequest(actor);
             if (state == 3 || state == 7) {
                 if (actor->unk_044 == actor->unk_046) {
                     self->glowing = 1;
@@ -87,7 +86,7 @@ static s32 func_ov003_020a7688(TaskPool* pool, Task* task, void* args, s32 stage
                     self->glowing = 0;
                     CombatSprite_SetAnim(&self->bar, 8, 0);
                 }
-                if (data_ov003_020e71b8->unk3D874 == 2) {
+                if (g_CombatGlobal->unk3D874 == 2) {
                     SpriteAnimationEx anim;
 
                     CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
@@ -118,8 +117,8 @@ static s32 func_ov003_020a7688(TaskPool* pool, Task* task, void* args, s32 stage
                         CombatSprite_SetAnim(&self->bar, 8, 0);
                     }
                     if (actor->unk_044 <= 0) {
-                        func_ov003_020a4390(actor, 2);
-                        func_ov003_02087ed8(SEIDX_SE_PSY_EMPTY);
+                        BtlBadgeActor_Request(actor, 2);
+                        CombatSe_Play(SEIDX_SE_PSY_EMPTY);
                     }
                     break;
                 case 4:

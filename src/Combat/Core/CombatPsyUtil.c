@@ -1,3 +1,4 @@
+#include "Combat/Core/CombatPsyUtil.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
@@ -30,10 +31,6 @@
 #include <nitro/gx.h>
 #include <nitro/mi/cpumem.h>
 
-// The battle-actor sprite-animation state machine and the attack-queue helpers it shares with the
-// psych effect units: 0x70-byte sprite slots, the actor list, and the unit box/segment tests used
-// to pick hit targets.
-
 // ---------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------
@@ -44,7 +41,7 @@
 
 /// One of the 0x70-byte sprite slots an effect owns: a `CombatSprite` plus its spin/fade timers.
 
-/// One attack-info record (see `ov003_02087b7c.c`); bit 12 of `flags` selects the hit side and
+/// One attack-info record (see `CombatAttack.h`); bit 12 of `flags` selects the hit side and
 /// bits 19..23 hold the per-call amount.
 
 /// The per-hit arguments of an attack (attack x/y/amount pairs).
@@ -62,7 +59,7 @@ typedef struct Ov003EncounterEntry {
 
 static void func_ov003_020a6bb8(s16* out, Ov003EnemyActor* unit);
 
-/// Animation ids handed to `func_ov003_020a3498`, indexed by the caller's set number.
+/// Animation ids handed to `CombatPsyAnim_Load`, indexed by the caller's set number.
 static const u32 data_ov003_020dc560[2] = {0xCF, 0xA3};
 
 /// Encounter id â‡’ per-encounter hit kind.
@@ -99,7 +96,7 @@ void func_ov003_020a5db8(Ov003AnimSprite* sprites, s32 count, s32 animSet, s32 a
             }
         }
         if (Sprite_HasAnimation(&sprite->sprite.sprite) == 0) {
-            func_ov003_020a3498(&sprite->sprite, 2, 1, animId, 1);
+            CombatPsyAnim_Load(&sprite->sprite, 2, 1, animId, 1);
             sprite->animTimer = arg3;
             sprite->angle     = RNG_Next(0x10000);
             sprite->decay     = arg4;
@@ -160,19 +157,19 @@ void func_ov003_020a5fc0(Ov003AnimSprite* sprites, s32 count) {
 // ---------------------------------------------------------------------------------------------
 
 s32 func_ov003_020a6000(const TaskHandle* handle, void* arg) {
-    return EasyTask_CreateTask(&data_ov003_020e71b8->unk_201A4, handle, NULL, 0, NULL, arg);
+    return EasyTask_CreateTask(&g_CombatGlobal->unk_201A4, handle, NULL, 0, NULL, arg);
 }
 
 BOOL func_ov003_020a603c(u32* id) {
-    return EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_201A4, id);
+    return EasyTask_ValidateTaskId(&g_CombatGlobal->unk_201A4, id);
 }
 
 void func_ov003_020a6060(u32 id) {
-    EasyTask_DeleteTask(&data_ov003_020e71b8->unk_201A4, id);
+    EasyTask_DeleteTask(&g_CombatGlobal->unk_201A4, id);
 }
 
 void* func_ov003_020a6084(u32 id) {
-    return EasyTask_GetTaskData(&data_ov003_020e71b8->unk_201A4, id);
+    return EasyTask_GetTaskData(&g_CombatGlobal->unk_201A4, id);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -248,7 +245,7 @@ void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, Ov003Att
     }
     CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_RELEASE);
     unit->actor.unk_58 = 0;
-    func_ov003_0208a234((u16)attackId, args, unit);
+    CombatHit_ArmActor((u16)attackId, args, unit);
     idx                   = (angle >> 4) * 2;
     unit->actor.xVelocity = FX_Mul(FX_SinCosTable_[idx + 1], speed);
     unit->actor.yVelocity = FX_Mul(FX_SinCosTable_[idx], speed);
@@ -262,7 +259,7 @@ void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, Ov003Att
 // ---------------------------------------------------------------------------------------------
 
 BtlTouchWork* func_ov003_020a62a0(void) {
-    return &data_ov003_020e71b8->touchWork;
+    return &g_CombatGlobal->touchWork;
 }
 
 s32 func_ov003_020a62b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -312,13 +309,13 @@ s32 func_ov003_020a63a8(Ov003EffectState* effect) {
 
 /// Whether the battle is in the post-boss state that unlocks the extra effects.
 s32 func_ov003_020a63e4(void) {
-    if (func_ov003_02085cfc(6) == 0) {
+    if (CombatTouch_IsGesture(6) == 0) {
         return 0;
     }
-    if (func_ov003_02085d3c(1) != 0) {
+    if (CombatTouch_IsTargetKind(1) != 0) {
         return 0;
     }
-    if (data_ov003_020e71b8->touchWork.stillFrames > 0xB) {
+    if (g_CombatGlobal->touchWork.stillFrames > 0xB) {
         return 1;
     }
     return 0;
@@ -326,7 +323,7 @@ s32 func_ov003_020a63e4(void) {
 
 /// The player's battle actor.
 CombatActor* func_ov003_020a6438(void) {
-    return (CombatActor*)data_ov003_020e71b8->unk3D898;
+    return (CombatActor*)g_CombatGlobal->unk3D898;
 }
 
 void func_ov003_020a6450(void) {
@@ -334,22 +331,22 @@ void func_ov003_020a6450(void) {
 }
 
 void func_ov003_020a6464(s32 arg0) {
-    data_ov003_020e71b8->unk3D8C8 = arg0;
+    g_CombatGlobal->unk3D8C8 = arg0;
 }
 
 void func_ov003_020a647c(s32 arg0) {
-    data_ov003_020e71b8->unk3D8CC = arg0;
+    g_CombatGlobal->unk3D8CC = arg0;
 }
 
 void func_ov003_020a6494(s16 arg0) {
-    func_ov003_020a647c(func_ov003_0208442c(0, arg0));
+    func_ov003_020a647c(CombatStage_ToWorldX(0, arg0));
 }
 
 void func_ov003_020a64ac(void) {
-    data_ov003_020e71b8->unk3D8CC = func_ov003_020a6438()->position.x;
+    g_CombatGlobal->unk3D8CC = func_ov003_020a6438()->position.x;
 }
 
-/// Initialises the effect's sprite anchor from the owning touch actor.
+/// Initialises the effect's sprite anchor from the owning badge.
 void func_ov003_020a64d0(Ov003EffectState* effect, s16 arg1) {
     CombatActor*     player = func_ov003_020a6438();
     Ov003TouchActor* actor  = func_ov003_020a5a34(effect);
@@ -373,14 +370,14 @@ static void func_ov003_020a652c(Ov003AttackInfo* info, s32 force, u16 amount) {
 
 /// Queues a sweep attack against `unit`, resetting the streak when the info record says so.
 s32 func_ov003_020a6568(Ov003AttackStreak* streak, u16 attackId, Ov003EnemyActor* unit, s32 x, s32 force, u16 amount) {
-    Ov003AttackInfo info = *func_ov003_0208a114(attackId);
+    Ov003AttackInfo info = *CombatHit_GetAttackInfo(attackId);
     s32             result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
     }
     func_ov003_020a652c(&info, force, amount);
-    result = func_ov003_0208a128(&info, &streak->args, unit, x);
+    result = CombatHit_AttackUnit(&info, &streak->args, unit, x);
     if (result == 1) {
         streak->hits++;
         if (((u32)info.flags << 19) >> 31) {
@@ -393,14 +390,14 @@ s32 func_ov003_020a6568(Ov003AttackStreak* streak, u16 attackId, Ov003EnemyActor
 
 /// Queues a point attack at (x, y, z) and resets the streak when the info record says so.
 s32 func_ov003_020a6628(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 z, s32 force, u16 amount) {
-    Ov003AttackInfo info = *func_ov003_0208a114(attackId);
+    Ov003AttackInfo info = *CombatHit_GetAttackInfo(attackId);
     s32             result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
     }
     func_ov003_020a652c(&info, force, amount);
-    result = func_ov003_0208a164(&info, &streak->args, x, y, z);
+    result = CombatHit_AttackAt(&info, &streak->args, x, y, z);
     if (result == 1) {
         streak->hits++;
         if (((u32)info.flags << 19) >> 31) {
@@ -413,20 +410,20 @@ s32 func_ov003_020a6628(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s
 
 /// Queues a pixel-space attack at (x, y) and resets the streak when the info record says so.
 s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount) {
-    Ov003AttackInfo info = *func_ov003_0208a114(attackId);
+    Ov003AttackInfo info = *CombatHit_GetAttackInfo(attackId);
     s32             result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
     }
     func_ov003_020a652c(&info, force, amount);
-    result = func_ov003_0208a1a4(&info, &streak->args, x, y);
+    result = CombatHit_AttackAtScreen(&info, &streak->args, x, y);
     if (result == 1) {
         streak->hits++;
         if (((u32)info.flags << 19) >> 31) {
             streak->hits = 0;
-            s32 posY     = func_ov003_02084460(0, y, 0);
-            s32 posX     = func_ov003_0208442c(0, x);
+            s32 posY     = CombatStage_ToWorldY(0, y, 0);
+            s32 posX     = CombatStage_ToWorldX(0, x);
 
             func_ov003_0209fc88(2, posX, posY, 0, 0x10, 0);
         }
@@ -572,7 +569,7 @@ s32 func_ov003_020a6acc(Ov003AttackStreak* streak, u16 attackId, s32 x1, s32 y1,
     Ov003EnemyActor* unit;
     s32              hit = 0;
 
-    for (unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4); unit != NULL; unit = func_ov003_02084984(&unit->node)) {
+    for (unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
         if (func_ov003_020a6924(unit, x1, y1, x2, y2) != 0 && func_ov003_020a6568(streak, attackId, unit, x, 0, 0) == 1) {
             hit = 1;
         }
@@ -585,8 +582,8 @@ s32 func_ov003_020a6b84(Ov003AttackStreak* streak, u16 arg1, Ov003EnemyActor* un
     s32 velocity = unit->actor.xVelocity;
 
     unit->actor.xVelocity = 0x1000;
-    func_ov003_0208a234(arg1, &streak->args, unit);
-    s32 result            = func_ov003_0208a25c(&unit->actor);
+    CombatHit_ArmActor(arg1, &streak->args, unit);
+    s32 result            = CombatHit_ActorImpact(&unit->actor);
     unit->actor.xVelocity = velocity;
     return result;
 }
@@ -596,7 +593,7 @@ static void func_ov003_020a6bb8(s16* out, Ov003EnemyActor* unit) {
     u32 i;
 
     for (i = 0; i < 0xB; i++) {
-        if (data_ov003_020e71b8->unk3D88E == data_ov003_020dc568[i].encounterId &&
+        if (g_CombatGlobal->unk3D88E == data_ov003_020dc568[i].encounterId &&
             (u16)unit->actor.unk_0A != data_ov003_020dc568[i].unk_04)
         {
             *out = 0;
@@ -610,13 +607,14 @@ static void func_ov003_020a6bb8(s16* out, Ov003EnemyActor* unit) {
 // ---------------------------------------------------------------------------------------------
 
 /// Story-progress gate for the pin effects: 0 = none, 1 = early, 2 = late.
-// Nonmatching: the first early-return is if-converted into moveq/ldmeq instead of a branch.
 s32 func_ov003_020a6c14(void) {
     s32 mode = gSaveData.unk_3138;
     s32 area;
 
-    if (mode == 0x28 || mode == 0x2A) {
-        return 0;
+    switch (mode) {
+        case 0x28:
+        case 0x2A:
+            return 0;
     }
     if (Inventory_GetOwnedCount(0x2AC) != 0) {
         area = gSaveData.currentArea;

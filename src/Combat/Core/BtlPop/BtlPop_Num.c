@@ -128,10 +128,10 @@ static s32 BtlPop_Num_Init(TaskPool* pool, Task* task, void* args) {
 
     if (num->engine != 1) {
         animIndex = 0x3D;
-        data_ov003_020e71b8->popupCountMain++;
+        g_CombatGlobal->popupCountMain++;
     } else {
         animIndex = 0x3F;
-        data_ov003_020e71b8->popupCountSub++;
+        g_CombatGlobal->popupCountSub++;
     }
     func_ov003_0209b04c(num->engine, &num->sprite, 0, animIndex);
 
@@ -183,11 +183,11 @@ static s32 BtlPop_Num_Render(TaskPool* pool, Task* task, void* args) {
     s32         half;
 
     if (num->engine != 1) {
-        posX    = func_ov003_020843b0(0, num->x);
-        screenY = func_ov003_020843ec(0, num->y, num->z);
+        posX    = CombatStage_ToScreenX(0, num->x);
+        screenY = CombatStage_ToScreenY(0, num->y, num->z);
     } else {
-        posX    = func_ov003_020843b0(1, num->x);
-        screenY = func_ov003_020843ec(1, num->y, num->z);
+        posX    = CombatStage_ToScreenX(1, num->x);
+        screenY = CombatStage_ToScreenY(1, num->y, num->z);
     }
     posY = screenY - 8;
     half = (num->digitCount * 7) / 2 - 7;
@@ -218,9 +218,9 @@ static s32 BtlPop_Num_Release(TaskPool* pool, Task* task, void* args) {
 
     CombatSprite_Release(&num->sprite);
     if (num->engine != 1) {
-        data_ov003_020e71b8->popupCountMain--;
+        g_CombatGlobal->popupCountMain--;
     } else {
-        data_ov003_020e71b8->popupCountSub--;
+        g_CombatGlobal->popupCountSub--;
     }
     return 1;
 }
@@ -244,9 +244,9 @@ void func_ov003_0209b564(s32 engine, s32 value, CombatActor* actor, s32 element)
     s32            popupCount;
 
     if (engine != 1) {
-        popupCount = data_ov003_020e71b8->popupCountMain;
+        popupCount = g_CombatGlobal->popupCountMain;
     } else {
-        popupCount = data_ov003_020e71b8->popupCountSub;
+        popupCount = g_CombatGlobal->popupCountSub;
     }
     switch (popupCount < 10) {
         case FALSE: {
@@ -262,7 +262,7 @@ void func_ov003_0209b564(s32 engine, s32 value, CombatActor* actor, s32 element)
     params.element    = element;
     params.subType    = 0;
     params.isCritical = FALSE;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
 }
 
 // Nonmatching: regalloc
@@ -271,9 +271,9 @@ void func_ov003_0209b61c(s32 engine, s32 value, CombatActor* actor) {
     s32            popupCount;
 
     if (engine != 1) {
-        popupCount = data_ov003_020e71b8->popupCountMain;
+        popupCount = g_CombatGlobal->popupCountMain;
     } else {
-        popupCount = data_ov003_020e71b8->popupCountSub;
+        popupCount = g_CombatGlobal->popupCountSub;
     }
 
     switch (popupCount < 10) {
@@ -307,5 +307,5 @@ void func_ov003_0209b61c(s32 engine, s32 value, CombatActor* actor) {
             params.element = 0;
             break;
     }
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
 }

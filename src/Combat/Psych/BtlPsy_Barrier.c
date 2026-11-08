@@ -25,7 +25,7 @@ static s32 func_ov003_020aaad4(Ov003EffectContext* context, Ov003EffectState* ef
     if (func_ov003_020a5b18(0x17) || func_ov003_020a5b18(0x18) || func_ov003_020a5b18(0x19))
         return 0;
     if (automatic == 0) {
-        if (!func_ov003_02085cfc(6))
+        if (!CombatTouch_IsGesture(6))
             return 0;
         if (touch->held != func_ov003_020a6438())
             return 0;
@@ -65,7 +65,7 @@ static s32 func_ov003_020aaba0(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a6438();
             BtlTouchWork* touch = func_ov003_020a62a0();
             func_ov003_020a5a94(charge->args.spawn.effect);
-            if (func_ov003_020a63a8(charge->args.spawn.effect) || !func_ov003_02085cfc(6) ||
+            if (func_ov003_020a63a8(charge->args.spawn.effect) || !CombatTouch_IsGesture(6) ||
                 touch->held != func_ov003_020a6438())
             {
                 func_ov003_020a6464(0);

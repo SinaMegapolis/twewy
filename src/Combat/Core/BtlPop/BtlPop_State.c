@@ -101,16 +101,16 @@ static s32 BtlPop_State_Render(TaskPool* pool, Task* task, void* args) {
     s32           posY;
 
     if (state->sprite.sprite.bits_0_1 == 0) {
-        posX = func_ov003_020843b0(0, actor->position.x + (actor->unk_74 << 12));
-        posY = func_ov003_020843ec(0, actor->position.y, actor->position.z);
+        posX = CombatStage_ToScreenX(0, actor->position.x + (actor->unk_74 << 12));
+        posY = CombatStage_ToScreenY(0, actor->position.y, actor->position.z);
         if (state->actor->unk_00 == 0) {
             posY = (s16)(posY - 48);
         } else {
             posY = (s16)(posY - state->actor->unk_72);
         }
     } else {
-        posX = func_ov003_020843b0(1, actor->position.x + (actor->unk_74 << 12));
-        posY = func_ov003_020843ec(1, actor->position.y, actor->position.z);
+        posX = CombatStage_ToScreenX(1, actor->position.x + (actor->unk_74 << 12));
+        posY = CombatStage_ToScreenY(1, actor->position.y, actor->position.z);
         posY = (s16)(posY - state->actor->unk_72);
     }
     CombatSprite_SetPosition(&state->sprite, posX, posY);
@@ -143,5 +143,5 @@ s32 func_ov003_0209ccc0(s32 engine, CombatActor* actor) {
 
     params.engine = engine;
     params.actor  = actor;
-    return EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_State, NULL, 0, NULL, &params);
+    return EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_State, NULL, 0, NULL, &params);
 }

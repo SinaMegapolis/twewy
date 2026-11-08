@@ -89,8 +89,8 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
             anim->flags    = arg->flags;
             anim->position = arg->position;
             if ((arg->flags & 0x400) && !(arg->flags & 0x800)) {
-                anim->position.x = func_ov003_0208442c(0, (s16)anim->position.x);
-                anim->position.y = func_ov003_02084460(0, (s16)anim->position.y, anim->position.z);
+                anim->position.x = CombatStage_ToWorldX(0, (s16)anim->position.x);
+                anim->position.y = CombatStage_ToWorldY(0, (s16)anim->position.y, anim->position.z);
             }
             if (anim->flags & 0x10)
                 anim->actor = arg->actor;
@@ -114,7 +114,7 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
                 anim->timer = arg->unk_50;
                 autoFinish  = 0;
             }
-            func_ov003_020a3498(&anim->sprite, arg->engine, arg->unk_18, arg->kind, autoFinish);
+            CombatPsyAnim_Load(&anim->sprite, arg->engine, arg->unk_18, arg->kind, autoFinish);
             return 1;
         }
         case 1:
@@ -151,16 +151,16 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003PsychAnimation* anim = task->data;
             s32                  y, x;
             if (anim->flags & 0x10) {
-                x = func_ov003_020843b0(0, anim->actor->position.x);
-                y = func_ov003_020843ec(0, anim->actor->position.y, anim->actor->position.z);
+                x = CombatStage_ToScreenX(0, anim->actor->position.x);
+                y = CombatStage_ToScreenY(0, anim->actor->position.y, anim->actor->position.z);
                 func_ov003_02082730(&anim->sprite, anim->actor->position.y + 0x1F4000);
             } else if (anim->flags & 0x800) {
                 x = (s16)anim->position.x;
                 y = (s16)anim->position.y;
-                func_ov003_02082730(&anim->sprite, (func_ov003_02084460(0, y, anim->position.z) << 12) + 0x384000);
+                func_ov003_02082730(&anim->sprite, (CombatStage_ToWorldY(0, y, anim->position.z) << 12) + 0x384000);
             } else {
-                x = func_ov003_020843b0(0, anim->position.x);
-                y = func_ov003_020843ec(0, anim->position.y, anim->position.z);
+                x = CombatStage_ToScreenX(0, anim->position.x);
+                y = CombatStage_ToScreenY(0, anim->position.y, anim->position.z);
                 func_ov003_02082730(&anim->sprite, anim->position.y + 0x1F4000);
             }
             CombatSprite_SetPosition(&anim->sprite, x, y);

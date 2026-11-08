@@ -20,9 +20,9 @@ s32 func_ov003_020cfedc(Ov003EnemyShotSource* source, u16 angleStep, s16 lifetim
     source->core.flags |= 0x40;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c74, NULL, 0, NULL, &args);
 }
 
@@ -78,16 +78,16 @@ static s32 func_ov003_020d0084(Ov003EnemyShotOption* self) {
     }
     self->source.core.position.z = self->zOffset + self->source.core.owner->base.actor.position.z;
     self->source.core.hitResult =
-        func_ov003_0208a164(func_ov003_0208a114(self->source.core.attackId), &self->source.core.owner->base.actor.baseArgs,
-                            self->source.core.position.x, self->source.core.position.y, self->source.core.position.z);
+        CombatHit_AttackAt(CombatHit_GetAttackInfo(self->source.core.attackId), &self->source.core.owner->base.actor.baseArgs,
+                           self->source.core.position.x, self->source.core.position.y, self->source.core.position.z);
     CombatSprite_Update(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020d043c(Ov003EnemyShotOption* self) {
     s16 x, y;
-    func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                        self->source.core.position.y, self->source.core.position.z);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                              self->source.core.position.y, self->source.core.position.z);
     CombatSprite_SetPosition(&self->sprite, x, y);
     func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     CombatSprite_Render(&self->sprite);

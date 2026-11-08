@@ -340,8 +340,8 @@ s32 BtlFeat01_Init(TaskPool* pool, Task* task, void* args) {
     BtlFeat01* feat = task->data;
 
     MI_CpuSet(feat, 0, 0x134);
-    feat->unk_110 = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
-    feat->unk_114 = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+    feat->unk_110 = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    feat->unk_114 = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     func_ov004_020ec538(feat, data_ov004_020f0790, "prcset_BtlFeat01");
     return 1;
 }

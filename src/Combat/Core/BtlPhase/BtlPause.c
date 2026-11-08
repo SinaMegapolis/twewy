@@ -37,9 +37,9 @@ static void func_ov003_020a210c(BtlPause* self) {
     if (TouchInput_WasTouchPressed() == 0) {
         return;
     }
-    touchX = data_ov003_020e71b8->touchWork.x;
+    touchX = g_CombatGlobal->touchWork.x;
     if (touchX >= 0x38 && touchX <= 0xC8) {
-        touchY = data_ov003_020e71b8->touchWork.y;
+        touchY = g_CombatGlobal->touchWork.y;
         if (touchY >= 0x56 && touchY <= 0x6A) {
             overButton = 1;
         } else {
@@ -53,14 +53,14 @@ static void func_ov003_020a210c(BtlPause* self) {
         return;
     }
     if (self->resumed == 0) {
-        func_ov003_02087ed8(SEIDX_BTL_SYSTEM_CURSOR);
+        CombatSe_Play(SEIDX_BTL_SYSTEM_CURSOR);
         CombatSprite_SetAnim(&self->sprites[2], 2, 1);
         CombatSprite_Restart(&self->sprites[2]);
         self->resumed = 1;
         return;
     }
-    func_ov003_02087ed8(SEIDX_BTL_SYSTEM_EXECUTE);
-    func_ov003_0208b278(5);
+    CombatSe_Play(SEIDX_BTL_SYSTEM_EXECUTE);
+    BtlMgr_SetState(5);
 }
 
 static s32 BtlPause_Init(TaskPool* pool, Task* task, void* args) {
@@ -90,27 +90,27 @@ static s32 BtlPause_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPause_Update(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x10000) {
+    if (g_CombatGlobal->unk3D878 & 0x10000) {
         return 1;
     }
     if (InputStatus.buttonState.pressedButtons & INPUT_BUTTON_START) {
-        s32 paused = data_ov003_020e71b8->unk3D87C == 0;
+        s32 paused = g_CombatGlobal->unk3D87C == 0;
 
-        data_ov003_020e71b8->unk3D87C = paused;
-        if (data_ov003_020e71b8->unk3D87C != 0) {
+        g_CombatGlobal->unk3D87C = paused;
+        if (g_CombatGlobal->unk3D87C != 0) {
             self->resumed = 0;
-            CriSndMgr_Pause(data_ov003_020e71b8->unk3D870, 1);
+            CriSndMgr_Pause(g_CombatGlobal->unk3D870, 1);
         } else {
-            func_ov003_020a3a40();
-            CriSndMgr_Pause(data_ov003_020e71b8->unk3D870, 0);
+            BtlBadgeMgr_ClearDrag();
+            CriSndMgr_Pause(g_CombatGlobal->unk3D870, 0);
         }
-        func_02027200(data_ov003_020e71b8->unk3D87C);
-        func_ov003_02087ed8(SEIDX_SE_PAUSE);
+        func_02027200(g_CombatGlobal->unk3D87C);
+        CombatSe_Play(SEIDX_SE_PAUSE);
     }
-    if (data_ov003_020e71b8->unk3D87C != 0 && data_ov003_020e71b8->unk3D874 == 2) {
+    if (g_CombatGlobal->unk3D87C != 0 && g_CombatGlobal->unk3D874 == 2) {
         func_ov003_020a210c(self);
     }
-    if (data_ov003_020e71b8->unk3D87C != 0) {
+    if (g_CombatGlobal->unk3D87C != 0) {
         CombatSprite_Update(&self->sprites[0]);
         CombatSprite_Update(&self->sprites[1]);
         CombatSprite_Update(&self->sprites[2]);
@@ -121,8 +121,8 @@ static s32 BtlPause_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPause_Render(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
 
-    if (data_ov003_020e71b8->unk3D87C != 0) {
-        if (data_ov003_020e71b8->unk3D88D != 3) {
+    if (g_CombatGlobal->unk3D87C != 0) {
+        if (g_CombatGlobal->unk3D88D != 3) {
             CombatSprite_Render(&self->sprites[0]);
         }
         CombatSprite_Render(&self->sprites[1]);

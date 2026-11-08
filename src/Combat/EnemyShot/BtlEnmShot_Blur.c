@@ -12,9 +12,9 @@ s32 func_ov003_020cd6f4(Ov003EnemyShotSource* source, s32 opacity, s32 decay) {
     args.decay   = decay;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c18, NULL, 0, NULL, &args);
 }
 
@@ -46,8 +46,8 @@ static s32 func_ov003_020cd868(Ov003EnemyShotBlur* self) {
 static s32 func_ov003_020cd8a8(Ov003EnemyShotBlur* self) {
     if (self->opacity > 0x1000) {
         s16 x, y;
-        func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
-                            self->position.z);
+        CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
+                                  self->position.z);
         CombatSprite_SetPosition(&self->sprite, x, y);
         func_ov003_02082730(&self->sprite, 0x7FFFFFFF);
         CombatSprite_RenderWithPalette(&self->sprite, self->opacity >> 12);

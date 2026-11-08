@@ -19,7 +19,7 @@ typedef struct BtlPsySlash {
     s32 active;
 } BtlPsySlash;
 static u16 func_ov003_02095120(void) {
-    Ov003Global* global = data_ov003_020e71b8;
+    Ov003Global* global = g_CombatGlobal;
     s32          x      = global->touchWork.startX;
     s32          y      = global->touchWork.startY;
     s32          px     = global->touchWork.endX;
@@ -39,11 +39,11 @@ static void func_ov003_0209519c(BtlPsySlash* self) {
     void* target;
     if (!func_ov003_020a5ab4(self->effect))
         return;
-    if (func_ov003_02085d60(self->target)) {
+    if (CombatTouch_SlashCrosses(self->target)) {
         func_ov003_02087250(self->effect, self->target, func_ov003_02095120());
         return;
     }
-    target = func_ov003_02085ec0(1);
+    target = CombatTouch_GetSlashed(1);
     if (!target)
         return;
     func_ov003_02087250(self->effect, self->target, func_ov003_02095120());
@@ -61,12 +61,12 @@ static s32 func_ov003_02095200(TaskPool* pool, Task* task, void* args) {
     self->timer  = 0;
     self->state  = 0;
     func_ov003_02087250(self->effect, self->target, arg->direction);
-    data_ov003_020e71b8->unk3D8C8 = 1;
+    g_CombatGlobal->unk3D8C8 = 1;
     return 1;
 }
 static s32 func_ov003_02095274(TaskPool* pool, Task* task, void* args) {
     BtlPsySlash* self = task->data;
-    if (!data_ov003_020e71b8->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
+    if (!g_CombatGlobal->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
         self->update = NULL;
         self->timer  = 0;
         self->state  = 0;
@@ -80,7 +80,7 @@ static s32 func_ov003_020952d8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 static s32 func_ov003_020952e0(TaskPool* pool, Task* task, void* args) {
-    data_ov003_020e71b8->unk3D8C8 = 0;
+    g_CombatGlobal->unk3D8C8 = 0;
     func_ov003_02087310();
     return 1;
 }
@@ -96,7 +96,7 @@ static s32 func_ov003_02095308(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_02095350(Ov003EffectContext* context, Ov003EffectState* effect) {
-    void* target = func_ov003_02085ec0(1);
+    void* target = CombatTouch_GetSlashed(1);
     if (!target)
         return 0;
     BtlPsySlashArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7df4.taskName);

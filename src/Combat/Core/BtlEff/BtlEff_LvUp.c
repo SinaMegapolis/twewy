@@ -50,11 +50,11 @@ static void func_ov003_020a0368(BtlEffLvUp* data) {
     s32          x;
 
     if (data->sprites[0].sprite.bits_0_1 == 0) {
-        actor = data_ov003_020e71b8->unk3D898;
-        x     = func_ov003_020843b0(0, actor->position.x);
+        actor = g_CombatGlobal->unk3D898;
+        x     = CombatStage_ToScreenX(0, actor->position.x);
     } else {
-        actor = data_ov003_020e71b8->unk3D89C;
-        x     = func_ov003_020843b0(1, actor->position.x);
+        actor = g_CombatGlobal->unk3D89C;
+        x     = CombatStage_ToScreenX(1, actor->position.x);
     }
     CombatSprite_SetPosition(&data->sprites[1], x, 96);
     func_ov003_02082730(&data->sprites[1], 0x7FFFFFFF - actor->position.y);
@@ -73,10 +73,10 @@ static s32 BtlEff_LvUp_Init(TaskPool* pool, Task* task, void* args) {
     BtlEffLvUp* data = task->data;
 
     MI_CpuSet(data, 0, sizeof(BtlEffLvUp[2]));
-    data_ov003_020e71b8->unk3D878 |= 8;
+    g_CombatGlobal->unk3D878 |= 8;
     func_ov003_020a0290(0, &data[0]);
     func_ov003_020a0290(1, &data[1]);
-    func_ov003_02087ed8(SEIDX_SE_BOY_LEVELUP);
+    CombatSe_Play(SEIDX_SE_BOY_LEVELUP);
     return 1;
 }
 
@@ -86,11 +86,11 @@ static s32 BtlEff_LvUp_Update(TaskPool* pool, Task* task, void* args) {
 
     active = func_ov003_020a033c(&data[0]);
     func_ov003_020a033c(&data[1]);
-    x = func_ov003_020843b0(0, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+    x = CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
     // Both effect attachment calls intentionally use the sub-screen actor +4 in retail.
-    func_ov003_0208a1a4(func_ov003_0208a114(31), &((CombatActor*)data_ov003_020e71b8->unk3D89C)->unk_04, x, 0);
-    x = func_ov003_020843b0(1, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
-    func_ov003_0208a1a4(func_ov003_0208a114(32), &((CombatActor*)data_ov003_020e71b8->unk3D89C)->unk_04, x, 0);
+    CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(31), &((CombatActor*)g_CombatGlobal->unk3D89C)->unk_04, x, 0);
+    x = CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+    CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(32), &((CombatActor*)g_CombatGlobal->unk3D89C)->unk_04, x, 0);
     return active;
 }
 
@@ -107,7 +107,7 @@ static s32 BtlEff_LvUp_Release(TaskPool* pool, Task* task, void* args) {
 
     func_ov003_020a0418(&data[0]);
     func_ov003_020a0418(&data[1]);
-    data_ov003_020e71b8->unk3D878 &= ~8;
+    g_CombatGlobal->unk3D878 &= ~8;
     return 1;
 }
 

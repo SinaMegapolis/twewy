@@ -87,7 +87,7 @@ static s32 func_ov004_020ea6f0(EspUnk* arg0, u16 arg1) {
 
 static s32 func_ov004_020ea730(u16 arg0) {
     s16*    temp_r0 = func_ov003_02086e94();
-    EspUnk* var_r5  = func_ov003_0208495c((CombatList*)(temp_r0 + 2));
+    EspUnk* var_r5  = CombatList_GetHead((CombatList*)(temp_r0 + 2));
     while (var_r5 != NULL) {
         if (var_r5->unk_CC == *temp_r0) {
             if (func_ov004_020ea6f0(var_r5, arg0) != 0) {
@@ -96,18 +96,18 @@ static s32 func_ov004_020ea730(u16 arg0) {
         } else if ((var_r5->unk_CC > *temp_r0) && (var_r5->unk_00 == arg0)) {
             var_r5->unk_CA |= 0x10;
         }
-        var_r5 = func_ov003_02084984((CombatListNode*)&var_r5->unk_DC);
+        var_r5 = CombatList_GetNext((CombatListNode*)&var_r5->unk_DC);
     }
     return 0;
 }
 
 static s32 func_ov004_020ea7ac(void) {
-    EspUnk* var_r0 = func_ov003_0208495c((CombatList*)((u8*)func_ov003_02086e94() + 4));
+    EspUnk* var_r0 = CombatList_GetHead((CombatList*)((u8*)func_ov003_02086e94() + 4));
     while (var_r0 != NULL) {
         if ((var_r0->unk_CA & 2) == 0 && (var_r0->unk_CA & 1)) {
             return 0;
         }
-        var_r0 = func_ov003_02084984((CombatListNode*)&var_r0->unk_DC);
+        var_r0 = CombatList_GetNext((CombatListNode*)&var_r0->unk_DC);
     }
     return 1;
 }
@@ -116,7 +116,7 @@ static s32 func_ov004_020ea7f4(void) {
     s16* temp_r0 = func_ov003_02086e94();
     s32  var_r5  = 0;
 
-    EspUnk* temp = func_ov003_0208495c((CombatList*)(temp_r0 + 2));
+    EspUnk* temp = CombatList_GetHead((CombatList*)(temp_r0 + 2));
     while (temp != NULL) {
         if (temp->unk_CC == *temp_r0) {
             if (temp->unk_CA & 8) {
@@ -126,7 +126,7 @@ static s32 func_ov004_020ea7f4(void) {
             }
             break;
         } else {
-            temp = func_ov003_02084984((CombatListNode*)&temp->unk_DC);
+            temp = CombatList_GetNext((CombatListNode*)&temp->unk_DC);
         }
     }
     *temp_r0 += 1;
@@ -222,7 +222,7 @@ static s32 BtlCmd_Esp_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlCmd_Esp_Update(TaskPool* pool, Task* task, void* args) {
     BtlCmd_Esp* cmd = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 6) {
+    if (g_CombatGlobal->unk3D878 & 6) {
         return 0;
     }
     if (cmd->unk_74 != NULL) {
@@ -264,5 +264,5 @@ void BtlCmd_Esp_CreateTask(s32 arg0, s32 arg1, s32 arg2) {
     args.unk_4 = arg1;
     args.unk_8 = arg2;
     args.unk_0 = arg0;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlCmd_Esp, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlCmd_Esp, NULL, 0, NULL, &args);
 }

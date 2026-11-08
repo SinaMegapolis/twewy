@@ -78,7 +78,7 @@ typedef struct Ov003EffectState {
     /* 0x2C */ Ov003EffectContext context;
 } Ov003EffectState; // Size: 0x3C
 
-/// The 0x10-byte action description `func_ov003_020a37a8` hands to the psych entry points.
+/// The 0x10-byte action description `BtlBadgeMgr_SpawnBadges` hands to the psych entry points.
 typedef struct Ov003PinAction {
     /* 0x00 */ u16               pinId;
     /* 0x02 */ s16               level;
@@ -89,7 +89,7 @@ typedef struct Ov003PinAction {
     /* 0x0D */ u8                unk_0D[3];
 } Ov003PinAction; // Size: 0x10
 
-/// The spawn record `func_ov003_020a3b9c` builds a touch actor from (also read by the badge tasks).
+/// The spawn record `BtlBadgeActor_Init` builds a touch actor from (also read by the badge tasks).
 typedef struct Ov003ActorSpawn {
     /* 0x00 */ u16                     kind;
     /* 0x02 */ u16                     unk_02;
@@ -191,9 +191,6 @@ typedef struct BtlTouchWork {
     /* 0x5A */ u8           reserved5A[2];
 } BtlTouchWork; // Size: 0x5C
 
-void func_ov003_0208ecb4(BtlIcon* icon, void (*update)(BtlIcon*));
-void func_ov003_0208ecbc(BtlIcon* icon);
-
 typedef struct Ov003TrailEffect {
     /* 0x000 */ s32          state;
     /* 0x004 */ s32          count;
@@ -212,5 +209,16 @@ typedef struct Ov003PsychTrail {
 
 BtlTouchWork* func_ov003_020a62a0(void);
 s32           func_ov003_020a5ac4(Ov003TouchActor**, s32 count, Ov003EffectState*, s32 requireReady);
+
+void         CombatTouch_Clear(void);
+BOOL         CombatTouch_IsGesture(u16);
+BOOL         CombatTouch_IsTargetKind(s32);
+BOOL         CombatTouch_SlashCrosses(CombatActor*);
+CombatActor* CombatTouch_GetTapped(s32);
+CombatActor* CombatTouch_GetDragged(s32);
+CombatActor* CombatTouch_GetSlashed(s32);
+CombatActor* CombatTouch_GetRapidTapped(s32);
+void         CombatTouch_Init(void);
+void         CombatTouch_Update(void);
 
 #endif

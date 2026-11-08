@@ -24,7 +24,7 @@ static s32 BtlInf_Auto_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlInf_Auto_Update(TaskPool* pool, Task* task, void* args) {
     CombatSprite* sprite = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x10) {
+    if (g_CombatGlobal->unk3D878 & 0x10) {
         CombatSprite_Update(sprite);
     }
     return 1;
@@ -33,7 +33,7 @@ static s32 BtlInf_Auto_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlInf_Auto_Render(TaskPool* pool, Task* task, void* args) {
     CombatSprite* sprite = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x10) {
+    if (g_CombatGlobal->unk3D878 & 0x10) {
         CombatSprite_Render(sprite);
     }
     return 1;

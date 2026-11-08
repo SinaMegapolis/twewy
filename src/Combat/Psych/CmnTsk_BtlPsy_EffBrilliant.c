@@ -32,7 +32,7 @@ static s32 func_ov003_020a8ec4(TaskPool* pool, Task* task, void* args, s32 stage
             effect->radius      = arg->radius;
             effect->fixedRadius = arg->fixedRadius;
             effect->lifetime    = arg->lifetime;
-            func_ov003_020a3498(&effect->sprite, arg->engine, 1, arg->kind, 1);
+            CombatPsyAnim_Load(&effect->sprite, arg->engine, 1, arg->kind, 1);
             func_ov003_02082730(&effect->sprite, arg->sortKey);
             effect->offset = func_ov003_020a904c(effect->radius, effect->fixedRadius);
             return 1;
@@ -73,10 +73,10 @@ static Vec2p func_ov003_020a904c(s32 radius, s32 fixedRadius) {
     return offset;
 }
 void func_ov003_020a90c4(u32 id) {
-    EasyTask_DeleteTask(&data_ov003_020e71b8->unk_201A4, id);
+    EasyTask_DeleteTask(&g_CombatGlobal->unk_201A4, id);
 }
 BOOL func_ov003_020a90e8(u32* id) {
-    return EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_201A4, id);
+    return EasyTask_ValidateTaskId(&g_CombatGlobal->unk_201A4, id);
 }
 void func_ov003_020a910c(u32 id, s32 x, s32 y) {
     Ov003BrilliantEffect* effect = func_ov003_020a6084(id);

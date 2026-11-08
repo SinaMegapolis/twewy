@@ -122,7 +122,7 @@ static void func_ov003_02097544(BtlCmd* self, BtlCmdState state) {
 }
 
 /// Loads a cell sprite.
-static void func_ov003_0209755c(CombatSprite* sprite, s32 index, s32 mode) {
+static void func_ov003_0209755c(CombatSprite* sprite, u16 index, s32 mode) {
     SpriteAnimationEx anim;
 
     CombatSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
@@ -144,7 +144,7 @@ static void func_ov003_0209755c(CombatSprite* sprite, s32 index, s32 mode) {
 /// Loads a marker sprite for the kind of effect command the battle is running.
 static void func_ov003_02097604(CombatSprite* sprite) {
     SpriteAnimationEx anim;
-    Ov003EffectCmd*   command = data_ov003_020e71b8->effectCmd;
+    Ov003EffectCmd*   command = g_CombatGlobal->effectCmd;
 
     CombatSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
     switch (command->mode) {
@@ -192,7 +192,7 @@ static void func_ov003_02097604(CombatSprite* sprite) {
 static s32 func_ov003_02097760(s32 side) {
     s32 row = 5;
 
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
             if (side != 1) {
                 row = 4;
@@ -227,20 +227,20 @@ static void func_ov003_020977e0(BtlCmd* self) {
     s32 row;
     s16 bonus;
 
-    if (func_ov003_020a3330(0xA) != 0) {
-        row = func_ov003_020a3468(0xA);
+    if (CombatAbility_IsActive(0xA) != 0) {
+        row = CombatAbility_GetValue(0xA);
     } else {
         row = func_ov003_02097760(0);
     }
     self->params[0] = data_ov003_020d7f18[row];
-    if (func_ov003_020a3330(0xB) != 0) {
-        row = func_ov003_020a3468(0xB);
+    if (CombatAbility_IsActive(0xB) != 0) {
+        row = CombatAbility_GetValue(0xB);
     } else {
         row = func_ov003_02097760(1);
     }
     self->params[1] = data_ov003_020d7f18[row];
-    if (func_ov003_020a3330(8) != 0) {
-        bonus = func_ov003_020a3468(8);
+    if (CombatAbility_IsActive(8) != 0) {
+        bonus = CombatAbility_GetValue(8);
         func_ov003_020977b0(&self->params[0].firstMin, bonus);
         func_ov003_020977b0(&self->params[0].firstMax, bonus);
         func_ov003_020977b0(&self->params[0].branchMin, bonus);
@@ -250,8 +250,8 @@ static void func_ov003_020977e0(BtlCmd* self) {
         func_ov003_020977b0(&self->params[1].branchMin, bonus);
         func_ov003_020977b0(&self->params[1].branchMax, bonus);
     }
-    if (func_ov003_020a3330(0xC) != 0) {
-        s16 extra = func_ov003_020a3468(0xC);
+    if (CombatAbility_IsActive(0xC) != 0) {
+        s16 extra = CombatAbility_GetValue(0xC);
 
         self->params[0].length += extra;
         self->params[1].length += extra;
@@ -264,8 +264,8 @@ static u32 func_ov003_02097984(u32 wanted) {
     s32              ahead  = 0;
     s32              behind = 0;
     u32              result = 0;
-    CombatActor*     gauge  = data_ov003_020e71b8->unk3D89C;
-    Ov003CutinActor* enemy  = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+    CombatActor*     gauge  = g_CombatGlobal->unk3D89C;
+    Ov003CutinActor* enemy  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
 
     while (enemy != NULL) {
         if (!(enemy->base.actor.flags & 4) && !(enemy->base.actor.flags & 0x10)) {
@@ -275,7 +275,7 @@ static u32 func_ov003_02097984(u32 wanted) {
                 behind++;
             }
         }
-        enemy = func_ov003_02084984(&enemy->base.node);
+        enemy = CombatList_GetNext(&enemy->base.node);
     }
     if (wanted == 0x800 && behind > 0) {
         return wanted;
@@ -318,7 +318,7 @@ static void func_ov003_02097a40(BtlCmd* self) {
     if (self->counter < wait) {
         return;
     }
-    data_ov003_020e71b8->unk3D878 |= 0x10;
+    g_CombatGlobal->unk3D878 |= 0x10;
     self->mode    = 2;
     self->counter = 0;
     self->wanted  = func_ov003_02097984(self->wanted);
@@ -353,7 +353,7 @@ static void func_ov003_02097b70(BtlCmd* self) {
     if (InputStatus.buttonState.currButtons & (INPUT_BUTTON_A | INPUT_BUTTON_B | INPUT_BUTTON_RIGHT | INPUT_BUTTON_LEFT |
                                                INPUT_BUTTON_UP | INPUT_BUTTON_DOWN | INPUT_BUTTON_X | INPUT_BUTTON_Y))
     {
-        data_ov003_020e71b8->unk3D878 &= ~0x10;
+        g_CombatGlobal->unk3D878 &= ~0x10;
         self->mode    = 1;
         self->counter = 0;
     }
@@ -477,7 +477,7 @@ static void func_ov003_02097f3c(BtlCmd* self, s32 chain, s32 direction) {
         self->cellWidth = -0x10;
     }
     func_ov003_02086af0();
-    func_ov003_020869c8(direction);
+    CombatSys_SetPartnerDirection(direction);
     if (func_ov003_02086f7c() != 0) {
         func_ov003_020871cc(1);
     }
@@ -488,7 +488,7 @@ static void func_ov003_02097f3c(BtlCmd* self, s32 chain, s32 direction) {
     self->targetY = self->y;
     self->cursorX = self->x + (self->cellWidth << 12);
     self->cursorY = self->y;
-    func_ov003_020868c8(1);
+    CombatSys_PushPartnerAction(1);
     CombatSprite_SetAnim(&self->frame, 0, 0);
     CombatSprite_SetAnim(&self->firstMarker, 8, 0);
     CombatSprite_SetAnim(&self->secondMarker, 11, 0);
@@ -542,8 +542,8 @@ static void func_ov003_020981f8(BtlCmd* self, s32 cancel) {
 
     if (cancel != 0) {
         self->visible = 0;
-        func_ov003_0208697c();
-        func_ov003_020868c8(3);
+        CombatSys_ClearPartnerActions();
+        CombatSys_PushPartnerAction(3);
         func_ov003_02097544(self, func_ov003_0209842c);
         return;
     }
@@ -551,13 +551,13 @@ static void func_ov003_020981f8(BtlCmd* self, s32 cancel) {
     cells  = self->current->cells;
     switch (((BtlCmdCell*)((u8*)cells + cursor))->state) {
         case 1:
-            func_ov003_02087ed8(SEIDX_SE_GIRL_DART_CURSOR01);
-            func_ov003_020868c8(1);
+            CombatSe_Play(SEIDX_SE_GIRL_DART_CURSOR01);
+            CombatSys_PushPartnerAction(1);
             break;
         case 2:
             self->visible = 0;
-            func_ov003_02087ed8(SEIDX_SE_GIRL_DART_CURSOR02);
-            func_ov003_020868c8(2);
+            CombatSe_Play(SEIDX_SE_GIRL_DART_CURSOR02);
+            CombatSys_PushPartnerAction(2);
             func_ov003_02086e38(self->current->value, self->x, self->y, self->cellWidth);
             break;
     }
@@ -575,12 +575,12 @@ static void func_ov003_0209830c(BtlCmd* self) {
     u16 input = self->input;
 
     if (input & (INPUT_BUTTON_B | INPUT_BUTTON_DOWN)) {
-        func_ov003_020868c8(6);
+        CombatSys_PushPartnerAction(6);
         func_ov003_02097544(self, func_ov003_0209842c);
         return;
     }
     if (input & (INPUT_BUTTON_X | INPUT_BUTTON_UP)) {
-        func_ov003_020868c8(7);
+        CombatSys_PushPartnerAction(7);
         func_ov003_02097544(self, func_ov003_0209842c);
         return;
     }
@@ -600,7 +600,7 @@ static void func_ov003_020983ac(BtlCmd* self) {
     u16 input = self->input;
 
     if (input & (INPUT_BUTTON_B | INPUT_BUTTON_DOWN)) {
-        func_ov003_020868c8(6);
+        CombatSys_PushPartnerAction(6);
         func_ov003_02097544(self, func_ov003_0209842c);
         return;
     }
@@ -617,7 +617,7 @@ static void func_ov003_020983ac(BtlCmd* self) {
 
 static void func_ov003_0209842c(BtlCmd* self) {
     if (func_ov003_02086a64() != 0) {
-        func_ov003_0208697c();
+        CombatSys_ClearPartnerActions();
         func_ov003_02097544(self, func_ov003_02098458);
     }
 }
@@ -644,7 +644,7 @@ static void func_ov003_02098484(BtlCmd* self) {
     }
     if (self->input & (INPUT_BUTTON_X | INPUT_BUTTON_UP)) {
         if (self->cursor == self->current->first) {
-            func_ov003_020868c8(4);
+            CombatSys_PushPartnerAction(4);
             func_ov003_02098090(self, self->otherA);
             self->cursorX = self->x + (self->cellWidth << 12);
             self->cursorY = self->y - 0x12000;
@@ -653,13 +653,13 @@ static void func_ov003_02098484(BtlCmd* self) {
             return;
         }
         self->visible = 0;
-        func_ov003_020868c8(8);
+        CombatSys_PushPartnerAction(8);
         func_ov003_02097544(self, func_ov003_0209842c);
         return;
     }
     if (self->input & (INPUT_BUTTON_B | INPUT_BUTTON_DOWN)) {
         if (self->cursor == self->current->second) {
-            func_ov003_020868c8(5);
+            CombatSys_PushPartnerAction(5);
             func_ov003_02098090(self, self->otherB);
             self->cursorX = self->x + (self->cellWidth << 12);
             self->cursorY = self->y + 0x12000;
@@ -668,7 +668,7 @@ static void func_ov003_02098484(BtlCmd* self) {
             return;
         }
         self->visible = 0;
-        func_ov003_020868c8(8);
+        CombatSys_PushPartnerAction(8);
         func_ov003_02097544(self, func_ov003_0209842c);
         return;
     }
@@ -677,7 +677,7 @@ static void func_ov003_02098484(BtlCmd* self) {
         return;
     }
     self->visible = 0;
-    func_ov003_020868c8(8);
+    CombatSys_PushPartnerAction(8);
     func_ov003_02097544(self, func_ov003_0209842c);
 }
 
@@ -700,8 +700,8 @@ static void func_ov003_0209862c(BtlCmd* self) {
     }
     self->visible = 1;
     self->timer   = 0x5A;
-    if (func_ov003_020a3330(0xE) != 0) {
-        self->timer = self->timer + (s16)func_ov003_020a3468(0xE);
+    if (CombatAbility_IsActive(0xE) != 0) {
+        self->timer = self->timer + (s16)CombatAbility_GetValue(0xE);
     }
     func_ov003_02097544(self, func_ov003_02098484);
 }
@@ -743,8 +743,8 @@ static s32 BtlCmd_Init(TaskPool* pool, Task* task, void* args) {
     self->wanted   = 0;
     self->input    = 0;
     self->counter  = 0;
-    data_ov003_020e71b8->unk3D878 &= ~0x10;
-    func_ov003_02086b14((Ov003ChargeState*)self);
+    g_CombatGlobal->unk3D878 &= ~0x10;
+    CombatSys_InitPartnerActions((Ov003ChargeState*)self);
     func_ov003_020977e0(self);
     func_ov003_02097544(self, func_ov003_0209842c);
     return 1;
@@ -753,20 +753,20 @@ static s32 BtlCmd_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlCmd_Update(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x40) {
+    if (g_CombatGlobal->unk3D878 & 0x40) {
         return 1;
     }
-    if (data_ov003_020e71b8->unk3D874 != 2) {
+    if (g_CombatGlobal->unk3D874 != 2) {
         self->input = 0;
     } else {
         func_ov003_02097b70(self);
     }
-    if (data_ov003_020e71b8->unk3D8E0 != 0) {
-        data_ov003_020e71b8->unk3D8E0 = 0;
-        self->timer                   = 0;
-        self->visible                 = 0;
-        func_ov003_0208697c();
-        func_ov003_020868c8(8);
+    if (g_CombatGlobal->unk3D8E0 != 0) {
+        g_CombatGlobal->unk3D8E0 = 0;
+        self->timer              = 0;
+        self->visible            = 0;
+        CombatSys_ClearPartnerActions();
+        CombatSys_PushPartnerAction(8);
         func_ov003_02097544(self, func_ov003_0209842c);
     }
     if (self->state != NULL) {

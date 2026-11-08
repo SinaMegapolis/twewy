@@ -58,7 +58,7 @@ static void func_ov012_02125d84(BtlEnm014* data) {
 }
 
 static void func_ov012_02125de4(BtlEnm014* data) {
-    BtlEnm014* boss = data_ov003_020e71b8->unk3D89C;
+    BtlEnm014* boss = g_CombatGlobal->unk3D89C;
 
     switch (data->unk_1C2) {
         case 0:
@@ -182,9 +182,9 @@ static void func_ov012_02125de4(BtlEnm014* data) {
             if (data->unk_1C0 > 0x28 && data->unk_1C0 < 0x32 && data->unk_1D0 == 0) {
                 d             = FX32_CONVERT(func_ov003_020cd11c(0x85));
                 d             = (data->base.sprite.flags46 & 1) ? d : -d;
-                h             = func_ov003_0208a114(0x85);
-                data->unk_1D0 = func_ov003_0208a164(h, &data->base.actor.baseArgs, data->base.actor.position.x + d,
-                                                    data->base.actor.position.y, data->base.actor.position.z);
+                h             = CombatHit_GetAttackInfo(0x85);
+                data->unk_1D0 = CombatHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x + d,
+                                                   data->base.actor.position.y, data->base.actor.position.z);
                 if (data->unk_1D0 == 1) {
                     func_ov003_020c4cc4(&data->base, 0x21A);
                     boss->base.actor.zVelocity = FX_Mul(boss->base.actor.zVelocity, 0x1800);
@@ -362,9 +362,9 @@ static void func_ov012_021265a4(BtlEnm014* data) {
                 se            = (data->base.spriteIndex == 3) ? 0x87 : 0x86;
                 d             = FX32_CONVERT(func_ov003_020cd11c(se));
                 d             = (data->base.sprite.flags46 & 1) ? d : -d;
-                h             = func_ov003_0208a114(se);
-                data->unk_1D0 = func_ov003_0208a164(h, &data->base.actor.baseArgs, data->base.actor.position.x + d,
-                                                    data->base.actor.position.y, data->base.actor.position.z);
+                h             = CombatHit_GetAttackInfo(se);
+                data->unk_1D0 = CombatHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x + d,
+                                                   data->base.actor.position.y, data->base.actor.position.z);
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;

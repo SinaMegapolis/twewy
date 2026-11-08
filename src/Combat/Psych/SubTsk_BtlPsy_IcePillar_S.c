@@ -27,12 +27,12 @@ static s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage
             self->args.effect     = arg->effect;
             self->args.position.x = arg->position.x;
             self->args.position.y = arg->position.y;
-            func_ov003_02083ca0(&self->args.position.x, &self->args.position.y, 0, 0);
+            CombatStage_ClampXY(&self->args.position.x, &self->args.position.y, 0, 0);
             self->args.attackId = arg->attackId;
-            func_ov003_020a3498(&self->sprites[0], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
-            func_ov003_020a3498(&self->sprites[1], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
-            func_ov003_020a3498(&self->sprites[2], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
-            func_ov003_020a3498(&self->sprites[3], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
+            CombatPsyAnim_Load(&self->sprites[0], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
+            CombatPsyAnim_Load(&self->sprites[1], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
+            CombatPsyAnim_Load(&self->sprites[2], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
+            CombatPsyAnim_Load(&self->sprites[3], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
             CombatSprite_SetAnim(&self->sprites[0], 2, 1);
             CombatSprite_SetAnim(&self->sprites[1], 3, 1);
             CombatSprite_SetAnim(&self->sprites[2], 0, 1);
@@ -49,8 +49,8 @@ static s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage
             return SpriteMgr_IsAnimationFinished(&self->sprites[0].sprite) ? 0 : 1;
         case 2: {
             self  = task->data;
-            s32 x = func_ov003_020843b0(0, self->args.position.x);
-            s32 y = func_ov003_020843ec(0, self->args.position.y, 0);
+            s32 x = CombatStage_ToScreenX(0, self->args.position.x);
+            s32 y = CombatStage_ToScreenY(0, self->args.position.y, 0);
             CombatSprite_SetPosition(&self->sprites[2], x, y);
             CombatSprite_SetPosition(&self->sprites[0], x, y);
             CombatSprite_SetPosition(&self->sprites[1], x, y);

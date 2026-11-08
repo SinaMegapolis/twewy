@@ -22,7 +22,7 @@ static void func_ov003_02094abc(BtlPsyTackle* self, void (*update)(BtlPsyTackle*
     self->timer  = 0;
 }
 static void func_ov003_02094ad0(BtlPsyTackle* self) {
-    if (!data_ov003_020e71b8->unk3D8C8)
+    if (!g_CombatGlobal->unk3D8C8)
         return;
     self->handle = func_ov003_020aced0(self->effect);
     func_ov003_02094abc(self, func_ov003_02094b14);
@@ -31,9 +31,9 @@ static void func_ov003_02094b14(BtlPsyTackle* self) {
     CombatActor* actor;
     s32          x, y, oldX;
     u16          angle;
-    if (!data_ov003_020e71b8->unk3D8C8)
+    if (!g_CombatGlobal->unk3D8C8)
         self->active = 0;
-    actor = data_ov003_020e71b8->unk3D898;
+    actor = g_CombatGlobal->unk3D898;
     x     = actor->position.x;
     oldX  = self->x;
     if (oldX == x && self->y == actor->position.y)
@@ -42,16 +42,16 @@ static void func_ov003_02094b14(BtlPsyTackle* self) {
     angle = FX_Atan2Idx(y - self->y, actor->position.x - oldX);
     func_ov003_020acd04();
     func_ov003_020acf0c(self->handle, angle);
-    self->x = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x;
-    self->y = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y;
+    self->x = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
+    self->y = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
 }
 static s32 func_ov003_02094bc0(TaskPool* pool, Task* task, void* args) {
     BtlPsyTackle*      self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
     self->effect = *arg;
-    self->x      = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x;
-    self->y      = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y;
+    self->x      = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
+    self->y      = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
     func_ov003_02094abc(self, func_ov003_02094ad0);
     self->active = 1;
     self->handle = -1;

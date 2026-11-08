@@ -53,9 +53,9 @@ void func_ov010_021256d0(BtlEnm006* owner, BtlEnm006* target) {
     args[0] = owner;
     args[1] = target;
     if (func_ov003_020c37f8(&target->base.sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_DeadEff, 0, 0, 0, args);
 }
@@ -103,7 +103,7 @@ static s32 func_ov010_02125878(Enm006DeadEff* data) {
     s16 x;
     s16 y;
     s32 flag = func_ov003_020c37f8(&data->sprite) != 0;
-    func_ov003_02084348(flag, &x, &y, data->position.x, data->position.y, data->position.z);
+    CombatStage_WorldToScreen(flag, &x, &y, data->position.x, data->position.y, data->position.z);
     CombatSprite_SetPosition(&data->sprite, x, y);
     func_ov003_02082730(&data->sprite, 0x80000000 - data->position.y);
     CombatSprite_Render(&data->sprite);

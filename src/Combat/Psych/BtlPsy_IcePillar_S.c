@@ -13,7 +13,7 @@ s32 func_ov003_020b2710(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EffectState** arg;
     BtlTouchWork*      touch;
 
-    if (!func_ov003_02085cfc(4))
+    if (!CombatTouch_IsGesture(4))
         return 0;
     touch = func_ov003_020a62a0();
     if (touch->endY > touch->startY)
@@ -35,9 +35,9 @@ static s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage
             BtlTouchWork*    touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = *arg;
-            self->x      = func_ov003_0208442c(0, touch->startX);
-            self->y      = func_ov003_02084460(0, touch->startY, 0);
-            func_ov003_02083ca0(&self->x, &self->y, 0, 0);
+            self->x      = CombatStage_ToWorldX(0, touch->startX);
+            self->y      = CombatStage_ToWorldY(0, touch->startY, 0);
+            CombatStage_ClampXY(&self->x, &self->y, 0, 0);
             self->count = (u8)self->effect->params[0];
             self->timer = 0;
             func_ov003_020a6464(1);
@@ -63,7 +63,7 @@ static s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage
                 func_ov003_020b1ca0(self->effect, self->x, self->y, attackId);
                 func_ov003_020a647c(self->x);
                 func_ov003_020a5a94(self->effect);
-                func_ov003_02087f28(0x34, self->x);
+                CombatSe_PlayAtMainX(0x34, self->x);
                 self->count--;
                 self->timer = 0x10;
                 self->x += self->step;

@@ -34,9 +34,9 @@ static s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage
             self->velocity.y               = arg->velocity.y;
             self->velocity.z               = arg->velocity.z;
             self->trail                    = arg->trail;
-            func_ov003_020a3498(&self->sprite, 2, 1, arg->animation, 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, arg->animation, 1);
             self->loopAnimation = arg->animation - 1;
-            func_ov003_02087fe0(0, &self->icon, 2);
+            CombatHit_LoadSpark(0, &self->icon, 2);
             return 1;
         case 1:
             self = task->data;
@@ -46,7 +46,7 @@ static s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage
             if (self->position.z >= self->baseZ)
                 return 0;
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
-                func_ov003_020a35b8(&self->sprite, self->loopAnimation, 0);
+                CombatPsyAnim_SetAnim(&self->sprite, self->loopAnimation, 0);
             if (self->trail)
                 func_ov003_020a6628(&self->effect->streak, 0x14F, self->position.x, self->position.y, self->position.z, 0, 0);
             self->velocity.z += 0x333;
@@ -55,12 +55,12 @@ static s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage
             return 1;
         case 2: {
             self  = task->data;
-            s32 y = func_ov003_020843ec(0, self->position.y, self->position.z);
-            s32 x = func_ov003_020843b0(0, self->position.x);
+            s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+            s32 x = CombatStage_ToScreenX(0, self->position.x);
             CombatSprite_SetPosition(&self->sprite, x, y);
             func_ov003_02082730(&self->sprite, self->position.y + 0x1F4000);
             CombatSprite_Render(&self->sprite);
-            func_ov003_02088064(&self->icon, self->position.x, self->position.y);
+            CombatHit_DrawSpark(&self->icon, self->position.x, self->position.y);
             return 1;
         }
         case 3:

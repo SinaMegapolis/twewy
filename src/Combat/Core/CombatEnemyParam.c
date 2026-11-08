@@ -1,454 +1,7 @@
-#include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
+#include "Combat/Core/CombatEnemyParam.h"
 #include "Combat/Core/CombatActorParams.h"
-#include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatBgTiles.h"
-#include "Combat/Core/CombatSprite.h"
-#include "Combat/Core/CombatSpriteSlot.h"
-#include "Engine/Core/DMA.h"
-#include "Engine/File/DatMgr.h"
-#include "Engine/Math/Random.h"
-#include "Engine/Resources/PaletteMgr.h"
-#include "Engine/Resources/ScreenMapper.h"
-#include "SpriteMgr.h"
 
-/// One 6-byte animation record: which pack entry to show, for how long, and when the animation
-/// switches palettes (`entry == -2`) or ends (`entry == -1`).
-
-/// One sprite slot of a battle actor's graphic set.
-
-/// Common prefix of every battle unit that owns a combat sprite: the `CombatSprite` sits at 0x84.
-
-/// Points `sprite` (the sprite embedded at 0x84 of `owner`) at `cmd->table[index]` and gives it a
-/// new palette. Returns 0 when the animation could not be loaded.
-static s32 func_ov003_020d36fc(s32 engine, Ov003EnemyActor* owner, const Ov003SpriteLoadCmd* cmd, u16 index, u16 arg4,
-                               void* paletteSrc, u16 palIdx, u16 flip) {
-    Sprite* sprite = &owner->sprite.sprite;
-    s32     result = CombatSprite_LoadFromTable(engine, &owner->sprite, (const BinIdentifier*)&cmd->entries[index], cmd->table,
-                                                arg4, 0, cmd->unk_0C);
-
-    if (result == 0) {
-        return 0;
-    }
-    Sprite_ChangePalette(sprite, engine, paletteSrc, 5, palIdx);
-    sprite->animationMode = (flip == 0) ? ANIM_MODE_LOOPED : ANIM_MODE_ONCE;
-    func_ov003_020c4988(owner);
-    return result;
-}
-
-/// Releases the current animation of `owner`'s sprite and starts `cmd->table[index]` with the
-/// palette the sprite had before the switch.
-// Nonmatching: the palette entry count and the engine index land in the opposite callee-saved
-// registers (r9/r10).
-static s32 func_ov003_020d37a0(Ov003EnemyActor* owner, const Ov003SpriteLoadCmd* cmd, u16 index, u16 arg3, u16 flip) {
-    Sprite*           sprite  = &owner->sprite.sprite;
-    PaletteResource*  palette = sprite->paletteData;
-    UnkSmallInternal* palSrc  = sprite->unk3C;
-    s32               engine  = sprite->bits_0_1;
-    u16               count   = palette->chunkCount;
-
-    Sprite_Release(sprite);
-    CombatSprite_LoadFromTable(engine, &owner->sprite, (const BinIdentifier*)&cmd->entries[index], cmd->table, arg3, 0,
-                               cmd->unk_0C);
-    Sprite_ChangePalette(sprite, engine, palSrc, 5, count);
-    sprite->animationMode = (flip == 0) ? ANIM_MODE_LOOPED : ANIM_MODE_ONCE;
-    return 0;
-}
-
-/// Starts the first frame of an animation script on `owner`'s sprite.
-void func_ov003_020d3858(s32 engine, Ov003EnemyActor* owner, const Ov003SpriteLoadCmd* cmd, Ov003AnimScript* script,
-                         const Ov003AnimScriptStep* steps, void* paletteSrc, u16 palIdx, u16 flip) {
-    script->steps = steps;
-    script->index = 0;
-    script->loop  = flip;
-    script->flags = 0;
-    func_ov003_020d36fc(engine, owner, cmd, steps->entry, steps->dataId, paletteSrc, palIdx, 1);
-}
-
-/// Advances an animation script once the sprite's current frame has played out.
-// Nonmatching: the target keeps the step pointer in r7 and reuses r7 for the result; we keep it in
-// a caller-saved register.
-s32 func_ov003_020d38ac(Ov003EnemyActor* owner, const Ov003SpriteLoadCmd* cmd, Ov003AnimScript* script) {
-    const Ov003AnimScriptStep* step;
-    s32                        result = 0;
-
-    script->flags &= ~2;
-    if (script->flags & 1) {
-        return result;
-    }
-    if (SpriteMgr_IsAnimationFinished(&owner->sprite.sprite)) {
-        script->index++;
-        step = &script->steps[script->index];
-        if (step->dataId == -1) {
-            if (script->loop == 0) {
-                script->index = 0;
-                step          = script->steps;
-                script->flags |= 2;
-            } else {
-                script->flags |= 1;
-                return result;
-            }
-        }
-        result = func_ov003_020d37a0(owner, cmd, step->entry, step->dataId, 1);
-    }
-    return result;
-}
-
-/// Starts `steps` on `owner`'s sprite without touching `paletteSrc`.
-void func_ov003_020d3978(Ov003EnemyActor* owner, const Ov003SpriteLoadCmd* cmd, Ov003AnimScript* script,
-                         const Ov003AnimScriptStep* steps, u16 loop) {
-    script->steps = steps;
-    script->index = 0;
-    script->loop  = loop;
-    script->flags = 0;
-    func_ov003_020d37a0(owner, cmd, steps->entry, steps->dataId, 1);
-}
-
-s32 func_ov003_020d39ac(Ov003AnimScript* script) {
-    if (script->flags & 1) {
-        return 1;
-    }
-    return 0;
-}
-
-/// Loads the cell data of `layer`'s current frame and hands the result to the layer's dest slot,
-/// then mirrors the frame index down the layer chain.
-static void func_ov003_020d39c0(Ov003AnimLayer* layer) {
-    const Ov003AnimFrame* frame = &layer->frames[layer->index];
-    void*                 source;
-
-    if (layer->loadedId != frame->dataId) {
-        if (layer->data != NULL) {
-            DatMgr_ReleaseData(layer->data);
-        }
-        layer->data     = DatMgr_LoadPackEntry(1, NULL, 0, layer->iden, frame->dataId, 0);
-        layer->loadedId = frame->dataId;
-    }
-    source       = Data_GetPackEntryData(layer->data, frame->entry);
-    *layer->dest = ((CombatBgTiles*)source)->pixels;
-    func_0200d244(layer->unk_08);
-    if (layer->next != NULL) {
-        layer->next->index = layer->index;
-        func_ov003_020d39c0(layer->next);
-    }
-}
-
-/// Steps `layer` to the next frame, or back to frame 0 when the end marker is reached.
-static s16 func_ov003_020d3a90(Ov003AnimLayer* layer) {
-    s16 index = layer->index;
-
-    if (layer->frames[index + 1].entry == -1) {
-        if (layer->loop == 1) {
-            index = 0;
-        } else {
-            layer->ended = 1;
-        }
-    } else {
-        index++;
-    }
-    return index;
-}
-
-/// Returns how many frames `layer`'s current entry lasts (randomised for `random` layers).
-static s16 func_ov003_020d3ae0(Ov003AnimLayer* layer) {
-    u16                   value;
-    const Ov003AnimFrame* frame = &layer->frames[layer->index];
-
-    value = frame->duration;
-
-    if (layer->random == 1) {
-        if (value != 0) {
-            value = value + RNG_Next(frame->randomRange);
-        } else if ((s32)RNG_Next(0x64) < frame->randomRange) {
-            value = 1;
-        } else {
-            layer->index = func_ov003_020d3a90(layer);
-            value        = func_ov003_020d3ae0(layer);
-        }
-    }
-    return value;
-}
-
-/// Sets up `layer` around an already-loaded `data` block.
-void func_ov003_020d3b6c(Ov003AnimLayer* layer, Data* data, s16 loadedId, u32 loop, u32 oneShot, u32 random) {
-    layer->loadedId = loadedId;
-    layer->data     = data;
-    layer->loop     = (u16)loop;
-    layer->oneShot  = (u16)oneShot;
-    layer->random   = (u16)random;
-    layer->ended    = 0;
-    layer->chained  = 0;
-}
-
-/// Initialises `layer` and loads its first frame.
-void func_ov003_020d3bec(Ov003AnimLayer* layer, BinIdentifier* iden, s32 unk_08, void** dest, const Ov003AnimFrame* frames) {
-    layer->iden     = iden;
-    layer->unk_08   = unk_08;
-    layer->dest     = dest;
-    layer->frames   = frames;
-    layer->index    = 0;
-    layer->timer    = 0;
-    layer->next     = NULL;
-    layer->duration = func_ov003_020d3ae0(layer);
-    func_ov003_020d39c0(layer);
-}
-
-/// Swaps `layer` to a different frame table.
-void func_ov003_020d3c2c(Ov003AnimLayer* layer, const Ov003AnimFrame* frames) {
-    if (layer->data != NULL) {
-        DatMgr_ReleaseData(layer->data);
-        layer->data = NULL;
-    }
-    layer->loadedId = 0;
-    layer->frames   = frames;
-    layer->index    = 0;
-    layer->timer    = 0;
-    layer->next     = NULL;
-    layer->chained  = 0;
-    layer->ended    = 0;
-    layer->duration = func_ov003_020d3ae0(layer);
-    func_ov003_020d39c0(layer);
-}
-
-/// Chains `next` behind `layer` so it follows the parent's frame index.
-void func_ov003_020d3c98(Ov003AnimLayer* layer, Ov003AnimLayer* next) {
-    layer->next   = next;
-    next->chained = 1;
-}
-
-/// Ticks `layer`, advancing to the next frame when the current one has played out.
-void func_ov003_020d3cac(Ov003AnimLayer* layer) {
-    if (layer->timer >= layer->duration) {
-        layer->timer    = 0;
-        layer->index    = func_ov003_020d3a90(layer);
-        layer->duration = func_ov003_020d3ae0(layer);
-        func_ov003_020d39c0(layer);
-    }
-    layer->timer++;
-}
-
-void func_ov003_020d3cf8(Ov003AnimLayer* layer) {
-    if (layer->data != NULL) {
-        DatMgr_ReleaseData(layer->data);
-    }
-}
-
-/// Uploads the cell data of `slot`'s current animation entry to its BG VRAM destination.
-static void func_ov003_020d3d10(Ov003SpriteSlot* slot) {
-    const Ov003SpriteAnim* anim = &slot->anims[slot->animIndex];
-    s32                    size;
-    void*                  source;
-
-    if (slot->charData != NULL) {
-        DatMgr_ReleaseData(slot->charData);
-    }
-    slot->charData = DatMgr_LoadPackEntry(1, NULL, 0, slot->charIden, anim->dataId, 0);
-    source         = Data_GetPackEntryData(slot->charData, anim->entry);
-    size           = (((const CombatBgTiles*)source)->header & ~0xFF) >> 8;
-    if ((((const CombatBgTiles*)source)->format & 0xF0) == 0) {
-        size -= 4;
-    }
-    slot->dataId = anim->dataId;
-    func_02001b44(7, (s32)slot->charDest, ((const CombatBgTiles*)source)->pixels, size);
-}
-
-/// Reloads `slot`'s palette for the current animation entry. Returns the new palette resource.
-// Nonmatching: register allocation around the allocation (the palette-manager base and the
-// start/count temporaries are assigned differently).
-PaletteResource* func_ov003_020d3dc0(Ov003SpriteSlot* slot) {
-    const Ov003SpriteAnim* anim = &slot->anims[slot->animIndex];
-    void*                  source;
-
-    if (!slot->hasPal) {
-        return NULL;
-    }
-    if (slot->palette != NULL) {
-        PaletteMgr_ReleaseResource(g_PaletteManagers[slot->palEngine], slot->palette);
-    }
-    if (slot->paletteData != NULL) {
-        DatMgr_ReleaseData(slot->paletteData);
-    }
-    slot->paletteData = DatMgr_LoadPackEntry(1, NULL, 0, slot->palIden, anim->dataId, 0);
-    source            = Data_GetPackEntryData(slot->paletteData, anim->entry);
-    slot->palette     = PaletteMgr_AllocPalette(g_PaletteManagers[slot->palEngine], source, 0, slot->palStart, slot->palCount);
-    return slot->palette;
-}
-
-/// Sets `slot` up for the animation table `anims`, uploading cell data to `charDest`.
-void func_ov003_020d3eb4(Ov003SpriteSlot* slot, BinIdentifier* iden, const Ov003SpriteAnim* anims, void* charDest, u32 arg4,
-                         u32 arg5) {
-    if (anims == NULL) {
-        return;
-    }
-    slot->charIden    = iden;
-    slot->anims       = anims;
-    slot->charData    = NULL;
-    slot->charDest    = charDest;
-    slot->paletteData = NULL;
-    slot->palette     = NULL;
-    slot->dataId      = -1;
-    slot->animIndex   = 0;
-    slot->timer       = 0;
-    slot->hasPal      = 0;
-    slot->loop        = (u16)arg4;
-    slot->oneShot     = (u16)arg5;
-    slot->finished    = 0;
-}
-
-/// Points `slot` at the palette pack `iden` and queues a palette allocation.
-void func_ov003_020d3f44(Ov003SpriteSlot* slot, PaletteResource* palette, BinIdentifier* iden, u32 engine, u8 palStart,
-                         u8 palCount) {
-    slot->palIden     = iden;
-    slot->paletteData = NULL;
-    slot->palette     = palette;
-    slot->palEngine   = (u16)engine;
-    slot->palStart    = palStart;
-    slot->palCount    = palCount;
-    slot->hasPal      = 1;
-}
-
-/// Swaps `slot` to a different animation table without reloading anything else.
-void func_ov003_020d3fb0(Ov003SpriteSlot* slot, const Ov003SpriteAnim* anims) {
-    if (anims == NULL) {
-        return;
-    }
-    slot->anims     = anims;
-    slot->animIndex = 0;
-    slot->timer     = 0;
-    slot->finished  = 0;
-}
-
-/// Advances `slot`'s animation while it has one, uploading cells and switching palettes on markers.
-// Nonmatching: the target lays the palette-marker (-2) case out of line and falls through into the
-// end-marker (-1) case; ours has the two cases the other way round.
-void func_ov003_020d3fd8(Ov003SpriteSlot* slot) {
-    const Ov003SpriteAnim* anim;
-    s32                    run;
-
-    if (slot->anims == NULL) {
-        return;
-    }
-    if (slot->oneShot != 1 && slot->finished != 1) {
-        anim = &slot->anims[slot->animIndex];
-        if (slot->timer == 0) {
-            do {
-                if (anim->entry == -1) {
-                    if (slot->loop == 1) {
-                        slot->animIndex = 0;
-                        run             = 1;
-                        anim            = &slot->anims[slot->animIndex];
-                    } else {
-                        run            = 0;
-                        slot->finished = 1;
-                    }
-                } else if (anim->entry == -2) {
-                    slot->animIndex++;
-                    func_ov003_020d3dc0(slot);
-                    run = 1;
-                    anim += 2;
-                    slot->animIndex++;
-                } else {
-                    func_ov003_020d3d10(slot);
-                    run         = 0;
-                    slot->timer = anim->duration;
-                }
-            } while (run != 0);
-        }
-        slot->timer--;
-        if (slot->timer == 0) {
-            slot->animIndex++;
-        }
-    }
-}
-
-void func_ov003_020d40fc(Ov003SpriteSlot* slot) {
-    if (slot->anims == NULL) {
-        return;
-    }
-    if (slot->charData != NULL) {
-        DatMgr_ReleaseData(slot->charData);
-    }
-    if (slot->paletteData != NULL) {
-        DatMgr_ReleaseData(slot->paletteData);
-    }
-    if (slot->palette != NULL) {
-        PaletteMgr_ReleaseResource(g_PaletteManagers[slot->palEngine], slot->palette);
-    }
-}
-
-/// Starts the scripted translation `steps` on `shake`.
-void func_ov003_020d415c(Ov003Shake* shake, const Ov003ShakeStep* steps) {
-    shake->steps   = steps;
-    shake->frame   = 0;
-    shake->index   = 0;
-    shake->offsetX = steps->offsetX;
-    shake->offsetY = steps->offsetY;
-}
-
-/// Advances the scripted translation by one frame, loading the next step's offset when it runs out.
-void func_ov003_020d4180(Ov003Shake* shake) {
-    Ov003ShakeStep* step;
-
-    if (shake->steps == NULL) {
-        return;
-    }
-    step = &((Ov003ShakeStep*)shake->steps)[shake->index];
-    if (step->duration == -1) {
-        return;
-    }
-    shake->frame++;
-    if (shake->frame < step->duration) {
-        return;
-    }
-    shake->frame = 0;
-    shake->index++;
-    shake->offsetX = step[1].offsetX;
-    shake->offsetY = step[1].offsetY;
-}
-
-/// Applies the scripted translation to `actor`'s position.
-void func_ov003_020d41f0(Ov003Shake* shake, CombatActor* actor) {
-    if (shake->steps == NULL) {
-        return;
-    }
-    actor->position.x += shake->offsetX;
-    actor->position.y += shake->offsetY;
-}
-
-void func_ov003_020d4220(Ov003Shake* shake) {
-    shake->steps = NULL;
-}
-
-// ---------------------------------------------------------------------------------------------
-// Battle-actor sprite / animation parameter blocks (0x020e0cf8..0x020e3728).
-//
-// The retail build has these as a run of 0x3c-byte records followed by a jagged table of
-// pointer arrays in .data; the actor code (ov017/ov020/ov021) indexes the pointer arrays by
-// enemy id and then reads the halfwords of the record it lands on. Only three of the records
-// carry a pointer of their own, hence the two extra views.
-// ---------------------------------------------------------------------------------------------
-
-extern u8 data_02080030[];
-extern u8 data_0208003c[];
-extern u8 data_ov003_020e001c[];
-extern u8 data_ov030_02100020[];
-
-/// One 0x3c-byte battle-actor sprite parameter block.
-/// A parameter block that keeps a resource pointer in the first argument slot.
-typedef struct Ov003ActorSpriteParamsPtr {
-    /* 0x00 */ u16   unk_00[2];
-    /* 0x04 */ void* unk_04;
-    /* 0x08 */ u16   unk_08[0x1A];
-} Ov003ActorSpriteParamsPtr; // Size: 0x3C
-
-/// A parameter block with two resource pointers (see data_ov003_020e0f14 in .rodata).
-typedef struct Ov003ActorSpriteParamsPtr2 {
-    /* 0x00 */ u16   unk_00[2];
-    /* 0x04 */ void* unk_04;
-    /* 0x08 */ void* unk_08;
-    /* 0x0C */ u16   unk_0C[0x18];
-} Ov003ActorSpriteParamsPtr2; // Size: 0x3C
-
+/// The stat, hit box and drop records of every noise variant.
 static const Ov003ActorParams data_ov003_020e0cf8 = {
     {
      0x1000, 0x103C, 0x003C, 0x001E, 0x0000, 0x1B58, 0x0064, 0x0050, 0x0064, 0x0064, 0x0064, 0x01BD, 0x0064, 0x0932, 0x0000,
@@ -491,22 +44,11 @@ static const Ov003ActorParams data_ov003_020e0e24 = {
      }
 };
 
-static const Ov003ActorSpriteParamsPtr data_ov003_020e0e60 = {
-    {0x0C00, 0x0C18},
-    (void*)&data_02080030,
-    0x0032,           0x01F4,
-    0x0050,           0x0064,
-    0x005A,           0x0064,
-    0x0064,           0x0000,
-    0x0064,           0x0932,
-    0x003C,           0x001E,
-    0x001E,           0x00D2,
-    0x00B4,           0x00F0,
-    0x01C2,           0x0003,
-    0x04E2,           0x04E3,
-    0x04E3,           0x04E8,
-    0x012C,           0x012C,
-    0x0258,           0x0258,
+static const Ov003ActorParams data_ov003_020e0e60 = {
+    {
+     0x0C00, 0x0C18, 0x0030, 0x0208, 0x0032, 0x01F4, 0x0050, 0x0064, 0x005A, 0x0064, 0x0064, 0x0000, 0x0064, 0x0932, 0x003C,
+     0x001E, 0x001E, 0x00D2, 0x00B4, 0x00F0, 0x01C2, 0x0003, 0x04E2, 0x04E3, 0x04E3, 0x04E8, 0x012C, 0x012C, 0x0258, 0x0258,
+     }
 };
 
 static const Ov003ActorParams data_ov003_020e0e9c = {
@@ -733,22 +275,11 @@ static const Ov003ActorParams data_ov003_020e161c = {
      }
 };
 
-static const Ov003ActorSpriteParamsPtr data_ov003_020e1658 = {
-    {0x1800, 0x1820},
-    (void*)&data_ov030_02100020,
-    0x0028,           0x021C,
-    0x00FA,           0x0064,
-    0x0064,           0x0064,
-    0x012C,           0x0000,
-    0x0064,           0x0932,
-    0x003C,           0x0078,
-    0x0032,           0x003C,
-    0x0078,           0x004B,
-    0x02B2,           0x0005,
-    0x04E0,           0x005C,
-    0x04E8,           0x04E9,
-    0x0352,           0x0064,
-    0x00FA,           0x0064,
+static const Ov003ActorParams data_ov003_020e1658 = {
+    {
+     0x1800, 0x1820, 0x0020, 0x0210, 0x0028, 0x021C, 0x00FA, 0x0064, 0x0064, 0x0064, 0x012C, 0x0000, 0x0064, 0x0932, 0x003C,
+     0x0078, 0x0032, 0x003C, 0x0078, 0x004B, 0x02B2, 0x0005, 0x04E0, 0x005C, 0x04E8, 0x04E9, 0x0352, 0x0064, 0x00FA, 0x0064,
+     }
 };
 
 static const Ov003ActorParams data_ov003_020e1694 = {
@@ -849,34 +380,11 @@ static const Ov003ActorParams data_ov003_020e19a0 = {
      }
 };
 
-static const Ov003ActorSpriteParamsPtr2 data_ov003_020e19dc = {
-    {0x0C00, 0x0C18},
-    (void*)&data_02080030,
-    (void*)&data_0208003c,
-    0x0055,
-    0x0064,
-    0x005A,
-    0x0064,
-    0x0064,
-    0x0000,
-    0x0064,
-    0x0932,
-    0x0078,
-    0x005A,
-    0x005A,
-    0x0096,
-    0x00B4,
-    0x00F0,
-    0x01C2,
-    0x0004,
-    0x04E2,
-    0x001C,
-    0x04E4,
-    0x04E8,
-    0x0190,
-    0x02BC,
-    0x0096,
-    0x012C,
+static const Ov003ActorParams data_ov003_020e19dc = {
+    {
+     0x0C00, 0x0C18, 0x0030, 0x0208, 0x003C, 0x0208, 0x0055, 0x0064, 0x005A, 0x0064, 0x0064, 0x0000, 0x0064, 0x0932, 0x0078,
+     0x005A, 0x005A, 0x0096, 0x00B4, 0x00F0, 0x01C2, 0x0004, 0x04E2, 0x001C, 0x04E4, 0x04E8, 0x0190, 0x02BC, 0x0096, 0x012C,
+     }
 };
 
 static const Ov003ActorParams data_ov003_020e1a18 = {
@@ -1670,22 +1178,11 @@ static const Ov003ActorParams data_ov003_020e3458 = {
      }
 };
 
-static const Ov003ActorSpriteParamsPtr data_ov003_020e3494 = {
-    {0x0C00, 0x0C1C},
-    (void*)&data_ov003_020e001c,
-    0x0019,           0x0190,
-    0x00C8,           0x0064,
-    0x0064,           0x0064,
-    0x0032,           0x0000,
-    0x0064,           0x0932,
-    0x0064,           0x0064,
-    0x0028,           0x0064,
-    0x0064,           0x003C,
-    0x01F4,           0x0003,
-    0x04E3,           0x04E3,
-    0x04E7,           0x04E3,
-    0x04B0,           0x0BB8,
-    0x0258,           0x0BB8,
+static const Ov003ActorParams data_ov003_020e3494 = {
+    {
+     0x0C00, 0x0C1C, 0x001C, 0x020E, 0x0019, 0x0190, 0x00C8, 0x0064, 0x0064, 0x0064, 0x0032, 0x0000, 0x0064, 0x0932, 0x0064,
+     0x0064, 0x0028, 0x0064, 0x0064, 0x003C, 0x01F4, 0x0003, 0x04E3, 0x04E3, 0x04E7, 0x04E3, 0x04B0, 0x0BB8, 0x0258, 0x0BB8,
+     }
 };
 
 static const Ov003ActorParams data_ov003_020e34d0 = {
@@ -1737,22 +1234,11 @@ static const Ov003ActorParams data_ov003_020e3638 = {
      }
 };
 
-static const Ov003ActorSpriteParamsPtr data_ov003_020e3674 = {
-    {0x0C00, 0x0C1C},
-    (void*)&data_ov003_020e001c,
-    0x0019,           0x0190,
-    0x00C8,           0x0064,
-    0x0064,           0x0064,
-    0x0032,           0x0000,
-    0x0064,           0x0932,
-    0x0064,           0x0064,
-    0x0028,           0x0064,
-    0x0064,           0x003C,
-    0x0294,           0x0003,
-    0x04E3,           0x04E3,
-    0x04E7,           0x04E3,
-    0x04B0,           0x0BB8,
-    0x0258,           0x0BB8,
+static const Ov003ActorParams data_ov003_020e3674 = {
+    {
+     0x0C00, 0x0C1C, 0x001C, 0x020E, 0x0019, 0x0190, 0x00C8, 0x0064, 0x0064, 0x0064, 0x0032, 0x0000, 0x0064, 0x0932, 0x0064,
+     0x0064, 0x0028, 0x0064, 0x0064, 0x003C, 0x0294, 0x0003, 0x04E3, 0x04E3, 0x04E7, 0x04E3, 0x04B0, 0x0BB8, 0x0258, 0x0BB8,
+     }
 };
 
 static const Ov003ActorParams data_ov003_020e36b0 = {
@@ -1776,16 +1262,11 @@ static const Ov003ActorParams data_ov003_020e3728 = {
      }
 };
 
-/// 22 bytes of battle-actor data that sits between two parameter blocks.
-static const u8 data_ov003_020e0fc8[0x16] = {
-    0x00, 0x18, 0x60, 0x18, 0x60, 0x00, 0x30, 0x03, 0x23, 0x00, 0x58,
-    0x02, 0x64, 0x00, 0x64, 0x00, 0x64, 0x00, 0x64, 0x00, 0x2C, 0x01,
-};
-
-/// 38 bytes of battle-actor data that sits between two parameter blocks.
-const u8 data_ov003_020e0fde[0x26] = {
-    0x48, 0x00, 0x64, 0x00, 0x32, 0x1B, 0x3C, 0x00, 0x78, 0x00, 0x32, 0x00, 0x78, 0x00, 0x96, 0x00, 0x3C, 0x00, 0x58,
-    0x02, 0x03, 0x00, 0xE1, 0x04, 0xE2, 0x04, 0xE3, 0x04, 0xE4, 0x04, 0x84, 0x03, 0x08, 0x07, 0x84, 0x03, 0xB0, 0x04,
+static const Ov003ActorParams data_ov003_020e0fc8 = {
+    {
+     0x1800, 0x1860, 0x0060, 0x0330, 0x0023, 0x0258, 0x0064, 0x0064, 0x0064, 0x0064, 0x012C, 0x0048, 0x0064, 0x1B32, 0x003C,
+     0x0078, 0x0032, 0x0078, 0x0096, 0x003C, 0x0258, 0x0003, 0x04E1, 0x04E2, 0x04E3, 0x04E4, 0x0384, 0x0708, 0x0384, 0x04B0,
+     }
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -1913,7 +1394,7 @@ static const Ov003ActorParams* data_ov003_020e6e60[2] = {
 };
 
 static const Ov003ActorParams* data_ov003_020e6e68[3] = {
-    (const Ov003ActorParams*)&data_ov003_020e0fc8,
+    &data_ov003_020e0fc8,
     (const Ov003ActorParams*)&data_ov003_020e1004,
     (const Ov003ActorParams*)&data_ov003_020e32b4,
 };
@@ -2117,7 +1598,7 @@ static const Ov003ActorParams* data_ov003_020e707c[12] = {
     (const Ov003ActorParams*)&data_ov003_020e3458, (const Ov003ActorParams*)&data_ov003_020e341c,
 };
 
-const Ov003ActorParams* const* data_ov003_020e70ac[61] = {
+const Ov003ActorParams* const* CombatEnemyParam_Table[61] = {
     data_ov003_020e6e50,
     data_ov003_020e707c,
     data_ov003_020e6ef8,

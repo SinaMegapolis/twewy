@@ -44,7 +44,7 @@ static s32 BtlSandstorm_Init(TaskPool* pool, Task* task, void* args) {
     void*              subScreen;
     void*              subPal;
 
-    data_ov003_020e71b8->unk3D878 |= 1;
+    g_CombatGlobal->unk3D878 |= 1;
 
     mbg                 = &g_DisplaySettings.engineState[0].bgSettings[3];
     mbg->bgMode         = DISPLAY_BGMODE_TEXT;
@@ -98,7 +98,7 @@ static s32 BtlSandstorm_Init(TaskPool* pool, Task* task, void* args) {
 }
 
 static s32 BtlSandstorm_Update(TaskPool* pool, Task* task, void* args) {
-    if (!(data_ov003_020e71b8->unk3D878 & 0x2000)) {
+    if (!(g_CombatGlobal->unk3D878 & 0x2000)) {
         return 1;
     }
     return 0;
@@ -106,9 +106,12 @@ static s32 BtlSandstorm_Update(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlSandstorm_Render(TaskPool* pool, Task* task, void* args) {
     BtlSandstorm* self = task->data;
+    s32           dx   = RNG_Next(0x801) - 0x400;
+    s32           dy;
 
-    self->offsetX += (RNG_Next(0x801) - 0x400) << 12;
-    self->offsetY += (RNG_Next(0x801) - 0x400) << 12;
+    self->offsetX += dx << 12;
+    dy = RNG_Next(0x801) - 0x400;
+    self->offsetY += dy << 12;
     Display_SetBGOffset(0, 3, self->offsetX, self->offsetY);
     Display_SetBGOffset(1, 3, self->offsetX, self->offsetY);
     return 1;
@@ -123,7 +126,7 @@ static s32 BtlSandstorm_Release(TaskPool* pool, Task* task, void* args) {
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], self->subScreen);
     BgResMgr_ReleaseChar(g_BgResourceManagers[DISPLAY_SUB], self->subCharacters);
     PaletteMgr_ReleaseResource(g_PaletteManagers[DISPLAY_SUB], self->subPalette);
-    data_ov003_020e71b8->unk3D878 &= ~1;
+    g_CombatGlobal->unk3D878 &= ~1;
     return 1;
 }
 

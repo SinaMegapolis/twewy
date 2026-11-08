@@ -1,20 +1,19 @@
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatSpriteDefault.h"
 #include "Engine/Core/OamMgr.h"
 #include "Engine/Core/System.h"
 #include "Engine/Resources/ResourceMgr.h"
 #include "SpriteMgr.h"
 #include "common_data.h"
 
-extern SpriteAnimation data_ov003_020e38f0;
-
 static inline PaletteResource* Combat_GetSharedPalette(u32 displayEngine) {
-    return data_ov003_020e71b8->unk3D348[displayEngine];
+    return g_CombatGlobal->unk3D348[displayEngine];
 }
 
 static inline UnkSmallInternal* Combat_GetSharedPaletteSource(void) {
-    return (UnkSmallInternal*)Data_GetPackEntryData(data_ov003_020e71b8->unk3D350, 65);
+    return (UnkSmallInternal*)Data_GetPackEntryData(g_CombatGlobal->unk3D350, 65);
 }
 
 s32 CombatSprite_SetAnimFromTable(CombatSprite* cSprite, u16 animTableIndex, s32 arg2) {
@@ -197,7 +196,7 @@ SpriteFrameInfo* CombatSprite_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
 }
 
 void CombatSprite_InitAnim(SpriteAnimation* anim, s32 arg1, const BinIdentifier* iden) {
-    *anim          = data_ov003_020e38f0;
+    *anim          = CombatSprite_DefaultAnim;
     anim->bits_0_1 = arg1;
     anim->binIden  = iden;
 }

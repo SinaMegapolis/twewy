@@ -41,4 +41,13 @@ static inline void BtlField_ScrollRow(ScreenMapEntry* map, Ov003Camera* camera, 
     Display_SetEngineBGOffset(engine, layer, posX, posY);
 }
 
+void CombatBgRes_Init(Ov003BgResState* state, s32 engine, BinIdentifier* iden);
+void CombatBgRes_RunScript(Ov003BgResState* state, const Ov003ResCmd* script, void* arg);
+void CombatBgRes_Update(Ov003BgResState* state);
+void CombatBgRes_Release(Ov003BgResState* state);
+s32  CombatBgRes_CmdEnd(void);
+s32  CombatBgRes_CmdLoadPalette(Ov003BgResState* state);
+s32  CombatBgRes_CmdLoadChar(Ov003BgResState* state);
+u32  CombatBgRes_CmdLoadSlot(Ov003BgResState* state);
+
 #endif

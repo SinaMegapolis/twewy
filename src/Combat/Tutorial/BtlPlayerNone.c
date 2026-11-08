@@ -32,17 +32,17 @@ static s32 func_ov008_020e7374(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(data, 0, sizeof(BtlPlayerNone));
     CombatActor_Init(&data->actor, 0);
-    data_ov003_020e71b8->unk3D89C = data;
-    data->actor.isFlipped         = FALSE;
-    data->actor.position.x        = data_ov003_020e71b8->unk3D7C0[1].unk_20;
-    data->actor.position.y        = data_ov003_020e71b8->unk3D7C0[1].unk_24;
-    data->actor.position.z        = 0;
-    data->actor.zGravity          = 0x800;
-    data->actor.unk_70            = 0xC;
-    data->actor.unk_72            = 0x30;
-    data->actor.unk_76            = 0x18;
+    g_CombatGlobal->unk3D89C = data;
+    data->actor.isFlipped    = FALSE;
+    data->actor.position.x   = g_CombatGlobal->unk3D7C0[1].unk_20;
+    data->actor.position.y   = g_CombatGlobal->unk3D7C0[1].unk_24;
+    data->actor.position.z   = 0;
+    data->actor.zGravity     = 0x800;
+    data->actor.unk_70       = 0xC;
+    data->actor.unk_72       = 0x30;
+    data->actor.unk_76       = 0x18;
     data->actor.flags |= 0x10;
-    func_ov003_02083ab0(1, data->actor.position.x, data->actor.position.y, data->actor.position.z);
+    CombatStage_SetCameraTarget(1, data->actor.position.x, data->actor.position.y, data->actor.position.z);
     func_ov008_020e7360(data, NULL);
     return 1;
 }

@@ -24,7 +24,7 @@ static const TaskHandle      Tsk_Boss01s_FlyUG     = {"Tsk_Boss01s_FlyUG", Boss0
 static const SpriteAnimEntry data_ov016_0212903c[] = {1, 3, 2, 4, 1, 3, 2, 5, 1, 3, 2, 6};
 
 void Boss01s_FlyUG_GetSpawnPos(Boss01s_FlyUG* arg0, Vec* arg1) {
-    s32 width = F2I(data_ov003_020e71b8->unk3D7C0[0].unk_0C);
+    s32 width = F2I(g_CombatGlobal->unk3D7C0[0].unk_0C);
 
     if (RNG_Next(2) != 0) {
         arg1->x = I2F((width / 2 - 0x30) + RNG_Next(65));
@@ -135,8 +135,8 @@ s32 Boss01s_FlyUG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)flyUG), &spA, &sp8, flyUG->unk_60.x, flyUG->unk_60.y,
-                        flyUG->unk_60.z);
+    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)flyUG), &spA, &sp8, flyUG->unk_60.x, flyUG->unk_60.y,
+                              flyUG->unk_60.z);
     CombatSprite_SetPosition(&flyUG->sprite, spA, sp8);
     func_ov003_02082730(&flyUG->sprite, 0x7FFFFFFF);
     CombatSprite_Render(&flyUG->sprite);
@@ -162,6 +162,6 @@ s32 Boss01s_FlyUG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 void Boss01s_FlyUG_CreateTask(void) {
     for (s32 i = 0; i < 5; i++) {
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &Tsk_Boss01s_FlyUG, 0, 0, 0, NULL);
+        EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_Boss01s_FlyUG, 0, 0, 0, NULL);
     }
 }

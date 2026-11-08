@@ -61,7 +61,7 @@ s32 BtlEff_Bomb_Update(TaskPool* pool, Task* task, void* args) {
         case 1:
             if (eff->unk_7E == 0) {
                 CombatSprite_SetAnimFromTable(&eff->sprite, 0, 1);
-                func_ov003_02087f28(501, eff->unk_60.x);
+                CombatSe_PlayAtMainX(501, eff->unk_60.x);
             }
             if (eff->unk_78 == 0) {
                 eff->unk_78 = func_ov003_020c5bc4(eff->unk_74, (Ov003AttackArgs*)&eff->unk_6C, eff->unk_60.x, eff->unk_60.y,
@@ -83,8 +83,8 @@ s32 BtlEff_Bomb_Render(TaskPool* pool, Task* task, void* args) {
     s16          sp8;
     BtlEff_Bomb* temp_r4 = task->data;
 
-    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)temp_r4), &spA, &sp8, temp_r4->unk_60.x, temp_r4->unk_60.y,
-                        temp_r4->unk_60.z);
+    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)temp_r4), &spA, &sp8, temp_r4->unk_60.x, temp_r4->unk_60.y,
+                              temp_r4->unk_60.z);
     CombatSprite_SetPosition((CombatSprite*)temp_r4, spA, sp8);
     if (func_ov003_020c37f8((CombatSprite*)temp_r4) != 0) {
         func_ov003_02082730((CombatSprite*)temp_r4, 0x7FDFFFFF);

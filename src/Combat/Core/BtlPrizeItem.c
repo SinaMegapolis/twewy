@@ -469,7 +469,7 @@ s32 func_ov003_020bb47c(void) {
 
 // Nonmatching: creator argument scheduling.
 s32 func_ov003_020bb48c(s32 engine, s8 grade, u16 item, s32 x, s32 y, s32 z, s32 special) {
-    if (!func_ov003_0208b1e8(item)) {
+    if (!BtlMgr_AddDrop(item)) {
         return -1;
     }
     BtlPrizeArgs args;
@@ -491,9 +491,9 @@ s32 func_ov003_020bb48c(s32 engine, s8 grade, u16 item, s32 x, s32 y, s32 z, s32
     }
     TaskPool* pool;
     if (args.engine == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     return EasyTask_CreateTask(pool, &Tsk_BtlPrizeItem, NULL, 0, NULL, &args);
 }
@@ -514,7 +514,7 @@ static s32 func_ov003_020bb590(Ov003CutinActor* actor, s32 spawn) {
         return -1;
     }
     func_ov003_020bb73c(actor->base.group, actor->base.spriteIndex);
-    const Ov003ActorParams* params = data_ov003_020e70ac[actor->base.group][actor->base.spriteIndex];
+    const Ov003ActorParams* params = CombatEnemyParam_Table[actor->base.group][actor->base.spriteIndex];
     s32                     grade  = func_ov003_020bb6d4(params);
     if (grade == -1) {
         return -1;
@@ -533,7 +533,7 @@ static s32 func_ov003_020bb590(Ov003CutinActor* actor, s32 spawn) {
         }
         return result;
     }
-    if (!func_ov003_0208b1e8(params->dropItems[grade])) {
+    if (!BtlMgr_AddDrop(params->dropItems[grade])) {
         return -1;
     }
     func_ov003_020bb7c4(actor->base.group, actor->base.spriteIndex, func_ov003_020bb878(grade));
@@ -544,7 +544,7 @@ static s32 func_ov003_020bb6d4(const Ov003ActorParams* params) {
     s8 grade = func_ov003_020bb8bc();
 
     do {
-        s32 rate = (u16)data_ov003_020e71b8->unk3D892 * params->dropRates[grade];
+        s32 rate = (u16)g_CombatGlobal->unk3D892 * params->dropRates[grade];
         if (rate > RNG_Next(10000)) {
             return grade;
         }
@@ -554,12 +554,12 @@ static s32 func_ov003_020bb6d4(const Ov003ActorParams* params) {
 }
 
 static void func_ov003_020bb73c(s32 group, s16 variant) {
-    if (data_ov003_020e71b8->unk3D88E == 0x1E) {
+    if (g_CombatGlobal->unk3D88E == 0x1E) {
         func_ov003_020bb0f0(0x37, 0);
         func_ov003_020bb0f0(0x39, 0);
         return;
     }
-    if (data_ov003_020e71b8->unk3D88E == 0x1F) {
+    if (g_CombatGlobal->unk3D88E == 0x1F) {
         func_ov003_020bb0f0(0x37, 2);
         func_ov003_020bb0f0(0x39, 2);
         return;
@@ -619,9 +619,9 @@ static void func_ov003_020bb90c(BtlPrizeItem* self) {
     CombatActor* owner;
 
     if (func_ov003_020c37f8(&self->sprite)) {
-        owner = data_ov003_020e71b8->unk3D89C;
+        owner = g_CombatGlobal->unk3D89C;
     } else {
-        owner = data_ov003_020e71b8->unk3D898;
+        owner = g_CombatGlobal->unk3D898;
     }
     FX_Atan2Idx(self->position.x - owner->position.x, self->position.y - FX_Mul(owner->position.y, 0x3000));
     s32 dy       = self->position.y - FX_Mul(owner->position.y, 0x3000);
@@ -640,9 +640,9 @@ static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
     CombatActor* owner;
 
     if (args->engine == 0) {
-        owner = data_ov003_020e71b8->unk3D898;
+        owner = g_CombatGlobal->unk3D898;
     } else {
-        owner = data_ov003_020e71b8->unk3D89C;
+        owner = g_CombatGlobal->unk3D89C;
     }
     MI_CpuSet(self, 0, sizeof(*self));
     self->position.x = args->position.x;
@@ -687,9 +687,9 @@ static s32 func_ov003_020bbc14(BtlPrizeItem* self) {
     CombatActor* owner;
 
     if (func_ov003_020c37f8(&self->sprite)) {
-        owner = data_ov003_020e71b8->unk3D89C;
+        owner = g_CombatGlobal->unk3D89C;
     } else {
-        owner = data_ov003_020e71b8->unk3D898;
+        owner = g_CombatGlobal->unk3D898;
     }
     s32 active = 1;
     if (func_ov003_020c3c28()) {
@@ -735,7 +735,7 @@ static s32 func_ov003_020bbec0(BtlPrizeItem* self) {
         return 1;
     }
     s16 x, y;
-    func_ov003_02084348(engine, &x, &y, self->position.x, FX_Divide(self->position.y, 0x3000), self->position.z);
+    CombatStage_WorldToScreen(engine, &x, &y, self->position.x, FX_Divide(self->position.y, 0x3000), self->position.z);
     CombatSprite_SetPosition(&self->sprite, x, y);
     func_ov003_02082730(&self->sprite, 0x7FFFFFFF - FX_Divide(self->position.y, 0x3000));
     CombatSprite_Render(&self->sprite);
@@ -743,17 +743,17 @@ static s32 func_ov003_020bbec0(BtlPrizeItem* self) {
 }
 
 static s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
-    if ((u16)(data_ov003_020e71b8->unk3D874 + 0xFFFE) <= 1) {
+    if ((u16)(g_CombatGlobal->unk3D874 + 0xFFFE) <= 1) {
         s32 pan;
 
         func_ov003_0209c984(self->sprite.sprite.bits_0_1, 1, self->position.x, FX_Divide(self->position.y, 0x3000),
                             self->position.z);
         if (self->sprite.sprite.bits_0_1 == 0) {
-            pan = func_ov003_020843b0(0, self->position.x);
+            pan = CombatStage_ToScreenX(0, self->position.x);
         } else {
-            pan = func_ov003_020843b0(1, self->position.x);
+            pan = CombatStage_ToScreenX(1, self->position.x);
         }
-        func_ov003_02087f00(SEIDX_SE_COIN_GET, pan);
+        CombatSe_PlayPanned(SEIDX_SE_COIN_GET, pan);
     }
     CombatSprite_Release(&self->sprite);
     data_ov003_020e71c4.count--;

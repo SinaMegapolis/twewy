@@ -36,7 +36,7 @@ static s32 func_ov003_020ac240(TaskPool* pool, Task* task, void* args, s32 stage
             self->reserved = 0;
             func_ov003_020a6464(1);
             func_ov003_020a6494(touch->x);
-            func_ov003_02087f00(SEIDX_SE_PSY_FIREWORKS01_01, touch->x);
+            CombatSe_PlayPanned(SEIDX_SE_PSY_FIREWORKS01_01, touch->x);
             return 1;
         }
         case 1: {
@@ -49,8 +49,8 @@ static s32 func_ov003_020ac240(TaskPool* pool, Task* task, void* args, s32 stage
             if (self->timer < 60)
                 return 1;
             BtlTouchWork* touch = func_ov003_020a62a0();
-            s32           y     = func_ov003_02084460(0, touch->y, 0x1000);
-            s32           x     = func_ov003_0208442c(0, touch->x);
+            s32           y     = CombatStage_ToWorldY(0, touch->y, 0x1000);
+            s32           x     = CombatStage_ToWorldX(0, touch->x);
             func_ov003_020ab7f8(self->effect, x, y, 0x1000);
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
@@ -59,7 +59,7 @@ static s32 func_ov003_020ac240(TaskPool* pool, Task* task, void* args, s32 stage
         case 2:
             return 1;
         case 3:
-            func_ov003_02087ed8(SEIDX_SE_PSY_FIREWORKS01_01_CANCEL);
+            CombatSe_Play(SEIDX_SE_PSY_FIREWORKS01_01_CANCEL);
             func_ov003_020a6464(0);
             return 1;
     }

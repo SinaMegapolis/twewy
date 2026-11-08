@@ -38,10 +38,10 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
             if (barrier->animationKind == 2 && barrier->spawn.effect->index == 1)
                 barrier->animationKind = 3;
             barrier->spawn.effect->unk_0A++;
-            func_ov003_020a3498(&barrier->sprites[2], 2, 1, data_ov003_020dc6b4[barrier->animationKind], 0);
-            func_ov003_020a3498(&barrier->sprites[0], 2, 1, data_ov003_020dc6b4[barrier->animationKind], 0);
-            func_ov003_020a3498(&barrier->sprites[3], 2, 1, data_ov003_020dc6b4[barrier->animationKind], 0);
-            func_ov003_020a3498(&barrier->sprites[1], 2, 1, data_ov003_020dc6b4[barrier->animationKind] + 1, 0);
+            CombatPsyAnim_Load(&barrier->sprites[2], 2, 1, data_ov003_020dc6b4[barrier->animationKind], 0);
+            CombatPsyAnim_Load(&barrier->sprites[0], 2, 1, data_ov003_020dc6b4[barrier->animationKind], 0);
+            CombatPsyAnim_Load(&barrier->sprites[3], 2, 1, data_ov003_020dc6b4[barrier->animationKind], 0);
+            CombatPsyAnim_Load(&barrier->sprites[1], 2, 1, data_ov003_020dc6b4[barrier->animationKind] + 1, 0);
             CombatSprite_SetAnim(&barrier->sprites[1], 1, 1);
             switch (barrier->spawn.mode) {
                 case 0:
@@ -54,13 +54,13 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a64ac();
             switch (barrier->spawn.kind) {
                 case 0:
-                    func_ov003_02087f28(0xB2, player->position.x);
+                    CombatSe_PlayAtMainX(0xB2, player->position.x);
                     break;
                 case 2:
-                    func_ov003_02087f28(0x94, player->position.x);
+                    CombatSe_PlayAtMainX(0x94, player->position.x);
                     break;
                 case 1:
-                    func_ov003_02087f28(0xB0, player->position.x);
+                    CombatSe_PlayAtMainX(0xB0, player->position.x);
                     barrier->cooldown = 0;
                     break;
             }
@@ -104,12 +104,12 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
             switch (barrier->spawn.mode) {
                 case 0:
                     if (!func_ov003_020a5aa4(barrier->spawn.effect) || func_ov003_020a63a8(barrier->spawn.effect) ||
-                        !func_ov003_02085cfc(6) || touch->held != func_ov003_020a6438())
+                        !CombatTouch_IsGesture(6) || touch->held != func_ov003_020a6438())
                         active = 0;
                     break;
                 case 1:
                     if (!func_ov003_020a5aa4(barrier->spawn.effect) || func_ov003_020a63a8(barrier->spawn.effect) ||
-                        !func_ov003_02085cfc(6) || touch->held != func_ov003_020a6438())
+                        !CombatTouch_IsGesture(6) || touch->held != func_ov003_020a6438())
                         active = 0;
                     break;
             }
@@ -177,13 +177,13 @@ static void func_ov003_020aa860(Ov003Barrier* barrier) {
     CombatSprite_Restart(&barrier->sprites[3]);
     switch (barrier->spawn.kind) {
         case 0:
-            func_ov003_02087f28(0xB3, player->position.x);
+            CombatSe_PlayAtMainX(0xB3, player->position.x);
             break;
         case 1:
-            func_ov003_02087f28(0xB1, player->position.x);
+            CombatSe_PlayAtMainX(0xB1, player->position.x);
             break;
         case 2:
-            func_ov003_02087f28(0x95, player->position.x);
+            CombatSe_PlayAtMainX(0x95, player->position.x);
             break;
     }
 }
@@ -202,11 +202,11 @@ static void func_ov003_020aa990(Ov003Barrier* barrier) {
 
 static void func_ov003_020aa9f4(Ov003EffectState* effect, s32 percent) {
     CombatActor* player = func_ov003_020a6438();
-    s32          amount = data_ov003_020e71b8->unk3D8D2 * percent / 100;
-    SndMgr_PlaySEWithPan(SEIDX_SE_BOY_RECOVER_DRINK, func_ov003_020843b0(0, player->position.x));
+    s32          amount = g_CombatGlobal->unk3D8D2 * percent / 100;
+    SndMgr_PlaySEWithPan(SEIDX_SE_BOY_RECOVER_DRINK, CombatStage_ToScreenX(0, player->position.x));
     func_ov003_020b67dc(effect, player);
     func_ov003_0209b564(2, amount, player, 1);
-    func_ov003_0208b3cc(0, (s16)amount);
+    BtlMgr_AddTeamHp(0, (s16)amount);
 }
 
 static char             data_ov003_020e4a58[24] = "SubTsk_BtlPsy_Barrier";

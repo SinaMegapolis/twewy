@@ -40,7 +40,7 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
                 self->scales[i] = NULL;
             self->effect->unk_0A++;
             self->phase = 0;
-            func_ov003_020a3498(&self->sprites[0], 2, 1, data_ov003_020dd074[self->kind], 0);
+            CombatPsyAnim_Load(&self->sprites[0], 2, 1, data_ov003_020dd074[self->kind], 0);
             self->frame = 0;
             return 1;
         case 1:
@@ -50,10 +50,10 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
                     if (self->frame == 8) {
                         self->scales[0] = NULL;
                         self->phase     = 1;
-                        func_ov003_020a35b8(&self->sprites[0], data_ov003_020dd074[self->kind] + 1, 0);
+                        CombatPsyAnim_SetAnim(&self->sprites[0], data_ov003_020dd074[self->kind] + 1, 0);
                         if (self->kind == 0) {
-                            func_ov003_020a3498(&self->sprites[1], 2, 1, 0xD7, 0);
-                            func_ov003_020a3498(&self->sprites[2], 2, 1, 0xD8, 0);
+                            CombatPsyAnim_Load(&self->sprites[1], 2, 1, 0xD7, 0);
+                            CombatPsyAnim_Load(&self->sprites[2], 2, 1, 0xD8, 0);
                         }
                     } else {
                         self->scales[0] = &data_ov003_020dd0b8[self->frame];
@@ -65,7 +65,7 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
                         case 1:
                             self->phase = 2;
                             self->frame = 0;
-                            func_ov003_020a35b8(&self->sprites[0], data_ov003_020dd074[self->kind] + 2, 0);
+                            CombatPsyAnim_SetAnim(&self->sprites[0], data_ov003_020dd074[self->kind] + 2, 0);
                             break;
                         case 2:
                             self->phase = 3;
@@ -95,7 +95,7 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
                     if (self->frame == 6)
                         return 0;
                     if (self->frame == 2) {
-                        func_ov003_020a35b8(&self->sprites[0], data_ov003_020dd074[self->kind], 0);
+                        CombatPsyAnim_SetAnim(&self->sprites[0], data_ov003_020dd074[self->kind], 0);
                         if (self->kind == 0) {
                             CombatSprite_Release(&self->sprites[1]);
                             CombatSprite_Release(&self->sprites[2]);
@@ -112,8 +112,8 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
             return 1;
         case 2: {
             self           = task->data;
-            s32 projectedX = func_ov003_020843b0(0, self->position.x);
-            s32 projectedY = func_ov003_020843ec(0, self->position.y, self->position.z);
+            s32 projectedX = CombatStage_ToScreenX(0, self->position.x);
+            s32 projectedY = CombatStage_ToScreenY(0, self->position.y, self->position.z);
             s16 x          = projectedX;
             s16 y          = projectedY;
             s16 topY       = projectedY - 24;

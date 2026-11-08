@@ -174,15 +174,15 @@ static s32 BtlField_Fore_Render(TaskPool* pool, Task* task, void* args) {
     s32               posX;
     s32               posY;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x1000) {
+    if (g_CombatGlobal->unk3D878 & 0x1000) {
         return 1;
     }
     i = 0;
     if (fore->count > 0) {
         band = fore->bands;
         do {
-            posX = func_ov003_020843b0(0, band->position.x);
-            posY = func_ov003_020843ec(0, band->position.y, band->position.z);
+            posX = CombatStage_ToScreenX(0, band->position.x);
+            posY = CombatStage_ToScreenY(0, band->position.y, band->position.z);
             CombatSprite_SetPosition(&band->sprite, posX, posY);
             CombatSprite_Render(&band->sprite);
             i++;
@@ -243,6 +243,6 @@ void func_ov003_0209409c(s32 bgIndex) {
             return;
     }
     {
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Task_BtlField_Fore, NULL, 0, NULL, &args);
+        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Task_BtlField_Fore, NULL, 0, NULL, &args);
     }
 }

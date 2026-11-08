@@ -46,10 +46,10 @@ static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage
             self->y      = arg->y;
             self->z = self->baseZ = arg->z;
             self->variant         = 0;
-            func_ov003_02083ca0(&self->x, &self->y, 0, 0);
-            func_ov003_020a3498(&self->sprite, 2, 1, data_ov003_020dc9f0[self->index].animation, 0);
-            func_ov003_02087fe0(0, &self->icon, self->variant);
-            func_ov003_02087f28(0x35, self->x);
+            CombatStage_ClampXY(&self->x, &self->y, 0, 0);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, data_ov003_020dc9f0[self->index].animation, 0);
+            CombatHit_LoadSpark(0, &self->icon, self->variant);
+            CombatSe_PlayAtMainX(0x35, self->x);
             return 1;
         }
         case 1: {
@@ -58,10 +58,10 @@ static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage
                 case 0:
                     self->z += self->zStep;
                     if (self->z >= 0) {
-                        func_ov003_02087f28(0x36, self->x);
+                        CombatSe_PlayAtMainX(0x36, self->x);
                         self->z     = 0;
                         self->phase = 1;
-                        func_ov003_020a35b8(&self->sprite, data_ov003_020dc9f0[self->index].animation + 1, 0);
+                        CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dc9f0[self->index].animation + 1, 0);
                         Ov003PsychEffectArgs effect;
                         func_ov003_020a88c0(&effect, self->x, self->y - 0x1000, self->z, 2, 0x5D);
                         if (self->index == 0)
@@ -115,11 +115,11 @@ static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003PsychoFall* self = task->data;
-            s32              y    = func_ov003_020843ec(0, self->y, self->z);
-            CombatSprite_SetPosition(&self->sprite, func_ov003_020843b0(0, self->x), y);
+            s32              y    = CombatStage_ToScreenY(0, self->y, self->z);
+            CombatSprite_SetPosition(&self->sprite, CombatStage_ToScreenX(0, self->x), y);
             func_ov003_02082730(&self->sprite, self->y + 0x1F4000);
             CombatSprite_Render(&self->sprite);
-            func_ov003_02088064(&self->icon, self->x, self->y);
+            CombatHit_DrawSpark(&self->icon, self->x, self->y);
             return 1;
         }
         case 3: {

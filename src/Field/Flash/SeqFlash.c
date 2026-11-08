@@ -1023,11 +1023,11 @@ void SeqFlash_Update(SeqFlashState* state) {
         gSaveData.unk_24B8          = 1;
         gSaveData.currentStoryEvent = 778;
         SeqFlash_SetupBattle(46);
-        MainOvlDisp_ReplaceTop(&tag, (s32)&OVERLAY_3_ID, func_ov003_0208ec74, NULL, PROCESS_STAGE_INIT);
+        MainOvlDisp_ReplaceTop(&tag, (s32)&OVERLAY_3_ID, ProcessOverlay_Battle, NULL, PROCESS_STAGE_INIT);
     } else if (gSaveData.flashSequence == 48) {
         OverlayTag tag;
         SeqFlash_SetupBattle(47);
-        MainOvlDisp_ReplaceTop(&tag, (s32)&OVERLAY_3_ID, func_ov003_0208ec74, NULL, PROCESS_STAGE_INIT);
+        MainOvlDisp_ReplaceTop(&tag, (s32)&OVERLAY_3_ID, ProcessOverlay_Battle, NULL, PROCESS_STAGE_INIT);
     } else if (gSaveData.flashSequence == 49) {
         OverlayTag tag;
         gSaveData.unk_24B8          = 1;

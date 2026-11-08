@@ -101,13 +101,13 @@ static void func_ov003_020a0624(s32 engine, CombatSprite* sprite, u16 index, u16
 /// The generic line.
 static void func_ov003_020a0708(s32 weak) {
     if (weak) {
-        func_ov003_02087ed8(SEIDX_NEKU_BTL_OP_DANGER01);
+        CombatSe_Play(SEIDX_NEKU_BTL_OP_DANGER01);
         return;
     }
     if (RNG_Next(2) != 0) {
-        func_ov003_02087ed8(SEIDX_NEKU_BTL_OP01);
+        CombatSe_Play(SEIDX_NEKU_BTL_OP01);
     } else {
-        func_ov003_02087ed8(SEIDX_NEKU_BTL_OP03);
+        CombatSe_Play(SEIDX_NEKU_BTL_OP03);
     }
 }
 
@@ -116,47 +116,47 @@ static void func_ov003_020a0750(s32 weak) {
     s32 line;
 
     if (weak) {
-        switch (data_ov003_020e71b8->unk3D88D) {
+        switch (g_CombatGlobal->unk3D88D) {
             case 0:
-                func_ov003_02087ed8(SEIDX_SHIKI_BTL_OP_DANGER01);
+                CombatSe_Play(SEIDX_SHIKI_BTL_OP_DANGER01);
                 break;
             case 1:
-                func_ov003_02087ed8(SEIDX_YOSHUA_BTL_OP_DANGER01);
+                CombatSe_Play(SEIDX_YOSHUA_BTL_OP_DANGER01);
                 break;
             case 2:
-                func_ov003_02087ed8(SEIDX_BIITO_BTL_OP_DANGER01);
+                CombatSe_Play(SEIDX_BIITO_BTL_OP_DANGER01);
                 break;
         }
         return;
     }
     line = RNG_Next(2);
-    if (data_ov003_020e71b8->unk3D88D == 0) {
+    if (g_CombatGlobal->unk3D88D == 0) {
         switch (line) {
             case 0:
-                func_ov003_02087ed8(SEIDX_SHIKI_BTL_OP01);
+                CombatSe_Play(SEIDX_SHIKI_BTL_OP01);
                 break;
             case 1:
-                func_ov003_02087ed8(SEIDX_SHIKI_BTL_OP03);
+                CombatSe_Play(SEIDX_SHIKI_BTL_OP03);
                 break;
         }
     }
-    if (data_ov003_020e71b8->unk3D88D == 1) {
+    if (g_CombatGlobal->unk3D88D == 1) {
         switch (line) {
             case 0:
-                func_ov003_02087ed8(SEIDX_YOSHUA_BTL_OP01);
+                CombatSe_Play(SEIDX_YOSHUA_BTL_OP01);
                 break;
             case 1:
-                func_ov003_02087ed8(SEIDX_YOSHUA_BTL_OP03);
+                CombatSe_Play(SEIDX_YOSHUA_BTL_OP03);
                 break;
         }
     }
-    if (data_ov003_020e71b8->unk3D88D == 2) {
+    if (g_CombatGlobal->unk3D88D == 2) {
         switch (line) {
             case 0:
-                func_ov003_02087ed8(SEIDX_BIITO_BTL_OP01);
+                CombatSe_Play(SEIDX_BIITO_BTL_OP01);
                 break;
             case 1:
-                func_ov003_02087ed8(SEIDX_BIITO_BTL_OP03);
+                CombatSe_Play(SEIDX_BIITO_BTL_OP03);
                 break;
         }
     }
@@ -167,18 +167,13 @@ static void func_ov003_020a0898(void) {
     s32 weak = 0;
     s32 other;
 
-    if (data_ov003_020e71b8->unk3D8D0 < data_ov003_020e71b8->unk3D8D2 / 2) {
+    if (g_CombatGlobal->unk3D8D0 < g_CombatGlobal->unk3D8D2 / 2) {
         weak = 1;
     }
-    switch (data_ov003_020e71b8->unk3D88D) {
-        case 0:
-        case 1:
-        case 2:
-            other = 0;
-            break;
-        default:
-            other = 1;
-            break;
+    if (g_CombatGlobal->unk3D88D != 0 && g_CombatGlobal->unk3D88D != 1 && g_CombatGlobal->unk3D88D != 2) {
+        other = 1;
+    } else {
+        other = 0;
     }
     if (other || RNG_Next(2) != 0) {
         func_ov003_020a0708(weak);
@@ -203,7 +198,7 @@ static void func_ov003_020a0954(BtlReady* self) {
     if (self->timer == 0) {
         self->timer = 30;
         if (self->speaks != 0) {
-            func_ov003_02087ed8(SEIDX_SE_READY01);
+            CombatSe_Play(SEIDX_SE_READY01);
         }
     }
     if (self->timer > 0) {
@@ -236,8 +231,8 @@ static void func_ov003_020a09f4(BtlReady* self) {
             break;
         case 1:
             EasyFade_FadeBothDisplays(0, 0, 0x800);
-            func_ov003_0208b278(2);
-            func_ov003_02085c78();
+            BtlMgr_SetState(2);
+            CombatTouch_Clear();
             func_ov003_020a060c(self, func_ov003_020a0ac0);
             break;
     }
@@ -247,7 +242,7 @@ static void func_ov003_020a09f4(BtlReady* self) {
 static void func_ov003_020a0ac0(BtlReady* self) {
     if (self->timer == 0) {
         self->timer = 30;
-        func_ov003_02087ed8(SEIDX_SE_READY02);
+        CombatSe_Play(SEIDX_SE_READY02);
     }
     if (self->timer > 0) {
         func_020265d4(&self->x, 0x180000, (u16)self->timer);
@@ -265,9 +260,9 @@ static s32 BtlReady_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(self, 0, sizeof(*self));
     if (gSaveData.unk_3130 != 3) {
-        data_ov003_020e71b8->unk3D878 |= 0x10000;
+        g_CombatGlobal->unk3D878 |= 0x10000;
     }
-    number = data_ov003_020e71b8->unk3D88C + 2;
+    number = g_CombatGlobal->unk3D88C + 2;
     func_ov003_020a0624(1, &self->sprites[0], 0, 0x90);
     func_ov003_020a0624(0, &self->sprites[3], 0, 0x90);
     func_ov003_020a0624(1, &self->sprites[1], 1, 0x6C);
@@ -276,12 +271,12 @@ static s32 BtlReady_Init(TaskPool* pool, Task* task, void* args) {
     func_ov003_020a0624(0, &self->sprites[5], number, 0x30);
     self->x    = -0x80000;
     self->subX = 0x180000;
-    if (data_ov003_020e71b8->unk3D878 & 0x80000000) {
+    if (g_CombatGlobal->unk3D878 & 0x80000000) {
         self->y = 0x50;
     } else {
         self->y = 0x60;
     }
-    self->speaks  = !(data_ov003_020e71b8->unk3D878 & 0x100000);
+    self->speaks  = !(g_CombatGlobal->unk3D878 & 0x100000);
     self->running = 1;
     func_ov003_020a060c(self, func_ov003_020a0910);
     return 1;
@@ -290,7 +285,7 @@ static s32 BtlReady_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlReady_Update(TaskPool* pool, Task* task, void* args) {
     BtlReady* self = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 6) {
+    if (g_CombatGlobal->unk3D878 & 6) {
         return 0;
     }
     if (self->state != NULL) {
@@ -298,7 +293,7 @@ static s32 BtlReady_Update(TaskPool* pool, Task* task, void* args) {
     }
     CombatSprite_Update(&self->sprites[0]);
     CombatSprite_Update(&self->sprites[3]);
-    if (data_ov003_020e71b8->unk3D878 & 0x80000000) {
+    if (g_CombatGlobal->unk3D878 & 0x80000000) {
         CombatSprite_Update(&self->sprites[1]);
         CombatSprite_Update(&self->sprites[4]);
         CombatSprite_Update(&self->sprites[2]);
@@ -319,18 +314,18 @@ static s32 BtlReady_Render(TaskPool* pool, Task* task, void* args) {
     x    = (self->x * 0x10) >> 16;
     CombatSprite_SetPosition(&self->sprites[3], subX, self->y);
     CombatSprite_Render(&self->sprites[3]);
-    if (data_ov003_020e71b8->unk3D878 & 0x80000000) {
+    if (g_CombatGlobal->unk3D878 & 0x80000000) {
         CombatSprite_SetPosition(&self->sprites[4], x, self->y);
         CombatSprite_Render(&self->sprites[4]);
         CombatSprite_SetPosition(&self->sprites[5], x, self->y);
         CombatSprite_Render(&self->sprites[5]);
     }
-    if (data_ov003_020e71b8->unk3D88D == 3) {
+    if (g_CombatGlobal->unk3D88D == 3) {
         return 1;
     }
     CombatSprite_SetPosition(&self->sprites[0], x, self->y);
     CombatSprite_Render(&self->sprites[0]);
-    if (data_ov003_020e71b8->unk3D878 & 0x80000000) {
+    if (g_CombatGlobal->unk3D878 & 0x80000000) {
         CombatSprite_SetPosition(&self->sprites[1], subX, self->y);
         CombatSprite_Render(&self->sprites[1]);
         CombatSprite_SetPosition(&self->sprites[2], subX, self->y);
@@ -348,8 +343,8 @@ static s32 BtlReady_Release(TaskPool* pool, Task* task, void* args) {
     CombatSprite_Release(&self->sprites[4]);
     CombatSprite_Release(&self->sprites[2]);
     CombatSprite_Release(&self->sprites[5]);
-    if (data_ov003_020e71b8->unk3D874 == 2) {
-        data_ov003_020e71b8->unk3D878 &= ~0x10000;
+    if (g_CombatGlobal->unk3D874 == 2) {
+        g_CombatGlobal->unk3D878 &= ~0x10000;
     }
     return 1;
 }

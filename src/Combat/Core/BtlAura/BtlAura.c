@@ -71,37 +71,37 @@ static void func_ov003_020960b4(s32* value, s32 target, u16 frames) {
 
 /// The sound that plays when the main screen's aura starts.
 static void func_ov003_020960f0(void) {
-    if (data_ov003_020e71b8->unk3D8EE < 500) {
-        func_ov003_02087f28(0x365, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+    if (g_CombatGlobal->unk3D8EE < 500) {
+        CombatSe_PlayAtMainX(0x365, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
     } else {
-        func_ov003_02087f28(0x366, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+        CombatSe_PlayAtMainX(0x366, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
     }
 }
 
 /// The sound that plays when the sub screen's aura starts, depending on the partner.
 static void func_ov003_02096140(void) {
-    if (data_ov003_020e71b8->unk3D8EE < 500) {
-        switch (data_ov003_020e71b8->unk3D88D) {
+    if (g_CombatGlobal->unk3D8EE < 500) {
+        switch (g_CombatGlobal->unk3D88D) {
             case 0:
-                func_ov003_02087f64(0x38D, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x38D, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
             case 1:
-                func_ov003_02087f64(0x3B5, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3B5, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
             case 2:
-                func_ov003_02087f64(0x3DD, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3DD, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
         }
     } else {
-        switch (data_ov003_020e71b8->unk3D88D) {
+        switch (g_CombatGlobal->unk3D88D) {
             case 0:
-                func_ov003_02087f64(0x38E, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x38E, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
             case 1:
-                func_ov003_02087f64(0x3B6, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3B6, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
             case 2:
-                func_ov003_02087f64(0x3DE, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3DE, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
         }
     }
@@ -109,12 +109,12 @@ static void func_ov003_02096140(void) {
 
 /// Starts the aura level at the carried over value, or at 200 plus the badge's bonus.
 static void func_ov003_02096230(s16* level) {
-    if (data_ov003_020e71b8->unk3D8ED != 0) {
-        *level = data_ov003_020e71b8->unk3D8EE;
-    } else if (func_ov003_020a3330(0x39) == 0) {
+    if (g_CombatGlobal->unk3D8ED != 0) {
+        *level = g_CombatGlobal->unk3D8EE;
+    } else if (CombatAbility_IsActive(0x39) == 0) {
         *level = 0xC8;
     } else {
-        *level = func_ov003_020a3468(0x39) + 0xC8;
+        *level = CombatAbility_GetValue(0x39) + 0xC8;
     }
     func_ov003_0208cbc8();
 }
@@ -124,19 +124,19 @@ static void func_ov003_0209628c(BtlAura* self) {
     s32 left = self->total - self->remaining;
 
     if (left <= self->total * 2 / 100) {
-        data_ov003_020e71b8->unk3D8EE = self->level + 0x32;
+        g_CombatGlobal->unk3D8EE = self->level + 0x32;
     } else if (left <= self->total * 8 / 100) {
-        data_ov003_020e71b8->unk3D8EE = self->level + 0x14;
+        g_CombatGlobal->unk3D8EE = self->level + 0x14;
     } else if (left <= self->total * 30 / 100) {
-        data_ov003_020e71b8->unk3D8EE = self->level + 0xA;
+        g_CombatGlobal->unk3D8EE = self->level + 0xA;
     } else {
-        data_ov003_020e71b8->unk3D8EE = self->level - 0x64;
+        g_CombatGlobal->unk3D8EE = self->level - 0x64;
     }
-    if (data_ov003_020e71b8->unk3D8EE > 500) {
-        data_ov003_020e71b8->unk3D8EE = 500;
+    if (g_CombatGlobal->unk3D8EE > 500) {
+        g_CombatGlobal->unk3D8EE = 500;
     }
-    if (data_ov003_020e71b8->unk3D8EE < 200) {
-        data_ov003_020e71b8->unk3D8EE = 200;
+    if (g_CombatGlobal->unk3D8EE < 200) {
+        g_CombatGlobal->unk3D8EE = 200;
     }
 }
 
@@ -154,7 +154,7 @@ static void func_ov003_020963a0(BtlAura* self, s32 mode) {
         self->cooldown--;
         return;
     }
-    flame = func_ov003_0208495c(&self->free);
+    flame = CombatList_GetHead(&self->free);
     if (flame != NULL) {
         switch (mode) {
             case 1:
@@ -191,16 +191,16 @@ static void func_ov003_020963a0(BtlAura* self, s32 mode) {
                 break;
         }
         if (engine == 0) {
-            sortKey = 0x80000000 - ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y;
+            sortKey = 0x80000000 - ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
         } else {
-            sortKey = 0x80000000 - ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.y;
+            sortKey = 0x80000000 - ((CombatActor*)g_CombatGlobal->unk3D89C)->position.y;
         }
         CombatSprite_LoadDirectNoProto(engine, &flame->sprite, &data_ov003_020d7800, 0x13, 0x15, 0x14, palette, (u16)anim);
         CombatSprite_SetAnim(&flame->sprite, (u16)anim, 1);
         CombatSprite_SetPosition(&flame->sprite, (x * 0x10) >> 16, (y * 0x10) >> 16);
         func_ov003_02082730(&flame->sprite, sortKey);
-        func_ov003_020849dc(&self->free, &flame->node);
-        func_ov003_020849bc(&self->active, &flame->node, flame);
+        CombatList_Remove(&self->free, &flame->node);
+        CombatList_Append(&self->active, &flame->node, flame);
     }
 }
 
@@ -208,8 +208,8 @@ static void func_ov003_020963a0(BtlAura* self, s32 mode) {
 static void func_ov003_020965dc(BtlAura* self, BtlAuraFlameSprite* flame) {
     if (flame != NULL) {
         CombatSprite_Release(&flame->sprite);
-        func_ov003_020849dc(&self->active, &flame->node);
-        func_ov003_020849bc(&self->free, &flame->node, flame);
+        CombatList_Remove(&self->active, &flame->node);
+        CombatList_Append(&self->free, &flame->node, flame);
     }
 }
 
@@ -218,31 +218,31 @@ static void func_ov003_02096614(BtlAura* self) {
     BtlAuraFlameSprite* flame;
     s32                 i;
 
-    func_ov003_020849ac(&self->free);
-    func_ov003_020849ac(&self->active);
+    CombatList_Init(&self->free);
+    CombatList_Init(&self->active);
     self->cooldown = 0;
     flame          = self->flames;
     for (i = 0; i < 16; i++) {
         CombatSprite_Init(&flame->sprite);
-        func_ov003_020849bc(&self->free, &flame->node, flame);
+        CombatList_Append(&self->free, &flame->node, flame);
         flame++;
     }
 }
 
 /// Advances the live flames and retires the finished ones.
 static void func_ov003_02096668(BtlAura* self) {
-    BtlAuraFlameSprite* flame = func_ov003_0208495c(&self->active);
+    BtlAuraFlameSprite* flame = CombatList_GetHead(&self->active);
     BtlAuraFlameSprite* next;
 
     if (flame != NULL) {
         do {
             if (SpriteMgr_IsAnimationFinished(&flame->sprite.sprite)) {
-                next = func_ov003_02084984(&flame->node);
+                next = CombatList_GetNext(&flame->node);
                 func_ov003_020965dc(self, flame);
                 flame = next;
             } else {
                 CombatSprite_Update(&flame->sprite);
-                flame = func_ov003_02084984(&flame->node);
+                flame = CombatList_GetNext(&flame->node);
             }
         } while (flame != NULL);
     }
@@ -250,17 +250,17 @@ static void func_ov003_02096668(BtlAura* self) {
 
 /// Draws the live flames behind the gauge actor of their screen.
 static void func_ov003_020966d0(BtlAura* self) {
-    BtlAuraFlameSprite* flame = func_ov003_0208495c(&self->active);
+    BtlAuraFlameSprite* flame = CombatList_GetHead(&self->active);
 
     if (flame != NULL) {
         do {
             if (flame->sprite.sprite.bits_0_1 == 1) {
-                func_ov003_02082730(&flame->sprite, 0x80000000 - ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.y);
+                func_ov003_02082730(&flame->sprite, 0x80000000 - ((CombatActor*)g_CombatGlobal->unk3D89C)->position.y);
             } else {
-                func_ov003_02082730(&flame->sprite, 0x80000000 - ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y);
+                func_ov003_02082730(&flame->sprite, 0x80000000 - ((CombatActor*)g_CombatGlobal->unk3D898)->position.y);
             }
             CombatSprite_Render(&flame->sprite);
-            flame = func_ov003_02084984(&flame->node);
+            flame = CombatList_GetNext(&flame->node);
         } while (flame != NULL);
     }
 }
@@ -279,11 +279,11 @@ static void func_ov003_02096750(BtlAura* self) {
 /// Follows the gauge actor of `side`.
 static void func_ov003_02096788(BtlAura* self, s32 side) {
     if (side == 1) {
-        self->x = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->screenX << 12;
-        self->y = (((CombatActor*)data_ov003_020e71b8->unk3D89C)->screenY - 0x20) << 12;
+        self->x = ((CombatActor*)g_CombatGlobal->unk3D89C)->screenX << 12;
+        self->y = (((CombatActor*)g_CombatGlobal->unk3D89C)->screenY - 0x20) << 12;
     } else {
-        self->x = ((CombatActor*)data_ov003_020e71b8->unk3D898)->screenX << 12;
-        self->y = (((CombatActor*)data_ov003_020e71b8->unk3D898)->screenY + 0xA0) << 12;
+        self->x = ((CombatActor*)g_CombatGlobal->unk3D898)->screenX << 12;
+        self->y = (((CombatActor*)g_CombatGlobal->unk3D898)->screenY + 0xA0) << 12;
     }
 }
 
@@ -291,16 +291,16 @@ static void func_ov003_02096788(BtlAura* self, s32 side) {
 static void func_ov003_0209680c(BtlAura* self) {
     if (!(self->intensity >= 0x1000)) {
         self->intensity = 0x1000;
-        self->total     = data_ov003_020e71b8->unk3D896 * 0x708 / 1000;
-        self->total -= (s16)((data_ov003_020e71b8->unk3D8ED - 1) * 30);
+        self->total     = g_CombatGlobal->unk3D896 * 0x708 / 1000;
+        self->total -= (s16)((g_CombatGlobal->unk3D8ED - 1) * 30);
         if (self->total < 0x78) {
             self->total = 0x78;
         }
-        if (self->side == 0 && func_ov003_020a3340(0x3A)) {
-            self->total += func_ov003_020a3478(0x3A);
+        if (self->side == 0 && CombatAbility_IsActiveForPlayer(0x3A)) {
+            self->total += CombatAbility_GetPlayerValue(0x3A);
         }
-        if (self->side == 1 && func_ov003_020a3350(0x3A)) {
-            self->total += func_ov003_020a3488(0x3A);
+        if (self->side == 1 && CombatAbility_IsActiveForPartner(0x3A)) {
+            self->total += CombatAbility_GetPartnerValue(0x3A);
         }
         self->remaining = self->total;
     }
@@ -313,43 +313,43 @@ static void func_ov003_02096914(BtlAura* self) {
         self->remaining--;
         return;
     }
-    self->intensity               = 0;
-    self->remaining               = 0;
-    data_ov003_020e71b8->unk3D8ED = 0;
-    data_ov003_020e71b8->unk3D8EE = 100;
-    data_ov003_020e71b8->unk3D8F4 = 0;
-    data_ov003_020e71b8->unk3D8F0 = 0;
+    self->intensity          = 0;
+    self->remaining          = 0;
+    g_CombatGlobal->unk3D8ED = 0;
+    g_CombatGlobal->unk3D8EE = 100;
+    g_CombatGlobal->unk3D8F4 = 0;
+    g_CombatGlobal->unk3D8F0 = 0;
 }
 
 /// The idle state: reacts to a request to start the aura on one of the screens.
 static void func_ov003_020969a4(BtlAura* self) {
-    switch (data_ov003_020e71b8->unk3D8EC) {
+    switch (g_CombatGlobal->unk3D8EC) {
         case 1:
-            data_ov003_020e71b8->unk3D8EC = 0;
+            g_CombatGlobal->unk3D8EC = 0;
             func_ov003_02096788(self, 0);
             if (self->intensity <= 0) {
-                func_ov003_02087f28(0x21, self->x);
+                CombatSe_PlayAtMainX(0x21, self->x);
             }
             if (self->intensity > 0 && self->side != 0) {
                 return;
             }
-            self->side                    = 1;
-            data_ov003_020e71b8->unk3D8F4 = 0;
+            self->side               = 1;
+            g_CombatGlobal->unk3D8F4 = 0;
             func_ov003_02096230(&self->level);
             func_ov003_0209680c(self);
             func_ov003_0209609c(self, func_ov003_02096afc);
             return;
         case 2:
-            data_ov003_020e71b8->unk3D8EC = 0;
+            g_CombatGlobal->unk3D8EC = 0;
             func_ov003_02096788(self, 1);
             if (self->intensity <= 0) {
-                func_ov003_02087f64(0x21, self->x);
+                CombatSe_PlayAtSubX(0x21, self->x);
             }
             if (self->intensity > 0 && self->side != 1) {
                 return;
             }
-            self->side                    = 0;
-            data_ov003_020e71b8->unk3D8F0 = 0;
+            self->side               = 0;
+            g_CombatGlobal->unk3D8F0 = 0;
             func_ov003_02096230(&self->level);
             func_ov003_0209680c(self);
             func_ov003_0209609c(self, func_ov003_02096afc);
@@ -372,12 +372,12 @@ static void func_ov003_02096afc(BtlAura* self) {
     s32 y;
 
     if (self->side == 1) {
-        CombatActor* actor = data_ov003_020e71b8->unk3D89C;
+        CombatActor* actor = g_CombatGlobal->unk3D89C;
 
         y = actor->screenY - 0x20;
         x = actor->screenX;
     } else {
-        CombatActor* actor = data_ov003_020e71b8->unk3D898;
+        CombatActor* actor = g_CombatGlobal->unk3D898;
 
         y = actor->screenY + 0xA0;
         x = actor->screenX;
@@ -389,8 +389,8 @@ static void func_ov003_02096afc(BtlAura* self) {
             if (self->timer == 0) {
                 self->rising = 1;
                 self->timer  = 0x5A;
-                if (func_ov003_020a3330(0x3B)) {
-                    self->timer = self->timer - (s16)func_ov003_020a3468(0x3B);
+                if (CombatAbility_IsActive(0x3B)) {
+                    self->timer = self->timer - (s16)CombatAbility_GetValue(0x3B);
                 }
                 CombatSprite_SetAnimFromTable(&self->sprites[0], 0, 0);
                 CombatSprite_SetAnimFromTable(&self->sprites[1], 0, 0);
@@ -414,10 +414,10 @@ static void func_ov003_02096afc(BtlAura* self) {
                 func_ov003_020974f8(x, y);
             }
             if (self->side == 1) {
-                data_ov003_020e71b8->unk3D8F0 = 1;
+                g_CombatGlobal->unk3D8F0 = 1;
                 func_ov003_02096140();
             } else {
-                data_ov003_020e71b8->unk3D8F4 = 1;
+                g_CombatGlobal->unk3D8F4 = 1;
                 func_ov003_020960f0();
             }
             self->x = x;
@@ -433,15 +433,15 @@ static void func_ov003_02096afc(BtlAura* self) {
 static s32 BtlAura_Init(TaskPool* pool, Task* task, void* args) {
     BtlAura* self = task->data;
 
-    self->x                       = 0;
-    self->y                       = 0;
-    self->intensity               = 0;
-    self->remaining               = 0;
-    self->side                    = 1;
-    data_ov003_020e71b8->unk3D8EE = 100;
-    data_ov003_020e71b8->unk3D8ED = 0;
-    data_ov003_020e71b8->unk3D8F0 = 0;
-    data_ov003_020e71b8->unk3D8F4 = 0;
+    self->x                  = 0;
+    self->y                  = 0;
+    self->intensity          = 0;
+    self->remaining          = 0;
+    self->side               = 1;
+    g_CombatGlobal->unk3D8EE = 100;
+    g_CombatGlobal->unk3D8ED = 0;
+    g_CombatGlobal->unk3D8F0 = 0;
+    g_CombatGlobal->unk3D8F4 = 0;
     CombatSprite_LoadFromTableNoProto(1, &self->sprites[0], &data_ov003_020d7800, data_ov003_020d7eb8, 0, 0x40, 0x40);
     CombatSprite_LoadFromTableNoProto(0, &self->sprites[1], &data_ov003_020d7800, data_ov003_020d7eb8, 0, 0x3E, 0x40);
     CombatSprite_SetAnimFromTable(&self->sprites[0], 1, 0);
@@ -455,7 +455,7 @@ static s32 BtlAura_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlAura_Update(TaskPool* pool, Task* task, void* args) {
     BtlAura* self = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x40) {
+    if (g_CombatGlobal->unk3D878 & 0x40) {
         return 1;
     }
     if (self->state != NULL) {
@@ -473,7 +473,7 @@ static s32 BtlAura_Render(TaskPool* pool, Task* task, void* args) {
     if (self->intensity > 0x14) {
         if (self->rising != 0 || self->side == 1) {
             if (self->y < 0xD8000) {
-                CombatActor* actor = data_ov003_020e71b8->unk3D89C;
+                CombatActor* actor = g_CombatGlobal->unk3D89C;
 
                 CombatSprite_SetAffineTransform(&self->sprites[0], 0, self->intensity, self->intensity, 1);
                 CombatSprite_SetPosition(&self->sprites[0], (self->x * 0x10) >> 16, (self->y * 0x10) >> 16);
@@ -483,7 +483,7 @@ static s32 BtlAura_Render(TaskPool* pool, Task* task, void* args) {
         }
         if (self->rising != 0 || self->side == 0) {
             if (self->y > 0xA8000) {
-                CombatActor* actor = data_ov003_020e71b8->unk3D898;
+                CombatActor* actor = g_CombatGlobal->unk3D898;
 
                 CombatSprite_SetAffineTransform(&self->sprites[1], 0, self->intensity, self->intensity, 1);
                 CombatSprite_SetPosition(&self->sprites[1], (self->x * 0x10) >> 16, (s16)((self->y >> 12) - 0xC0));

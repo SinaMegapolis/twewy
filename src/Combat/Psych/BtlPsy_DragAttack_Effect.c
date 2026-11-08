@@ -10,7 +10,7 @@ s32 func_ov003_020acd6c(TaskPool* pool, Task* task, void* args) {
     self->active       = 1;
     self->captured     = 0;
     self->fixedOpacity = 0x15000;
-    func_ov003_020a3498(&self->sprite, 2, 1, 0xAA, 0);
+    CombatPsyAnim_Load(&self->sprite, 2, 1, 0xAA, 0);
     return 1;
 }
 
@@ -21,7 +21,7 @@ s32 func_ov003_020acdc0(TaskPool* pool, Task* task, void* args) {
     if (self->opacity < 0)
         self->active = 0;
     if (self->captured == 0) {
-        CombatActor* player = data_ov003_020e71b8->unk3D898;
+        CombatActor* player = g_CombatGlobal->unk3D898;
         self->position.x    = player->position.x;
         self->position.y    = player->position.y;
         self->position.z    = player->position.z;
@@ -35,8 +35,8 @@ s32 func_ov003_020acdc0(TaskPool* pool, Task* task, void* args) {
 s32 func_ov003_020ace54(TaskPool* pool, Task* task, void* args) {
     Ov003Blur* self = task->data;
     if (self->opacity > 0) {
-        s32 x = func_ov003_020843b0(0, self->position.x);
-        s32 y = func_ov003_020843ec(0, self->position.y, self->position.z);
+        s32 x = CombatStage_ToScreenX(0, self->position.x);
+        s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
         CombatSprite_SetPosition(&self->sprite, x, y);
         func_ov003_02082730(&self->sprite, self->position.y + 0x1F4000);
         CombatSprite_RenderWithPalette(&self->sprite, self->opacity);
@@ -75,7 +75,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
         default:
         case 0: {
             self                = task->data;
-            CombatActor* player = data_ov003_020e71b8->unk3D898;
+            CombatActor* player = g_CombatGlobal->unk3D898;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect      = *arg;
             self->phase       = 0;
@@ -95,15 +95,15 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
                 default:
                     return 0;
             }
-            func_ov003_020a3498(&self->sprite, 2, 1, animation, 0);
-            func_ov003_02087f28(0x64, player->position.x);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, animation, 0);
+            CombatSe_PlayAtMainX(0x64, player->position.x);
             func_ov003_02087804(0);
             return 1;
         }
         case 1: {
             Ov003DragAttack* self = task->data;
             Ov003EnemyActor* unit;
-            CombatActor*     player = data_ov003_020e71b8->unk3D898;
+            CombatActor*     player = g_CombatGlobal->unk3D898;
             CombatSprite_Update(&self->sprite);
             switch (self->phase) {
                 case 0:
@@ -118,10 +118,10 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
                         case 0x1C:
                             if (func_ov003_020a6628(&self->effect->streak, (u16)self->attackId, player->position.x,
                                                     player->position.y, player->position.z, 0, 0) == 1)
-                                func_ov003_02087f28(0x65, player->position.x);
+                                CombatSe_PlayAtMainX(0x65, player->position.x);
                             break;
                         case 0x1D: {
-                            unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+                            unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
                             while (unit != NULL) {
                                 s32 dz = player->position.z - unit->actor.position.z;
                                 if (dz < 0)
@@ -139,7 +139,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
                                                             self->effect->params[0], self->effect->params[1]);
                                     }
                                 }
-                                unit = func_ov003_02084984(&unit->node);
+                                unit = CombatList_GetNext(&unit->node);
                             }
                             break;
                         }
@@ -157,7 +157,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             self                = task->data;
-            CombatActor* player = data_ov003_020e71b8->unk3D898;
+            CombatActor* player = g_CombatGlobal->unk3D898;
             CombatSprite_SetPosition(&self->sprite, player->screenX, (s16)(player->screenY - 24));
             CombatSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 1);
             if (self->opacity >= 0x1000)

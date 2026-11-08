@@ -93,15 +93,15 @@ static void BtlDbg_DrawRect(BtlDbgRect* rect) {
         x = rect->x;
         y = rect->y;
     } else {
-        x = func_ov003_020843b0(0, rect->x) << 12;
-        y = func_ov003_020843ec(0, rect->y, 0) << 12;
+        x = CombatStage_ToScreenX(0, rect->x) << 12;
+        y = CombatStage_ToScreenY(0, rect->y, 0) << 12;
     }
     BtlDbg_DrawQuad(rect->kind, x, y, rect->width, rect->height);
 }
 
 /// Moves a rectangle from the free list to the shown list.
 static void BtlDbg_AddRect(BtlDbg* dbg, u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
-    BtlDbgRect* rect = func_ov003_0208495c(&dbg->free);
+    BtlDbgRect* rect = CombatList_GetHead(&dbg->free);
 
     if (rect != NULL) {
         rect->kind   = kind;
@@ -110,15 +110,15 @@ static void BtlDbg_AddRect(BtlDbg* dbg, u16 kind, u16 life, s32 x, s32 y, s16 wi
         rect->y      = y;
         rect->width  = width;
         rect->height = height;
-        func_ov003_020849dc(&dbg->free, &rect->node);
-        func_ov003_020849bc(&dbg->shown, &rect->node, rect);
+        CombatList_Remove(&dbg->free, &rect->node);
+        CombatList_Append(&dbg->shown, &rect->node, rect);
     }
 }
 
 static void BtlDbg_FreeRect(BtlDbg* dbg, BtlDbgRect* rect) {
     if (rect != NULL) {
-        func_ov003_020849dc(&dbg->shown, &rect->node);
-        func_ov003_020849bc(&dbg->free, &rect->node, rect);
+        CombatList_Remove(&dbg->shown, &rect->node);
+        CombatList_Append(&dbg->free, &rect->node, rect);
     }
 }
 
@@ -126,10 +126,10 @@ static s32 BtlDbg_Init(TaskPool* pool, Task* task, void* args) {
     BtlDbg* dbg = task->data;
 
     MI_CpuSet(dbg, 0, sizeof(*dbg));
-    func_ov003_020849ac(&dbg->free);
-    func_ov003_020849ac(&dbg->shown);
+    CombatList_Init(&dbg->free);
+    CombatList_Init(&dbg->shown);
     for (s32 i = 0; i < 0x40; i++) {
-        func_ov003_020849bc(&dbg->free, &dbg->rects[i].node, &dbg->rects[i]);
+        CombatList_Append(&dbg->free, &dbg->rects[i].node, &dbg->rects[i]);
     }
     return 1;
 }
@@ -141,16 +141,16 @@ static s32 BtlDbg_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlDbg_Render(TaskPool* pool, Task* task, void* args) {
     BtlDbg* dbg = task->data;
 
-    BtlDbgRect* rect = func_ov003_0208495c(&dbg->shown);
+    BtlDbgRect* rect = CombatList_GetHead(&dbg->shown);
     while (rect != NULL) {
         BtlDbg_DrawRect(rect);
         if (rect->life == 0) {
-            BtlDbgRect* next = func_ov003_02084984(&rect->node);
+            BtlDbgRect* next = CombatList_GetNext(&rect->node);
             BtlDbg_FreeRect(dbg, rect);
             rect = next;
         } else {
             rect->life--;
-            rect = func_ov003_02084984(&rect->node);
+            rect = CombatList_GetNext(&rect->node);
         }
     }
     return 1;
@@ -171,13 +171,13 @@ static s32 BtlDbg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 void BtlDbg_CreateTask(void) {
-    BtlDbg_TaskId = EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlDbg, NULL, 0, NULL, NULL);
+    BtlDbg_TaskId = EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlDbg, NULL, 0, NULL, NULL);
 }
 
 void BtlDbg_PostRect(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
-    BtlDbg* dbg = EasyTask_GetTaskData(&data_ov003_020e71b8->unk_10118, BtlDbg_TaskId);
+    BtlDbg* dbg = EasyTask_GetTaskData(&g_CombatGlobal->unk_10118, BtlDbg_TaskId);
 
-    if (func_ov003_02084d80(1) != 0) {
+    if (CombatDebug_GetSetting(1) != 0) {
         BtlDbg_AddRect(dbg, kind, life, x, y, width, height);
     }
 }

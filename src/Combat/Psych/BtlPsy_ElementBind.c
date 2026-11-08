@@ -32,14 +32,14 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
             self->kind     = arg->kind;
             self->attackId = arg->attackId;
             self->timer    = 0;
-            func_ov003_020a3498(&self->sprite, 2, 1, data_ov003_020dc880[self->kind], 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, data_ov003_020dc880[self->kind], 1);
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
             func_ov003_020a6164(arg->unit, 3);
             s32 x     = self->unit->actor.position.x;
             s32 sound = data_ov003_020dc894[self->kind].start;
             if (sound < 0x56C)
-                func_ov003_02087f28(sound, x);
+                CombatSe_PlayAtMainX(sound, x);
             return 1;
         }
         case 1: {
@@ -52,10 +52,10 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
                         s32 sound = data_ov003_020dc894[self->kind].hold;
                         s32 x     = self->unit->actor.position.x;
                         if (sound < 0x56C)
-                            func_ov003_02087f28(sound, x);
+                            CombatSe_PlayAtMainX(sound, x);
                     }
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                        func_ov003_020a35b8(&self->sprite, data_ov003_020dc880[self->kind] + 1, 0);
+                        CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dc880[self->kind] + 1, 0);
                         self->timer = 0;
                     }
                     break;
@@ -63,26 +63,26 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
                     if (func_ov003_020a60a8(unit, 3)) {
                         if (++self->timer != self->effect->params[0])
                             break;
-                        func_ov003_020a35b8(&self->sprite, data_ov003_020dc880[self->kind] + 2, 1);
+                        CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dc880[self->kind] + 2, 1);
                         self->position.x = unit->actor.position.x;
                         self->position.y = unit->actor.position.y;
                         self->position.z = unit->actor.position.z;
                         self->height     = unit->actor.unk_76;
                         s32 sound        = data_ov003_020dc894[self->kind].release;
                         if (sound < 0x56C)
-                            func_ov003_02087f28(sound, self->position.x);
+                            CombatSe_PlayAtMainX(sound, self->position.x);
                         func_ov003_020a6198(unit, 3);
                     } else if ((unit->actor.flags & 0x200) && unit->actor.unk_58 == 5) {
                         func_ov003_020a6b84(&self->effect->streak, (u16)self->attackId, unit);
                     } else {
-                        func_ov003_020a35b8(&self->sprite, data_ov003_020dc880[self->kind] + 2, 1);
+                        CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dc880[self->kind] + 2, 1);
                         self->position.x = unit->actor.position.x;
                         self->position.y = unit->actor.position.y;
                         self->position.z = unit->actor.position.z;
                         self->height     = unit->actor.unk_76;
                         s32 sound        = data_ov003_020dc894[self->kind].release;
                         if (sound < 0x56C)
-                            func_ov003_02087f28(sound, self->position.x);
+                            CombatSe_PlayAtMainX(sound, self->position.x);
                     }
                     break;
                 case 2:
@@ -92,7 +92,7 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
             }
             if (func_ov003_020a60a8(unit, 3)) {
                 s32 width = unit->actor.unk_70;
-                func_ov003_02083ca0(&unit->actor.position.x, &unit->actor.position.y, width * 4096, (width / 2) * 4096);
+                CombatStage_ClampXY(&unit->actor.position.x, &unit->actor.position.y, width * 4096, (width / 2) * 4096);
             }
             CombatSprite_Update(&self->sprite);
             return 1;
@@ -100,8 +100,8 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
         case 2:
             self = task->data;
             if (self->sprite.animTableIndex == 2) {
-                s32 x = func_ov003_020843b0(0, self->position.x);
-                s32 y = func_ov003_020843ec(0, self->position.y, self->position.z);
+                s32 x = CombatStage_ToScreenX(0, self->position.x);
+                s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
                 CombatSprite_SetPosition(&self->sprite, x, (s16)(y - self->height));
             } else {
                 CombatActor* actor = &self->unit->actor;

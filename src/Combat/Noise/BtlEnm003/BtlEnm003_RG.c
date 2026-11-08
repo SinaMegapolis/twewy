@@ -125,7 +125,7 @@ static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
 
         case 1: {
             if (rg->frameCount == 0) {
-                func_ov003_02087f64(415, rg->base.actor.position.x);
+                CombatSe_PlayAtSubX(415, rg->base.actor.position.x);
             }
             CombatSprite_SetAnimFromTable(&rg->base.sprite, 7, 1);
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
@@ -143,9 +143,9 @@ static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
                 if (func_ov003_020c5b2c(68, rg, rg->base.actor.position.x, rg->base.actor.position.y,
                                         rg->base.actor.position.z) == 1)
                 {
-                    func_ov003_02087f64(414, rg->base.actor.position.x);
+                    CombatSe_PlayAtSubX(414, rg->base.actor.position.x);
                 }
-                func_ov003_02087f64(412, rg->base.actor.position.x);
+                CombatSe_PlayAtSubX(412, rg->base.actor.position.x);
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->base.actor.position.x = rg->base.unk_1AC;
@@ -171,7 +171,7 @@ static void func_ov009_02120f64(BtlEnm003_RG* rg) {
 
         case 1: {
             if (rg->frameCount == 0) {
-                func_ov003_02087f64(415, rg->base.actor.position.x);
+                CombatSe_PlayAtSubX(415, rg->base.actor.position.x);
             }
             CombatSprite_SetAnimFromTable(&rg->base.sprite, 9, 1);
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
@@ -189,9 +189,9 @@ static void func_ov009_02120f64(BtlEnm003_RG* rg) {
                 if (func_ov003_020c5b2c(69, rg, rg->base.actor.position.x, rg->base.actor.position.y,
                                         rg->base.actor.position.z) == 1)
                 {
-                    func_ov003_02087f64(414, rg->base.actor.position.x);
+                    CombatSe_PlayAtSubX(414, rg->base.actor.position.x);
                 }
-                func_ov003_02087f64(412, rg->base.actor.position.x);
+                CombatSe_PlayAtSubX(412, rg->base.actor.position.x);
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->base.actor.position.x = rg->base.unk_1AC;
@@ -241,7 +241,7 @@ static void func_ov009_021210f8(BtlEnm003_RG* rg) {
                     rg->base.actor.unk_08 *= 2;
                 }
                 rg->unk_1D4 = ((RNG_Next(6) + 15) * 60);
-                func_ov003_02087f64(420, rg->base.actor.position.x);
+                CombatSe_PlayAtSubX(420, rg->base.actor.position.x);
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 BtlEnm003_RG_SetState(rg, func_ov009_02120c70);

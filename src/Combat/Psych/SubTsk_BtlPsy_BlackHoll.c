@@ -34,14 +34,14 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             self->mode       = arg->mode;
             self->lifetime   = arg->lifetime;
             self->minSpeed   = arg->minSpeed;
-            self->position.x = func_ov003_0208442c(0, arg->screenX);
+            self->position.x = CombatStage_ToWorldX(0, arg->screenX);
             self->position.z = -0x40000;
-            self->position.y = func_ov003_02084460(0, arg->screenY, self->position.z);
+            self->position.y = CombatStage_ToWorldY(0, arg->screenY, self->position.z);
             self->effect->unk_0A++;
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
-            func_ov003_020a3498(&self->sprites[0], 2, 1, 0xA4, 0);
-            func_ov003_020a3498(&self->sprites[1], 2, 1, 0xA5, 1);
+            CombatPsyAnim_Load(&self->sprites[0], 2, 1, 0xA4, 0);
+            CombatPsyAnim_Load(&self->sprites[1], 2, 1, 0xA5, 1);
             self->slope     = FX_Divide(arg->maxSpeed - arg->minSpeed, -arg->radius);
             self->intercept = arg->maxSpeed - FX_Mul(self->slope, arg->radius);
             func_ov003_020a5d88(self->particles, 6, 7);
@@ -50,7 +50,7 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003BlackHoll* self = task->data;
             if (--self->lifetime == 0)
                 return 0;
-            Ov003EnemyActor* unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+            Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
             while (unit != NULL) {
                 if (func_ov003_020a60a8(unit, 2)) {
                     Vec origin = {self->position.x, self->position.y, self->position.z};
@@ -77,11 +77,11 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
                 } else {
                     func_ov003_020a6164(unit, 2);
                 }
-                unit = func_ov003_02084984(&unit->node);
+                unit = CombatList_GetNext(&unit->node);
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprites[1].sprite)) {
                 CombatSprite_Restart(&self->sprites[1]);
-                func_ov003_02087f28(0x93, self->position.x);
+                CombatSe_PlayAtMainX(0x93, self->position.x);
             }
             CombatSprite_Update(&self->sprites[0]);
             CombatSprite_Update(&self->sprites[1]);
@@ -90,8 +90,8 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003BlackHoll* self = task->data;
-            s32             x    = func_ov003_020843b0(0, self->position.x);
-            s32             y    = func_ov003_020843ec(0, self->position.y, self->position.z);
+            s32             x    = CombatStage_ToScreenX(0, self->position.x);
+            s32             y    = CombatStage_ToScreenY(0, self->position.y, self->position.z);
             CombatSprite_SetPosition(&self->sprites[0], (s16)x, (s16)y);
             CombatSprite_SetPosition(&self->sprites[1], (s16)x, (s16)y);
             func_ov003_02082730(&self->sprites[0], self->position.y + 0x1F4000);
@@ -107,10 +107,10 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             CombatSprite_Release(&self->sprites[1]);
             func_ov003_020a5fc0(self->particles, 6);
             self->effect->unk_0A--;
-            Ov003EnemyActor* unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+            Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
             while (unit != NULL) {
                 func_ov003_020a6198(unit, 2);
-                unit = func_ov003_02084984(&unit->node);
+                unit = CombatList_GetNext(&unit->node);
             }
             return 1;
         }

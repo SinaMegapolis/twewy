@@ -55,11 +55,11 @@ static void func_ov003_0209f52c(CombatEffect* sprite) {
 
     if (!(sprite->active == 0)) {
         if (sprite->sprite.sprite.bits_0_1 == 1) {
-            posX = func_ov003_020843b0(1, sprite->position.x);
-            posY = func_ov003_020843ec(1, sprite->position.y, sprite->position.z);
+            posX = CombatStage_ToScreenX(1, sprite->position.x);
+            posY = CombatStage_ToScreenY(1, sprite->position.y, sprite->position.z);
         } else {
-            posX = func_ov003_020843b0(0, sprite->position.x);
-            posY = func_ov003_020843ec(0, sprite->position.y, sprite->position.z);
+            posX = CombatStage_ToScreenX(0, sprite->position.x);
+            posY = CombatStage_ToScreenY(0, sprite->position.y, sprite->position.z);
         }
         CombatSprite_SetPosition(&sprite->sprite, posX, posY);
         func_ov003_02082730(&sprite->sprite, 0x7FFFFFFF - (sprite->position.y + 0x8000));
@@ -87,9 +87,9 @@ static s32 BtlEff_Warp_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(eff, 0, sizeof(BtlEff_Warp));
     if (p->mode == 1) {
-        actor = data_ov003_020e71b8->unk3D89C;
+        actor = g_CombatGlobal->unk3D89C;
     } else {
-        actor = data_ov003_020e71b8->unk3D898;
+        actor = g_CombatGlobal->unk3D898;
     }
     flip = actor->isFlipped != 0;
     // Volatile mode preserves the retail reload before each load call.
@@ -154,5 +154,5 @@ void func_ov003_0209f770(s32 mode, s32 x, s32 y, s32 z) {
     args.x    = x;
     args.y    = y;
     args.z    = z;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEff_Warp, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Warp, NULL, 0, NULL, &args);
 }

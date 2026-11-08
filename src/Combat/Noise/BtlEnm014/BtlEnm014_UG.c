@@ -30,7 +30,7 @@ static s32 func_ov012_02126a1c(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126a4c(BtlEnm014* data) {
-    BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
+    BtlEnm014* boss = g_CombatGlobal->unk3D898;
     s32        lo   = data->base.actor.position.x - 0x3C000;
 
     if (data->base.sprite.flags46 & 1) {
@@ -48,7 +48,7 @@ static s32 func_ov012_02126a4c(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126ad8(BtlEnm014* data) {
-    BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
+    BtlEnm014* boss = g_CombatGlobal->unk3D898;
     s32        lo;
 
     if (data->base.spriteIndex == 0) {
@@ -70,7 +70,7 @@ static s32 func_ov012_02126ad8(BtlEnm014* data) {
 }
 
 static void func_ov012_02126b74(BtlEnm014* data) {
-    BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
+    BtlEnm014* boss = g_CombatGlobal->unk3D898;
     s32        d    = boss->base.actor.position.x - data->unk_1E4;
 
     if (d < 0) {
@@ -83,7 +83,7 @@ static void func_ov012_02126b74(BtlEnm014* data) {
 }
 
 static void func_ov012_02126bb0(BtlEnm014* data) {
-    BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
+    BtlEnm014* boss = g_CombatGlobal->unk3D898;
 
     data->unk_1E0.word = 0;
     data->unk_1E4      = boss->base.actor.position.x;
@@ -98,7 +98,7 @@ static void func_ov012_02126bd8(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126c1c(BtlEnm014* data) {
-    BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
+    BtlEnm014* boss = g_CombatGlobal->unk3D898;
 
     if (!(data->base.sprite.flags46 & 1)) {
         if (data->base.actor.position.x < boss->base.actor.position.x) {
@@ -120,7 +120,7 @@ miss:
 }
 
 static void func_ov012_02126c74(BtlEnm014* data) {
-    BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
+    BtlEnm014* boss = g_CombatGlobal->unk3D898;
     s32        dx   = boss->base.actor.position.x - data->base.actor.position.x;
     s32        aim;
     s32        idx;
@@ -261,7 +261,7 @@ static void func_ov012_02126ea0(BtlEnm014* data) {
 }
 
 static void func_ov012_02127134(BtlEnm014* data) {
-    BtlEnm014* boss = data_ov003_020e71b8->unk3D898;
+    BtlEnm014* boss = g_CombatGlobal->unk3D898;
 
     switch (data->unk_1C2) {
         case 0:
@@ -284,8 +284,8 @@ static void func_ov012_02127134(BtlEnm014* data) {
                 d = (data->base.sprite.flags46 & 1) ? d : -d;
                 x = data->base.actor.position.x;
                 if (data->unk_1D0 == 0) {
-                    data->unk_1D0 = func_ov003_0208a164(func_ov003_0208a114(0x82), &data->base.actor.baseArgs, x + d,
-                                                        data->base.actor.position.y, data->base.actor.position.z);
+                    data->unk_1D0 = CombatHit_AttackAt(CombatHit_GetAttackInfo(0x82), &data->base.actor.baseArgs, x + d,
+                                                       data->base.actor.position.y, data->base.actor.position.z);
                     if (data->unk_1D0 == 1) {
                         func_ov003_020c4cc4(&data->base, 0x21A);
                         boss->base.actor.zVelocity = FX_Mul(boss->base.actor.zVelocity, 0x2000);
@@ -354,9 +354,9 @@ static void func_ov012_02127378(BtlEnm014* data) {
                 se            = (data->base.spriteIndex == 3) ? 0x84 : 0x83;
                 d             = FX32_CONVERT(func_ov003_020cd11c(se));
                 d             = (data->base.sprite.flags46 & 1) ? d : -d;
-                h             = func_ov003_0208a114(se);
-                data->unk_1D0 = func_ov003_0208a164(h, &data->base.actor.baseArgs, data->base.actor.position.x + d,
-                                                    data->base.actor.position.y, data->base.actor.position.z);
+                h             = CombatHit_GetAttackInfo(se);
+                data->unk_1D0 = CombatHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x + d,
+                                                   data->base.actor.position.y, data->base.actor.position.z);
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -421,7 +421,7 @@ static s32 func_ov012_0212768c(BtlEnm014* data) {
             }
             break;
         case ACTOR_CMD_DEFEAT:
-            func_ov003_02084694(&data->base.collider, 1);
+            CombatCollision_SetDisabled(&data->base.collider, 1);
             func_ov012_02125768(data, func_ov012_02125810);
             break;
         case ACTOR_CMD_HOLD:

@@ -1,6 +1,7 @@
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPop.h"
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatAttackInfo.h"
 #include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
@@ -55,8 +56,6 @@ typedef struct Ov003EnemyShotBlossom {
 // ---------------------------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------------------------
-
-extern u8 data_ov003_020d4231[];
 
 static s32 func_ov003_020cd6a4(TaskPool* pool, Task* task, void* args, s32 stage);
 static s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY);
@@ -203,9 +202,9 @@ u16 func_ov003_020cb3c4(s32 side, s32 group) {
     CombatListNode* node;
 
     if (side == 1) {
-        node = data_ov003_020e71b8->unk3D8AC.head;
+        node = g_CombatGlobal->unk3D8AC.head;
     } else {
-        node = data_ov003_020e71b8->unk3D8A4.head;
+        node = g_CombatGlobal->unk3D8A4.head;
     }
     if (node == NULL) {
         return count;
@@ -227,9 +226,9 @@ Ov003EnemyActor* func_ov003_020cb42c(s32 side, s32 group, s32 n) {
     CombatListNode*  node;
 
     if (side == 1) {
-        node = data_ov003_020e71b8->unk3D8AC.head;
+        node = g_CombatGlobal->unk3D8AC.head;
     } else {
-        node = data_ov003_020e71b8->unk3D8A4.head;
+        node = g_CombatGlobal->unk3D8A4.head;
     }
     n++;
     if (n == 0) {
@@ -254,9 +253,9 @@ s32 func_ov003_020cb498(s32 side, s32 group, BtlActorFilter filter, void* arg) {
     CombatListNode* node;
 
     if (side == 1) {
-        node = data_ov003_020e71b8->unk3D8AC.head;
+        node = g_CombatGlobal->unk3D8AC.head;
     } else {
-        node = data_ov003_020e71b8->unk3D8A4.head;
+        node = g_CombatGlobal->unk3D8A4.head;
     }
     if (node == NULL) {
         return count;
@@ -300,7 +299,7 @@ void func_ov003_020cb578(CombatActor* actor, s32 flag) {
 }
 
 void func_ov003_020cb594(Ov003EnemyActor* actor, s32 flag) {
-    func_ov003_02084694(&actor->collider, flag == 0);
+    CombatCollision_SetDisabled(&actor->collider, flag == 0);
 }
 
 /// Heals `actor` and its partner by `amount` (or just plays the effect for `flag`).
@@ -309,7 +308,7 @@ void func_ov003_020cb5b0(Ov003EnemyActor* actor, s16 amount, s32 flag) {
 
     func_ov003_0209b564(engine, amount, &actor->actor, 1);
     if (flag != 0) {
-        func_ov003_0208b518(engine, actor, amount);
+        BtlMgr_AddUnitHp(engine, actor, amount);
         return;
     }
     actor->actor.currentHp = actor->actor.currentHp + amount;
@@ -333,7 +332,7 @@ s32 func_ov003_020cb648(Ov003EnemyActor* actor, s32 percent) {
 
 /// Pushes `*value` past the camera's left edge shifted by the view angle.
 static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
-    Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
+    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
     s32          limit  = camera->posX + FX_Mul(FX_SinIdx(camera->rotation), scale);
 
     if (*value - margin < limit) {
@@ -344,7 +343,7 @@ static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
 }
 
 static s32 func_ov003_020cb6e8(s32 index, s32* value, s32 margin, s32 scale) {
-    Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
+    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
     s32          moved  = 0;
 
     if (func_ov003_020cb674(index, value, margin, scale) != 0) {
@@ -358,24 +357,24 @@ static s32 func_ov003_020cb6e8(s32 index, s32* value, s32 margin, s32 scale) {
 }
 
 s32 func_ov003_020cb744(s32 index) {
-    return data_ov003_020e71b8->unk3D7C0[index].unk_0C;
+    return g_CombatGlobal->unk3D7C0[index].unk_0C;
 }
 
 s32 func_ov003_020cb764(s32 index) {
-    return data_ov003_020e71b8->unk3D7C0[index].unk_20;
+    return g_CombatGlobal->unk3D7C0[index].unk_20;
 }
 
 s32 func_ov003_020cb784(s32 index) {
-    return data_ov003_020e71b8->unk3D7C0[index].unk_24;
+    return g_CombatGlobal->unk3D7C0[index].unk_24;
 }
 
 s32 func_ov003_020cb7a4(s32 index) {
-    return data_ov003_020e71b8->unk3D7C0[index].unk_10;
+    return g_CombatGlobal->unk3D7C0[index].unk_10;
 }
 
 /// Whether (`x`, `y`) lies inside the camera's field.
 s32 func_ov003_020cb7c4(s32 index, s32 x, s32 y) {
-    if (x < 0 || x > data_ov003_020e71b8->unk3D7C0[index].unk_0C || y < 0 || y > data_ov003_020e71b8->unk3D7C0[index].unk_10) {
+    if (x < 0 || x > g_CombatGlobal->unk3D7C0[index].unk_0C || y < 0 || y > g_CombatGlobal->unk3D7C0[index].unk_10) {
         return 0;
     }
     return 1;
@@ -383,7 +382,7 @@ s32 func_ov003_020cb7c4(s32 index, s32 x, s32 y) {
 
 /// Keeps (`*x`, `*y`) at least a margin inside the camera's field. Returns whether it had to move them.
 static s32 func_ov003_020cb814(s32 index, s32* x, s32* y, s32 marginX, s32 marginY) {
-    Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
+    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
     s32          moved  = 0;
 
     if (*x - marginX < 0) {
@@ -610,7 +609,7 @@ void func_ov003_020cbf54(BtlVec2* out, BtlVec2 p0, BtlVec2 p1, BtlVec2 p2, BtlVe
 
 /// Whether the actor is on the left half of the camera.
 s32 func_ov003_020cc2d0(CombatActor* actor, s32 index) {
-    return actor->position.x < (data_ov003_020e71b8->unk3D7C0[index].unk_0C >> 1);
+    return actor->position.x < (g_CombatGlobal->unk3D7C0[index].unk_0C >> 1);
 }
 
 /// Whether the actor sits fully inside the camera's field.
@@ -656,7 +655,7 @@ s32 func_ov003_020cc38c(Ov003CutinActor* actor, s32 x, s32 y, s32 z, s32 marginX
 
 /// A mask of the 32 points around the actor (at `radius`, `yScale` as tall) that are inside the camera's field.
 u32 func_ov003_020cc430(Ov003CutinActor* actor, s32 index, s32 radius, s32 yScale) {
-    Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
+    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
     s16          size   = actor->base.actor.unk_70;
     s32          left   = FX32_CONVERT(size);
     s32          right  = camera->unk_0C - FX32_CONVERT(size);
@@ -699,7 +698,7 @@ s32 func_ov003_020cc5d0(CombatActor* actor) {
 /// How many entries of `id` the touch list holds (0x19 counts all).
 s32 func_ov003_020cc5fc(s32 unused, s32 id) {
     s32             count = 0;
-    CombatListNode* node  = data_ov003_020e71b8->unk3D8B4.head;
+    CombatListNode* node  = g_CombatGlobal->unk3D8B4.head;
 
     if (node == NULL) {
         return count;
@@ -723,7 +722,7 @@ void* func_ov003_020cc644(s32 side, s32 id, s32 n) {
     if (side == 1) {
         return item;
     }
-    node = data_ov003_020e71b8->unk3D8B4.head;
+    node = g_CombatGlobal->unk3D8B4.head;
     if (node == NULL) {
         return item;
     }
@@ -749,7 +748,7 @@ void* func_ov003_020cc644(s32 side, s32 id, s32 n) {
 
 /// How many entries of `id` in the touch list pass `filter`.
 s32 func_ov003_020cc6a4(s32 unused, s32 id, BtlItemFilter filter, s32 arg) {
-    CombatListNode* node  = data_ov003_020e71b8->unk3D8B4.head;
+    CombatListNode* node  = g_CombatGlobal->unk3D8B4.head;
     s32             count = 0;
 
     if (node == NULL) {
@@ -774,7 +773,7 @@ void func_ov003_020cc71c(CombatActor* actor, s32 flag) {
     s32         value = 0;
 
     if (flag != 0) {
-        func_ov003_020864dc(&fresh, ((u16*)actor)[1]);
+        CombatSys_InitObsActor(&fresh, ((u16*)actor)[1]);
         value = fresh.zGravity;
     }
     actor->xVelocity = value;
@@ -783,9 +782,9 @@ void func_ov003_020cc71c(CombatActor* actor, s32 flag) {
 /// The gauge actor of the screen `side`.
 void* func_ov003_020cc750(s32 side) {
     if (side == 1) {
-        return data_ov003_020e71b8->unk3D89C;
+        return g_CombatGlobal->unk3D89C;
     }
-    return data_ov003_020e71b8->unk3D898;
+    return g_CombatGlobal->unk3D898;
 }
 
 void func_ov003_020cc784(CombatActor* actor, s32 flag) {
@@ -922,7 +921,7 @@ s32 func_ov003_020ccc60(s32 side, s32 id) {
     if (id == -1) {
         return 0;
     }
-    data = EasyTask_GetTaskData(side == 0 ? &data_ov003_020e71b8->unk_00000 : &data_ov003_020e71b8->taskPool, id);
+    data = EasyTask_GetTaskData(side == 0 ? &g_CombatGlobal->unk_00000 : &g_CombatGlobal->taskPool, id);
     return data[1];
 }
 
@@ -933,7 +932,7 @@ s32 func_ov003_020ccca4(s32 side, u32 id) {
     if (id == -1) {
         return 0;
     }
-    data = EasyTask_GetTaskData(side == 0 ? &data_ov003_020e71b8->unk_00000 : &data_ov003_020e71b8->taskPool, id);
+    data = EasyTask_GetTaskData(side == 0 ? &g_CombatGlobal->unk_00000 : &g_CombatGlobal->taskPool, id);
     if (data == NULL) {
         return 0;
     }
@@ -951,16 +950,16 @@ void func_ov003_020cccf0(s32 engine, Ov003EnemyShotSource* source) {
         return;
     }
     if (engine == 1) {
-        pan = func_ov003_020843b0(1, source->core.position.x);
+        pan = CombatStage_ToScreenX(1, source->core.position.x);
     } else {
-        pan = func_ov003_020843b0(0, source->core.position.x);
+        pan = CombatStage_ToScreenX(0, source->core.position.x);
     }
-    func_ov003_02087f00(source->sound, pan);
+    CombatSe_PlayPanned(source->sound, pan);
 }
 
 /// Whether a box of `marginX` by `marginY` around (`x`,`y`) lies outside the camera's field.
 static s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY) {
-    Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[index];
+    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
 
     if (x + marginX < 0) {
         return 1;
@@ -979,7 +978,7 @@ static s32 func_ov003_020ccdb8(s32 engine, s32 x, s32 y, s32 z, s32 marginX, s32
     s16 screenX;
     s16 screenY;
 
-    func_ov003_02084348(engine, &screenX, &screenY, x, y, z);
+    CombatStage_WorldToScreen(engine, &screenX, &screenY, x, y, z);
     if (screenX + (marginX >> 12) < 0) {
         return 1;
     }
@@ -997,16 +996,16 @@ s32 func_ov003_020cce34(s32 side) {
     Ov003CutinActor* actor;
 
     if (side == 0) {
-        actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+        actor = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     } else {
-        actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+        actor = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     }
     if (actor != NULL) {
         do {
             if (actor->base.group < 0x3C && actor->base.group >= 0) {
                 return 1;
             }
-            actor = func_ov003_02084984(&actor->base.node);
+            actor = CombatList_GetNext(&actor->base.node);
         } while (actor != NULL);
     }
     return 0;
@@ -1026,11 +1025,11 @@ void func_ov003_020ccec0(CombatActor* actor, s32 flag) {
 }
 
 s32 func_ov003_020ccedc(s32 index) {
-    return data_ov003_020e71b8->unk3D7C0[index].unk_0C;
+    return g_CombatGlobal->unk3D7C0[index].unk_0C;
 }
 
 s32 func_ov003_020ccefc(s32 index) {
-    return data_ov003_020e71b8->unk3D7C0[index].unk_10;
+    return g_CombatGlobal->unk3D7C0[index].unk_10;
 }
 
 /// Brings `*value` toward 0 by `step` and stops at 0.
@@ -1090,8 +1089,8 @@ s32 func_ov003_020cd010(Ov003EnemyActor* actor) {
             actor->flags18C &= ~0x20;
             func_ov003_020c4ee0(actor);
             func_ov003_020c4a34(actor);
-            if (data_ov003_020e71b8->unk3D8A0 == actor) {
-                data_ov003_020e71b8->unk3D8A0 = NULL;
+            if (g_CombatGlobal->unk3D8A0 == actor) {
+                g_CombatGlobal->unk3D8A0 = NULL;
             }
         }
         actor->actor.flags |= 4;
@@ -1114,7 +1113,7 @@ s32 func_ov003_020cd010(Ov003EnemyActor* actor) {
 }
 
 s32 func_ov003_020cd11c(s32 index) {
-    return data_ov003_020d4231[index * 12];
+    return CombatAttackInfo_Table[index].unk_05;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1133,9 +1132,9 @@ s32 func_ov003_020cd134(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 
     args.curveSpeed = curveSpeed;
     args.yScale     = yScale;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     return EasyTask_CreateTask(pool, &data_ov003_020e0c0c, NULL, 0, NULL, &args);
 }
@@ -1197,10 +1196,10 @@ static s32 func_ov003_020cd44c(Ov003EnemyShotBlossom* self) {
     if (self->frame % 5 == 0) {
         func_ov003_020cd6f4(&self->source, 0xC00, 0x180);
     }
-    func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &sy, &sx, self->source.core.position.x,
-                        self->source.core.position.y, self->source.core.position.z);
-    self->source.core.hitResult = func_ov003_0208a1a4(func_ov003_0208a114(self->source.core.attackId),
-                                                      &self->source.core.owner->base.actor.baseArgs, sx, sy);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &sy, &sx, self->source.core.position.x,
+                              self->source.core.position.y, self->source.core.position.z);
+    self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
+                                                           &self->source.core.owner->base.actor.baseArgs, sx, sy);
     self->frame++;
     CombatSprite_Update(&self->sprite);
     return 1;
@@ -1210,8 +1209,8 @@ static s32 func_ov003_020cd618(Ov003EnemyShotBlossom* self) {
     s16 x;
     s16 y;
 
-    func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                        self->source.core.position.y, self->source.core.position.z);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                              self->source.core.position.y, self->source.core.position.z);
     CombatSprite_SetPosition(&self->sprite, y, x);
     func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     CombatSprite_Render(&self->sprite);

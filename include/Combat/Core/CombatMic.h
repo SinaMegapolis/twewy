@@ -24,6 +24,7 @@ struct BtlMicInput {
     /* 0x41 */ u8             pad_41[3];
 }; // Size: 0x44
 
+void BtlMic_Init(void);
 void func_ov003_020a50f4(s32 result, BtlMicInput* input);
 
 s32  func_020405d4(void);

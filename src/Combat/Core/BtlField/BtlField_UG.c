@@ -1,4 +1,5 @@
 #include "Combat/Core/BtlField.h"
+#include "Combat/Core/BtlFieldData.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatBgRes.h"
@@ -23,27 +24,6 @@
 // rows that scroll over it. The sub-screen twin of this record lives in a sibling unit and builds
 // its resources from the same `DatMgr_LoadPackEntry` recipe.
 
-/// The 0x1C-byte entry of `data_ov003_020da2bc` that describes one background of the main screen.
-typedef struct BtlFieldDef {
-    /* 0x00 */ BinIdentifier*      iden;     // pack the background is cut from
-    /* 0x04 */ s32                 groundY;  // world Y of the floor
-    /* 0x08 */ const Ov003ResCmd** scripts;  // resource script of each battle index
-    /* 0x0C */ u8                  charPack; // pack indices inside the entry's data
-    /* 0x0D */ u8                  rowPack;
-    /* 0x0E */ u8                  paletteIndex;
-    /* 0x0F */ u8                  palCount;
-    /* 0x10 */ u8                  charIndexA;
-    /* 0x11 */ u8                  charIndexB;
-    /* 0x12 */ u16                 charCountA;
-    /* 0x14 */ u16                 charCountB;
-    /* 0x16 */ u8                  rowIndex0;
-    /* 0x17 */ u8                  rowIndex1;
-    /* 0x18 */ u8                  rowIndex2;
-    /* 0x19 */ u8                  rowIndex3;
-    /* 0x1A */ u8                  scrollRows;
-    /* 0x1B */ u8                  unk_1B;
-} BtlFieldDef; // Size: 0x1C
-
 /// The task data of the field background: the camera it follows, its resources, the two floor strips and the
 /// resource script state (`baseMap`) that drives the tilemap.
 typedef struct BtlFieldUG {
@@ -59,8 +39,6 @@ typedef struct BtlFieldUG {
     /* 0x78 */ void (*update)(struct BtlFieldUG* self);
     /* 0x7C */ Ov003BgResState baseMap;
 } BtlFieldUG; // Size: 0x108
-
-extern const BtlFieldDef data_ov003_020da2bc[];
 
 static s32 BtlField_UG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -108,7 +86,7 @@ static void func_ov003_02093494(BtlFieldUG* state, const Ov003ResCmd** scripts, 
         if (index >= count) {
             index = 0;
         }
-        func_ov003_0208335c(&state->baseMap, scripts[index], state->data);
+        CombatBgRes_RunScript(&state->baseMap, scripts[index], state->data);
     }
 }
 
@@ -194,11 +172,11 @@ static s32 BtlField_UG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(state, NULL, sizeof(*state));
     func_ov003_020933f0();
-    state->camera = &data_ov003_020e71b8->unk3D7C0[0];
+    state->camera = &g_CombatGlobal->unk3D7C0[0];
     state->camera->unk_02 |= 1;
 
-    def = &data_ov003_020da2bc[state->camera->pathId];
-    func_ov003_02083300(&state->baseMap, 0, def->iden);
+    def = &BtlField_UG_Defs[state->camera->pathId];
+    CombatBgRes_Init(&state->baseMap, 0, def->iden);
 
     state->data = DatMgr_LoadPackEntry(1, NULL, 0, def->iden, def->charPack, 0);
     palData     = Data_GetPackEntryData(state->data, def->paletteIndex);
@@ -246,13 +224,13 @@ static s32 BtlField_UG_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlField_UG_Update(TaskPool* pool, Task* task, void* args) {
     BtlFieldUG* state = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x1000) {
+    if (g_CombatGlobal->unk3D878 & 0x1000) {
         return 0;
     }
     if (state->update != NULL) {
         state->update(state);
     }
-    func_ov003_02083390(&state->baseMap);
+    CombatBgRes_Update(&state->baseMap);
     func_ov003_020934c8(state->camera);
     return 1;
 }
@@ -272,7 +250,7 @@ static s32 BtlField_UG_Release(TaskPool* pool, Task* task, void* args) {
     PaletteMgr_ReleaseResource(g_PaletteManagers[0], state->palette);
     func_0200d954(0, 1);
     func_0200d954(0, 2);
-    func_ov003_020833cc(&state->baseMap);
+    CombatBgRes_Release(&state->baseMap);
     DatMgr_ReleaseData(state->data);
     state->camera->unk_02 &= ~1;
     return 1;

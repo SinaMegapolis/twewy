@@ -1,3 +1,4 @@
+#include "Combat/Badge/BtlBadgeActor.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
@@ -30,15 +31,11 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-// The touch action actors: creation, per-frame state machine, the touch-hit push-back and the
-// psych animation objects they spawn. The event queue and the pin bookkeeping live in
-// `ov003_020a30d4.c`; the actors themselves are linked into `Ov003Global + 0x3D8BC`.
-
 // ---------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------
 
-/// The 0x3C-byte effect block at 0xCC, driven by `ov003_020a5250.c`.
+/// The 0x3C-byte effect block at 0xCC, driven by `CombatPsych.c`.
 
 /// The psych trail effect object: a point trail plus the two sprites it draws.
 
@@ -46,7 +43,7 @@
 static s32                func_ov003_020a4908(Ov003PsychParams*, u16);
 static s32                func_ov003_020a49b4(Ov003PsychParams*, u16);
 static s32                func_ov003_020a49c8(Ov003PsychParams*, u16);
-static const EquippedPin* func_ov003_020a4a24(s32 deck);
+static const EquippedPin* BtlBadgeActor_GetDeckLayout(s32 deck);
 
 // ---------------------------------------------------------------------------------------------
 // Data
@@ -144,9 +141,9 @@ static const EquippedPin data_ov003_020dc1ec[6] = {
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-/// Builds the touch action actor described by `spawn` and links it into the actor list.
+/// Builds the badge described by `spawn` and links it into the actor list.
 // Nonmatching: field store scheduling after CombatSprite_InitAnim.
-void func_ov003_020a3b9c(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn) {
+void BtlBadgeActor_Init(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn) {
     SpriteAnimationEx anim;
     s32               angle;
 
@@ -185,8 +182,8 @@ void func_ov003_020a3b9c(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn) {
     func_ov003_020a58e4(&actor->effect, actor->params.head.unk_02, actor->params.unk_04);
     func_ov003_020a7284(actor);
     func_ov003_020a7ba8(actor);
-    data_ov003_020e71b8->touchActorCount++;
-    func_ov003_020849bc(&data_ov003_020e71b8->unk3D8BC, &actor->node, actor);
+    g_CombatGlobal->touchActorCount++;
+    CombatList_Append(&g_CombatGlobal->unk3D8BC, &actor->node, actor);
 }
 
 void func_ov003_020a3d98(Ov003TouchActor* actor) {
@@ -202,11 +199,11 @@ void func_ov003_020a3dac(Ov003TouchActor* actor) {
 s32 func_ov003_020a3dbc(Ov003TouchActor* actor) {
     s32 waiting;
 
-    if (func_ov003_02084d80(0) == 1) {
+    if (CombatDebug_GetSetting(0) == 1) {
         return 0;
     }
-    waiting = data_ov003_020e71b8->unk3D878 & 6;
-    if (waiting != 0 || data_ov003_020e71b8->unk3D884 != 0) {
+    waiting = g_CombatGlobal->unk3D878 & 6;
+    if (waiting != 0 || g_CombatGlobal->unk3D884 != 0) {
         return 0;
     }
     if (actor->kind == 0xFFFE) {
@@ -223,11 +220,11 @@ s32 func_ov003_020a3dbc(Ov003TouchActor* actor) {
 s32 func_ov003_020a3e50(Ov003TouchActor* actor) {
     s32 waiting;
 
-    if (func_ov003_02084d80(0) == 1) {
+    if (CombatDebug_GetSetting(0) == 1) {
         return 0;
     }
-    waiting = data_ov003_020e71b8->unk3D878 & 6;
-    if (waiting != 0 || data_ov003_020e71b8->unk3D884 != 0) {
+    waiting = g_CombatGlobal->unk3D878 & 6;
+    if (waiting != 0 || g_CombatGlobal->unk3D884 != 0) {
         return 0;
     }
     if (actor->kind == 0xFFFE) {
@@ -240,7 +237,7 @@ s32 func_ov003_020a3e50(Ov003TouchActor* actor) {
 // Nonmatching: load of the battle-mode flag is not hoisted out of the branches the same way.
 s32 func_ov003_020a3edc(Ov003TouchActor* actor) {
     u8  mode = actor->unk_00E;
-    s32 flag = data_ov003_020e71b8->unk3D880;
+    s32 flag = g_CombatGlobal->unk3D880;
 
     if (mode == 0) {
         return flag == 0;
@@ -253,19 +250,19 @@ s32 func_ov003_020a3edc(Ov003TouchActor* actor) {
 
 /// TRUE when a touch is inside one of the actor's active touch areas.
 s32 func_ov003_020a3f20(Ov003TouchActor* actor) {
-    if (func_ov003_02085cfc(2) != 0 &&
-        func_ov003_020a410c(actor, data_ov003_020e71b8->touchWork.x, data_ov003_020e71b8->touchWork.y) != 0)
+    if (CombatTouch_IsGesture(2) != 0 &&
+        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
     {
         return 1;
     }
-    if (func_ov003_02085cfc(6) != 0 &&
-        func_ov003_020a410c(actor, data_ov003_020e71b8->touchWork.startX, data_ov003_020e71b8->touchWork.startY) != 0 &&
-        func_ov003_020a410c(actor, data_ov003_020e71b8->touchWork.x, data_ov003_020e71b8->touchWork.y) != 0)
+    if (CombatTouch_IsGesture(6) != 0 &&
+        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.startX, g_CombatGlobal->touchWork.startY) != 0 &&
+        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
     {
         return 1;
     }
-    if (func_ov003_02085cfc(3) != 0 &&
-        func_ov003_020a410c(actor, data_ov003_020e71b8->touchWork.endX, data_ov003_020e71b8->touchWork.endY) != 0)
+    if (CombatTouch_IsGesture(3) != 0 &&
+        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.endX, g_CombatGlobal->touchWork.endY) != 0)
     {
         return 1;
     }
@@ -274,13 +271,13 @@ s32 func_ov003_020a3f20(Ov003TouchActor* actor) {
 
 /// TRUE when the release point of the current touch is inside the actor.
 s32 func_ov003_020a401c(Ov003TouchActor* actor) {
-    if (func_ov003_02085cfc(2) != 0 &&
-        func_ov003_020a410c(actor, data_ov003_020e71b8->touchWork.x, data_ov003_020e71b8->touchWork.y) != 0)
+    if (CombatTouch_IsGesture(2) != 0 &&
+        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
     {
         return 1;
     }
-    if (func_ov003_02085cfc(3) != 0 &&
-        func_ov003_020a410c(actor, data_ov003_020e71b8->touchWork.endX, data_ov003_020e71b8->touchWork.endY) != 0)
+    if (CombatTouch_IsGesture(3) != 0 &&
+        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.endX, g_CombatGlobal->touchWork.endY) != 0)
     {
         return 1;
     }
@@ -298,7 +295,7 @@ s16 func_ov003_020a40bc(Ov003TouchActor* actor) {
 /// Ticks the actor's lifetime counter down and returns it.
 // Nonmatching: the s16 lifetime clamp is narrowed in a different order.
 s16 func_ov003_020a40cc(Ov003TouchActor* actor, s32 amount) {
-    if (func_ov003_02084d80(8) == 0 && actor->params.unk_12 != 0) {
+    if (CombatDebug_GetSetting(8) == 0 && actor->params.unk_12 != 0) {
         s16 value = actor->unk_044 - amount;
 
         if (value < 0) {
@@ -310,7 +307,7 @@ s16 func_ov003_020a40cc(Ov003TouchActor* actor, s32 amount) {
 }
 
 /// TRUE when the screen point (x, y) is inside the actor's touch rectangle.
-s32 func_ov003_020a410c(Ov003TouchActor* actor, s16 x, s16 y) {
+s32 BtlBadgeActor_HitTest(Ov003TouchActor* actor, s16 x, s16 y) {
     s16 radius = actor->radius;
     s32 posX   = actor->x >> 12;
     s32 posY   = actor->y >> 12;
@@ -323,14 +320,14 @@ s32 func_ov003_020a410c(Ov003TouchActor* actor, s16 x, s16 y) {
 
 /// Pushes overlapping actors apart, then keeps every actor inside the touch area.
 // Nonmatching: pairwise push-back loop: bookkeeping registers and branch layout.
-void func_ov003_020a4158(void) {
+void BtlBadgeActor_SeparateAll(void) {
     Ov003TouchActor* a;
     Ov003TouchActor* b;
 
-    for (a = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC); a != NULL; a = func_ov003_02084984(&a->node)) {
+    for (a = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); a != NULL; a = CombatList_GetNext(&a->node)) {
         s32 aActive = func_ov003_020a3e50(a);
 
-        for (b = func_ov003_02084970(&data_ov003_020e71b8->unk3D8BC); b != NULL; b = func_ov003_02084998(&b->node)) {
+        for (b = CombatList_GetTail(&g_CombatGlobal->unk3D8BC); b != NULL; b = CombatList_GetPrev(&b->node)) {
             s32 bActive = func_ov003_020a3e50(b);
             s32 radius;
             s32 dx;
@@ -362,7 +359,7 @@ void func_ov003_020a4158(void) {
             }
         }
     }
-    for (a = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC); a != NULL; a = func_ov003_02084984(&a->node)) {
+    for (a = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); a != NULL; a = CombatList_GetNext(&a->node)) {
         s32 radius;
 
         if (func_ov003_020a3e50(a) == 0) {
@@ -384,10 +381,10 @@ void func_ov003_020a4158(void) {
 
 /// Requests state `request` from the actor; a "revive" request while the actor is still fading
 /// turns into the death state instead.
-void func_ov003_020a4390(Ov003TouchActor* actor, s32 request) {
+void BtlBadgeActor_Request(Ov003TouchActor* actor, s32 request) {
     if (request == 5) {
-        func_ov003_020a45d4(actor);
-        func_ov003_02087ed8(SEIDX_SE_PSY_FULL);
+        BtlBadgeActor_PickRequest(actor);
+        CombatSe_Play(SEIDX_SE_PSY_FULL);
         return;
     }
     if (request == 2 && actor->params.unk_1E == 0) {
@@ -399,7 +396,7 @@ void func_ov003_020a4390(Ov003TouchActor* actor, s32 request) {
 
 /// Runs the pending actor request and returns it (0 = none).
 // Nonmatching: request dispatch: per-case reloads of the psych parameters.
-u32 func_ov003_020a43c8(Ov003TouchActor* actor) {
+u32 BtlBadgeActor_RunRequest(Ov003TouchActor* actor) {
     u32                  request = actor->request;
     Ov003TouchSlotTable* slots   = &gSaveData.battleTouchSlots;
 
@@ -464,7 +461,7 @@ u32 func_ov003_020a43c8(Ov003TouchActor* actor) {
 
 /// TRUE while both of the partner's psych actions are idle.
 static s32 func_ov003_020a4594(void) {
-    if (func_ov003_020a3330(0x46) != 0 && func_ov003_020a3330(0x47) != 0 && func_ov003_020a3330(0x48) != 0) {
+    if (CombatAbility_IsActive(0x46) != 0 && CombatAbility_IsActive(0x47) != 0 && CombatAbility_IsActive(0x48) != 0) {
         return 1;
     }
     return 0;
@@ -472,7 +469,7 @@ static s32 func_ov003_020a4594(void) {
 
 /// Picks the next state request for the actor from the current battle state.
 // Nonmatching: request selection branch layout.
-void func_ov003_020a45d4(Ov003TouchActor* actor) {
+void BtlBadgeActor_PickRequest(Ov003TouchActor* actor) {
     u16 value = actor->params.unk_18;
 
     switch (value) {
@@ -490,7 +487,7 @@ void func_ov003_020a45d4(Ov003TouchActor* actor) {
             }
             break;
     }
-    if (((s32)gSaveData.unk_3142 > 1) && data_ov003_020e71b8->unk3D890 == 0xD) {
+    if (((s32)gSaveData.unk_3142 > 1) && g_CombatGlobal->unk3D890 == 0xD) {
         switch (gSaveData.battleTouchSlots.kind[actor->slot]) {
             case 3:
                 actor->request = 7;
@@ -506,27 +503,27 @@ void func_ov003_020a45d4(Ov003TouchActor* actor) {
                 break;
         }
     }
-    if (data_ov003_020e71b8->unk3D88D == 5) {
+    if (g_CombatGlobal->unk3D88D == 5) {
         actor->request = 6;
     }
     if (func_ov003_020a6cc4(actor->params.unk_05) != 0) {
         actor->request = 6;
     }
-    if (func_ov003_02084d80(4) == 0x3B) {
+    if (CombatDebug_GetSetting(4) == 0x3B) {
         actor->request = 6;
     }
 }
 
 /// The equipped pin of deck slot `slot` for the player `deck`.
-const EquippedPin* func_ov003_020a4718(s32 deck, s32 slot) {
+const EquippedPin* BtlBadgeActor_GetEquippedPin(s32 deck, s32 slot) {
     if (deck == 0xD) {
         return &gSaveData.equippedPins[slot];
     }
-    return &func_ov003_020a4a24(deck)[slot];
+    return &BtlBadgeActor_GetDeckLayout(deck)[slot];
 }
 
 /// Loads the raw pin record `pinId` into `out`.
-s32 func_ov003_020a474c(u16 pinId, void* out) {
+s32 BtlBadgeActor_LoadPinData(u16 pinId, void* out) {
     DatMgr_ReleaseData(DatMgr_LoadRawDataWithOffset(1, out, 0x34, &data_ov003_020dc03c, pinId * 0x34));
     return 1;
 }
@@ -537,8 +534,8 @@ s32 func_ov003_020a4778(Ov003PsychParams* params, s32 level) {
     s32 value = (params->unk_10 * (level - 1)) + params->unk_0E;
     u8  kind  = params->unk_05;
 
-    if (kind < 0xD && func_ov003_020a3330(kind + 0x24) != 0) {
-        s32 scale = FX_Divide(func_ov003_020a3468(kind + 0x24) << 12, 0x64000) + 0x1000;
+    if (kind < 0xD && CombatAbility_IsActive(kind + 0x24) != 0) {
+        s32 scale = FX_Divide(CombatAbility_GetValue(kind + 0x24) << 12, 0x64000) + 0x1000;
 
         value = FX_Mul(value << 12, scale) >> 12;
     }
@@ -572,8 +569,8 @@ static s32 func_ov003_020a4908(Ov003PsychParams* params, u16 level) {
 
     switch (params->unk_12) {
         case 2:
-            if (func_ov003_020a3330(0x10) != 0) {
-                value += func_ov003_020a3468(0x10);
+            if (CombatAbility_IsActive(0x10) != 0) {
+                value += CombatAbility_GetValue(0x10);
             }
             if (value > 0xA) {
                 value = 0xA;
@@ -581,8 +578,8 @@ static s32 func_ov003_020a4908(Ov003PsychParams* params, u16 level) {
             break;
         case 1:
         case 3:
-            if (func_ov003_020a3330(0x11) != 0) {
-                s32 scale = FX_Mul(func_ov003_020a3468(0x11) << 12, value << 12);
+            if (CombatAbility_IsActive(0x11) != 0) {
+                s32 scale = FX_Mul(CombatAbility_GetValue(0x11) << 12, value << 12);
 
                 scale = FX_Divide(scale, 0x64000);
                 if (scale < 0x1000) {
@@ -604,250 +601,13 @@ static s32 func_ov003_020a49b4(Ov003PsychParams* params, u16 level) {
 static s32 func_ov003_020a49c8(Ov003PsychParams* params, u16 level) {
     s16 value = (params->unk_22 * (level - 1)) + params->unk_20;
 
-    if (func_ov003_020a3330(0x49) != 0) {
-        value -= FX_Divide(FX_Mul(value << 12, func_ov003_020a3468(0x49) << 12), 0x64000) >> 12;
+    if (CombatAbility_IsActive(0x49) != 0) {
+        value -= FX_Divide(FX_Mul(value << 12, CombatAbility_GetValue(0x49) << 12), 0x64000) >> 12;
     }
     return value;
 }
 
 /// The equipped-pin layout of player `deck`.
-static const EquippedPin* func_ov003_020a4a24(s32 deck) {
+static const EquippedPin* BtlBadgeActor_GetDeckLayout(s32 deck) {
     return data_ov003_020dc054[deck];
-}
-
-/// Sets up the two sprite slots and the trail of the psych effect object.
-void func_ov003_020a4a34(Ov003TrailEffect* effect) {
-    effect->state = 0;
-    effect->count = 0;
-    effect->scale = 0x1F000;
-    func_ov003_020a3498(&effect->spriteA, 2, 1, 0xB5, 1);
-    func_ov003_02082730(&effect->spriteA, 0x3E7);
-    func_ov003_020a3498(&effect->spriteB, 2, 1, 0xB6, 0);
-    func_ov003_02082730(&effect->spriteB, 0x3E8);
-}
-
-/// Updates the psych effect trail; returns 0 when it is finished.
-// Nonmatching: trail update: duplicated effect-position loads are scheduled differently.
-s32 func_ov003_020a4aac(Ov003TrailEffect* effect) {
-    s32 count;
-
-    CombatSprite_Update(&effect->spriteA);
-    CombatSprite_Update(&effect->spriteB);
-    switch (effect->state) {
-        case 0:
-            effect->points[effect->count][0] = data_ov003_020e71b8->touchWork.x;
-            effect->points[effect->count][1] = data_ov003_020e71b8->touchWork.y;
-            effect->count++;
-            if (func_ov003_02085cfc(6) == 0) {
-                effect->state = 3;
-                return 1;
-            }
-            count = effect->count;
-            if (count > 2) {
-                if (func_ov003_020a632c(effect->points[count - 1][0], effect->points[count - 1][1],
-                                        data_ov003_020e71b8->touchWork.x, data_ov003_020e71b8->touchWork.y) > 0x6000)
-                {
-                    if (effect->count < 0x78) {
-                        s16 x = effect->points[count - 1][0];
-                        s16 y = effect->points[count - 1][1];
-
-                        effect->points[count - 1][0]     = x + (data_ov003_020e71b8->touchWork.x - x) / 2;
-                        effect->points[count - 1][1]     = y + (data_ov003_020e71b8->touchWork.y - y) / 2;
-                        effect->points[effect->count][0] = data_ov003_020e71b8->touchWork.x;
-                        effect->points[effect->count][1] = data_ov003_020e71b8->touchWork.y;
-                        effect->count++;
-                    }
-                }
-                if (func_ov003_020a4d6c(effect) != 0) {
-                    func_ov003_02087f00(SEIDX_SE_PSY_FIREBALL01_02, effect->pivotX);
-                    effect->state = 1;
-                    return 1;
-                }
-                if (effect->count >= 0x78) {
-                    effect->state = 3;
-                    return 1;
-                }
-            }
-            if (SndMgr_IsSEPlaying(SEIDX_SE_PSY_FIREBALL01_01) == 0) {
-                func_ov003_02087f00(SEIDX_SE_PSY_FIREBALL01_01, data_ov003_020e71b8->touchWork.x);
-            }
-            return 1;
-        case 1:
-            effect->scale -= 0x1800;
-            if (effect->scale < 0x1000) {
-                effect->state = 2;
-            }
-            return 1;
-        case 2:
-            return 0;
-        case 3:
-            return 2;
-    }
-    return 1;
-}
-
-/// Renders the psych trail.
-// Nonmatching: trail render loop register allocation.
-void func_ov003_020a4c8c(Ov003TrailEffect* effect) {
-    s32 i;
-
-    for (i = 0; i < effect->count; i++) {
-        CombatSprite_SetPosition(&effect->spriteA, effect->points[i][0], effect->points[i][1]);
-        func_ov003_02082730(&effect->spriteA, 0x3B6000);
-        if (effect->scale >= 0x1000) {
-            if (effect->scale < 0x1F000) {
-                CombatSprite_RenderWithPalette(&effect->spriteA, effect->scale >> 12);
-            } else {
-                CombatSprite_Render(&effect->spriteA);
-            }
-        }
-    }
-    if (effect->state != 0) {
-        return;
-    }
-    CombatSprite_SetPosition(&effect->spriteB, data_ov003_020e71b8->touchWork.x, data_ov003_020e71b8->touchWork.y);
-    func_ov003_02082730(&effect->spriteB, 0x3B7000);
-    CombatSprite_Render(&effect->spriteB);
-}
-
-// Nonmatching: tail-call register allocation.
-void func_ov003_020a4d50(Ov003TrailEffect* effect) {
-    CombatSprite_Release(&effect->spriteA);
-    CombatSprite_Release(&effect->spriteB);
-}
-
-/// Checks that the trail is long and straight enough to fire the psych.
-s32 func_ov003_020a4d6c(Ov003TrailEffect* effect) {
-    s16(*points)[2] = effect->points;
-    s32 last        = effect->count - 1;
-    s32 mid         = last / 2;
-    s32 midX;
-    s32 midY;
-    s32 min = 0x3E8000;
-    s32 max = 0;
-    s32 dist;
-    s32 i;
-
-    if (func_ov003_020a632c(points[0][0], points[0][1], points[last][0], points[last][1]) > 0x10000) {
-        return 0;
-    }
-    dist = func_ov003_020a632c(points[0][0], points[0][1], points[mid][0], points[mid][1]);
-    if (dist < 0x30000 || dist > 0x100000) {
-        return 0;
-    }
-    midX = points[0][0] + (points[mid][0] - points[0][0]) / 2;
-    midY = points[0][1] + (points[mid][1] - points[0][1]) / 2;
-    for (i = 0; i < last; i++) {
-        dist = func_ov003_020a632c(midX, midY, points[i][0], points[i][1]);
-        if (min > dist) {
-            min = dist;
-        }
-        if (max < dist) {
-            max = dist;
-        }
-    }
-    if (max - min > 0x30000) {
-        return 0;
-    }
-    effect->pivotX = midX;
-    effect->pivotY = midY;
-    return 1;
-}
-
-/// Binds camera `index` to the animation driven by `obj`.
-void func_ov003_020a4e84(Ov003CameraAnim* obj, s32 index, s32 arg2) {
-    obj->camera         = &data_ov003_020e71b8->unk3D7C0[index];
-    obj->camera->unk_44 = 0;
-    obj->camera->unk_48 = 0;
-    obj->camera->unk_4C = 0;
-    obj->timer          = -1;
-    obj->index          = arg2;
-}
-
-void func_ov003_020a4ed0(Ov003CameraAnim* obj, s32 period, s32 offset) {
-    obj->period = period;
-    obj->timer  = period;
-    obj->dir    = 0;
-    obj->offset = offset;
-}
-
-/// Steps the camera shake animation; returns 1 when it hit a limit this frame.
-s32 func_ov003_020a4ee8(Ov003CameraAnim* obj, s32 delta, s32 min, s32 max) {
-    s32 hit = 0;
-    s32 value;
-
-    if (obj->timer == -1) {
-        return 0;
-    }
-    if (--obj->timer == 0) {
-        obj->timer = obj->period;
-        obj->dir   = obj->dir == 0 ? 1 : 0;
-        if (obj->index == 0) {
-            obj->camera->unk_44 = (RNG_Next(3) - 1) << 12;
-        } else {
-            obj->camera->unk_48 = (RNG_Next(3) - 1) << 12;
-        }
-    }
-    obj->offset += delta;
-    if (obj->offset > max) {
-        obj->offset = max;
-        hit         = 1;
-    } else if (obj->offset < min) {
-        obj->offset = min;
-        hit         = 1;
-    }
-    if (obj->dir != 0) {
-        value = -obj->offset;
-    } else {
-        value = obj->offset;
-    }
-    if (obj->index == 0) {
-        obj->camera->unk_48 = value;
-    } else {
-        obj->camera->unk_44 = value;
-    }
-    return hit;
-}
-
-void func_ov003_020a4fd0(Ov003CameraAnim* obj) {
-    obj->camera->unk_44 = 0;
-    obj->camera->unk_48 = 0;
-    obj->camera->unk_4C = 0;
-}
-
-/// Sets up the 3D layer the touch action sprites are rendered through.
-/// The layer block at `Ov003Global + 0x3D760`: 0x20 bytes of data followed by the parameters of the 3D layer.
-typedef struct Ov003TouchLayer {
-    /* 0x00 */ u8  data[0x20];
-    /* 0x20 */ u32 mode;
-    /* 0x24 */ u32 source;
-    /* 0x28 */ u32 size;
-    /* 0x2C */ u32 id;
-    /* 0x30 */ u32 unk_30;
-    /* 0x34 */ u32 callback;
-    /* 0x38 */ u32 target;
-    /* 0x3C */ u32 unk_3C;
-    /* 0x40 */ u8  alpha;
-} Ov003TouchLayer;
-
-void func_ov003_020a4ff0(void) {
-    Ov003TouchLayer* layer;
-    s32              i;
-
-    func_020405d4();
-    func_02040ac0();
-    layer = (Ov003TouchLayer*)data_ov003_020e71b8->touchLayerData;
-    for (i = 0; i < 0x20; i++) {
-        layer->data[i] = 0;
-    }
-    layer->mode     = 2;
-    layer->source   = (u32)layer;
-    layer->size     = 0x20;
-    layer->id       = 0x105D;
-    layer->unk_30   = 0;
-    layer->callback = (u32)&func_ov003_020a50f4;
-    layer->target   = (u32)layer;
-    func_02041030(1);
-    func_02041048(1);
-    layer->alpha = 0xB4;
 }

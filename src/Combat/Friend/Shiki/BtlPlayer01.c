@@ -86,9 +86,9 @@ void func_ov004_020e739c(s16* arg0, s32 arg1) {
     // u16   temp_r1;
     // void* var_r0;
 
-    // func_ov003_02086c04(&subroutine_arg0, func_ov004_020e737c());
+    // CombatSys_ShuffleIds(&subroutine_arg0, func_ov004_020e737c());
     // var_r5 = 0;
-    // var_r0 = func_ov003_0208495c(arg0 + 4);
+    // var_r0 = CombatList_GetHead(arg0 + 4);
     // if (var_r0 != NULL) {
     //     do {
     //         temp_r1 = (&subroutine_arg0)[var_r5];
@@ -103,7 +103,7 @@ void func_ov004_020e739c(s16* arg0, s32 arg1) {
     //         var_r0->unkC4 = var_r1;
     //         var_r0->unkC8 = 0;
     //         var_r0->unkC6 = 0;
-    //         var_r0        = func_ov003_02084984(var_r0 + 0xDC);
+    //         var_r0        = CombatList_GetNext(var_r0 + 0xDC);
     //     } while (var_r0 != NULL);
     // }
     // *arg0 = 0;
@@ -113,7 +113,7 @@ void func_ov004_020e739c(s16* arg0, s32 arg1) {
 void* func_ov004_020e742c(s16* arg0, s16 arg1) {
     // void* var_r0;
 
-    // var_r0 = func_ov003_0208495c(arg0 + 4);
+    // var_r0 = CombatList_GetHead(arg0 + 4);
     // if (var_r0 == NULL) {
     //     return;
     // }
@@ -121,7 +121,7 @@ void* func_ov004_020e742c(s16* arg0, s16 arg1) {
     // if (var_r0->unkCC == arg1) {
     //     return;
     // }
-    // var_r0 = func_ov003_02084984(var_r0 + 0xDC);
+    // var_r0 = CombatList_GetNext(var_r0 + 0xDC);
     // if (var_r0 == NULL) {
     //     return;
     // }
@@ -168,22 +168,22 @@ static void func_ov004_020e750c(BtlPlayer01* player, s32 arg1) {
     if (arg1 != 0) {
         switch (RNG_Next(2)) {
             case 0:
-                func_ov003_02087f64(917, player->actor.position.x);
+                CombatSe_PlayAtSubX(917, player->actor.position.x);
                 return;
             case 1:
-                func_ov003_02087f64(918, player->actor.position.x);
+                CombatSe_PlayAtSubX(918, player->actor.position.x);
                 return;
         }
     } else if (player->unk_144 <= 0) {
         switch (RNG_Next(3)) {
             case 0:
-                func_ov003_02087f64(914, player->actor.position.x);
+                CombatSe_PlayAtSubX(914, player->actor.position.x);
                 break;
             case 1:
-                func_ov003_02087f64(915, player->actor.position.x);
+                CombatSe_PlayAtSubX(915, player->actor.position.x);
                 break;
             case 2:
-                func_ov003_02087f64(916, player->actor.position.x);
+                CombatSe_PlayAtSubX(916, player->actor.position.x);
                 break;
         }
         player->unk_144 = 45;
@@ -194,58 +194,58 @@ static void func_ov004_020e75d8(BtlPlayer01* player, s32 arg1) {
     if (arg1 != 0) {
         switch (RNG_Next(9)) {
             case 0:
-                func_ov003_02087f64(899, player->actor.position.x);
+                CombatSe_PlayAtSubX(899, player->actor.position.x);
                 break;
             case 1:
-                func_ov003_02087f64(900, player->actor.position.x);
+                CombatSe_PlayAtSubX(900, player->actor.position.x);
                 break;
             case 2:
-                func_ov003_02087f64(901, player->actor.position.x);
+                CombatSe_PlayAtSubX(901, player->actor.position.x);
                 break;
             case 3:
-                func_ov003_02087f64(902, player->actor.position.x);
+                CombatSe_PlayAtSubX(902, player->actor.position.x);
                 break;
             case 4:
-                func_ov003_02087f64(903, player->actor.position.x);
+                CombatSe_PlayAtSubX(903, player->actor.position.x);
                 break;
             case 5:
-                func_ov003_02087f64(904, player->actor.position.x);
+                CombatSe_PlayAtSubX(904, player->actor.position.x);
                 break;
             case 6:
-                func_ov003_02087f64(905, player->actor.position.x);
+                CombatSe_PlayAtSubX(905, player->actor.position.x);
                 break;
             case 7:
-                func_ov003_02087f64(906, player->actor.position.x);
+                CombatSe_PlayAtSubX(906, player->actor.position.x);
                 break;
             case 8:
-                func_ov003_02087f64(907, player->actor.position.x);
+                CombatSe_PlayAtSubX(907, player->actor.position.x);
                 break;
         }
     } else if (player->unk_142 <= 0) {
         switch (RNG_Next(8)) {
             case 0:
-                func_ov003_02087f64(891, player->actor.position.x);
+                CombatSe_PlayAtSubX(891, player->actor.position.x);
                 break;
             case 1:
-                func_ov003_02087f64(892, player->actor.position.x);
+                CombatSe_PlayAtSubX(892, player->actor.position.x);
                 break;
             case 2:
-                func_ov003_02087f64(893, player->actor.position.x);
+                CombatSe_PlayAtSubX(893, player->actor.position.x);
                 break;
             case 3:
-                func_ov003_02087f64(894, player->actor.position.x);
+                CombatSe_PlayAtSubX(894, player->actor.position.x);
                 break;
             case 4:
-                func_ov003_02087f64(895, player->actor.position.x);
+                CombatSe_PlayAtSubX(895, player->actor.position.x);
                 break;
             case 5:
-                func_ov003_02087f64(896, player->actor.position.x);
+                CombatSe_PlayAtSubX(896, player->actor.position.x);
                 break;
             case 6:
-                func_ov003_02087f64(897, player->actor.position.x);
+                CombatSe_PlayAtSubX(897, player->actor.position.x);
                 break;
             case 7:
-                func_ov003_02087f64(898, player->actor.position.x);
+                CombatSe_PlayAtSubX(898, player->actor.position.x);
                 break;
         }
         player->unk_142 = 45;
@@ -334,10 +334,10 @@ static void func_ov004_020e79a8(BtlPlayer01* player, s32 arg1, s32 arg2) {
     s32 temp_r0;
 
     if (player->unk_140 == 0) {
-        temp_r0 = func_ov003_020869e4();
+        temp_r0 = CombatSys_PopPartnerAction();
     }
 
-    switch (func_ov003_02086a40()) {
+    switch (CombatSys_TakePartnerDirection()) {
         case 1:
             player->actor.isFlipped = 0;
             break;
@@ -358,9 +358,9 @@ static void func_ov004_020e79a8(BtlPlayer01* player, s32 arg1, s32 arg2) {
 
 // Nonmatching
 void func_ov004_020e7a24(BtlPlayer01* player) {
-    player->actor.isFlipped = func_ov003_020843b0(1, player->actor.position.x) < 0x80;
+    player->actor.isFlipped = CombatStage_ToScreenX(1, player->actor.position.x) < 0x80;
 
-    if (data_ov003_020e71b8->unk3D874 == 2) {
+    if (g_CombatGlobal->unk3D874 == 2) {
         player->unk_14C = func_ov004_020e8394;
         player->unk_150 = 0;
         player->unk_152 = 0;
@@ -371,8 +371,8 @@ void func_ov004_020e7a84(BtlPlayer01* player) {
     switch (player->unk_150) {
         case 0: {
             if (player->unk_152 == 0) {
-                data_ov003_020e71b8->unk3D8E0 = 1;
-                player->unk_140               = 8;
+                g_CombatGlobal->unk3D8E0 = 1;
+                player->unk_140          = 8;
                 player->actor.flags |= 2;
                 func_ov004_020e7490(player, 0);
                 func_ov004_020e750c(player, 0);
@@ -405,7 +405,7 @@ void func_ov004_020e7a84(BtlPlayer01* player) {
             }
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite)) {
                 player->actor.flags &= ~2;
-                player->actor.position.x = data_ov003_020e71b8->unk3D7C0[1].unk_20;
+                player->actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20;
                 player->unk_14C          = func_ov004_020e8394;
                 player->unk_150          = 0;
                 player->unk_152          = 0;
@@ -418,8 +418,8 @@ void func_ov004_020e7c14(BtlPlayer01* player) {
     switch (player->unk_150) {
         case 0: {
             if (player->unk_152 == 0) {
-                data_ov003_020e71b8->unk3D8E0 = 1;
-                player->unk_140               = 8;
+                g_CombatGlobal->unk3D8E0 = 1;
+                player->unk_140          = 8;
                 player->actor.flags |= 0x4002;
 
                 s32 val = player->actor.unk_0C;
@@ -493,7 +493,7 @@ void func_ov004_020e7c14(BtlPlayer01* player) {
         case 4:
             if (player->unk_152 == 0) {
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 0xFU, 1);
-                func_ov003_02087f28(0x369, ((BtlPlayer01*)data_ov003_020e71b8->unk3D898)->actor.position.x);
+                CombatSe_PlayAtMainX(0x369, ((BtlPlayer01*)g_CombatGlobal->unk3D898)->actor.position.x);
                 player->unk_152++;
             }
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite) == 0) {
@@ -510,7 +510,7 @@ void func_ov004_020e7f30(BtlPlayer01* player) {
     switch (player->unk_150) {
         case 0: {
             if (player->unk_152 == 0) {
-                s32 temp_r2 = data_ov003_020e71b8->unk3D7C0[1].unk_20;
+                s32 temp_r2 = g_CombatGlobal->unk3D7C0[1].unk_20;
                 if (player->actor.position.x > temp_r2) {
                     player->actor.isFlipped = 0;
                 }
@@ -523,8 +523,8 @@ void func_ov004_020e7f30(BtlPlayer01* player) {
                 player->unk_152 = 0x10;
             }
             if (player->unk_152 > 0) {
-                func_02026590(&player->actor.position.x, data_ov003_020e71b8->unk3D7C0[1].unk_20, (u16)player->unk_152);
-                func_02026590(&player->actor.position.y, data_ov003_020e71b8->unk3D7C0[1].unk_24, (u16)player->unk_152);
+                func_02026590(&player->actor.position.x, g_CombatGlobal->unk3D7C0[1].unk_20, (u16)player->unk_152);
+                func_02026590(&player->actor.position.y, g_CombatGlobal->unk3D7C0[1].unk_24, (u16)player->unk_152);
                 player->unk_152--;
             }
             if (player->unk_152 <= 0) {
@@ -547,7 +547,7 @@ void func_ov004_020e7f30(BtlPlayer01* player) {
 void func_ov004_020e808c(BtlPlayer01* player) {
     switch (player->unk_150) {
         case 0: {
-            func_ov003_02087f64(0x85, player->actor.position.x);
+            CombatSe_PlayAtSubX(0x85, player->actor.position.x);
             CombatSprite_SetAnimFromTable(&player->unk_07C, 30, 1);
             CombatSprite_Restart(&player->unk_07C);
             player->unk_150++;
@@ -564,7 +564,7 @@ void func_ov004_020e808c(BtlPlayer01* player) {
                 player->unk_152 = 8;
             }
             if (player->unk_152 > 0) {
-                func_02026590(&player->actor.position.x, data_ov003_020e71b8->unk3D7C0[1].unk_20, (u16)player->unk_152);
+                func_02026590(&player->actor.position.x, g_CombatGlobal->unk3D7C0[1].unk_20, (u16)player->unk_152);
                 player->unk_152--;
             }
             if (player->unk_152 <= 0) {
@@ -575,7 +575,7 @@ void func_ov004_020e808c(BtlPlayer01* player) {
 
         case 3: {
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite)) {
-                player->actor.position.x = (s32)data_ov003_020e71b8->unk3D7C0[1].unk_20;
+                player->actor.position.x = (s32)g_CombatGlobal->unk3D7C0[1].unk_20;
                 player->actor.flags &= ~8;
                 player->unk_14C = func_ov004_020e8394;
                 player->unk_150 = 0;
@@ -613,8 +613,8 @@ void func_ov004_020e81d0(BtlPlayer01* player) {
 void func_ov004_020e8270(BtlPlayer01* player) {
     switch (player->unk_150) {
         case 0: {
-            data_ov003_020e71b8->unk3D8E0 = 1;
-            player->unk_140               = 8;
+            g_CombatGlobal->unk3D8E0 = 1;
+            player->unk_140          = 8;
             player->actor.flags |= 0x10;
             CombatSprite_SetPaletteMode(&player->unk_07C, 2);
             CombatSprite_SetAnimFromTable(&player->unk_07C, 0x24, 1);
@@ -634,7 +634,7 @@ void func_ov004_020e8270(BtlPlayer01* player) {
         } break;
 
         case 2: {
-            if ((data_ov003_020e71b8->unk3D878 & 8) == 0) {
+            if ((g_CombatGlobal->unk3D878 & 8) == 0) {
                 player->actor.flags &= ~0x10;
                 player->unk_14C = func_ov004_020e8394;
                 player->unk_150 = 0;
@@ -645,7 +645,7 @@ void func_ov004_020e8270(BtlPlayer01* player) {
 }
 
 void func_ov004_020e8394(BtlPlayer01* player) {
-    if (player->actor.position.x != data_ov003_020e71b8->unk3D7C0[1].unk_20) {
+    if (player->actor.position.x != g_CombatGlobal->unk3D7C0[1].unk_20) {
         player->unk_14C = func_ov004_020e7f30;
         player->unk_150 = 0;
         player->unk_152 = 0;
@@ -659,7 +659,7 @@ void func_ov004_020e8394(BtlPlayer01* player) {
         func_ov003_02086aa8(1);
     }
 
-    switch (func_ov003_0208765c(&player->unk_13C, data_ov003_020e71b8->unk3D8D4, player->unk_152)) {
+    switch (func_ov003_0208765c(&player->unk_13C, g_CombatGlobal->unk3D8D4, player->unk_152)) {
         case 1:
             CombatSprite_SetAnimFromTable(&player->unk_07C, 0, 0);
             break;
@@ -852,7 +852,7 @@ void func_ov004_020e8a00(BtlPlayer01* player) {
                 player->unk_140 = 3;
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 28, 1);
                 CombatSprite_Restart(&player->unk_07C);
-                func_ov003_02087f64(0x38C, player->actor.position.x);
+                CombatSe_PlayAtSubX(0x38C, player->actor.position.x);
                 player->unk_152 = 30;
             }
             player->unk_152--;
@@ -943,8 +943,8 @@ void func_ov004_020e8d00(BtlPlayer01* player) {
     switch (player->unk_150) {
         case 0: {
             if (player->unk_152 == 0) {
-                data_ov003_020e71b8->unk3D8E0 = 1;
-                player->unk_140               = 8;
+                g_CombatGlobal->unk3D8E0 = 1;
+                player->unk_140          = 8;
                 func_ov003_02086ac4(0);
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 34, 1);
                 player->unk_152++;
@@ -974,31 +974,31 @@ s32 BtlPlayer01_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(player, 0, sizeof(BtlPlayer01));
     CombatActor_Init(&player->actor, 0);
-    data_ov003_020e71b8->unk3D89C = player;
-    player->unk_13C               = 0;
-    player->unk_13E               = 0;
-    player->unk_146               = 0;
-    player->unk_148               = 0;
-    player->unk_142               = 0;
-    player->unk_144               = 0;
-    player->actor.isFlipped       = 0;
-    player->actor.position.x      = data_ov003_020e71b8->unk3D7C0[1].unk_20;
-    player->actor.position.y      = data_ov003_020e71b8->unk3D7C0[1].unk_24;
-    player->actor.position.z      = 0;
-    player->actor.unk_70          = 0xC;
-    player->actor.unk_72          = 0x30;
-    player->actor.unk_76          = 0x18;
-    player->actor.unk_66          = func_ov003_0208ca54(1);
-    player->actor.unk_68          = func_ov003_0208cae0(1);
-    if (func_ov003_020a3350(1) != 0) {
-        player->actor.unk_66 += (s16)func_ov003_020a3488(1);
+    g_CombatGlobal->unk3D89C = player;
+    player->unk_13C          = 0;
+    player->unk_13E          = 0;
+    player->unk_146          = 0;
+    player->unk_148          = 0;
+    player->unk_142          = 0;
+    player->unk_144          = 0;
+    player->actor.isFlipped  = 0;
+    player->actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20;
+    player->actor.position.y = g_CombatGlobal->unk3D7C0[1].unk_24;
+    player->actor.position.z = 0;
+    player->actor.unk_70     = 0xC;
+    player->actor.unk_72     = 0x30;
+    player->actor.unk_76     = 0x18;
+    player->actor.unk_66     = func_ov003_0208ca54(1);
+    player->actor.unk_68     = func_ov003_0208cae0(1);
+    if (CombatAbility_IsActiveForPartner(1) != 0) {
+        player->actor.unk_66 += (s16)CombatAbility_GetPartnerValue(1);
     }
-    if (func_ov003_020a3350(2) != 0) {
-        player->actor.unk_68 += (s16)func_ov003_020a3488(2);
+    if (CombatAbility_IsActiveForPartner(2) != 0) {
+        player->actor.unk_68 += (s16)CombatAbility_GetPartnerValue(2);
     }
     player->actor.unk_04 = player->actor.unk_66;
     player->unk_140      = 0;
-    func_ov003_02083ab0(1, player->actor.position.x, player->actor.position.y, player->actor.position.z);
+    CombatStage_SetCameraTarget(1, player->actor.position.x, player->actor.position.y, player->actor.position.z);
     player->unk_14C = func_ov004_020e7a24;
     player->unk_150 = 0;
     player->unk_152 = 0;
@@ -1007,8 +1007,8 @@ s32 BtlPlayer01_Init(TaskPool* pool, Task* task, void* args) {
     } else {
         CombatSprite_LoadFromTable(1, &player->unk_07C, &data_ov003_020d77e0, data_ov004_020f008c, 3, 34, 100);
     }
-    func_ov003_020880e4(1, &player->unk_0DC, (Ov003EnemyActor*)player);
-    EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlArm_Doll, NULL, 0, NULL, &player->unk_140);
+    CombatHit_LoadSparkForUnit(1, &player->unk_0DC, (Ov003EnemyActor*)player);
+    EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlArm_Doll, NULL, 0, NULL, &player->unk_140);
     return 1;
 }
 
@@ -1017,7 +1017,7 @@ s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
 
     switch (CombatActor_PopPendingCommand(&player->actor)) {
         case ACTOR_CMD_HIT:
-            if (func_ov003_020a3350(55) != 0) {
+            if (CombatAbility_IsActiveForPartner(55) != 0) {
                 player->actor.zVelocity = -0x3800;
                 player->unk_14C         = func_ov004_020e7c14;
                 player->unk_150         = 0;
@@ -1030,7 +1030,9 @@ s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
             break;
 
         case ACTOR_CMD_KNOCKDOWN:
-            if (!(player->actor.flags & 0x20000) && !(player->actor.flags & 0x4000) && (func_ov003_020a3350(54) != 0)) {
+            if (!(player->actor.flags & 0x20000) && !(player->actor.flags & 0x4000) &&
+                (CombatAbility_IsActiveForPartner(54) != 0))
+            {
                 player->actor.zVelocity = 0;
                 player->unk_14C         = func_ov004_020e7a84;
                 player->unk_150         = 0;
@@ -1083,7 +1085,7 @@ s32 BtlPlayer01_Render(TaskPool* pool, Task* task, void* args) {
     BtlPlayer01* player = task->data;
 
     CombatActor_Render(&player->actor, &player->unk_07C);
-    func_ov003_0208810c((CombatSprite*)&player->unk_0DC, (CombatActor*)player);
+    CombatHit_DrawSparkOnActor((CombatSprite*)&player->unk_0DC, (CombatActor*)player);
     return 1;
 }
 

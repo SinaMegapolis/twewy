@@ -71,9 +71,9 @@ void func_ov013_021256f0(BtlEnm015* arg0, u16 arg1, void* arg2, void* arg3, void
 
     TaskPool* pool;
     if (func_ov003_020c37f8(&arg0->base.sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
 
     if (arg1 != 0) {
@@ -93,9 +93,9 @@ void func_ov013_021257a4(BtlEnm015* arg0, s32 arg1) {
 
     TaskPool* pool;
     if (func_ov003_020c37f8(&arg0->base.sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm015_EffStamp, NULL, 0, NULL, &spawn);
 }
@@ -107,13 +107,13 @@ void func_ov013_02125838(BtlEnm015* arg0) {
         if (data_ov013_02127640 != -1) {
             return;
         }
-        pool                = &data_ov003_020e71b8->taskPool;
+        pool                = &g_CombatGlobal->taskPool;
         data_ov013_02127640 = EasyTask_CreateTask(pool, &Tsk_BtlEnm015_Shake, NULL, 0, NULL, arg0);
     } else {
         if (data_ov013_02127644 != -1) {
             return;
         }
-        pool                = &data_ov003_020e71b8->unk_00000;
+        pool                = &g_CombatGlobal->unk_00000;
         data_ov013_02127644 = EasyTask_CreateTask(pool, &Tsk_BtlEnm015_Shake, NULL, 0, NULL, arg0);
     }
 }
@@ -160,11 +160,11 @@ s32 func_ov013_02125a04(BtlEnm015* arg0, s32 arg1, s32 arg2, s32 arg3) {
                 return 0;
             }
         } else {
-            s16 x = func_ov003_020843b0(0, arg0->base.actor.position.x);
+            s16 x = CombatStage_ToScreenX(0, arg0->base.actor.position.x);
             if (x >= 0xDC || x <= 0x1E) {
                 return 0;
             }
-            if (func_ov003_020843ec(0, arg0->base.actor.position.y, arg0->base.actor.position.z) <= 0x32) {
+            if (CombatStage_ToScreenY(0, arg0->base.actor.position.y, arg0->base.actor.position.z) <= 0x32) {
                 return 0;
             }
         }
@@ -220,10 +220,10 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
     CombatSprite_Load(&data->base.sprite, &anim);
     CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
 
-    func_ov003_020880e4(arg0, &data->base.subSprite, &data->base);
+    CombatHit_LoadSparkForUnit(arg0, &data->base.subSprite, &data->base);
     func_ov003_020c495c(&data->base);
     if (arg0 == 0) {
-        func_ov003_02084634(&data->base.collider, 1, r4->unk_03, r4->unk_04);
+        CombatCollision_Add(&data->base.collider, 1, r4->unk_03, r4->unk_04);
     }
     func_ov003_020c4ab4(&data->base, 0);
 
@@ -251,7 +251,7 @@ s32 func_ov013_02125d24(BtlEnm015* arg0) {
         case ACTOR_CMD_KNOCKDOWN:
             break;
         case ACTOR_CMD_DEFEAT: {
-            func_ov003_02084694(&arg0->base.collider, 1);
+            CombatCollision_SetDisabled(&arg0->base.collider, 1);
             if (arg0->base.flags18C & 0x10) {
                 arg0->base.flags18C |= 0x20;
             } else {
@@ -276,7 +276,7 @@ s32 func_ov013_02125d24(BtlEnm015* arg0) {
     } else {
         func_ov003_020c4668(&arg0->base);
     }
-    if (data_ov003_020e71b8->unk3D874 == 2 && func_ov003_020c3c28() == 0 && arg0->base.sprite.animTableIndex == 0) {
+    if (g_CombatGlobal->unk3D874 == 2 && func_ov003_020c3c28() == 0 && arg0->base.sprite.animTableIndex == 0) {
         u16 diff;
         if (SpriteMgr_IsFrameFinished(&arg0->base.sprite.sprite)) {
             diff = arg0->base.sprite.sprite.currentFrame - arg0->base.sprite.sprite.loopFrame + 1;
@@ -326,7 +326,7 @@ void func_ov013_02125efc(BtlEnm015* arg0) {
         arg0->base.actor.flags &= ~1;
     }
 
-    if (data_ov003_020e71b8->unk3D87C != 0 && arg0->base.sprite.paletteMode == 1) {
+    if (g_CombatGlobal->unk3D87C != 0 && arg0->base.sprite.paletteMode == 1) {
         CombatSprite_SetPaletteMode(&arg0->base.sprite, 0);
         CombatActor_Render(&arg0->base.actor, &arg0->base.sprite);
         CombatSprite_SetPaletteMode(&arg0->base.sprite, 1);
@@ -336,7 +336,7 @@ void func_ov013_02125efc(BtlEnm015* arg0) {
 
     arg0->base.actor.position.x = x;
     arg0->base.actor.position.y = y;
-    if (func_ov003_02088130() != 0) {
-        func_ov003_0208810c(&arg0->base.subSprite, &arg0->base.actor);
+    if (CombatHit_CanDrawSpark() != 0) {
+        CombatHit_DrawSparkOnActor(&arg0->base.subSprite, &arg0->base.actor);
     }
 }

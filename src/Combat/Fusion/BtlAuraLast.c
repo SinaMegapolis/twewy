@@ -53,15 +53,15 @@ static void func_ov007_020e75fc(s32 arg0, CombatSprite* cSprite, u16 arg2, u16 a
 }
 
 static void func_ov007_020e764c(void) {
-    if (data_ov003_020e71b8->unk3D8EE < 0x1F4) {
-        func_ov003_02087f28(0x365, ((AuraTarget*)data_ov003_020e71b8->unk3D898)->unk_28);
+    if (g_CombatGlobal->unk3D8EE < 0x1F4) {
+        CombatSe_PlayAtMainX(0x365, ((AuraTarget*)g_CombatGlobal->unk3D898)->unk_28);
     } else {
-        func_ov003_02087f28(0x366, ((AuraTarget*)data_ov003_020e71b8->unk3D898)->unk_28);
+        CombatSe_PlayAtMainX(0x366, ((AuraTarget*)g_CombatGlobal->unk3D898)->unk_28);
     }
 }
 
 static void func_ov007_020e769c(s16* out) {
-    *out = (s8)data_ov003_020e71b8->unk3D8ED * 0x32 + 0xC8;
+    *out = (s8)g_CombatGlobal->unk3D8ED * 0x32 + 0xC8;
     if (*out > 0x1F4) {
         *out = 0x1F4;
     }
@@ -84,7 +84,7 @@ static void func_ov007_020e76dc(BtlAuraLast* data, s32 arg) {
     u16            size;
     s32            posXBase;
 
-    sprite = func_ov003_0208495c(&data->freeSprites);
+    sprite = CombatList_GetHead(&data->freeSprites);
     if (sprite == NULL) {
         return;
     }
@@ -109,14 +109,14 @@ static void func_ov007_020e76dc(BtlAuraLast* data, s32 arg) {
         animIndex     = (s16)(RNG_Next(2) + 5);
         flag          = 0;
         size          = 0x3E;
-        posX          = (s16)(((AuraTarget*)data_ov003_020e71b8->unk3D898)->unk_34 + (RNG_Next(0x19) - 0xC));
-        posY          = (s16)(((AuraTarget*)data_ov003_020e71b8->unk3D898)->unk_36 + (RNG_Next(0x31) - 0x30));
+        posX          = (s16)(((AuraTarget*)g_CombatGlobal->unk3D898)->unk_34 + (RNG_Next(0x19) - 0xC));
+        posY          = (s16)(((AuraTarget*)g_CombatGlobal->unk3D898)->unk_36 + (RNG_Next(0x31) - 0x30));
         data->unk_7F0 = 4;
     }
 
     s32 flip;
     if (flag == 0) {
-        flip = 0x80000000 - ((AuraTarget*)data_ov003_020e71b8->unk3D898)->unk_2C;
+        flip = 0x80000000 - ((AuraTarget*)g_CombatGlobal->unk3D898)->unk_2C;
     } else {
         flip = 0;
     }
@@ -125,8 +125,8 @@ static void func_ov007_020e76dc(BtlAuraLast* data, s32 arg) {
     CombatSprite_SetAnim(&sprite->sprite, (u16)animIndex, 1);
     CombatSprite_SetPosition(&sprite->sprite, posX, posY);
     func_ov003_02082730(&sprite->sprite, flip);
-    func_ov003_020849dc(&data->freeSprites, &sprite->node);
-    func_ov003_020849bc(&data->activeSprites, &sprite->node, sprite);
+    CombatList_Remove(&data->freeSprites, &sprite->node);
+    CombatList_Append(&data->activeSprites, &sprite->node, sprite);
 }
 
 static void func_ov007_020e78e4(BtlAuraLast* data, BtlAuraSprite* sprite) {
@@ -134,43 +134,43 @@ static void func_ov007_020e78e4(BtlAuraLast* data, BtlAuraSprite* sprite) {
         return;
     }
     CombatSprite_Release(&sprite->sprite);
-    func_ov003_020849dc(&data->activeSprites, &sprite->node);
-    func_ov003_020849bc(&data->freeSprites, &sprite->node, sprite);
+    CombatList_Remove(&data->activeSprites, &sprite->node);
+    CombatList_Append(&data->freeSprites, &sprite->node, sprite);
 }
 
 static void func_ov007_020e791c(BtlAuraLast* data) {
-    func_ov003_020849ac(&data->freeSprites);
-    func_ov003_020849ac(&data->activeSprites);
+    CombatList_Init(&data->freeSprites);
+    CombatList_Init(&data->activeSprites);
     data->unk_7F0 = 0;
 
     s32            i;
     BtlAuraSprite* s = data->sprites;
     for (i = 0; i < 16; i++, s++) {
         CombatSprite_Init(&s->sprite);
-        func_ov003_020849bc(&data->freeSprites, &s->node, s);
+        CombatList_Append(&data->freeSprites, &s->node, s);
     }
 }
 
 static void func_ov007_020e7970(BtlAuraLast* data) {
-    BtlAuraSprite* sprite = func_ov003_0208495c(&data->activeSprites);
+    BtlAuraSprite* sprite = CombatList_GetHead(&data->activeSprites);
     if (sprite == NULL) {
         return;
     }
 
     do {
         if (SpriteMgr_IsAnimationFinished(&sprite->sprite.sprite)) {
-            BtlAuraSprite* next = func_ov003_02084984(&sprite->node);
+            BtlAuraSprite* next = CombatList_GetNext(&sprite->node);
             func_ov007_020e78e4(data, sprite);
             sprite = next;
         } else {
             CombatSprite_Update(&sprite->sprite);
-            sprite = func_ov003_02084984(&sprite->node);
+            sprite = CombatList_GetNext(&sprite->node);
         }
     } while (sprite != NULL);
 }
 
 static void func_ov007_020e79d8(BtlAuraLast* data) {
-    BtlAuraSprite* sprite = func_ov003_0208495c(&data->activeSprites);
+    BtlAuraSprite* sprite = CombatList_GetHead(&data->activeSprites);
     if (sprite == NULL) {
         return;
     }
@@ -179,11 +179,11 @@ static void func_ov007_020e79d8(BtlAuraLast* data) {
         if ((sprite->sprite.sprite.bits_0_1) == 1) {
             func_ov003_02082730(&sprite->sprite, 0);
         } else {
-            AuraTarget* target = (AuraTarget*)data_ov003_020e71b8->unk3D898;
+            AuraTarget* target = (AuraTarget*)g_CombatGlobal->unk3D898;
             func_ov003_02082730(&sprite->sprite, 0x80000000 - target->unk_2C);
         }
         CombatSprite_Render(&sprite->sprite);
-        sprite = func_ov003_02084984(&sprite->node);
+        sprite = CombatList_GetNext(&sprite->node);
     } while (sprite != NULL);
 }
 
@@ -196,15 +196,15 @@ static void func_ov007_020e7a54(BtlAuraLast* data) {
 }
 
 static void func_ov007_020e7a8c(BtlAuraLast* data) {
-    if (data_ov003_020e71b8->unk3D8EC == 1) {
+    if (g_CombatGlobal->unk3D8EC == 1) {
         return;
     }
-    if (data_ov003_020e71b8->unk3D8EC == 2) {
-        data_ov003_020e71b8->unk3D8EC = 0;
-        data->unk_804                 = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->screenX << 12;
-        data->unk_808                 = (((CombatActor*)data_ov003_020e71b8->unk3D89C)->screenY - 0x20) << 12;
-        func_ov003_02087f64(0x21, data->unk_804);
-        data_ov003_020e71b8->unk3D8F0 = 0;
+    if (g_CombatGlobal->unk3D8EC == 2) {
+        g_CombatGlobal->unk3D8EC = 0;
+        data->unk_804            = ((CombatActor*)g_CombatGlobal->unk3D89C)->screenX << 12;
+        data->unk_808            = (((CombatActor*)g_CombatGlobal->unk3D89C)->screenY - 0x20) << 12;
+        CombatSe_PlayAtSubX(0x21, data->unk_804);
+        g_CombatGlobal->unk3D8F0 = 0;
         func_ov007_020e769c(&data->unk_80C);
         data->unk_7FC = 1;
         func_ov007_020e75e4(data, func_ov007_020e7b54);
@@ -216,7 +216,7 @@ static void func_ov007_020e7a8c(BtlAuraLast* data) {
 }
 
 static void func_ov007_020e7b54(BtlAuraLast* data) {
-    AuraTarget* target = (AuraTarget*)data_ov003_020e71b8->unk3D898;
+    AuraTarget* target = (AuraTarget*)g_CombatGlobal->unk3D898;
     s32         posX   = target->unk_34 << 12;
     s32         posY   = (target->unk_36 + 0xA0) << 12;
 
@@ -241,8 +241,8 @@ static void func_ov007_020e7b54(BtlAuraLast* data) {
             data->unk_7FC = 0;
             data->unk_800 = 1;
             func_ov003_020974f8(posX, posY);
-            data_ov003_020e71b8->unk3D8EE = data->unk_80C;
-            data_ov003_020e71b8->unk3D8F4 = 1;
+            g_CombatGlobal->unk3D8EE = data->unk_80C;
+            g_CombatGlobal->unk3D8F4 = 1;
             func_ov007_020e764c();
             func_ov007_020e75e4(data, func_ov007_020e7a8c);
             break;
@@ -252,14 +252,14 @@ static void func_ov007_020e7b54(BtlAuraLast* data) {
 static s32 func_ov007_020e7c98(TaskPool* pool, Task* task, void* args) {
     BtlAuraLast* data = task->data;
 
-    data->unk_804                 = 0;
-    data->unk_808                 = 0;
-    data->unk_7FC                 = 0;
-    data->unk_800                 = 0;
-    data_ov003_020e71b8->unk3D8EE = 0x64;
-    data_ov003_020e71b8->unk3D8ED = 0;
-    data_ov003_020e71b8->unk3D8F0 = 0;
-    data_ov003_020e71b8->unk3D8F4 = 0;
+    data->unk_804            = 0;
+    data->unk_808            = 0;
+    data->unk_7FC            = 0;
+    data->unk_800            = 0;
+    g_CombatGlobal->unk3D8EE = 0x64;
+    g_CombatGlobal->unk3D8ED = 0;
+    g_CombatGlobal->unk3D8F0 = 0;
+    g_CombatGlobal->unk3D8F4 = 0;
 
     func_ov007_020e75fc(1, &data->unk_000, 0, 0x40);
     func_ov007_020e75fc(0, &data->unk_060, 0, 0x3E);
@@ -296,14 +296,14 @@ static s32 func_ov007_020e7da4(TaskPool* pool, Task* task, void* args) {
             CombatSprite_Render(&data->unk_000);
         }
         if (data->unk_808 > 0xA8000) {
-            AuraTarget* target = (AuraTarget*)data_ov003_020e71b8->unk3D898;
+            AuraTarget* target = (AuraTarget*)g_CombatGlobal->unk3D898;
             CombatSprite_SetPosition(&data->unk_060, (s16)(data->unk_804 >> 12), (s16)((data->unk_808 >> 12) - 0xC0));
             func_ov003_02082730(&data->unk_060, 0x80000001 - target->unk_2C);
             CombatSprite_Render(&data->unk_060);
         }
     }
     if (data->unk_800 != 0) {
-        AuraTarget* target = (AuraTarget*)data_ov003_020e71b8->unk3D898;
+        AuraTarget* target = (AuraTarget*)g_CombatGlobal->unk3D898;
         CombatSprite_SetPosition(&data->unk_0C0, target->unk_34, (s16)(target->unk_36 - 0x20));
         func_ov003_02082730(&data->unk_0C0, 0x80000001 - target->unk_2C);
         CombatSprite_Render(&data->unk_0C0);

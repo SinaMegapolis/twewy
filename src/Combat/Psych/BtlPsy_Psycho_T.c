@@ -43,7 +43,7 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
             self->timer = self->effect->params[0];
             func_ov003_020b4e48(arg->unit, &self->hit);
             func_ov003_020a647c(arg->unit->actor.position.x);
-            func_ov003_020a3498(&self->sprite, 2, 1, 0x10, 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, 0x10, 1);
             return 1;
         case 1: {
             Ov003PsychoT* self  = task->data;
@@ -54,7 +54,7 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                         self->phase = 1;
                         break;
                     }
-                    if (func_ov003_02085cfc(2)) {
+                    if (CombatTouch_IsGesture(2)) {
                         func_ov003_020a6494(touch->x);
                         Ov003EnemyActor* unit = func_ov003_020b6308(self->effect);
                         if (unit != NULL) {
@@ -63,34 +63,34 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                         } else {
                             self->hit.target = NULL;
                             if (self->hit.target == NULL) {
-                                self->hit.targetPosition.x = func_ov003_0208442c(0, touch->x);
-                                self->hit.targetPosition.y = func_ov003_02084460(0, touch->y, 0);
+                                self->hit.targetPosition.x = CombatStage_ToWorldX(0, touch->x);
+                                self->hit.targetPosition.y = CombatStage_ToWorldY(0, touch->y, 0);
                                 self->hit.targetPosition.z = -0x10000;
                             }
                             self->hit.activated = 1;
                             self->phase         = 2;
-                            func_ov003_02087f28(0x9E, touch->x);
+                            CombatSe_PlayAtMainX(0x9E, touch->x);
                         }
                     }
                     break;
                 case 1:
-                    if (func_ov003_02085cfc(2)) {
+                    if (CombatTouch_IsGesture(2)) {
                         func_ov003_020a6494(touch->x);
                         self->hit.target = NULL;
                         if (self->hit.target == NULL) {
-                            self->hit.targetPosition.x = func_ov003_0208442c(0, touch->x);
-                            self->hit.targetPosition.y = func_ov003_02084460(0, touch->y, 0);
+                            self->hit.targetPosition.x = CombatStage_ToWorldX(0, touch->x);
+                            self->hit.targetPosition.y = CombatStage_ToWorldY(0, touch->y, 0);
                             self->hit.targetPosition.z = 0;
                         }
                         self->hit.activated = 1;
                         self->phase         = 2;
-                        func_ov003_02087f28(0x9E, touch->x);
+                        CombatSe_PlayAtMainX(0x9E, touch->x);
                     }
                     break;
                 case 2:
                     CombatSprite_Update(&self->sprite);
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
-                        func_ov003_020a35b8(&self->sprite, 0x11, 0);
+                        CombatPsyAnim_SetAnim(&self->sprite, 0x11, 0);
                     if (self->hit.refCount == 0)
                         self->phase = 3;
                     break;
@@ -112,8 +112,8 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                 x = self->hit.target->screenX;
                 y = self->hit.target->screenY - self->hit.target->unk_76;
             } else {
-                x = func_ov003_020843b0(0, self->hit.targetPosition.x);
-                y = func_ov003_020843ec(0, self->hit.targetPosition.y, self->hit.targetPosition.z);
+                x = CombatStage_ToScreenX(0, self->hit.targetPosition.x);
+                y = CombatStage_ToScreenY(0, self->hit.targetPosition.y, self->hit.targetPosition.z);
             }
             CombatSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
             CombatSprite_Render(&self->sprite);
@@ -128,8 +128,8 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 static Ov003EnemyActor* func_ov003_020b6308(Ov003EffectState* effect) {
-    Ov003EnemyActor* primary   = (Ov003EnemyActor*)func_ov003_02085dc8(2);
-    Ov003EnemyActor* secondary = (Ov003EnemyActor*)func_ov003_02085dc8(1);
+    Ov003EnemyActor* primary   = (Ov003EnemyActor*)CombatTouch_GetTapped(2);
+    Ov003EnemyActor* secondary = (Ov003EnemyActor*)CombatTouch_GetTapped(1);
     switch (effect->index) {
         case 0:
         case 1:

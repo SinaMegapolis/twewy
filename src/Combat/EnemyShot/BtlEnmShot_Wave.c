@@ -15,9 +15,9 @@ s32 func_ov003_020d2fb0(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 
     args.phaseStep = phaseStep;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0ce0, NULL, 0, NULL, &args);
 }
 
@@ -55,18 +55,18 @@ static s32 func_ov003_020d3198(Ov003EnemyShotWave* self) {
     self->source.core.position.x += self->velocityX;
     self->source.core.position.y += self->velocityY;
     s16 x, y;
-    func_ov003_02084348(engine, &x, &y, self->source.core.position.x + self->offsetX,
-                        self->source.core.position.y + self->offsetY, self->source.core.position.z);
-    self->source.core.hitResult = func_ov003_0208a1a4(func_ov003_0208a114(self->source.core.attackId),
-                                                      &self->source.core.owner->base.actor.baseArgs, x, y);
+    CombatStage_WorldToScreen(engine, &x, &y, self->source.core.position.x + self->offsetX,
+                              self->source.core.position.y + self->offsetY, self->source.core.position.z);
+    self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
+                                                           &self->source.core.owner->base.actor.baseArgs, x, y);
     CombatSprite_Update(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020d3304(Ov003EnemyShotWave* self) {
     s16 x, y;
-    func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x + self->offsetX,
-                        self->source.core.position.y + self->offsetY, self->source.core.position.z);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x + self->offsetX,
+                              self->source.core.position.y + self->offsetY, self->source.core.position.z);
     CombatSprite_SetPosition(&self->sprite, x, y);
     func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     CombatSprite_Render(&self->sprite);

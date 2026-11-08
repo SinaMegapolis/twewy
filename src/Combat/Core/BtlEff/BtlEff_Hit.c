@@ -88,11 +88,11 @@ static s32 BtlEff_Hit_Init(TaskPool* pool, Task* task, void* args) {
     CombatSprite_SetFlip(&eff->effect.sprite, p->flip);
 
     if (eff->effect.sprite.sprite.bits_0_1 == 1) {
-        data_ov003_020e71b8->unk3D8FF = (s8)data_ov003_020e71b8->unk3D8FF + 1;
-        func_ov003_02087f64(def->sound, eff->effect.position.x);
+        g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF + 1;
+        CombatSe_PlayAtSubX(def->sound, eff->effect.position.x);
     } else {
-        data_ov003_020e71b8->unk3D8FE = (s8)data_ov003_020e71b8->unk3D8FE + 1;
-        func_ov003_02087f28(def->sound, eff->effect.position.x);
+        g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE + 1;
+        CombatSe_PlayAtMainX(def->sound, eff->effect.position.x);
     }
     return 1;
 }
@@ -117,12 +117,12 @@ static s32 BtlEff_Hit_Render(TaskPool* pool, Task* task, void* args) {
     s32              sortKey;
 
     if (eff->effect.sprite.sprite.bits_0_1 == 1) {
-        posX    = func_ov003_020843b0(1, eff->effect.position.x);
-        posY    = func_ov003_020843ec(1, eff->effect.position.y, eff->effect.position.z);
+        posX    = CombatStage_ToScreenX(1, eff->effect.position.x);
+        posY    = CombatStage_ToScreenY(1, eff->effect.position.y, eff->effect.position.z);
         sortKey = 0x7FFFFFFF - (eff->effect.position.y + 0x8000);
     } else {
-        posX    = func_ov003_020843b0(0, eff->effect.position.x);
-        posY    = func_ov003_020843ec(0, eff->effect.position.y, eff->effect.position.z);
+        posX    = CombatStage_ToScreenX(0, eff->effect.position.x);
+        posY    = CombatStage_ToScreenY(0, eff->effect.position.y, eff->effect.position.z);
         sortKey = posY + 8;
     }
     CombatSprite_SetPosition(&eff->effect.sprite, posX, posY);
@@ -136,9 +136,9 @@ static s32 BtlEff_Hit_Release(TaskPool* pool, Task* task, void* args) {
     CombatHitEffect* eff = task->data;
 
     if (eff->effect.sprite.sprite.bits_0_1 == 1) {
-        data_ov003_020e71b8->unk3D8FF = (s8)data_ov003_020e71b8->unk3D8FF - 1;
+        g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF - 1;
     } else {
-        data_ov003_020e71b8->unk3D8FE = (s8)data_ov003_020e71b8->unk3D8FE - 1;
+        g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE - 1;
     }
     CombatSprite_Release(&eff->effect.sprite);
     return 1;
@@ -165,9 +165,9 @@ void func_ov003_0209ed70(u8 id, s32 x, s32 y, s32 z, s32 flip) {
     s32            live;
 
     if (data_ov003_020d842c[id].engine == 1) {
-        live = (s8)data_ov003_020e71b8->unk3D8FF;
+        live = (s8)g_CombatGlobal->unk3D8FF;
     } else {
-        live = (s8)data_ov003_020e71b8->unk3D8FE;
+        live = (s8)g_CombatGlobal->unk3D8FE;
     }
     // The retail code folds the room test back into the same variable.
     live = live < 10;
@@ -178,6 +178,6 @@ void func_ov003_0209ed70(u8 id, s32 x, s32 y, s32 z, s32 flip) {
         args.z    = z;
         args.flip = flip;
 
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEff_Hit, NULL, 0, NULL, &args);
+        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Hit, NULL, 0, NULL, &args);
     }
 }

@@ -44,12 +44,12 @@ static s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage
             self->args.position.z = arg->position.z;
             self->args.angle      = arg->angle;
             self->args.speed      = arg->speed;
-            func_ov003_020a3498(&self->sprite, 2, 1, data_ov003_020dc700[self->args.kind].animation, 0);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, data_ov003_020dc700[self->args.kind].animation, 0);
             return 1;
         case 1: {
             Ov003Bomb* self = task->data;
-            s32        x    = func_ov003_020843b0(0, self->args.position.x);
-            s32        y    = func_ov003_020843ec(0, self->args.position.y, self->args.position.z);
+            s32        x    = CombatStage_ToScreenX(0, self->args.position.x);
+            s32        y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
             if (!func_ov003_020a6374(x, y, 32))
                 return 0;
             if (func_ov003_020a66f4(self->args.streak, (u16)data_ov003_020dc700[self->args.kind].attackId, x, y, 0, 0) == 1) {
@@ -57,7 +57,7 @@ static s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage
                 func_ov003_020a88c0(&effect, self->args.position.x, self->args.position.y, self->args.position.z, 2,
                                     data_ov003_020dc700[self->args.kind].burstAnimation);
                 func_ov003_020a88a8(&effect);
-                func_ov003_02087f28(0x56, self->args.position.x);
+                CombatSe_PlayAtMainX(0x56, self->args.position.x);
                 return 0;
             }
             self->args.position.x += FX_Mul(self->args.speed, COS2(FX_SinCosTable_, self->args.angle));
@@ -67,8 +67,8 @@ static s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003Bomb* self = task->data;
-            s32        x    = func_ov003_020843b0(0, self->args.position.x);
-            s32        y    = func_ov003_020843ec(0, self->args.position.y, self->args.position.z);
+            s32        x    = CombatStage_ToScreenX(0, self->args.position.x);
+            s32        y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
             CombatSprite_SetPosition(&self->sprite, x, y);
             func_ov003_02082730(&self->sprite, 0x38E000);
             CombatSprite_Render(&self->sprite);

@@ -1,4 +1,5 @@
 #include "Combat/Core/BtlField.h"
+#include "Combat/Core/BtlFieldData.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatBgRes.h"
@@ -22,34 +23,6 @@
 // the camera, two floor strips that scroll over it and, for some backgrounds, a third strip with its own characters
 // on BG0.
 
-/// The 0x1C-byte entry of `data_ov003_020d9c90` that describes one background of the sub screen.
-typedef struct BtlFieldDefRG {
-    /* 0x00 */ BinIdentifier*      iden;     // pack the background is cut from
-    /* 0x04 */ s32                 groundY;  // world Y of the floor
-    /* 0x08 */ const Ov003ResCmd** scripts;  // resource script of each battle index
-    /* 0x0C */ u8                  charPack; // pack indices inside the entry's data
-    /* 0x0D */ u8                  rowPack;
-    /* 0x0E */ u8                  paletteIndex;
-    /* 0x0F */ u8                  palCount;
-    /* 0x10 */ u8                  charIndexA;
-    /* 0x11 */ u8                  charIndexB;
-    /* 0x12 */ u16                 charCountA;
-    /* 0x14 */ u16                 charCountB;
-    /* 0x16 */ u8                  rowIndex0;
-    /* 0x17 */ u8                  rowIndex1;
-    /* 0x18 */ u8                  scrollRows;
-    /* 0x19 */ u8                  extraIndex; // 0xFF when the background has no third strip
-    /* 0x1A */ u8                  unk_1A[2];
-} BtlFieldDefRG;                               // Size: 0x1C
-
-/// The characters and tilemaps of the third strip.
-typedef struct BtlFieldExtra {
-    /* 0x0 */ u16 charPack;
-    /* 0x2 */ u16 charCount;
-    /* 0x4 */ u16 rowIndex0;
-    /* 0x6 */ u16 rowIndex1;
-} BtlFieldExtra; // Size: 0x8
-
 struct BtlFieldRG;
 
 typedef struct BtlFieldRG {
@@ -69,9 +42,6 @@ typedef struct BtlFieldRG {
     /* 0xA8 */ void (*update)(struct BtlFieldRG* self);
     /* 0xAC */ Ov003BgResState baseMap;
 } BtlFieldRG; // Size: 0x138
-
-extern const BtlFieldDefRG data_ov003_020d9c90[];
-extern const BtlFieldExtra data_ov003_020d9afc[];
 
 static s32 BtlField_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -119,7 +89,7 @@ static void func_ov003_02092a5c(BtlFieldRG* state, const Ov003ResCmd** scripts, 
         if (index >= count) {
             index = 0;
         }
-        func_ov003_0208335c(&state->baseMap, scripts[index], state->data);
+        CombatBgRes_RunScript(&state->baseMap, scripts[index], state->data);
     }
 }
 
@@ -128,7 +98,7 @@ static BgResource* func_ov003_02092a90(BtlFieldRG* state, u8 index) {
     BgResource* result = NULL;
 
     if (index != 0xFF) {
-        const BtlFieldExtra* extra = &data_ov003_020d9afc[index];
+        const BtlFieldExtra* extra = &BtlField_RG_Extras[index];
         void*                chars = Data_GetPackEntryData(state->data, extra->charPack);
 
         result = BgResMgr_AllocCharExtended(g_BgResourceManagers[1], chars,
@@ -144,7 +114,7 @@ static s32 func_ov003_02092b14(BtlFieldRG* state, u8 index) {
     if (index == 0xFF) {
         return 0;
     }
-    extra               = &data_ov003_020d9afc[index];
+    extra               = &BtlField_RG_Extras[index];
     state->extraData[0] = Ov003Cutin_Tiles(state->data, extra->rowIndex0);
     state->extraData[1] = Ov003Cutin_Tiles(state->data, extra->rowIndex1);
     func_0200d1d8(&state->extraMap, 1, 0, NULL, state->extraData, 2, 1);
@@ -236,11 +206,11 @@ static s32 BtlField_RG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(state, NULL, sizeof(*state));
     func_ov003_020929b8();
-    state->camera = &data_ov003_020e71b8->unk3D7C0[1];
+    state->camera = &g_CombatGlobal->unk3D7C0[1];
     state->camera->unk_02 |= 1;
 
-    def = &data_ov003_020d9c90[state->camera->pathId];
-    func_ov003_02083300(&state->baseMap, 1, def->iden);
+    def = &BtlField_RG_Defs[state->camera->pathId];
+    CombatBgRes_Init(&state->baseMap, 1, def->iden);
 
     state->data = DatMgr_LoadPackEntry(1, NULL, 0, def->iden, def->charPack, 0);
     palData     = Data_GetPackEntryData(state->data, def->paletteIndex);
@@ -287,13 +257,13 @@ static s32 BtlField_RG_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlField_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlFieldRG* state = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x1000) {
+    if (g_CombatGlobal->unk3D878 & 0x1000) {
         return 0;
     }
     if (state->update != NULL) {
         state->update(state);
     }
-    func_ov003_02083390(&state->baseMap);
+    CombatBgRes_Update(&state->baseMap);
     func_ov003_02092c88(state->camera);
     return 1;
 }
@@ -313,7 +283,7 @@ static s32 BtlField_RG_Release(TaskPool* pool, Task* task, void* args) {
     PaletteMgr_ReleaseResource(g_PaletteManagers[1], state->palette);
     func_0200d954(1, 1);
     func_0200d954(1, 2);
-    func_ov003_020833cc(&state->baseMap);
+    CombatBgRes_Release(&state->baseMap);
     if (state->extraChars != NULL) {
         BgResMgr_ReleaseChar(g_BgResourceManagers[1], state->extraChars);
     }

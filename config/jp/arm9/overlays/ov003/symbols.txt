@@ -35,7 +35,7 @@ func_ov003_02083ce0 kind:function(arm,size=0x5c) addr:0x02083ce0
 func_ov003_02083d3c kind:function(arm,size=0x34) addr:0x02083d3c
 func_ov003_02083d70 kind:function(arm,size=0x3c) addr:0x02083d70
 func_ov003_02083dac kind:function(arm,size=0xa4) addr:0x02083dac
-func_ov003_02083e50 kind:function(arm,size=0x8) addr:0x02083e50
+CombatStage_StartFieldTasks kind:function(arm,size=0x8) addr:0x02083e50
 func_ov003_02083e58 kind:function(arm,size=0x15c) addr:0x02083e58
 func_ov003_02083fb4 kind:function(arm,size=0x12c) addr:0x02083fb4
 func_ov003_020840e0 kind:function(arm,size=0x10c) addr:0x020840e0
@@ -44,7 +44,7 @@ func_ov003_020842b8 kind:function(arm,size=0x78) addr:0x020842b8
 func_ov003_02084330 kind:function(arm,size=0x18) addr:0x02084330
 func_ov003_02084348_jp kind:function(arm,size=0xc4) addr:0x02084348
 func_ov003_0208440c kind:function(arm,size=0x84) addr:0x0208440c
-func_ov003_02083ab0 kind:function(arm,size=0x48) addr:0x02084490
+CombatStage_SetCameraTarget kind:function(arm,size=0x48) addr:0x02084490
 func_ov003_020844d8 kind:function(arm,size=0x94) addr:0x020844d8
 func_ov003_0208456c kind:function(arm,size=0x70) addr:0x0208456c
 func_ov003_020845dc kind:function(arm,size=0x54) addr:0x020845dc
@@ -54,9 +54,9 @@ func_ov003_020846c4 kind:function(arm,size=0x50) addr:0x020846c4
 func_ov003_02084714 kind:function(arm,size=0xf8) addr:0x02084714
 func_ov003_0208480c kind:function(arm,size=0x490) addr:0x0208480c
 func_ov003_02084c9c kind:function(arm,size=0x68) addr:0x02084c9c
-func_ov003_02084348 kind:function(arm,size=0x68) addr:0x02084d04
-func_ov003_020843b0 kind:function(arm,size=0x3c) addr:0x02084d6c
-func_ov003_020843ec kind:function(arm,size=0x40) addr:0x02084da8
+CombatStage_WorldToScreen kind:function(arm,size=0x68) addr:0x02084d04
+CombatStage_ToScreenX kind:function(arm,size=0x3c) addr:0x02084d6c
+CombatStage_ToScreenY kind:function(arm,size=0x40) addr:0x02084da8
 func_ov003_02084de8 kind:function(arm,size=0x34) addr:0x02084de8
 func_ov003_02084e1c kind:function(arm,size=0x38) addr:0x02084e1c
 func_ov003_02084e54 kind:function(arm,size=0x50) addr:0x02084e54
@@ -64,7 +64,7 @@ func_ov003_02084ea4 kind:function(arm,size=0x2c) addr:0x02084ea4
 func_ov003_02084ed0 kind:function(arm,size=0x120) addr:0x02084ed0
 func_ov003_02084ff0 kind:function(arm,size=0x44) addr:0x02084ff0
 func_ov003_02085034 kind:function(arm,size=0x1c) addr:0x02085034
-func_ov003_02084694 kind:function(arm,size=0x18) addr:0x02085050
+CombatCollision_SetDisabled kind:function(arm,size=0x18) addr:0x02085050
 func_ov003_02085068 kind:function(arm,size=0x14) addr:0x02085068
 func_ov003_0208507c kind:function(arm,size=0x30) addr:0x0208507c
 func_ov003_020850ac kind:function(arm,size=0xc) addr:0x020850ac
@@ -75,12 +75,12 @@ func_ov003_020851d8 kind:function(arm,size=0x64) addr:0x020851d8
 func_ov003_0208523c kind:function(arm,size=0x34) addr:0x0208523c
 func_ov003_02085270 kind:function(arm,size=0x70) addr:0x02085270
 func_ov003_020852e0 kind:function(arm,size=0x38) addr:0x020852e0
-func_ov003_0208495c kind:function(arm,size=0x14) addr:0x02085318
+CombatList_GetHead kind:function(arm,size=0x14) addr:0x02085318
 func_ov003_0208532c kind:function(arm,size=0x14) addr:0x0208532c
-func_ov003_02084984 kind:function(arm,size=0x14) addr:0x02085340
+CombatList_GetNext kind:function(arm,size=0x14) addr:0x02085340
 func_ov003_02085354 kind:function(arm,size=0x14) addr:0x02085354
-func_ov003_020849ac kind:function(arm,size=0x10) addr:0x02085368
-func_ov003_020849bc kind:function(arm,size=0x20) addr:0x02085378
+CombatList_Init kind:function(arm,size=0x10) addr:0x02085368
+CombatList_Append kind:function(arm,size=0x20) addr:0x02085378
 func_ov003_02085398 kind:function(arm,size=0x2c) addr:0x02085398
 func_ov003_020853c4 kind:function(arm,size=0x28) addr:0x020853c4
 func_ov003_020853ec kind:function(arm,size=0x24) addr:0x020853ec
@@ -101,7 +101,7 @@ func_ov003_02085c70 kind:function(arm,size=0x1c) addr:0x02085c70
 func_ov003_02085c8c kind:function(arm,size=0x88) addr:0x02085c8c
 func_ov003_02085d14 kind:function(arm,size=0x34) addr:0x02085d14
 func_ov003_02085d48 kind:function(arm,size=0x80) addr:0x02085d48
-func_ov003_02085dc8 kind:function(arm,size=0x158) addr:0x02085dc8
+CombatTouch_GetTapped kind:function(arm,size=0x158) addr:0x02085dc8
 func_ov003_02085f20 kind:function(arm,size=0xd4) addr:0x02085f20
 func_ov003_02085ff4 kind:function(arm,size=0x164) addr:0x02085ff4
 func_ov003_02086158 kind:function(arm,size=0xa8) addr:0x02086158
@@ -125,9 +125,9 @@ func_ov003_02086a3c kind:function(arm,size=0x6c) addr:0x02086a3c
 func_ov003_02086aa8 kind:function(arm,size=0x174) addr:0x02086aa8
 func_ov003_02086c1c kind:function(arm,size=0x54) addr:0x02086c1c
 func_ov003_02086c70 kind:function(arm,size=0x10c) addr:0x02086c70
-func_ov003_02086404 kind:function(arm,size=0xbc) addr:0x02086d7c
+CombatSys_LoadObsSprite kind:function(arm,size=0xbc) addr:0x02086d7c
 func_ov003_02086e38 kind:function(arm,size=0x1c) addr:0x02086e38
-func_ov003_020864dc kind:function(arm,size=0x64) addr:0x02086e54
+CombatSys_InitObsActor kind:function(arm,size=0x64) addr:0x02086e54
 func_ov003_02086eb8 kind:function(arm,size=0x2c) addr:0x02086eb8
 func_ov003_0208656c kind:function(arm,size=0x24) addr:0x02086ee4
 func_ov003_02086f08 kind:function(arm,size=0x10) addr:0x02086f08
@@ -152,7 +152,7 @@ func_ov003_02087468 kind:function(arm,size=0x24) addr:0x02087468
 func_ov003_0208748c kind:function(arm,size=0x74) addr:0x0208748c
 func_ov003_02087500 kind:function(arm,size=0x7c) addr:0x02087500
 func_ov003_0208757c kind:function(arm,size=0x74) addr:0x0208757c
-func_ov003_02086c78 kind:function(arm,size=0x48) addr:0x020875f0
+CombatSys_EaseToSine kind:function(arm,size=0x48) addr:0x020875f0
 func_ov003_02087638 kind:function(arm,size=0x64) addr:0x02087638
 func_ov003_0208769c kind:function(arm,size=0x68) addr:0x0208769c
 func_ov003_02087704 kind:function(arm,size=0xac) addr:0x02087704
@@ -190,7 +190,7 @@ func_ov003_02088694 kind:function(arm,size=0x84) addr:0x02088694
 func_ov003_02088718 kind:function(arm,size=0xbc) addr:0x02088718
 func_ov003_020887d4 kind:function(arm,size=0x7c) addr:0x020887d4
 func_ov003_02088850 kind:function(arm,size=0x28) addr:0x02088850
-func_ov003_02087f00 kind:function(arm,size=0x28) addr:0x02088878
+CombatSe_PlayPanned kind:function(arm,size=0x28) addr:0x02088878
 func_ov003_020888a0 kind:function(arm,size=0x3c) addr:0x020888a0
 func_ov003_020888dc kind:function(arm,size=0x3c) addr:0x020888dc
 func_ov003_02088918 kind:function(arm,size=0x40) addr:0x02088918
@@ -231,9 +231,9 @@ func_ov003_0208a788 kind:function(arm,size=0x178) addr:0x0208a788
 func_ov003_0208a900 kind:function(arm,size=0x98) addr:0x0208a900
 func_ov003_0208a998 kind:function(arm,size=0x64) addr:0x0208a998
 func_ov003_0208a9fc kind:function(arm,size=0x80) addr:0x0208a9fc
-func_ov003_0208a114 kind:function(arm,size=0x14) addr:0x0208aa7c
+CombatHit_GetAttackInfo kind:function(arm,size=0x14) addr:0x0208aa7c
 func_ov003_0208aa90 kind:function(arm,size=0x3c) addr:0x0208aa90
-func_ov003_0208a164 kind:function(arm,size=0x40) addr:0x0208aacc
+CombatHit_AttackAt kind:function(arm,size=0x40) addr:0x0208aacc
 func_ov003_0208ab0c kind:function(arm,size=0x44) addr:0x0208ab0c
 func_ov003_0208ab50 kind:function(arm,size=0x4c) addr:0x0208ab50
 func_ov003_0208ab9c kind:function(arm,size=0x28) addr:0x0208ab9c
@@ -843,7 +843,7 @@ func_ov003_020a4460 kind:function(arm,size=0x10) addr:0x020a4460
 func_ov003_020a4470 kind:function(arm,size=0x94) addr:0x020a4470
 func_ov003_020a4504 kind:function(arm,size=0x8c) addr:0x020a4504
 func_ov003_020a4590 kind:function(arm,size=0x44) addr:0x020a4590
-func_ov003_020a45d4 kind:function(arm,size=0xfc) addr:0x020a45d4
+BtlBadgeActor_PickRequest kind:function(arm,size=0xfc) addr:0x020a45d4
 func_ov003_020a46d0 kind:function(arm,size=0xc) addr:0x020a46d0
 func_ov003_020a46dc kind:function(arm,size=0x10) addr:0x020a46dc
 func_ov003_020a46ec kind:function(arm,size=0x40) addr:0x020a46ec
@@ -854,7 +854,7 @@ func_ov003_020a49e8 kind:function(arm,size=0x1cc) addr:0x020a49e8
 func_ov003_020a4bb4 kind:function(arm,size=0x40) addr:0x020a4bb4
 func_ov003_020a4bf4 kind:function(arm,size=0x144) addr:0x020a4bf4
 func_ov003_020a4d38 kind:function(arm,size=0x34) addr:0x020a4d38
-func_ov003_020a4d6c kind:function(arm,size=0x2c) addr:0x020a4d6c
+CombatPsyTrail_IsValidStroke kind:function(arm,size=0x2c) addr:0x020a4d6c
 func_ov003_020a4d98 kind:function(arm,size=0x190) addr:0x020a4d98
 func_ov003_020a4f28 kind:function(arm,size=0xac) addr:0x020a4f28
 func_ov003_020a4fd4 kind:function(arm,size=0x14) addr:0x020a4fd4
@@ -1825,7 +1825,7 @@ func_ov003_020d38b8 kind:function(arm,size=0xac) addr:0x020d38b8
 func_ov003_020d3964 kind:function(arm,size=0x70) addr:0x020d3964
 func_ov003_020d39d4 kind:function(arm,size=0x190) addr:0x020d39d4
 func_ov003_020d3b64 kind:function(arm,size=0x8) addr:0x020d3b64
-func_ov003_020d3b6c kind:function(arm,size=0x8) addr:0x020d3b6c
+CombatAnim_LayerInitLoaded kind:function(arm,size=0x8) addr:0x020d3b6c
 func_ov003_020d3b74 kind:function(arm,size=0x50) addr:0x020d3b74
 func_ov003_020d3bc4 kind:function(arm,size=0xa4) addr:0x020d3bc4
 func_ov003_020d3c68 kind:function(arm,size=0xb8) addr:0x020d3c68
@@ -2330,8 +2330,8 @@ data_ov003_020da71c kind:data(any) addr:0x020da71c
 data_ov003_020da724 kind:data(any) addr:0x020da724
 data_ov003_020da72c kind:data(any) addr:0x020da72c
 data_ov003_020da734 kind:data(any) addr:0x020da734
-data_ov003_020da73c kind:data(any) addr:0x020da73c
-data_ov003_020da744 kind:data(any) addr:0x020da744
+Iden_AbilityData kind:data(any) addr:0x020da73c
+Iden_ItemData kind:data(any) addr:0x020da744
 data_ov003_020da74c kind:data(any) addr:0x020da74c
 data_ov003_020da754 kind:data(any) addr:0x020da754
 data_ov003_020da75c kind:data(any) addr:0x020da75c
@@ -3787,7 +3787,7 @@ data_ov003_020e06d4 kind:data(any) addr:0x020e06d4
 data_ov003_020e06e0 kind:data(any) addr:0x020e06e0
 data_ov003_020e06ec kind:data(any) addr:0x020e06ec
 data_ov003_020e06f8 kind:data(any) addr:0x020e06f8
-data_ov003_020e0704 kind:data(any) addr:0x020e0704
+Iden_BtlBoss15 kind:data(any) addr:0x020e0704
 data_ov003_020e0710 kind:data(any) addr:0x020e0710
 data_ov003_020e071c kind:data(any) addr:0x020e071c
 data_ov003_020e0728 kind:data(any) addr:0x020e0728
@@ -4094,7 +4094,7 @@ data_ov003_020e3b80 kind:data(any) addr:0x020e3b80
 data_ov003_020e3bbc kind:data(any) addr:0x020e3bbc
 data_ov003_020e3bf8 kind:data(any) addr:0x020e3bf8
 data_ov003_020e3c40 kind:data(any) addr:0x020e3c40
-data_ov003_020e38f0 kind:data(any) addr:0x020e3db0
+CombatSprite_DefaultAnim kind:data(any) addr:0x020e3db0
 data_ov003_020e3ddc kind:data(any) addr:0x020e3ddc
 data_ov003_020e3df4 kind:data(any) addr:0x020e3df4
 data_ov003_020e3e04 kind:data(any) addr:0x020e3e04
@@ -4180,7 +4180,7 @@ data_ov003_020e4478 kind:data(any) addr:0x020e4478
 data_ov003_020e4498 kind:data(any) addr:0x020e4498
 data_ov003_020e44b8 kind:data(any) addr:0x020e44b8
 data_ov003_020e44d8 kind:data(any) addr:0x020e44d8
-data_ov003_020e44f8 kind:data(any) addr:0x020e44f8
+Path_AbilityData kind:data(any) addr:0x020e44f8
 data_ov003_020e4518 kind:data(any) addr:0x020e4518
 data_ov003_020e4538 kind:data(any) addr:0x020e4538
 data_ov003_020e4558 kind:data(any) addr:0x020e4558
@@ -4463,7 +4463,7 @@ data_ov003_020e7540 kind:data(any) addr:0x020e7540
 data_ov003_020e7640 kind:bss addr:0x020e7640
 data_ov003_020e7648 kind:bss addr:0x020e7648
 data_ov003_020e7650 kind:bss addr:0x020e7650
-data_ov003_020e71b8 kind:bss addr:0x020e7658
+g_CombatGlobal kind:bss addr:0x020e7658
 data_ov003_020e765c kind:bss addr:0x020e765c
 data_ov003_020e7660 kind:bss addr:0x020e7660
 data_ov003_020e7664 kind:bss addr:0x020e7664

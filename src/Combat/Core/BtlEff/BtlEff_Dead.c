@@ -37,33 +37,33 @@ static const SpriteAnimEntry data_ov003_020d86a0[];
 static void func_ov003_0209f040(void) {
     u16 rnd = RNG_Next(2);
 
-    if (data_ov003_020e71b8->unk3D88D == 0) {
+    if (g_CombatGlobal->unk3D88D == 0) {
         switch (rnd) {
             case 0:
-                func_ov003_02087f64(0x38F, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x38F, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
             case 1:
-                func_ov003_02087f64(0x390, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x390, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
         }
     }
-    if (data_ov003_020e71b8->unk3D88D == 1) {
+    if (g_CombatGlobal->unk3D88D == 1) {
         switch (rnd) {
             case 0:
-                func_ov003_02087f64(0x3B7, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3B7, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
             case 1:
-                func_ov003_02087f64(0x3B8, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3B8, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
         }
     }
-    if (data_ov003_020e71b8->unk3D88D == 2) {
+    if (g_CombatGlobal->unk3D88D == 2) {
         switch (rnd) {
             case 0:
-                func_ov003_02087f64(0x3DF, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3DF, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
             case 1:
-                func_ov003_02087f64(0x3E0, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3E0, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
                 break;
         }
     }
@@ -74,10 +74,10 @@ static void func_ov003_0209f154(void) {
     u16 rnd = RNG_Next(2);
 
     if (rnd != 0) {
-        func_ov003_02087f28(0x367, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+        CombatSe_PlayAtMainX(0x367, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
         return;
     }
-    func_ov003_02087f28(0x368, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+    CombatSe_PlayAtMainX(0x368, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
 }
 
 /// Plays one of the death sound effects for `engine`'s screen, when the random roll allows it.
@@ -123,7 +123,7 @@ static s32 BtlEff_Dead_Update(TaskPool* pool, Task* task, void* args) {
             u8 partner = 0xFF;
 
             if (state->sprite.sprite.bits_0_1 == 1) {
-                switch (data_ov003_020e71b8->unk3D88D) {
+                switch (g_CombatGlobal->unk3D88D) {
                     case 0:
                         partner = 0;
                         break;
@@ -151,11 +151,11 @@ static s32 BtlEff_Dead_Render(TaskPool* pool, Task* task, void* args) {
     s32               posY;
 
     if (engine == 0) {
-        posX = func_ov003_020843b0(0, state->position.x);
-        posY = func_ov003_020843ec(0, state->position.y, state->position.z);
+        posX = CombatStage_ToScreenX(0, state->position.x);
+        posY = CombatStage_ToScreenY(0, state->position.y, state->position.z);
     } else {
-        posX = func_ov003_020843b0(1, state->position.x);
-        posY = func_ov003_020843ec(1, state->position.y, state->position.z);
+        posX = CombatStage_ToScreenX(1, state->position.x);
+        posY = CombatStage_ToScreenY(1, state->position.y, state->position.z);
     }
     CombatSprite_SetPosition(&state->sprite, posX, posY);
     func_ov003_02082730(&state->sprite, 0x7FFFFFFF - (state->position.y + 0x8000));
@@ -192,7 +192,7 @@ void func_ov003_0209f444(s32 engine, s32 x, s32 y, s32 z, s32 hasPartner) {
     spawn.y          = y;
     spawn.z          = z;
     spawn.hasPartner = hasPartner;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEff_Dead, NULL, 0, NULL, &spawn);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Dead, NULL, 0, NULL, &spawn);
 }
 
 static const SpriteAnimEntry data_ov003_020d86a0[1] = {

@@ -16,9 +16,9 @@ typedef struct BtlPsyPierce {
 static s32 func_ov003_020958e0(void) {
     s32          y, py, x, px, dx, dy;
     Ov003Global* global;
-    if (!func_ov003_02085d60(data_ov003_020e71b8->unk3D898))
+    if (!CombatTouch_SlashCrosses(g_CombatGlobal->unk3D898))
         return 0;
-    global = data_ov003_020e71b8;
+    global = g_CombatGlobal;
     y      = global->touchWork.startY;
     py     = global->touchWork.endY;
     x      = global->touchWork.startX;
@@ -35,19 +35,19 @@ static s32 func_ov003_02095954(TaskPool* pool, Task* task, void* args) {
     BtlPsyPierce*      self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
-    data_ov003_020e71b8->unk3D8CC = func_ov003_0208442c(0, data_ov003_020e71b8->touchWork.endX);
-    data_ov003_020e71b8->unk3D8C8 = 1;
-    self->effect                  = *arg;
-    self->active                  = 1;
-    self->update                  = NULL;
-    self->state                   = 0;
-    self->timer                   = 0;
-    func_ov003_02087250(self->effect, data_ov003_020e71b8->unk3D898, data_ov003_020e71b8->touchWork.angle);
+    g_CombatGlobal->unk3D8CC = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.endX);
+    g_CombatGlobal->unk3D8C8 = 1;
+    self->effect             = *arg;
+    self->active             = 1;
+    self->update             = NULL;
+    self->state              = 0;
+    self->timer              = 0;
+    func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, g_CombatGlobal->touchWork.angle);
     return 1;
 }
 static s32 func_ov003_020959f4(TaskPool* pool, Task* task, void* args) {
     BtlPsyPierce* self = task->data;
-    if (!data_ov003_020e71b8->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
+    if (!g_CombatGlobal->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
         self->update = NULL;
         self->state  = 0;
         self->timer  = 0;
@@ -61,7 +61,7 @@ static s32 func_ov003_02095a58(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 static s32 func_ov003_02095a60(TaskPool* pool, Task* task, void* args) {
-    data_ov003_020e71b8->unk3D8C8 = 0;
+    g_CombatGlobal->unk3D8C8 = 0;
     return 1;
 }
 

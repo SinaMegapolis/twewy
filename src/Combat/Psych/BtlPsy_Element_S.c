@@ -7,7 +7,7 @@ static const TaskHandle data_ov003_020dc858;
 
 // Nonmatching: Compiler pools the task-handle literal.
 s32 func_ov003_020af280(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085ec0(0))
+    if (!CombatTouch_GetSlashed(0))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc858.taskName);
     *arg                   = effect;

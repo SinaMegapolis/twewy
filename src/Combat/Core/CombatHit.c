@@ -1,3 +1,4 @@
+#include "Combat/Core/CombatHit.h"
 #include "Combat/Core/BtlDbg.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPop.h"
@@ -5,6 +6,7 @@
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
+#include "Combat/Core/CombatAttackInfo.h"
 #include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
@@ -31,16 +33,12 @@
 #include <nitro/gx.h>
 #include <nitro/mi/cpumem.h>
 
-// Battle hit resolution: the attack records' entry points, the damage/knockback maths and the
-// hit tests. The attack bookkeeping structures below are file-local because `Combat.h` does not
-// model them yet.
-
 // ---------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------
 
 /// One attack-info record: the base power, the reaction/stun ids, the half-extents the hit test
-/// uses and the bit-packed flags (attack-parameter id in bits 19..23). `func_ov003_0208a114`
+/// uses and the bit-packed flags (attack-parameter id in bits 19..23). `CombatHit_GetAttackInfo`
 /// indexes the command table with these.
 
 /// The per-hit arguments of an attack: damage scale percentages and the hit point.
@@ -80,8 +78,6 @@ typedef struct Ov003AttackParams {
 
 /// The special attack effect helpers of the other overlays, called through the attack handlers.
 
-/// Attack-info table (indexed by `func_ov003_0208a114`).
-extern const Ov003AttackInfo data_ov003_020d422c[];
 /// Battle-actor pack used by the effect actors.
 extern const BinIdentifier data_ov003_020d7800;
 
@@ -144,203 +140,15 @@ static const Ov003AttackParams data_ov003_020d76d0[32] = {
     {4,   0,  360,  20},
 };
 
-char        data_ov003_020e391c[0x18] = "Apl_Fur/Grp_BtlTch.bin";
-static char data_ov003_020e3934[0x10] = "Sword_Pierce_T";
-static char data_ov003_020e3944[0x14] = "ARG_Sword_Syoryu_S";
-static char data_ov003_020e3958[0x14] = "ARG_Sword_Kabuto_S";
-static char data_ov003_020e396c[0x10] = "ARG_Teleport_T";
-
 // ---------------------------------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------------------------------
 
 static void func_ov003_02089f90(s32 mode, Ov003EnemyActor* unit, u16 variant, s16 arg3, s16 arg4);
-static s32  func_ov003_0208a3ec(Ov003Hit* spawn);
-
-/// TRUE when the two screen-space positions overlap on the axis `arg0` selects. The four
-/// halfwords at `Ov003Global + 0x3D378` are the current and previous touch/focus positions.
-// Nonmatching: register allocation of the four cached halfword positions
-static s32 func_ov003_02087b7c(s32 arg0) {
-    s16 curX   = data_ov003_020e71b8->touchWork.startX;
-    s16 curY   = data_ov003_020e71b8->touchWork.startY;
-    s16 prevX  = data_ov003_020e71b8->touchWork.endX;
-    s16 prevY  = data_ov003_020e71b8->touchWork.endY;
-    s32 result = 0;
-
-    switch (arg0) {
-        case 0: {
-            s32 dx = curY - prevY;
-            s32 dy = curX - prevX;
-
-            if (dx < 0) {
-                dx = -dx;
-            }
-            if (dy < 0) {
-                dy = -dy;
-            }
-            if (dy < dx && curY > prevY) {
-                result = 1;
-            }
-            break;
-        }
-        case 1: {
-            s32 dx = curY - prevY;
-            s32 dy = curX - prevX;
-
-            if (dx < 0) {
-                dx = -dx;
-            }
-            if (dy < 0) {
-                dy = -dy;
-            }
-            if (dy < dx && curY < prevY) {
-                result = 1;
-            }
-            break;
-        }
-    }
-    return result;
-}
-
-static void func_ov003_02087c10(Ov003AttackData* data) {
-    func_ov003_02087250(data->effect, data->target, 0);
-}
-
-/// Registers the "pierce" attack: the handler is `func_ov003_02087c10`.
-s32 func_ov003_02087c28(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
-    Ov003AttackData* data;
-    CombatActor*     state = func_ov003_02085dc8(1);
-
-    if (state == 0) {
-        return 0;
-    }
-    data         = (Ov003AttackData*)func_ov003_020a5d2c(8, data_ov003_020e3934);
-    data->effect = effect;
-    data->target = state;
-    cmd->fire    = func_ov003_02087c10;
-    cmd->data    = data;
-    return 1;
-}
-
-static void func_ov003_02087c78(Ov003AttackData* data) {
-    func_ov003_02087250(data->effect, data->target, 0);
-    func_ov003_020a5a94(data->effect);
-}
-
-/// Registers the "slash" attack: the handler is `func_ov003_02087c78`.
-s32 func_ov003_02087c98(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
-    Ov003AttackData* data;
-    CombatActor*     state;
-
-    if (func_ov003_02087b7c(0) == 0) {
-        return 0;
-    }
-    state = func_ov003_02085ec0(1);
-    if (state == 0) {
-        return 0;
-    }
-    data         = (Ov003AttackData*)func_ov003_020a5d2c(8, data_ov003_020e3944);
-    data->effect = effect;
-    data->target = state;
-    cmd->fire    = func_ov003_02087c78;
-    cmd->data    = data;
-    return 1;
-}
-
-static void func_ov003_02087cfc(Ov003AttackData* data) {
-    func_ov003_02087250(data->effect, data->target, 0);
-    func_ov003_020a5a94(data->effect);
-}
-
-/// Registers the "kabuto" attack: the handler is `func_ov003_02087cfc`.
-s32 func_ov003_02087d1c(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
-    Ov003AttackData* data;
-    CombatActor*     state;
-
-    if (data_ov003_020e71b8->unk3D894 < 0x64) {
-        return 0;
-    }
-    if (func_ov003_02087b7c(1) == 0) {
-        return 0;
-    }
-    state = func_ov003_02085ec0(1);
-    if (state == 0) {
-        return 0;
-    }
-    data         = (Ov003AttackData*)func_ov003_020a5d2c(8, data_ov003_020e3958);
-    data->effect = effect;
-    data->target = state;
-    cmd->fire    = func_ov003_02087cfc;
-    cmd->data    = data;
-    return 1;
-}
-
-static void func_ov003_02087da0(Ov003AttackData* data) {
-    s32 x;
-    s32 y;
-
-    func_ov003_02087f28(0x3B, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
-    x = func_ov003_0208442c(0, data_ov003_020e71b8->touchWork.x);
-    y = func_ov003_02084460(0, data_ov003_020e71b8->touchWork.y, 0);
-    func_ov003_02083ca0(&x, &y, 0x8000, 0x8000);
-    func_ov003_02087f28(0x3C, x);
-    func_ov003_02087b00(0, x, y, 0);
-    func_ov003_020a5aa4(data->effect);
-    func_ov003_020a5a94(data->effect);
-}
-
-/// Registers the "teleport" attack: the handler is `func_ov003_02087da0`.
-s32 func_ov003_02087e5c(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
-    Ov003EffectState** data;
-
-    if (data_ov003_020e71b8->unk3D894 < 0x64) {
-        return 0;
-    }
-    if (func_ov003_02085cfc(2) == 0) {
-        return 0;
-    }
-    if (func_ov003_02085d3c(0) == 0) {
-        return 0;
-    }
-    data      = (Ov003EffectState**)func_ov003_020a5d2c(4, data_ov003_020e396c);
-    *data     = effect;
-    cmd->fire = (void (*)(Ov003AttackData*))func_ov003_02087da0;
-    cmd->data = (Ov003AttackData*)data;
-    return 1;
-}
-
-/// Plays an SE unless the battle is muted.
-void func_ov003_02087ed8(SndMgrSeIdx seIdx) {
-    if (data_ov003_020e71b8->unk3D878 & 0x20) {
-        return;
-    }
-    SndMgr_StartPlayingSE(seIdx);
-}
-
-/// Plays an SE at a pan position unless the battle is muted.
-void func_ov003_02087f00(SndMgrSeIdx seIdx, s32 sePan) {
-    if (data_ov003_020e71b8->unk3D878 & 0x20) {
-        return;
-    }
-    SndMgr_PlaySEWithPan(seIdx, sePan);
-}
-
-void func_ov003_02087f28(SndMgrSeIdx seIdx, s32 pan) {
-    if (data_ov003_020e71b8->unk3D878 & 0x20) {
-        return;
-    }
-    SndMgr_PlaySEWithPan(seIdx, func_ov003_020843b0(0, pan));
-}
-
-void func_ov003_02087f64(SndMgrSeIdx seIdx, s32 pan) {
-    if (data_ov003_020e71b8->unk3D878 & 0x20) {
-        return;
-    }
-    SndMgr_PlaySEWithPan(seIdx, func_ov003_020843b0(1, pan));
-}
+static s32  CombatHit_Dispatch(Ov003Hit* spawn);
 
 /// Maps a pixel distance to one of the six effect sizes.
-static s32 func_ov003_02087fa0(s32 arg0) {
+static s32 CombatHit_GetSparkSize(s32 arg0) {
     if (arg0 < 8) {
         return 0;
     }
@@ -359,7 +167,7 @@ static s32 func_ov003_02087fa0(s32 arg0) {
     return 5;
 }
 
-void func_ov003_02087fe0(s32 engine, CombatSprite* sprite, s32 variant) {
+void CombatHit_LoadSpark(s32 engine, CombatSprite* sprite, s32 variant) {
     if (engine == 0) {
         CombatSprite_LoadDirectNoProto(0, sprite, &data_ov003_020d7800, 0xD, 0xF, 0xE, 0x3D, variant);
     } else {
@@ -370,42 +178,42 @@ void func_ov003_02087fe0(s32 engine, CombatSprite* sprite, s32 variant) {
 }
 
 /// Positions and starts an effect actor for a unit that was just hit.
-void func_ov003_02088064(CombatSprite* visual, s32 x, s32 y) {
+void CombatHit_DrawSpark(CombatSprite* visual, s32 x, s32 y) {
     s32 pan;
     s32 volume;
 
     if (visual->sprite.bits_0_1 == 0) {
-        pan    = func_ov003_020843b0(0, x);
-        volume = func_ov003_020843ec(0, y, 0);
+        pan    = CombatStage_ToScreenX(0, x);
+        volume = CombatStage_ToScreenY(0, y, 0);
     } else {
-        pan    = func_ov003_020843b0(1, x);
-        volume = func_ov003_020843ec(1, y, 0);
+        pan    = CombatStage_ToScreenX(1, x);
+        volume = CombatStage_ToScreenY(1, y, 0);
     }
     CombatSprite_SetPosition(visual, pan, volume);
-    if (func_ov003_02088130() == 0) {
+    if (CombatHit_CanDrawSpark() == 0) {
         return;
     }
     CombatSprite_Render(visual);
 }
 
 /// Spawns a hit effect for `unit` at the effect size its hit box implies.
-void func_ov003_020880e4(s32 engine, CombatSprite* sprite, Ov003EnemyActor* unit) {
-    func_ov003_02087fe0(engine, sprite, func_ov003_02087fa0(unit->actor.unk_70));
+void CombatHit_LoadSparkForUnit(s32 engine, CombatSprite* sprite, Ov003EnemyActor* unit) {
+    CombatHit_LoadSpark(engine, sprite, CombatHit_GetSparkSize(unit->actor.unk_70));
 }
 
 /// Spawns the hit effect of an incoming attack on `unit`.
-void func_ov003_0208810c(CombatSprite* visual, CombatActor* actor) {
+void CombatHit_DrawSparkOnActor(CombatSprite* visual, CombatActor* actor) {
     if (actor->flags & 0x80000000) {
         return;
     }
-    func_ov003_02088064(visual, actor->position.x, actor->position.y);
+    CombatHit_DrawSpark(visual, actor->position.x, actor->position.y);
 }
 
 /// TRUE unless the battle's noise/attack phase suppresses effect spawning.
-s32 func_ov003_02088130(void) {
+s32 CombatHit_CanDrawSpark(void) {
     s32 result = 1;
 
-    if (data_ov003_020e71b8->unk3D878 & 2) {
+    if (g_CombatGlobal->unk3D878 & 2) {
         switch (data_ov003_020e71d9) {
             default:
                 break;
@@ -450,18 +258,18 @@ static void func_ov003_02088264(s32 mode, s16* damage) {
     s16 chance;
 
     if (mode != 1) {
-        rank = data_ov003_020e71b8->unk3D8D6;
+        rank = g_CombatGlobal->unk3D8D6;
     } else {
-        rank = data_ov003_020e71b8->unk3D8D4;
+        rank = g_CombatGlobal->unk3D8D4;
     }
-    maxRank = data_ov003_020e71b8->unk3D8D2;
+    maxRank = g_CombatGlobal->unk3D8D2;
     if (rank < maxRank / 2) {
         return;
     }
-    if (func_ov003_0208ca04(mode, 0x38) == 0) {
+    if (BtlMgr_HasAbility(mode, 0x38) == 0) {
         return;
     }
-    chance = func_ov003_0208ca24(mode, 0x38);
+    chance = BtlMgr_GetAbilityValue(mode, 0x38);
     if ((s32)RNG_Next(0x64) < chance) {
         *damage = 0;
     }
@@ -474,18 +282,18 @@ static void func_ov003_020882f0(s32 mode, s16* damage) {
     s16 bonus;
 
     if (mode != 1) {
-        rank = data_ov003_020e71b8->unk3D8D6;
+        rank = g_CombatGlobal->unk3D8D6;
     } else {
-        rank = data_ov003_020e71b8->unk3D8D4;
+        rank = g_CombatGlobal->unk3D8D4;
     }
-    maxRank = data_ov003_020e71b8->unk3D8D2;
+    maxRank = g_CombatGlobal->unk3D8D2;
     if (rank < maxRank / 2) {
         return;
     }
-    if (func_ov003_0208ca04(mode, 0x3D) == 0) {
+    if (BtlMgr_HasAbility(mode, 0x3D) == 0) {
         return;
     }
-    bonus = func_ov003_0208ca24(mode, 0x3D);
+    bonus = BtlMgr_GetAbilityValue(mode, 0x3D);
     *damage += (s16)(*damage * bonus / 100);
 }
 
@@ -496,18 +304,18 @@ static void func_ov003_0208838c(s32 mode, s16* damage) {
     s16 bonus;
 
     if (mode != 1) {
-        rank = data_ov003_020e71b8->unk3D8D6;
+        rank = g_CombatGlobal->unk3D8D6;
     } else {
-        rank = data_ov003_020e71b8->unk3D8D4;
+        rank = g_CombatGlobal->unk3D8D4;
     }
-    maxRank = data_ov003_020e71b8->unk3D8D2;
+    maxRank = g_CombatGlobal->unk3D8D2;
     if (rank < maxRank / 2) {
         return;
     }
-    if (func_ov003_0208ca04(mode, 0x3E) == 0) {
+    if (BtlMgr_HasAbility(mode, 0x3E) == 0) {
         return;
     }
-    bonus = func_ov003_0208ca24(mode, 0x3E);
+    bonus = BtlMgr_GetAbilityValue(mode, 0x3E);
     *damage -= (s16)(*damage * bonus / 100);
 }
 
@@ -521,28 +329,28 @@ static void func_ov003_02088428(s32 mode, s16* attack, s16* damage, u32 variant,
             default:
                 return;
             case 1:
-                if (func_ov003_0208ca04(mode, 0x32) == 0) {
+                if (BtlMgr_HasAbility(mode, 0x32) == 0) {
                     return;
                 }
-                *damage -= func_ov003_0208ca24(mode, 0x32);
+                *damage -= BtlMgr_GetAbilityValue(mode, 0x32);
                 return;
             case 2:
-                if (func_ov003_0208ca04(mode, 0x33) == 0) {
+                if (BtlMgr_HasAbility(mode, 0x33) == 0) {
                     return;
                 }
-                *damage -= func_ov003_0208ca24(mode, 0x33);
+                *damage -= BtlMgr_GetAbilityValue(mode, 0x33);
                 return;
             case 3:
-                if (func_ov003_0208ca04(mode, 0x34) == 0) {
+                if (BtlMgr_HasAbility(mode, 0x34) == 0) {
                     return;
                 }
-                *damage -= func_ov003_0208ca24(mode, 0x34);
+                *damage -= BtlMgr_GetAbilityValue(mode, 0x34);
                 return;
             case 4:
-                if (func_ov003_0208ca04(mode, 0x35) == 0) {
+                if (BtlMgr_HasAbility(mode, 0x35) == 0) {
                     return;
                 }
-                *damage -= func_ov003_0208ca24(mode, 0x35);
+                *damage -= BtlMgr_GetAbilityValue(mode, 0x35);
                 return;
         }
     }
@@ -550,40 +358,40 @@ static void func_ov003_02088428(s32 mode, s16* attack, s16* damage, u32 variant,
         default:
             return;
         case 1:
-            if (func_ov003_0208ca04(mode, 0x14) != 0) {
-                *attack *= func_ov003_0208ca24(mode, 0x14);
+            if (BtlMgr_HasAbility(mode, 0x14) != 0) {
+                *attack *= BtlMgr_GetAbilityValue(mode, 0x14);
             }
-            if (func_ov003_0208ca04(mode, 0x18) == 0) {
+            if (BtlMgr_HasAbility(mode, 0x18) == 0) {
                 return;
             }
-            *damage += func_ov003_0208ca24(mode, 0x18);
+            *damage += BtlMgr_GetAbilityValue(mode, 0x18);
             return;
         case 2:
-            if (func_ov003_0208ca04(mode, 0x15) != 0) {
-                *attack *= func_ov003_0208ca24(mode, 0x15);
+            if (BtlMgr_HasAbility(mode, 0x15) != 0) {
+                *attack *= BtlMgr_GetAbilityValue(mode, 0x15);
             }
-            if (func_ov003_0208ca04(mode, 0x19) == 0) {
+            if (BtlMgr_HasAbility(mode, 0x19) == 0) {
                 return;
             }
-            *damage += func_ov003_0208ca24(mode, 0x19);
+            *damage += BtlMgr_GetAbilityValue(mode, 0x19);
             return;
         case 3:
-            if (func_ov003_0208ca04(mode, 0x16) != 0) {
-                *attack *= func_ov003_0208ca24(mode, 0x16);
+            if (BtlMgr_HasAbility(mode, 0x16) != 0) {
+                *attack *= BtlMgr_GetAbilityValue(mode, 0x16);
             }
-            if (func_ov003_0208ca04(mode, 0x1A) == 0) {
+            if (BtlMgr_HasAbility(mode, 0x1A) == 0) {
                 return;
             }
-            *damage += func_ov003_0208ca24(mode, 0x1A);
+            *damage += BtlMgr_GetAbilityValue(mode, 0x1A);
             return;
         case 4:
-            if (func_ov003_0208ca04(mode, 0x17) != 0) {
-                *attack *= func_ov003_0208ca24(mode, 0x17);
+            if (BtlMgr_HasAbility(mode, 0x17) != 0) {
+                *attack *= BtlMgr_GetAbilityValue(mode, 0x17);
             }
-            if (func_ov003_0208ca04(mode, 0x1B) == 0) {
+            if (BtlMgr_HasAbility(mode, 0x1B) == 0) {
                 return;
             }
-            *damage += func_ov003_0208ca24(mode, 0x1B);
+            *damage += BtlMgr_GetAbilityValue(mode, 0x1B);
             return;
     }
 }
@@ -598,19 +406,19 @@ static void func_ov003_02088694(Ov003EnemyActor* unit) {
     if (unit->actor.position.z >= -0x10000) {
         return;
     }
-    tension = data_ov003_020e71b8->unk3D8F8;
+    tension = g_CombatGlobal->unk3D8F8;
     if (tension < 0xA) {
         return;
     }
     if (tension < 0x14) {
-        data_ov003_020e71b8->unk3D8FA++;
+        g_CombatGlobal->unk3D8FA++;
         return;
     }
     if (tension < 0x1E) {
-        data_ov003_020e71b8->unk3D8FA += 2;
+        g_CombatGlobal->unk3D8FA += 2;
         return;
     }
-    data_ov003_020e71b8->unk3D8FA += 3;
+    g_CombatGlobal->unk3D8FA += 3;
 }
 
 /// TRUE when `unit` cannot be hit by this attack.
@@ -715,18 +523,18 @@ static void func_ov003_02088988(const Ov003AttackInfo* info) {
         return;
     }
     if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
-        if (data_ov003_020e71b8->unk3D8ED != 0 && data_ov003_020e71b8->unk3D8F4 == 0) {
+        if (g_CombatGlobal->unk3D8ED != 0 && g_CombatGlobal->unk3D8F4 == 0) {
             return;
         }
-        data_ov003_020e71b8->unk3D8EC = 1;
-        data_ov003_020e71b8->unk3D878 |= 0x80;
+        g_CombatGlobal->unk3D8EC = 1;
+        g_CombatGlobal->unk3D878 |= 0x80;
         return;
     }
-    if (data_ov003_020e71b8->unk3D8ED != 0 && data_ov003_020e71b8->unk3D8F0 == 0) {
+    if (g_CombatGlobal->unk3D8ED != 0 && g_CombatGlobal->unk3D8F0 == 0) {
         return;
     }
-    data_ov003_020e71b8->unk3D8EC = 2;
-    data_ov003_020e71b8->unk3D878 |= 0x80;
+    g_CombatGlobal->unk3D8EC = 2;
+    g_CombatGlobal->unk3D878 |= 0x80;
 }
 
 /// Turns the unit towards the attack's origin.
@@ -765,9 +573,9 @@ static void func_ov003_02088abc(Ov003EnemyActor* unit, const Ov003AttackInfo* in
     targetX = x;
     if (((u32)(info->flags << 0x14) >> 0x1F) == 1) {
         if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
-            targetX = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x;
+            targetX = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
         } else {
-            targetX = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x;
+            targetX = ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x;
         }
     }
     if (unit->actor.position.x < targetX) {
@@ -798,22 +606,22 @@ static void func_ov003_02088b5c(s32 mode, Ov003EnemyActor* unit, u16 attackId) {
             default:
                 break;
             case 1:
-                if (((u32)(unit->flags196.raw << 0x1D) >> 0x1F) == 1) {
+                if (unit->flags196.bits.b2 == 1) {
                     hit = 1;
                 }
                 break;
             case 2:
-                if (((u32)(unit->flags196.raw << 0x1B) >> 0x1F) == 1) {
+                if (unit->flags196.bits.b4 == 1) {
                     hit = 1;
                 }
                 break;
             case 3:
-                if (((u32)(unit->flags196.raw << 0x1A) >> 0x1F) == 1) {
+                if (unit->flags196.bits.b5 == 1) {
                     hit = 1;
                 }
                 break;
             case 4:
-                if (((u32)(unit->flags196.raw << 0x1C) >> 0x1F) == 1) {
+                if (unit->flags196.bits.b3 == 1) {
                     hit = 1;
                 }
                 break;
@@ -862,11 +670,11 @@ static void func_ov003_02088d0c(Ov003EnemyActor* unit, Ov003Hit* hit) {
     switch (hit->kind) {
         case 3:
             if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-                x = func_ov003_0208442c(0, (hit->x * 0x10) >> 0x10);
-                y = func_ov003_02084460(0, (hit->y * 0x10) >> 0x10, unit->actor.position.z);
+                x = CombatStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
+                y = CombatStage_ToWorldY(0, (hit->y * 0x10) >> 0x10, unit->actor.position.z);
             } else {
-                x = func_ov003_0208442c(1, (hit->x * 0x10) >> 0x10);
-                y = func_ov003_02084460(1, (hit->y * 0x10) >> 0x10, unit->actor.position.z);
+                x = CombatStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
+                y = CombatStage_ToWorldY(1, (hit->y * 0x10) >> 0x10, unit->actor.position.z);
             }
             z       = unit->actor.position.z;
             targetX = x;
@@ -917,9 +725,9 @@ static void func_ov003_02088d0c(Ov003EnemyActor* unit, Ov003Hit* hit) {
     }
     if (((u32)(hit->info->flags << 0x14) >> 0x1F) == 1) {
         if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-            targetX = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x;
+            targetX = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
         } else {
-            targetX = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x;
+            targetX = ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x;
         }
     }
     jitterX = x + ((RNG_Next(0x11) - 8) << 12);
@@ -934,7 +742,7 @@ static s32 func_ov003_02088f5c(Ov003EnemyActor* unit, const Ov003AttackInfo* inf
         return 0;
     }
     CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_GUARD);
-    if (!(data_ov003_020e71b8->unk3D878 & 0x40000000)) {
+    if (!(g_CombatGlobal->unk3D878 & 0x40000000)) {
         unit->actor.isFlipped = (unit->actor.position.x < x) ? 1 : 0;
     }
     unit->actor.unk_5A = info->unk_04;
@@ -951,9 +759,9 @@ static s32 func_ov003_02088f5c(Ov003EnemyActor* unit, const Ov003AttackInfo* inf
     }
     func_ov003_02088abc(unit, info, x);
     if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
-        data_ov003_020e71b8->unk3D906 = info->unk_02;
+        g_CombatGlobal->unk3D906 = info->unk_02;
     } else {
-        data_ov003_020e71b8->unk3D90A = info->unk_02;
+        g_CombatGlobal->unk3D90A = info->unk_02;
     }
     return 1;
 }
@@ -990,16 +798,14 @@ static s16 func_ov003_02089194(Ov003EnemyActor* unit, const Ov003AttackInfo* inf
     damage = OV003_ATTACK_PERCENT(damage, (s16)args->unk_04);
     damage = OV003_ATTACK_PERCENT(damage, unit->actor.unk_62);
     if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
-        if (data_ov003_020e71b8->unk3D8F4 == 0 && ((u32)(info->flags << 0x12) >> 0x1F) != 1 &&
-            ((u32)(unit->flags196.raw << 0x16) >> 0x1F) == 1)
-        {
+        if (g_CombatGlobal->unk3D8F4 == 0 && ((u32)(info->flags << 0x12) >> 0x1F) != 1 && unit->flags196.bits.b9 == 1) {
             damage = (s16)(damage / 4);
         }
         s16 multiplier = func_ov003_020890f0(unit, info);
 
         damage = OV003_ATTACK_PERCENT(damage, multiplier);
-        if (((u32)(info->flags << 0x13) >> 0x1F) == 1 && data_ov003_020e71b8->unk3D8F4 != 0) {
-            s16 sync = data_ov003_020e71b8->unk3D8EE;
+        if (((u32)(info->flags << 0x13) >> 0x1F) == 1 && g_CombatGlobal->unk3D8F4 != 0) {
+            s16 sync = g_CombatGlobal->unk3D8EE;
 
             damage = OV003_ATTACK_PERCENT(damage, sync);
             func_ov003_0209c568(0);
@@ -1007,13 +813,11 @@ static s16 func_ov003_02089194(Ov003EnemyActor* unit, const Ov003AttackInfo* inf
         }
         func_ov003_020882f0(0, &damage);
     } else {
-        if (data_ov003_020e71b8->unk3D8F0 == 0 && ((u32)(info->flags << 0x12) >> 0x1F) != 1 &&
-            ((u32)(unit->flags196.raw << 0x16) >> 0x1F) == 1)
-        {
+        if (g_CombatGlobal->unk3D8F0 == 0 && ((u32)(info->flags << 0x12) >> 0x1F) != 1 && unit->flags196.bits.b9 == 1) {
             damage = (s16)(damage / 4);
         }
-        if (((u32)(info->flags << 0x13) >> 0x1F) == 1 && data_ov003_020e71b8->unk3D8F0 != 0) {
-            s16 sync = data_ov003_020e71b8->unk3D8EE;
+        if (((u32)(info->flags << 0x13) >> 0x1F) == 1 && g_CombatGlobal->unk3D8F0 != 0) {
+            s16 sync = g_CombatGlobal->unk3D8EE;
 
             damage = OV003_ATTACK_PERCENT(damage, sync);
             func_ov003_0209c568(1);
@@ -1035,7 +839,7 @@ static s16 func_ov003_0208943c(Ov003EnemyActor* unit, const Ov003AttackInfo* inf
     damage = OV003_ATTACK_PERCENT(damage, ((const s16*)data_ov003_020d7622)[gSaveData.battleDifficulty * 2]);
     damage = OV003_ATTACK_PERCENT(damage, (s16)args->unk_06);
     damage = OV003_ATTACK_PERCENT(damage, unit->actor.unk_64);
-    damage = OV003_ATTACK_PERCENT(damage, data_ov003_020d7630[data_ov003_020e71b8->unk3D88C]);
+    damage = OV003_ATTACK_PERCENT(damage, data_ov003_020d7630[g_CombatGlobal->unk3D88C]);
     damage -= unit->actor.unk_68;
     if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
         func_ov003_0208838c(0, &damage);
@@ -1057,7 +861,7 @@ static void func_ov003_020895ac(Ov003EnemyActor* unit, const Ov003AttackInfo* in
         unit->actor.unk_12 = (u16)((unit->actor.unk_12 & ~0xC) | 4);
     }
     if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
-        func_ov003_0208b518(0, unit, -damage);
+        BtlMgr_AddUnitHp(0, unit, -damage);
         func_ov003_0209b61c(0, damage, &unit->actor);
         if (damage > 0) {
             func_ov003_0208cb6c(0, damage);
@@ -1065,7 +869,7 @@ static void func_ov003_020895ac(Ov003EnemyActor* unit, const Ov003AttackInfo* in
             func_ov003_02088694(unit);
         }
     } else {
-        func_ov003_0208b518(1, unit, -damage);
+        BtlMgr_AddUnitHp(1, unit, -damage);
         func_ov003_0209b61c(1, damage, &unit->actor);
         if (damage > 0) {
             func_ov003_0208cb6c(1, damage);
@@ -1081,26 +885,26 @@ static void func_ov003_020895ac(Ov003EnemyActor* unit, const Ov003AttackInfo* in
     if (damage <= 0) {
         return;
     }
-    func_ov003_020888b0(unit, info, ((u32)(unit->flags196.raw << 0x1E) >> 0x1F) == 1 ? 1 : 0);
+    func_ov003_020888b0(unit, info, unit->flags196.bits.b1 == 1 ? 1 : 0);
 }
 
 /// Applies the "gauge" damage bank used by the special attacks.
 static void func_ov003_020896d0(Ov003EnemyActor* unit, const Ov003AttackInfo* info, s16 gauge) {
     if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
         func_ov003_02088264(0, &gauge);
-        func_ov003_0208b3cc(0, -gauge);
+        BtlMgr_AddTeamHp(0, -gauge);
         func_ov003_0209b564(0, gauge, &unit->actor, 3);
     } else {
         func_ov003_02088264(1, &gauge);
-        func_ov003_0208b3cc(1, -gauge);
+        BtlMgr_AddTeamHp(1, -gauge);
         func_ov003_0209b564(1, gauge, &unit->actor, 3);
     }
     unit->actor.unk_5A = info->unk_04;
     if (unit->actor.currentHp <= 0) {
         unit->actor.flags |= 0x2000;
-        CombatActor_ForceDefeat((CombatActor*)data_ov003_020e71b8->unk3D898);
-        CombatActor_ForceDefeat((CombatActor*)data_ov003_020e71b8->unk3D89C);
-        data_ov003_020e71b8->unk3D878 |= 0x30000;
+        CombatActor_ForceDefeat((CombatActor*)g_CombatGlobal->unk3D898);
+        CombatActor_ForceDefeat((CombatActor*)g_CombatGlobal->unk3D89C);
+        g_CombatGlobal->unk3D878 |= 0x30000;
         return;
     }
     if (gauge <= 0) {
@@ -1143,9 +947,9 @@ static s32 func_ov003_02089884(Ov003Hit* hit) {
     func_ov003_02088abc(hit->unit, hit->info, hit->x);
     func_ov003_02088cc0(hit->unit, hit->info);
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        data_ov003_020e71b8->unk3D906 = hit->info->unk_02;
+        g_CombatGlobal->unk3D906 = hit->info->unk_02;
     } else {
-        data_ov003_020e71b8->unk3D90A = hit->info->unk_02;
+        g_CombatGlobal->unk3D90A = hit->info->unk_02;
     }
     return 1;
 }
@@ -1163,9 +967,9 @@ static s32 func_ov003_02089974(Ov003Hit* hit) {
     halfH = hit->info->unk_06 << 12;
     halfD = hit->info->unk_07 << 12;
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+        unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     } else {
-        unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+        unit = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     }
     while (unit != NULL) {
         if (func_ov003_02088714(unit, hit->info) == 0 &&
@@ -1183,13 +987,13 @@ static s32 func_ov003_02089974(Ov003Hit* hit) {
                 result = 1;
             }
         }
-        unit = func_ov003_02084984(&unit->node);
+        unit = CombatList_GetNext(&unit->node);
     }
     if (result == 1) {
         if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-            data_ov003_020e71b8->unk3D906 = hit->info->unk_02;
+            g_CombatGlobal->unk3D906 = hit->info->unk_02;
         } else {
-            data_ov003_020e71b8->unk3D90A = hit->info->unk_02;
+            g_CombatGlobal->unk3D90A = hit->info->unk_02;
         }
     }
     return result;
@@ -1204,9 +1008,9 @@ static s32 func_ov003_02089b04(Ov003Hit* hit) {
 
     func_ov003_020881b4(hit);
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        unit = data_ov003_020e71b8->unk3D898;
+        unit = g_CombatGlobal->unk3D898;
     } else {
-        unit = data_ov003_020e71b8->unk3D89C;
+        unit = g_CombatGlobal->unk3D89C;
     }
     hit->unit = unit;
     halfW     = hit->info->unk_05 << 12;
@@ -1229,9 +1033,9 @@ static s32 func_ov003_02089b04(Ov003Hit* hit) {
     func_ov003_02088abc(hit->unit, hit->info, hit->x);
     func_ov003_02088cc0(hit->unit, hit->info);
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        data_ov003_020e71b8->unk3D906 = hit->info->unk_02;
+        g_CombatGlobal->unk3D906 = hit->info->unk_02;
     } else {
-        data_ov003_020e71b8->unk3D90A = hit->info->unk_02;
+        g_CombatGlobal->unk3D90A = hit->info->unk_02;
     }
     return 1;
 }
@@ -1244,14 +1048,14 @@ static s32 func_ov003_02089c74(Ov003Hit* hit) {
 
     func_ov003_020881b4(hit);
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        x = func_ov003_0208442c(0, (hit->x * 0x10) >> 0x10);
+        x = CombatStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
     } else {
-        x = func_ov003_0208442c(1, (hit->x * 0x10) >> 0x10);
+        x = CombatStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
     }
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+        unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     } else {
-        unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+        unit = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     }
     while (unit != NULL) {
         if (func_ov003_02088714(unit, hit->info) == 0 && func_ov003_0208882c(unit, hit) != 0 && func_ov003_02088764(unit) == 0)
@@ -1268,13 +1072,13 @@ static s32 func_ov003_02089c74(Ov003Hit* hit) {
                 result = 1;
             }
         }
-        unit = func_ov003_02084984(&unit->node);
+        unit = CombatList_GetNext(&unit->node);
     }
     if (result == 1) {
         if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-            data_ov003_020e71b8->unk3D906 = hit->info->unk_02;
+            g_CombatGlobal->unk3D906 = hit->info->unk_02;
         } else {
-            data_ov003_020e71b8->unk3D90A = hit->info->unk_02;
+            g_CombatGlobal->unk3D90A = hit->info->unk_02;
         }
     }
     return result;
@@ -1287,14 +1091,14 @@ static s32 func_ov003_02089e18(Ov003Hit* hit) {
 
     func_ov003_020881b4(hit);
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        x = func_ov003_0208442c(0, (hit->x * 0x10) >> 0x10);
+        x = CombatStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
     } else {
-        x = func_ov003_0208442c(1, (hit->x * 0x10) >> 0x10);
+        x = CombatStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
     }
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        unit = data_ov003_020e71b8->unk3D898;
+        unit = g_CombatGlobal->unk3D898;
     } else {
-        unit = data_ov003_020e71b8->unk3D89C;
+        unit = g_CombatGlobal->unk3D89C;
     }
     hit->unit = unit;
     if (func_ov003_02088714(unit, hit->info) != 0 || func_ov003_0208882c(hit->unit, hit) == 0) {
@@ -1312,9 +1116,9 @@ static s32 func_ov003_02089e18(Ov003Hit* hit) {
     func_ov003_02088abc(hit->unit, hit->info, x);
     func_ov003_02088cc0(hit->unit, hit->info);
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        data_ov003_020e71b8->unk3D906 = hit->info->unk_02;
+        g_CombatGlobal->unk3D906 = hit->info->unk_02;
     } else {
-        data_ov003_020e71b8->unk3D90A = hit->info->unk_02;
+        g_CombatGlobal->unk3D90A = hit->info->unk_02;
     }
     return 1;
 }
@@ -1347,7 +1151,7 @@ static void func_ov003_02089f90(s32 mode, Ov003EnemyActor* unit, u16 variant, s1
 }
 
 /// Applies a plain hit to a unit (used by the projectile effects).
-s32 func_ov003_0208a028(s32 mode, Ov003EnemyActor* unit, u16 attackId) {
+s32 CombatHit_ApplyAttack(s32 mode, Ov003EnemyActor* unit, u16 attackId) {
     s32 flags = unit->actor.flags;
 
     if ((flags & 4) || (flags & 0x10) || (flags & 0x4000) || unit->actor.pendingCommand == ACTOR_CMD_KNOCKDOWN) {
@@ -1359,7 +1163,7 @@ s32 func_ov003_0208a028(s32 mode, Ov003EnemyActor* unit, u16 attackId) {
 }
 
 /// Applies a bare "stagger" hit to a unit.
-s32 func_ov003_0208a08c(s32 mode, Ov003EnemyActor* unit, s32 arg2) {
+s32 CombatHit_Stagger(s32 mode, Ov003EnemyActor* unit, s32 arg2) {
     s32 flags = unit->actor.flags;
 
     if ((flags & 4) || (flags & 0x10) || (flags & 0x4000) || unit->actor.pendingCommand == ACTOR_CMD_KNOCKDOWN) {
@@ -1374,12 +1178,12 @@ s32 func_ov003_0208a08c(s32 mode, Ov003EnemyActor* unit, s32 arg2) {
 }
 
 /// The attack-info table entry for `id`.
-const Ov003AttackInfo* func_ov003_0208a114(u16 id) {
-    return &data_ov003_020d422c[id];
+const Ov003AttackInfo* CombatHit_GetAttackInfo(u16 id) {
+    return &CombatAttackInfo_Table[id];
 }
 
 /// Queues one of the "sweep" attack animations.
-s32 func_ov003_0208a128(const Ov003AttackInfo* info, void* payload, void* unit, s32 arg3) {
+s32 CombatHit_AttackUnit(const Ov003AttackInfo* info, void* payload, void* unit, s32 arg3) {
     Ov003Hit spawn;
 
     spawn.info    = info;
@@ -1389,11 +1193,11 @@ s32 func_ov003_0208a128(const Ov003AttackInfo* info, void* payload, void* unit, 
     spawn.x       = arg3;
     spawn.y       = 0;
     spawn.z       = 0;
-    return func_ov003_0208a3ec(&spawn);
+    return CombatHit_Dispatch(&spawn);
 }
 
 /// Queues a point attack animation.
-s32 func_ov003_0208a164(const Ov003AttackInfo* info, Ov003AttackArgs* args, s32 x, s32 y, s32 z) {
+s32 CombatHit_AttackAt(const Ov003AttackInfo* info, Ov003AttackArgs* args, s32 x, s32 y, s32 z) {
     Ov003Hit spawn;
 
     spawn.info    = info;
@@ -1403,11 +1207,11 @@ s32 func_ov003_0208a164(const Ov003AttackInfo* info, Ov003AttackArgs* args, s32 
     spawn.x       = x;
     spawn.y       = y;
     spawn.z       = z;
-    return func_ov003_0208a3ec(&spawn);
+    return CombatHit_Dispatch(&spawn);
 }
 
 /// Queues a pixel-space attack animation.
-s32 func_ov003_0208a1a4(const Ov003AttackInfo* info, void* target, s32 x, s32 y) {
+s32 CombatHit_AttackAtScreen(const Ov003AttackInfo* info, void* target, s32 x, s32 y) {
     Ov003Hit spawn;
 
     spawn.info    = info;
@@ -1417,25 +1221,25 @@ s32 func_ov003_0208a1a4(const Ov003AttackInfo* info, void* target, s32 x, s32 y)
     spawn.x       = x << 12;
     spawn.y       = y << 12;
     spawn.z       = 0;
-    return func_ov003_0208a3ec(&spawn);
+    return CombatHit_Dispatch(&spawn);
 }
 
-s32 func_ov003_0208a1e8(const Ov003AttackInfo* info, void* payload, s32 arg2) {
+s32 CombatHit_AttackCharacter(const Ov003AttackInfo* info, void* payload, s32 arg2) {
     if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
-        return func_ov003_0208a128(info, payload, data_ov003_020e71b8->unk3D898, arg2);
+        return CombatHit_AttackUnit(info, payload, g_CombatGlobal->unk3D898, arg2);
     }
-    return func_ov003_0208a128(info, payload, data_ov003_020e71b8->unk3D89C, arg2);
+    return CombatHit_AttackUnit(info, payload, g_CombatGlobal->unk3D89C, arg2);
 }
 
 /// Copies a spawn's attack arguments into the record the hit resolvers read.
-void func_ov003_0208a234(s32 arg0, const Ov003AttackArgs* args, Ov003EnemyActor* unit) {
+void CombatHit_ArmActor(s32 arg0, const Ov003AttackArgs* args, Ov003EnemyActor* unit) {
     unit->actor.unk_14     = arg0;
     unit->actor.attackArgs = *args;
 }
 
 /// Spawns the attack animation and the effect it carries.
 // Nonmatching: instruction schedule of the local attack copy
-s32 func_ov003_0208a25c(CombatActor* actor) {
+s32 CombatHit_ActorImpact(CombatActor* actor) {
     const Ov003AttackInfo* info;
     Ov003AttackInfo        attack;
     Ov003AttackArgs        args;
@@ -1446,7 +1250,7 @@ s32 func_ov003_0208a25c(CombatActor* actor) {
             return 0;
         }
     }
-    info   = func_ov003_0208a114(actor->unk_14);
+    info   = CombatHit_GetAttackInfo(actor->unk_14);
     attack = *info;
     args   = actor->attackArgs;
     if (((u32)(attack.flags << 0x18) >> 0x1F) == 0) {
@@ -1458,8 +1262,8 @@ s32 func_ov003_0208a25c(CombatActor* actor) {
     attack.unk_07 = actor->unk_72 / 2;
     attack.unk_06 = attack.unk_05 = actor->unk_70;
     actor->flags |= 0x8000;
-    result = func_ov003_0208a164(&attack, &args, actor->position.x, actor->position.y,
-                                 actor->position.z - ((actor->unk_72 / 2) << 12));
+    result = CombatHit_AttackAt(&attack, &args, actor->position.x, actor->position.y,
+                                actor->position.z - ((actor->unk_72 / 2) << 12));
     actor->flags &= ~0x8000;
     if (actor->unk_00 == 2) {
         s16 hp = actor->currentHp;
@@ -1475,10 +1279,10 @@ s32 func_ov003_0208a25c(CombatActor* actor) {
     return result;
 }
 
-static s32 func_ov003_0208a3ec(Ov003Hit* spawn) {
+static s32 CombatHit_Dispatch(Ov003Hit* spawn) {
     u16 kind;
 
-    if (data_ov003_020e71b8->unk3D874 != 2) {
+    if (g_CombatGlobal->unk3D874 != 2) {
         return 0;
     }
     kind = spawn->kind;

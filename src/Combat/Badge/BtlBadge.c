@@ -26,7 +26,7 @@ static const TaskHandle data_ov003_020dc5c0       = {data_ov003_020e48e0, func_o
 void func_ov003_020a6d24(Ov003PinAction* action) {
     Ov003PinAction* args = action;
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc5c0, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5c0, NULL, 0, NULL, &args);
 }
 
 static s32 func_ov003_020a6d6c(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -37,7 +37,7 @@ static s32 func_ov003_020a6d6c(TaskPool* pool, Task* task, void* args, s32 stage
             SpriteAnimationEx anim;
 
             MI_CpuSet(self, 0, sizeof(*self));
-            func_ov003_020a3b9c(&self->actor, *(void**)args);
+            BtlBadgeActor_Init(&self->actor, *(void**)args);
             CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
             anim.anim.bits_10_11 = 0;
             anim.anim.unk_1C     = 3;
@@ -57,12 +57,11 @@ static s32 func_ov003_020a6d6c(TaskPool* pool, Task* task, void* args, s32 stage
         case 1: {
             BtlBadge* self = task->data;
 
-            if (data_ov003_020e71b8->unk3D884 != 0 || (data_ov003_020e71b8->unk3D878 & 6) != 0 ||
-                (data_ov003_020e71b8->unk3D878 & 0x40) != 0)
+            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
             {
                 return 1;
             }
-            func_ov003_020a43c8(&self->actor);
+            BtlBadgeActor_RunRequest(&self->actor);
             func_ov003_020a3d98(&self->actor);
             CombatSprite_Update(&self->badge);
             CombatSprite_Update(&self->actor.sprite);

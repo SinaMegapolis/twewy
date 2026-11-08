@@ -9,6 +9,7 @@
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
+#include "Combat/Core/CombatEnmOverlay.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "Combat/Fusion/BtlFusion.h"
@@ -48,11 +49,6 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-// Nonmatching: the battle manager. All functions are decompiled and instruction-accurate except for
-// register allocation/scheduling differences in about twenty of them (worst: func_ov003_0208d1d0).
-// The referenced .rodata/.data objects have the same size and contents as the retail build, but mwcc
-// orders them differently, so the TU is intentionally not marked `complete`.
-
 /// A single link of the intrusive unit lists in `Ov003Global` (0x3D8A4..0x3D8C0). The link always
 /// lives at offset 0x178 inside a unit and its `self` pointer points back at the unit.
 
@@ -62,7 +58,6 @@
 /// A battle icon whose animation is driven by the shared state at `Ov003Global.touchWork.gesture`.
 
 /// Overlay 4 id per noise id.
-extern const s8 data_ov003_020d6ab0[];
 
 extern const TaskHandle Tsk_BtlPlayer01;
 extern const TaskHandle Tsk_BtlCard_Esp;
@@ -99,14 +94,12 @@ extern u32 OVERLAY_23_ID;
 extern u32 OVERLAY_24_ID;
 extern u32 OVERLAY_25_ID;
 
-static void func_ov003_0208e830(BtlMgrWork*);
-static void func_ov003_0208eb04(BtlMgrWork*);
-static void func_ov003_0208ec1c(BtlMgrWork*);
+static void BtlMgr_Init(BtlMgrWork*);
+static void BtlMgr_Main(BtlMgrWork*);
+static void BtlMgr_Exit(BtlMgrWork*);
 static void func_ov003_0208e5f8(BtlMgrWork*);
 static void func_ov003_0208e668(BtlMgrWork*);
 static void func_ov003_0208e7c0(BtlMgrWork*);
-static void func_ov003_0208ed98(BtlIcon* icon);
-static void func_ov003_0208edcc(BtlIcon* icon);
 
 // ---------------------------------------------------------------------------------------------
 // Data
@@ -151,10 +144,10 @@ static const u16 data_ov003_020d7834[2] = {0x14, 0x15};
 static const u16 data_ov003_020d7838[6] = {0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x00};
 
 /// Process stages of the battle overlay: init, main, exit.
-static void (*const data_ov003_020d7844[3])(BtlMgrWork*) = {
-    func_ov003_0208e830,
-    func_ov003_0208eb04,
-    func_ov003_0208ec1c,
+static void (*const BtlMgr_ProcessStages[3])(BtlMgrWork*) = {
+    BtlMgr_Init,
+    BtlMgr_Main,
+    BtlMgr_Exit,
 };
 
 /// Per-encounter battle track ids.
@@ -170,8 +163,8 @@ static const u32 data_ov003_020d7898[22] = {1,      1,      0x1003, 0x1003, 0x10
 // ---------------------------------------------------------------------------------------------
 
 /// Maximum HP of the player (or partner) at the battle's current level.
-static s32 func_ov003_0208a488(void) {
-    Ov003Global* g = data_ov003_020e71b8;
+static s32 BtlMgr_CalcMaxHp(void) {
+    Ov003Global* g = g_CombatGlobal;
     s32          partner;
 
     switch (g->unk3D88D) {
@@ -190,15 +183,15 @@ static s32 func_ov003_0208a488(void) {
     }
 
     s32 maxHealth = Stats_GetMaxHealth(partner, gSaveData.battleLevel);
-    if (func_ov003_020a3330(3) != 0) {
-        maxHealth = (s16)(maxHealth + (s16)func_ov003_020a3468(3));
+    if (CombatAbility_IsActive(3) != 0) {
+        maxHealth = (s16)(maxHealth + (s16)CombatAbility_GetValue(3));
     }
     return maxHealth;
 }
 
 /// Loads the player/partner/badge overlays and picks the battle track for the encounter.
-static void func_ov003_0208a51c(u32 partner, u16 encounterId) {
-    s32 overlay4 = data_ov003_020d6ab0[encounterId];
+static void BtlMgr_LoadOverlays(u32 partner, u16 encounterId) {
+    s32 overlay4 = CombatEnmOverlay_Table[encounterId];
 
     switch (partner) {
         case 0:
@@ -284,7 +277,7 @@ static void func_ov003_0208a51c(u32 partner, u16 encounterId) {
 
         default:
             if (encounterId == 0) {
-                overlay4 = func_ov003_02084db0();
+                overlay4 = CombatDebug_GetCurrent();
             }
             switch (overlay4) {
                 case 0:
@@ -321,7 +314,7 @@ static void func_ov003_0208a51c(u32 partner, u16 encounterId) {
 
 /// Returns the partner that fights alongside the player for an encounter. Most encounters force a
 /// specific partner; everything else uses the one selected in the phone menu.
-static u32 func_ov003_0208a878(u16 encounterId) {
+static u32 BtlMgr_GetPartner(u16 encounterId) {
     u32 partner;
 
     switch (gSaveData.playerStats.activePartner) {
@@ -412,7 +405,7 @@ static u32 func_ov003_0208a878(u16 encounterId) {
 static void func_ov003_0208aa1c(s32 isContinuation) {
     s32 partner;
 
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
             partner = 0;
             break;
@@ -427,82 +420,79 @@ static void func_ov003_0208aa1c(s32 isContinuation) {
             break;
     }
 
-    data_ov003_020e71b8->unk3D896 = (partner == 0xff) ? 0 : gSaveData.friendStats[partner].sync;
-    data_ov003_020e71b8->unk3D894 = (func_ov003_020a3330(0x12) != 0) ? 30 : 100;
+    g_CombatGlobal->unk3D896 = (partner == 0xff) ? 0 : gSaveData.friendStats[partner].sync;
+    g_CombatGlobal->unk3D894 = (CombatAbility_IsActive(0x12) != 0) ? 30 : 100;
 
-    if (func_ov003_020a3330(0x40) != 0) {
+    if (CombatAbility_IsActive(0x40) != 0) {
         gSaveData.unk_3140 |= 2;
     }
 
-    data_ov003_020e71b8->unk3D892 = gSaveData.battleDropRate;
-    if (func_ov003_020a3330(0) != 0) {
-        data_ov003_020e71b8->unk3D892 += (s16)func_ov003_020a3468(0);
+    g_CombatGlobal->unk3D892 = gSaveData.battleDropRate;
+    if (CombatAbility_IsActive(0) != 0) {
+        g_CombatGlobal->unk3D892 += (s16)CombatAbility_GetValue(0);
     }
 
-    data_ov003_020e71b8->unk3D8D2 = func_ov003_0208a488();
+    g_CombatGlobal->unk3D8D2 = BtlMgr_CalcMaxHp();
 
     if (isContinuation != 0) {
         s32 merged;
 
-        data_ov003_020e71b8->unk3D8D0 = gSaveData.battleHpGauge;
-        data_ov003_020e71b8->unk3D8D6 = gSaveData.battleHpGaugeSub0;
-        data_ov003_020e71b8->unk3D8D4 = gSaveData.battleHpGaugeSub1;
+        g_CombatGlobal->unk3D8D0 = gSaveData.battleHpGauge;
+        g_CombatGlobal->unk3D8D6 = gSaveData.battleHpGaugeSub0;
+        g_CombatGlobal->unk3D8D4 = gSaveData.battleHpGaugeSub1;
 
-        merged = data_ov003_020e71b8->unk3D8D2 -
-                 (data_ov003_020e71b8->unk3D8D0 + data_ov003_020e71b8->unk3D8D6 + data_ov003_020e71b8->unk3D8D4);
+        merged = g_CombatGlobal->unk3D8D2 - (g_CombatGlobal->unk3D8D0 + g_CombatGlobal->unk3D8D6 + g_CombatGlobal->unk3D8D4);
         if (merged > 0) {
-            data_ov003_020e71b8->unk3D8D0 += (s16)(merged * 0x10000 >> 16);
+            g_CombatGlobal->unk3D8D0 += (s16)(merged * 0x10000 >> 16);
         }
         if (merged >= 0) {
             return;
         }
 
-        data_ov003_020e71b8->unk3D8D4 += (s16)(merged * 0x10000 >> 16);
-        if (data_ov003_020e71b8->unk3D8D4 < 0) {
-            data_ov003_020e71b8->unk3D8D6 += data_ov003_020e71b8->unk3D8D4;
-            data_ov003_020e71b8->unk3D8D4 = 0;
+        g_CombatGlobal->unk3D8D4 += (s16)(merged * 0x10000 >> 16);
+        if (g_CombatGlobal->unk3D8D4 < 0) {
+            g_CombatGlobal->unk3D8D6 += g_CombatGlobal->unk3D8D4;
+            g_CombatGlobal->unk3D8D4 = 0;
         }
-        if (data_ov003_020e71b8->unk3D8D6 < 0) {
-            data_ov003_020e71b8->unk3D8D0 += data_ov003_020e71b8->unk3D8D6;
-            data_ov003_020e71b8->unk3D8D6 = 0;
+        if (g_CombatGlobal->unk3D8D6 < 0) {
+            g_CombatGlobal->unk3D8D0 += g_CombatGlobal->unk3D8D6;
+            g_CombatGlobal->unk3D8D6 = 0;
         }
         return;
     }
 
-    data_ov003_020e71b8->unk3D8D0 = data_ov003_020e71b8->unk3D8D2;
-    data_ov003_020e71b8->unk3D8D6 = 0;
-    data_ov003_020e71b8->unk3D8D4 = 0;
+    g_CombatGlobal->unk3D8D0 = g_CombatGlobal->unk3D8D2;
+    g_CombatGlobal->unk3D8D6 = 0;
+    g_CombatGlobal->unk3D8D4 = 0;
 
-    if (func_ov003_020a3340(9) != 0) {
-        s32 half = (data_ov003_020e71b8->unk3D8D2 + (data_ov003_020e71b8->unk3D8D2 >> 31)) * 0x8000 >> 16;
+    if (CombatAbility_IsActiveForPlayer(9) != 0) {
+        s32 half = (g_CombatGlobal->unk3D8D2 + (g_CombatGlobal->unk3D8D2 >> 31)) * 0x8000 >> 16;
 
-        data_ov003_020e71b8->unk3D8D0 -= (s16)half;
-        data_ov003_020e71b8->unk3D8D6 = (s16)half;
+        g_CombatGlobal->unk3D8D0 -= (s16)half;
+        g_CombatGlobal->unk3D8D6 = (s16)half;
     }
-    if (func_ov003_020a3350(9) != 0) {
-        s32 half = (data_ov003_020e71b8->unk3D8D2 + (data_ov003_020e71b8->unk3D8D2 >> 31)) * 0x8000 >> 16;
+    if (CombatAbility_IsActiveForPartner(9) != 0) {
+        s32 half = (g_CombatGlobal->unk3D8D2 + (g_CombatGlobal->unk3D8D2 >> 31)) * 0x8000 >> 16;
 
-        data_ov003_020e71b8->unk3D8D0 -= (s16)half;
-        data_ov003_020e71b8->unk3D8D4 = (s16)half;
+        g_CombatGlobal->unk3D8D0 -= (s16)half;
+        g_CombatGlobal->unk3D8D4 = (s16)half;
     }
 
-    if (data_ov003_020e71b8->unk3D8D0 < 1) {
-        data_ov003_020e71b8->unk3D8D0 = 1;
-        data_ov003_020e71b8->unk3D8D4--;
+    if (g_CombatGlobal->unk3D8D0 < 1) {
+        g_CombatGlobal->unk3D8D0 = 1;
+        g_CombatGlobal->unk3D8D4--;
     }
 }
 /// Selects the battle music for the given encounter id.
 static void func_ov003_0208ad34(u16 encounterId) {
     u8 music = 0xD;
 
-    func_ov003_020a35d8();
+    BtlBadgeMgr_Clear();
 
     switch (encounterId) {
-        case 0xD:
-        case 0xE:
-            music = 10;
+        case 0x32:
+            music = 0;
             break;
-
         case 0x33:
             music = 1;
             break;
@@ -527,51 +517,54 @@ static void func_ov003_0208ad34(u16 encounterId) {
         case 0x3A:
             music = 8;
             break;
-
-        case 0x32:
-            music = 0;
+        case 0xD:
+            music = 10;
             break;
-
+        case 0xE:
+            music = 10;
+            break;
         case 0x96:
             music = 0xB;
             break;
     }
 
-    data_ov003_020e71b8->unk3D890 = music;
-    func_ov003_020a3728(music);
-    func_ov003_020a37a8(music);
+    g_CombatGlobal->unk3D890 = music;
+    BtlBadgeMgr_QueueAbilities(music);
+    BtlBadgeMgr_SpawnBadges(music);
 }
 
 /// Points the thread/equipment system at the player's and partner's equipped threads.
-// Nonmatching: partner-selection control flow/register allocation differs.
 static void func_ov003_0208ae24(s32 partner) {
+    s32 slot;
+
     func_ov003_020a300c();
     func_ov003_020a303c(&gSaveData.playerStats.equippedThreads[0], -1);
 
     switch (partner) {
         case 0:
-            partner = 0;
+            slot = 0;
             break;
         case 1:
-            partner = 1;
+            slot = 1;
             break;
         case 2:
-            partner = 2;
+            slot = 2;
             break;
         default:
-            partner = 0xff;
+            slot = 0xff;
             break;
     }
 
-    if (partner == 0xff) {
+    if (slot == 0xff) {
         return;
     }
-    func_ov003_020a303c(&gSaveData.friendStats[partner].equippedThreads[0], partner);
+    func_ov003_020a303c(&gSaveData.friendStats[slot].equippedThreads[0], slot);
 }
 
 /// Stops a level-up gauge actor and parks it.
 static void func_ov003_0208ae98(Ov003EnemyActor* unit) {
-    unit->actor.flags     = (unit->actor.flags & 0xFFFFBFFD) & ~8;
+    unit->actor.flags &= ~0x4002;
+    unit->actor.flags &= ~8;
     unit->actor.xVelocity = 0;
     unit->actor.yVelocity = 0;
     unit->actor.flags |= 0x10;
@@ -583,15 +576,15 @@ static BOOL func_ov003_0208aed8(void) {
     Ov003EnemyActor* unit;
     BOOL             result = TRUE;
 
-    for (unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4); unit != NULL; unit = func_ov003_02084984(&unit->node)) {
-        if (((unit->flags196.raw >> 8) & 1) != 0 || (unit->actor.flags & 4) == 0) {
+    for (unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
+        if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & 4) == 0) {
             result = FALSE;
             break;
         }
     }
 
-    for (unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC); unit != NULL; unit = func_ov003_02084984(&unit->node)) {
-        if (((unit->flags196.raw >> 8) & 1) != 0 || (unit->actor.flags & 4) == 0) {
+    for (unit = CombatList_GetHead(&g_CombatGlobal->unk3D8AC); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
+        if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & 4) == 0) {
             result = FALSE;
             break;
         }
@@ -610,7 +603,7 @@ void func_ov003_0208af9c(s32 time, s32 amount) {
     gSaveData.unk_318E = (u8)value;
 }
 
-void func_ov003_0208afcc(s32 exp) {
+void BtlMgr_AddExp(s32 exp) {
     if (gSaveData.battleMaxLevel >= 100) {
         return;
     }
@@ -618,7 +611,7 @@ void func_ov003_0208afcc(s32 exp) {
     s32 remaining = gSaveData.battleExpToNextLevel - exp;
 
     gSaveData.battleExpToNextLevel = remaining;
-    if (data_ov003_020e71b8->unk3D878 & 0x80000) {
+    if (g_CombatGlobal->unk3D878 & 0x80000) {
         return;
     }
     if (remaining > 0) {
@@ -629,42 +622,42 @@ void func_ov003_0208afcc(s32 exp) {
     gSaveData.battleMaxLevel++;
     gSaveData.battleExpToNextLevel = gSaveData.battleMaxLevel * 100;
 
-    data_ov003_020e71b8->unk3D8D2 = func_ov003_0208a488();
-    data_ov003_020e71b8->unk3D8D0 = data_ov003_020e71b8->unk3D8D2;
-    data_ov003_020e71b8->unk3D8D4 = 0;
-    data_ov003_020e71b8->unk3D8D6 = 0;
+    g_CombatGlobal->unk3D8D2 = BtlMgr_CalcMaxHp();
+    g_CombatGlobal->unk3D8D0 = g_CombatGlobal->unk3D8D2;
+    g_CombatGlobal->unk3D8D4 = 0;
+    g_CombatGlobal->unk3D8D6 = 0;
 
-    ((CombatActor*)data_ov003_020e71b8->unk3D898)->maxHp     = data_ov003_020e71b8->unk3D8D2;
-    ((CombatActor*)data_ov003_020e71b8->unk3D898)->currentHp = ((CombatActor*)data_ov003_020e71b8->unk3D898)->maxHp;
-    ((CombatActor*)data_ov003_020e71b8->unk3D89C)->maxHp     = data_ov003_020e71b8->unk3D8D2;
-    ((CombatActor*)data_ov003_020e71b8->unk3D89C)->currentHp = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->maxHp;
+    ((CombatActor*)g_CombatGlobal->unk3D898)->maxHp     = g_CombatGlobal->unk3D8D2;
+    ((CombatActor*)g_CombatGlobal->unk3D898)->currentHp = ((CombatActor*)g_CombatGlobal->unk3D898)->maxHp;
+    ((CombatActor*)g_CombatGlobal->unk3D89C)->maxHp     = g_CombatGlobal->unk3D8D2;
+    ((CombatActor*)g_CombatGlobal->unk3D89C)->currentHp = ((CombatActor*)g_CombatGlobal->unk3D89C)->maxHp;
 
-    data_ov003_020e71b8->unk3D904 = 0;
-    data_ov003_020e71b8->unk3D906 = 0;
-    func_ov003_0208ae98((Ov003EnemyActor*)data_ov003_020e71b8->unk3D898);
+    g_CombatGlobal->unk3D904 = 0;
+    g_CombatGlobal->unk3D906 = 0;
+    func_ov003_0208ae98((Ov003EnemyActor*)g_CombatGlobal->unk3D898);
 
-    data_ov003_020e71b8->unk3D908 = 0;
-    data_ov003_020e71b8->unk3D90A = 0;
-    func_ov003_0208ae98((Ov003EnemyActor*)data_ov003_020e71b8->unk3D89C);
+    g_CombatGlobal->unk3D908 = 0;
+    g_CombatGlobal->unk3D90A = 0;
+    func_ov003_0208ae98((Ov003EnemyActor*)g_CombatGlobal->unk3D89C);
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEff_LvUp, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_LvUp, NULL, 0, NULL, NULL);
 }
 
 /// Awards experience, scaled by the battle difficulty.
-static void func_ov003_0208b17c(s16 exp) {
+static void BtlMgr_AwardExp(s16 exp) {
     if (gSaveData.unk_3130 == 1) {
         return;
     }
-    func_ov003_0208afcc((s16)((exp * data_ov003_020d77d0[gSaveData.battleDifficulty]) / 100));
+    BtlMgr_AddExp((s16)((exp * data_ov003_020d77d0[gSaveData.battleDifficulty]) / 100));
 }
 
 /// Adds to the PP earned this battle.
-static void func_ov003_0208b1d0(s16 amount) {
+static void BtlMgr_AddPP(s16 amount) {
     gSaveData.battleBasePP += amount;
 }
 
 /// Adds an item to the battle drop list, stacking with an existing entry.
-BOOL func_ov003_0208b1e8(u32 itemId) {
+BOOL BtlMgr_AddDrop(u32 itemId) {
     BOOL result = FALSE;
     s32  i;
 
@@ -688,7 +681,7 @@ BOOL func_ov003_0208b1e8(u32 itemId) {
 }
 
 /// Bumps the battle state, gated on the state we are leaving.
-void func_ov003_0208b278(u32 state) {
+void BtlMgr_SetState(u32 state) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
 
@@ -697,25 +690,25 @@ void func_ov003_0208b278(u32 state) {
         case 4:
         case 5:
         case 6:
-            if (data_ov003_020e71b8->unk3D874 == 2) {
-                data_ov003_020e71b8->unk3D874 = state;
+            if (g_CombatGlobal->unk3D874 == 2) {
+                g_CombatGlobal->unk3D874 = state;
             }
             break;
 
         case 7:
-            if ((u8)(data_ov003_020e71b8->unk3D874 - 3) <= 1) {
-                data_ov003_020e71b8->unk3D874 = state;
+            if ((u8)(g_CombatGlobal->unk3D874 - 3) <= 1) {
+                g_CombatGlobal->unk3D874 = state;
             }
             break;
 
         default:
-            data_ov003_020e71b8->unk3D874 = state;
+            g_CombatGlobal->unk3D874 = state;
             break;
     }
 }
 
 /// Rotates a position by `angle` and adds it.
-void func_ov003_0208b2fc(s32* x, s32* y, s32 angle, s32 scale) {
+void BtlMgr_MoveByAngle(s32* x, s32* y, s32 angle, s32 scale) {
     s32 index = (angle & 0xFFFF) >> 4;
     s32 sin   = FX_SinCosTable_[index * 2 + 1];
     s32 cos   = FX_SinCosTable_[index * 2];
@@ -725,55 +718,55 @@ void func_ov003_0208b2fc(s32* x, s32* y, s32 angle, s32 scale) {
 }
 
 /// Projects a world position onto the screen.
-void func_ov003_0208b370(s16* screenX, s16* screenY, s32 x, s32 y, s32 z) {
-    Ov003Camera* camera = &data_ov003_020e71b8->unk3D7C0[0];
+void BtlMgr_WorldToScreen(s16* screenX, s16* screenY, s32 x, s32 y, s32 z) {
+    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[0];
 
     *screenX = (s16)((camera->unk_04 + (x - camera->unk_28) + 0x80000) >> 12);
     *screenY = (s16)((camera->unk_08 + ((y + z) - camera->unk_40) + 0x60000) >> 12);
 }
 
-/// Adds (or removes) points on the level-up gauge. `bank` selects which of the two banked gauges the
+/// Adds (or removes) HP on the shared player/partner gauge. `bank` selects which of the two banked gauges the
 /// delta is taken from when the gauge overflows.
-void func_ov003_0208b3cc(s32 bank, s16 delta) {
+void BtlMgr_AddTeamHp(s32 bank, s16 delta) {
     if (gSaveData.unk_3130 == 1) {
         return;
     }
 
     if (delta > 0) {
-        s32 room = data_ov003_020e71b8->unk3D8D2 - data_ov003_020e71b8->unk3D8D0;
+        s32 room = g_CombatGlobal->unk3D8D2 - g_CombatGlobal->unk3D8D0;
 
         if (room < delta) {
             delta = (s16)room;
         }
     } else {
-        if (data_ov003_020e71b8->unk3D8D0 < -delta) {
-            delta = (s16)-data_ov003_020e71b8->unk3D8D0;
+        if (g_CombatGlobal->unk3D8D0 < -delta) {
+            delta = (s16)-g_CombatGlobal->unk3D8D0;
         }
     }
 
-    data_ov003_020e71b8->unk3D8D0 += delta;
+    g_CombatGlobal->unk3D8D0 += delta;
 
     if (bank == 0) {
-        data_ov003_020e71b8->unk3D8D6 -= delta;
-        if (data_ov003_020e71b8->unk3D8D6 < 0) {
-            data_ov003_020e71b8->unk3D8D4 += data_ov003_020e71b8->unk3D8D6;
-            data_ov003_020e71b8->unk3D8D6 = 0;
+        g_CombatGlobal->unk3D8D6 -= delta;
+        if (g_CombatGlobal->unk3D8D6 < 0) {
+            g_CombatGlobal->unk3D8D4 += g_CombatGlobal->unk3D8D6;
+            g_CombatGlobal->unk3D8D6 = 0;
         }
     } else {
-        data_ov003_020e71b8->unk3D8D4 -= delta;
-        if (data_ov003_020e71b8->unk3D8D4 < 0) {
-            data_ov003_020e71b8->unk3D8D6 += data_ov003_020e71b8->unk3D8D4;
-            data_ov003_020e71b8->unk3D8D4 = 0;
+        g_CombatGlobal->unk3D8D4 -= delta;
+        if (g_CombatGlobal->unk3D8D4 < 0) {
+            g_CombatGlobal->unk3D8D6 += g_CombatGlobal->unk3D8D4;
+            g_CombatGlobal->unk3D8D4 = 0;
         }
     }
 
-    ((CombatActor*)data_ov003_020e71b8->unk3D898)->currentHp = data_ov003_020e71b8->unk3D8D0;
-    ((CombatActor*)data_ov003_020e71b8->unk3D89C)->currentHp = data_ov003_020e71b8->unk3D8D0;
+    ((CombatActor*)g_CombatGlobal->unk3D898)->currentHp = g_CombatGlobal->unk3D8D0;
+    ((CombatActor*)g_CombatGlobal->unk3D89C)->currentHp = g_CombatGlobal->unk3D8D0;
 }
 
 /// Adds (or removes) HP on a unit. Units flagged 0x8000000 use the second gauge instead of their own
 /// HP field.
-void func_ov003_0208b518(s32 bank, Ov003EnemyActor* unit, s16 delta) {
+void BtlMgr_AddUnitHp(s32 bank, Ov003EnemyActor* unit, s16 delta) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
 
@@ -793,34 +786,34 @@ void func_ov003_0208b518(s32 bank, Ov003EnemyActor* unit, s16 delta) {
     }
 
     if (delta > 0) {
-        s32 room = data_ov003_020e71b8->unk3D8DA - data_ov003_020e71b8->unk3D8D8;
+        s32 room = g_CombatGlobal->unk3D8DA - g_CombatGlobal->unk3D8D8;
 
         if (room < delta) {
             delta = (s16)room;
         }
     } else {
-        if (data_ov003_020e71b8->unk3D8D8 < -delta) {
-            delta = (s16)-data_ov003_020e71b8->unk3D8D8;
+        if (g_CombatGlobal->unk3D8D8 < -delta) {
+            delta = (s16)-g_CombatGlobal->unk3D8D8;
         }
     }
 
-    data_ov003_020e71b8->unk3D8D8 += delta;
+    g_CombatGlobal->unk3D8D8 += delta;
 
     if (bank == 0) {
-        data_ov003_020e71b8->unk3D8DE -= delta;
-        if (data_ov003_020e71b8->unk3D8DE < 0) {
-            data_ov003_020e71b8->unk3D8DC += data_ov003_020e71b8->unk3D8DE;
-            data_ov003_020e71b8->unk3D8DE = 0;
+        g_CombatGlobal->unk3D8DE -= delta;
+        if (g_CombatGlobal->unk3D8DE < 0) {
+            g_CombatGlobal->unk3D8DC += g_CombatGlobal->unk3D8DE;
+            g_CombatGlobal->unk3D8DE = 0;
         }
     } else {
-        data_ov003_020e71b8->unk3D8DC -= delta;
-        if (data_ov003_020e71b8->unk3D8DC < 0) {
-            data_ov003_020e71b8->unk3D8DE += data_ov003_020e71b8->unk3D8DC;
-            data_ov003_020e71b8->unk3D8DC = 0;
+        g_CombatGlobal->unk3D8DC -= delta;
+        if (g_CombatGlobal->unk3D8DC < 0) {
+            g_CombatGlobal->unk3D8DE += g_CombatGlobal->unk3D8DC;
+            g_CombatGlobal->unk3D8DC = 0;
         }
     }
 
-    unit->actor.currentHp = data_ov003_020e71b8->unk3D8D8;
+    unit->actor.currentHp = g_CombatGlobal->unk3D8D8;
     if (unit->actor.unk_78 != 0) {
         ((Ov003EnemyActor*)unit->actor.unk_78)->actor.currentHp = unit->actor.currentHp;
     }
@@ -829,14 +822,14 @@ void func_ov003_0208b518(s32 bank, Ov003EnemyActor* unit, s16 delta) {
 /// True for the two encounters that are allowed to take damage while the battle is paused.
 BOOL func_ov003_0208b690(u16 encounterId) {
     if ((u16)(encounterId + 0xFFFF) <= 1U) {
-        return (data_ov003_020e71b8->unk3D878 & 6) != 0;
+        return (g_CombatGlobal->unk3D878 & 6) != 0;
     }
     return FALSE;
 }
 
 static void func_ov003_0208b6d4(void) {
-    func_ov003_0208b278(1);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlReady, NULL, 0, NULL, NULL);
+    BtlMgr_SetState(1);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlReady, NULL, 0, NULL, NULL);
 }
 
 /// Advances the battle state machine. Runs every frame from the battle task; decides when the battle
@@ -845,37 +838,37 @@ static void func_ov003_0208b71c(void) {
     BOOL             finished = FALSE;
     Ov003EnemyActor* unit;
 
-    if (data_ov003_020e71b8->unk3D874 != 2) {
+    if (g_CombatGlobal->unk3D874 != 2) {
         return;
     }
 
-    switch (data_ov003_020e71b8->unk3D875) {
+    switch (g_CombatGlobal->unk3D875) {
         case 0:
-            unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
-            if (unit == NULL && func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC) == NULL) {
+            unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+            if (unit == NULL && CombatList_GetHead(&g_CombatGlobal->unk3D8AC) == NULL) {
                 finished = TRUE;
             }
             break;
 
         case 1:
-            if (data_ov003_020e71b8->unk3D8DA > 0) {
-                finished = data_ov003_020e71b8->unk3D8D8 <= 0;
+            if (g_CombatGlobal->unk3D8DA > 0) {
+                finished = g_CombatGlobal->unk3D8D8 <= 0;
             }
             break;
 
         case 2:
-            if (data_ov003_020e71b8->unk3D878 & 0x20000000) {
+            if (g_CombatGlobal->unk3D878 & 0x20000000) {
                 finished = TRUE;
             }
             break;
     }
 
     if (finished || func_ov003_0208aed8()) {
-        data_ov003_020e71b8->unk3D878 |= 0x30000;
-        data_ov003_020e71b8->unk3D878 |= 0x4000;
-        data_ov003_020e71b8->unk3D878 |= 0x8000;
-        ((Ov003EnemyActor*)data_ov003_020e71b8->unk3D898)->actor.flags |= 0x10;
-        ((Ov003EnemyActor*)data_ov003_020e71b8->unk3D89C)->actor.flags |= 0x10;
+        g_CombatGlobal->unk3D878 |= 0x30000;
+        g_CombatGlobal->unk3D878 |= 0x4000;
+        g_CombatGlobal->unk3D878 |= 0x8000;
+        ((Ov003EnemyActor*)g_CombatGlobal->unk3D898)->actor.flags |= 0x10;
+        ((Ov003EnemyActor*)g_CombatGlobal->unk3D89C)->actor.flags |= 0x10;
     }
 
     if (func_ov003_020bb47c() != 0) {
@@ -885,18 +878,18 @@ static void func_ov003_0208b71c(void) {
         return;
     }
 
-    if (data_ov003_020e71b8->unk3D878 & 0x200000) {
-        data_ov003_020e71b8->unk3D878 |= 0x20;
-        func_ov003_0208b278(6);
-        ((Ov003EnemyActor*)data_ov003_020e71b8->unk3D898)->actor.flags &= ~0x10;
-        ((Ov003EnemyActor*)data_ov003_020e71b8->unk3D89C)->actor.flags &= ~0x10;
+    if (g_CombatGlobal->unk3D878 & 0x200000) {
+        g_CombatGlobal->unk3D878 |= 0x20;
+        BtlMgr_SetState(6);
+        ((Ov003EnemyActor*)g_CombatGlobal->unk3D898)->actor.flags &= ~0x10;
+        ((Ov003EnemyActor*)g_CombatGlobal->unk3D89C)->actor.flags &= ~0x10;
         return;
     }
 
-    if (EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlWin, NULL, 0, NULL, NULL) != -1) {
-        func_ov003_0208b278(3);
-        ((Ov003EnemyActor*)data_ov003_020e71b8->unk3D898)->actor.flags &= ~0x10;
-        ((Ov003EnemyActor*)data_ov003_020e71b8->unk3D89C)->actor.flags &= ~0x10;
+    if (EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlWin, NULL, 0, NULL, NULL) != -1) {
+        BtlMgr_SetState(3);
+        ((Ov003EnemyActor*)g_CombatGlobal->unk3D898)->actor.flags &= ~0x10;
+        ((Ov003EnemyActor*)g_CombatGlobal->unk3D89C)->actor.flags &= ~0x10;
     }
 }
 
@@ -908,136 +901,136 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
 
     alloc = Mem_AllocHeapTail(&gDebugHeap, 0x3D910);
     Mem_SetSequence(&gDebugHeap, alloc, data_ov003_020e3aa4);
-    data_ov003_020e71b8 = alloc;
+    g_CombatGlobal = alloc;
     MI_CpuSet(alloc, 0, 0x3D910);
 
-    data_ov003_020e71b8->unk3D350 = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier*)&data_ov003_020d7800);
-    data_ov003_020e71b8->unk3D354 = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier*)&data_ov003_020d77f8);
+    g_CombatGlobal->unk3D350 = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier*)&data_ov003_020d7800);
+    g_CombatGlobal->unk3D354 = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier*)&data_ov003_020d77f8);
 
-    paletteSrc                       = Data_GetPackEntryData(data_ov003_020e71b8->unk3D350, 65);
-    data_ov003_020e71b8->unk3D348[0] = PaletteMgr_AcquireContiguous(g_PaletteManagers[0], paletteSrc, 5, TRUE);
-    data_ov003_020e71b8->unk3D348[1] = PaletteMgr_AcquireContiguous(g_PaletteManagers[1], paletteSrc, 5, TRUE);
+    paletteSrc                  = Data_GetPackEntryData(g_CombatGlobal->unk3D350, 65);
+    g_CombatGlobal->unk3D348[0] = PaletteMgr_AcquireContiguous(g_PaletteManagers[0], paletteSrc, 5, TRUE);
+    g_CombatGlobal->unk3D348[1] = PaletteMgr_AcquireContiguous(g_PaletteManagers[1], paletteSrc, 5, TRUE);
 
-    Mem_InitializeHeap(&data_ov003_020e71b8->heap_00080, data_ov003_020e71b8->heapData_00080, 0x8000);
-    Mem_InitializeHeap(&data_ov003_020e71b8->heap_0810C, data_ov003_020e71b8->heapData_0810C, 0x8000);
-    Mem_InitializeHeap(&data_ov003_020e71b8->heap_10198, data_ov003_020e71b8->heapData_10198, 0x10000);
-    Mem_InitializeHeap(&data_ov003_020e71b8->heap_20224, data_ov003_020e71b8->heapData_20224, 0x14000);
-    Mem_InitializeHeap(&data_ov003_020e71b8->heap_342B0, data_ov003_020e71b8->heapData_342B0, 0x8000);
-    Mem_InitializeHeap(&data_ov003_020e71b8->heap_3C33C, data_ov003_020e71b8->heapData_3C33C, 0x1000);
+    Mem_InitializeHeap(&g_CombatGlobal->heap_00080, g_CombatGlobal->heapData_00080, 0x8000);
+    Mem_InitializeHeap(&g_CombatGlobal->heap_0810C, g_CombatGlobal->heapData_0810C, 0x8000);
+    Mem_InitializeHeap(&g_CombatGlobal->heap_10198, g_CombatGlobal->heapData_10198, 0x10000);
+    Mem_InitializeHeap(&g_CombatGlobal->heap_20224, g_CombatGlobal->heapData_20224, 0x14000);
+    Mem_InitializeHeap(&g_CombatGlobal->heap_342B0, g_CombatGlobal->heapData_342B0, 0x8000);
+    Mem_InitializeHeap(&g_CombatGlobal->heap_3C33C, g_CombatGlobal->heapData_3C33C, 0x1000);
 
-    EasyTask_InitializePool(&data_ov003_020e71b8->unk_00000, &data_ov003_020e71b8->heap_00080, 0x80, NULL, NULL);
-    EasyTask_InitializePool(&data_ov003_020e71b8->taskPool, &data_ov003_020e71b8->heap_0810C, 0x80, NULL, NULL);
-    EasyTask_InitializePool(&data_ov003_020e71b8->unk_10118, &data_ov003_020e71b8->heap_10198, 0x80, NULL, NULL);
-    EasyTask_InitializePool(&data_ov003_020e71b8->unk_201A4, &data_ov003_020e71b8->heap_20224, 0x100, NULL, NULL);
-    EasyTask_InitializePool(&data_ov003_020e71b8->unk_34230, &data_ov003_020e71b8->heap_342B0, 0x80, NULL, NULL);
-    EasyTask_InitializePool(&data_ov003_020e71b8->unk_3C2BC, &data_ov003_020e71b8->heap_3C33C, 0x10, NULL, NULL);
+    EasyTask_InitializePool(&g_CombatGlobal->unk_00000, &g_CombatGlobal->heap_00080, 0x80, NULL, NULL);
+    EasyTask_InitializePool(&g_CombatGlobal->taskPool, &g_CombatGlobal->heap_0810C, 0x80, NULL, NULL);
+    EasyTask_InitializePool(&g_CombatGlobal->unk_10118, &g_CombatGlobal->heap_10198, 0x80, NULL, NULL);
+    EasyTask_InitializePool(&g_CombatGlobal->unk_201A4, &g_CombatGlobal->heap_20224, 0x100, NULL, NULL);
+    EasyTask_InitializePool(&g_CombatGlobal->unk_34230, &g_CombatGlobal->heap_342B0, 0x80, NULL, NULL);
+    EasyTask_InitializePool(&g_CombatGlobal->unk_3C2BC, &g_CombatGlobal->heap_3C33C, 0x10, NULL, NULL);
 
-    data_ov003_020e71b8->unk3D90C       = 0;
-    data_ov003_020e71b8->unk3D875       = 0;
-    data_ov003_020e71b8->unk3D878       = 0;
-    data_ov003_020e71b8->unk3D87C       = 0;
-    data_ov003_020e71b8->unk3D880       = 0;
-    data_ov003_020e71b8->unk3D884       = 0;
-    data_ov003_020e71b8->unk3D888       = 0;
-    data_ov003_020e71b8->unk3D8D8       = 0;
-    data_ov003_020e71b8->unk3D8DA       = 0;
-    data_ov003_020e71b8->unk3D8DC       = 0;
-    data_ov003_020e71b8->unk3D8DE       = 0;
-    data_ov003_020e71b8->unk3D8F8       = 0;
-    data_ov003_020e71b8->unk3D8FA       = 0;
-    data_ov003_020e71b8->popupCountMain = 0;
-    data_ov003_020e71b8->popupCountSub  = 0;
-    data_ov003_020e71b8->unk3D8FE       = 0;
-    data_ov003_020e71b8->unk3D8FF       = 0;
-    data_ov003_020e71b8->unk3D900       = 0;
-    data_ov003_020e71b8->unk3D902       = 0;
-    data_ov003_020e71b8->unk3D8A0       = NULL;
-    data_ov003_020e71b8->unk3D88C       = gSaveData.unk_3142 - 1;
+    g_CombatGlobal->unk3D90C       = 0;
+    g_CombatGlobal->unk3D875       = 0;
+    g_CombatGlobal->unk3D878       = 0;
+    g_CombatGlobal->unk3D87C       = 0;
+    g_CombatGlobal->unk3D880       = 0;
+    g_CombatGlobal->unk3D884       = 0;
+    g_CombatGlobal->unk3D888       = 0;
+    g_CombatGlobal->unk3D8D8       = 0;
+    g_CombatGlobal->unk3D8DA       = 0;
+    g_CombatGlobal->unk3D8DC       = 0;
+    g_CombatGlobal->unk3D8DE       = 0;
+    g_CombatGlobal->unk3D8F8       = 0;
+    g_CombatGlobal->unk3D8FA       = 0;
+    g_CombatGlobal->popupCountMain = 0;
+    g_CombatGlobal->popupCountSub  = 0;
+    g_CombatGlobal->unk3D8FE       = 0;
+    g_CombatGlobal->unk3D8FF       = 0;
+    g_CombatGlobal->unk3D900       = 0;
+    g_CombatGlobal->unk3D902       = 0;
+    g_CombatGlobal->unk3D8A0       = NULL;
+    g_CombatGlobal->unk3D88C       = gSaveData.unk_3142 - 1;
 
-    data_ov003_020e71b8->unk3D88D = func_ov003_0208a878(encounterId);
-    data_ov003_020e71b8->unk3D88E = encounterId;
-    data_ov003_020e71b8->unk3D870 = gSaveData.unk_313C;
+    g_CombatGlobal->unk3D88D = BtlMgr_GetPartner(encounterId);
+    g_CombatGlobal->unk3D88E = encounterId;
+    g_CombatGlobal->unk3D870 = gSaveData.unk_313C;
 
     if (gSaveData.battleCount > 1) {
-        data_ov003_020e71b8->unk3D878 |= 0x80000000;
+        g_CombatGlobal->unk3D878 |= 0x80000000;
     }
 
-    func_ov003_0208a51c(data_ov003_020e71b8->unk3D88D, data_ov003_020e71b8->unk3D88E);
+    BtlMgr_LoadOverlays(g_CombatGlobal->unk3D88D, g_CombatGlobal->unk3D88E);
 
-    func_ov003_020860c4();
-    func_ov003_020a4ff0();
-    func_ov003_02083d34();
-    func_ov003_020847f0();
+    CombatTouch_Init();
+    BtlMic_Init();
+    CombatStage_SetupCameras();
+    CombatCollision_Reset();
     func_ov003_02087378();
-    func_ov003_020867a0();
+    CombatSys_ResetObsList();
 
-    data_ov003_020e71b8->chargeState = NULL;
+    g_CombatGlobal->chargeState = NULL;
 
-    func_ov003_0208ae24(data_ov003_020e71b8->unk3D88D);
-    func_ov003_0208ad34(data_ov003_020e71b8->unk3D88E);
+    func_ov003_0208ae24(g_CombatGlobal->unk3D88D);
+    func_ov003_0208ad34(g_CombatGlobal->unk3D88E);
     func_ov003_0208aa1c(isContinuation);
 
-    func_ov003_020849ac(&data_ov003_020e71b8->unk3D8A4);
-    func_ov003_020849ac(&data_ov003_020e71b8->unk3D8AC);
+    CombatList_Init(&g_CombatGlobal->unk3D8A4);
+    CombatList_Init(&g_CombatGlobal->unk3D8AC);
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &Tsk_BtlPlayer00, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_BtlPlayer00, NULL, 0, NULL, NULL);
 
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
-            EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlPlayer01, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlCard_Esp, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlPlayer01, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlCard_Esp, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
         case 1:
-            EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &data_ov004_020f0120, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov005_020f0394, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &data_ov004_020f0120, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov005_020f0394, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
         case 2:
-            EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &data_ov005_020f07a0, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov005_020f0a94, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &data_ov005_020f07a0, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov005_020f0a94, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
         case 4:
-            EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlPlayerLast, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlAuraLast, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlPlayerLast, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAuraLast, NULL, 0, NULL, NULL);
             break;
 
         default:
-            EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlPlayerNone, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlPlayerNone, NULL, 0, NULL, NULL);
             break;
     }
 
-    func_ov003_020c2a34(data_ov003_020e71b8->unk3D88E);
-    func_ov003_02083e50(0);
-    func_ov003_020867c0();
-    func_ov003_020a5080();
+    func_ov003_020c2a34(g_CombatGlobal->unk3D88E);
+    CombatStage_StartFieldTasks(0);
+    CombatSys_RollObsDrop();
+    BtlMic_CreateTask();
 
-    if (data_ov003_020e71b8->unk3D88D < 3) {
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlCmd, NULL, 0, NULL, NULL);
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Star, NULL, 0, NULL, NULL);
+    if (g_CombatGlobal->unk3D88D < 3) {
+        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlCmd, NULL, 0, NULL, NULL);
+        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlInf_Star, NULL, 0, NULL, NULL);
     }
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlBarHP, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlTarget, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Combo, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Exp, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Auto, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc614, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlBarHP, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlTarget, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Combo, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlInf_Exp, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlInf_Auto, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc614, NULL, 0, NULL, NULL);
 
-    if (func_ov003_020a3330(4) != 0) {
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlInf_Timer, NULL, 0, NULL, NULL);
+    if (CombatAbility_IsActive(4) != 0) {
+        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlInf_Timer, NULL, 0, NULL, NULL);
     }
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Task_BtlTch, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlPause, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Task_BtlTch, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Tsk_BtlPause, NULL, 0, NULL, NULL);
 
-    func_ov003_020842e0();
+    CombatStage_StartSandstorm();
     BtlDbg_CreateTask();
-    func_ov003_0208508c();
+    CombatDebug_ShowSyncValues();
 }
 
 /// Per-frame battle update: input, combo tracking, task pools.
@@ -1046,68 +1039,68 @@ static void func_ov003_0208c2a8(void) {
     // register allocation of the whole function.
     s32 pressed;
 
-    func_ov003_02086130();
+    CombatTouch_Update();
     func_ov003_020873e0();
-    EasyTask_ProcessPendingTasks(&data_ov003_020e71b8->unk_3C2BC);
+    EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_3C2BC);
 
-    if (func_ov003_020a3980() != 0) {
+    if (BtlBadgeMgr_AnyActive() != 0) {
         pressed = (InputStatus.buttonState.currButtons & (INPUT_BUTTON_L | INPUT_BUTTON_R)) != 0;
-        if (data_ov003_020e71b8->unk3D880 != pressed) {
-            func_ov003_02087ed8(SEIDX_SE_WEAPON_SWITCH);
-            data_ov003_020e71b8->unk3D880 = pressed;
+        if (g_CombatGlobal->unk3D880 != pressed) {
+            CombatSe_Play(SEIDX_SE_WEAPON_SWITCH);
+            g_CombatGlobal->unk3D880 = pressed;
         }
     }
 
-    if (data_ov003_020e71b8->unk3D87C != 0) {
-        func_ov003_020a3a80();
+    if (g_CombatGlobal->unk3D87C != 0) {
+        BtlBadgeMgr_DebugDrag();
         return;
     }
 
-    func_ov003_020a4158();
+    BtlBadgeActor_SeparateAll();
 
-    if (data_ov003_020e71b8->unk3D874 == 2 && (data_ov003_020e71b8->unk3D878 & 6) == 0) {
+    if (g_CombatGlobal->unk3D874 == 2 && (g_CombatGlobal->unk3D878 & 6) == 0) {
         gSaveData.battleClearTime++;
         if (gSaveData.battleClearTime > 0x57E40) {
             gSaveData.battleClearTime = 0x57E40;
         }
     }
 
-    EasyTask_ProcessPendingTasks(&data_ov003_020e71b8->unk_34230);
+    EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_34230);
 
-    if (data_ov003_020e71b8->unk3D884 != 0) {
+    if (g_CombatGlobal->unk3D884 != 0) {
         return;
     }
 
-    if (data_ov003_020e71b8->unk3D888 == 0) {
-        EasyTask_ProcessPendingTasks(&data_ov003_020e71b8->unk_10118);
-        if ((data_ov003_020e71b8->unk3D878 & 0x40) == 0) {
-            EasyTask_ProcessPendingTasks(&data_ov003_020e71b8->unk_201A4);
+    if (g_CombatGlobal->unk3D888 == 0) {
+        EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_10118);
+        if ((g_CombatGlobal->unk3D878 & 0x40) == 0) {
+            EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_201A4);
         }
     }
 
-    if (func_ov003_02084d80(0) == 2) {
-        EasyTask_ProcessPendingTasks(&data_ov003_020e71b8->unk_00000);
-        EasyTask_ProcessPendingTasks(&data_ov003_020e71b8->taskPool);
-        func_ov003_0208481c();
+    if (CombatDebug_GetSetting(0) == 2) {
+        EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_00000);
+        EasyTask_ProcessPendingTasks(&g_CombatGlobal->taskPool);
+        CombatCollision_Update();
         return;
     }
 
-    if (data_ov003_020e71b8->unk3D904 > 0) {
-        data_ov003_020e71b8->unk3D904--;
+    if (g_CombatGlobal->unk3D904 > 0) {
+        g_CombatGlobal->unk3D904--;
     } else {
-        data_ov003_020e71b8->unk3D904 = data_ov003_020e71b8->unk3D906;
-        data_ov003_020e71b8->unk3D906 = 0;
-        EasyTask_ProcessPendingTasks(&data_ov003_020e71b8->unk_00000);
-        func_ov003_0208481c();
+        g_CombatGlobal->unk3D904 = g_CombatGlobal->unk3D906;
+        g_CombatGlobal->unk3D906 = 0;
+        EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_00000);
+        CombatCollision_Update();
     }
 
-    if (data_ov003_020e71b8->unk3D908 > 0) {
-        data_ov003_020e71b8->unk3D908--;
+    if (g_CombatGlobal->unk3D908 > 0) {
+        g_CombatGlobal->unk3D908--;
         return;
     }
-    data_ov003_020e71b8->unk3D908 = data_ov003_020e71b8->unk3D90A;
-    data_ov003_020e71b8->unk3D90A = 0;
-    EasyTask_ProcessPendingTasks(&data_ov003_020e71b8->taskPool);
+    g_CombatGlobal->unk3D908 = g_CombatGlobal->unk3D90A;
+    g_CombatGlobal->unk3D90A = 0;
+    EasyTask_ProcessPendingTasks(&g_CombatGlobal->taskPool);
 }
 
 /// Per-frame task ticking.
@@ -1115,18 +1108,18 @@ static void func_ov003_0208c4bc(void) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
 
-    EasyTask_UpdateActiveTasks(&data_ov003_020e71b8->unk_3C2BC);
-    EasyTask_UpdateActiveTasks(&data_ov003_020e71b8->unk_34230);
+    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_3C2BC);
+    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_34230);
 
-    if (data_ov003_020e71b8->unk3D884 != 0) {
+    if (g_CombatGlobal->unk3D884 != 0) {
         return;
     }
 
-    EasyTask_UpdateActiveTasks(&data_ov003_020e71b8->unk_10118);
-    EasyTask_UpdateActiveTasks(&data_ov003_020e71b8->unk_201A4);
-    EasyTask_UpdateActiveTasks(&data_ov003_020e71b8->unk_00000);
-    EasyTask_UpdateActiveTasks(&data_ov003_020e71b8->taskPool);
-    func_ov003_02085054();
+    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_10118);
+    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_201A4);
+    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_00000);
+    EasyTask_UpdateActiveTasks(&g_CombatGlobal->taskPool);
+    CombatDebug_DrawCollision();
 }
 
 /// Tears down the battle globals.
@@ -1134,18 +1127,18 @@ static void func_ov003_0208c54c(s32 keepResources) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
 
-    gSaveData.battleHpGauge     = data_ov003_020e71b8->unk3D8D0;
-    gSaveData.battleHpGaugeSub0 = data_ov003_020e71b8->unk3D8D6;
-    gSaveData.battleHpGaugeSub1 = data_ov003_020e71b8->unk3D8D4;
+    gSaveData.battleHpGauge     = g_CombatGlobal->unk3D8D0;
+    gSaveData.battleHpGaugeSub0 = g_CombatGlobal->unk3D8D6;
+    gSaveData.battleHpGaugeSub1 = g_CombatGlobal->unk3D8D4;
 
-    func_ov003_020a3608();
+    BtlBadgeMgr_PublishSlots();
 
-    EasyTask_DestroyPool(&data_ov003_020e71b8->unk_00000);
-    EasyTask_DestroyPool(&data_ov003_020e71b8->taskPool);
-    EasyTask_DestroyPool(&data_ov003_020e71b8->unk_10118);
-    EasyTask_DestroyPool(&data_ov003_020e71b8->unk_201A4);
-    EasyTask_DestroyPool(&data_ov003_020e71b8->unk_34230);
-    EasyTask_DestroyPool(&data_ov003_020e71b8->unk_3C2BC);
+    EasyTask_DestroyPool(&g_CombatGlobal->unk_00000);
+    EasyTask_DestroyPool(&g_CombatGlobal->taskPool);
+    EasyTask_DestroyPool(&g_CombatGlobal->unk_10118);
+    EasyTask_DestroyPool(&g_CombatGlobal->unk_201A4);
+    EasyTask_DestroyPool(&g_CombatGlobal->unk_34230);
+    EasyTask_DestroyPool(&g_CombatGlobal->unk_3C2BC);
 
     if (keepResources == 0) {
         OvlMgr_UnloadOverlay(3);
@@ -1153,16 +1146,16 @@ static void func_ov003_0208c54c(s32 keepResources) {
         OvlMgr_UnloadOverlay(5);
     }
 
-    PaletteMgr_ReleaseResource(g_PaletteManagers[0], data_ov003_020e71b8->unk3D348[0]);
-    PaletteMgr_ReleaseResource(g_PaletteManagers[1], data_ov003_020e71b8->unk3D348[1]);
-    DatMgr_ReleaseData(data_ov003_020e71b8->unk3D350);
-    DatMgr_ReleaseData(data_ov003_020e71b8->unk3D354);
-    Mem_Free(&gDebugHeap, data_ov003_020e71b8);
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0], g_CombatGlobal->unk3D348[0]);
+    PaletteMgr_ReleaseResource(g_PaletteManagers[1], g_CombatGlobal->unk3D348[1]);
+    DatMgr_ReleaseData(g_CombatGlobal->unk3D350);
+    DatMgr_ReleaseData(g_CombatGlobal->unk3D354);
+    Mem_Free(&gDebugHeap, g_CombatGlobal);
 }
 
 /// Number of the player's first stat pin owned.
 static s32 func_ov003_0208c694(void) {
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
             return (s16)Inventory_GetOwnedCount(0x2B2);
         case 1:
@@ -1176,7 +1169,7 @@ static s32 func_ov003_0208c694(void) {
 
 /// Number of the player's second stat pin owned.
 static s32 func_ov003_0208c718(void) {
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
             return (s16)Inventory_GetOwnedCount(0x2B3);
         case 1:
@@ -1189,32 +1182,32 @@ static s32 func_ov003_0208c718(void) {
 }
 
 /// True when `unit` is a valid target sitting on the requested side of the screen.
-BOOL func_ov003_0208c79c(Ov003EnemyActor* unit, s32 side) {
+BOOL BtlMgr_IsTargetOnSide(Ov003EnemyActor* unit, s32 side) {
     if ((unit->actor.flags & 4) || (unit->actor.flags & 0x10)) {
         return FALSE;
     }
     if (side != 0) {
-        if (data_ov003_020e71b8->unk3D7C0[1].unk_20 <= unit->actor.position.x) {
+        if (g_CombatGlobal->unk3D7C0[1].unk_20 <= unit->actor.position.x) {
             return FALSE;
         }
         return TRUE;
     }
-    return unit->actor.position.x > data_ov003_020e71b8->unk3D7C0[1].unk_20;
+    return unit->actor.position.x > g_CombatGlobal->unk3D7C0[1].unk_20;
 }
 
 /// Finds the closest valid target to `x` on the given side, preferring airborne or grounded units as
 /// requested.
-Ov003EnemyActor* func_ov003_0208c810(s32 x, s32 side, s32 airborne) {
-    Ov003Global*     g        = data_ov003_020e71b8;
+Ov003EnemyActor* BtlMgr_FindNearestTarget(s32 x, s32 side, s32 airborne) {
+    Ov003Global*     g        = g_CombatGlobal;
     Ov003EnemyActor* best     = NULL;
     s32              bestDist = 0x100000;
     Ov003EnemyActor* unit;
 
-    for (unit = func_ov003_0208495c(&g->unk3D8AC); unit != NULL; unit = func_ov003_02084984(&unit->node)) {
+    for (unit = CombatList_GetHead(&g->unk3D8AC); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
         s32 dist;
         s32 absDist;
 
-        if (!func_ov003_0208c79c(unit, side)) {
+        if (!BtlMgr_IsTargetOnSide(unit, side)) {
             continue;
         }
         if ((unit->actor.position.z <= -0x40000) != airborne) {
@@ -1232,17 +1225,17 @@ Ov003EnemyActor* func_ov003_0208c810(s32 x, s32 side, s32 airborne) {
 }
 
 /// Finds the farthest valid target to `x` on the given side.
-Ov003EnemyActor* func_ov003_0208c8c0(s32 x, s32 side, s32 airborne) {
-    Ov003Global*     g        = data_ov003_020e71b8;
+Ov003EnemyActor* BtlMgr_FindFarthestTarget(s32 x, s32 side, s32 airborne) {
+    Ov003Global*     g        = g_CombatGlobal;
     Ov003EnemyActor* best     = NULL;
     s32              bestDist = 0;
     Ov003EnemyActor* unit;
 
-    for (unit = func_ov003_0208495c(&g->unk3D8AC); unit != NULL; unit = func_ov003_02084984(&unit->node)) {
+    for (unit = CombatList_GetHead(&g->unk3D8AC); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
         s32 dist;
         s32 absDist;
 
-        if (!func_ov003_0208c79c(unit, side)) {
+        if (!BtlMgr_IsTargetOnSide(unit, side)) {
             continue;
         }
         if ((unit->actor.position.z <= -0x40000) != airborne) {
@@ -1260,45 +1253,45 @@ Ov003EnemyActor* func_ov003_0208c8c0(s32 x, s32 side, s32 airborne) {
 }
 
 /// Awards experience; the "stat pin" bonus increases the amount.
-void func_ov003_0208c970(s32 mode, s16 exp) {
-    if (func_ov003_020a3330(0x1F) != 0) {
+void BtlMgr_GainExp(s32 mode, s16 exp) {
+    if (CombatAbility_IsActive(0x1F) != 0) {
         return;
     }
-    if (func_ov003_0208ca04(mode, 0x1C) != 0) {
-        s16 bonus = func_ov003_0208ca24(mode, 0x1C);
+    if (BtlMgr_HasAbility(mode, 0x1C) != 0) {
+        s16 bonus = BtlMgr_GetAbilityValue(mode, 0x1C);
 
-        exp = (s16)(exp + ((exp * bonus) / 100));
+        exp += (s16)((exp * bonus) / 100);
     }
-    func_ov003_0208b17c(exp);
+    BtlMgr_AwardExp(exp);
 }
 
 /// Awards PP; the "stat pin" bonus increases the amount.
-void func_ov003_0208c9e0(s32 mode, s16 pp) {
-    if (func_ov003_020a3330(0x1E) != 0) {
+void BtlMgr_GainPP(s32 mode, s16 pp) {
+    if (CombatAbility_IsActive(0x1E) != 0) {
         return;
     }
-    func_ov003_0208b1d0(pp);
+    BtlMgr_AddPP(pp);
 }
 
-BOOL func_ov003_0208ca04(s32 mode, u32 effect) {
+BOOL BtlMgr_HasAbility(s32 mode, u32 effect) {
     if (mode != 1) {
-        return func_ov003_020a3340(effect);
+        return CombatAbility_IsActiveForPlayer(effect);
     }
-    return func_ov003_020a3350(effect);
+    return CombatAbility_IsActiveForPartner(effect);
 }
 
-s16 func_ov003_0208ca24(s32 mode, u32 effect) {
+s16 BtlMgr_GetAbilityValue(s32 mode, u32 effect) {
     if (mode != 1) {
-        return (s16)func_ov003_020a3478(effect);
+        return (s16)CombatAbility_GetPlayerValue(effect);
     }
-    return (s16)func_ov003_020a3488(effect);
+    return (s16)CombatAbility_GetPartnerValue(effect);
 }
 
 /// Attack value used by the battle HUD, including the pin bonus when requested.
 s32 func_ov003_0208ca54(s32 includePins) {
     u32 partner;
 
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
             partner = 0;
             break;
@@ -1323,7 +1316,7 @@ s32 func_ov003_0208ca54(s32 includePins) {
 s32 func_ov003_0208cae0(s32 includePins) {
     u32 partner;
 
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
             partner = 0;
             break;
@@ -1369,18 +1362,18 @@ void func_ov003_0208cbc8(void) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
 
-    data_ov003_020e71b8->unk3D8ED++;
-    if (gSaveData.unk_317C < data_ov003_020e71b8->unk3D8ED) {
-        gSaveData.unk_317C = data_ov003_020e71b8->unk3D8ED;
+    g_CombatGlobal->unk3D8ED++;
+    if (gSaveData.unk_317C < g_CombatGlobal->unk3D8ED) {
+        gSaveData.unk_317C = g_CombatGlobal->unk3D8ED;
     }
 }
 
 /// Fills in the battle bonus flags from the damage/combo records.
 static void func_ov003_0208cc14(void) {
-    Ov003Global* g = data_ov003_020e71b8;
+    Ov003Global* g = g_CombatGlobal;
 
-    if (func_ov003_020a3330(0x4B) != 0) {
-        s32 pp = gSaveData.battleBasePP * func_ov003_020a3468(0x4B);
+    if (CombatAbility_IsActive(0x4B) != 0) {
+        s32 pp = gSaveData.battleBasePP * CombatAbility_GetValue(0x4B);
 
         gSaveData.battleBasePP = (s16)((pp / 100) - (pp >> 31));
     }
@@ -2201,7 +2194,7 @@ static void func_ov003_0208e098(BtlMgrWork* work) {
                 CriSndMgr_Stop(gSaveData.unk_313C);
             }
             work->keepBattleState = 1;
-            MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, func_ov003_0208ec74, NULL, 0);
+            MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, ProcessOverlay_Battle, NULL, 0);
             return;
         }
 
@@ -2244,12 +2237,9 @@ static void func_ov003_0208e3f0(BtlMgrWork* work) {
 
             CriSndMgr_Stop(gSaveData.unk_313C);
             work->keepBattleState = 1;
-            MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, func_ov003_0208ec74, NULL, 0);
+            MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, ProcessOverlay_Battle, NULL, 0);
             return;
         }
-
-        case 4:
-            return;
 
         case 1:
         case 5: {
@@ -2295,9 +2285,9 @@ static void func_ov003_0208e59c(BtlMgrWork* work) {
 
 /// Battle update callback: switches to the fade-out callback once the battle is over.
 static void func_ov003_0208e5f8(BtlMgrWork* work) {
-    work->active = data_ov003_020e71b8->unk3D87C == 0;
+    work->active = g_CombatGlobal->unk3D87C == 0;
 
-    if (data_ov003_020e71b8->unk3D874 == 1) {
+    if (g_CombatGlobal->unk3D874 == 1) {
         return;
     }
     work->fadeCounter = 0;
@@ -2307,10 +2297,10 @@ static void func_ov003_0208e5f8(BtlMgrWork* work) {
 
 /// Battle update callback for the "battle is over" path.
 static void func_ov003_0208e668(BtlMgrWork* work) {
-    work->active = data_ov003_020e71b8->unk3D87C == 0;
+    work->active = g_CombatGlobal->unk3D87C == 0;
     func_ov003_0208b71c();
 
-    switch (data_ov003_020e71b8->unk3D874) {
+    switch (g_CombatGlobal->unk3D874) {
         case 5:
             work->step        = 3;
             work->fadeCounter = 0;
@@ -2345,9 +2335,9 @@ static void func_ov003_0208e668(BtlMgrWork* work) {
 }
 
 static void func_ov003_0208e7c0(BtlMgrWork* work) {
-    work->active = data_ov003_020e71b8->unk3D87C == 0;
+    work->active = g_CombatGlobal->unk3D87C == 0;
 
-    if (data_ov003_020e71b8->unk3D874 != 7) {
+    if (g_CombatGlobal->unk3D874 != 7) {
         return;
     }
     work->fadeCounter = 0;
@@ -2356,7 +2346,7 @@ static void func_ov003_0208e7c0(BtlMgrWork* work) {
 }
 
 /// Overlay init stage: allocate the work area and bring up the battle scene.
-static void func_ov003_0208e830(BtlMgrWork* work) {
+static void BtlMgr_Init(BtlMgrWork* work) {
     if (work == NULL) {
         char* sequence = data_ov003_020e3ac0;
 
@@ -2371,7 +2361,7 @@ static void func_ov003_0208e830(BtlMgrWork* work) {
     EasyTask_InitializePool(&work->taskPool, &work->heap, 8, NULL, NULL);
 
     if (gSaveData.unk_3130 == 0 || gSaveData.unk_3130 == 1 || gSaveData.unk_3130 == 2 || gSaveData.unk_3130 == 4) {
-        func_ov003_02084b88();
+        CombatDebug_InitSettings();
     }
 
     func_ov003_0208d56c();
@@ -2442,7 +2432,7 @@ static void func_ov003_0208e830(BtlMgrWork* work) {
 }
 
 /// Overlay main stage.
-static void func_ov003_0208eb04(BtlMgrWork* work) {
+static void BtlMgr_Main(BtlMgrWork* work) {
     TouchInput_Update();
     OamMgr_Reset3DState();
     OamMgr_Reset(&g_OamMgr[DISPLAY_MAIN], 0, 0);
@@ -2479,7 +2469,7 @@ static void func_ov003_0208eb04(BtlMgrWork* work) {
 }
 
 /// Overlay exit stage.
-static void func_ov003_0208ec1c(BtlMgrWork* work) {
+static void BtlMgr_Exit(BtlMgrWork* work) {
     if (work == NULL) {
         return;
     }
@@ -2493,70 +2483,12 @@ static void func_ov003_0208ec1c(BtlMgrWork* work) {
 }
 
 /// Overlay callback dispatcher.
-void func_ov003_0208ec74(BtlMgrWork* work) {
+void ProcessOverlay_Battle(BtlMgrWork* work) {
     s32 stage = MainOvlDisp_GetProcessStage();
 
-    if (stage == OVERLAY_ID_NONE) {
-        func_ov003_0208ec1c(work);
+    if (stage == PROCESS_STAGE_EXIT) {
+        BtlMgr_Exit(work);
         return;
     }
-    data_ov003_020d7844[stage](work);
-}
-
-void func_ov003_0208ecb4(BtlIcon* icon, void (*update)(BtlIcon*)) {
-    icon->update = update;
-}
-
-/// Mirrors the shared battle icon animation state onto the icon's sprite.
-void func_ov003_0208ecbc(BtlIcon* icon) {
-    if (icon->animState == data_ov003_020e71b8->touchWork.gesture) {
-        return;
-    }
-
-    icon->animState = data_ov003_020e71b8->touchWork.gesture;
-
-    switch (icon->animState) {
-        case 5:
-            CombatSprite_SetAnim(&icon->sprite, 4, 1);
-            func_ov003_0208ecb4(icon, func_ov003_0208ed98);
-            icon->unk_6C = 1;
-            return;
-
-        case 6:
-        case 7:
-            func_ov003_0208ecb4(icon, func_ov003_0208edcc);
-            icon->unk_6C = 1;
-            return;
-
-        case 1:
-            CombatSprite_SetAnim(&icon->sprite, 0, 0);
-            func_ov003_0208ecb4(icon, NULL);
-            icon->unk_6C = 1;
-            return;
-
-        default:
-            func_ov003_0208ecb4(icon, NULL);
-            icon->unk_6C = 0;
-            return;
-    }
-}
-
-/// Waits for the current icon animation to finish, then plays the idle one.
-static void func_ov003_0208ed98(BtlIcon* icon) {
-    if (!SpriteMgr_IsAnimationFinished(&icon->sprite.sprite)) {
-        return;
-    }
-    CombatSprite_SetAnim(&icon->sprite, 5, 0);
-    func_ov003_0208ecb4(icon, NULL);
-}
-
-/// Plays the icon's damage animation for the current battle state.
-static void func_ov003_0208edcc(BtlIcon* icon) {
-    if (data_ov003_020e71b8->touchWork.sweepFrames < 2) {
-        CombatSprite_SetAnim(&icon->sprite, 6, 0);
-    } else if (data_ov003_020e71b8->touchWork.sweepFrames < 8) {
-        CombatSprite_SetAnim(&icon->sprite, 7, 0);
-    } else {
-        CombatSprite_SetAnim(&icon->sprite, 8, 0);
-    }
+    BtlMgr_ProcessStages[stage](work);
 }

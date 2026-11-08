@@ -60,9 +60,9 @@ s32 func_ov011_021282b8(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, u1
     TaskPool*               pool;
 
     if (func_ov003_020c37f8(&owner->sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     t.field_00 = owner;
     t.field_04 = arg1;
@@ -145,17 +145,17 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
     if (func_ov003_020c37f8(&p->sprite) != 0) {
         mode = 1;
         id   = 0x5C;
-        pan  = func_ov003_020843b0(mode, p->unk_098);
+        pan  = CombatStage_ToScreenX(mode, p->unk_098);
     } else {
         mode = 0;
         id   = 0x54;
-        pan  = func_ov003_020843b0(mode, p->unk_098);
+        pan  = CombatStage_ToScreenX(mode, p->unk_098);
     }
     if (p->unk_064 == 0) {
         p->unk_064 = p->unk_064 + 1;
-        func_ov003_02087f00(SEIDX_SE_010_BUBBLEATTACK, pan);
+        CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK, pan);
     }
-    func_ov003_02084348(mode, &va, &vb, p->unk_09C, p->unk_0A0, p->unk_0A4);
+    CombatStage_WorldToScreen(mode, &va, &vb, p->unk_09C, p->unk_0A0, p->unk_0A4);
     rec = p->shot;
     for (i = 0; i < 3; i++) {
         if (p->unk_0A8 > 0) {
@@ -167,11 +167,11 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
         func_ov003_020cbc50(&oa, &ob, p->unk_0AA, rec->unk_00);
         rec->unk_0C = (oa + (va << 12)) >> 12;
         rec->unk_0E = (ob + (vb << 12)) >> 12;
-        if (func_ov003_0208a1a4(func_ov003_0208a114(id), p->unk_0AC, rec->unk_0C, rec->unk_0E) == 1) {
-            func_ov003_02087f00(SEIDX_SE_010_BUBBLEATTACK_HIT, rec->unk_0C);
+        if (CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(id), p->unk_0AC, rec->unk_0C, rec->unk_0E) == 1) {
+            CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, rec->unk_0C);
         }
         {
-            s32 v = func_ov003_0208442c(mode, rec->unk_0C);
+            s32 v = CombatStage_ToWorldX(mode, rec->unk_0C);
             if (v < 0 - 0x8000 || v > func_ov003_020cb744(mode) + 0x8000) {
                 r++;
             }

@@ -31,7 +31,7 @@ static void func_ov003_02095b1c(BtlPsyRush* self) {
         self->timer = 15;
     }
     self->timer--;
-    if (data_ov003_020e71b8->touchWork.tapCount != 0)
+    if (g_CombatGlobal->touchWork.tapCount != 0)
         return;
     func_ov003_02087310();
 }
@@ -39,16 +39,16 @@ static s32 func_ov003_02095bb0(TaskPool* pool, Task* task, void* args) {
     BtlPsyRush*     self = task->data;
     BtlPsyRushArgs* arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
-    data_ov003_020e71b8->unk3D8C8 = 1;
-    self->effect                  = arg->effect;
-    self->target                  = arg->target;
-    self->count                   = 0;
-    self->active                  = 1;
+    g_CombatGlobal->unk3D8C8 = 1;
+    self->effect             = arg->effect;
+    self->target             = arg->target;
+    self->count              = 0;
+    self->active             = 1;
     return 1;
 }
 static s32 func_ov003_02095c04(TaskPool* pool, Task* task, void* args) {
     BtlPsyRush* self = task->data;
-    if (!data_ov003_020e71b8->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
+    if (!g_CombatGlobal->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
         func_ov003_02087310();
         return 0;
     }
@@ -73,7 +73,7 @@ static s32 func_ov003_02095c64(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_02095cac(Ov003EffectContext* context, Ov003EffectState* effect) {
-    void* target = func_ov003_02086014(1);
+    void* target = CombatTouch_GetRapidTapped(1);
     if (!target)
         return 0;
     BtlPsyRushArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7e48.taskName);

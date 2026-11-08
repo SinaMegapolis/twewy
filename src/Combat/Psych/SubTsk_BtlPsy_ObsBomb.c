@@ -24,7 +24,7 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
             self->args.effect = arg->effect;
             self->args.unit   = arg->unit;
             self->phase       = 0;
-            func_ov003_020a3498(&self->sprite, 2, 1, 0x9F, 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, 0x9F, 1);
             return 1;
         case 1: {
             Ov003ObsBomb* self = task->data;
@@ -33,8 +33,8 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         self->phase = 1;
                         self->timer = 0;
-                        func_ov003_020a35b8(&self->sprite, 0xA0, 1);
-                        func_ov003_02087f28(0x43, self->args.unit->actor.position.x);
+                        CombatPsyAnim_SetAnim(&self->sprite, 0xA0, 1);
+                        CombatSe_PlayAtMainX(0x43, self->args.unit->actor.position.x);
                     }
                     break;
                 case 1:
@@ -52,11 +52,11 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
                         func_ov003_020a88a8(&effect);
                         func_ov003_020a61e4(self->args.unit, 0, 10, &self->args.effect->streak.args, RNG_Next(0xFFFF), 0x7000,
                                             -0x2000);
-                        func_ov003_02087f28(0x44, self->args.unit->actor.position.x);
+                        CombatSe_PlayAtMainX(0x44, self->args.unit->actor.position.x);
                         return 0;
                     }
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                        func_ov003_02087f28(0x43, self->args.unit->actor.position.x);
+                        CombatSe_PlayAtMainX(0x43, self->args.unit->actor.position.x);
                         CombatSprite_Restart(&self->sprite);
                     }
                     break;
@@ -81,14 +81,14 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
 
 /// Adjusts the contact attack's dimensions to the selected object's dimensions.
 static s32 func_ov003_020abdb8(Ov003ObsBomb* self) {
-    Ov003AttackInfo info  = *func_ov003_0208a114(0x190);
+    Ov003AttackInfo info  = *CombatHit_GetAttackInfo(0x190);
     s16             depth = self->args.unit->actor.unk_72;
     s16             width = self->args.unit->actor.unk_70;
     info.unk_05           = width;
     info.unk_06           = width / 2;
     info.unk_07           = depth;
-    return func_ov003_0208a164(&info, &self->args.effect->streak.args, self->args.unit->actor.position.x,
-                               self->args.unit->actor.position.y, self->args.unit->actor.position.z) == 1;
+    return CombatHit_AttackAt(&info, &self->args.effect->streak.args, self->args.unit->actor.position.x,
+                              self->args.unit->actor.position.y, self->args.unit->actor.position.z) == 1;
 }
 
 static char             data_ov003_020e4af8[24] = "SubTsk_BtlPsy_ObsBomb";

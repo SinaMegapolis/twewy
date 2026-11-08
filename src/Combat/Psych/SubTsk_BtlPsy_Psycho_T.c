@@ -43,7 +43,7 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
             MI_CpuSet(self, 0, sizeof(*self));
             self->unit    = arg->unit;
             self->context = arg->context;
-            func_ov003_020a3498(&self->sprite, 2, 1, 0xAE, 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, 0xAE, 1);
             func_ov003_020a6164(self->unit, 5);
             self->phase = 0;
             self->timer = data_ov003_020dca4c.rows[self->context->effect->index]
@@ -52,7 +52,7 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
                                 data_ov003_020dca4c.rows[self->context->effect->index]
                                     .lifetimeCost[func_ov003_020b4e2c(self->unit->actor.unk_70)]);
             self->context->refCount++;
-            func_ov003_02087f28(0x9C, self->unit->actor.position.x);
+            CombatSe_PlayAtMainX(0x9C, self->unit->actor.position.x);
             return 1;
         case 1: {
             s32 result = 0;
@@ -64,7 +64,7 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
                 CombatSprite_Restart(&self->sprite);
             }
             if (result)
-                func_ov003_02087f28(0x9D, self->unit->actor.position.x);
+                CombatSe_PlayAtMainX(0x9D, self->unit->actor.position.x);
             CombatSprite_Update(&self->sprite);
             if (self->phase >= 2) {
                 self->unit->actor.zVelocity = 0;
@@ -124,8 +124,8 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
                     func_02026590(&self->unit->actor.position.x, self->context->targetPosition.x, self->timer);
                     func_02026590(&self->unit->actor.position.y, self->context->targetPosition.y, self->timer);
                     func_02026590(&self->unit->actor.position.z, self->context->targetPosition.z, self->timer);
-                    func_ov003_02083c50(&self->unit->actor.position.x, 0);
-                    func_ov003_02083bfc(&self->unit->actor.position.y, 0, self->unit->actor.position.x);
+                    CombatStage_ClampX(&self->unit->actor.position.x, 0);
+                    CombatStage_ClampY(&self->unit->actor.position.y, 0, self->unit->actor.position.x);
                     self->timer--;
                     if (func_ov003_020a6b84(&self->context->effect->streak, 0x188, self->unit) == 1) {
                         self->phase = 1;

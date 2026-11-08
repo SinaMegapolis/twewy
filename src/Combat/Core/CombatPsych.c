@@ -1,3 +1,4 @@
+#include "Combat/Core/CombatPsych.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
@@ -29,10 +30,6 @@
 #include <nitro/gx.h>
 #include <nitro/mi/cpumem.h>
 
-// The touch-action "effect" runtime: the state block at 0xCC of every touch actor, the per-effect
-// behaviour table driven through it, and the battle-actor physics integrator that pushes the touch
-// actors around. The actors themselves are created by `ov003_020a3b9c.c` and wired up here.
-
 // ---------------------------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------------------------
@@ -56,7 +53,7 @@ typedef struct Ov003EffectEntry {
 
 /// The task/lifetime hooks of an effect state.
 
-/// The 0x3C-byte effect block at 0xCC of a touch actor, driven by `ov003_020a5250.c`.
+/// The 0x3C-byte effect block at 0xCC of a badge, driven by `CombatPsych.c`.
 
 /// The touch-slot origin/destination block at `Ov003Global + 0x3D358`.
 
@@ -83,71 +80,71 @@ static const u8 data_ov003_020dc23c[0x18] = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 
 /// Per-effect behaviour table; `func_ov003_020a5d74` indexes it with the effect state.
 static const Ov003EffectEntry data_ov003_020dc254[65] = {
-    {func_ov003_020af590,  0x2, 0x0, 0x1},
-    {func_ov003_020af280,  0x2, 0x0, 0x1},
-    {func_ov003_020af41c,  0x2, 0x0, 0x1},
-    {func_ov003_020b87a0,  0x4, 0x0, 0x1},
-    {func_ov003_020b8c1c,  0x4, 0x0, 0x1},
-    {func_ov003_020b7bf4,  0x4, 0x0, 0x1},
-    {func_ov003_020b7f9c,  0x4, 0x0, 0x1},
-    {func_ov003_020b8398,  0x4, 0x0, 0x1},
-    {func_ov003_020b2710,  0x4, 0x0, 0x0},
-    {func_ov003_020b1fd4,  0x4, 0x0, 0x0},
-    {func_ov003_020b94b8,  0x4, 0x0, 0x0},
-    {func_ov003_020b9838,  0x4, 0x0, 0x1},
-    {func_ov003_020afdf0,  0x2, 0x0, 0x0},
-    {func_ov003_020b0058,  0x2, 0x0, 0x0},
-    {func_ov003_020ade84,  0x2, 0x0, 0x0},
-    {func_ov003_020ad720,  0x2, 0x0, 0x0},
-    {func_ov003_020b15dc,  0x2, 0x0, 0x0},
-    {func_ov003_020b0cd4,  0x2, 0x0, 0x0},
-    {func_ov003_020b10d8,  0x2, 0x0, 0x0},
-    {func_ov003_020a9a58,  0x2, 0x0, 0x0},
-    {func_ov003_020a9830,  0x2, 0x0, 0x0},
-    {func_ov003_020ab1c4,  0x2, 0x0, 0x0},
-    {func_ov003_020ab35c,  0x2, 0x0, 0x0},
-    {func_ov003_020aaa84,  0x2, 0x0, 0x1},
-    {func_ov003_020aaa9c,  0x2, 0x0, 0x1},
-    {func_ov003_020aaab8,  0x2, 0x0, 0x1},
-    {func_ov003_020b05b8,  0x5, 0x0, 0x0},
-    {func_ov003_020b0b14,  0x5, 0x0, 0x0},
-    {func_ov003_02094cf8,  0xE, 0x0, 0x0},
-    {func_ov003_02094d4c,  0xE, 0x0, 0x0},
-    {func_ov003_020950ac,  0xF, 0x0, 0x0},
-    {func_ov003_020ac4f4,  0x2, 0x0, 0x0},
-    {func_ov003_020ac1ec,  0x2, 0x0, 0x0},
-    {func_ov003_020ac36c,  0x2, 0x0, 0x0},
-    {func_ov003_02087e5c, 0x10, 0x0, 0x0},
-    {func_ov003_020ba714,  0x2, 0x0, 0x0},
-    {func_ov003_02095350,  0x1, 0x0, 0x0},
-    {func_ov003_0209588c,  0xC, 0x0, 0x0},
-    {func_ov003_02087c28,  0x6, 0x0, 0x0},
-    {func_ov003_02095ac8,  0x7, 0x0, 0x0},
-    {func_ov003_02095cac,  0xD, 0x0, 0x0},
-    {func_ov003_02096048,  0x8, 0x0, 0x0},
-    {func_ov003_02095e64,  0x9, 0x0, 0x0},
-    {func_ov003_02087c98,  0xA, 0x0, 0x0},
-    {func_ov003_02087d1c,  0xB, 0x0, 0x0},
-    {func_ov003_020b5f74,  0x2, 0x0, 0x0},
-    {func_ov003_020b5d54,  0x2, 0x0, 0x0},
-    {func_ov003_020b537c,  0x2, 0x0, 0x0},
-    {func_ov003_020b47fc,  0x5, 0x0, 0x0},
-    {func_ov003_020b4b60,  0x5, 0x0, 0x0},
-    {func_ov003_020b3da8,  0x2, 0x0, 0x0},
-    {func_ov003_020b37c8,  0x2, 0x0, 0x0},
-    {func_ov003_020b39c0,  0x2, 0x0, 0x0},
-    {func_ov003_020baa58,  0x4, 0x0, 0x0},
-    {func_ov003_020ba2e8,  0x5, 0x0, 0x0},
-    {func_ov003_020b6644,  0x3, 0x0, 0x0},
-    {func_ov003_020b66b4,  0x3, 0x0, 0x0},
-    {func_ov003_020b292c,  0x4, 0x0, 0x0},
-    {func_ov003_020ac634,  0x4, 0x0, 0x1},
-    {func_ov003_020ac6bc,  0x4, 0x0, 0x1},
-    {func_ov003_020a9ec0,  0x0, 0x0, 0x0},
-    {func_ov003_020b6368,  0x0, 0x0, 0x0},
-    {func_ov003_020b641c,  0x0, 0x0, 0x0},
-    {func_ov003_020b6498,  0x0, 0x0, 0x0},
-    {func_ov003_020ba6c8,  0x4, 0x0, 0x0},
+    {  func_ov003_020af590,  0x2, 0x0, 0x1},
+    {  func_ov003_020af280,  0x2, 0x0, 0x1},
+    {  func_ov003_020af41c,  0x2, 0x0, 0x1},
+    {  func_ov003_020b87a0,  0x4, 0x0, 0x1},
+    {  func_ov003_020b8c1c,  0x4, 0x0, 0x1},
+    {  func_ov003_020b7bf4,  0x4, 0x0, 0x1},
+    {  func_ov003_020b7f9c,  0x4, 0x0, 0x1},
+    {  func_ov003_020b8398,  0x4, 0x0, 0x1},
+    {  func_ov003_020b2710,  0x4, 0x0, 0x0},
+    {  func_ov003_020b1fd4,  0x4, 0x0, 0x0},
+    {  func_ov003_020b94b8,  0x4, 0x0, 0x0},
+    {  func_ov003_020b9838,  0x4, 0x0, 0x1},
+    {  func_ov003_020afdf0,  0x2, 0x0, 0x0},
+    {  func_ov003_020b0058,  0x2, 0x0, 0x0},
+    {  func_ov003_020ade84,  0x2, 0x0, 0x0},
+    {  func_ov003_020ad720,  0x2, 0x0, 0x0},
+    {  func_ov003_020b15dc,  0x2, 0x0, 0x0},
+    {  func_ov003_020b0cd4,  0x2, 0x0, 0x0},
+    {  func_ov003_020b10d8,  0x2, 0x0, 0x0},
+    {  func_ov003_020a9a58,  0x2, 0x0, 0x0},
+    {  func_ov003_020a9830,  0x2, 0x0, 0x0},
+    {  func_ov003_020ab1c4,  0x2, 0x0, 0x0},
+    {  func_ov003_020ab35c,  0x2, 0x0, 0x0},
+    {  func_ov003_020aaa84,  0x2, 0x0, 0x1},
+    {  func_ov003_020aaa9c,  0x2, 0x0, 0x1},
+    {  func_ov003_020aaab8,  0x2, 0x0, 0x1},
+    {  func_ov003_020b05b8,  0x5, 0x0, 0x0},
+    {  func_ov003_020b0b14,  0x5, 0x0, 0x0},
+    {  func_ov003_02094cf8,  0xE, 0x0, 0x0},
+    {  func_ov003_02094d4c,  0xE, 0x0, 0x0},
+    {  func_ov003_020950ac,  0xF, 0x0, 0x0},
+    {  func_ov003_020ac4f4,  0x2, 0x0, 0x0},
+    {  func_ov003_020ac1ec,  0x2, 0x0, 0x0},
+    {  func_ov003_020ac36c,  0x2, 0x0, 0x0},
+    {BtlPsy_Teleport_Start, 0x10, 0x0, 0x0},
+    {  func_ov003_020ba714,  0x2, 0x0, 0x0},
+    {  func_ov003_02095350,  0x1, 0x0, 0x0},
+    {  func_ov003_0209588c,  0xC, 0x0, 0x0},
+    {  BtlPsy_Pierce_Start,  0x6, 0x0, 0x0},
+    {  func_ov003_02095ac8,  0x7, 0x0, 0x0},
+    {  func_ov003_02095cac,  0xD, 0x0, 0x0},
+    {  func_ov003_02096048,  0x8, 0x0, 0x0},
+    {  func_ov003_02095e64,  0x9, 0x0, 0x0},
+    {  BtlPsy_Syoryu_Start,  0xA, 0x0, 0x0},
+    {  BtlPsy_Kabuto_Start,  0xB, 0x0, 0x0},
+    {  func_ov003_020b5f74,  0x2, 0x0, 0x0},
+    {  func_ov003_020b5d54,  0x2, 0x0, 0x0},
+    {  func_ov003_020b537c,  0x2, 0x0, 0x0},
+    {  func_ov003_020b47fc,  0x5, 0x0, 0x0},
+    {  func_ov003_020b4b60,  0x5, 0x0, 0x0},
+    {  func_ov003_020b3da8,  0x2, 0x0, 0x0},
+    {  func_ov003_020b37c8,  0x2, 0x0, 0x0},
+    {  func_ov003_020b39c0,  0x2, 0x0, 0x0},
+    {  func_ov003_020baa58,  0x4, 0x0, 0x0},
+    {  func_ov003_020ba2e8,  0x5, 0x0, 0x0},
+    {  func_ov003_020b6644,  0x3, 0x0, 0x0},
+    {  func_ov003_020b66b4,  0x3, 0x0, 0x0},
+    {  func_ov003_020b292c,  0x4, 0x0, 0x0},
+    {  func_ov003_020ac634,  0x4, 0x0, 0x1},
+    {  func_ov003_020ac6bc,  0x4, 0x0, 0x1},
+    {  func_ov003_020a9ec0,  0x0, 0x0, 0x0},
+    {  func_ov003_020b6368,  0x0, 0x0, 0x0},
+    {  func_ov003_020b641c,  0x0, 0x0, 0x0},
+    {  func_ov003_020b6498,  0x0, 0x0, 0x0},
+    {  func_ov003_020ba6c8,  0x4, 0x0, 0x0},
 };
 
 /// Per-actor approach speeds (20.12); ramped up while an effect is close to its origin.
@@ -160,14 +157,14 @@ static char data_ov003_020e48cc[0x14] = "Data/PsyData.bin";
 // Physics integrator
 // ---------------------------------------------------------------------------------------------
 
-/// Integrates one touch actor's velocity, bouncing it off the battle bounds and pushing it away
+/// Integrates one badge's velocity, bouncing it off the battle bounds and pushing it away
 /// from overlapping actors; also ramps the effect speed of actors near the effect origin.
 static void func_ov003_020a5250(Ov003TouchActor* actor) {
     Ov003TouchActor* other;
     BtlTouchWork*    origin;
     s32              angle;
 
-    if (func_ov003_02085cfc(2) != 0) {
+    if (CombatTouch_IsGesture(2) != 0) {
         origin = func_ov003_020a62a0();
         if (func_ov003_020a62ec(origin->x << 12, origin->y << 12, actor->x, actor->y) < 0xF000) {
             angle            = (func_ov003_020a62b8(origin->x << 12, origin->y << 12, actor->x, actor->y) >> 4) * 2;
@@ -203,8 +200,7 @@ static void func_ov003_020a5250(Ov003TouchActor* actor) {
         actor->velocityY = -actor->velocityY;
     }
 
-    for (other = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC); other != NULL; other = func_ov003_02084984(&other->node))
-    {
+    for (other = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); other != NULL; other = CombatList_GetNext(&other->node)) {
         if (other != actor &&
             func_ov003_020a62ec(other->x, other->y, actor->x, actor->y) < ((other->radius + actor->radius) << 12))
         {
@@ -230,7 +226,7 @@ void func_ov003_020a5540(Ov003EffectState* effect, Ov003TouchActor* actor) {
         func_ov003_020a5d50(effect->context.arg);
         effect->context.arg = NULL;
     }
-    if (func_0200f93c((StrListOwner*)&data_ov003_020e71b8->unk_201A4) > 0x80U) {
+    if (func_0200f93c((StrListOwner*)&g_CombatGlobal->unk_201A4) > 0x80U) {
         return;
     }
     entry = func_ov003_020a5d74(effect->state);
@@ -295,7 +291,7 @@ static s32 func_ov003_020a56c8(Ov003TouchActor* actor) {
     return 0;
 }
 
-/// Collects the live touch actors into `slots`; `mode != 0` keeps only the two chain-eligible
+/// Collects the live badges into `slots`; `mode != 0` keeps only the two chain-eligible
 /// effect kinds. Returns the number collected.
 // Nonmatching: the two "store the actor" arms are if-converted into conditional stores here;
 // the retail build keeps a separate store block per arm.
@@ -307,8 +303,7 @@ static s32 func_ov003_020a5738(Ov003TouchActor** slots, s32 count, s32 mode) {
     for (i = 0; i < count; i++) {
         slots[i] = NULL;
     }
-    for (actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC); actor != NULL; actor = func_ov003_02084984(&actor->node))
-    {
+    for (actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = CombatList_GetNext(&actor->node)) {
         if (actor->kind == 0xFFFE) {
             continue;
         }
@@ -333,7 +328,7 @@ static s32 func_ov003_020a5738(Ov003TouchActor** slots, s32 count, s32 mode) {
     return n;
 }
 
-/// Picks the highest-priority live touch actor and starts its effect; returns the effect's
+/// Picks the highest-priority live badge and starts its effect; returns the effect's
 /// animation id (0 if nothing was picked).
 static u16 func_ov003_020a5804(s32 mode) {
     Ov003TouchActor* slots[6];
@@ -388,7 +383,7 @@ void func_ov003_020a58e4(Ov003EffectState* effect, u16 arg1, u8 arg2) {
 
 /// Records the touch-slot origins used by the effect selection.
 void func_ov003_020a593c(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    Ov003EffectSlots* slots = &data_ov003_020e71b8->effectSlots;
+    Ov003EffectSlots* slots = &g_CombatGlobal->effectSlots;
 
     slots->unk_00   = arg0;
     slots->unk_04   = arg1;
@@ -401,7 +396,7 @@ void func_ov003_020a593c(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 
 /// Fires the shared effect for all five touch slots and arms its cooldown.
 static void func_ov003_020a5974(Ov003EffectState* effect) {
-    Ov003EffectSlots* state = &data_ov003_020e71b8->effectSlots;
+    Ov003EffectSlots* state = &g_CombatGlobal->effectSlots;
     s32               i;
 
     if (state->cooldown != 0) {
@@ -417,26 +412,25 @@ static void func_ov003_020a5974(Ov003EffectState* effect) {
 }
 
 void func_ov003_020a59dc(void) {
-    data_ov003_020e71b8->effectSlots.unk_0C = 0;
+    g_CombatGlobal->effectSlots.unk_0C = 0;
 }
 
 static s32 func_ov003_020a59f8(void) {
-    if (data_ov003_020e71b8->effectSlots.unk_0C != 0) {
+    if (g_CombatGlobal->effectSlots.unk_0C != 0) {
         return 1;
     }
     return 0;
 }
 
 u8 func_ov003_020a5a1c(void) {
-    return data_ov003_020e71b8->effectSlots.unk_15;
+    return g_CombatGlobal->effectSlots.unk_15;
 }
 
-/// Finds the touch actor that owns the effect state at `effect`.
+/// Finds the badge that owns the effect state at `effect`.
 Ov003TouchActor* func_ov003_020a5a34(Ov003EffectState* effect) {
     Ov003TouchActor* actor;
 
-    for (actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC); actor != NULL; actor = func_ov003_02084984(&actor->node))
-    {
+    for (actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = CombatList_GetNext(&actor->node)) {
         if (actor->kind != 0xFFFE && &actor->effect == effect) {
             return actor;
         }
@@ -475,8 +469,7 @@ s32 func_ov003_020a5b18(s32 state) {
     Ov003TouchActor* actor;
     s32              total = 0;
 
-    for (actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC); actor != NULL; actor = func_ov003_02084984(&actor->node))
-    {
+    for (actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = CombatList_GetNext(&actor->node)) {
         if (actor->kind != 0xFFFE && actor->effect.state == state) {
             total += actor->effect.unk_0A;
         }
@@ -505,21 +498,21 @@ static void func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectS
     for (i = 0; i < count; i++) {
         slots[i] = NULL;
     }
-    actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC);
+    actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
     while (actor != NULL) {
         if (actor->kind == 0xFFFE) {
-            actor = func_ov003_02084984(&actor->node);
+            actor = CombatList_GetNext(&actor->node);
         } else if (actor->effect.state != effect->state) {
-            actor = func_ov003_02084984(&actor->node);
+            actor = CombatList_GetNext(&actor->node);
         } else if (actor->effect.index == effect->index && &actor->effect != effect) {
-            actor = func_ov003_02084984(&actor->node);
+            actor = CombatList_GetNext(&actor->node);
         } else if (func_ov003_020a3edc(actor) == 0) {
-            actor = func_ov003_02084984(&actor->node);
+            actor = CombatList_GetNext(&actor->node);
         } else if (arg3 != 0) {
             if (actor->params.unk_12 != 0 && actor->unk_044 <= 0) {
-                actor = func_ov003_02084984(&actor->node);
+                actor = CombatList_GetNext(&actor->node);
             } else if (actor->state != 3) {
-                actor = func_ov003_02084984(&actor->node);
+                actor = CombatList_GetNext(&actor->node);
             } else {
                 goto add;
             }
@@ -527,23 +520,23 @@ static void func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectS
         add:
             slot = actor->effect.index;
             if (slot >= count) {
-                actor = func_ov003_02084984(&actor->node);
+                actor = CombatList_GetNext(&actor->node);
             } else if (slots[slot] != NULL) {
-                actor = func_ov003_02084984(&actor->node);
+                actor = CombatList_GetNext(&actor->node);
             } else {
                 slots[slot] = actor;
-                actor       = func_ov003_02084984(&actor->node);
+                actor       = CombatList_GetNext(&actor->node);
             }
         }
     }
 }
 
 void* func_ov003_020a5d2c(s32 size, const char* name) {
-    return Mem_AllocHeapTail(&data_ov003_020e71b8->heap_20224, size);
+    return Mem_AllocHeapTail(&g_CombatGlobal->heap_20224, size);
 }
 
 static void func_ov003_020a5d50(void* ptr) {
-    Mem_Free(&data_ov003_020e71b8->heap_20224, ptr);
+    Mem_Free(&g_CombatGlobal->heap_20224, ptr);
 }
 
 /// The behaviour table entry for effect `state`.

@@ -109,53 +109,53 @@ static void func_ov003_020c1224(BtlActSp* self, void (*update)(BtlActSp*)) {
 static void func_ov003_020c1238(u16 character, u16 level) {
     BtlActSpAttackTable subAttacks  = data_ov003_020ddad4;
     BtlActSpAttackTable mainAttacks = data_ov003_020ddae6;
-    CombatActor*        mainActor   = data_ov003_020e71b8->unk3D898;
+    CombatActor*        mainActor   = g_CombatGlobal->unk3D898;
     Ov003AttackArgs     args;
 
     args.unk_00           = mainActor->unk_66;
     args.unk_04           = 0x64;
     args.unk_06           = 0x64;
     args.unk_02           = 0x5A;
-    Ov003EnemyActor* unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     if (unit) {
         u16 attack = subAttacks.entries[character][level];
         do {
-            CombatActor* owner = data_ov003_020e71b8->unk3D89C;
-            func_ov003_0208a128(func_ov003_0208a114(attack), &owner->baseArgs, unit, owner->position.x);
-            unit = func_ov003_02084984(&unit->node);
+            CombatActor* owner = g_CombatGlobal->unk3D89C;
+            CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &owner->baseArgs, unit, owner->position.x);
+            unit = CombatList_GetNext(&unit->node);
         } while (unit);
     }
-    unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+    unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     if (unit) {
         u16 attack = mainAttacks.entries[character][level];
         do {
-            CombatActor* owner = data_ov003_020e71b8->unk3D898;
-            func_ov003_0208a128(func_ov003_0208a114(attack), &args, unit, owner->position.x);
-            unit = func_ov003_02084984(&unit->node);
+            CombatActor* owner = g_CombatGlobal->unk3D898;
+            CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &args, unit, owner->position.x);
+            unit = CombatList_GetNext(&unit->node);
         } while (unit);
     }
     // Retail callers supply level 0..2; the tables use the same range.
     s16 heal;
     switch (level) {
         case 0:
-            heal = data_ov003_020e71b8->unk3D8D2 * 20 / 100;
+            heal = g_CombatGlobal->unk3D8D2 * 20 / 100;
             break;
         case 1:
-            heal = data_ov003_020e71b8->unk3D8D2 * 50 / 100;
+            heal = g_CombatGlobal->unk3D8D2 * 50 / 100;
             break;
         case 2:
-            heal = data_ov003_020e71b8->unk3D8D2 * 100 / 100;
+            heal = g_CombatGlobal->unk3D8D2 * 100 / 100;
             break;
     }
-    s32 missing = data_ov003_020e71b8->unk3D8D2 - data_ov003_020e71b8->unk3D8D0;
+    s32 missing = g_CombatGlobal->unk3D8D2 - g_CombatGlobal->unk3D8D0;
     if (missing < heal) {
         heal = missing;
     }
     s32 rounded = heal + ((u32)heal >> 31);
-    func_ov003_0208b3cc(0, (heal & 1) + (rounded >> 1));
-    func_ov003_0208b3cc(1, (s16)((rounded << 15) >> 16));
-    CombatActor_ClearPeriodicEffect(data_ov003_020e71b8->unk3D89C);
-    CombatActor_ClearPeriodicEffect(data_ov003_020e71b8->unk3D898);
+    BtlMgr_AddTeamHp(0, (heal & 1) + (rounded >> 1));
+    BtlMgr_AddTeamHp(1, (s16)((rounded << 15) >> 16));
+    CombatActor_ClearPeriodicEffect(g_CombatGlobal->unk3D89C);
+    CombatActor_ClearPeriodicEffect(g_CombatGlobal->unk3D898);
 }
 
 // Nonmatching: display-setting store scheduling.
@@ -243,18 +243,18 @@ static void func_ov003_020c1848(BtlActSp* self) {
         case 0:
             SndMgr_PlaySEWithPan(SEIDX_SE_FINISHMOVE, 0x80);
             EasyFade_FadeBothDisplays(2, 0x10, 0x1000);
-            data_ov003_020e71b8->unk3D878 |= 0x1000;
-            data_ov003_020e71b8->unk3D878 |= 0x2000;
+            g_CombatGlobal->unk3D878 |= 0x1000;
+            g_CombatGlobal->unk3D878 |= 0x2000;
             self->phase++;
             return;
         case 1:
-            if (data_ov003_020e71b8->unk3D878 & 1) {
+            if (g_CombatGlobal->unk3D878 & 1) {
                 return;
             }
-            if (data_ov003_020e71b8->unk3D7C0[0].unk_02 & 1) {
+            if (g_CombatGlobal->unk3D7C0[0].unk_02 & 1) {
                 return;
             }
-            if (data_ov003_020e71b8->unk3D7C0[1].unk_02 & 1) {
+            if (g_CombatGlobal->unk3D7C0[1].unk_02 & 1) {
                 return;
             }
             func_ov003_020c14ec();
@@ -270,44 +270,44 @@ static void func_ov003_020c1918(BtlActSp* self) {
     switch (self->phase) {
         case 0:
             PaletteMgr_UnknownLoop(g_PaletteManagers[1]);
-            data_ov003_020e71b8->unk3D878 |= 0x10000;
-            data_ov003_020e71b8->unk3D884 = 1;
-            data_ov003_020e71b8->unk3D8C8 = 0;
-            EasyTask_CleanupAllTasks(&data_ov003_020e71b8->unk_201A4);
+            g_CombatGlobal->unk3D878 |= 0x10000;
+            g_CombatGlobal->unk3D884 = 1;
+            g_CombatGlobal->unk3D8C8 = 0;
+            EasyTask_CleanupAllTasks(&g_CombatGlobal->unk_201A4);
             Mem_ValidateSequences(&gMainHeap);
             if (self->character == 3) {
-                self->taskId = BtlCutIn00_CreateKariyaYashiroTask(&data_ov003_020e71b8->unk_34230);
+                self->taskId = BtlCutIn00_CreateKariyaYashiroTask(&g_CombatGlobal->unk_34230);
             } else {
                 self->taskId =
-                    EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, cutins.entries[self->level], NULL, 0, NULL, NULL);
+                    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, cutins.entries[self->level], NULL, 0, NULL, NULL);
             }
             self->phase++;
             BtlCutIn_SetSpecialKind(1);
             BtlFeat_HaltEnm();
             return;
         case 1:
-            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId)) {
+            if (EasyTask_ValidateTaskId(&g_CombatGlobal->unk_34230, &self->taskId)) {
                 return;
             }
-            data_ov003_020e71b8->unk3D884 = 0;
-            data_ov003_020e71b8->unk3D888 = 1;
-            data_ov003_020e71b8->unk3D878 |= 4;
+            g_CombatGlobal->unk3D884 = 0;
+            g_CombatGlobal->unk3D888 = 1;
+            g_CombatGlobal->unk3D878 |= 4;
             BtlFeat_SaveEnmPos();
             if (self->skipFeature) {
                 self->phase++;
                 return;
             }
             if (self->character == 3) {
-                self->taskId = EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, &data_ov024_020f6b7c, NULL, 0, NULL, NULL);
+                self->taskId = EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &data_ov024_020f6b7c, NULL, 0, NULL, NULL);
             } else {
-                self->taskId = EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230,
-                                                   features.entries[self->character][self->level], NULL, 0, NULL, NULL);
+                self->taskId = EasyTask_CreateTask(&g_CombatGlobal->unk_34230, features.entries[self->character][self->level],
+                                                   NULL, 0, NULL, NULL);
             }
             self->phase++;
             self->timer = 2;
             return;
         case 2:
-            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId)) {
+            if (EasyTask_ValidateTaskId(&g_CombatGlobal->unk_34230, &self->taskId)) {
                 return;
             }
             data_ov003_020e71d8.released = 1;
@@ -319,18 +319,18 @@ static void func_ov003_020c1918(BtlActSp* self) {
             PaletteMgr_UnknownLoop(g_PaletteManagers[1]);
             return;
         case 3:
-            if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->unk_34230, &self->taskId)) {
+            if (EasyTask_ValidateTaskId(&g_CombatGlobal->unk_34230, &self->taskId)) {
                 return;
             }
-            data_ov003_020e71b8->unk3D878 &= ~4;
+            g_CombatGlobal->unk3D878 &= ~4;
             BtlFeat_RestoreEnmPos();
-            data_ov003_020e71b8->unk3D888 = 0;
+            g_CombatGlobal->unk3D888 = 0;
             self->phase++;
             self->timer = 0;
-            data_ov003_020e71b8->unk3D878 &= ~0x1000;
-            data_ov003_020e71b8->unk3D878 &= ~0x2000;
-            func_ov003_02083e50(1);
-            func_ov003_020842e0();
+            g_CombatGlobal->unk3D878 &= ~0x1000;
+            g_CombatGlobal->unk3D878 &= ~0x2000;
+            CombatStage_StartFieldTasks(1);
+            CombatStage_StartSandstorm();
             if (self->character == 3) {
                 return;
             }
@@ -339,14 +339,14 @@ static void func_ov003_020c1918(BtlActSp* self) {
         case 4:
             if (self->character == 3) {
                 if (!self->timer) {
-                    Ov003EnemyActor* unit  = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
-                    CombatActor*     owner = data_ov003_020e71b8->unk3D89C;
-                    func_ov003_0208a1e8(func_ov003_0208a114(0x12D), &unit->actor.baseArgs, owner->position.x);
-                    unit  = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
-                    owner = data_ov003_020e71b8->unk3D898;
-                    func_ov003_0208a1e8(func_ov003_0208a114(0x12E), &unit->actor.baseArgs, owner->position.x);
+                    Ov003EnemyActor* unit  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+                    CombatActor*     owner = g_CombatGlobal->unk3D89C;
+                    CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0x12D), &unit->actor.baseArgs, owner->position.x);
+                    unit  = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+                    owner = g_CombatGlobal->unk3D898;
+                    CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0x12E), &unit->actor.baseArgs, owner->position.x);
                 }
-                data_ov003_020e71b8->unk3D878 &= ~0x10000;
+                g_CombatGlobal->unk3D878 &= ~0x10000;
                 self->active = 0;
                 EasyFade_FadeBothDisplays(0, 0, 0x800);
                 self->timer++;
@@ -357,7 +357,7 @@ static void func_ov003_020c1918(BtlActSp* self) {
             } else {
                 func_ov003_020c17bc();
             }
-            data_ov003_020e71b8->unk3D878 &= ~0x10000;
+            g_CombatGlobal->unk3D878 &= ~0x10000;
             self->active = 0;
             return;
     }
@@ -368,7 +368,7 @@ static s32 BtlActSp00_Init(TaskPool* pool, Task* task, void* args) {
     BtlActSp*     self  = task->data;
     BtlActSpArgs* spawn = args;
 
-    data_ov003_020e71b8->unk3D878 |= 2;
+    g_CombatGlobal->unk3D878 |= 2;
     MI_CpuSet(self, 0, sizeof(*self));
     data_ov003_020e71d8.released  = 0;
     self->selection               = spawn->selection;
@@ -394,10 +394,10 @@ static s32 BtlActSp00_Render(TaskPool* pool, Task* task, void* args) {
 }
 
 static s32 BtlActSp00_Release(TaskPool* pool, Task* task, void* args) {
-    EasyTask_CleanupAllTasks(&data_ov003_020e71b8->unk_34230);
+    EasyTask_CleanupAllTasks(&g_CombatGlobal->unk_34230);
     BtlFeat_RestoreEnmPos();
-    data_ov003_020e71b8->unk3D878 &= ~2;
-    data_ov003_020e71b8->unk3D878 &= ~0x20000;
+    g_CombatGlobal->unk3D878 &= ~2;
+    g_CombatGlobal->unk3D878 &= ~0x20000;
     Mem_ValidateSequences(&gMainHeap);
     return 1;
 }
@@ -417,7 +417,7 @@ void func_ov003_020c1f18(TaskPool* pool, u16 level) {
     BtlActSpArgs args;
     u16          character;
 
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 1:
             character = 1;
             break;
@@ -461,7 +461,7 @@ s32 func_ov003_020c2008(TaskPool* pool) {
     args.character     = 3;
     args.level         = 0;
     args.skipFeature   = 0;
-    CombatActor* owner = data_ov003_020e71b8->unk3D89C;
+    CombatActor* owner = g_CombatGlobal->unk3D89C;
     owner->flags &= ~8;
     return EasyTask_CreateTask(pool, &Tsk_BtlActSp00, NULL, 0, NULL, &args);
 }

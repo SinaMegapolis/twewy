@@ -6,7 +6,7 @@ static const TaskHandle data_ov003_020dca84;
 static Ov003EnemyActor* func_ov003_020b5f04(s32 index);
 
 s32 func_ov003_020b5d54(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(4))
+    if (!CombatTouch_IsGesture(4))
         return 0;
     Ov003EnemyActor* unit = func_ov003_020b5f04(effect->index);
     if (unit == NULL)
@@ -41,7 +41,7 @@ static s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a5a94(self->args.effect);
             func_ov003_020a61e4(self->args.unit, 5, 0x189, &self->args.effect->streak.args, touch->angle,
                                 self->args.effect->params[0], self->args.effect->params[1]);
-            func_ov003_02087f28(0x67, self->args.unit->actor.position.x);
+            CombatSe_PlayAtMainX(0x67, self->args.unit->actor.position.x);
             func_ov003_020a647c(self->args.unit->actor.position.x);
             return 1;
         }
@@ -58,11 +58,11 @@ static s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage
 
 static Ov003EnemyActor* func_ov003_020b5f04(s32 index) {
     Ov003EnemyActor* secondary = NULL;
-    Ov003EnemyActor* primary   = (Ov003EnemyActor*)func_ov003_02085ec0(2);
+    Ov003EnemyActor* primary   = (Ov003EnemyActor*)CombatTouch_GetSlashed(2);
     if (primary != NULL && !func_ov003_020a60ec(primary, 5))
         primary = NULL;
     if (index == 2) {
-        secondary = (Ov003EnemyActor*)func_ov003_02085ec0(1);
+        secondary = (Ov003EnemyActor*)CombatTouch_GetSlashed(1);
         if (secondary != NULL && !func_ov003_020a60ec(secondary, 5))
             secondary = NULL;
     }

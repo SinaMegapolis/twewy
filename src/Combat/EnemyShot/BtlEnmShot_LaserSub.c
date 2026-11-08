@@ -57,7 +57,7 @@ void func_ov003_020d07a8(Ov003EnemyShotSource* source, CombatList* list, Ov003En
     args.length    = length;
     args.step      = step;
     args.delay     = delay;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov003_020e0c8c, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &data_ov003_020e0c8c, NULL, 0, NULL, &args);
 }
 
 static s32 func_ov003_020d0834(Ov003EnemyShotLaserSub* self, Ov003EnemyShotLaserSubArgs* args) {
@@ -94,7 +94,7 @@ static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
     s32             boxX, boxY, boxZ;
     s32             halfWidth, halfHeight;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x40)
+    if (g_CombatGlobal->unk3D878 & 0x40)
         return 1;
     if (func_ov003_020c3c28()) {
         func_ov003_020d117c(self->list);
@@ -163,7 +163,7 @@ static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
         case 3:
             return 0;
     }
-    info      = *func_ov003_0208a114(self->source->core.attackId);
+    info      = *CombatHit_GetAttackInfo(self->source->core.attackId);
     halfWidth = FX_Mul(self->growX, FX32_CONVERT(self->inset)) >> 1;
     if (halfWidth < 0x1000)
         halfWidth = 0x1000;
@@ -189,8 +189,8 @@ static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
             boxY += FX_Mul(self->growY, FX32_CONVERT(self->inset)) >> 1;
             break;
     }
-    func_ov003_02084348(0, &x, &y, boxX, boxY, boxZ);
-    func_ov003_0208a1a4(&info, &self->source->core.owner->base.actor.baseArgs, x, y);
+    CombatStage_WorldToScreen(0, &x, &y, boxX, boxY, boxZ);
+    CombatHit_AttackAtScreen(&info, &self->source->core.owner->base.actor.baseArgs, x, y);
     CombatSprite_Update(&self->sprite);
     CombatSprite_Update(&self->sprite2);
     return 1;
@@ -214,12 +214,12 @@ static s32 func_ov003_020d0ff4(Ov003EnemyShotLaserSub* self) {
             xOffset = -1;
             break;
     }
-    func_ov003_02084348(0, &x, &y, self->x, self->y, self->z);
+    CombatStage_WorldToScreen(0, &x, &y, self->x, self->y, self->z);
     CombatSprite_SetPosition(&self->sprite, (s16)(x + xOffset), (s16)(y + yOffset));
     CombatSprite_SetAffineTransform(&self->sprite, self->direction, scaleX, scaleY, 1);
     func_ov003_02082730(&self->sprite, 0x96000);
     CombatSprite_Render(&self->sprite);
-    func_ov003_02084348(0, &x, &y, self->x, self->y, self->z);
+    CombatStage_WorldToScreen(0, &x, &y, self->x, self->y, self->z);
     CombatSprite_SetPosition(&self->sprite2, x, y);
     func_ov003_02082730(&self->sprite2, 0x12C000);
     CombatSprite_Render(&self->sprite2);
@@ -249,12 +249,12 @@ static s32 func_ov003_020d112c(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 void func_ov003_020d117c(CombatList* list) {
-    Ov003EnemyShotRoot* node = func_ov003_0208495c(list);
+    Ov003EnemyShotRoot* node = CombatList_GetHead(list);
     if (node == NULL)
         return;
-    for (; node != NULL; node = func_ov003_02084984(&node->node))
+    for (; node != NULL; node = CombatList_GetNext(&node->node))
         node->active = 0;
-    func_ov003_020849ac(list);
+    CombatList_Init(list);
 }
 
 Ov003EnemyShotRoot* func_ov003_020d11b8(Ov003EnemyShotRoot* root, u16* angle, s32* scaleX, s32* scaleY, s32* x, s32* y,
@@ -273,7 +273,7 @@ Ov003EnemyShotRoot* func_ov003_020d11b8(Ov003EnemyShotRoot* root, u16* angle, s3
         *y = root->position.y;
     if (z != NULL)
         *z = root->position.z;
-    return func_ov003_02084984(&root->node);
+    return CombatList_GetNext(&root->node);
 }
 
 static char             data_ov003_020e6cfc[24] = "Tsk_BtlEnmShot_LaserSub";

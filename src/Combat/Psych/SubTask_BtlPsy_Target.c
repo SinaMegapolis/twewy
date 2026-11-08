@@ -22,22 +22,22 @@ static s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage
             self->list         = arg->list;
             self->entry.taskId = ((u32)task->generation << 16) | (u32)task->id;
             self->entry.actor  = arg->actor;
-            func_ov003_020849bc(self->list, &self->entry.node, &self->entry);
-            func_ov003_02087f28(0x14C, self->entry.actor->position.x);
-            func_ov003_020a3498(&self->sprite, 2, 1, 0x10, 1);
+            CombatList_Append(self->list, &self->entry.node, &self->entry);
+            CombatSe_PlayAtMainX(0x14C, self->entry.actor->position.x);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, 0x10, 1);
             return 1;
         case 1:
             self = task->data;
             if (self->entry.actor == NULL) {
-                func_ov003_020849dc(self->list, &self->entry.node);
+                CombatList_Remove(self->list, &self->entry.node);
                 return 0;
             }
             if ((self->entry.actor->flags & 4) || (self->entry.actor->flags & 0x10)) {
-                func_ov003_020849dc(self->list, &self->entry.node);
+                CombatList_Remove(self->list, &self->entry.node);
                 return 0;
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
-                func_ov003_020a35b8(&self->sprite, 0x11, 0);
+                CombatPsyAnim_SetAnim(&self->sprite, 0x11, 0);
             CombatSprite_Update(&self->sprite);
             return 1;
         case 2:
@@ -54,7 +54,7 @@ static s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 void func_ov003_020b2fd8(CombatList* list) {
-    func_ov003_020849ac(list);
+    CombatList_Init(list);
 }
 
 void func_ov003_020b2fe4(CombatList* list) {

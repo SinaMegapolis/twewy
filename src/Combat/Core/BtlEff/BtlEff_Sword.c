@@ -43,7 +43,7 @@ static s32 BtlEff_Sword_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Sword_Update(TaskPool* pool, Task* task, void* args) {
     CombatSprite* sprite = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x40) {
+    if (g_CombatGlobal->unk3D878 & 0x40) {
         return 1;
     }
     if (func_ov003_020876c0() != 0) {
@@ -59,7 +59,7 @@ static s32 BtlEff_Sword_Update(TaskPool* pool, Task* task, void* args) {
 /// Pins the slash to the main display's target actor and sorts it in front of it.
 static s32 BtlEff_Sword_Render(TaskPool* pool, Task* task, void* args) {
     CombatSprite* sprite = task->data;
-    CombatActor*  actor  = data_ov003_020e71b8->unk3D898;
+    CombatActor*  actor  = g_CombatGlobal->unk3D898;
     s32           posX;
     s32           posY;
 
@@ -68,8 +68,8 @@ static s32 BtlEff_Sword_Render(TaskPool* pool, Task* task, void* args) {
     } else {
         CombatSprite_SetFlip(sprite, 1);
     }
-    posX = func_ov003_020843b0(0, actor->position.x);
-    posY = func_ov003_020843ec(0, actor->position.y, actor->position.z);
+    posX = CombatStage_ToScreenX(0, actor->position.x);
+    posY = CombatStage_ToScreenY(0, actor->position.y, actor->position.z);
     CombatSprite_SetPosition(sprite, posX, posY);
     func_ov003_02082730(sprite, 0x7FFFFFFF - actor->position.y);
     CombatSprite_Render(sprite);
@@ -102,7 +102,7 @@ void func_ov003_0209f000(s16 animIndex) {
     // taking the address of an incoming register argument.
     s16 anim = animIndex;
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &Tsk_BtlEff_Sword, NULL, 0, NULL, &anim);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_BtlEff_Sword, NULL, 0, NULL, &anim);
 }
 
 static const SpriteAnimEntry data_ov003_020d8650[10] = {

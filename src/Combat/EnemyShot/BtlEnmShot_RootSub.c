@@ -16,7 +16,7 @@ s32 func_ov003_020d1228(Ov003EnemyShotSource* source, CombatList* list, u16 angl
     args.position.z = z;
     args.scaleX     = scaleX;
     args.scaleY     = scaleY;
-    return EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov003_020e0c98, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &data_ov003_020e0c98, NULL, 0, NULL, &args);
 }
 
 static s32 func_ov003_020d12b4(Ov003EnemyShotRoot* self, Ov003EnemyShotRootArgs* args) {
@@ -29,7 +29,7 @@ static s32 func_ov003_020d12b4(Ov003EnemyShotRoot* self, Ov003EnemyShotRootArgs*
     self->active     = 1;
     self->scaleX     = args->scaleX;
     self->scaleY     = args->scaleY;
-    func_ov003_020849bc(args->list, &self->node, self);
+    CombatList_Append(args->list, &self->node, self);
     if (visual != NULL) {
         const SpriteAnimEntry* entry = &visual->entries[visual->entry];
         CombatSprite_LoadDirect(2, &self->sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex,
@@ -72,7 +72,7 @@ static s32 func_ov003_020d13ec(Ov003EnemyShotRoot* self) {
                 break;
         }
         s16 x, y;
-        func_ov003_02084348(0, &x, &y, self->position.x, self->position.y, self->position.z);
+        CombatStage_WorldToScreen(0, &x, &y, self->position.x, self->position.y, self->position.z);
         CombatSprite_SetPosition(&self->sprite, (s16)(x + xOffset), (s16)(y + yOffset));
         CombatSprite_SetAffineTransform(&self->sprite, self->angle, scaleX, scaleY, 1);
         func_ov003_02082730(&self->sprite, 0);

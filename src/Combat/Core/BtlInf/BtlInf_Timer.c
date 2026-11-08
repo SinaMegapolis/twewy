@@ -64,11 +64,11 @@ static s32 BtlInf_Timer_Init(TaskPool* pool, Task* task, void* args) {
     BtlInf_Timer* timer = task->data;
 
     MI_CpuSet(timer, 0, sizeof(BtlInf_Timer));
-    data_ov003_020e71b8->unk3D8F8 = 0;
-    timer->isVisible              = TRUE;
-    timer->count                  = 0;
-    timer->state                  = 0;
-    timer->unk_6C                 = 0;
+    g_CombatGlobal->unk3D8F8 = 0;
+    timer->isVisible         = TRUE;
+    timer->count             = 0;
+    timer->state             = 0;
+    timer->unk_6C            = 0;
     func_ov003_0209de24(timer, func_ov003_0209de38);
     CombatSprite_LoadDirect(0, &timer->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x37);
     func_ov003_02082738(&timer->sprite, 0);

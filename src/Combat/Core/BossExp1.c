@@ -2,6 +2,7 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatBossExp.h"
 #include "Combat/Core/CombatCutin.h"
+#include "Combat/Core/CombatEnemyGroup.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Display.h"
 #include "EasyFade.h"
@@ -121,189 +122,6 @@ static const BossExp1Fly data_ov003_020e0b14[2][6] = {
     {    {0x56, 0}, {0x34, 0x20}, {0x34, -0x80}, {0x54, 0}, {0x4C, 0}, {0x40, 0}},
     {{0x34, -0x20}, {0x34, 0x80},     {0x4C, 0}, {0x54, 0}, {0x56, 0}, {0x48, 0}},
 };
-
-u8  data_ov003_020e6a30[8] = {0, 0, 0, 0, 1, 0, 0, 0};
-s32 data_ov003_020e6a38[3] = {0, 1, 0};
-
-extern char data_ov009_02124840[];
-extern char data_ov009_02124904[];
-extern char data_ov009_02124a34[];
-extern char data_ov009_02124af4[];
-extern char data_ov009_02124c44[];
-extern char data_ov009_02124cc4[];
-extern char data_ov009_02124d58[];
-extern char data_ov009_02124dc0[];
-extern char data_ov009_02124e84[];
-extern char data_ov009_02124ff8[];
-extern char data_ov009_02125240[];
-extern char data_ov009_02125328[];
-extern char data_ov009_021253ec[];
-extern char data_ov009_02125564[];
-extern char data_ov010_02129160[];
-extern char data_ov010_02129320[];
-extern char data_ov011_0212c460[];
-extern char data_ov012_02127980[];
-extern char data_ov013_02127540[];
-extern char data_ov014_02134e0c[];
-extern char data_ov015_021283f8[];
-extern char data_ov017_02142d9c[];
-extern char data_ov017_02142f00[];
-extern char data_ov017_02142f6c[];
-extern char data_ov017_02142fc4[];
-extern char data_ov017_021430a0[];
-extern char data_ov017_021430e8[];
-extern char data_ov017_02143138[];
-extern char data_ov017_02143164[];
-extern char data_ov017_02143168[];
-extern char data_ov017_0214316c[];
-extern char data_ov017_02143170[];
-extern char data_ov017_02143174[];
-extern char data_ov018_020ff42c[];
-extern char data_ov018_020ff4b0[];
-extern char data_ov019_020fa7a0[];
-extern char data_ov020_020f70a0[];
-extern char data_ov020_020f70a4[];
-extern char data_ov021_020f7940[];
-extern char data_ov021_020f7944[];
-extern char data_ov021_020f79a0[];
-extern char data_ov021_020f7a24[];
-extern char data_ov022_020f5a60[];
-extern char data_ov024_020f6ba0[];
-extern char data_ov024_020f6bd4[];
-
-void* data_ov003_020e6a44[61] = {
-    data_ov009_02124af4, data_ov009_02124c44, data_ov009_02124cc4, data_ov009_02125564, data_ov009_02124d58,
-    data_ov010_02129320, data_ov011_0212c460, data_ov009_02124dc0, data_ov009_02124ff8, data_ov009_02124904,
-    data_ov012_02127980, data_ov013_02127540, data_ov009_02125240, data_ov009_02124840, data_ov009_02124e84,
-    data_ov014_02134e0c, data_ov009_02124a34, data_ov015_021283f8, data_ov015_021283f8, data_ov015_021283f8,
-    data_ov015_021283f8, data_ov015_021283f8, data_ov015_021283f8, data_ov015_021283f8, data_ov015_021283f8,
-    data_ov015_021283f8, data_ov015_021283f8, data_ov015_021283f8, data_ov015_021283f8, data_ov015_021283f8,
-    data_ov009_02125328, data_ov009_021253ec, data_ov018_020ff42c, data_ov018_020ff4b0, data_ov010_02129160,
-    data_ov017_02142d9c, data_ov017_02142f00, data_ov017_02142f6c, data_ov017_02142fc4, data_ov017_021430a0,
-    data_ov017_02143138, data_ov017_021430e8, data_ov017_021430e8, data_ov017_02143170, data_ov017_02143174,
-    data_ov017_02143168, data_ov017_0214316c, data_ov017_02143164, data_ov019_020fa7a0, data_ov020_020f70a4,
-    data_ov020_020f70a0, data_ov021_020f7944, data_ov021_020f7940, data_ov022_020f5a60, data_ov021_020f79a0,
-    data_ov024_020f6ba0, data_ov024_020f6ba0, data_ov024_020f6bd4, data_ov024_020f6bd4, data_ov021_020f7a24,
-    data_ov003_020e6a30,
-};
-
-s32 func_ov003_020c703c(Ov003EnemyActor* actor) {
-    if (actor->flags196.bits.b8 && (actor->actor.flags & 0x2000)) {
-        return func_ov003_020c6f90(actor);
-    } else {
-        return func_ov003_020c6f40(actor);
-    }
-}
-
-s32 func_ov003_020c7070(Ov003EnemyActor* actor) {
-    if (actor->flags196.bits.b8 && (actor->actor.flags & 0x2000)) {
-        return func_ov003_020c6f90(actor);
-    } else {
-        return func_ov003_020c6f68(actor);
-    }
-}
-
-/// One frame of an enemy's defeat animation, which plays animations `anim`, `anim + 1` and `anim + 2` in turn.
-s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim) {
-    switch (actor->base.unk_1A8) {
-        case 0:
-            if (actor->base.unk_1A4 == 0) {
-                CombatSprite_SetAnimFromTable(&actor->base.sprite, anim, 1);
-                CombatSprite_Restart(&actor->base.sprite);
-                if (actor->base.actor.unk_0C == 0) {
-                    func_ov003_020c4af0(&actor->base);
-                } else {
-                    if (actor->base.actor.position.x > actor->base.actor.unk_0C) {
-                        actor->base.actor.isFlipped = 0;
-                    }
-                    if (actor->base.actor.position.x < actor->base.actor.unk_0C) {
-                        actor->base.actor.isFlipped = 1;
-                    }
-                }
-                actor->base.actor.flags |= 8;
-            }
-            if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
-                actor->base.unk_1A4 = 0;
-                actor->base.unk_1A8++;
-            } else {
-                actor->base.unk_1A4++;
-            }
-            break;
-        case 1:
-            if (actor->base.unk_1A4 == 0) {
-                CombatSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 1), 0);
-            }
-            if (actor->base.unk_1A4 <= actor->base.unk_1A6) {
-                actor->base.unk_1A4++;
-            } else {
-                actor->base.unk_1A4 = 0;
-                actor->base.unk_1A8++;
-            }
-            break;
-        case 2:
-            if (actor->base.unk_1A4 == 0) {
-                CombatSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 2), 1);
-                actor->base.actor.flags &= ~8;
-            }
-            if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
-                return 0;
-            }
-            actor->base.unk_1A4++;
-            break;
-    }
-    return 1;
-}
-
-/// Puts an actor back into its idle state after its defeat animation.
-static void func_ov003_020c7224(Ov003EnemyActor* actor) {
-    Ov003ActorParams* params = func_ov003_020c3c88(actor);
-
-    actor->flags18C &= ~1;
-    actor->flags18C &= ~0x10;
-    actor->unk_1B8 = 0x1000;
-    actor->unk_1BC = 0x1000;
-    CombatSprite_SetPaletteMode(&actor->sprite, 0);
-    actor->sprite.flags46 &= ~2;
-    actor->actor.flags &= ~0x10;
-    actor->actor.flags &= ~0x80000000;
-    actor->actor.zVelocity = 0;
-    if (params->unk_19 > 0) {
-        actor->actor.zGravity = 0;
-    }
-    actor->actor.xVelocity         = 0;
-    actor->actor.yVelocity         = 0;
-    actor->actor.linearDampingStep = 0x19A;
-}
-
-/// Starts an actor's death animation `a` (or `b` in the second variant) and waits for the transition.
-s32 func_ov003_020c72b4(Ov003EnemyActor* actor, s32 a, s32 b) {
-    if (actor->unk_1A4 == 0) {
-        switch (BtlCutIn_GetSpecialKind()) {
-            case 1:
-                func_ov003_020c38b8(&actor->sprite, a, 0);
-                break;
-            case 2:
-                func_ov003_020c38b8(&actor->sprite, b, 0);
-                break;
-            default:
-                func_ov003_020c38b8(&actor->sprite, a, 0);
-                break;
-        }
-        func_ov003_020c7224(actor);
-        actor->unk_1A4++;
-    }
-    if (data_ov003_020e71b8->unk3D878 & 2) {
-        return 1;
-    }
-    func_ov003_020c7224(actor);
-    if (func_ov003_020c37f8(&actor->sprite) != 0) {
-        actor->actor.position.x = actor->unk_1AC;
-        actor->actor.position.y = actor->unk_1B0;
-        actor->actor.position.z = actor->unk_1B4;
-    }
-    func_ov003_020c4af0(actor);
-    return 0;
-}
 
 /// Sets BG1 and BG2 of both engines up as the text layers the sequence draws on.
 static void func_ov003_020c73a0(void) {
@@ -581,18 +399,18 @@ static void func_ov003_020c7f58(BossExp1* self) {
     switch (self->phase) {
         case 0:
             EasyFade_FadeBothDisplays(2, 0x10, 0x1000);
-            data_ov003_020e71b8->unk3D878 |= 0x1000;
-            data_ov003_020e71b8->unk3D878 |= 0x2000;
+            g_CombatGlobal->unk3D878 |= 0x1000;
+            g_CombatGlobal->unk3D878 |= 0x2000;
             self->phase++;
             return;
         case 1:
-            if (!(data_ov003_020e71b8->unk3D878 & 1) && !(data_ov003_020e71b8->unk3D7C0[0].unk_02 & 1) &&
-                !(data_ov003_020e71b8->unk3D7C0[1].unk_02 & 1))
+            if (!(g_CombatGlobal->unk3D878 & 1) && !(g_CombatGlobal->unk3D7C0[0].unk_02 & 1) &&
+                !(g_CombatGlobal->unk3D7C0[1].unk_02 & 1))
             {
                 func_ov003_020c73a0();
-                data_ov003_020e71b8->unk3D884 = 1;
-                data_ov003_020e71b8->unk3D878 &= ~0x2000;
-                EasyTask_CreateTask(&data_ov003_020e71b8->unk_3C2BC, &Tsk_BtlSandstorm, NULL, 0, NULL, NULL);
+                g_CombatGlobal->unk3D884 = 1;
+                g_CombatGlobal->unk3D878 &= ~0x2000;
+                EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Tsk_BtlSandstorm, NULL, 0, NULL, NULL);
                 self->phase++;
                 return;
             }
@@ -618,9 +436,9 @@ static void func_ov003_020c80b8(BossExp1* self) {
             func_ov003_020c75ec(self, 1);
             func_ov003_020c7940(self, 0);
             if (self->anims.actor->group == 0x21) {
-                func_ov003_02087ed8(SEIDX_SE_LBAT_DYINGFX01);
+                CombatSe_Play(SEIDX_SE_LBAT_DYINGFX01);
             } else {
-                func_ov003_02087ed8(SEIDX_SE_BOSS_DYINGFX01);
+                CombatSe_Play(SEIDX_SE_BOSS_DYINGFX01);
             }
             self->phase++;
             return;
@@ -880,9 +698,9 @@ static void func_ov003_020c8be8(BossExp1* self) {
                 func_ov003_020c75ec(self, 2);
                 func_ov003_020c75ec(self, 3);
                 if (self->anims.actor->group == 0x21) {
-                    func_ov003_02087ed8(SEIDX_SE_LBAT_DYINGFX02);
+                    CombatSe_Play(SEIDX_SE_LBAT_DYINGFX02);
                 } else {
-                    func_ov003_02087ed8(SEIDX_SE_BOSS_DYINGFX02);
+                    CombatSe_Play(SEIDX_SE_BOSS_DYINGFX02);
                 }
             }
             if (self->timer <= 0) {
@@ -933,9 +751,9 @@ static void func_ov003_020c8be8(BossExp1* self) {
 /// Hands the screens back to the battle.
 static void func_ov003_020c8ddc(BossExp1* self) {
     func_ov003_020c759c();
-    data_ov003_020e71b8->unk3D884 = 0;
-    data_ov003_020e71b8->unk3D878 &= ~0x1000;
-    func_ov003_02083e50(1);
+    g_CombatGlobal->unk3D884 = 0;
+    g_CombatGlobal->unk3D878 &= ~0x1000;
+    CombatStage_StartFieldTasks(1);
     EasyFade_FadeBothDisplays(0, 0, 0xCCD);
     self->running = 0;
 }
@@ -945,7 +763,7 @@ static s32 BossExp1_Init(TaskPool* pool, Task* task, void* args) {
     BossExp1Anims* param = args;
 
     MI_CpuSet(self, 0, sizeof(*self));
-    data_ov003_020e71b8->unk3D878 |= 2;
+    g_CombatGlobal->unk3D878 |= 2;
     data_ov003_020e7254  = 1;
     self->anims.slots[0] = param->slots[0];
     self->anims.slots[1] = param->slots[1];
@@ -978,7 +796,7 @@ static s32 BossExp1_Render(TaskPool* pool, Task* task, void* args) {
 }
 
 static s32 BossExp1_Release(TaskPool* pool, Task* task, void* args) {
-    data_ov003_020e71b8->unk3D878 &= ~2;
+    g_CombatGlobal->unk3D878 &= ~2;
     data_ov003_020e7254 = 0;
     return 1;
 }

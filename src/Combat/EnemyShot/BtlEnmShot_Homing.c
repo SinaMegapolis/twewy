@@ -19,9 +19,9 @@ s32 func_ov003_020cf34c(Ov003EnemyShotSource* source, u16 angle, s32 initialSpee
     source->core.flags |= 0x44;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c5c, NULL, 0, NULL, &args);
 }
 
@@ -48,17 +48,17 @@ static s32 func_ov003_020cf400(Ov003EnemyShotHoming* self, Ov003EnemyShotHomingA
 static s32 func_ov003_020cf554(Ov003EnemyShotHoming* self) {
     CombatActor* target;
     if (func_ov003_020c37f8(&self->sprite))
-        target = data_ov003_020e71b8->unk3D89C;
+        target = g_CombatGlobal->unk3D89C;
     else
-        target = data_ov003_020e71b8->unk3D898;
+        target = g_CombatGlobal->unk3D898;
     s32 engine = func_ov003_020c37f8(&self->sprite) ? 1 : 0;
     if (func_ov003_020ccb9c(&self->source, &self->sprite))
         return 0;
     func_ov003_020cdfbc(&self->source, 0, 1);
     s16 x, y, targetX, targetY;
-    func_ov003_02084348(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
-                        self->source.core.position.z);
-    func_ov003_02084348(engine, &targetX, &targetY, target->position.x, target->position.y, target->position.z);
+    CombatStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
+                              self->source.core.position.z);
+    CombatStage_WorldToScreen(engine, &targetX, &targetY, target->position.x, target->position.y, target->position.z);
     u16 angle     = FX_Atan2Idx(targetY - y, targetX - x);
     s32 velocityY = FX_Mul(FX_SinIdx(angle), self->targetSpeed);
     s32 velocityX = FX_Mul(FX_CosIdx(angle), self->targetSpeed);
@@ -70,18 +70,18 @@ static s32 func_ov003_020cf554(Ov003EnemyShotHoming* self) {
         self->velocityY += dy / self->turnFrames;
     self->source.core.position.x += self->velocityX;
     self->source.core.position.y += self->velocityY;
-    func_ov003_02084348(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
-                        self->source.core.position.z);
-    self->source.core.hitResult = func_ov003_0208a1a4(func_ov003_0208a114(self->source.core.attackId),
-                                                      &self->source.core.owner->base.actor.baseArgs, x, y);
+    CombatStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
+                              self->source.core.position.z);
+    self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
+                                                           &self->source.core.owner->base.actor.baseArgs, x, y);
     CombatSprite_Update(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020cf740(Ov003EnemyShotHoming* self) {
     s16 x, y;
-    func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                        self->source.core.position.y, self->source.core.position.z);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                              self->source.core.position.y, self->source.core.position.z);
     CombatSprite_SetPosition(&self->sprite, x, y);
     func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     CombatSprite_Render(&self->sprite);

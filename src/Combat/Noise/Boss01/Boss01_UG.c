@@ -49,11 +49,11 @@ static s32   data_ov016_021291d8 = 1;
 const TaskHandle Tsk_Boss01_UG = {"Tsk_Boss01_UG", Boss01_UG_RunTask, 0x1F4};
 
 static void func_ov016_021262d8(Boss01_UG* bossUG) {
-    if (func_ov003_02088130() == 0) {
+    if (CombatHit_CanDrawSpark() == 0) {
         return;
     }
 
-    Data* temp_r0 = data_ov003_020e71b8->unk3D350;
+    Data* temp_r0 = g_CombatGlobal->unk3D350;
     void* var_r8  = Data_GetPackEntryData(temp_r0, 66);
 
     PaletteResource* temp_r4 = bossUG->unk_1D8;
@@ -110,8 +110,7 @@ static s32 func_ov016_02126468(Boss01_UG* bossUG) {
     }
     if (var_ip == 0) {
         var_ip_2 = 0;
-        if ((temp_lr != 0) && ((s32)bossUG->base.actor.position.x > (s32)(data_ov003_020e71b8->unk3D7C0[0].unk_0C + 0x80000)))
-        {
+        if ((temp_lr != 0) && ((s32)bossUG->base.actor.position.x > (s32)(g_CombatGlobal->unk3D7C0[0].unk_0C + 0x80000))) {
             var_ip_2 = 1;
         }
         if (var_ip_2 == 0) {
@@ -151,7 +150,7 @@ static s32 func_ov016_02126554(Boss01_UG* bossUG, Boss01_UG* arg1, s32 arg2) {
 static Boss01_UG* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
     Boss01_UG* var_r4  = NULL;
     s32        temp_r5 = RNG_Next(func_ov003_020cc5fc(0, 0x19));
-    Boss01_UG* var_r8  = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8B4);
+    Boss01_UG* var_r8  = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
 
     for (s32 var_r9 = 0; var_r8 != NULL; var_r9++) {
         if (func_ov016_02126554(bossUG, var_r8, arg1) != 0) {
@@ -160,7 +159,7 @@ static Boss01_UG* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
                 break;
             }
         }
-        var_r8 = func_ov003_02084984(&((Ov003EffectActor*)var_r8)->node);
+        var_r8 = CombatList_GetNext(&((Ov003EffectActor*)var_r8)->node);
     }
     return var_r4;
 }
@@ -261,7 +260,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
     s32        temp_r3;
     s32        temp_r3_2;
     u32        temp_r1;
-    Boss01_UG* temp_r4 = data_ov003_020e71b8->unk3D898;
+    Boss01_UG* temp_r4 = g_CombatGlobal->unk3D898;
 
     if (bossUG->unk_1C0 == 0) {
         func_ov003_020c4c5c(&bossUG->base);
@@ -272,7 +271,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
         bossUG->unk_1D0               = (bossUG->base.actor.isFlipped != 0) ? 0x3000 : -0x3000;
 
         if ((bossUG->base.unk_188 == 0) && (bossUG->unk_1E0 != NULL)) {
-            ((void (*)())func_ov003_02086654)();
+            ((void (*)())CombatSys_DefeatObs)();
             bossUG->unk_1E8 = 0;
             bossUG->unk_1E0 = NULL;
         }
@@ -289,8 +288,8 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
     if (bossUG->unk_1E8 != 0) {
         sp8       = bossUG->base.actor.position.x;
         temp_r1_2 = bossUG->unk_1E0->base.actor.unk_74;
-        func_ov003_02083bfc(&bossUG->base.actor.position.y, ((s32)(temp_r1_2 + ((u32)temp_r1_2 >> 0x1F)) >> 1) << 0xC,
-                            bossUG->base.actor.position.x);
+        CombatStage_ClampY(&bossUG->base.actor.position.y, ((s32)(temp_r1_2 + ((u32)temp_r1_2 >> 0x1F)) >> 1) << 0xC,
+                           bossUG->base.actor.position.x);
         bossUG->unk_1E0->base.actor.position.y = bossUG->base.actor.position.x;
         bossUG->unk_1E0->base.actor.position.z = bossUG->base.actor.position.y;
         bossUG->unk_1E0->base.actor.screenX    = bossUG->base.actor.position.z;
@@ -337,7 +336,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
             Boss01_UG_SetState(bossUG, func_ov016_02126c24);
             return;
         }
-        if (func_ov003_0208495c(&data_ov003_020e71b8->unk3D8B4) != 0) {
+        if (CombatList_GetHead(&g_CombatGlobal->unk3D8B4) != 0) {
             *data_ov016_021292c0 = 3;
             Boss01_UG_SetState(bossUG, func_ov016_02126c24);
             return;
@@ -355,7 +354,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
 }
 
 static void func_ov016_02126c24(Boss01_UG* bossUG) {
-    Boss01* temp_r5 = data_ov003_020e71b8->unk3D898;
+    Boss01* temp_r5 = g_CombatGlobal->unk3D898;
 
     if (bossUG->unk_1C0 == 0) {
         func_ov003_020c4c5c(&bossUG->base);
@@ -387,7 +386,7 @@ static void func_ov016_02126c24(Boss01_UG* bossUG) {
 }
 
 static void func_ov016_02126d38(Boss01_UG* bossUG) {
-    UnkStruct_Boss01* temp_r4 = data_ov003_020e71b8->unk3D898;
+    UnkStruct_Boss01* temp_r4 = g_CombatGlobal->unk3D898;
 
     if (bossUG->unk_1C0 == 0) {
         bossUG->unk_1E0 = func_ov016_02126638(bossUG);
@@ -497,7 +496,7 @@ static s32 Boss01_UG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(bossUG, 0, 0x1F4);
 
-    void* src       = Data_GetPackEntryData(data_ov003_020e71b8->unk3D350, 66);
+    void* src       = Data_GetPackEntryData(g_CombatGlobal->unk3D350, 66);
     bossUG->unk_1D8 = PaletteMgr_AcquireContiguous(g_PaletteManagers[DISPLAY_EXTENDED], src, 5, 1);
 
     func_ov003_020c3efc(&bossUG->base, args);
@@ -553,13 +552,13 @@ static s32 Boss01_UG_Render(TaskPool* pool, Task* task, void* args) {
     }
 
     if (!(bossUG->base.flags18C & 1)) {
-        func_ov003_02084348(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y,
-                            bossUG->base.actor.position.z);
+        CombatStage_WorldToScreen(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y,
+                                  bossUG->base.actor.position.z);
         CombatSprite_SetPosition(&bossUG->base.sprite, spA, sp8);
         CombatSprite_Render(&bossUG->base.sprite);
         bossUG->base.actor.screenX = spA;
         bossUG->base.actor.screenY = sp8 + 80;
-        func_ov003_02084348(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y, 0);
+        CombatStage_WorldToScreen(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y, 0);
         CombatSprite_SetPosition(&bossUG->base.sprite, spA, sp8);
         func_ov016_021262d8(bossUG);
     }

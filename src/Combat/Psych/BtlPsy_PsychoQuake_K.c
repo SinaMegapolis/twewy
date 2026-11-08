@@ -7,7 +7,7 @@
 static const TaskHandle data_ov003_020dc8dc;
 
 s32 func_ov003_020b05b8(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(7))
+    if (!CombatTouch_IsGesture(7))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc8dc.taskName);
     *arg                   = effect;
@@ -31,10 +31,10 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a5a94(self->effect);
             func_ov003_020a6464(1);
             func_ov003_020a64ac();
-            func_ov003_020a4e84(&self->camera, 0, 0);
-            func_ov003_020a4ed0(&self->camera, 6, 0);
-            func_ov003_020a3498(&self->spriteA, 2, 1, 0xC0, 1);
-            func_ov003_020a3498(&self->spriteB, 2, 1, 0xBF, 0);
+            CombatCameraShake_Bind(&self->camera, 0, 0);
+            CombatCameraShake_Start(&self->camera, 6, 0);
+            CombatPsyAnim_Load(&self->spriteA, 2, 1, 0xC0, 1);
+            CombatPsyAnim_Load(&self->spriteB, 2, 1, 0xBF, 0);
             self->phase        = 0;
             self->spriteOffset = 20;
             self->opacity      = 0;
@@ -47,16 +47,16 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
                 goto done;
             }
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_SYCOQUAKE01))
-                func_ov003_02087ed8(SEIDX_SE_PSY_SYCOQUAKE01);
+                CombatSe_Play(SEIDX_SE_PSY_SYCOQUAKE01);
             switch (self->phase) {
                 case 0:
-                    if (func_ov003_020a4ee8(&self->camera, 0x333, 0, 0x8000)) {
-                        Ov003EnemyActor* unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+                    if (CombatCameraShake_Update(&self->camera, 0x333, 0, 0x8000)) {
+                        Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
                         while (unit != NULL) {
                             if (unit->actor.position.z == 0 && unit->actor.zGravity != 0 && unit->group != 4 &&
                                 unit->group != 7 && unit->group != 8 && unit->group != 12 && unit->group != 15)
                                 func_ov003_020a6164(unit, 4);
-                            unit = func_ov003_02084984(&unit->node);
+                            unit = CombatList_GetNext(&unit->node);
                         }
                         self->phase          = 1;
                         self->remainingTicks = self->effect->params[0];
@@ -69,17 +69,17 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
                         s16 x = RNG_Next(256);
                         s16 y = RNG_Next(192);
                         s32 worldY;
-                        s32 worldX = func_ov003_0208442c(0, x);
-                        worldY     = func_ov003_02084460(0, y, 0);
-                        func_ov003_02083ca0(&worldX, &worldY, 0, 0);
-                        func_ov003_020843b0(0, worldX);
-                        func_ov003_020843ec(0, worldY, 0);
+                        s32 worldX = CombatStage_ToWorldX(0, x);
+                        worldY     = CombatStage_ToWorldY(0, y, 0);
+                        CombatStage_ClampXY(&worldX, &worldY, 0, 0);
+                        CombatStage_ToScreenX(0, worldX);
+                        CombatStage_ToScreenY(0, worldY, 0);
                         self->sampleTimer = 1;
                     } else {
                         self->sampleTimer--;
                     }
-                    func_ov003_020a4ee8(&self->camera, 0, 0, 0x8000);
-                    if (func_ov003_02085cfc(7))
+                    CombatCameraShake_Update(&self->camera, 0, 0, 0x8000);
+                    if (CombatTouch_IsGesture(7))
                         self->releaseTimer = 10;
                     self->releaseTimer--;
                     self->remainingTicks--;
@@ -87,7 +87,7 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
                         self->phase = 2;
                     break;
                 case 2:
-                    if (func_ov003_020a4ee8(&self->camera, -0x333, 0, 0x8000))
+                    if (CombatCameraShake_Update(&self->camera, -0x333, 0, 0x8000))
                         result = 0;
                     break;
             }
@@ -105,7 +105,7 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
             if (self->spriteOffset > 0)
                 self->spriteOffset--;
             if (SpriteMgr_IsAnimationFinished(&self->spriteA.sprite))
-                func_ov003_020a35b8(&self->spriteA, 0xC1, 0);
+                CombatPsyAnim_SetAnim(&self->spriteA, 0xC1, 0);
             CombatSprite_Update(&self->spriteA);
             CombatSprite_Update(&self->spriteB);
         done:
@@ -138,15 +138,15 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003PsychoQuake* self = task->data;
             func_ov003_020a6464(0);
             Ov003EffectState* effect = self->effect;
-            Ov003EnemyActor*  unit   = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+            Ov003EnemyActor*  unit   = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
             while (unit != NULL) {
                 if (func_ov003_020a60a8(unit, 4)) {
                     func_ov003_020a6198(unit, 4);
                     func_ov003_020a6568(&effect->streak, 0x167, unit, unit->actor.position.x, 0, 0);
                 }
-                unit = func_ov003_02084984(&unit->node);
+                unit = CombatList_GetNext(&unit->node);
             }
-            func_ov003_020a4fd0(&self->camera);
+            CombatCameraShake_Reset(&self->camera);
             SndMgr_StopPlayingSE(SEIDX_SE_PSY_SYCOQUAKE01);
             CombatSprite_Release(&self->spriteA);
             CombatSprite_Release(&self->spriteB);

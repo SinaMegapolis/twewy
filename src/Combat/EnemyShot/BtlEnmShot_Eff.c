@@ -20,9 +20,9 @@ static s32 func_ov003_020cde74(CombatSprite* source, s32 x, s32 y, s32 z, s32 fl
     args.kind       = kind;
     TaskPool* pool;
     if (source->sprite.bits_0_1 == 0)
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c38, NULL, 0, NULL, &args);
 }
 
@@ -90,8 +90,8 @@ static s32 func_ov003_020ce24c(Ov003EnemyShotEffect* self) {
 
 static s32 func_ov003_020ce288(Ov003EnemyShotEffect* self) {
     s16 x, y;
-    func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
-                        self->position.z);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
+                              self->position.z);
     CombatSprite_SetPosition(&self->sprite, x, y);
     s32 offset = (self->position.y + (self->kind == 1)) ? -10 : 10;
     func_ov003_02082730(&self->sprite, 0x7FFFFFFF - offset);

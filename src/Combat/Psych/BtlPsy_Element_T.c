@@ -5,7 +5,7 @@
 static const TaskHandle data_ov003_020dc864;
 
 s32 func_ov003_020af41c(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(2))
+    if (!CombatTouch_IsGesture(2))
         return 0;
     Ov003ElementTArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc864.taskName);
     arg->effect            = effect;

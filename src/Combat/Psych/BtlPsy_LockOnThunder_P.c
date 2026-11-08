@@ -37,7 +37,7 @@ static s32 func_ov003_020b3a14(TaskPool* pool, Task* task, void* args, s32 stage
             self->scaleY   = self->effect->params[1];
             self->opacity  = 0x1000;
             self->angle    = 0;
-            func_ov003_020a3498(&self->sprite, 2, 1, self->effect->index + 0x12, 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, self->effect->index + 0x12, 1);
             func_ov003_020a6464(1);
             func_ov003_020a6494(touch->x);
             return 1;
@@ -51,7 +51,7 @@ static s32 func_ov003_020b3a14(TaskPool* pool, Task* task, void* args, s32 stage
                 result = func_ov003_020b3bdc(self);
             if (Sprite_HasAnimation(&self->sprite.sprite)) {
                 if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                    func_ov003_02087f00(SEIDX_SE_PSY_ROCKONTHUNDER_DRAG01, self->x);
+                    CombatSe_PlayPanned(SEIDX_SE_PSY_ROCKONTHUNDER_DRAG01, self->x);
                     CombatSprite_Restart(&self->sprite);
                 }
                 CombatSprite_Update(&self->sprite);
@@ -90,7 +90,7 @@ static s32 func_ov003_020b3bdc(Ov003LockOnThunderP* self) {
         return 1;
     }
     func_ov003_020a5a94(self->effect);
-    Ov003EnemyActor* unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
         s32 distance  = func_ov003_020a632c(unit->actor.screenX, unit->actor.screenY - unit->actor.unk_76, self->x, self->y);
         s32 radius    = FX_Mul(self->scaleX, 0x14000);
@@ -102,7 +102,7 @@ static s32 func_ov003_020b3bdc(Ov003LockOnThunderP* self) {
             if (func_ov003_020b30f0(&self->targets, &unit->actor))
                 func_ov003_020b3034(&self->targets, &unit->actor);
         }
-        unit = func_ov003_02084984(&unit->node);
+        unit = CombatList_GetNext(&unit->node);
     }
     self->opacity += 0x400;
     if (self->opacity > 0x14000)

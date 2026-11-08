@@ -9,7 +9,7 @@ static const Ov003StraightShotSKind data_ov003_020dceb4[10];
 static s32 func_ov003_020b8ab8(Ov003StraightShotS* self);
 
 s32 func_ov003_020b87a0(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085ec0(0))
+    if (!CombatTouch_GetSlashed(0))
         return 0;
     Ov003PsychArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dcea8.taskName);
     arg->effect         = effect;
@@ -29,7 +29,7 @@ static s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage
         default:
         case 0: {
             self                = task->data;
-            BtlTouchWork* touch = &data_ov003_020e71b8->touchWork;
+            BtlTouchWork* touch = &g_CombatGlobal->touchWork;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
             self->timer  = 5;
@@ -67,8 +67,8 @@ static s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage
                     {
                         relaunch = 1;
                         state->burstCount++;
-                    } else if (func_ov003_02085ec0(0) != 0) {
-                        BtlTouchWork* touch = &data_ov003_020e71b8->touchWork;
+                    } else if (CombatTouch_GetSlashed(0) != 0) {
+                        BtlTouchWork* touch = &g_CombatGlobal->touchWork;
                         func_ov003_020a6494(touch->endX);
                         state->angle = func_ov003_020a62d0(touch->startX, touch->startY, touch->endX, touch->endY);
                         state->angle = func_ov003_020b6b50(state->angle, data_ov003_020dceb4[state->effect->index].angleLimit);
@@ -113,8 +113,8 @@ static s32 func_ov003_020b8ab8(Ov003StraightShotS* self) {
     s32                           originX;
     kind    = &data_ov003_020dceb4[self->effect->index];
     left    = 0;
-    player  = data_ov003_020e71b8->unk3D898;
-    targetX = func_ov003_0208442c(0, self->x);
+    player  = g_CombatGlobal->unk3D898;
+    targetX = CombatStage_ToWorldX(0, self->x);
     originY = player->position.y;
     if (targetX < player->position.x) {
         originX = player->position.x - 0x18000;

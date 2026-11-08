@@ -30,7 +30,7 @@ typedef union Ov003CutinFlags {
 /// take. Code that treats it as an attack target used to call it `Ov003Unit`.
 typedef struct Ov003EnemyActor {
     /* 0x000 */ CombatActor             actor;
-    /* 0x07C */ s32                     group; // index into data_ov003_020e70ac
+    /* 0x07C */ s32                     group; // index into CombatEnemyParam_Table
     /* 0x080 */ u16                     spriteIndex;
     /* 0x082 */ u16                     id;    // running cut-in instance id
     /* 0x084 */ CombatSprite            sprite;

@@ -275,7 +275,7 @@ static void func_ov025_020e7dd0(ContinueObject* contObj) {
             gSaveData.battleDifficulty = gSaveData.playerStats.difficulty;
 
             OverlayTag tag;
-            MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, &func_ov003_0208ec74, NULL, PROCESS_STAGE_INIT);
+            MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, &ProcessOverlay_Battle, NULL, PROCESS_STAGE_INIT);
         } break;
 
         case 1: {
@@ -283,7 +283,7 @@ static void func_ov025_020e7dd0(ContinueObject* contObj) {
             gSaveData.battleDifficulty = 0;
 
             OverlayTag tag;
-            MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, &func_ov003_0208ec74, NULL, PROCESS_STAGE_INIT);
+            MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, &ProcessOverlay_Battle, NULL, PROCESS_STAGE_INIT);
         } break;
 
         case 2: {

@@ -15,20 +15,20 @@ s32 func_ov003_020b6368(Ov003EffectContext* context, Ov003EffectState* effect) {
 static s32 func_ov003_020b6370(void* args) {
     Ov003HealArgs* arg    = args;
     CombatActor*   player = func_ov003_020a6438();
-    s32            amount = data_ov003_020e71b8->unk3D8D2 * arg->effect->params[1] / 100;
+    s32            amount = g_CombatGlobal->unk3D8D2 * arg->effect->params[1] / 100;
     func_ov003_020a5a94(arg->effect);
-    func_ov003_02087f28(0x14E, player->position.x);
+    CombatSe_PlayAtMainX(0x14E, player->position.x);
     func_ov003_020b67dc(arg->effect, player);
     func_ov003_0209b564(0, amount, player, 1);
     if (arg->effect->state == 0x3F)
         CombatActor_ClearPeriodicEffect(player);
-    func_ov003_0208b3cc(0, (s16)amount);
+    BtlMgr_AddTeamHp(0, (s16)amount);
     return func_ov003_020a5aa4(arg->effect);
 }
 
 s32 func_ov003_020b641c(Ov003EffectContext* context, Ov003EffectState* effect) {
     func_ov003_020a6438();
-    if (data_ov003_020e71b8->unk3D8D0 >= data_ov003_020e71b8->unk3D8D2 * effect->params[0] / 100)
+    if (g_CombatGlobal->unk3D8D0 >= g_CombatGlobal->unk3D8D2 * effect->params[0] / 100)
         return 0;
     Ov003HealArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020e4f00);
     arg->effect        = effect;
@@ -39,8 +39,8 @@ s32 func_ov003_020b641c(Ov003EffectContext* context, Ov003EffectState* effect) {
 
 s32 func_ov003_020b6498(Ov003EffectContext* context, Ov003EffectState* effect) {
     CombatActor* player    = func_ov003_020a6438();
-    s32          threshold = data_ov003_020e71b8->unk3D8D2 * effect->params[0] / 100;
-    if (player->periodicEffectMode == 0 && data_ov003_020e71b8->unk3D8D0 >= threshold)
+    s32          threshold = g_CombatGlobal->unk3D8D2 * effect->params[0] / 100;
+    if (player->periodicEffectMode == 0 && g_CombatGlobal->unk3D8D0 >= threshold)
         return 0;
     Ov003HealArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020e4f00);
     arg->effect        = effect;
@@ -52,7 +52,7 @@ s32 func_ov003_020b6498(Ov003EffectContext* context, Ov003EffectState* effect) {
 static Ov003TouchActor* func_ov003_020b6520(void) {
     Ov003TouchActor* best      = NULL;
     s32              threshold = 0;
-    Ov003TouchActor* actor     = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC);
+    Ov003TouchActor* actor     = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
     while (actor != NULL) {
         if (actor->kind != 0xFFFE && actor->state == 3 && actor->effect.state == 0x3D) {
             if (threshold < actor->effect.params[0]) {
@@ -60,18 +60,18 @@ static Ov003TouchActor* func_ov003_020b6520(void) {
                 best      = actor;
             }
         }
-        actor = func_ov003_02084984(&actor->node);
+        actor = CombatList_GetNext(&actor->node);
     }
-    if (best != NULL && data_ov003_020e71b8->unk3D8D0 >= data_ov003_020e71b8->unk3D8D2 * threshold / 100)
+    if (best != NULL && g_CombatGlobal->unk3D8D0 >= g_CombatGlobal->unk3D8D2 * threshold / 100)
         best = NULL;
     return best;
 }
 
 static s32 func_ov003_020b65d8(void* args) {
     Ov003HealArgs* arg = args;
-    if (data_ov003_020e71b8->unk3D8D0 >= data_ov003_020e71b8->unk3D8D2) {
-        if (!func_ov003_020b68ec(arg->effect, data_ov003_020e71b8->unk3D898) &&
-            !func_ov003_020b68ec(arg->effect, data_ov003_020e71b8->unk3D89C))
+    if (g_CombatGlobal->unk3D8D0 >= g_CombatGlobal->unk3D8D2) {
+        if (!func_ov003_020b68ec(arg->effect, g_CombatGlobal->unk3D898) &&
+            !func_ov003_020b68ec(arg->effect, g_CombatGlobal->unk3D89C))
             return 0;
     }
     return 1;
@@ -114,13 +114,13 @@ static s32 func_ov003_020b6724(TaskPool* pool, Task* task, void* args, s32 stage
             self = task->data;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
-            func_ov003_02087250(self->effect, data_ov003_020e71b8->unk3D898, 0);
+            func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, 0);
             func_ov003_020a5a94(self->effect);
             if (arg->actor != NULL) {
                 func_ov003_020a40b0(arg->actor);
                 func_ov003_020a40bc(arg->actor);
             }
-            func_ov003_02087f00(SEIDX_SE_PSY_BADGE_PUSH, (s16)(func_ov003_020a5a34(self->effect)->x >> 12));
+            CombatSe_PlayPanned(SEIDX_SE_PSY_BADGE_PUSH, (s16)(func_ov003_020a5a34(self->effect)->x >> 12));
             return 1;
         case 1:
             return 0;

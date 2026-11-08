@@ -47,7 +47,7 @@ static void BtlObs_Bus_OnPhaseStart(BtlObs_Bus* obs) {
             CombatSprite_SetAnimFromTable(&obs->unk_0C4, 2, 0);
             CombatSprite_SetPaletteSource(&obs->unk_0C4, 11);
             CombatSprite_Release(&obs->unk_124);
-            func_ov003_020880e4(0, &obs->unk_124, (Ov003EnemyActor*)&obs->actor);
+            CombatHit_LoadSparkForUnit(0, &obs->unk_124, (Ov003EnemyActor*)&obs->actor);
         }
     }
 }
@@ -113,7 +113,7 @@ static s32 BtlObs_Bus_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus* obs = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x1000) {
+    if (g_CombatGlobal->unk3D878 & 0x1000) {
         return 1;
     }
     switch (CombatActor_PopPendingCommand(&obs->actor)) {
@@ -140,15 +140,15 @@ static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus* obs = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 0x1000) {
+    if (g_CombatGlobal->unk3D878 & 0x1000) {
         return 1;
     }
     if (obs->unk_190 == 0) {
         return 1;
     }
 
-    s16 posX   = func_ov003_020843b0(0, obs->actor.position.x);
-    s16 posY   = func_ov003_020843ec(0, obs->actor.position.y, obs->actor.position.z);
+    s16 posX   = CombatStage_ToScreenX(0, obs->actor.position.x);
+    s16 posY   = CombatStage_ToScreenY(0, obs->actor.position.y, obs->actor.position.z);
     s32 posY32 = posY;
     if (obs->unk_0C4.animTableIndex == 0) {
         s16 posYOff = posY + 8;
@@ -163,7 +163,7 @@ static s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
         CombatSprite_SetPosition(&obs->unk_0C4, posX, (s16)posY32);
         func_ov003_02082730(&obs->unk_0C4, 0x7FFFFFFF - obs->actor.position.y);
         CombatSprite_Render(&obs->unk_0C4);
-        func_ov003_0208810c(&obs->unk_124, &obs->actor);
+        CombatHit_DrawSparkOnActor(&obs->unk_124, &obs->actor);
     }
     return 1;
 }
@@ -189,6 +189,6 @@ static s32 BtlObs_Bus_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
 void* BtlObs_Bus_CreateTask(struct Boss01_UG* bossUG) {
     struct Boss01_UG* sp8 = bossUG;
 
-    s32 taskId = EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &Tsk_BtlObs_Bus, NULL, 0, NULL, &sp8);
-    return EasyTask_GetTaskData(&data_ov003_020e71b8->unk_00000, taskId);
+    s32 taskId = EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_BtlObs_Bus, NULL, 0, NULL, &sp8);
+    return EasyTask_GetTaskData(&g_CombatGlobal->unk_00000, taskId);
 }

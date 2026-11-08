@@ -82,7 +82,7 @@ static void func_ov003_020ca7b0(s32 engine, BtlAuraSub* aura) {
         flame->x      = aura->x;
         flame->y      = aura->y;
         flame->height = spread + (RNG_Next(0x100) << 8) / 32;
-        func_ov003_0208b2fc(&flame->x, &flame->y, flame->height, (RNG_Next(9) + 0x18) << 12);
+        BtlMgr_MoveByAngle(&flame->x, &flame->y, flame->height, (RNG_Next(9) + 0x18) << 12);
         if (i & 1) {
             flame->riseSpeed = 0;
             anim             = RNG_Next(3) + 2;
@@ -110,7 +110,7 @@ static void func_ov003_020ca8cc(BtlAuraSub* aura) {
     do {
         if (SpriteMgr_IsAnimationFinished(&flame->sprite.sprite) == 0) {
             if (flame->riseSpeed != 0) {
-                func_ov003_0208b2fc(&flame->x, &flame->y, flame->height, flame->riseSpeed);
+                BtlMgr_MoveByAngle(&flame->x, &flame->y, flame->height, flame->riseSpeed);
             }
             CombatSprite_Update((CombatSprite*)flame);
             active = 1;
@@ -185,7 +185,7 @@ static s32 BtlEnmAuraSub_Init(TaskPool* pool, Task* task, void* args) {
     CombatSprite_LoadFromTableNoProto(engine, &aura->sprite, &data_ov003_020e0bcc, data_ov003_020e0bc4, 0, palette, 0x90);
     CombatSprite_SetPosition(&aura->sprite, (s32)(aura->x * 0x10) >> 16, (s32)(aura->y * 0x10) >> 16);
     func_ov003_020ca7b0(engine, aura);
-    func_ov003_02087f00(SEIDX_SE_GREEN_LIGHT, (s32)(aura->x * 0x10) >> 16);
+    CombatSe_PlayPanned(SEIDX_SE_GREEN_LIGHT, (s32)(aura->x * 0x10) >> 16);
     return 1;
 }
 
@@ -257,5 +257,5 @@ void func_ov003_020cac38(s32 x, s32 y) {
 
     args.x = x;
     args.y = y;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEnmAuraSub, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEnmAuraSub, NULL, 0, NULL, &args);
 }

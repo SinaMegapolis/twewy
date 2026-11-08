@@ -54,22 +54,21 @@ static void func_ov003_020999c4(BtlBar* bar) {
 static void func_ov003_02099a98(BtlBar* bar) {
     s32 oldB    = bar->unk_3DC;
     s32 oldA    = bar->unk_3DA;
-    s32 bankedB = data_ov003_020e71b8->unk3D8DE;
-    s32 bankedA = data_ov003_020e71b8->unk3D8DC;
+    s32 bankedB = g_CombatGlobal->unk3D8DE;
+    s32 bankedA = g_CombatGlobal->unk3D8DC;
     s32 delta   = (bankedB - oldB) + (bankedA - oldA);
-    s32 free    = (bankedB + bankedA) - data_ov003_020e71b8->unk3D8DA * 3 / 4;
+    s32 free    = (bankedB + bankedA) - g_CombatGlobal->unk3D8DA * 3 / 4;
 
     // The gauge width is recomputed per store; the retail build has a division by 4 and then a
     // separate division by 2 for each of the three segments.
-    bar->unk_3DC                  = data_ov003_020e71b8->unk3D8DA * 3 / 4 / 2;
-    bar->unk_3DA                  = data_ov003_020e71b8->unk3D8DA * 3 / 4 / 2;
-    data_ov003_020e71b8->unk3D8DE = data_ov003_020e71b8->unk3D8DA * 3 / 4 / 2;
+    bar->unk_3DC             = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
+    bar->unk_3DA             = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
+    g_CombatGlobal->unk3D8DE = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
 
     if (delta > 0) {
-        data_ov003_020e71b8->unk3D8DE += (s16)(free * (bankedB - oldB) / delta);
+        g_CombatGlobal->unk3D8DE += (s16)(free * (bankedB - oldB) / delta);
     }
-    data_ov003_020e71b8->unk3D8DC =
-        data_ov003_020e71b8->unk3D8DA - data_ov003_020e71b8->unk3D8D8 - data_ov003_020e71b8->unk3D8DE;
+    g_CombatGlobal->unk3D8DC = g_CombatGlobal->unk3D8DA - g_CombatGlobal->unk3D8D8 - g_CombatGlobal->unk3D8DE;
 }
 
 /// Drains the gauge: the mirror image of `func_ov003_02099a98`.
@@ -77,48 +76,47 @@ static void func_ov003_02099a98(BtlBar* bar) {
 static void func_ov003_02099b94(BtlBar* bar) {
     s32 oldB    = bar->unk_3DC;
     s32 oldA    = bar->unk_3DA;
-    s32 bankedB = data_ov003_020e71b8->unk3D8DE;
-    s32 bankedA = data_ov003_020e71b8->unk3D8DC;
+    s32 bankedB = g_CombatGlobal->unk3D8DE;
+    s32 bankedA = g_CombatGlobal->unk3D8DC;
     s32 delta   = (oldB - bankedB) + (oldA - bankedA);
-    s32 free    = data_ov003_020e71b8->unk3D8DA * 3 / 4 - (bankedB + bankedA);
+    s32 free    = g_CombatGlobal->unk3D8DA * 3 / 4 - (bankedB + bankedA);
 
-    bar->unk_3DC                  = data_ov003_020e71b8->unk3D8DA * 3 / 4 / 2;
-    bar->unk_3DA                  = data_ov003_020e71b8->unk3D8DA * 3 / 4 / 2;
-    data_ov003_020e71b8->unk3D8DE = data_ov003_020e71b8->unk3D8DA * 3 / 4 / 2;
+    bar->unk_3DC             = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
+    bar->unk_3DA             = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
+    g_CombatGlobal->unk3D8DE = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
 
     if (delta > 0) {
-        data_ov003_020e71b8->unk3D8DE -= (s16)(free * (oldB - bankedB) / delta);
+        g_CombatGlobal->unk3D8DE -= (s16)(free * (oldB - bankedB) / delta);
     }
-    data_ov003_020e71b8->unk3D8DC =
-        data_ov003_020e71b8->unk3D8DA - data_ov003_020e71b8->unk3D8D8 - data_ov003_020e71b8->unk3D8DE;
+    g_CombatGlobal->unk3D8DC = g_CombatGlobal->unk3D8DA - g_CombatGlobal->unk3D8D8 - g_CombatGlobal->unk3D8DE;
 }
 
 /// Clamps both banked segments to at least 3/8 of the gauge's maximum.
 /// Clamps both banked segments to at least 3/8 of the gauge's maximum.
 static void func_ov003_02099c90(void) {
-    s32 span    = data_ov003_020e71b8->unk3D8DA * 3 / 4;
+    s32 span    = g_CombatGlobal->unk3D8DA * 3 / 4;
     s32 width   = span / 2;
-    s32 bankedB = data_ov003_020e71b8->unk3D8DE;
+    s32 bankedB = g_CombatGlobal->unk3D8DE;
 
     if (bankedB < width) {
-        data_ov003_020e71b8->unk3D8DE = width;
-        data_ov003_020e71b8->unk3D8DC -= (s16)(width - bankedB);
+        g_CombatGlobal->unk3D8DE = width;
+        g_CombatGlobal->unk3D8DC -= (s16)(width - bankedB);
     }
     {
-        s32 bankedA = data_ov003_020e71b8->unk3D8DC;
+        s32 bankedA = g_CombatGlobal->unk3D8DC;
 
         if (bankedA < width) {
-            data_ov003_020e71b8->unk3D8DC = width;
-            data_ov003_020e71b8->unk3D8DE -= (s16)(width - bankedA);
+            g_CombatGlobal->unk3D8DC = width;
+            g_CombatGlobal->unk3D8DE -= (s16)(width - bankedA);
         }
     }
 }
 
 /// Converts a banked segment value to a bar width in pixels, for a gauge that is filling.
 static s32 func_ov003_02099d24(s16 value) {
-    s32 span  = data_ov003_020e71b8->unk3D8DA * 3 / 4;
+    s32 span  = g_CombatGlobal->unk3D8DA * 3 / 4;
     s16 local = value - (s16)(span / 2);
-    s32 unit  = data_ov003_020e71b8->unk3D8DA / 4;
+    s32 unit  = g_CombatGlobal->unk3D8DA / 4;
 
     if (local > unit) {
         local = unit;
@@ -128,7 +126,7 @@ static s32 func_ov003_02099d24(s16 value) {
 
 /// Converts a banked segment value to a bar width in pixels.
 static s32 func_ov003_02099d98(s16 value) {
-    s32 span  = data_ov003_020e71b8->unk3D8DA * 3 / 4;
+    s32 span  = g_CombatGlobal->unk3D8DA * 3 / 4;
     s16 local = value;
 
     if (local > span) {
@@ -141,26 +139,26 @@ static s32 func_ov003_02099d98(s16 value) {
 static void func_ov003_02099dec(BtlBarBS* bs, CombatActor* actor) {
     BtlBar* bar = &bs->bar;
 
-    data_ov003_020e71b8->unk3D8D8 = actor->currentHp;
-    data_ov003_020e71b8->unk3D8DA = actor->maxHp;
+    g_CombatGlobal->unk3D8D8 = actor->currentHp;
+    g_CombatGlobal->unk3D8DA = actor->maxHp;
     actor->flags |= 0x8000000;
     if (actor->unk_78 != NULL) {
         ((CombatActor*)actor->unk_78)->flags |= 0x8000000;
     }
 
     bar->flags   = 0;
-    bar->unk_3DA = data_ov003_020e71b8->unk3D8DC;
-    bar->unk_3DC = data_ov003_020e71b8->unk3D8DE;
+    bar->unk_3DA = g_CombatGlobal->unk3D8DC;
+    bar->unk_3DC = g_CombatGlobal->unk3D8DE;
 
-    if (data_ov003_020e71b8->unk3D8D8 <= data_ov003_020e71b8->unk3D8DA / 4) {
+    if (g_CombatGlobal->unk3D8D8 <= g_CombatGlobal->unk3D8DA / 4) {
         func_ov003_02099a98(bar);
         bar->unk_3F8 = 1;
-        bar->unk_3EC = func_ov003_02099d24(data_ov003_020e71b8->unk3D8DC);
-        bar->unk_3EE = func_ov003_02099d24(data_ov003_020e71b8->unk3D8DE);
+        bar->unk_3EC = func_ov003_02099d24(g_CombatGlobal->unk3D8DC);
+        bar->unk_3EE = func_ov003_02099d24(g_CombatGlobal->unk3D8DE);
     } else {
         bar->unk_3F8 = 0;
-        bar->unk_3EC = func_ov003_02099d98(data_ov003_020e71b8->unk3D8DC);
-        bar->unk_3EE = func_ov003_02099d98(data_ov003_020e71b8->unk3D8DE);
+        bar->unk_3EC = func_ov003_02099d98(g_CombatGlobal->unk3D8DC);
+        bar->unk_3EE = func_ov003_02099d98(g_CombatGlobal->unk3D8DE);
     }
 
     func_ov003_020999c4(bar);
@@ -183,7 +181,7 @@ static void func_ov003_02099f40(BtlBar* bar) {
 
     bar->flags = 0;
     if (bar->unk_3F8 == 0) {
-        if (data_ov003_020e71b8->unk3D8D8 <= data_ov003_020e71b8->unk3D8DA / 4) {
+        if (g_CombatGlobal->unk3D8D8 <= g_CombatGlobal->unk3D8DA / 4) {
             func_ov003_02099a98(bar);
             bar->unk_3F8 = 1;
             bar->unk_3EC = 0;
@@ -194,11 +192,11 @@ static void func_ov003_02099f40(BtlBar* bar) {
             bar->unk_3C2 = 0;
             func_ov003_020999c4(bar);
         }
-    } else if (data_ov003_020e71b8->unk3D8D8 > data_ov003_020e71b8->unk3D8DA / 4) {
+    } else if (g_CombatGlobal->unk3D8D8 > g_CombatGlobal->unk3D8DA / 4) {
         func_ov003_02099b94(bar);
         bar->unk_3F8 = 0;
-        bar->unk_3EC = func_ov003_02099d98(data_ov003_020e71b8->unk3D8DC);
-        bar->unk_3EE = func_ov003_02099d98(data_ov003_020e71b8->unk3D8DE);
+        bar->unk_3EC = func_ov003_02099d98(g_CombatGlobal->unk3D8DC);
+        bar->unk_3EE = func_ov003_02099d98(g_CombatGlobal->unk3D8DE);
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3C0 = 0;
@@ -208,22 +206,22 @@ static void func_ov003_02099f40(BtlBar* bar) {
         func_ov003_02099c90();
     }
 
-    if (bar->unk_3DA < data_ov003_020e71b8->unk3D8DC) {
+    if (bar->unk_3DA < g_CombatGlobal->unk3D8DC) {
         bar->unk_3DE = 0x1E;
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3F0 = 1;
-    } else if (bar->unk_3DA > data_ov003_020e71b8->unk3D8DC) {
+    } else if (bar->unk_3DA > g_CombatGlobal->unk3D8DC) {
         bar->unk_3DE = 0x1E;
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3F0 = 2;
     } else if (bar->unk_3DE <= 0) {
         bar->unk_3F0 = 0;
     }
-    if (bar->unk_3DC < data_ov003_020e71b8->unk3D8DE) {
+    if (bar->unk_3DC < g_CombatGlobal->unk3D8DE) {
         bar->unk_3E0 = 0x1E;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3F4 = 1;
-    } else if (bar->unk_3DC > data_ov003_020e71b8->unk3D8DE) {
+    } else if (bar->unk_3DC > g_CombatGlobal->unk3D8DE) {
         bar->unk_3E0 = 0x1E;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3F4 = 2;
@@ -231,13 +229,13 @@ static void func_ov003_02099f40(BtlBar* bar) {
         bar->unk_3F4 = 0;
     }
 
-    bar->unk_3DA = data_ov003_020e71b8->unk3D8DC;
-    bar->unk_3DC = data_ov003_020e71b8->unk3D8DE;
+    bar->unk_3DA = g_CombatGlobal->unk3D8DC;
+    bar->unk_3DC = g_CombatGlobal->unk3D8DE;
 
     if (bar->unk_3F8 != 0) {
-        bar->unk_3EC = func_ov003_02099d24(data_ov003_020e71b8->unk3D8DC);
+        bar->unk_3EC = func_ov003_02099d24(g_CombatGlobal->unk3D8DC);
     } else {
-        bar->unk_3EC = func_ov003_02099d98(data_ov003_020e71b8->unk3D8DC);
+        bar->unk_3EC = func_ov003_02099d98(g_CombatGlobal->unk3D8DC);
     }
     fixed = (bar->unk_3E4 << 4) >> 16;
 
@@ -270,9 +268,9 @@ static void func_ov003_02099f40(BtlBar* bar) {
     }
 
     if (bar->unk_3F8 != 0) {
-        bar->unk_3EE = func_ov003_02099d24(data_ov003_020e71b8->unk3D8DE);
+        bar->unk_3EE = func_ov003_02099d24(g_CombatGlobal->unk3D8DE);
     } else {
-        bar->unk_3EE = func_ov003_02099d98(data_ov003_020e71b8->unk3D8DE);
+        bar->unk_3EE = func_ov003_02099d98(g_CombatGlobal->unk3D8DE);
     }
     fixed = (bar->unk_3E8 << 4) >> 16;
 
@@ -313,7 +311,7 @@ static void func_ov003_02099f40(BtlBar* bar) {
         bar->unk_3E0--;
     }
 
-    if (data_ov003_020e71b8->unk3D8D8 <= 0) {
+    if (g_CombatGlobal->unk3D8D8 <= 0) {
         bar->flags &= ~0x400;
         bar->flags &= ~0x800;
     }
@@ -477,5 +475,5 @@ static s32 BtlBarBS_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 void func_ov003_0209ab9c(CombatActor* actor) {
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlBarBS, NULL, 0, NULL, actor);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlBarBS, NULL, 0, NULL, actor);
 }

@@ -32,11 +32,11 @@ static void func_ov003_0209abe4(CombatSprite* sprite, CombatActor* actor) {
     if (!(actor->flags & 0x20)) {
         s32 positionX = actor->position.x + (actor->unk_74 << 12);
         if (sprite->sprite.bits_0_1 == 0) {
-            x = func_ov003_020843b0(0, positionX);
-            y = func_ov003_020843ec(0, actor->position.y, actor->position.z - (actor->unk_76 << 12));
+            x = CombatStage_ToScreenX(0, positionX);
+            y = CombatStage_ToScreenY(0, actor->position.y, actor->position.z - (actor->unk_76 << 12));
         } else {
-            x = func_ov003_020843b0(1, positionX);
-            y = func_ov003_020843ec(1, actor->position.y, actor->position.z - (actor->unk_76 << 12));
+            x = CombatStage_ToScreenX(1, positionX);
+            y = CombatStage_ToScreenY(1, actor->position.y, actor->position.z - (actor->unk_76 << 12));
         }
         CombatSprite_SetPosition(sprite, x, y);
         func_ov003_02082730(sprite, 10);
@@ -67,13 +67,13 @@ static s32 BtlTarget_Init(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlTarget_Update(TaskPool* pool, Task* task, void* args) {
     BtlTarget*   target = task->data;
-    CombatActor* actor  = data_ov003_020e71b8->unk3D8A0;
+    CombatActor* actor  = g_CombatGlobal->unk3D8A0;
 
     if (actor != NULL && ((actor->flags & 4) || (actor->flags & 0x10))) {
-        data_ov003_020e71b8->unk3D8A0 = NULL;
+        g_CombatGlobal->unk3D8A0 = NULL;
     }
-    if (target->target != data_ov003_020e71b8->unk3D8A0) {
-        target->target = data_ov003_020e71b8->unk3D8A0;
+    if (target->target != g_CombatGlobal->unk3D8A0) {
+        target->target = g_CombatGlobal->unk3D8A0;
         CombatSprite_SetAnim(&target->sprites[0], 2, 1);
         CombatSprite_SetAnim(&target->sprites[1], 2, 1);
         CombatSprite_Restart(&target->sprites[0]);
@@ -91,7 +91,7 @@ static s32 BtlTarget_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlTarget_Render(TaskPool* pool, Task* task, void* args) {
     BtlTarget* target = task->data;
 
-    if (data_ov003_020e71b8->unk3D874 != 2) {
+    if (g_CombatGlobal->unk3D874 != 2) {
         return 1;
     }
     if (target->target != NULL) {

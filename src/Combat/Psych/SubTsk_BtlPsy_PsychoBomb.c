@@ -29,9 +29,9 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
             self->timer           = self->args.effect->params[0];
             func_ov003_020a5aa4(self->args.effect);
             func_ov003_020a5a94(self->args.effect);
-            func_ov003_020a3498(&self->sprites[1], 2, 1, 0x90, 0);
-            func_ov003_020a3498(&self->sprites[0], 2, 1, 0x93, 0);
-            func_ov003_02087f28(0x96, self->args.position.x);
+            CombatPsyAnim_Load(&self->sprites[1], 2, 1, 0x90, 0);
+            CombatPsyAnim_Load(&self->sprites[0], 2, 1, 0x93, 0);
+            CombatSe_PlayAtMainX(0x96, self->args.position.x);
             return 1;
         case 1: {
             Ov003PsychoBomb* self   = task->data;
@@ -42,16 +42,16 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
                     if (self->phase == 3) {
                         CombatSprite_Release(&self->sprites[0]);
                         CombatSprite_Release(&self->sprites[1]);
-                        func_ov003_020a3498(&self->sprites[1], 2, 1, self->phase + 0x93, 1);
+                        CombatPsyAnim_Load(&self->sprites[1], 2, 1, self->phase + 0x93, 1);
                         self->timer = 18;
-                        func_ov003_02087f28(0xAD, self->args.position.x);
+                        CombatSe_PlayAtMainX(0xAD, self->args.position.x);
                     } else {
                         self->timer = self->args.effect->params[0];
                         CombatSprite_Release(&self->sprites[1]);
-                        func_ov003_020a3498(&self->sprites[1], 2, 1, self->phase + 0x90, 0);
+                        CombatPsyAnim_Load(&self->sprites[1], 2, 1, self->phase + 0x90, 0);
                         s32 sound = self->phase + 0x96;
                         if (sound < 0x56C)
-                            func_ov003_02087f28(sound, self->args.position.x);
+                            CombatSe_PlayAtMainX(sound, self->args.position.x);
                     }
                 }
             } else {
@@ -72,10 +72,10 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
                 }
                 if (remaining == 0)
                     active = 0;
-                s32 y = func_ov003_020843ec(0, self->args.position.y, self->args.position.z);
-                s32 x = func_ov003_020843b0(0, self->args.position.x);
+                s32 y = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
+                s32 x = CombatStage_ToScreenX(0, self->args.position.x);
                 if (func_ov003_020a66f4(&self->args.effect->streak, 0x18E, x, y, 0, 0) == 1)
-                    func_ov003_02087f28(0x56, self->args.position.x);
+                    CombatSe_PlayAtMainX(0x56, self->args.position.x);
             }
             for (s32 i = 0; i < 2; i++) {
                 if (Sprite_HasAnimation(&self->sprites[i].sprite))
@@ -85,8 +85,8 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003PsychoBomb* self = task->data;
-            s32              x    = func_ov003_020843b0(0, self->args.position.x);
-            s32              y    = func_ov003_020843ec(0, self->args.position.y, self->args.position.z);
+            s32              x    = CombatStage_ToScreenX(0, self->args.position.x);
+            s32              y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
             for (s32 i = 0; i < 2; i++) {
                 if (Sprite_HasAnimation(&self->sprites[i].sprite)) {
                     CombatSprite_SetPosition(&self->sprites[i], x, y);

@@ -9,9 +9,9 @@ static const Ov003SlashThunderKind data_ov003_020dd00c[4];
 // Nonmatching: coordinate and side-selection register scheduling differs.
 static s32 func_ov003_020b8e60(Ov003ShockWaveArgs* args, s32 x, s32 y) {
     s32          left    = 0;
-    s32          targetX = func_ov003_0208442c(0, x);
-    s32          targetY = func_ov003_02084460(0, y, -0x27000);
-    CombatActor* player  = data_ov003_020e71b8->unk3D898;
+    s32          targetX = CombatStage_ToWorldX(0, x);
+    s32          targetY = CombatStage_ToWorldY(0, y, -0x27000);
+    CombatActor* player  = g_CombatGlobal->unk3D898;
     s32          originX;
     s32          originY = player->position.y;
     if (targetX < player->position.x) {
@@ -84,17 +84,17 @@ s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage) {
             self->phase      = 0;
             self->kind       = arg->kind;
             self->lifetime   = arg->lifetime;
-            self->position.x = func_ov003_0208442c(0, (s16)arg->x);
-            self->position.y = func_ov003_02084460(0, (s16)arg->y, 0);
+            self->position.x = CombatStage_ToWorldX(0, (s16)arg->x);
+            self->position.y = CombatStage_ToWorldY(0, (s16)arg->y, 0);
             self->angle      = func_ov003_020a62d0(arg->x, arg->y, arg->previousX, arg->previousY);
-            func_ov003_020a3498(&self->sprite, 2, 1, data_ov003_020dd00c[self->kind].animations[self->phase], 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, data_ov003_020dd00c[self->kind].animations[self->phase], 1);
             s32 offset             = data_ov003_020dd00c[self->kind].offset;
             s32 dy                 = FX_Mul(offset, SIN2(FX_SinCosTable_, self->angle));
             s32 dx                 = FX_Mul(offset, COS2(FX_SinCosTable_, self->angle));
             s16 y                  = arg->y + (dy >> 12);
-            self->renderPosition.x = func_ov003_0208442c(0, (s16)(arg->x + (dx >> 12)));
-            self->renderPosition.y = func_ov003_02084460(0, y, 0);
-            func_ov003_02087f28(0x59, self->renderPosition.x);
+            self->renderPosition.x = CombatStage_ToWorldX(0, (s16)(arg->x + (dx >> 12)));
+            self->renderPosition.y = CombatStage_ToWorldY(0, y, 0);
+            CombatSe_PlayAtMainX(0x59, self->renderPosition.x);
             return 1;
         }
         case 1:
@@ -103,21 +103,21 @@ s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage) {
                 case 0:
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         self->phase++;
-                        func_ov003_020a35b8(&self->sprite, data_ov003_020dd00c[self->kind].animations[self->phase], 1);
-                        func_ov003_02087f28(0x59, self->renderPosition.x);
+                        CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dd00c[self->kind].animations[self->phase], 1);
+                        CombatSe_PlayAtMainX(0x59, self->renderPosition.x);
                     }
                     break;
                 case 1: {
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         CombatSprite_Restart(&self->sprite);
-                        func_ov003_02087f28(0x59, self->renderPosition.x);
+                        CombatSe_PlayAtMainX(0x59, self->renderPosition.x);
                     }
                     if (--self->lifetime == 0) {
                         self->phase++;
-                        func_ov003_020a35b8(&self->sprite, data_ov003_020dd00c[self->kind].animations[self->phase], 1);
+                        CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dd00c[self->kind].animations[self->phase], 1);
                     }
-                    s32 x        = func_ov003_020843b0(0, self->position.x);
-                    s32 y        = func_ov003_020843ec(0, self->position.y, 0);
+                    s32 x        = CombatStage_ToScreenX(0, self->position.x);
+                    s32 y        = CombatStage_ToScreenY(0, self->position.y, 0);
                     s32 dx       = FX_Mul(COS2(FX_SinCosTable_, self->angle), 0x12C000);
                     s32 dy       = FX_Mul(SIN2(FX_SinCosTable_, self->angle), 0x12C000);
                     s32 endX     = (dx + x * 0x1000) >> 12;
@@ -137,8 +137,8 @@ s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage) {
             return 1;
         case 2: {
             self  = task->data;
-            s32 y = func_ov003_020843ec(0, self->renderPosition.y, 0);
-            s32 x = func_ov003_020843b0(0, self->renderPosition.x);
+            s32 y = CombatStage_ToScreenY(0, self->renderPosition.y, 0);
+            s32 x = CombatStage_ToScreenX(0, self->renderPosition.x);
             CombatSprite_SetPosition(&self->sprite, x, y);
             self->affine.rotation             = self->angle;
             self->affine.scaleX               = (self->sprite.flags46 & 1) ? -0x1000 : 0x1000;

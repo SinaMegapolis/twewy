@@ -31,35 +31,35 @@ static const TaskHandle* const sBtlBarHpHandle = &Tsk_BtlBarHP;
 /// Plays the damage voice sample for the bar that just dropped below half, once the battle is in
 /// its "fighting" state (0x2). `arg0` selects the partner's sample table (`unk3D88D`).
 static void func_ov003_02098c28(s32 arg0, s32 arg1) {
-    if (data_ov003_020e71b8->unk3D874 != 2) {
+    if (g_CombatGlobal->unk3D874 != 2) {
         return;
     }
     if (arg0 == 0) {
         if (arg1 >= -0x50) {
             return;
         }
-        func_ov003_02087f28(0x36F, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+        CombatSe_PlayAtMainX(0x36F, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
         return;
     }
     if (arg1 <= 0x50) {
         return;
     }
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 0:
-            func_ov003_02087f64(0x397, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+            CombatSe_PlayAtSubX(0x397, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
             return;
         case 1:
-            func_ov003_02087f64(0x3BF, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+            CombatSe_PlayAtSubX(0x3BF, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
             return;
         case 2:
-            func_ov003_02087f64(0x3E7, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x);
+            CombatSe_PlayAtSubX(0x3E7, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
             return;
     }
 }
 
 /// Converts a gauge value to a bar width in pixels (a full bar is 0xA2 pixels wide).
 static s32 func_ov003_02098ce4(s16 value) {
-    s32 width = ((value << 12) / data_ov003_020e71b8->unk3D8D2) * 0xA2;
+    s32 width = ((value << 12) / g_CombatGlobal->unk3D8D2) * 0xA2;
 
     return (width << 4) >> 16;
 }
@@ -67,8 +67,8 @@ static s32 func_ov003_02098ce4(s16 value) {
 /// Resets a freshly created bar to the gauges' current values.
 static void func_ov003_02098d18(BtlBar* bar) {
     bar->flags   = 0;
-    bar->unk_3DA = data_ov003_020e71b8->unk3D8D4;
-    bar->unk_3DC = data_ov003_020e71b8->unk3D8D6;
+    bar->unk_3DA = g_CombatGlobal->unk3D8D4;
+    bar->unk_3DC = g_CombatGlobal->unk3D8D6;
     bar->unk_3EC = func_ov003_02098ce4(bar->unk_3DA);
     bar->unk_3EE = func_ov003_02098ce4(bar->unk_3DC);
     bar->unk_3E4 = bar->unk_3EC << 12;
@@ -90,16 +90,16 @@ static void func_ov003_02098da0(BtlBar* bar) {
     s32 other;
 
     bar->flags = 0;
-    if ((data_ov003_020e71b8->unk3D8D0 > 0) && (data_ov003_020e71b8->unk3D8D0 <= (data_ov003_020e71b8->unk3D8D2 >> 2))) {
+    if ((g_CombatGlobal->unk3D8D0 > 0) && (g_CombatGlobal->unk3D8D0 <= (g_CombatGlobal->unk3D8D2 >> 2))) {
         if (bar->unk_3F8 == 0) {
             CombatSprite_SetAnim(&bar->sprites[0], 5, 1);
             CombatSprite_SetAnim(&bar->sprites[5], 5, 1);
-            func_ov003_02087ed8(SEIDX_SE_WARNING);
+            CombatSe_Play(SEIDX_SE_WARNING);
             bar->unk_3F8 = 1;
         } else if (SpriteMgr_IsAnimationFinished(&bar->sprites[0].sprite)) {
             CombatSprite_Restart(&bar->sprites[0]);
             CombatSprite_Restart(&bar->sprites[5]);
-            func_ov003_02087ed8(SEIDX_SE_WARNING);
+            CombatSe_Play(SEIDX_SE_WARNING);
         }
     } else {
         CombatSprite_SetAnim(&bar->sprites[0], 0, 0);
@@ -107,22 +107,22 @@ static void func_ov003_02098da0(BtlBar* bar) {
         bar->unk_3F8 = 0;
     }
 
-    if (bar->unk_3DA < data_ov003_020e71b8->unk3D8D4) {
+    if (bar->unk_3DA < g_CombatGlobal->unk3D8D4) {
         bar->unk_3DE = 0x1E;
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3F0 = 1;
-    } else if (bar->unk_3DA > data_ov003_020e71b8->unk3D8D4) {
+    } else if (bar->unk_3DA > g_CombatGlobal->unk3D8D4) {
         bar->unk_3DE = 0x1E;
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3F0 = 2;
     } else if (bar->unk_3DE <= 0) {
         bar->unk_3F0 = 0;
     }
-    if (bar->unk_3DC < data_ov003_020e71b8->unk3D8D6) {
+    if (bar->unk_3DC < g_CombatGlobal->unk3D8D6) {
         bar->unk_3E0 = 0x1E;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3F4 = 1;
-    } else if (bar->unk_3DC > data_ov003_020e71b8->unk3D8D6) {
+    } else if (bar->unk_3DC > g_CombatGlobal->unk3D8D6) {
         bar->unk_3E0 = 0x1E;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3F4 = 2;
@@ -130,9 +130,9 @@ static void func_ov003_02098da0(BtlBar* bar) {
         bar->unk_3F4 = 0;
     }
 
-    bar->unk_3DA = data_ov003_020e71b8->unk3D8D4;
-    bar->unk_3DC = data_ov003_020e71b8->unk3D8D6;
-    bar->unk_3EC = func_ov003_02098ce4(data_ov003_020e71b8->unk3D8D4);
+    bar->unk_3DA = g_CombatGlobal->unk3D8D4;
+    bar->unk_3DC = g_CombatGlobal->unk3D8D6;
+    bar->unk_3EC = func_ov003_02098ce4(g_CombatGlobal->unk3D8D4);
     fixed        = (bar->unk_3E4 << 4) >> 16;
 
     width        = (bar->unk_3F0 == 2) ? fixed : bar->unk_3EC;
@@ -163,7 +163,7 @@ static void func_ov003_02098da0(BtlBar* bar) {
         bar->unk_3D6 = fixed - 0x50;
     }
 
-    bar->unk_3EE = func_ov003_02098ce4(data_ov003_020e71b8->unk3D8D6);
+    bar->unk_3EE = func_ov003_02098ce4(g_CombatGlobal->unk3D8D6);
     fixed        = (bar->unk_3E8 << 4) >> 16;
 
     target       = (bar->unk_3F4 == 2) ? fixed : bar->unk_3EE;
@@ -203,7 +203,7 @@ static void func_ov003_02098da0(BtlBar* bar) {
         bar->unk_3E0--;
     }
 
-    if (data_ov003_020e71b8->unk3D8D0 <= 0) {
+    if (g_CombatGlobal->unk3D8D0 <= 0) {
         bar->flags &= ~0x400;
         bar->flags &= ~0x800;
     }

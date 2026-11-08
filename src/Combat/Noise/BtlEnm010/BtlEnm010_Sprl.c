@@ -28,11 +28,11 @@ static char data_ov011_0212cc54[20];
 // function can be emitted in address order (the linker places functions
 // in source order).  Order within this block is unchanged.
 
-/// `func_ov003_0208a114` -- one argument; returns a pointer to the 0xC-byte record at
+/// `CombatHit_GetAttackInfo` -- one argument; returns a pointer to the 0xC-byte record at
 /// `base + index * 12` (`mla r0, 0xc, r0, table; bx lr`). The `u16` parameter is load-bearing:
 /// call sites truncate a computed selector with `lsl #0x10 / lsr #0x10`.
 
-/// `func_ov003_0208a164` -- five arguments (r0-r3 plus one stack word), returning 1 on success.
+/// `CombatHit_AttackAt` -- five arguments (r0-r3 plus one stack word), returning 1 on success.
 
 static s32 func_ov011_02128758(TaskPool* pool, Task* task, void* args, s32 stage);
 static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1);
@@ -42,9 +42,9 @@ static s32 func_ov011_02128c30(BtlEnm010Sprl* p);
 /// `CombatSprite_Update` (`CombatSprite_Update`) -- one argument, a `CombatSprite*`; ticks a
 /// palette timer behind the sprite's `flags46` bit 12. Declared in `Combat/Core/CombatSprite.h`.
 
-/// `func_ov003_020843b0` -- two arguments; turns a 4.12 y coordinate into a sound pan value.
+/// `CombatStage_ToScreenX` -- two arguments; turns a 4.12 y coordinate into a sound pan value.
 
-/// `func_ov003_02084348` -- six arguments: `mode`, two `s16*` out-parameters, then a raw
+/// `CombatStage_WorldToScreen` -- six arguments: `mode`, two `s16*` out-parameters, then a raw
 /// x/y/z triple. The two out-parameters are written through the pointers and read back as
 /// `ldrsh`, so they are `s16`, not `s32`.
 
@@ -66,7 +66,7 @@ s32 func_ov011_02128718(Ov003EnemyActor* owner) {
     Ov003EnemyActor* arg0;
 
     arg0 = owner;
-    return EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov011_0212c210, 0, 0, 0, &arg0);
+    return EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &data_ov011_0212c210, 0, 0, 0, &arg0);
 }
 
 /// `Tsk_BtlEnm010_Sprl`'s task entry, third of the three identical four-way dispatchers
@@ -144,7 +144,7 @@ static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
 /// `0xA4` accumulates its rate at `0xA8`, the `u16` angle at `0xAC` accumulates `0xAE` (wrapping
 /// at the halfword store), and `func_ov003_020cbcb4` writes the head's x/y -- `unk_070[0]` /
 /// `unk_084[0]` -- from angle and radius; the base at `0x9C`/`0xA0` is then added in. The
-/// `s16` flag at `0x64` plays SE `0x1DE` exactly once, its pan from `func_ov003_020843b0` against
+/// `s16` flag at `0x64` plays SE `0x1DE` exactly once, its pan from `CombatStage_ToScreenX` against
 /// the owner's `+0x28`.
 ///
 /// The clamp loop (`i = 1..4`) is a rope constraint: if joint `i` is further than
@@ -155,10 +155,10 @@ static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
 /// sum and its `>> 1` are spelled twice on purpose: the original folds the shifted operand into
 /// the `cmp` and materialises `r5` from a second `asr`.
 ///
-/// The render loop (`i = 0..4`) tints a `func_ov003_0208a114(0x57)` record with the half-radius
-/// byte and submits it through `func_ov003_0208a164` against the copied halfword block at `+0xB0`
+/// The render loop (`i = 0..4`) tints a `CombatHit_GetAttackInfo(0x57)` record with the half-radius
+/// byte and submits it through `CombatHit_AttackAt` against the copied halfword block at `+0xB0`
 /// with the joint's x/y and `unk_098` as z; a `== 1` result plays SE `0x1DA`. The exit test is
-/// `unk_0A4 > data_ov003_020e71b8 + 0x3D000 + 0x7CC` -- the four-hop global load, spelled with the
+/// `unk_0A4 > g_CombatGlobal + 0x3D000 + 0x7CC` -- the four-hop global load, spelled with the
 /// split bias exactly like the rest of this file.
 static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
     s32             dx;
@@ -185,11 +185,11 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
     if (p->unk_064 == 0) {
         p->unk_064 = p->unk_064 + 1;
         if (func_ov003_020c37f8(&p->sprite) != 0) {
-            pan = func_ov003_020843b0(1, p->unk_000->actor.position.x);
+            pan = CombatStage_ToScreenX(1, p->unk_000->actor.position.x);
         } else {
-            pan = func_ov003_020843b0(0, p->unk_000->actor.position.x);
+            pan = CombatStage_ToScreenX(0, p->unk_000->actor.position.x);
         }
-        func_ov003_02087f00(SEIDX_SE_010_SPIRALATTACK, pan);
+        CombatSe_PlayPanned(SEIDX_SE_010_SPIRALATTACK, pan);
     }
     for (i = 1; i < 5; i++) {
         dx   = p->unk_070[i] - p->unk_070[i - 1];
@@ -205,21 +205,21 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
     for (i = 0; i < 5; i++) {
         t         = (data_ov011_0212c21c[i] * 16) >> 12;
         v         = (s16)(t >> 1);
-        fx        = *func_ov003_0208a114(0x57);
+        fx        = *CombatHit_GetAttackInfo(0x57);
         fx.unk_05 = (u8)v;
         fx.unk_06 = (u8)v;
         fx.unk_07 = (u8)v;
-        if (func_ov003_0208a164(&fx, (Ov003AttackArgs*)p->unk_0B0, p->unk_070[i], p->unk_084[i], p->unk_098) == 1) {
+        if (CombatHit_AttackAt(&fx, (Ov003AttackArgs*)p->unk_0B0, p->unk_070[i], p->unk_084[i], p->unk_098) == 1) {
             s32 pan;
             if (func_ov003_020c37f8(&p->sprite) != 0) {
-                pan = func_ov003_020843b0(1, p->unk_070[i]);
+                pan = CombatStage_ToScreenX(1, p->unk_070[i]);
             } else {
-                pan = func_ov003_020843b0(0, p->unk_070[i]);
+                pan = CombatStage_ToScreenX(0, p->unk_070[i]);
             }
-            func_ov003_02087f00(SEIDX_SE_010_BUBBLEATTACK_HIT, pan);
+            CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, pan);
         }
     }
-    if (p->unk_0A4 > data_ov003_020e71b8->unk3D7C0[0].unk_0C) {
+    if (p->unk_0A4 > g_CombatGlobal->unk3D7C0[0].unk_0C) {
         return 0;
     }
     CombatSprite_Update(&p->sprite);
@@ -228,7 +228,7 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
 
 /// Sprl's phase-2 handler: five passes, each one projecting, positioning and then animating.
 ///
-/// `func_ov003_02084348`'s arguments are `(mode, out, out, x, y, z)` -- the reference spills
+/// `CombatStage_WorldToScreen`'s arguments are `(mode, out, out, x, y, z)` -- the reference spills
 /// `unk_084[i]` into the first stack slot and `unk_098` into the second, so y comes before the
 /// z height here, in the same order `func_ov011_021284bc` passes its position triple.
 static s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
@@ -239,7 +239,7 @@ static s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
 
     z = 0;
     for (i = 0; i < 5; i++) {
-        func_ov003_02084348(z, &v0, &v1, data->unk_070[i], data->unk_084[i], data->unk_098);
+        CombatStage_WorldToScreen(z, &v0, &v1, data->unk_070[i], data->unk_084[i], data->unk_098);
         CombatSprite_SetPosition(&data->sprite, v0, v1);
         func_ov003_02082730(&data->sprite, 0x7FFFFFFF - data->unk_084[i]);
         CombatSprite_SetAffineTransform(&data->sprite, z, data_ov011_0212c21c[i], data_ov011_0212c21c[i], z);

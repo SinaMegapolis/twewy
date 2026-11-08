@@ -40,7 +40,7 @@ static s32 func_ov003_020ad364(TaskPool* pool, Task* task, void* args, s32 stage
             self->range        = arg->range;
             self->ticks        = 0;
             self->traveled     = 0;
-            func_ov003_020a3498(&self->sprite, 2, 1, arg->animation, 0);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, arg->animation, 0);
             for (s32 i = 0; i < 3; i++)
                 self->trailIds[i] =
                     func_ov003_020a8e74(self->position.x >> 12, self->position.y >> 12, 2, i + 0x71, 16, 0, -1);

@@ -11,7 +11,7 @@ static void             func_ov003_020ae350(Ov003ElementR* self);
 static void             func_ov003_020ae3a4(Ov003ElementR* self);
 
 s32 func_ov003_020ade84(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(3))
+    if (!CombatTouch_IsGesture(3))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc7a0.taskName);
     *arg                   = effect;
@@ -34,9 +34,9 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
             self->position.x = touch->x;
             self->position.y = touch->y;
             self->cancelled  = 0;
-            func_ov003_020a3498(&self->sprites[0], 2, 1, 0x6C, 1);
-            func_ov003_020a3498(&self->sprites[1], 2, 1, 0x6F, 0);
-            func_ov003_020a3498(&self->sprites[2], 2, 1, 0x82, 0);
+            CombatPsyAnim_Load(&self->sprites[0], 2, 1, 0x6C, 1);
+            CombatPsyAnim_Load(&self->sprites[1], 2, 1, 0x6F, 0);
+            CombatPsyAnim_Load(&self->sprites[2], 2, 1, 0x82, 0);
             for (s32 i = 0; i < 3; i++)
                 func_ov003_020a8e74(self->position.x, self->position.y, 2, i + 0x71, 8, 0, 20);
             func_ov003_020ae3a4(self);
@@ -70,7 +70,7 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
                 case 1:
                     if (SpriteMgr_IsAnimationFinished(&self->sprites[0].sprite)) {
-                        func_ov003_020a35b8(&self->sprites[0], 0x6E, 0);
+                        CombatPsyAnim_SetAnim(&self->sprites[0], 0x6E, 0);
                         self->phase          = 2;
                         self->releasedFrames = 0;
                         self->auraOpacity    = 0x3000;
@@ -81,13 +81,13 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                     break;
                 case 2:
-                    if (func_ov003_02085cfc(3))
+                    if (CombatTouch_IsGesture(3))
                         self->releasedFrames = 0;
                     if (self->releasedFrames == 0) {
                         for (s32 i = 0; i < 3; i++)
                             func_ov003_020ae350(self);
                         func_ov003_020a5a94(self->effect);
-                        func_ov003_02087f00(SEIDX_SE_PSY_EGENERATE_SHOT01_01, (s16)self->position.x);
+                        CombatSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_SHOT01_01, (s16)self->position.x);
                     }
                     if (++self->releasedFrames >= 30)
                         func_ov003_020ae324(self);
@@ -101,7 +101,7 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
             }
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_EGENERATE_BOOT01_01))
-                func_ov003_02087f00(SEIDX_SE_PSY_EGENERATE_BOOT01_01, (s16)self->position.x);
+                CombatSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_BOOT01_01, (s16)self->position.x);
             if (self->phase != 0) {
                 CombatSprite_Update(&self->sprites[0]);
                 CombatSprite_Update(&self->sprites[1]);
@@ -143,7 +143,7 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
 
 static void func_ov003_020ae324(Ov003ElementR* self) {
     func_ov003_020a6464(0);
-    func_ov003_020a35b8(&self->sprites[0], 0x6D, 1);
+    CombatPsyAnim_SetAnim(&self->sprites[0], 0x6D, 1);
     self->phase = 3;
 }
 

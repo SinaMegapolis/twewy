@@ -13,35 +13,69 @@ src/Combat/Core/CombatActor.c:
     complete
     .text       start:0x02082d10 end:0x02083300
 
-src/Combat/Core/ov003_02083300.c:
-    .text       start:0x02083300 end:0x02083950
-    .rodata     start:0x020d422c end:0x020d4f74
-    .data       start:0x020e3780 end:0x020e38f0
+src/Combat/Core/CombatBgRes.c:
+    complete
+    .text       start:0x02083300 end:0x0208380c
 
-src/Combat/Core/ov003_02083950.c:
-    .text       start:0x02083950 end:0x02086404
-    .rodata     start:0x020d4f74 end:0x020d5370
-    .data       start:0x020e38f0 end:0x020e391c
+src/Combat/Core/CombatStage.c:
+    .text       start:0x0208380c end:0x02084498
+
+src/Combat/Core/CombatCollision.c:
+    .text       start:0x02084498 end:0x02084880
     .bss        start:0x020e71a0 end:0x020e71b8
 
-src/Combat/Core/ov003_020864c0.c:
-    .text       start:0x02086404 end:0x02087b7c
-    .rodata     start:0x020d5370 end:0x020d7620
+src/Combat/Core/CombatList.c:
+    complete
+    .text       start:0x02084880 end:0x02084a30
+
+src/Combat/Core/CombatDebug.c:
+    .text       start:0x02084a30 end:0x02085104
+
+src/Combat/Core/CombatTouch.c:
+    .text       start:0x02085104 end:0x020862a4
+
+src/Combat/Core/CombatAttackInfo.c:
+    complete
+    .rodata     start:0x020d422c end:0x020d54f8
+
+src/Combat/Core/CombatObsSpawn.c:
+    .rodata     start:0x020d54f8 end:0x020d6ab0
+    .data       start:0x020e3780 end:0x020e38f0
+
+src/Combat/Core/CombatEnmOverlay.c:
+    complete
+    .rodata     start:0x020d6ab0 end:0x020d6fac
+
+src/Combat/Core/CombatSpriteDefault.c:
+    complete
+    .data       start:0x020e38f0 end:0x020e391c
+
+src/Combat/Core/CombatSys.c:
+    .text       start:0x020862a4 end:0x02087b7c
+    .rodata     start:0x020d6fac end:0x020d7620
+    .data       start:0x020e391c end:0x020e3934
     .bss        start:0x020e71b8 end:0x020e71bc
 
-src/Combat/Core/ov003_02087b7c.c:
-    .text       start:0x02087b7c end:0x0208a488
-    .rodata     start:0x020d7620 end:0x020d77d0
-    .data       start:0x020e391c end:0x020e397c
+src/Combat/Psych/BtlPsy_Instant.c:
+    .text       start:0x02087b7c end:0x02087ed8
+    .data       start:0x020e3934 end:0x020e397c
 
-src/Combat/Core/ov003_0208a488.c:
-    .text       start:0x0208a488 end:0x0208ee20
+src/Combat/Core/CombatSe.c:
+    complete
+    .text       start:0x02087ed8 end:0x02087fa0
+
+src/Combat/Core/CombatHit.c:
+    .text       start:0x02087fa0 end:0x0208a488
+    .rodata     start:0x020d7620 end:0x020d77d0
+
+src/Combat/Core/BtlMgr.c:
+    .text       start:0x0208a488 end:0x0208ecb4
     .rodata     start:0x020d77d0 end:0x020d78f0
     .data       start:0x020e397c end:0x020e3ad4
 
 src/Combat/Core/BtlTch/BtlTch.c:
     complete
-    .text       start:0x0208ee20 end:0x0208efb8
+    .text       start:0x0208ecb4 end:0x0208efb8
     .rodata     start:0x020d78f0 end:0x020d790c
     .data       start:0x020e3ad4 end:0x020e3ae0
 
@@ -303,27 +337,62 @@ src/Combat/Core/BtlInf/BtlInf_ShowVal.c:
     .rodata     start:0x020d8880 end:0x020d889c
     .data       start:0x020e3e50 end:0x020e3e64
 
-src/Combat/Core/ov003_020a30d4.c:
-    .text       start:0x020a30d4 end:0x020a3b9c
-    .rodata     start:0x020d889c end:0x020dc03c
-    .data       start:0x020e3e64 end:0x020e4868
+src/Combat/Core/BtlField/BtlFieldScript_RG.c:
+    .rodata     start:0x020d889c end:0x020d9a80
+    .data       start:0x020e3e64 end:0x020e3f0c
 
-src/Combat/Core/ov003_020a3b9c.c:
-    .text       start:0x020a3b9c end:0x020a5080
+src/Combat/Core/BtlField/BtlFieldScript_UG.c:
+    .rodata     start:0x020d9a80 end:0x020d9afc
+    .data       start:0x020e3f0c end:0x020e3f18
+
+src/Combat/Core/BtlField/BtlFieldExtra.c:
+    complete
+    .rodata     start:0x020d9afc end:0x020d9b14
+
+src/Combat/Core/BtlField/BtlFieldDef_RG.c:
+    .rodata     start:0x020d9b14 end:0x020da10c
+    .data       start:0x020e3f18 end:0x020e41f8
+
+src/Combat/Core/BtlField/BtlFieldDef_UG.c:
+    .rodata     start:0x020da10c end:0x020da738
+    .data       start:0x020e41f8 end:0x020e44f8
+
+src/Combat/Core/CombatAbility.c:
+    .text       start:0x020a30d4 end:0x020a3498
+    .rodata     start:0x020da738 end:0x020da74c
+    .data       start:0x020e44f8 end:0x020e4528
+
+src/Combat/Core/CombatPsyAnim.c:
+    .text       start:0x020a3498 end:0x020a35d8
+    .rodata     start:0x020da74c end:0x020dc03c
+    .data       start:0x020e4528 end:0x020e4868
+
+src/Combat/Badge/BtlBadgeMgr.c:
+    .text       start:0x020a35d8 end:0x020a3b9c
+
+src/Combat/Badge/BtlBadgeActor.c:
+    .text       start:0x020a3b9c end:0x020a4a34
     .rodata     start:0x020dc03c end:0x020dc228
     .data       start:0x020e4868 end:0x020e48b0
 
+src/Combat/Core/CombatPsyTrail.c:
+    .text       start:0x020a4a34 end:0x020a4e84
+
+src/Combat/Core/CombatCameraShake.c:
+    complete
+    .text       start:0x020a4e84 end:0x020a4ff0
+
 src/Combat/Core/BtlMic.c:
-    .text       start:0x020a5080 end:0x020a5250
+    .text       start:0x020a4ff0 end:0x020a5250
     .rodata     start:0x020dc228 end:0x020dc234
     .data       start:0x020e48b0 end:0x020e48bc
 
-src/Combat/Core/ov003_020a5250.c:
+src/Combat/Core/CombatPsych.c:
     .text       start:0x020a5250 end:0x020a5db8
     .rodata     start:0x020dc234 end:0x020dc560
     .data       start:0x020e48bc end:0x020e48e0
 
-src/Combat/Core/ov003_020a5db8.c:
+src/Combat/Core/CombatPsyUtil.c:
     .text       start:0x020a5db8 end:0x020a6d24
     .rodata     start:0x020dc560 end:0x020dc5c0
 
@@ -692,14 +761,9 @@ src/Combat/Psych/BtlPsy_Heal.c:
 
 src/Combat/Psych/BtlPsy_Blur_.c:
     complete
-    .text       start:0x020b6978 end:0x020b69f8
-    .rodata     start:0x020dcae8 end:0x020dcaf4
+    .text       start:0x020b6978 end:0x020b6b20
+    .rodata     start:0x020dcae8 end:0x020dcb04
     .data       start:0x020e4f0c end:0x020e4f1c
-
-src/Combat/Core/ov003_020b69f8.c:
-    complete
-    .text       start:0x020b69f8 end:0x020b6b20
-    .rodata     start:0x020dcaf4 end:0x020dcb04
 
 src/Combat/Psych/BtlPsy_ShockWave_Body.c:
     .text       start:0x020b6b20 end:0x020b7bf4
@@ -827,22 +891,30 @@ src/Combat/Core/BtlActSp00.c:
     .data       start:0x020e53e4 end:0x020e53f4
     .bss        start:0x020e71d8 end:0x020e71e4
 
-src/Combat/Core/ov003_020c2064.c:
+src/Combat/Core/CombatEnemy.c:
     .text       start:0x020c2064 end:0x020c41e8
     .rodata     start:0x020ddb1c end:0x020e06f4
     .data       start:0x020e53f4 end:0x020e69c0
     .bss        start:0x020e71e4 end:0x020e7204
 
-src/Combat/Core/ov003_020c41e8.c:
-    .text       start:0x020c41e8 end:0x020c703c
-    .rodata     start:0x020e06f4 end:0x020e0a38
+src/Combat/Core/BtlBoss.c:
+    complete
+    .rodata     start:0x020e06f4 end:0x020e071c
     .data       start:0x020e69c0 end:0x020e6a30
+
+src/Combat/Core/CombatEnemyAi.c:
+    .text       start:0x020c41e8 end:0x020c73a0
+    .rodata     start:0x020e071c end:0x020e09f8
     .bss        start:0x020e7204 end:0x020e7254
 
+src/Combat/Core/CombatEnemyGroup.c:
+    .rodata     start:0x020e09f8 end:0x020e0a38
+    .data       start:0x020e6a30 end:0x020e6b38
+
 src/Combat/Core/BossExp1.c:
-    .text       start:0x020c703c end:0x020c9018
+    .text       start:0x020c73a0 end:0x020c9018
     .rodata     start:0x020e0a38 end:0x020e0b74
-    .data       start:0x020e6a30 end:0x020e6b64
+    .data       start:0x020e6b38 end:0x020e6b64
 
 src/Combat/Core/BtlEff/BtlEff_SideMove.c:
     .text       start:0x020c9018 end:0x020c96e4
@@ -976,7 +1048,9 @@ src/Combat/EnemyShot/BtlEnmShot_WindMill.c:
     .rodata     start:0x020e0cec end:0x020e0cf8
     .data       start:0x020e6dc0 end:0x020e6dd8
 
-src/Combat/Core/ov003_020d36fc.c:
+src/Combat/Core/CombatAnim.c:
     .text       start:0x020d36fc end:0x020d422c
+
+src/Combat/Core/CombatEnemyParam.c:
     .rodata     start:0x020e0cf8 end:0x020e3764
     .data       start:0x020e6dd8 end:0x020e71a0

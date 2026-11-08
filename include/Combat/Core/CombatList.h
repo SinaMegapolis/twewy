@@ -15,4 +15,13 @@ typedef struct CombatList {
     /* 0x4 */ CombatListNode* tail;
 } CombatList; // Size: 0x8
 
+void* CombatList_GetHead(CombatList*);
+void* CombatList_GetTail(CombatList* list);
+void* CombatList_GetNext(CombatListNode*);
+void* CombatList_GetPrev(CombatListNode*);
+void  CombatList_Init(CombatList*);
+void  CombatList_Append(CombatList*, CombatListNode*, void*);
+void* CombatList_Remove(CombatList*, CombatListNode*);
+void  CombatList_InsertBefore(CombatList* list, CombatListNode* before, CombatListNode* node, void* item);
+
 #endif

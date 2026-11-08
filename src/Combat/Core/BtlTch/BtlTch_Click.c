@@ -11,19 +11,17 @@ typedef struct BtlTchClick {
     /* 0x60 */ BOOL         isActive;
 } BtlTchClick; // Size: 0x64
 
-extern const BinIdentifier data_ov003_020d6fac;
-
 static s32 BtlTch_Click_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlTch_Click = {"Tsk_BtlTch_Click", BtlTch_Click_RunTask, sizeof(BtlTchClick)};
 
 static s32 BtlTch_Click_Init(TaskPool* pool, Task* task, void* args) {
     BtlTchClick*  effect = task->data;
-    BtlTouchWork* input  = &data_ov003_020e71b8->touchWork;
+    BtlTouchWork* input  = &g_CombatGlobal->touchWork;
 
     MI_CpuSet(effect, 0, sizeof(*effect));
     effect->isActive = TRUE;
-    CombatSprite_LoadDirect(2, &effect->sprite, &data_ov003_020d6fac, 1, 3, 2, 4, 1);
+    CombatSprite_LoadDirect(2, &effect->sprite, &Iden_BtlTch, 1, 3, 2, 4, 1);
     if (input->tapCount < 1) {
         CombatSprite_SetAnim(&effect->sprite, 1, 1);
     } else if (input->tapCount < 5) {

@@ -43,10 +43,10 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
             self->heldFrames = 0;
             self->holdTimer  = 5;
             self->spawnTimer = 0;
-            func_ov003_020a3498(&self->sprites[2], 2, 1, 0xCD, 0);
-            func_ov003_020a3498(&self->sprites[1], 2, 1, 0xCC, 0);
-            func_ov003_020a3498(&self->sprites[0], 2, 1, 0xCC, 0);
-            func_ov003_02087f28(0x4F, self->unit->actor.position.x);
+            CombatPsyAnim_Load(&self->sprites[2], 2, 1, 0xCD, 0);
+            CombatPsyAnim_Load(&self->sprites[1], 2, 1, 0xCC, 0);
+            CombatPsyAnim_Load(&self->sprites[0], 2, 1, 0xCC, 0);
+            CombatSe_PlayAtMainX(0x4F, self->unit->actor.position.x);
             self->angle = 0;
             func_ov003_020a5d88(self->particles, 6, 7);
             return 1;
@@ -87,9 +87,9 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                         s32 y;
                         s32 x;
                         self->spawnTimer = 10;
-                        y                = func_ov003_02084460(0, (s16)(self->unit->actor.screenY - self->unit->actor.unk_76),
-                                                               self->unit->actor.position.z);
-                        x                = func_ov003_0208442c(0, self->unit->actor.screenX);
+                        y                = CombatStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.unk_76),
+                                                                self->unit->actor.position.z);
+                        x                = CombatStage_ToWorldX(0, self->unit->actor.screenX);
                         func_ov003_020a88c0(&effectArgs0, x, y, self->unit->actor.position.z, 2, 0xCE);
                         func_ov003_020a899c(&effectArgs0, 0);
                         func_ov003_020a89b0(&effectArgs0, 0x1E);
@@ -103,15 +103,15 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                     if (self->angle > 0x800) {
                         self->angle = 0x800;
                         self->state = 2;
-                        func_ov003_02087f28(0x50, self->unit->actor.position.x);
+                        CombatSe_PlayAtMainX(0x50, self->unit->actor.position.x);
                     }
                     if (self->spawnTimer == 0) {
                         s32 y;
                         s32 x;
                         self->spawnTimer = 5;
-                        y                = func_ov003_02084460(0, (s16)(self->unit->actor.screenY - self->unit->actor.unk_76),
-                                                               self->unit->actor.position.z);
-                        x                = func_ov003_0208442c(0, self->unit->actor.screenX);
+                        y                = CombatStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.unk_76),
+                                                                self->unit->actor.position.z);
+                        x                = CombatStage_ToWorldX(0, self->unit->actor.screenX);
                         func_ov003_020a88c0(&effectArgs1, x, y, self->unit->actor.position.z, 2, 0xCE);
                         func_ov003_020a899c(&effectArgs1, 0);
                         func_ov003_020a89b0(&effectArgs1, 0x1E);
@@ -123,7 +123,7 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                 case 2:
                     if (func_ov003_020a6568(&self->effect->streak, 0x16A, self->unit, self->unit->actor.position.x, 0,
                                             self->effect->unk_08 >= 8 ? (u16)0x11 : (u16)0) == 1)
-                        func_ov003_02087f28(0x51, self->unit->actor.position.x);
+                        CombatSe_PlayAtMainX(0x51, self->unit->actor.position.x);
                     func_ov003_020a5a94(self->effect);
                     break;
                 case 3:
@@ -207,9 +207,9 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
 static Ov003EnemyActor* func_ov003_020b1c50(void) {
     BtlTouchWork*    touch;
     Ov003EnemyActor* unit;
-    if (!func_ov003_02085cfc(6))
+    if (!CombatTouch_IsGesture(6))
         return NULL;
-    if (func_ov003_02085d3c(1))
+    if (CombatTouch_IsTargetKind(1))
         return NULL;
     touch = func_ov003_020a62a0();
     unit  = (Ov003EnemyActor*)touch->held;

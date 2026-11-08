@@ -38,7 +38,7 @@ void func_ov003_020a6f90(Ov003TouchActor* actor, s32 arg1) {
 
     sp8.unk_04 = arg1;
     sp8.actor  = actor;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc5cc, NULL, 0, NULL, &sp8);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5cc, NULL, 0, NULL, &sp8);
 }
 
 static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -73,8 +73,7 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
             BtlBadgeConditionBoot* self = task->data;
             Ov003TouchActor*       slots[6];
 
-            if (data_ov003_020e71b8->unk3D884 != 0 || (data_ov003_020e71b8->unk3D878 & 6) != 0 ||
-                (data_ov003_020e71b8->unk3D878 & 0x40) != 0)
+            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
             {
                 return 1;
             }
@@ -90,12 +89,12 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
                     return 0;
             }
             if (self->unk_04 == 0) {
-                if (data_ov003_020e71b8->unk3D874 == 2) {
+                if (g_CombatGlobal->unk3D874 == 2) {
                     s32 triggered = self->unk_08 == 2 && func_ov003_020a5ac4(slots, 6, &self->actor->effect, 0) != 0;
 
                     if (triggered) {
-                        func_ov003_02087ed8(SEIDX_SE_PSY_FULL);
-                        func_ov003_020a4390(self->actor, 3);
+                        CombatSe_Play(SEIDX_SE_PSY_FULL);
+                        BtlBadgeActor_Request(self->actor, 3);
                         return 0;
                     }
                 }
@@ -109,10 +108,10 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
             s32                    posX;
             s32                    posY;
 
-            if (func_ov003_02084d80(0) == 1) {
+            if (CombatDebug_GetSetting(0) == 1) {
                 return 1;
             }
-            if ((data_ov003_020e71b8->unk3D878 & 6) != 0 || data_ov003_020e71b8->unk3D884 != 0) {
+            if ((g_CombatGlobal->unk3D878 & 6) != 0 || g_CombatGlobal->unk3D884 != 0) {
                 return 1;
             }
             actor = self->actor;

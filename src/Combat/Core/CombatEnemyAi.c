@@ -3,6 +3,7 @@
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
+#include "Combat/Core/CombatEnemyGroup.h"
 #include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/Core/Memory.h"
@@ -21,11 +22,11 @@
 // Types
 // ---------------------------------------------------------------------------------------------
 
-/// The 3D motion track of a cut-in actor pair: an engine id plus two 20.12 positions.
-/// `func_ov003_02084634` seeds it, `func_ov003_020846ac` retargets it and
-/// `func_ov003_020846c0` integrates the offsets at 0x20/0x24 into the actor position.
+/// The 3D motion track of a noise pair: an engine id plus two 20.12 positions.
+/// `CombatCollision_Add` seeds it, `CombatCollision_SetPosition` retargets it and
+/// `CombatCollision_ApplyPush` integrates the offsets at 0x20/0x24 into the actor position.
 
-/// The per-actor tuning record fetched from `data_ov003_020e70ac[group][sprite]`.
+/// The per-actor tuning record fetched from `CombatEnemyParam_Table[group][sprite]`.
 
 /// Four entries of `data_ov003_020e071c`/`data_ov003_020e0720` (0xC bytes per actor group).
 typedef struct Ov003CutinCmdIds {
@@ -49,22 +50,6 @@ typedef struct Ov02071cf0State {
 static s32 func_ov003_020c59cc(Ov003EnemyActor* actor);
 static s32 func_ov003_020c59e0(Ov003EnemyActor* actor);
 
-static char data_ov003_020e69c0[0x1C] = "Apl_Mor/Grp_BtlBoss16.bin";
-static char data_ov003_020e69dc[0x1C] = "Apl_Mor/Grp_BtlBoss15.bin";
-static char data_ov003_020e69f8[0x1C] = "Apl_Mor/Grp_BtlBoss15b.bin";
-static char data_ov003_020e6a14[0x1C] = "Apl_Mor/Grp_BtlBoss16b.bin";
-
-/// Sprite resource descriptors: a resource kind plus the pack the sprite is loaded from.
-typedef struct Ov003CutinSpriteRes {
-    /* 0x0 */ u32         type;
-    /* 0x4 */ const char* path;
-} Ov003CutinSpriteRes; // Size: 0x8
-
-const Ov003CutinSpriteRes data_ov003_020e06f4    = {3, data_ov003_020e69c0};
-const Ov003CutinSpriteRes data_ov003_020e06fc    = {3, data_ov003_020e6a14};
-const Ov003CutinSpriteRes data_ov003_020e0704    = {3, data_ov003_020e69dc};
-const u32                 data_ov003_020e070c[4] = {3, (u32)data_ov003_020e69f8, 0x14, 0x00010000};
-
 static const u32 data_ov003_020e071c[1]    = {0x56C};
 static const u32 data_ov003_020e0720[1]    = {0x18F};
 static const u32 data_ov003_020e0724[0xB5] = {
@@ -81,13 +66,6 @@ static const u32 data_ov003_020e0724[0xB5] = {
     0x56C, 0x56C, 0x2AC, 0x56C, 0x56C, 0x165, 0x56C, 0x56C, 0x56C, 0x56C, 0x56C,
 };
 
-const u8 data_ov003_020e09f8[0x40] = {
-    0x07, 0x07, 0x08, 0x09, 0x0A, 0x0C, 0x0D, 0x0E, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-    0x18, 0x19, 0x19, 0x19, 0x19, 0x19, 0x19, 0x19, 0x19, 0x19, 0x19, 0x19, 0x19, 0x19, 0x1B, 0x1A,
-    0x0A, 0x0B, 0x0F, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x20, 0x20, 0x20, 0x20, 0x20,
-    0x1F, 0x23, 0x23, 0x24, 0x24, 0x1E, 0x22, 0x1C, 0x1C, 0x1D, 0x1D, 0x04, 0x00, 0x00, 0x00, 0x00,
-};
-
 u32 data_ov003_020e7204[0xA];
 u32 data_ov003_020e722c[0xA];
 
@@ -95,14 +73,11 @@ u32 data_ov003_020e722c[0xA];
 // Data owned by neighbouring units / arm9
 // ---------------------------------------------------------------------------------------------
 
-extern u8     data_ov003_020e6a30[];
-extern void** data_ov003_020e6a44[];
-
 // ---------------------------------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------------------------------
 
-/// Resets a cut-in actor to its idle defaults (a fresh 0x1C0-byte actor block).
+/// Resets a noise to its idle defaults (a fresh 0x1C0-byte actor block).
 void func_ov003_020c41e8(Ov003CutinActor* actor) {
     MI_CpuSet(actor, 0U, 0x1C0U);
     CombatActor_Init(&actor->base.actor, 1);
@@ -151,7 +126,7 @@ s16 func_ov003_020c42ec(Ov003EnemyActor* actor) {
     return (s16)(actor->unk_198 + RNG_Next((u32)actor->unk_19A));
 }
 
-/// Rolls the cut-in's hit chance for the active partner.
+/// Rolls the noise's hit chance for the active partner.
 s32 func_ov003_020c4348(Ov003EnemyActor* actor) {
     if (func_ov003_020c37f8(&actor->sprite) != 0) {
         if ((s32)RNG_Next(0x64U) < (s32)actor->unk_1A2) {
@@ -213,7 +188,7 @@ s32 func_ov003_020c44ac(Ov003EnemyActor* actor) {
         return 0;
     }
     func_ov003_020c4264(actor);
-    func_ov003_020880e4(1, &actor->subSprite, actor);
+    CombatHit_LoadSparkForUnit(1, &actor->subSprite, actor);
     func_ov003_020c4988(actor);
     func_ov003_020c44a4(actor);
     return result;
@@ -231,9 +206,9 @@ s32 func_ov003_020c4520(Ov003EnemyActor* actor) {
     if (result == 0) {
         return 0;
     }
-    func_ov003_020880e4(0, &actor->subSprite, actor);
+    CombatHit_LoadSparkForUnit(0, &actor->subSprite, actor);
     func_ov003_020c49c8(actor);
-    func_ov003_02084634(&actor->collider, 1, params->unk_03, params->unk_04);
+    CombatCollision_Add(&actor->collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(actor);
     return result;
 }
@@ -250,9 +225,9 @@ s32 func_ov003_020c45a4(Ov003CutinActor* actor) {
     if (result == 0) {
         return 0;
     }
-    func_ov003_020880e4(0, &actor->base.subSprite, &actor->base);
+    CombatHit_LoadSparkForUnit(0, &actor->base.subSprite, &actor->base);
     func_ov003_020c49c8(&actor->base);
-    func_ov003_02084634(&actor->base.collider, 1, params->unk_03, params->unk_04);
+    CombatCollision_Add(&actor->base.collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(&actor->base);
     return result;
 }
@@ -276,19 +251,20 @@ void func_ov003_020c4668(Ov003EnemyActor* actor) {
     }
     CombatActor_UpdatePhysics(&actor->actor);
     if (!(actor->flags18C & 4) && (actor->collider.flags != 0)) {
-        func_ov003_020846c0(&actor->collider, &actor->actor.position.x, &actor->actor.position.y, &actor->actor.position.z);
+        CombatCollision_ApplyPush(&actor->collider, &actor->actor.position.x, &actor->actor.position.y,
+                                  &actor->actor.position.z);
     }
     if (func_ov003_020c59f4(actor) == 0) {
         if (actor->actor.flags & 0x10000000) {
             s16 v = actor->actor.unk_70;
-            func_ov003_02083bfc(&actor->actor.position.y, (v / 2) << 0xC, actor->actor.position.x);
+            CombatStage_ClampY(&actor->actor.position.y, (v / 2) << 0xC, actor->actor.position.x);
         } else {
             s16 v = actor->actor.unk_70;
-            func_ov003_02083ca0(&actor->actor.position.x, &actor->actor.position.y, v << 0xC, (v / 2) << 0xC);
+            CombatStage_ClampXY(&actor->actor.position.x, &actor->actor.position.y, v << 0xC, (v / 2) << 0xC);
         }
     }
     half = 0;
-    func_ov003_020846ac(&actor->collider, actor->actor.position.x, actor->actor.position.y, actor->actor.position.z);
+    CombatCollision_SetPosition(&actor->collider, actor->actor.position.x, actor->actor.position.y, actor->actor.position.z);
     CombatSprite_Update(&actor->sprite);
     CombatSprite_Update(&actor->subSprite);
 }
@@ -350,7 +326,7 @@ void func_ov003_020c4878(void* arg) {
     }
     func_ov003_020c4748(&actor->base);
     CombatActor_Render(&actor->base.actor, &actor->base.sprite);
-    func_ov003_0208810c(&actor->base.subSprite, &actor->base.actor);
+    CombatHit_DrawSparkOnActor(&actor->base.subSprite, &actor->base.actor);
 }
 
 void func_ov003_020c48b0(Ov003EnemyActor* actor) {
@@ -364,7 +340,7 @@ void func_ov003_020c48b0(Ov003EnemyActor* actor) {
     }
     func_ov003_020c4748(actor);
     CombatActor_Render(&actor->actor, &actor->sprite);
-    func_ov003_0208810c(&actor->subSprite, &actor->actor);
+    CombatHit_DrawSparkOnActor(&actor->subSprite, &actor->actor);
 }
 
 void func_ov003_020c48fc(void* arg) {
@@ -382,7 +358,7 @@ void func_ov003_020c492c(Ov003EnemyActor* actor) {
     func_ov003_020c4a74(actor);
     CombatSprite_Release(&actor->sprite);
     CombatSprite_Release(&actor->subSprite);
-    func_ov003_02084678(&actor->collider);
+    CombatCollision_Remove(&actor->collider);
 }
 
 void func_ov003_020c495c(Ov003EnemyActor* actor) {
@@ -398,7 +374,7 @@ void func_ov003_020c4988(Ov003EnemyActor* actor) {
         return;
     }
     actor->flags18C = (u16)(actor->flags18C | 2);
-    func_ov003_020849bc(&data_ov003_020e71b8->unk3D8AC, &actor->node, actor);
+    CombatList_Append(&g_CombatGlobal->unk3D8AC, &actor->node, actor);
 }
 
 void func_ov003_020c49c8(Ov003EnemyActor* actor) {
@@ -406,7 +382,7 @@ void func_ov003_020c49c8(Ov003EnemyActor* actor) {
         return;
     }
     actor->flags18C = (u16)(actor->flags18C | 2);
-    func_ov003_020849bc(&data_ov003_020e71b8->unk3D8A4, &actor->node, actor);
+    CombatList_Append(&g_CombatGlobal->unk3D8A4, &actor->node, actor);
 }
 
 void func_ov003_020c4a08(Ov003CutinActor* actor) {
@@ -422,7 +398,7 @@ s32 func_ov003_020c4a34(Ov003EnemyActor* actor) {
         return 0;
     }
     actor->flags18C = (u16)(actor->flags18C & ~2);
-    return (s32)func_ov003_020849dc(&data_ov003_020e71b8->unk3D8AC, &actor->node);
+    return (s32)CombatList_Remove(&g_CombatGlobal->unk3D8AC, &actor->node);
 }
 
 s32 func_ov003_020c4a74(Ov003EnemyActor* actor) {
@@ -430,7 +406,7 @@ s32 func_ov003_020c4a74(Ov003EnemyActor* actor) {
         return 0;
     }
     actor->flags18C = (u16)(actor->flags18C & ~2);
-    return (s32)func_ov003_020849dc(&data_ov003_020e71b8->unk3D8A4, &actor->node);
+    return (s32)CombatList_Remove(&g_CombatGlobal->unk3D8A4, &actor->node);
 }
 
 /// Faces the main sprite towards (1) or away from (0) the sub screen.
@@ -454,7 +430,7 @@ void func_ov003_020c4af0(Ov003EnemyActor* actor) {
 
 /// Declared `int`: noise callers treat it like an undeclared (implicitly `int`) function.
 s32 func_ov003_020c4b1c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x) {
+    if (actor->actor.position.x < ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -462,7 +438,7 @@ s32 func_ov003_020c4b1c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4b5c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x) {
+    if (actor->actor.position.x < ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -470,7 +446,7 @@ void func_ov003_020c4b5c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4b9c(Ov003CutinActor* actor) {
-    if (actor->base.actor.position.x < ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x) {
+    if (actor->base.actor.position.x < ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) {
         func_ov003_020c4ab4(&actor->base, 0);
         return;
     }
@@ -478,7 +454,7 @@ void func_ov003_020c4b9c(Ov003CutinActor* actor) {
 }
 
 void func_ov003_020c4bdc(Ov003CutinActor* actor) {
-    if (actor->base.actor.position.x < ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x) {
+    if (actor->base.actor.position.x < ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) {
         func_ov003_020c4ab4(&actor->base, 0);
         return;
     }
@@ -486,7 +462,7 @@ void func_ov003_020c4bdc(Ov003CutinActor* actor) {
 }
 
 void func_ov003_020c4c1c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < data_ov003_020e71b8->unk3D7C0[1].unk_0C / 2) {
+    if (actor->actor.position.x < g_CombatGlobal->unk3D7C0[1].unk_0C / 2) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -494,7 +470,7 @@ void func_ov003_020c4c1c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4c5c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < data_ov003_020e71b8->unk3D7C0[0].unk_0C / 2) {
+    if (actor->actor.position.x < g_CombatGlobal->unk3D7C0[0].unk_0C / 2) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -509,7 +485,7 @@ void func_ov003_020c4c9c(Ov003EnemyActor* actor) {
     func_ov003_020c4ab4(actor, 1);
 }
 
-/// Plays a cut-in sound effect, ignoring the "no command" sentinel 0x56C.
+/// Plays a noise sound effect, ignoring the "no command" sentinel 0x56C.
 void func_ov003_020c4cc4(Ov003EnemyActor* actor, s32 command) {
     if (command == 0x56C) {
         return;
@@ -570,7 +546,7 @@ static s32 func_ov003_020c4dec(s32 value) {
 }
 
 s32 func_ov003_020c4e0c(s32 value) {
-    u8 partner = data_ov003_020e71b8->unk3D88D;
+    u8 partner = g_CombatGlobal->unk3D88D;
 
     if ((partner != 0) && (partner != 1) && (partner != 2)) {
         return 0;
@@ -606,25 +582,25 @@ void func_ov003_020c4f00(Ov003EnemyActor* actor) {
     func_ov003_020c4d54((s32)actor, (s32*)data_ov003_020e7204, (s32)g_Cutin->unk_03);
 }
 
-/// True if any actor on `list` has cut-in instance id `id`.
+/// True if any actor on `list` has noise instance id `id`.
 static s32 func_ov003_020c4f20(s32 id, CombatList* list) {
-    Ov003CutinActor* entry = func_ov003_0208495c(list);
+    Ov003CutinActor* entry = CombatList_GetHead(list);
 
     while (entry != NULL) {
         if (entry->base.group == id) {
             return 1;
         }
-        entry = func_ov003_02084984(&entry->base.node);
+        entry = CombatList_GetNext(&entry->base.node);
     }
     return 0;
 }
 
 void func_ov003_020c4f60(s32 id) {
-    func_ov003_020c4f20(id, &data_ov003_020e71b8->unk3D8AC);
+    func_ov003_020c4f20(id, &g_CombatGlobal->unk3D8AC);
 }
 
 void func_ov003_020c4f80(s32 id) {
-    func_ov003_020c4f20(id, &data_ov003_020e71b8->unk3D8A4);
+    func_ov003_020c4f20(id, &g_CombatGlobal->unk3D8A4);
 }
 
 /// Knocks the actor out: zero HP, defeat command, "defeated" flag.
@@ -652,8 +628,8 @@ s32 func_ov003_020c4ff4(Ov003EnemyActor* actor) {
         func_ov003_020c4fa0(actor->partner);
         func_ov003_020c4f00(actor->partner);
     }
-    actor->actor.unk_5A           = 5;
-    data_ov003_020e71b8->unk3D90A = 5;
+    actor->actor.unk_5A      = 5;
+    g_CombatGlobal->unk3D90A = 5;
     return 1;
 }
 
@@ -667,8 +643,8 @@ s32 func_ov003_020c5058(Ov003EnemyActor* actor) {
         func_ov003_020c4fa0(actor->partner);
         func_ov003_020c4ee0(actor->partner);
     }
-    actor->actor.unk_5A           = 5;
-    data_ov003_020e71b8->unk3D906 = 5;
+    actor->actor.unk_5A      = 5;
+    g_CombatGlobal->unk3D906 = 5;
     return 1;
 }
 
@@ -676,15 +652,15 @@ void func_ov003_020c50bc(void) {
     Ov003CutinActor* entry;
     Ov003CutinActor* next;
 
-    entry = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+    entry = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (entry != NULL) {
         func_ov003_020c5058(&entry->base);
-        entry = func_ov003_02084984(&entry->base.node);
+        entry = CombatList_GetNext(&entry->base.node);
     }
-    next = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+    next = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (next != NULL) {
         func_ov003_020c4ff4(&next->base);
-        next = func_ov003_02084984(&next->base.node);
+        next = CombatList_GetNext(&next->base.node);
     }
 }
 
@@ -693,9 +669,9 @@ void func_ov003_020c5130(Ov003EnemyActor* actor) {
     if (gSaveData.unk_3130 == 1) {
         return;
     }
-    func_ov003_0208c970(actor->sprite.sprite.bits_0_1, actor->unk_18E);
-    func_ov003_0208c9e0(actor->sprite.sprite.bits_0_1, actor->unk_190);
-    if (func_ov003_0208ca04(actor->sprite.sprite.bits_0_1, 0x1D) != 0) {
+    BtlMgr_GainExp(actor->sprite.sprite.bits_0_1, actor->unk_18E);
+    BtlMgr_GainPP(actor->sprite.sprite.bits_0_1, actor->unk_190);
+    if (BtlMgr_HasAbility(actor->sprite.sprite.bits_0_1, 0x1D) != 0) {
         return;
     }
     func_ov003_020bb580(actor);
@@ -723,7 +699,7 @@ void func_ov003_020c51a4(Ov003CutinActor* actor, s32 x, s32 y) {
 /// True if the actor and its partner swapped sides of the sub-screen centre.
 s32 func_ov003_020c5220(Ov003EnemyActor* actor) {
     s32 x      = actor->actor.position.x;
-    s32 centre = data_ov003_020e71b8->unk3D7C0[1].unk_0C / 2;
+    s32 centre = g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
     s32 lower  = centre - 0x10000;
 
     if ((x < lower) && (actor->unk_1AC > centre + 0x10000)) {
@@ -750,7 +726,7 @@ static s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
     hitbox[1] = y - FX32_CONVERT(width) / 2;
     hitbox[0] = x - FX32_CONVERT(width);
 
-    entry = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+    entry = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (entry != NULL) {
         width2   = entry->base.actor.unk_70;
         other[3] = FX32_CONVERT(width2);
@@ -760,28 +736,28 @@ static s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
         if (Rect_Intersect(&result, hitbox, other) != 0) {
             return 0;
         }
-        entry = func_ov003_02084984(&entry->base.node);
+        entry = CombatList_GetNext(&entry->base.node);
     }
     return 1;
 }
 
-/// Counts the sub-screen cut-in actors, and how many of them are "large" (width > 0x40).
+/// Counts the sub-screen noise, and how many of them are "large" (width > 0x40).
 static void func_ov003_020c54e0(s32* over, s32* total) {
     Ov003CutinActor* entry;
 
     *over  = 0;
     *total = 0;
-    entry  = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+    entry  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (entry != NULL) {
         if (entry->base.actor.unk_72 > 0x40) {
             (*over)++;
         }
         (*total)++;
-        entry = func_ov003_02084984(&entry->base.node);
+        entry = CombatList_GetNext(&entry->base.node);
     }
 }
 
-/// Picks a randomised rise speed for the cut-in, scaled by how crowded the sub screen is.
+/// Picks a randomised rise speed for the noise, scaled by how crowded the sub screen is.
 static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u16 arg3) {
     s32 over;
     s32 total;
@@ -793,9 +769,9 @@ static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u1
     u16 flags196;
 
     if (arg3 != 0) {
-        maxSpeed = (data_ov003_020e71b8->unk3D7C0[1].unk_0C / 4) >> 12;
+        maxSpeed = (g_CombatGlobal->unk3D7C0[1].unk_0C / 4) >> 12;
     } else {
-        maxSpeed = (data_ov003_020e71b8->unk3D7C0[1].unk_0C / 4 * 3) >> 12;
+        maxSpeed = (g_CombatGlobal->unk3D7C0[1].unk_0C / 4 * 3) >> 12;
     }
     flags196 = actor->flags196.raw;
     if ((((u32)flags196 << 0x19) >> 0x1F) != 0 && (((u32)flags196 << 0x18) >> 0x1F) == 0) {
@@ -815,7 +791,7 @@ static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u1
     }
 
     func_ov003_020c54e0(&over, &total);
-    size     = data_ov003_020e71b8->unk3D7C0[1].unk_10;
+    size     = g_CombatGlobal->unk3D7C0[1].unk_10;
     centre   = actor->actor.unk_70 / 2;
     speed    = ((size * over) / total) >> 0xC;
     minSpeed = size >> 0xC;
@@ -867,7 +843,7 @@ s32 func_ov003_020c5924(Ov003EnemyActor* actor, s32* out) {
     u16 dir;
 
     while (1) {
-        dir = actor->unk_1AC > data_ov003_020e71b8->unk3D7C0[1].unk_0C / 2;
+        dir = actor->unk_1AC > g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
         func_ov003_020c554c(actor, out, out + 1, dir);
         if (func_ov003_020c5288(actor, out[0], out[1]) != 0) {
             return 1;
@@ -938,34 +914,34 @@ void func_ov003_020c5ac0(s32 arg0, s32 arg1, Ov003CutinActor* actor, s32 arg3, s
     actor->base.actor.zVelocity = arg5;
     actor->base.actor.unk_58    = 0;
     CombatActor_SetPendingCommand(&actor->base.actor, ACTOR_CMD_RELEASE);
-    func_ov003_0208a234(arg1, arg0 + 4, &actor->base);
+    CombatHit_ArmActor(arg1, arg0 + 4, &actor->base);
 }
 
 s32 func_ov003_020c5b0c(u16 id, void* owner, s32 arg2) {
-    return func_ov003_0208a1e8(func_ov003_0208a114(id), &((CombatActor*)owner)->baseArgs, arg2);
+    return CombatHit_AttackCharacter(CombatHit_GetAttackInfo(id), &((CombatActor*)owner)->baseArgs, arg2);
 }
 
 s32 func_ov003_020c5b2c(u16 id, void* owner, s32 x, s32 y, s32 z) {
-    return func_ov003_0208a164(func_ov003_0208a114(id), &((CombatActor*)owner)->baseArgs, x, y, z);
+    return CombatHit_AttackAt(CombatHit_GetAttackInfo(id), &((CombatActor*)owner)->baseArgs, x, y, z);
 }
 
 s32 func_ov003_020c5b64(u16 id, void* owner, s32 x, s32 y) {
-    return func_ov003_0208a1a4(func_ov003_0208a114(id), &((CombatActor*)owner)->baseArgs, x, y);
+    return CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(id), &((CombatActor*)owner)->baseArgs, x, y);
 }
 
 s32 func_ov003_020c5b8c(const Ov003AttackInfo* info, void* owner, s32 x, s32 y, s32 z) {
-    return func_ov003_0208a164(info, &((CombatActor*)owner)->baseArgs, x, y, z);
+    return CombatHit_AttackAt(info, &((CombatActor*)owner)->baseArgs, x, y, z);
 }
 
 s32 func_ov003_020c5ba4(u16 id, void* args, s32 arg2) {
-    return func_ov003_0208a1e8(func_ov003_0208a114(id), args, arg2);
+    return CombatHit_AttackCharacter(CombatHit_GetAttackInfo(id), args, arg2);
 }
 
 s32 func_ov003_020c5bc4(u16 id, Ov003AttackArgs* args, s32 x, s32 y, s32 z) {
-    return func_ov003_0208a164(func_ov003_0208a114(id), args, x, y, z);
+    return CombatHit_AttackAt(CombatHit_GetAttackInfo(id), args, x, y, z);
 }
 
-/// Cut-in state machine: the actor swoops in, alternates facing, then fires its command.
+/// Noise state machine: the actor swoops in, alternates facing, then fires its command.
 s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
     switch (actor->unk_1A8) {
         default:
@@ -1033,9 +1009,9 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
             return 1;
 
         case 3:
-            if (data_ov003_020e71b8->unk3D874 == 2) {
-                if (func_ov003_020a3330(0xF) != 0) {
-                    func_ov003_0208a028(actor->sprite.sprite.bits_0_1, actor, (u16)func_ov003_020a3468(0xF));
+            if (g_CombatGlobal->unk3D874 == 2) {
+                if (CombatAbility_IsActive(0xF) != 0) {
+                    CombatHit_ApplyAttack(actor->sprite.sprite.bits_0_1, actor, (u16)CombatAbility_GetValue(0xF));
                 }
                 return 0;
             }
@@ -1043,7 +1019,7 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
     }
 }
 
-/// Second cut-in state machine: launch, rise, track the partner, then finish.
+/// Second noise state machine: launch, rise, track the partner, then finish.
 s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
     s32 target[2];
     u8  partner;
@@ -1051,7 +1027,7 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
     if (((g_Cutin->flags.raw << 0x1E) >> 0x1F) != 0) {
         return 0;
     }
-    partner = data_ov003_020e71b8->unk3D88D;
+    partner = g_CombatGlobal->unk3D88D;
     if ((partner != 0) && (partner != 1) && (partner != 2)) {
         return 0;
     }
@@ -1092,13 +1068,13 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
                 func_ov003_020c5924(actor, target);
                 actor->unk_1AC = target[0];
                 actor->unk_1B0 = target[1];
-                EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &BtlEff_SideMove, NULL, 0, NULL, actor);
+                EasyTask_CreateTask(&g_CombatGlobal->taskPool, &BtlEff_SideMove, NULL, 0, NULL, actor);
                 func_ov003_020c4cc4(actor, 0x1A);
             }
             if (actor->unk_1A4 < actor->unk_1A6) {
                 func_02026590(&actor->actor.position.x, actor->unk_1AC, (u16)actor->unk_1A6);
                 func_02026590(&actor->actor.position.y, actor->unk_1B0, (u16)actor->unk_1A6);
-                SndMgr_UpdateSEPan(SEIDX_SE_QUICKJUMP02, func_ov003_020843b0(1, actor->actor.position.x));
+                SndMgr_UpdateSEPan(SEIDX_SE_QUICKJUMP02, CombatStage_ToScreenX(1, actor->actor.position.x));
                 actor->unk_1A4++;
                 return 1;
             }
@@ -1142,14 +1118,14 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
             return 1;
 
         case 5:
-            if (data_ov003_020e71b8->unk3D874 == 2) {
+            if (g_CombatGlobal->unk3D874 == 2) {
                 return 0;
             }
             return 1;
     }
 }
 
-/// Blinks the main sprite while the cut-in counts down.
+/// Blinks the main sprite while the noise counts down.
 s32 func_ov003_020c6230(Ov003EnemyActor* actor) {
     if (actor->unk_1A4 == 0) {
         func_ov003_020c4cc4(actor, 0x1C);
@@ -1159,15 +1135,15 @@ s32 func_ov003_020c6230(Ov003EnemyActor* actor) {
     } else {
         CombatSprite_SetPaletteMode(&actor->sprite, 0);
     }
-    if (actor->unk_1A4 <= 0x13) {
-        actor->unk_1A4++;
-        return 1;
+    if (actor->unk_1A4 > 0x13) {
+        CombatSprite_SetPaletteMode(&actor->sprite, 0);
+        return 0;
     }
-    CombatSprite_SetPaletteMode(&actor->sprite, 0);
-    return 0;
+    actor->unk_1A4++;
+    return 1;
 }
 
-/// Attack cut-in state machine (main actor).
+/// Attack noise state machine (main actor).
 s32 func_ov003_020c62c4(Ov003EnemyActor* actor, u16 anim) {
     s32               target[2];
     Ov003ActorParams* params;
@@ -1258,7 +1234,7 @@ s32 func_ov003_020c62c4(Ov003EnemyActor* actor, u16 anim) {
     }
 }
 
-/// Attack cut-in state machine with the trailing command/sound wiring.
+/// Attack noise state machine with the trailing command/sound wiring.
 s32 func_ov003_020c65cc(Ov003EnemyActor* actor, u16 anim) {
     Ov003ActorParams* params;
     s32               scale;
@@ -1386,7 +1362,7 @@ s32 func_ov003_020c65cc(Ov003EnemyActor* actor, u16 anim) {
     }
 }
 
-/// Third cut-in state machine: dash in, bounce and recover.
+/// Third noise state machine: dash in, bounce and recover.
 s32 func_ov003_020c6920(Ov003EnemyActor* actor, u16 anim, s32 arg2) {
     switch (actor->unk_1A8) {
         case 0:
@@ -1502,7 +1478,7 @@ s32 func_ov003_020c6c2c(Ov003EnemyActor* actor, u16 anim) {
                 func_ov003_020c4f00(actor);
                 func_ov003_020c3700(actor);
             }
-            func_ov003_0208a25c(&actor->actor);
+            CombatHit_ActorImpact(&actor->actor);
             if ((actor->unk_1A4 > 0) && (actor->actor.position.z >= 0)) {
                 actor->unk_1A4 = 0;
                 actor->unk_1A8++;
@@ -1517,7 +1493,7 @@ s32 func_ov003_020c6c2c(Ov003EnemyActor* actor, u16 anim) {
                 actor->actor.linearDampingStep = 0x19A;
                 actor->actor.zGravity          = 0x400;
             }
-            func_ov003_0208a25c(&actor->actor);
+            CombatHit_ActorImpact(&actor->actor);
             if ((actor->actor.xVelocity == 0) && (actor->actor.yVelocity == 0)) {
                 actor->actor.flags &= ~0x400;
                 actor->unk_1A4 = 0;
@@ -1556,8 +1532,8 @@ static void func_ov003_020c6e0c(Ov003EnemyActor* actor) {
     actor->flags18C = (u16)((actor->flags18C | 0x40) & ~0x20);
     func_ov003_020c4ee0(actor);
     func_ov003_020c4a34(actor);
-    if (data_ov003_020e71b8->unk3D8A0 == actor) {
-        data_ov003_020e71b8->unk3D8A0 = NULL;
+    if (g_CombatGlobal->unk3D8A0 == actor) {
+        g_CombatGlobal->unk3D8A0 = NULL;
     }
 }
 
@@ -1565,7 +1541,7 @@ static void func_ov003_020c6e58(Ov003EnemyActor* actor) {
     func_ov003_020c4f00(actor);
 }
 
-/// Final cut-in sequence: camera fade-out and sprite release.
+/// Final noise sequence: camera fade-out and sprite release.
 static s32 func_ov003_020c6e64(Ov003EnemyActor* actor) {
     if (actor->unk_1A4 == 0) {
         if (!(actor->flags18C & 0x1000)) {
@@ -1603,7 +1579,7 @@ s32 func_ov003_020c6f68(Ov003EnemyActor* actor) {
     return func_ov003_020c6e64(actor);
 }
 
-/// Drives the end-of-cut-in teardown task until the fade completes.
+/// Drives the end-of-noise teardown task until the fade completes.
 s32 func_ov003_020c6f90(Ov003EnemyActor* actor) {
     s32 result;
 
@@ -1625,4 +1601,121 @@ s32 func_ov003_020c6f90(Ov003EnemyActor* actor) {
     }
     actor->unk_1A4++;
     return 1;
+}
+s32 func_ov003_020c703c(Ov003EnemyActor* actor) {
+    if (actor->flags196.bits.b8 && (actor->actor.flags & 0x2000)) {
+        return func_ov003_020c6f90(actor);
+    } else {
+        return func_ov003_020c6f40(actor);
+    }
+}
+
+s32 func_ov003_020c7070(Ov003EnemyActor* actor) {
+    if (actor->flags196.bits.b8 && (actor->actor.flags & 0x2000)) {
+        return func_ov003_020c6f90(actor);
+    } else {
+        return func_ov003_020c6f68(actor);
+    }
+}
+
+/// One frame of an enemy's defeat animation, which plays animations `anim`, `anim + 1` and `anim + 2` in turn.
+s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim) {
+    switch (actor->base.unk_1A8) {
+        case 0:
+            if (actor->base.unk_1A4 == 0) {
+                CombatSprite_SetAnimFromTable(&actor->base.sprite, anim, 1);
+                CombatSprite_Restart(&actor->base.sprite);
+                if (actor->base.actor.unk_0C == 0) {
+                    func_ov003_020c4af0(&actor->base);
+                } else {
+                    if (actor->base.actor.position.x > actor->base.actor.unk_0C) {
+                        actor->base.actor.isFlipped = 0;
+                    }
+                    if (actor->base.actor.position.x < actor->base.actor.unk_0C) {
+                        actor->base.actor.isFlipped = 1;
+                    }
+                }
+                actor->base.actor.flags |= 8;
+            }
+            if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
+                actor->base.unk_1A4 = 0;
+                actor->base.unk_1A8++;
+            } else {
+                actor->base.unk_1A4++;
+            }
+            break;
+        case 1:
+            if (actor->base.unk_1A4 == 0) {
+                CombatSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 1), 0);
+            }
+            if (actor->base.unk_1A4 <= actor->base.unk_1A6) {
+                actor->base.unk_1A4++;
+            } else {
+                actor->base.unk_1A4 = 0;
+                actor->base.unk_1A8++;
+            }
+            break;
+        case 2:
+            if (actor->base.unk_1A4 == 0) {
+                CombatSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 2), 1);
+                actor->base.actor.flags &= ~8;
+            }
+            if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
+                return 0;
+            }
+            actor->base.unk_1A4++;
+            break;
+    }
+    return 1;
+}
+
+/// Puts an actor back into its idle state after its defeat animation.
+static void func_ov003_020c7224(Ov003EnemyActor* actor) {
+    Ov003ActorParams* params = func_ov003_020c3c88(actor);
+
+    actor->flags18C &= ~1;
+    actor->flags18C &= ~0x10;
+    actor->unk_1B8 = 0x1000;
+    actor->unk_1BC = 0x1000;
+    CombatSprite_SetPaletteMode(&actor->sprite, 0);
+    actor->sprite.flags46 &= ~2;
+    actor->actor.flags &= ~0x10;
+    actor->actor.flags &= ~0x80000000;
+    actor->actor.zVelocity = 0;
+    if (params->unk_19 > 0) {
+        actor->actor.zGravity = 0;
+    }
+    actor->actor.xVelocity         = 0;
+    actor->actor.yVelocity         = 0;
+    actor->actor.linearDampingStep = 0x19A;
+}
+
+/// Starts an actor's death animation `a` (or `b` in the second variant) and waits for the transition.
+s32 func_ov003_020c72b4(Ov003EnemyActor* actor, s32 a, s32 b) {
+    if (actor->unk_1A4 == 0) {
+        switch (BtlCutIn_GetSpecialKind()) {
+            case 1:
+                func_ov003_020c38b8(&actor->sprite, a, 0);
+                break;
+            case 2:
+                func_ov003_020c38b8(&actor->sprite, b, 0);
+                break;
+            default:
+                func_ov003_020c38b8(&actor->sprite, a, 0);
+                break;
+        }
+        func_ov003_020c7224(actor);
+        actor->unk_1A4++;
+    }
+    if (g_CombatGlobal->unk3D878 & 2) {
+        return 1;
+    }
+    func_ov003_020c7224(actor);
+    if (func_ov003_020c37f8(&actor->sprite) != 0) {
+        actor->actor.position.x = actor->unk_1AC;
+        actor->actor.position.y = actor->unk_1B0;
+        actor->actor.position.z = actor->unk_1B4;
+    }
+    func_ov003_020c4af0(actor);
+    return 0;
 }

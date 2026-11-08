@@ -47,8 +47,8 @@ static void BtlObs_RG_StateHit(BtlObs_RG* obs) {
     obs->base.actor.flags |= 6;
     func_ov003_020c4a34(&obs->base);
 
-    if (data_ov003_020e71b8->unk3D8A0 == obs) {
-        data_ov003_020e71b8->unk3D8A0 = NULL;
+    if (g_CombatGlobal->unk3D8A0 == obs) {
+        g_CombatGlobal->unk3D8A0 = NULL;
     }
 
     if (obs->base.flags18C & 0x1000) {
@@ -66,7 +66,7 @@ static void BtlObs_RG_StateHit(BtlObs_RG* obs) {
 }
 
 static void BtlObs_RG_StateFall(BtlObs_RG* obs) {
-    BtlObs_RG* temp_r5 = data_ov003_020e71b8->unk3D89C;
+    BtlObs_RG* temp_r5 = g_CombatGlobal->unk3D89C;
 
     if (obs->unk_292 == 0) {
         if (obs->unk_1C2 == 0) {
@@ -92,8 +92,8 @@ static s32 BtlObs_RG_Init(TaskPool* pool, Task* task, void* args) {
 
     obs->unk_284 = *spawnArgs->unk_C;
 
-    func_ov003_02086404(1, &obs->base.sprite, spawnArgs->unk_2);
-    func_ov003_020864dc((CombatActor*)obs, spawnArgs->unk_2);
+    CombatSys_LoadObsSprite(1, &obs->base.sprite, spawnArgs->unk_2);
+    CombatSys_InitObsActor((CombatActor*)obs, spawnArgs->unk_2);
     obs->unk_1C2 = spawnArgs->unk_2;
 
     if (RNG_Next(2) != 0) {
@@ -109,7 +109,7 @@ static s32 BtlObs_RG_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlObs_RG* obs = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 2) {
+    if (g_CombatGlobal->unk3D878 & 2) {
         return 1;
     }
 
@@ -142,8 +142,8 @@ static s32 BtlObs_RG_Destroy(TaskPool* pool, Task* task, void* args) {
 
     CombatSprite_Release(&obs->base.sprite);
     func_ov003_020c4a34(&obs->base);
-    if (data_ov003_020e71b8->unk3D8A0 == obs) {
-        data_ov003_020e71b8->unk3D8A0 = NULL;
+    if (g_CombatGlobal->unk3D8A0 == obs) {
+        g_CombatGlobal->unk3D8A0 = NULL;
     }
     return 1;
 }
@@ -162,5 +162,5 @@ s32 BtlObs_RG_CreateTask(u16 arg0, void* arg1) {
     BtlObs_RG_Args args;
     args.unk_C = arg1;
     args.unk_2 = arg0;
-    return EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlObs_RG, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlObs_RG, NULL, 0, NULL, &args);
 }

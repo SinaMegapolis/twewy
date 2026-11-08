@@ -34,14 +34,14 @@ typedef struct Ov003EnemyShotRootLaser {
 static const TaskHandle data_ov003_020e0ca4;
 
 void func_ov003_020d1538(Ov003EnemyShotRootLaserArgs* args) {
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &data_ov003_020e0ca4, NULL, 0, NULL, args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &data_ov003_020e0ca4, NULL, 0, NULL, args);
 }
 
 /// Lays the roots of the beam across the screen from the shot's position, alternating a vertical and a horizontal
 /// root, and stops once the next root would fall outside the camera.
 static s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
-    Ov003CutinActor* target = data_ov003_020e71b8->unk3D898;
-    Ov003Camera*     camera = &data_ov003_020e71b8->unk3D7C0[0];
+    Ov003CutinActor* target = g_CombatGlobal->unk3D898;
+    Ov003Camera*     camera = &g_CombatGlobal->unk3D7C0[0];
     u16              parity = 0;
     s32              scale;
     s32              x, y, z;
@@ -110,7 +110,7 @@ static s32 func_ov003_020d19b0(Ov003EnemyShotRootLaser* self, Ov003EnemyShotRoot
     self->override         = args->override;
     self->sound            = args->sound;
     self->sound2           = args->sound2;
-    func_ov003_020849ac(&self->list);
+    CombatList_Init(&self->list);
     if (args->animation >= 0) {
         const Ov003EnemyShotVisual* visual = args->childSource->visual;
         const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
@@ -135,10 +135,10 @@ static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
             if (self->timer >= 0)
                 break;
             if (!SndMgr_IsSEPlaying(self->sound) && self->sound != 0x56C)
-                func_ov003_02087f00(self->sound, func_ov003_020843b0(0, self->owner.core.position.x));
+                CombatSe_PlayPanned(self->sound, CombatStage_ToScreenX(0, self->owner.core.position.x));
             if (!SndMgr_IsSEPlaying(self->sound2) && self->sound2 != 0x56C)
-                func_ov003_02087f00(self->sound2, func_ov003_020843b0(0, self->owner.core.position.x));
-            Ov003EnemyShotRoot* root = func_ov003_0208495c(&self->list);
+                CombatSe_PlayPanned(self->sound2, CombatStage_ToScreenX(0, self->owner.core.position.x));
+            Ov003EnemyShotRoot* root = CombatList_GetHead(&self->list);
             if (root == NULL)
                 return 0;
             func_ov003_020d07a8(&self->owner, &self->list, root, self->kind, self->spacing,
@@ -148,7 +148,7 @@ static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
             break;
         }
         case 1:
-            if (func_ov003_0208495c(&self->list) == NULL)
+            if (CombatList_GetHead(&self->list) == NULL)
                 return 0;
             break;
     }
@@ -166,11 +166,11 @@ static s32 func_ov003_020d1c98(Ov003EnemyShotRootLaser* self) {
     s16 x, y;
     s32 rootX, rootY, rootZ;
     if (self->sprite.sprite.resourceData != NULL) {
-        Ov003EnemyShotRoot* root = func_ov003_0208495c(&self->list);
+        Ov003EnemyShotRoot* root = CombatList_GetHead(&self->list);
         if (root == NULL)
             return 1;
         func_ov003_020d11b8(root, NULL, NULL, NULL, &rootX, &rootY, &rootZ);
-        func_ov003_02084348(0, &x, &y, rootX, rootY, rootZ);
+        CombatStage_WorldToScreen(0, &x, &y, rootX, rootY, rootZ);
         CombatSprite_SetPosition(&self->sprite, x, y);
         func_ov003_02082730(&self->sprite, 0);
         CombatSprite_Render(&self->sprite);

@@ -16,7 +16,7 @@ static void             func_ov003_020ade3c(Ov003ElementKRay* ray, s32 x, s32 y)
 static void             func_ov003_020ade74(Ov003ElementKRay* ray);
 
 s32 func_ov003_020ad720(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(7))
+    if (!CombatTouch_IsGesture(7))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc794.taskName);
     *arg                   = effect;
@@ -39,8 +39,8 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
             self->x         = touch->sweepCenterX;
             self->y         = touch->sweepCenterY;
             self->cancelled = 0;
-            func_ov003_020a3498(&self->sprite, 2, 1, 0x74, 1);
-            func_ov003_020a3498(&self->aura, 2, 1, 0x82, 0);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, 0x74, 1);
+            CombatPsyAnim_Load(&self->aura, 2, 1, 0x82, 0);
             for (s32 i = 0; i < 3; i++)
                 func_ov003_020adcb4(&self->rays[i]);
             func_ov003_020a6464(1);
@@ -91,7 +91,7 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
                             }
                         }
                     }
-                    if (func_ov003_02085cfc(7)) {
+                    if (CombatTouch_IsGesture(7)) {
                         if (self->phase < 4 && ++self->heldFrames == 25)
                             func_ov003_020adbec(self);
                     } else if (++self->releasedFrames == 30) {
@@ -109,7 +109,7 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
             for (i = 0; i < 3; i++)
                 func_ov003_020add40(&self->rays[i], self->x, self->y, self->effect);
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_EGENERATE_BOOT01_01))
-                func_ov003_02087f00(SEIDX_SE_PSY_EGENERATE_BOOT01_01, self->x);
+                CombatSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_BOOT01_01, self->x);
             CombatSprite_Update(&self->sprite);
             CombatSprite_Update(&self->aura);
             return 1;
@@ -145,7 +145,7 @@ static void func_ov003_020adbec(Ov003ElementK* self) {
     self->heldFrames     = 0;
     self->releasedFrames = 0;
     self->emitTimer      = 0;
-    func_ov003_020a35b8(&self->sprite, self->phase + 0x74, 0);
+    CombatPsyAnim_SetAnim(&self->sprite, self->phase + 0x74, 0);
     for (u8 i = 0; i < 8; i++)
         self->directions[i] = i;
     for (u8 i = 0; i < 16; i++) {
@@ -160,13 +160,13 @@ static void func_ov003_020adbec(Ov003ElementK* self) {
 
 static void func_ov003_020adc8c(Ov003ElementK* self) {
     self->phase = 5;
-    func_ov003_020a35b8(&self->sprite, 0x79, 1);
+    CombatPsyAnim_SetAnim(&self->sprite, 0x79, 1);
     func_ov003_020a6464(0);
 }
 
 static void func_ov003_020adcb4(Ov003ElementKRay* ray) {
     ray->active = 0;
-    func_ov003_020a3498(&ray->sprite, 2, 1, 0x7A, 1);
+    CombatPsyAnim_Load(&ray->sprite, 2, 1, 0x7A, 1);
 }
 
 static void func_ov003_020adcd8(Ov003ElementKRay* ray, s32 level, s32 direction) {
@@ -174,7 +174,7 @@ static void func_ov003_020adcd8(Ov003ElementKRay* ray, s32 level, s32 direction)
     ray->angle    = direction * 0x2000;
     s32 animation = direction & 1 ? 0x7A : 0x7E;
     animation += level;
-    func_ov003_020a35b8(&ray->sprite, animation, 1);
+    CombatPsyAnim_SetAnim(&ray->sprite, animation, 1);
     CombatSprite_Restart(&ray->sprite);
     CombatSprite_SetAffineTransform(&ray->sprite, (direction / 2) * 0x4000, 0x1000, 0x1000, 0);
 }

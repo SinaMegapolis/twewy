@@ -108,7 +108,7 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                 case 24:
                 case 25:
                     animation = data_ov003_020dcb10[self->kind].animation;
-                    func_ov003_020a3498(&self->sprite, 2, 1, animation, 1);
+                    CombatPsyAnim_Load(&self->sprite, 2, 1, animation, 1);
                     self->animation = animation + 1;
                     break;
                 case 17:
@@ -118,7 +118,7 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                 case 23:
                 case 26:
                     animation = data_ov003_020dcb10[self->kind].animation;
-                    func_ov003_020a3498(&self->sprite, 2, 1, animation, 0);
+                    CombatPsyAnim_Load(&self->sprite, 2, 1, animation, 0);
                     self->animation = animation;
                     break;
             }
@@ -137,7 +137,7 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                     break;
                 case 19:
                 case 20:
-                    func_ov003_02087f28(0x57, self->x);
+                    CombatSe_PlayAtMainX(0x57, self->x);
                     self->phase = 2;
                     break;
                 case 7:
@@ -176,7 +176,7 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                 s32 sound = data_ov003_020dcb10[self->kind].trailSound;
                 s32 sePan = self->x;
                 if (sound < 0x56C) {
-                    func_ov003_02087f28(sound, sePan);
+                    CombatSe_PlayAtMainX(sound, sePan);
                 }
             }
             return 1;
@@ -256,8 +256,8 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
             // The render path re-derives the on-screen position and mirrors the affine scale
             // for flipped sprites; the sprite keeps its position as 16-bit cells.
             self  = task->data;
-            s32 x = func_ov003_020843b0(0, self->x);
-            s32 y = func_ov003_020843ec(0, self->y, self->z);
+            s32 x = CombatStage_ToScreenX(0, self->x);
+            s32 y = CombatStage_ToScreenY(0, self->y, self->z);
             CombatSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
             func_ov003_02082730(&self->sprite, self->y + 0x1F4000);
             s32 scale                         = self->scale;
@@ -280,7 +280,7 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 static void func_ov003_020b716c(Ov003ShockWaveBody* self) {
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite) != 0) {
-        func_ov003_020a35b8(&self->sprite, self->animation, 0);
+        CombatPsyAnim_SetAnim(&self->sprite, self->animation, 0);
     }
     CombatSprite_Update(&self->sprite);
 }
@@ -295,8 +295,8 @@ static void func_ov003_020b71a0(Ov003ShockWaveBody* self) {
 // Nonmatching: the two `return 1` sites are merged into one tail block in the target and the
 // `if (phase == 4) return 0; return 1;` pair stays a branch there; mwcc if-converts it here.
 static s32 func_ov003_020b7240(Ov003ShockWaveBody* self) {
-    s32 x = func_ov003_020843b0(0, self->x);
-    s32 y = func_ov003_020843ec(0, self->y, self->z);
+    s32 x = CombatStage_ToScreenX(0, self->x);
+    s32 y = CombatStage_ToScreenY(0, self->y, self->z);
 
     if (func_ov003_020a6374(x, y, 0x30) == 0) {
         if (self->kind >= 0x11 && self->kind <= 0x14) {
@@ -327,8 +327,8 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
     s16                  targetX;
     s16                  targetY;
 
-    x    = func_ov003_020843b0(0, self->x);
-    y    = func_ov003_020843ec(0, self->y, self->z);
+    x    = CombatStage_ToScreenX(0, self->x);
+    y    = CombatStage_ToScreenY(0, self->y, self->z);
     kind = data_ov003_020dcb10[self->kind].attackKind;
     if (kind == 0x180 && func_ov003_020a51c0() != 0) {
         kind = 0x181;
@@ -338,7 +338,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
         s32 sePan = self->x;
 
         if (sound < 0x56C) {
-            func_ov003_02087f28(sound, sePan);
+            CombatSe_PlayAtMainX(sound, sePan);
         }
         switch (self->kind - 0x15) {
             case 0:
@@ -358,7 +358,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                 func_ov003_020a88c0(&anim15, self->x, self->y, self->z, 2, 0x53);
                 func_ov003_020a899c(&anim15, 0);
                 func_ov003_020a88a8(&anim15);
-                func_ov003_02087f28(0x69, self->x);
+                CombatSe_PlayAtMainX(0x69, self->x);
                 return 0;
             case 1:
                 func_ov003_020a88c0(&anim16, self->x, self->y, self->z, 2, 0x53);
@@ -377,7 +377,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                     func_ov003_020b6b20(&args16);
                     offset += 0x2000;
                 }
-                func_ov003_02087f28(0x69, self->x);
+                CombatSe_PlayAtMainX(0x69, self->x);
                 return 0;
             case 3:
                 func_ov003_020a88c0(&anim18, self->x, self->y, self->z, 2, 0x58);
@@ -396,7 +396,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                     func_ov003_020b6b20(&args18);
                     offset += 0x4000;
                 }
-                func_ov003_02087f28(0x69, self->x);
+                CombatSe_PlayAtMainX(0x69, self->x);
                 return 0;
             case 4:
                 func_ov003_020a88c0(&anim19, self->x, self->y, self->z, 2, 0x58);
@@ -415,7 +415,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                     func_ov003_020b6b20(&args19);
                     offset += 0x2000;
                 }
-                func_ov003_02087f28(0x69, self->x);
+                CombatSe_PlayAtMainX(0x69, self->x);
                 return 0;
             default:
             case 2:
@@ -429,24 +429,24 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
 }
 
 static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
-    BtlTouchWork* touch = &data_ov003_020e71b8->touchWork;
-    s32           x     = func_ov003_020843b0(0, self->x);
-    s32           y     = func_ov003_020843ec(0, self->y, self->z);
+    BtlTouchWork* touch = &g_CombatGlobal->touchWork;
+    s32           x     = CombatStage_ToScreenX(0, self->x);
+    s32           y     = CombatStage_ToScreenY(0, self->y, self->z);
 
-    if (!func_ov003_02085cfc(2)) {
+    if (!CombatTouch_IsGesture(2)) {
         return;
     }
-    func_ov003_02087f28(0xA5, self->x);
+    CombatSe_PlayAtMainX(0xA5, self->x);
     self->renderAngle = self->angle = func_ov003_020a62d0(x, y, touch->x, touch->y);
 }
 
 static void func_ov003_020b7760(Ov003ShockWaveBody* self) {
-    BtlTouchWork* touch = &data_ov003_020e71b8->touchWork;
+    BtlTouchWork* touch = &g_CombatGlobal->touchWork;
 
-    if (!func_ov003_02085cfc(4)) {
+    if (!CombatTouch_IsGesture(4)) {
         return;
     }
-    func_ov003_02087f28(0xA5, self->x);
+    CombatSe_PlayAtMainX(0xA5, self->x);
     self->renderAngle = self->angle = touch->angle;
 }
 
@@ -473,14 +473,14 @@ static s32 func_ov003_020b77a8(Ov003ShockWaveBody* self) {
         func_ov003_020b6b20(&args);
         args.angle = (u16)(self->angle - 0x1800);
         func_ov003_020b6b20(&args);
-        func_ov003_02087f28(0xA5, self->x);
+        CombatSe_PlayAtMainX(0xA5, self->x);
         return 0;
     }
     return 1;
 }
 
 static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
-    CombatActor* actor = data_ov003_020e71b8->unk3D898;
+    CombatActor* actor = g_CombatGlobal->unk3D898;
     s32          x;
     s32          y;
     s16          targetX;
@@ -488,7 +488,7 @@ static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
 
     self->spinTimer = (self->spinTimer + 1) % 8;
     if (self->spinTimer == 0) {
-        func_ov003_020b6978(self->animation, self->x, self->y, self->z, self->renderAngle);
+        BtlPsy_ShockWaveBlur_CreateTask(self->animation, self->x, self->y, self->z, self->renderAngle);
     }
     self->renderAngle = (u16)(self->renderAngle - 0x1800);
     switch (self->phase) {
@@ -517,10 +517,10 @@ static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
             self->acceleration  = -self->acceleration;
             return;
         case 3:
-            x = func_ov003_020843b0(0, self->x);
-            y = func_ov003_020843ec(0, self->y, self->z);
-            func_ov003_0208b370(&targetX, &targetY, actor->position.x, actor->position.y,
-                                actor->position.z - ((actor->unk_72 / 2) << 12));
+            x = CombatStage_ToScreenX(0, self->x);
+            y = CombatStage_ToScreenY(0, self->y, self->z);
+            BtlMgr_WorldToScreen(&targetX, &targetY, actor->position.x, actor->position.y,
+                                 actor->position.z - ((actor->unk_72 / 2) << 12));
             self->angle = func_ov003_020a62d0(x, y, targetX, targetY);
             if (self->distance >= self->distanceLimit) {
                 self->phase = 4;

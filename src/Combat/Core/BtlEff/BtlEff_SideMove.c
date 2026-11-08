@@ -100,14 +100,13 @@ s32 func_ov003_020c9338(Ov003EnemyActor* actor) {
 
     switch (data_ov003_020e7254.phase) {
         case 0:
-            if (data_ov003_020e7254.timer > 0 && data_ov003_020e7254.task == -1 && !(data_ov003_020e71b8->unk3D878 & 0x20000))
-            {
+            if (data_ov003_020e7254.timer > 0 && data_ov003_020e7254.task == -1 && !(g_CombatGlobal->unk3D878 & 0x20000)) {
                 data_ov003_020e7254.anims.actor = actor;
-                data_ov003_020e7254.task = EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, &Tsk_BossExp1, NULL, 0, NULL,
-                                                               &data_ov003_020e7254.anims);
+                data_ov003_020e7254.task =
+                    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BossExp1, NULL, 0, NULL, &data_ov003_020e7254.anims);
                 if (data_ov003_020e7254.task != -1) {
-                    data_ov003_020e71b8->unk3D878 |= 0x20000;
-                    data_ov003_020e71b8->unk3D878 |= 0x10000;
+                    g_CombatGlobal->unk3D878 |= 0x20000;
+                    g_CombatGlobal->unk3D878 |= 0x10000;
                     data_ov003_020e7254.timer = 0;
                     data_ov003_020e7254.phase++;
                     if (actor->actor.flags & 0x2000) {
@@ -118,7 +117,7 @@ s32 func_ov003_020c9338(Ov003EnemyActor* actor) {
             data_ov003_020e7254.timer++;
             break;
         case 1:
-            if (!(data_ov003_020e71b8->unk3D878 & 2)) {
+            if (!(g_CombatGlobal->unk3D878 & 2)) {
                 result = 0;
             } else {
                 data_ov003_020e7254.timer++;
@@ -149,9 +148,7 @@ static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 s
                 self->frame      = 0;
                 CombatSprite_LoadFromTable(1, &self->sprite, &data_ov003_020d7800, data_ov003_020e0b80, 0, 0x3F, 0);
                 CombatSprite_SetAnimFromTable(&self->sprite, 0, 1);
-                if (self->actor->base.actor.position.x >
-                    ((Ov003CutinActor*)data_ov003_020e71b8->unk3D89C)->base.actor.position.x)
-                {
+                if (self->actor->base.actor.position.x > ((Ov003CutinActor*)g_CombatGlobal->unk3D89C)->base.actor.position.x) {
                     CombatSprite_SetFlip(&self->sprite, 1);
                     self->position.x -= 0x18000;
                 } else {
@@ -175,7 +172,7 @@ static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 s
                 s16 x;
                 s16 y;
 
-                func_ov003_02084348(1, &x, &y, self->position.x, self->position.y, self->position.z);
+                CombatStage_WorldToScreen(1, &x, &y, self->position.x, self->position.y, self->position.z);
                 CombatSprite_SetPosition(&self->sprite, x, y);
                 func_ov003_02082730(&self->sprite, 0x7FFFFFFF - (self->position.y + 0x8000));
                 CombatSprite_Render(&self->sprite);

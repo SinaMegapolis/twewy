@@ -99,5 +99,5 @@ void Feat00_Sword_CreateTask(u32 arg0, u16 arg1, s16 arg2, s16 arg3, s32 arg4, s
     args.unk_0 = arg0;
     args.unk_E = arg3;
     args.unk_8 = arg5;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, &Tsk_Feat00_Sword, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_Feat00_Sword, NULL, 0, NULL, &args);
 }

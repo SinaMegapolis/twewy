@@ -256,5 +256,5 @@ void BtlFeat01_BigMulti_CreateTask(s32 arg0) {
     s32 sp8;
 
     sp8 = arg0;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, &Tsk_BtlFeat01_BigMulti, NULL, 0, NULL, &sp8);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BtlFeat01_BigMulti, NULL, 0, NULL, &sp8);
 }

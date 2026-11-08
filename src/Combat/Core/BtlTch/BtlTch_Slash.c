@@ -21,15 +21,13 @@ typedef struct BtlTchSlash {
     /* 0x74 */ BOOL         isActive;
 } BtlTchSlash; // Size: 0x78
 
-extern const BinIdentifier data_ov003_020d6fac;
-
 static s32 BtlTch_Slash_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlTch_Slash = {"Tsk_BtlTch_Slash", BtlTch_Slash_RunTask, sizeof(BtlTchSlash)};
 
 static s32 BtlTch_Slash_Init(TaskPool* pool, Task* task, void* args) {
     BtlTchSlash*  effect = task->data;
-    BtlTouchWork* input  = &data_ov003_020e71b8->touchWork;
+    BtlTouchWork* input  = &g_CombatGlobal->touchWork;
 
     MI_CpuSet(effect, 0, sizeof(*effect));
     effect->isActive = TRUE;
@@ -40,17 +38,17 @@ static s32 BtlTch_Slash_Init(TaskPool* pool, Task* task, void* args) {
     effect->angle    = input->angle + 0xC000;
     effect->alpha    = 31;
     effect->fade     = 0x1000;
-    CombatSprite_LoadDirect(2, &effect->sprite, &data_ov003_020d6fac, 1, 3, 2, 4, 9);
+    CombatSprite_LoadDirect(2, &effect->sprite, &Iden_BtlTch, 1, 3, 2, 4, 9);
     CombatSprite_SetAnim(&effect->sprite, 9, 1);
     CombatSprite_SetPosition(&effect->sprite, effect->x, effect->y);
     func_ov003_02082738(&effect->sprite, 0);
     func_ov003_02082730(&effect->sprite, 0x3F2000);
     if (effect->scaleY < 0x800) {
-        func_ov003_02087f00(SEIDX_SE_PENEFFECTS, effect->x);
+        CombatSe_PlayPanned(SEIDX_SE_PENEFFECTS, effect->x);
     } else if (effect->scaleY < 0x1000) {
-        func_ov003_02087f00(SEIDX_SE_PENEFFECTM, effect->x);
+        CombatSe_PlayPanned(SEIDX_SE_PENEFFECTM, effect->x);
     } else {
-        func_ov003_02087f00(SEIDX_SE_PENEFFECTL, effect->x);
+        CombatSe_PlayPanned(SEIDX_SE_PENEFFECTL, effect->x);
     }
     return 1;
 }

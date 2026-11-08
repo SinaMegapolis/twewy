@@ -35,7 +35,7 @@ static s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage
             MI_CpuCopyU8(arg->actors, formation->actors, sizeof(formation->actors));
             formation->effect->unk_0A++;
             owner = func_ov003_020a5a34(formation->effect);
-            func_ov003_02087f00(SEIDX_SE_PSY_BADGE_PUSH, (s16)(owner->x >> 12));
+            CombatSe_PlayPanned(SEIDX_SE_PSY_BADGE_PUSH, (s16)(owner->x >> 12));
             formation->state = 0;
             owner            = func_ov003_020a5a34(formation->effect);
             for (i = 0; i < 4; i++) {
@@ -45,7 +45,7 @@ static s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage
             formation->index      = i;
             formation->firstIndex = i;
             formation->angle      = 0;
-            func_ov003_020a3498(&formation->sprite, 2, 1, 0x101, 1);
+            CombatPsyAnim_Load(&formation->sprite, 2, 1, 0x101, 1);
             for (u32 j = 0; j < 4; j++)
                 func_ov003_020a40bc(formation->actors[j]);
             return 1;
@@ -61,19 +61,19 @@ static s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage
                         if (formation->index == formation->firstIndex)
                             return 0;
                         formation->state = 1;
-                        func_ov003_020a35b8(&formation->sprite, 0xFF, 1);
-                        func_ov003_02087f00(SEIDX_SE_PSY_BADGEBEAM01, (s16)(formation->position.x >> 12));
+                        CombatPsyAnim_SetAnim(&formation->sprite, 0xFF, 1);
+                        CombatSe_PlayPanned(SEIDX_SE_PSY_BADGEBEAM01, (s16)(formation->position.x >> 12));
                     }
                     break;
                 case 1:
                     if (SpriteMgr_IsAnimationFinished(&formation->sprite.sprite))
-                        func_ov003_020a35b8(&formation->sprite, 0x100, 0);
+                        CombatPsyAnim_SetAnim(&formation->sprite, 0x100, 0);
                     if (func_ov003_020a62ec(formation->position.x, formation->position.y,
                                             formation->actors[formation->index]->x,
                                             formation->actors[formation->index]->y) <= 0xA000)
                     {
                         formation->state = 0;
-                        func_ov003_020a35b8(&formation->sprite, 0x101, 1);
+                        CombatPsyAnim_SetAnim(&formation->sprite, 0x101, 1);
                     }
                     break;
             }

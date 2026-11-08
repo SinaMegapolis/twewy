@@ -1266,7 +1266,7 @@ s32 func_ov003_020b5d54(Ov003EffectContext* context, Ov003EffectState* effect);
 s32 func_ov003_020b5f74(Ov003EffectContext* context, Ov003EffectState* effect);
 
 // BtlPsy_Blur_.c
-void func_ov003_020b6978(s32 animation, s32 x, s32 y, s32 z, s32 angle);
+void BtlPsy_ShockWaveBlur_CreateTask(s32 animation, s32 x, s32 y, s32 z, s32 angle);
 
 // BtlPsy_BoomerangShot_S.c
 s32 func_ov003_020b7bf4(Ov003EffectContext* context, Ov003EffectState* effect);
@@ -1304,5 +1304,24 @@ s32 func_ov003_020ba714(Ov003EffectContext* context, Ov003EffectState* effect);
 
 // BtlPsy_PsychoTerritory_S.c
 s32 func_ov003_020baa58(Ov003EffectContext* context, Ov003EffectState* effect);
+
+// BtlPsy_Instant.c
+/// The 8-byte payload an attack entry point allocates for its on-fire handler.
+typedef struct Ov003AttackData {
+    /* 0x00 */ Ov003EffectState* effect;
+    /* 0x04 */ CombatActor*      target;
+} Ov003AttackData; // Size: 0x8
+
+/// An attack entry point: the handler the battle calls when the attack lands, plus its payload.
+typedef struct Ov003AttackCmd {
+    /* 0x00 */ void (*fire)(Ov003AttackData*);
+    /* 0x04 */ s32              unk_04;
+    /* 0x08 */ Ov003AttackData* data;
+} Ov003AttackCmd; // Size: 0xC
+
+s32 BtlPsy_Pierce_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect);
+s32 BtlPsy_Syoryu_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect);
+s32 BtlPsy_Kabuto_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect);
+s32 BtlPsy_Teleport_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect);
 
 #endif

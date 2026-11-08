@@ -74,9 +74,9 @@ s32 func_ov011_02128c44(Ov003EnemyActor* owner) {
 
     arg0 = owner;
     if (func_ov003_020c37f8(&arg0->sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     return EasyTask_CreateTask(pool, &data_ov011_0212c240, 0, 0, 0, &arg0);
 }
@@ -197,13 +197,13 @@ static BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
     best = NULL;
     v    = 0x7FFFFFFF;
     if (((u32)(data->unk_24C << 30) >> 31) != 0) {
-        d = (s32)(func_ov003_020843b0(1, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x) > 0
-                      ? 0.5f + (f32)(func_ov003_020843b0(1, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x) << 12)
-                      : (f32)(func_ov003_020843b0(1, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x) << 12) - 0.5f);
+        d = (s32)(CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) > 0
+                      ? 0.5f + (f32)(CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) << 12)
+                      : (f32)(CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) << 12) - 0.5f);
     } else {
-        d = (s32)(func_ov003_020843b0(0, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x) > 0
-                      ? 0.5f + (f32)(func_ov003_020843b0(0, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x) << 12)
-                      : (f32)(func_ov003_020843b0(0, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x) << 12) - 0.5f);
+        d = (s32)(CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) > 0
+                      ? 0.5f + (f32)(CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) << 12)
+                      : (f32)(CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) << 12) - 0.5f);
     }
     p = data->rec;
     for (i = 0; i < 4; i++) {
@@ -340,13 +340,13 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
     s32 off;
 
     if (((u32)(p->unk_24C << 30) >> 31) != 0) {
-        vx = FX32_CONVERT(func_ov003_020843b0(1, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x));
-        vy = FX32_CONVERT(func_ov003_020843ec(1, ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.y,
-                                              ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.z));
+        vx = FX32_CONVERT(CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x));
+        vy = FX32_CONVERT(CombatStage_ToScreenY(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.y,
+                                                ((CombatActor*)g_CombatGlobal->unk3D89C)->position.z));
     } else {
-        vx = FX32_CONVERT(func_ov003_020843b0(0, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x));
-        vy = FX32_CONVERT(func_ov003_020843ec(0, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y,
-                                              ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.z));
+        vx = FX32_CONVERT(CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x));
+        vy = FX32_CONVERT(CombatStage_ToScreenY(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.y,
+                                                ((CombatActor*)g_CombatGlobal->unk3D898)->position.z));
     }
     switch (rec->unk_64) {
         case 0:
@@ -384,7 +384,7 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
         case 2:
             if (rec->unk_60 == 0) {
                 rec->unk_60 = rec->unk_60 + 1;
-                func_ov003_02087f00(SEIDX_SE_010_TATOO_TOBASHI02, (s16)((p->unk_23C + rec->unk_68) >> 12));
+                CombatSe_PlayPanned(SEIDX_SE_010_TATOO_TOBASHI02, (s16)((p->unk_23C + rec->unk_68) >> 12));
             }
             if (rec->unk_74 > 0) {
                 rec->unk_74 = rec->unk_74 - 0x8000;
@@ -406,7 +406,8 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
             off = i - 0xF;
             do {
                 func_ov003_020cbc50(&ox, &oy, rec->unk_72, off * 0x1000);
-                func_ov003_0208a1a4(func_ov003_0208a114(idx), &p->unk_244, (s16)((bx + ox) >> 12), (s16)((by + oy) >> 12));
+                CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(idx), &p->unk_244, (s16)((bx + ox) >> 12),
+                                         (s16)((by + oy) >> 12));
                 off = off + 0x10;
                 i   = i + 1;
             } while (i < 4);
@@ -458,13 +459,13 @@ static s32 func_ov011_02129994(BtlEnm010Tatt* data, Ov003EnemyActor** arg1) {
     data->unk_230 = (*arg1)->actor.position.x;
     data->unk_234 = (*arg1)->actor.position.y;
     data->unk_238 = (*arg1)->actor.position.z;
-    data->unk_23C = (s32)(func_ov003_020843b0(r, (*arg1)->actor.position.x) > 0
-                              ? 0.5f + (f32)(func_ov003_020843b0(r, (*arg1)->actor.position.x) << 12)
-                              : (f32)(func_ov003_020843b0(r, (*arg1)->actor.position.x) << 12) - 0.5f);
+    data->unk_23C = (s32)(CombatStage_ToScreenX(r, (*arg1)->actor.position.x) > 0
+                              ? 0.5f + (f32)(CombatStage_ToScreenX(r, (*arg1)->actor.position.x) << 12)
+                              : (f32)(CombatStage_ToScreenX(r, (*arg1)->actor.position.x) << 12) - 0.5f);
     data->unk_240 =
-        (s32)(func_ov003_020843ec(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) > 0
-                  ? 0.5f + (f32)(func_ov003_020843ec(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) << 12)
-                  : (f32)(func_ov003_020843ec(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) << 12) - 0.5f);
+        (s32)(CombatStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) > 0
+                  ? 0.5f + (f32)(CombatStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) << 12)
+                  : (f32)(CombatStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) << 12) - 0.5f);
     q = data->rec;
     p = &data->rec[0].unk_84;
     i = 0;
@@ -515,11 +516,11 @@ static s32 func_ov011_02129b84(BtlEnm010Tatt* data) {
     }
     dir = ((u32)(data->unk_24C << 30) >> 31) != 0 ? 1 : 0;
     data->unk_23C =
-        (s32)(func_ov003_020843b0(dir, data->unk_230) > 0 ? 0.5f + (f32)(func_ov003_020843b0(dir, data->unk_230) << 12)
-                                                          : (f32)(func_ov003_020843b0(dir, data->unk_230) << 12) - 0.5f);
-    data->unk_240 = (s32)(func_ov003_020843ec(dir, data->unk_234, data->unk_238) > 0
-                              ? 0.5f + (f32)(func_ov003_020843ec(dir, data->unk_234, data->unk_238) << 12)
-                              : (f32)(func_ov003_020843ec(dir, data->unk_234, data->unk_238) << 12) - 0.5f);
+        (s32)(CombatStage_ToScreenX(dir, data->unk_230) > 0 ? 0.5f + (f32)(CombatStage_ToScreenX(dir, data->unk_230) << 12)
+                                                            : (f32)(CombatStage_ToScreenX(dir, data->unk_230) << 12) - 0.5f);
+    data->unk_240 = (s32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) > 0
+                              ? 0.5f + (f32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12)
+                              : (f32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12) - 0.5f);
     {
         void (*cb)(BtlEnm010Tatt*) = data->unk_224;
 
@@ -553,11 +554,11 @@ static s32 func_ov011_02129cec(BtlEnm010Tatt* data) {
     BtlEnm010TattRec* p;
 
     dir = (s32)(((u32)(data->unk_24C << 30) >> 31) != 0) ? 1 : 0;
-    vx  = (s32)(func_ov003_020843b0(dir, data->unk_230) > 0 ? 0.5f + (f32)(func_ov003_020843b0(dir, data->unk_230) << 12)
-                                                            : (f32)(func_ov003_020843b0(dir, data->unk_230) << 12) - 0.5f);
-    vy  = (s32)(func_ov003_020843ec(dir, data->unk_234, data->unk_238) > 0
-                    ? 0.5f + (f32)(func_ov003_020843ec(dir, data->unk_234, data->unk_238) << 12)
-                    : (f32)(func_ov003_020843ec(dir, data->unk_234, data->unk_238) << 12) - 0.5f);
+    vx  = (s32)(CombatStage_ToScreenX(dir, data->unk_230) > 0 ? 0.5f + (f32)(CombatStage_ToScreenX(dir, data->unk_230) << 12)
+                                                              : (f32)(CombatStage_ToScreenX(dir, data->unk_230) << 12) - 0.5f);
+    vy  = (s32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) > 0
+                    ? 0.5f + (f32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12)
+                    : (f32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12) - 0.5f);
     a   = 0;
     b   = 0;
     p   = data->rec;

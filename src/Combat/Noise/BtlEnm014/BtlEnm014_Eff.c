@@ -83,7 +83,8 @@ static s32 func_ov012_02125ab4(TaskPool* pool, Task* task, void* args, s32 stage
         case 2: {
             s16 x;
             s16 y;
-            func_ov003_02084348(func_ov003_020c37f8(&data->sprite) != 0, &x, &y, data->unk_64, data->unk_68, data->unk_6C);
+            CombatStage_WorldToScreen(func_ov003_020c37f8(&data->sprite) != 0, &x, &y, data->unk_64, data->unk_68,
+                                      data->unk_6C);
             CombatSprite_SetPosition(&data->sprite, x, y);
             func_ov003_02082730(&data->sprite, 0x7FFFFFFF - data->unk_68);
             CombatSprite_Render(&data->sprite);

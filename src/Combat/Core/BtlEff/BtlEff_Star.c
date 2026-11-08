@@ -163,7 +163,7 @@ static s32 BtlEff_Star_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Star_Update(TaskPool* pool, Task* task, void* args) {
     BtlEffStar* star = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 6) {
+    if (g_CombatGlobal->unk3D878 & 6) {
         return 0;
     }
     if (star->timer % 4 == 0) {
@@ -217,5 +217,5 @@ s32 func_ov003_020a0244(s32 level, Ov003TouchActor* owner) {
 
     params.owner = owner;
     params.level = level;
-    return EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEff_Star, NULL, 0, NULL, &params);
+    return EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Star, NULL, 0, NULL, &params);
 }

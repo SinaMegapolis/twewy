@@ -86,9 +86,9 @@ void func_ov012_021256f0(s32 engine, BtlEnm014* data, s32 arg2) {
 
     TaskPool* pool;
     if (engine == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm014_Eff, NULL, 0, NULL, &spawn);
 }
@@ -138,9 +138,9 @@ void func_ov012_02125858(BtlEnm014* data) {
     BtlEnm014* boss;
 
     if (data->base.sprite.sprite.bits_0_1 == 0) {
-        boss = data_ov003_020e71b8->unk3D898;
+        boss = g_CombatGlobal->unk3D898;
     } else {
-        boss = data_ov003_020e71b8->unk3D89C;
+        boss = g_CombatGlobal->unk3D89C;
     }
     data->base.actor.unk_62 = 100;
     if (data->base.sprite.flags46 & 1) {
@@ -163,15 +163,15 @@ hit:
 }
 
 void func_ov012_021258e8(void) {
-    if (data_ov003_020e71b8->unk3D88E != 0x90) {
+    if (g_CombatGlobal->unk3D88E != 0x90) {
         return;
     }
     if (gSaveData.battleClearTime <= 0x654) {
         return;
     }
-    data_ov003_020e71b8->unk3D875 = 2;
-    data_ov003_020e71b8->unk3D878 |= 0x200000;
-    data_ov003_020e71b8->unk3D878 |= 0x20000000;
+    g_CombatGlobal->unk3D875 = 2;
+    g_CombatGlobal->unk3D878 |= 0x200000;
+    g_CombatGlobal->unk3D878 |= 0x20000000;
 }
 
 void func_ov012_02125958(BtlEnm014* data) {

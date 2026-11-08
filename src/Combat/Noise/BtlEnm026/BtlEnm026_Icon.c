@@ -127,15 +127,15 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
                 hp = 0x63;
             }
             if (data->unk_130 == 0) {
-                if (data_ov003_020e71b8->unk3D874 == 2) {
+                if (g_CombatGlobal->unk3D874 == 2) {
                     if (hp == 0) {
                         if (SndMgr_IsSEPlaying(SEIDX_SE_026_TIMER0) == 0) {
-                            func_ov003_02087ed8(SEIDX_SE_026_TIMER0);
+                            CombatSe_Play(SEIDX_SE_026_TIMER0);
                         }
                         data->unk_130 = 1;
                     } else if (data->unk_12C != hp) {
                         if (SndMgr_IsSEPlaying(SEIDX_SE_026_TIMER) == 0) {
-                            func_ov003_02087ed8(SEIDX_SE_026_TIMER);
+                            CombatSe_Play(SEIDX_SE_026_TIMER);
                         }
                     }
                 }
@@ -165,8 +165,8 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
             CombatSprite_Restart(&data->unk_00);
             if (SndMgr_IsSEPlaying(SEIDX_SE_026_VOC_IBIKI) == 0) {
                 if (data_ov015_02128500.flag08 == 0) {
-                    if (data_ov003_020e71b8->unk3D874 == 2) {
-                        func_ov003_02087ed8(SEIDX_SE_026_VOC_IBIKI);
+                    if (g_CombatGlobal->unk3D874 == 2) {
+                        CombatSe_Play(SEIDX_SE_026_VOC_IBIKI);
                     }
                 }
             }
@@ -196,7 +196,7 @@ static s32 func_ov015_02126660(BtlEnm026Icon* data) {
 
     switch (data->unk_00.animTableIndex) {
         case 0:
-            func_ov003_02084348(engine, &sx, &sy, px, py, pz);
+            CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
             CombatSprite_SetPosition(&data->unk_60, sx, sy);
             func_ov003_02082730(&data->unk_60, 0x7FFFFFFD - py);
             CombatSprite_Render(&data->unk_60);
@@ -204,16 +204,16 @@ static s32 func_ov015_02126660(BtlEnm026Icon* data) {
 
         case 1:
             if (data->unk_C0.animTableIndex != 3) {
-                func_ov003_02084348(engine, &sx, &sy, px - 0x4000, py, pz);
+                CombatStage_WorldToScreen(engine, &sx, &sy, px - 0x4000, py, pz);
                 CombatSprite_SetPosition(&data->unk_C0, sx, sy);
                 func_ov003_02082730(&data->unk_C0, 0x7FFFFFFD - py);
                 CombatSprite_Render(&data->unk_C0);
-                func_ov003_02084348(engine, &sx, &sy, px + 0x4000, py, pz);
+                CombatStage_WorldToScreen(engine, &sx, &sy, px + 0x4000, py, pz);
                 CombatSprite_SetPosition(&data->unk_60, sx, sy);
                 func_ov003_02082730(&data->unk_60, 0x7FFFFFFD - py);
                 CombatSprite_Render(&data->unk_60);
             } else {
-                func_ov003_02084348(engine, &sx, &sy, px, py, pz);
+                CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
                 CombatSprite_SetPosition(&data->unk_60, sx, sy);
                 func_ov003_02082730(&data->unk_60, 0x7FFFFFFD - py);
                 CombatSprite_Render(&data->unk_60);
@@ -221,7 +221,7 @@ static s32 func_ov015_02126660(BtlEnm026Icon* data) {
             break;
     }
 
-    func_ov003_02084348(engine, &sx, &sy, px, py, pz);
+    CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
     CombatSprite_SetPosition(&data->unk_00, sx, sy);
     func_ov003_02082730(&data->unk_00, 0x7FFFFFFE - py);
     CombatSprite_Render(&data->unk_00);

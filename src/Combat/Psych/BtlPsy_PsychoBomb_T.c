@@ -5,7 +5,7 @@
 static const TaskHandle data_ov003_020dc748;
 
 s32 func_ov003_020ac4f4(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(2))
+    if (!CombatTouch_IsGesture(2))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc748.taskName);
     *arg                   = effect;
@@ -28,8 +28,8 @@ static s32 func_ov003_020ac54c(TaskPool* pool, Task* task, void* args, s32 stage
             self->effect = *arg;
             self->timer  = 8;
             func_ov003_020a6464(1);
-            s32 y = func_ov003_02084460(0, touch->y, 0x1000);
-            s32 x = func_ov003_0208442c(0, touch->x);
+            s32 y = CombatStage_ToWorldY(0, touch->y, 0x1000);
+            s32 x = CombatStage_ToWorldX(0, touch->x);
             func_ov003_020abe30(self->effect, x, y, 0x1000);
             func_ov003_020a6494(touch->x);
             return 1;

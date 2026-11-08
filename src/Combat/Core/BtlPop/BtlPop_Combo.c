@@ -11,7 +11,7 @@
 
 // The combo-count popup: a task that shows the running hit combo next to the main actor, then
 // re-shows it with a flash every time the combo grows. The combo itself lives in
-// `data_ov003_020e71b8->unk3D8F8`; hitting the actor's hit flags feed it through the shared
+// `g_CombatGlobal->unk3D8F8`; hitting the actor's hit flags feed it through the shared
 // `data_ov003_020e71bc` command mailbox.
 
 typedef struct BtlPop_Combo {
@@ -116,14 +116,12 @@ static void func_ov003_0209b8f4(BtlPop_Combo* combo) {
     combo->z          = -0x16000;
     combo->isActive   = TRUE;
     combo->shownCombo = 0;
-    combo->combo      = data_ov003_020e71b8->unk3D8F8;
+    combo->combo      = g_CombatGlobal->unk3D8F8;
     func_ov003_0209b760(combo, func_ov003_0209ba94);
 }
 
 /// Consumes a combo command from the shared mailbox: a type-1 command banks the combo increase
 /// and (re)starts the popup, a type-2 command hides it.
-// Nonmatching: the `combo->combo` re-read after `combo->timer = 0` lands in r1 instead of r0;
-// every other instruction is identical.
 static void func_ov003_0209b93c(BtlPop_Combo* combo, BtlPop_ComboCmd* cmd) {
     switch (cmd->type) {
         case 2: {
@@ -134,25 +132,25 @@ static void func_ov003_0209b93c(BtlPop_Combo* combo, BtlPop_ComboCmd* cmd) {
         case 1: {
             cmd->type         = 0;
             combo->holdFrames = cmd->value;
-            if (func_ov003_020a3330(34) != 0) {
-                combo->holdFrames += (s16)func_ov003_020a3468(34);
+            if (CombatAbility_IsActive(34) != 0) {
+                combo->holdFrames += (s16)CombatAbility_GetValue(34);
             }
 
             if (combo->isActive == FALSE) {
-                if (data_ov003_020e71b8->unk3D8F8 > 1) {
+                if (g_CombatGlobal->unk3D8F8 > 1) {
                     func_ov003_0209b8f4(combo);
                 } else {
                     combo->timer = 0;
                     func_ov003_0209b760(combo, func_ov003_0209ba40);
                 }
             } else if (combo->state == 4) {
-                combo->combo = data_ov003_020e71b8->unk3D8F8;
+                combo->combo = g_CombatGlobal->unk3D8F8;
                 combo->timer = 0;
 
                 if (combo->combo != 1) {
                     combo->state = 2;
                 } else {
-                    func_ov003_0209b88c(combo, combo->combo);
+                    func_ov003_0209b88c(combo, 0);
                     combo->state = 0;
                 }
             }
@@ -168,8 +166,8 @@ static void func_ov003_0209ba40(BtlPop_Combo* combo) {
     }
     combo->timer--;
     if (combo->timer <= 0) {
-        data_ov003_020e71b8->unk3D8F8 = 0;
-        combo->timer                  = 0;
+        g_CombatGlobal->unk3D8F8 = 0;
+        combo->timer             = 0;
         func_ov003_0209b760(combo, NULL);
     }
 }
@@ -253,24 +251,24 @@ static void func_ov003_0209ba94(BtlPop_Combo* combo) {
             if (combo->isVisible == FALSE) {
                 combo->flashTimer = 0;
             }
-            if ((data_ov003_020e71b8->unk3D878 & 8) == 0) {
+            if ((g_CombatGlobal->unk3D878 & 8) == 0) {
                 combo->timer--;
                 if (combo->timer <= 0) {
                     combo->state = 5;
                 }
             }
-            if (data_ov003_020e71b8->unk3D8F8 > combo->combo) {
+            if (g_CombatGlobal->unk3D8F8 > combo->combo) {
                 combo->state = 2;
                 combo->timer = 0;
-                combo->combo = data_ov003_020e71b8->unk3D8F8;
+                combo->combo = g_CombatGlobal->unk3D8F8;
             }
         } break;
 
         case 5: {
             if (combo->timer == 0) {
                 func_ov003_0209d4b0();
-                data_ov003_020e71b8->unk3D8F8 = 0;
-                combo->timer                  = 5;
+                g_CombatGlobal->unk3D8F8 = 0;
+                combo->timer             = 5;
                 func_ov003_0209b88c(combo, 0);
             }
             if (combo->timer > 0) {
@@ -278,7 +276,7 @@ static void func_ov003_0209ba94(BtlPop_Combo* combo) {
             }
             combo->timer--;
             if (combo->timer <= 0) {
-                if (data_ov003_020e71b8->unk3D8F8 > 1) {
+                if (g_CombatGlobal->unk3D8F8 > 1) {
                     func_ov003_0209b8f4(combo);
                 } else {
                     combo->isActive = FALSE;
@@ -294,15 +292,15 @@ static s32 BtlPop_Combo_Init(TaskPool* pool, Task* task, void* args) {
     BtlPop_Combo* combo = task->data;
 
     MI_CpuSet(combo, 0, sizeof(BtlPop_Combo));
-    data_ov003_020e71b8->unk3D8F8 = 0;
-    combo->x                      = 0;
-    combo->y                      = 0xB4000;
-    combo->z                      = 0;
-    combo->unk84                  = 0;
-    combo->timer                  = 0;
-    combo->state                  = 0;
-    combo->digitCount             = 0;
-    combo->isActive               = FALSE;
+    g_CombatGlobal->unk3D8F8 = 0;
+    combo->x                 = 0;
+    combo->y                 = 0xB4000;
+    combo->z                 = 0;
+    combo->unk84             = 0;
+    combo->timer             = 0;
+    combo->state             = 0;
+    combo->digitCount        = 0;
+    combo->isActive          = FALSE;
 
     CombatSprite_LoadDirect(0, &combo->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x36);
     func_ov003_02082738(&combo->sprite, 0);
@@ -395,8 +393,8 @@ static s32 BtlPop_Combo_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
 void func_ov003_0209c150(s16 combo) {
     data_ov003_020e71bc.type  = 1;
     data_ov003_020e71bc.value = combo;
-    data_ov003_020e71b8->unk3D8F8++;
-    if (gSaveData.battleMaxHits < data_ov003_020e71b8->unk3D8F8) {
-        gSaveData.battleMaxHits = data_ov003_020e71b8->unk3D8F8;
+    g_CombatGlobal->unk3D8F8++;
+    if (gSaveData.battleMaxHits < g_CombatGlobal->unk3D8F8) {
+        gSaveData.battleMaxHits = g_CombatGlobal->unk3D8F8;
     }
 }

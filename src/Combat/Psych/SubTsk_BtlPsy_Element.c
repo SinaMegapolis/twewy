@@ -53,9 +53,9 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
             self->effect          = arg->effect;
             self->mode            = arg->mode;
             self->kind            = arg->kind;
-            self->position.x      = func_ov003_0208442c(0, arg->x);
+            self->position.x      = CombatStage_ToWorldX(0, arg->x);
             self->position.z      = 0x1000;
-            self->position.y      = func_ov003_02084460(0, arg->y, self->position.z);
+            self->position.y      = CombatStage_ToWorldY(0, arg->y, self->position.z);
             self->angle           = arg->angle;
             self->speed           = arg->speed;
             self->scale           = arg->scale;
@@ -85,20 +85,20 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
                     self->turnTimer = 0;
                     break;
             }
-            func_ov003_020a3498(&self->sprite, 2, 1, data_ov003_020dc7b8[self->kind].animation, 1);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, data_ov003_020dc7b8[self->kind].animation, 1);
             self->effect->unk_0A++;
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
             s32 sound = data_ov003_020dc7b8[self->kind].startSound;
             if (sound != 0x56C && sound < 0x56C)
-                func_ov003_02087f28(sound, self->position.x);
+                CombatSe_PlayAtMainX(sound, self->position.x);
             return 1;
         case 1: {
             Ov003Element* self = task->data;
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                 s32 sound = data_ov003_020dc7b8[self->kind].loopSound;
                 if (sound < 0x56C)
-                    func_ov003_02087f28(sound, self->position.x);
+                    CombatSe_PlayAtMainX(sound, self->position.x);
                 CombatSprite_Restart(&self->sprite);
             }
             CombatSprite_Update(&self->sprite);
@@ -124,8 +124,8 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             self  = task->data;
-            s32 x = func_ov003_020843b0(0, self->position.x);
-            s32 y = func_ov003_020843ec(0, self->position.y, self->position.z);
+            s32 x = CombatStage_ToScreenX(0, self->position.x);
+            s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
             CombatSprite_SetPosition(&self->sprite, x, y);
             s32 scale                         = self->scale;
             self->affine.rotation             = 0;
@@ -172,8 +172,8 @@ static void func_ov003_020ae980(Ov003Element* self) {
             s32 dy = FX_Mul(FX_Mul(self->speed, FX_SinIdx(angle)), 0x4000);
             s32 dx = FX_Mul(FX_Mul(self->speed, FX_CosIdx(angle)), 0x4000);
             s32 y  = self->position.y;
-            s32 x  = func_ov003_020843b0(0, self->position.x + dx);
-            y      = func_ov003_020843ec(0, y + dy, self->position.z);
+            s32 x  = CombatStage_ToScreenX(0, self->position.x + dx);
+            y      = CombatStage_ToScreenY(0, y + dy, self->position.z);
             if (x >= 0 && x <= 256 && y >= 0 && y <= 192)
                 break;
         }
@@ -204,8 +204,8 @@ static void func_ov003_020aeb0c(Ov003Element* self) {
             s32 dy = FX_Mul(FX_Mul(self->speed, FX_SinIdx(angle)), frames * 0x1000);
             s32 dx = FX_Mul(FX_Mul(self->speed, FX_CosIdx(angle)), frames * 0x1000);
             s32 y  = self->position.y;
-            s32 x  = func_ov003_020843b0(0, self->position.x + dx);
-            y      = func_ov003_020843ec(0, y + dy, self->position.z);
+            s32 x  = CombatStage_ToScreenX(0, self->position.x + dx);
+            y      = CombatStage_ToScreenY(0, y + dy, self->position.z);
             if (x >= 0 && x <= 256 && y >= 0 && y <= 192)
                 break;
         }
@@ -268,8 +268,8 @@ static void func_ov003_020aedf0(Ov003Element* self) {
 }
 
 static void func_ov003_020aee9c(Ov003Element* self) {
-    s32 low  = func_ov003_0208442c(0, 0) + self->radius;
-    s32 high = func_ov003_0208442c(0, 256) - self->radius;
+    s32 low  = CombatStage_ToWorldX(0, 0) + self->radius;
+    s32 high = CombatStage_ToWorldX(0, 256) - self->radius;
     if (self->position.x < low) {
         self->position.x      = low;
         self->velocity.x      = -self->velocity.x;
@@ -281,8 +281,8 @@ static void func_ov003_020aee9c(Ov003Element* self) {
         self->deflectionSpeed = 0;
         self->remainingUses--;
     }
-    low  = func_ov003_02084460(0, 0, self->position.z) + self->radius;
-    high = func_ov003_02084460(0, 192, self->position.z) - self->radius;
+    low  = CombatStage_ToWorldY(0, 0, self->position.z) + self->radius;
+    high = CombatStage_ToWorldY(0, 192, self->position.z) - self->radius;
     if (self->position.y < low) {
         self->position.y      = low;
         self->velocity.y      = -self->velocity.y;
@@ -302,10 +302,10 @@ static void func_ov003_020aefc0(Ov003Element* self) {
     s32 hit      = 0;
     if (attackId == 0x16F && func_ov003_020a51c0())
         attackId = 0x170;
-    Ov003EnemyActor* unit = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
-        s32 x       = func_ov003_020843b0(0, self->position.x) * 4096;
-        s32 y       = func_ov003_020843ec(0, self->position.y, self->position.z) * 4096;
+        s32 x       = CombatStage_ToScreenX(0, self->position.x) * 4096;
+        s32 y       = CombatStage_ToScreenY(0, self->position.y, self->position.z) * 4096;
         s32 targetX = unit->actor.screenX * 4096;
         s32 targetY = (unit->actor.screenY - unit->actor.unk_76) * 4096;
         if (func_ov003_020a62ec(x, y, targetX, targetY) <= self->radius + (unit->actor.unk_70 / 2) * 4096 &&
@@ -329,12 +329,12 @@ static void func_ov003_020aefc0(Ov003Element* self) {
             self->remainingUses -= 3;
             break;
         }
-        unit = func_ov003_02084984(&unit->node);
+        unit = CombatList_GetNext(&unit->node);
     }
     if (hit == 1) {
         s32 sound = data_ov003_020dc7b8[self->kind].hitSound;
         if (sound < 0x56C)
-            func_ov003_02087f28(sound, self->position.x);
+            CombatSe_PlayAtMainX(sound, self->position.x);
     }
 }
 
@@ -342,9 +342,9 @@ static void func_ov003_020aefc0(Ov003Element* self) {
 static CombatActor* func_ov003_020af1e0(Ov003Element* self) {
     CombatActor*     best    = NULL;
     s32              nearest = 0x7FFFFFFF;
-    s32              x       = func_ov003_020843b0(0, self->position.x);
-    s32              y       = func_ov003_020843ec(0, self->position.y, self->position.z);
-    Ov003EnemyActor* unit    = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+    s32              x       = CombatStage_ToScreenX(0, self->position.x);
+    s32              y       = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+    Ov003EnemyActor* unit    = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
         if (!(unit->actor.flags & 4)) {
             s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.unk_76);
@@ -353,7 +353,7 @@ static CombatActor* func_ov003_020af1e0(Ov003Element* self) {
                 nearest = distance;
             }
         }
-        unit = func_ov003_02084984(&unit->node);
+        unit = CombatList_GetNext(&unit->node);
     }
     return best;
 }

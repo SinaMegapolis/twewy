@@ -10,19 +10,19 @@ static s32 func_ov003_02095d08(TaskPool* pool, Task* task, void* args) {
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
     self->effect = *arg;
-    func_ov003_020a4a34(&self->trail);
-    data_ov003_020e71b8->unk3D8C8 = 1;
+    CombatPsyTrail_Init(&self->trail);
+    g_CombatGlobal->unk3D8C8 = 1;
     return 1;
 }
 static s32 func_ov003_02095d50(TaskPool* pool, Task* task, void* args) {
     Ov003PsychTrail* self = task->data;
     if (func_ov003_020a63a8(self->effect))
         return 0;
-    switch (func_ov003_020a4aac(&self->trail)) {
+    switch (CombatPsyTrail_Update(&self->trail)) {
         case 0:
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
-            func_ov003_02087250(self->effect, data_ov003_020e71b8->unk3D898, 0);
+            func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, 0);
             return 0;
         case 1:
             return 1;
@@ -33,13 +33,13 @@ static s32 func_ov003_02095d50(TaskPool* pool, Task* task, void* args) {
 }
 static s32 func_ov003_02095dd4(TaskPool* pool, Task* task, void* args) {
     Ov003PsychTrail* self = task->data;
-    func_ov003_020a4c8c(&self->trail);
+    CombatPsyTrail_Render(&self->trail);
     return 1;
 }
 static s32 func_ov003_02095dec(TaskPool* pool, Task* task, void* args) {
     Ov003PsychTrail* self = task->data;
-    func_ov003_020a4d50(&self->trail);
-    data_ov003_020e71b8->unk3D8C8 = 0;
+    CombatPsyTrail_Release(&self->trail);
+    g_CombatGlobal->unk3D8C8 = 0;
     return 1;
 }
 
@@ -54,9 +54,9 @@ static s32 func_ov003_02095e1c(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_02095e64(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(6))
+    if (!CombatTouch_IsGesture(6))
         return 0;
-    if (func_ov003_02085d3c(1))
+    if (CombatTouch_IsTargetKind(1))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7e64.taskName);
     *arg                   = effect;

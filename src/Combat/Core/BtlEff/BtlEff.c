@@ -63,9 +63,9 @@ static s32 BtlEff_Init(TaskPool* pool, Task* task, void* args) {
     CombatSprite_SetFlip(&eff->sprite, p->flip);
 
     if (p->mode != 1) {
-        data_ov003_020e71b8->unk3D8FE = (s8)data_ov003_020e71b8->unk3D8FE + 1;
+        g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE + 1;
     } else {
-        data_ov003_020e71b8->unk3D8FF = (s8)data_ov003_020e71b8->unk3D8FF + 1;
+        g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF + 1;
     }
     return 1;
 }
@@ -91,11 +91,11 @@ static s32 BtlEff_Render(TaskPool* pool, Task* task, void* args) {
     s32           sortKey;
 
     if (eff->sprite.sprite.bits_0_1 != 1) {
-        posX = func_ov003_020843b0(0, eff->position.x);
-        posY = func_ov003_020843ec(0, eff->position.y, eff->position.z);
+        posX = CombatStage_ToScreenX(0, eff->position.x);
+        posY = CombatStage_ToScreenY(0, eff->position.y, eff->position.z);
     } else {
-        posX = func_ov003_020843b0(1, eff->position.x);
-        posY = func_ov003_020843ec(1, eff->position.y, eff->position.z);
+        posX = CombatStage_ToScreenX(1, eff->position.x);
+        posY = CombatStage_ToScreenY(1, eff->position.y, eff->position.z);
     }
     sortKey = 0x7FFFFFFF - (eff->position.y + 0x8000);
     CombatSprite_SetPosition(&eff->sprite, posX, posY);
@@ -109,9 +109,9 @@ static s32 BtlEff_Release(TaskPool* pool, Task* task, void* args) {
     CombatEffect* eff = task->data;
 
     if (eff->sprite.sprite.bits_0_1 != 1) {
-        data_ov003_020e71b8->unk3D8FE = (s8)data_ov003_020e71b8->unk3D8FE - 1;
+        g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE - 1;
     } else {
-        data_ov003_020e71b8->unk3D8FF = (s8)data_ov003_020e71b8->unk3D8FF - 1;
+        g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF - 1;
     }
     CombatSprite_Release(&eff->sprite);
     return 1;
@@ -137,9 +137,9 @@ void func_ov003_0209e9f8(s32 mode, s32 id, s32 x, s32 y, s32 z, s32 flip) {
     s32        live;
 
     if (mode != 1) {
-        live = (s8)data_ov003_020e71b8->unk3D8FE;
+        live = (s8)g_CombatGlobal->unk3D8FE;
     } else {
-        live = (s8)data_ov003_020e71b8->unk3D8FF;
+        live = (s8)g_CombatGlobal->unk3D8FF;
     }
     // The retail code folds the room test back into the same variable.
     live = live < 10;
@@ -151,6 +151,6 @@ void func_ov003_0209e9f8(s32 mode, s32 id, s32 x, s32 y, s32 z, s32 flip) {
         args.z    = z;
         args.flip = flip;
 
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEff, NULL, 0, NULL, &args);
+        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff, NULL, 0, NULL, &args);
     }
 }

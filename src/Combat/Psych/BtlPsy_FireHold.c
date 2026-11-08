@@ -61,7 +61,7 @@ static s32 func_ov003_020b0d2c(TaskPool* pool, Task* task, void* args, s32 stage
                         self->timer = 0x14;
                         func_ov003_020b0fdc(self->unit);
                         func_ov003_020b1024(self->unit);
-                        func_ov003_02087f28(0xAC, self->unit->actor.position.x);
+                        CombatSe_PlayAtMainX(0xAC, self->unit->actor.position.x);
                     }
                     if (self->frames >= 0xF) {
                         self->frames        = 0;
@@ -74,12 +74,12 @@ static s32 func_ov003_020b0d2c(TaskPool* pool, Task* task, void* args, s32 stage
                     if (self->timer == 0 && self->frames < 0x3C) {
                         self->timer = 0x14;
                         func_ov003_020b1024(self->unit);
-                        func_ov003_02087f28(0xAC, self->unit->actor.position.x);
+                        CombatSe_PlayAtMainX(0xAC, self->unit->actor.position.x);
                     }
                     if (self->particleTimer == 0) {
                         self->particleTimer = 0x14;
                         func_ov003_020b1094(self->unit, self->effect->index == 2);
-                        func_ov003_02087f28(0x90, self->unit->actor.position.x);
+                        CombatSe_PlayAtMainX(0x90, self->unit->actor.position.x);
                     }
                     func_ov003_020a6568(&self->effect->streak, 0x168, self->unit, self->unit->actor.position.x, 0,
                                         self->effect->unk_08 >= 4 ? (u16)0x19 : (u16)0);
@@ -103,7 +103,7 @@ static s32 func_ov003_020b0d2c(TaskPool* pool, Task* task, void* args, s32 stage
 
 /// The actor currently held by the touch, if it is a live enemy.
 static Ov003EnemyActor* func_ov003_020b0fa0(void) {
-    if (!func_ov003_02085cfc(7))
+    if (!CombatTouch_IsGesture(7))
         return NULL;
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_020a62a0()->held;
     if (unit == NULL)

@@ -92,8 +92,8 @@ s32 Boss01_Eff_Render(TaskPool* pool, Task* task, void* args) {
     s16         spA, sp8;
     Boss01_Eff* eff = task->data;
 
-    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)eff), &spA, &sp8, eff->unk_60.unk_0.x, eff->unk_60.unk_0.y,
-                        eff->unk_60.unk_0.z);
+    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)eff), &spA, &sp8, eff->unk_60.unk_0.x, eff->unk_60.unk_0.y,
+                              eff->unk_60.unk_0.z);
     CombatSprite_SetPosition(&eff->sprite, spA, sp8);
     CombatSprite_Render(&eff->sprite);
     return 1;

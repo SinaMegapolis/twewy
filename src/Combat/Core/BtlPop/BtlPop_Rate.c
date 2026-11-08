@@ -136,11 +136,11 @@ static s32 BtlPop_Rate_Render(TaskPool* pool, Task* task, void* args) {
     s32          posY;
 
     if (rate->sprite.sprite.bits_0_1 == 0) {
-        posX = func_ov003_020843b0(0, rate->x);
-        posY = func_ov003_020843ec(0, rate->y, rate->z);
+        posX = CombatStage_ToScreenX(0, rate->x);
+        posY = CombatStage_ToScreenY(0, rate->y, rate->z);
     } else {
-        posX = func_ov003_020843b0(1, rate->x);
-        posY = func_ov003_020843ec(1, rate->y, rate->z);
+        posX = CombatStage_ToScreenX(1, rate->x);
+        posY = CombatStage_ToScreenY(1, rate->y, rate->z);
     }
     if (posX < 24) {
         posX = 24;
@@ -161,12 +161,12 @@ static s32 BtlPop_Rate_Release(TaskPool* pool, Task* task, void* args) {
     BtlPop_Rate* rate = task->data;
 
     if (rate->sprite.sprite.bits_0_1 == 0) {
-        if (rate->rate == (s16)data_ov003_020e71b8->unk3D900) {
-            data_ov003_020e71b8->unk3D900 = 0;
+        if (rate->rate == (s16)g_CombatGlobal->unk3D900) {
+            g_CombatGlobal->unk3D900 = 0;
         }
     } else {
-        if (rate->rate == (s16)data_ov003_020e71b8->unk3D902) {
-            data_ov003_020e71b8->unk3D902 = 0;
+        if (rate->rate == (s16)g_CombatGlobal->unk3D902) {
+            g_CombatGlobal->unk3D902 = 0;
         }
     }
     CombatSprite_Release(&rate->sprite);
@@ -190,30 +190,30 @@ static s32 BtlPop_Rate_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
 
 void func_ov003_0209c568(s32 engine) {
     BtlPop_RateArgs params;
-    s16             rate          = data_ov003_020e71b8->unk3D8EE;
+    s16             rate          = g_CombatGlobal->unk3D8EE;
     BOOL            isRateChanged = FALSE;
 
     if (rate >= 200) {
         if (engine == 0) {
-            if ((s16)data_ov003_020e71b8->unk3D900 != rate) {
-                isRateChanged                 = TRUE;
-                params.x                      = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x;
-                params.y                      = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y;
-                params.z                      = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.z - 0x20000;
-                data_ov003_020e71b8->unk3D900 = data_ov003_020e71b8->unk3D8EE;
+            if ((s16)g_CombatGlobal->unk3D900 != rate) {
+                isRateChanged            = TRUE;
+                params.x                 = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
+                params.y                 = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
+                params.z                 = ((CombatActor*)g_CombatGlobal->unk3D898)->position.z - 0x20000;
+                g_CombatGlobal->unk3D900 = g_CombatGlobal->unk3D8EE;
             }
-        } else if ((s16)data_ov003_020e71b8->unk3D902 != rate) {
-            isRateChanged                 = TRUE;
-            params.x                      = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.x;
-            params.y                      = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.y;
-            params.z                      = ((CombatActor*)data_ov003_020e71b8->unk3D89C)->position.z - 0x20000;
-            data_ov003_020e71b8->unk3D902 = data_ov003_020e71b8->unk3D8EE;
+        } else if ((s16)g_CombatGlobal->unk3D902 != rate) {
+            isRateChanged            = TRUE;
+            params.x                 = ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x;
+            params.y                 = ((CombatActor*)g_CombatGlobal->unk3D89C)->position.y;
+            params.z                 = ((CombatActor*)g_CombatGlobal->unk3D89C)->position.z - 0x20000;
+            g_CombatGlobal->unk3D902 = g_CombatGlobal->unk3D8EE;
         }
 
         if (isRateChanged) {
             params.engine = engine;
-            params.rate   = data_ov003_020e71b8->unk3D8EE;
-            EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Rate, NULL, 0, NULL, &params);
+            params.rate   = g_CombatGlobal->unk3D8EE;
+            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Rate, NULL, 0, NULL, &params);
         }
     }
 }

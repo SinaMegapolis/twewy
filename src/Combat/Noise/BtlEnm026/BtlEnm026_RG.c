@@ -44,7 +44,7 @@ static void func_ov015_021268b0(BtlEnm026* data) {
 }
 
 static void func_ov015_0212699c(BtlEnm026* data) {
-    BtlEnm026* boss = (BtlEnm026*)data_ov003_020e71b8->unk3D89C;
+    BtlEnm026* boss = (BtlEnm026*)g_CombatGlobal->unk3D89C;
 
     switch (data->unk_1C2) {
         case 0:
@@ -88,9 +88,9 @@ static void func_ov015_0212699c(BtlEnm026* data) {
                 dy = -0x800;
             }
             data->base.actor.position.y = data->base.actor.position.y + dy;
-            h                           = func_ov003_0208a114(0xB9);
-            if (func_ov003_0208a164(h, &data->base.actor.baseArgs, data->base.actor.position.x, data->base.actor.position.y,
-                                    data->base.actor.position.z) == 1)
+            h                           = CombatHit_GetAttackInfo(0xB9);
+            if (CombatHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x, data->base.actor.position.y,
+                                   data->base.actor.position.z) == 1)
             {
                 data->unk_1F0 = 0;
             }

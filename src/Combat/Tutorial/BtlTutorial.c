@@ -51,7 +51,7 @@ static void func_ov008_020e74dc(void) {
 static s32 func_ov008_020e7580(void) {
     s32 result = 0;
 
-    switch (data_ov003_020e71b8->unk3D88E - 0x32) {
+    switch (g_CombatGlobal->unk3D88E - 0x32) {
         case 0:
             result = 0;
             break;
@@ -96,7 +96,7 @@ static s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(data, 0, sizeof(BtlTutorial));
     func_ov008_020e74dc();
-    data_ov003_020e71b8->unk3D7C0[1].unk_02 |= 1;
+    g_CombatGlobal->unk3D7C0[1].unk_02 |= 1;
 
     s32                       variant = func_ov008_020e7580();
     Data*                     pack1;
@@ -157,7 +157,7 @@ static s32 func_ov008_020e7910(TaskPool* pool, Task* task, void* args) {
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], data->unk_08);
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], data->unk_0C);
     PaletteMgr_ReleaseResource(g_PaletteManagers[DISPLAY_SUB], data->unk_10);
-    data_ov003_020e71b8->unk3D7C0[1].unk_02 &= ~1;
+    g_CombatGlobal->unk3D7C0[1].unk_02 &= ~1;
     return 1;
 }
 

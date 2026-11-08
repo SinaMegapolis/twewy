@@ -85,7 +85,7 @@ static s32 BtlPop_Star_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPop_Star_Update(TaskPool* pool, Task* task, void* args) {
     BtlPop_Star* star = task->data;
 
-    if (data_ov003_020e71b8->unk3D878 & 6) {
+    if (g_CombatGlobal->unk3D878 & 6) {
         return 0;
     }
     if (star->timer > 0) {
@@ -145,5 +145,5 @@ s32 func_ov003_0209d038(s32 value, s16 x, s32 y) {
     params.value = value;
     params.x     = x;
     params.y     = y;
-    return EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlPop_Star, NULL, 0, NULL, &params);
+    return EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Star, NULL, 0, NULL, &params);
 }

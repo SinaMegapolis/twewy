@@ -112,33 +112,33 @@ extern u8 data_ov003_020e71d9;
 
 s32 BtlCutIn_GetSnapshotScreenX(s32 screen, Ov003ActorSnapshot* entry) {
     if (screen == 1) {
-        return func_ov003_020843b0(1, entry->unit->actor.position.x);
+        return CombatStage_ToScreenX(1, entry->unit->actor.position.x);
     } else {
-        return func_ov003_020843b0(0, entry->unit->actor.position.x);
+        return CombatStage_ToScreenX(0, entry->unit->actor.position.x);
     }
 }
 
 s32 BtlCutIn_GetSnapshotScreenY(s32 screen, Ov003ActorSnapshot* entry) {
     if (screen == 1) {
-        return func_ov003_020843ec(1, entry->unit->actor.position.y, entry->unit->actor.position.z);
+        return CombatStage_ToScreenY(1, entry->unit->actor.position.y, entry->unit->actor.position.z);
     } else {
-        return func_ov003_020843ec(0, entry->unit->actor.position.y, entry->unit->actor.position.z);
+        return CombatStage_ToScreenY(0, entry->unit->actor.position.y, entry->unit->actor.position.z);
     }
 }
 
 void BtlCutIn_SetSnapshotScreenX(s32 screen, Ov003ActorSnapshot* entry, s32 x) {
     if (screen == 1) {
-        entry->unit->actor.position.x = func_ov003_0208442c(1, x);
+        entry->unit->actor.position.x = CombatStage_ToWorldX(1, x);
     } else {
-        entry->unit->actor.position.x = func_ov003_0208442c(0, x);
+        entry->unit->actor.position.x = CombatStage_ToWorldX(0, x);
     }
 }
 
 void BtlCutIn_SetSnapshotScreenY(s32 screen, Ov003ActorSnapshot* entry, s32 y) {
     if (screen == 1) {
-        entry->unit->actor.position.y = func_ov003_02084460(1, y, entry->unit->actor.position.z);
+        entry->unit->actor.position.y = CombatStage_ToWorldY(1, y, entry->unit->actor.position.z);
     } else {
-        entry->unit->actor.position.y = func_ov003_02084460(0, y, entry->unit->actor.position.z);
+        entry->unit->actor.position.y = CombatStage_ToWorldY(0, y, entry->unit->actor.position.z);
     }
 }
 
@@ -483,6 +483,6 @@ s32 BtlCutIn00_CreateKariyaYashiroTask(TaskPool* pool) {
     BtlCutIn00Args args;
 
     args.kind    = 2;
-    args.partner = data_ov003_020e71b8->unk3D88D;
+    args.partner = g_CombatGlobal->unk3D88D;
     return EasyTask_CreateTask(pool, &Tsk_BtlCutIn00, NULL, 0, NULL, &args);
 }

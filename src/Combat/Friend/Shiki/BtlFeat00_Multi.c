@@ -66,9 +66,9 @@ void func_ov004_020ebc40(BtlFeat00_Multi* multi) {
     }
 
     if (multi->sprite.sprite.bits_0_1 != 0) {
-        func_ov003_0209fc88(1, func_ov003_0208442c(1, temp_r5), func_ov003_02084460(1, multi->unk_62, 0), 0, 4, 1);
+        func_ov003_0209fc88(1, CombatStage_ToWorldX(1, temp_r5), CombatStage_ToWorldY(1, multi->unk_62, 0), 0, 4, 1);
     } else {
-        func_ov003_0209fc88(2, func_ov003_0208442c(0, temp_r5), func_ov003_02084460(0, multi->unk_62, 0), 0, 4, 1);
+        func_ov003_0209fc88(2, CombatStage_ToWorldX(0, temp_r5), CombatStage_ToWorldY(0, multi->unk_62, 0), 0, 4, 1);
     }
 }
 
@@ -206,5 +206,5 @@ void BtlFeat00_Multi_CreateTask(s32 arg0, u16 arg1, s16 arg2, s16 arg3, s32 arg4
     args.unk_6 = arg2;
     args.unk_8 = arg3;
     args.unk_C = arg4;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, &Tsk_BtlFeat00_Multi, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BtlFeat00_Multi, NULL, 0, NULL, &args);
 }

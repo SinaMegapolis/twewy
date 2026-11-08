@@ -43,8 +43,8 @@ static void func_ov003_02094da0(BtlPsyInvisible* self, void (*update)(BtlPsyInvi
 }
 static void func_ov003_02094db4(BtlPsyInvisible* self) {
     if (self->state == 0) {
-        self->x = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x;
-        self->y = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y;
+        self->x = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
+        self->y = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
         CombatSprite_SetAnim(&self->sprite, 0, 1);
         self->state++;
     }
@@ -55,12 +55,12 @@ static void func_ov003_02094db4(BtlPsyInvisible* self) {
 }
 static void func_ov003_02094e40(BtlPsyInvisible* self) {
     func_ov003_020a5a94(self->effect);
-    if (func_ov003_02085cfc(6) && func_ov003_020a5aa4(self->effect) && !func_ov003_020a63a8(self->effect))
+    if (CombatTouch_IsGesture(6) && func_ov003_020a5aa4(self->effect) && !func_ov003_020a63a8(self->effect))
         return;
-    data_ov003_020e71b8->unk3D8C8 = 0;
-    self->visible                 = 1;
-    self->x                       = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x;
-    self->y                       = ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.y;
+    g_CombatGlobal->unk3D8C8 = 0;
+    self->visible            = 1;
+    self->x                  = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
+    self->y                  = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
     func_ov003_02094da0(self, func_ov003_02094edc);
 }
 static void func_ov003_02094edc(BtlPsyInvisible* self) {
@@ -75,10 +75,10 @@ static s32 func_ov003_02094f24(TaskPool* pool, Task* task, void* args) {
     BtlPsyInvisible*   self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
-    data_ov003_020e71b8->unk3D8C8 = 1;
-    self->effect                  = *arg;
-    self->visible                 = 1;
-    self->active                  = 1;
+    g_CombatGlobal->unk3D8C8 = 1;
+    self->effect             = *arg;
+    self->visible            = 1;
+    self->active             = 1;
     func_ov003_02094da0(self, func_ov003_02094db4);
     CombatSprite_LoadFromTable(0, &self->sprite, &data_ov003_020d77f8, data_ov003_020d7de4, 0, 1, 0x30);
     return 1;
@@ -94,8 +94,8 @@ static s32 func_ov003_02094fe4(TaskPool* pool, Task* task, void* args) {
     BtlPsyInvisible* self = task->data;
     s16              x, y;
     if (self->visible) {
-        x = func_ov003_020843b0(0, self->x);
-        y = func_ov003_020843ec(0, self->y, 0);
+        x = CombatStage_ToScreenX(0, self->x);
+        y = CombatStage_ToScreenY(0, self->y, 0);
         CombatSprite_SetPosition(&self->sprite, x, y);
         func_ov003_02082730(&self->sprite, 0x7FFFFFFE - self->y);
         CombatSprite_Render(&self->sprite);
@@ -113,7 +113,7 @@ static s32 func_ov003_02095064(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_020950ac(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (data_ov003_020e71b8->unk3D894 < 100)
+    if (g_CombatGlobal->unk3D894 < 100)
         return 0;
     if (!func_ov003_02087704())
         return 0;

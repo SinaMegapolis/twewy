@@ -43,9 +43,9 @@ s32 func_ov011_02127f6c(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, s3
     TaskPool*         pool;
 
     if (func_ov003_020c37f8(&owner->sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     if (arg4 == 1) {
         arg6 = 0;
@@ -117,17 +117,17 @@ static s32 func_ov011_02128150(BtlEnm010SWay* p) {
         o = p->unk_00;
         s32 pan;
         if (func_ov003_020c37f8(&o->sprite) != 0) {
-            pan = func_ov003_020843b0(1, o->actor.position.x);
+            pan = CombatStage_ToScreenX(1, o->actor.position.x);
         } else {
-            pan = func_ov003_020843b0(0, o->actor.position.x);
+            pan = CombatStage_ToScreenX(0, o->actor.position.x);
         }
-        func_ov003_02087f00(SEIDX_SE_010_BUBBLEATTACK, pan);
+        CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK, pan);
         p->unk_08 = p->unk_08 + 1;
     }
     if (p->unk_04 == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     for (i = 0; i < 5; i++) {
         EasyTask_ValidateTaskId(pool, (u32*)&p->unk_0C[i]);
@@ -143,9 +143,9 @@ static s32 func_ov011_02128250(BtlEnm010SWay* p) {
     s32       i;
 
     if (p->unk_04 == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     for (i = 0; i < 5; i++) {
         Task* t = EasyTask_GetTaskById(pool, p->unk_0C[i]);

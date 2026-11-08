@@ -223,7 +223,7 @@ static void func_ov015_021256f8(BtlEnm026* data) {
 static void func_ov015_021257f8(BtlEnm026* data) {
     TaskPool* pool;
 
-    if (data_ov003_020e71b8->unk3D874 != 2) {
+    if (g_CombatGlobal->unk3D874 != 2) {
         return;
     }
     data_ov015_02128500.unk14 = data->base.actor.pendingCommand;
@@ -246,9 +246,9 @@ static void func_ov015_021257f8(BtlEnm026* data) {
     if (data_ov015_02128500.result10 == -1) {
         if (data_ov015_02128500.variant == 0xB) {
             if (func_ov003_020c37f8(&data->base.sprite) == 0) {
-                pool = &data_ov003_020e71b8->unk_00000;
+                pool = &g_CombatGlobal->unk_00000;
             } else {
-                pool = &data_ov003_020e71b8->taskPool;
+                pool = &g_CombatGlobal->taskPool;
             }
             EasyTask_DeleteTask(pool, data->unk_1E0);
         }
@@ -261,10 +261,10 @@ static void func_ov015_021257f8(BtlEnm026* data) {
             data->unk_1D0 = vel;
         }
         func_ov003_020ccec0(&data->base.actor, 1);
-        data_ov003_020e71b8->unk3D878 |= 0x200000;
+        g_CombatGlobal->unk3D878 |= 0x200000;
         if (data_ov015_02128500.variant == 3) {
-            data_ov003_020e71b8->unk3D875 = 2;
-            data_ov003_020e71b8->unk3D878 |= 0x20000000;
+            g_CombatGlobal->unk3D875 = 2;
+            g_CombatGlobal->unk3D878 |= 0x20000000;
         }
     } else {
         if (func_ov003_020c37f8(&data->base.sprite) == 0) {
@@ -277,7 +277,7 @@ static void func_ov015_021257f8(BtlEnm026* data) {
             data_ov015_02128500.variant != 3 && data_ov015_02128500.variant != 9 && data_ov015_02128500.variant != 8 &&
             data_ov015_02128500.variant != 5 && data_ov015_02128500.variant != 0x11)
         {
-            func_ov003_0208a08c(0, data->base.partner, 0);
+            CombatHit_Stagger(0, data->base.partner, 0);
         }
     }
 }
@@ -287,9 +287,9 @@ static s32 func_ov015_021259f4(BtlEnm026* owner, s32 kind, void* params) {
     Enm026IconSpawn spawn;
 
     if (func_ov003_020c37f8(&owner->base.sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     spawn.unk_00 = owner;
     spawn.unk_04 = kind;
@@ -314,7 +314,7 @@ void func_ov015_02125a8c(s32 engine, BtlEnm026* data, void* args, s32 stateFn) {
     data->unk_1C8 = stateFn;
     data->unk_1D0 = (data->base.sprite.flags46 & 1) ? 0xC00 : -0xC00;
     func_ov015_021256f8(data);
-    func_ov003_02084694(&data->base.collider, 1);
+    CombatCollision_SetDisabled(&data->base.collider, 1);
 }
 
 s32 func_ov015_02125b08(BtlEnm026* data) {
@@ -327,7 +327,7 @@ s32 func_ov015_02125b08(BtlEnm026* data) {
             func_ov015_02125a64(data, (s32)func_ov015_02125e5c);
             break;
         case ACTOR_CMD_DEFEAT:
-            func_ov003_02084694(&data->base.collider, 1);
+            CombatCollision_SetDisabled(&data->base.collider, 1);
             if (data->base.flags18C & 0x10) {
                 data->base.flags18C |= 0x20;
             } else {
@@ -399,10 +399,10 @@ void func_ov015_02125d0c(BtlEnm026* data, s32 count, const TaskHandle* handleA, 
         return;
     }
     for (i = 0; i < count; i++) {
-        blockB.unk_08 = RNG_Next(data_ov003_020e71b8->unk3D7C0[0].unk_0C >> 12) << 12;
-        blockB.unk_0C = RNG_Next(data_ov003_020e71b8->unk3D7C0[0].unk_10 >> 12) << 12;
-        blockA.unk_08 = RNG_Next(data_ov003_020e71b8->unk3D7C0[1].unk_0C >> 12) << 12;
-        blockA.unk_0C = RNG_Next(data_ov003_020e71b8->unk3D7C0[1].unk_10 >> 12) << 12;
+        blockB.unk_08 = RNG_Next(g_CombatGlobal->unk3D7C0[0].unk_0C >> 12) << 12;
+        blockB.unk_0C = RNG_Next(g_CombatGlobal->unk3D7C0[0].unk_10 >> 12) << 12;
+        blockA.unk_08 = RNG_Next(g_CombatGlobal->unk3D7C0[1].unk_0C >> 12) << 12;
+        blockA.unk_0C = RNG_Next(g_CombatGlobal->unk3D7C0[1].unk_10 >> 12) << 12;
         func_ov003_020c3cec(handleA, handleB, (handleA != 0) ? &blockB : NULL, (handleB != 0) ? &blockA : NULL);
     }
 }

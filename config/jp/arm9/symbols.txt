@@ -3730,6 +3730,8 @@ data_02072360 kind:bss addr:0x02072360
 data_02072504 kind:bss addr:0x02072504
 gSaveState kind:bss addr:0x02072548
 gSaveData kind:bss addr:0x02072568
+gCombatCutinSave kind:bss addr:0x02075988
+gCombatSettings kind:bss addr:0x020759bc
 data_02072584 kind:bss addr:0x02072584
 data_02072594 kind:bss addr:0x02072594
 data_02072596 kind:bss addr:0x02072596

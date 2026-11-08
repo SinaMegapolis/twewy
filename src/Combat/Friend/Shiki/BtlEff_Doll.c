@@ -75,8 +75,8 @@ s32 BtlEff_Doll_Render(TaskPool* pool, Task* task, void* args) {
         CombatSprite_SetFlip(&doll->sprite, 1);
     }
 
-    CombatSprite_SetPosition(&doll->sprite, func_ov003_020843b0(1, temp_r6->unk_28),
-                             func_ov003_020843ec(1, temp_r6->unk_2C, temp_r6->unk_30));
+    CombatSprite_SetPosition(&doll->sprite, CombatStage_ToScreenX(1, temp_r6->unk_28),
+                             CombatStage_ToScreenY(1, temp_r6->unk_2C, temp_r6->unk_30));
     func_ov003_02082730(&doll->sprite, 0x7FFFFFFF - (temp_r6->unk_2C + 0x1000));
     CombatSprite_Render(&doll->sprite);
     return 1;
@@ -106,5 +106,5 @@ void BtlEff_Doll_CreateTask(u16 arg0, void* arg1) {
     BtlEff_Doll_Args args;
     args.unk_0 = arg0;
     args.unk_4 = arg1;
-    EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &Tsk_BtlEff_Doll, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlEff_Doll, NULL, 0, NULL, &args);
 }

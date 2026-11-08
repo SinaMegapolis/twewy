@@ -28,7 +28,7 @@ const TaskHandle Tsk_BtlEnm026_UG = {data_ov015_021284d4, func_ov015_021275fc, 0
 static char data_ov015_021284d4[44] = "Tsk_BtlEnm026_UG";
 
 static void func_ov015_02126fd8(BtlEnm026* data) {
-    BtlEnm026* boss = (BtlEnm026*)data_ov003_020e71b8->unk3D898;
+    BtlEnm026* boss = (BtlEnm026*)g_CombatGlobal->unk3D898;
 
     switch (data->unk_1C2) {
         case 0:
@@ -102,9 +102,9 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
                 dy = -0x800;
             }
             data->base.actor.position.y = data->base.actor.position.y + dy;
-            h                           = func_ov003_0208a114(0xB8);
-            if (func_ov003_0208a164(h, &data->base.actor.baseArgs, data->base.actor.position.x, data->base.actor.position.y,
-                                    data->base.actor.position.z) == 1)
+            h                           = CombatHit_GetAttackInfo(0xB8);
+            if (CombatHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x, data->base.actor.position.y,
+                                   data->base.actor.position.z) == 1)
             {
                 data->unk_1F0 = 0;
             }
@@ -242,8 +242,8 @@ void func_ov015_021276c4() {}
 
 void func_ov015_021276c8(void) {
     if (data_ov015_02128500.unk_24 == 0) {
-        Ov003Node3D8BC* node = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC);
-        node                 = func_ov003_02084984(&node->node);
+        Ov003Node3D8BC* node = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
+        node                 = CombatList_GetNext(&node->node);
         while (node != 0) {
             if (node->unk_044 < node->unk_046) {
                 u32 id = node->unk_000;
@@ -252,11 +252,11 @@ void func_ov015_021276c8(void) {
                     return;
                 }
             }
-            node = func_ov003_02084984(&node->node);
+            node = CombatList_GetNext(&node->node);
         }
         return;
     }
-    func_ov003_020a4390(data_ov015_02128500.unk_24, 4);
+    BtlBadgeActor_Request(data_ov015_02128500.unk_24, 4);
     data_ov015_02128500.unk_24 = 0;
 }
 
@@ -274,7 +274,7 @@ void func_ov015_02127758(BtlEnm026* data) {
 void func_ov015_021277a4(BtlEnm026* data) {
     if (func_ov003_020c37f8(&data->base.sprite) == 0 && data_ov015_02128500.flag08 == 0) {
         if (data_ov015_02128500.unk_20 != 0) {
-            if (data_ov003_020e71b8->unk3D8F8 != 0) {
+            if (g_CombatGlobal->unk3D8F8 != 0) {
                 return;
             }
             data_ov015_02128500.unk_20 = 0;
@@ -289,7 +289,7 @@ void func_ov015_021277a4(BtlEnm026* data) {
             }
             return;
         }
-        if (data_ov003_020e71b8->unk3D8F8 != 0) {
+        if (g_CombatGlobal->unk3D8F8 != 0) {
             data_ov015_02128500.unk_20 = 1;
         }
         return;
@@ -371,7 +371,7 @@ void func_ov015_02127a60(BtlEnm026* data) {
 }
 
 void func_ov015_02127a74(BtlEnm026* data) {
-    func_ov003_02084694(&data->base.collider, 1);
+    CombatCollision_SetDisabled(&data->base.collider, 1);
     if (func_ov003_020c37f8(&data->base.sprite) == 0) {
         return;
     }
@@ -407,10 +407,10 @@ void func_ov015_02127ac4(BtlEnm026* data) {
     if (data->unk_1D4 != 1 || data_ov015_02128500.unk14 != 3) {
         return;
     }
-    node = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8A4);
+    node = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (node != 0) {
         func_ov003_020c4fc8(&node->base);
-        node = func_ov003_02084984(&node->base.node);
+        node = CombatList_GetNext(&node->base.node);
     }
 }
 
@@ -459,7 +459,7 @@ void func_ov015_02127ca0(BtlEnm026* data) {
     if (flag == 0) {
         return;
     }
-    if (data_ov003_020e71b8->unk3D874 != 2) {
+    if (g_CombatGlobal->unk3D874 != 2) {
         return;
     }
     if (data_ov015_02128500.result10 == -1) {
@@ -487,7 +487,7 @@ void func_ov015_02127da4(BtlEnm026* data) {
     if (func_ov003_020c37f8(&data->base.sprite) != 0 || data->unk_1D4 != 1) {
         return;
     }
-    if (data_ov003_020e71b8->unk3D874 != 2) {
+    if (g_CombatGlobal->unk3D874 != 2) {
         return;
     }
     if (data->base.actor.flags & 4) {
@@ -555,10 +555,10 @@ void func_ov015_02127f90(BtlEnm026* data) {
     if (data_ov015_02128500.unk14 == 3) {
         data_ov015_02128500.result10 = -1;
     }
-    if (data_ov003_020e71b8->unk3D79C == 0) {
+    if (g_CombatGlobal->microphone.detected == 0) {
         return;
     }
-    if (data_ov003_020e71b8->unk3D874 == 2) {
+    if (g_CombatGlobal->unk3D874 == 2) {
         data->base.actor.pendingCommand = ACTOR_CMD_DEFEAT;
     }
 }

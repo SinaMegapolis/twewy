@@ -23,7 +23,7 @@ s32 Boss01s_LandRG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(rg, 0, sizeof(Boss01s_LandRG));
     CombatSprite_LoadFromTable(1, &rg->sprite, &data_ov016_02128f98, &data_ov016_02129054, 0, 4, 0x3E);
-    rg->unk_60 = data_ov003_020e71b8->unk3D7C0[1].unk_0C / 2;
+    rg->unk_60 = g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
     rg->unk_64 = 0;
     rg->unk_68 = -0x4B000;
     return 1;
@@ -49,7 +49,7 @@ s32 Boss01s_LandRG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    func_ov003_02084348(func_ov003_020c3908((CombatSprite*)rg), &spA, &sp8, rg->unk_60, rg->unk_64, rg->unk_68);
+    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)rg), &spA, &sp8, rg->unk_60, rg->unk_64, rg->unk_68);
     CombatSprite_SetPosition(&rg->sprite, spA, sp8);
     func_ov003_02082730(&rg->sprite, 0x7FFFFFFF);
     CombatSprite_Render(&rg->sprite);
@@ -74,5 +74,5 @@ s32 Boss01s_LandRG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 void Boss01s_LandRG_CreateTask(void) {
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_00000, &Tsk_Boss01s_LandRG, 0, 0, 0, NULL);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_Boss01s_LandRG, 0, 0, 0, NULL);
 }

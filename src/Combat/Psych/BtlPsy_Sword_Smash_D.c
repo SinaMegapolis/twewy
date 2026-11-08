@@ -23,8 +23,8 @@ static void func_ov003_020953b4(BtlPsySmash* smash, void (*update)(BtlPsySmash*)
     smash->timer  = 0;
 }
 static s32 func_ov003_020953c8(void) {
-    if (func_ov003_02085cfc(6)) {
-        Ov003Global* global = data_ov003_020e71b8;
+    if (CombatTouch_IsGesture(6)) {
+        Ov003Global* global = g_CombatGlobal;
         if (global->touchWork.held != NULL && global->touchWork.held->unk_00 == 0)
             return global->touchWork.stillFrames > 16;
     }
@@ -32,7 +32,7 @@ static s32 func_ov003_020953c8(void) {
 }
 static void func_ov003_02095428(s32 tier) {
     Ov003PsychEffectArgs args;
-    CombatActor*         actor = data_ov003_020e71b8->unk3D898;
+    CombatActor*         actor = g_CombatGlobal->unk3D898;
     s32                  kind;
     switch (tier) {
         case 0:
@@ -56,7 +56,7 @@ static void func_ov003_02095428(s32 tier) {
 }
 static void func_ov003_020954e4(void) {
     Ov003PsychEffectArgs args;
-    CombatActor*         actor = data_ov003_020e71b8->unk3D898;
+    CombatActor*         actor = g_CombatGlobal->unk3D898;
     func_ov003_020a88c0(&args, actor->position.x, actor->position.y, actor->position.z - (actor->unk_76 << 12), 2, 0xD3);
     func_ov003_020a899c(&args, 0);
     func_ov003_020a88a8(&args);
@@ -94,39 +94,39 @@ static void func_ov003_02095608(BtlPsySmash* smash) {
         smash->tier = 1;
     else
         smash->tier = 0;
-    if (func_ov003_02085cfc(6))
+    if (CombatTouch_IsGesture(6))
         return;
     SndMgr_StopPlayingSE(SEIDX_SE_PSY_HVSWORD_TAME01_01);
     func_ov003_0209557c(smash->effect, smash->tier);
-    func_ov003_02085c78();
-    func_ov003_02087250(smash->effect, data_ov003_020e71b8->unk3D898, smash->tier);
+    CombatTouch_Clear();
+    func_ov003_02087250(smash->effect, g_CombatGlobal->unk3D898, smash->tier);
     smash->active = 0;
 }
 static void func_ov003_020956c4(BtlPsySmash* smash) {
     if (smash->timer == 0) {
-        func_ov003_02087f28(0xB6, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+        CombatSe_PlayAtMainX(0xB6, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
         smash->timer = 21;
     }
     if (smash->timer > 0)
         smash->timer--;
-    if (smash->timer > 0 && func_ov003_02085cfc(6))
+    if (smash->timer > 0 && CombatTouch_IsGesture(6))
         return;
     func_ov003_0209557c(smash->effect, smash->tier);
-    func_ov003_02085c78();
-    func_ov003_02087250(smash->effect, data_ov003_020e71b8->unk3D898, smash->tier);
+    CombatTouch_Clear();
+    func_ov003_02087250(smash->effect, g_CombatGlobal->unk3D898, smash->tier);
     smash->active = 0;
 }
 static s32 func_ov003_02095764(TaskPool* pool, Task* task, void* args) {
     BtlPsySmash*       smash = task->data;
     Ov003EffectState** arg   = args;
     MI_CpuSet(smash, 0, sizeof(*smash));
-    data_ov003_020e71b8->unk3D8C8 = 1;
-    smash->effect                 = *arg;
-    smash->tier                   = 0;
-    smash->particleTimer          = 0;
-    smash->active                 = 1;
+    g_CombatGlobal->unk3D8C8 = 1;
+    smash->effect            = *arg;
+    smash->tier              = 0;
+    smash->particleTimer     = 0;
+    smash->active            = 1;
     func_ov003_020953b4(smash, func_ov003_02095608);
-    func_ov003_02087f28(0xB5, ((CombatActor*)data_ov003_020e71b8->unk3D898)->position.x);
+    CombatSe_PlayAtMainX(0xB5, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
     return 1;
 }
 static s32 func_ov003_020957e4(TaskPool* pool, Task* task, void* args) {
@@ -141,7 +141,7 @@ static s32 func_ov003_0209581c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 static s32 func_ov003_02095824(TaskPool* pool, Task* task, void* args) {
-    data_ov003_020e71b8->unk3D8C8 = 0;
+    g_CombatGlobal->unk3D8C8 = 0;
     return 1;
 }
 

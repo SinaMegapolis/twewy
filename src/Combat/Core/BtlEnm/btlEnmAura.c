@@ -84,10 +84,10 @@ static void func_ov003_020c97dc(Ov003CutinActor* owner) {
                 return;
             }
             if (RNG_Next(2)) {
-                func_ov003_02087f28(0x525, data_ov003_020e7324.ownerMain->base.actor.position.x);
+                CombatSe_PlayAtMainX(0x525, data_ov003_020e7324.ownerMain->base.actor.position.x);
                 return;
             }
-            func_ov003_02087f28(0x526, data_ov003_020e7324.ownerMain->base.actor.position.x);
+            CombatSe_PlayAtMainX(0x526, data_ov003_020e7324.ownerMain->base.actor.position.x);
             return;
         case 2:
         case 3:
@@ -95,10 +95,10 @@ static void func_ov003_020c97dc(Ov003CutinActor* owner) {
                 return;
             }
             if (RNG_Next(2)) {
-                func_ov003_02087f64(0x53D, data_ov003_020e7324.ownerSub->base.actor.position.x);
+                CombatSe_PlayAtSubX(0x53D, data_ov003_020e7324.ownerSub->base.actor.position.x);
                 return;
             }
-            func_ov003_02087f64(0x53E, data_ov003_020e7324.ownerSub->base.actor.position.x);
+            CombatSe_PlayAtSubX(0x53E, data_ov003_020e7324.ownerSub->base.actor.position.x);
             return;
         default:
             return;
@@ -115,7 +115,7 @@ static void func_ov003_020c98b0(BtlEnmAura* self, s32 mode) {
         self->cooldown--;
         return;
     }
-    flame = func_ov003_0208495c(&self->free);
+    flame = CombatList_GetHead(&self->free);
     if (flame == NULL) {
         return;
     }
@@ -172,48 +172,48 @@ static void func_ov003_020c98b0(BtlEnmAura* self, s32 mode) {
     CombatSprite_SetAnim(&flame->sprite, (u16)anim, 1);
     CombatSprite_SetPosition(&flame->sprite, (x << 4) >> 16, (y << 4) >> 16);
     func_ov003_02082730(&flame->sprite, sortKey);
-    func_ov003_020849dc(&self->free, &flame->node);
-    func_ov003_020849bc(&self->active, &flame->node, flame);
+    CombatList_Remove(&self->free, &flame->node);
+    CombatList_Append(&self->active, &flame->node, flame);
 }
 
 static void func_ov003_020c9b4c(BtlEnmAura* self, BtlAuraFlameSprite* flame) {
     if (flame != NULL) {
         CombatSprite_Release(&flame->sprite);
-        func_ov003_020849dc(&self->active, &flame->node);
-        func_ov003_020849bc(&self->free, &flame->node, flame);
+        CombatList_Remove(&self->active, &flame->node);
+        CombatList_Append(&self->free, &flame->node, flame);
     }
 }
 
 static void func_ov003_020c9b84(BtlEnmAura* self) {
-    func_ov003_020849ac(&self->free);
-    func_ov003_020849ac(&self->active);
+    CombatList_Init(&self->free);
+    CombatList_Init(&self->active);
     self->cooldown = 0;
     for (s32 i = 0; i < 16; i++) {
         BtlAuraFlameSprite* flame = &self->flames[i];
         CombatSprite_Init(&flame->sprite);
-        func_ov003_020849bc(&self->free, &flame->node, flame);
+        CombatList_Append(&self->free, &flame->node, flame);
     }
 }
 
 static void func_ov003_020c9bd8(BtlEnmAura* self) {
-    BtlAuraFlameSprite* flame = func_ov003_0208495c(&self->active);
+    BtlAuraFlameSprite* flame = CombatList_GetHead(&self->active);
 
     if (flame != NULL) {
         do {
             if (SpriteMgr_IsAnimationFinished(&flame->sprite.sprite)) {
-                BtlAuraFlameSprite* next = func_ov003_02084984(&flame->node);
+                BtlAuraFlameSprite* next = CombatList_GetNext(&flame->node);
                 func_ov003_020c9b4c(self, flame);
                 flame = next;
             } else {
                 CombatSprite_Update(&flame->sprite);
-                flame = func_ov003_02084984(&flame->node);
+                flame = CombatList_GetNext(&flame->node);
             }
         } while (flame != NULL);
     }
 }
 
 static void func_ov003_020c9c40(BtlEnmAura* self) {
-    BtlAuraFlameSprite* flame = func_ov003_0208495c(&self->active);
+    BtlAuraFlameSprite* flame = CombatList_GetHead(&self->active);
 
     if (flame != NULL) {
         do {
@@ -223,7 +223,7 @@ static void func_ov003_020c9c40(BtlEnmAura* self) {
                 func_ov003_02082730(&flame->sprite, 0x80000000 - data_ov003_020e7324.ownerMain->base.actor.position.y);
             }
             CombatSprite_Render(&flame->sprite);
-            flame = func_ov003_02084984(&flame->node);
+            flame = CombatList_GetNext(&flame->node);
         } while (flame != NULL);
     }
 }
@@ -273,7 +273,7 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             data_ov003_020e7324.mode = 0;
             func_ov003_020c9cf0(self, 0);
             if (self->intensity <= 0) {
-                func_ov003_02087f28(0x21, self->x);
+                CombatSe_PlayAtMainX(0x21, self->x);
             }
             if (self->intensity > 0 && self->side != 0) {
                 return;
@@ -294,12 +294,12 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             }
             data_ov003_020e7324.ready++;
             if (data_ov003_020e7324.ready % 5 == 0 && func_ov024_020f10d8(data_ov003_020e7324.ownerMain)) {
-                if (!(data_ov003_020e71b8->unk3D878 & 0x20000)) {
-                    data_ov003_020e71b8->unk3D878 |= 0x20000;
-                    data_ov003_020e71b8->unk3D878 |= 0x10000;
-                    CombatActor* owner = data_ov003_020e71b8->unk3D89C;
+                if (!(g_CombatGlobal->unk3D878 & 0x20000)) {
+                    g_CombatGlobal->unk3D878 |= 0x20000;
+                    g_CombatGlobal->unk3D878 |= 0x10000;
+                    CombatActor* owner = g_CombatGlobal->unk3D89C;
                     owner->flags &= ~8;
-                    func_ov003_020c2008(&data_ov003_020e71b8->unk_34230);
+                    func_ov003_020c2008(&g_CombatGlobal->unk_34230);
                 }
             }
             func_ov003_020c9d54(self);
@@ -309,7 +309,7 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             data_ov003_020e7324.mode = 0;
             func_ov003_020c9cf0(self, 1);
             if (self->intensity <= 0) {
-                func_ov003_02087f64(0x21, self->x);
+                CombatSe_PlayAtSubX(0x21, self->x);
             }
             if (self->intensity > 0 && self->side != 1) {
                 return;
@@ -330,12 +330,12 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             }
             data_ov003_020e7324.ready++;
             if (data_ov003_020e7324.ready % 5 == 0 && func_ov024_020f10d8(data_ov003_020e7324.ownerMain)) {
-                if (!(data_ov003_020e71b8->unk3D878 & 0x20000)) {
-                    data_ov003_020e71b8->unk3D878 |= 0x20000;
-                    data_ov003_020e71b8->unk3D878 |= 0x10000;
-                    CombatActor* owner = data_ov003_020e71b8->unk3D89C;
+                if (!(g_CombatGlobal->unk3D878 & 0x20000)) {
+                    g_CombatGlobal->unk3D878 |= 0x20000;
+                    g_CombatGlobal->unk3D878 |= 0x10000;
+                    CombatActor* owner = g_CombatGlobal->unk3D89C;
                     owner->flags &= ~8;
-                    func_ov003_020c2008(&data_ov003_020e71b8->unk_34230);
+                    func_ov003_020c2008(&g_CombatGlobal->unk_34230);
                 }
             }
             func_ov003_020c9d54(self);

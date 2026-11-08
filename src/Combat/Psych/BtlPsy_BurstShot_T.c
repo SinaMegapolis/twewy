@@ -52,7 +52,7 @@ static s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage
                     func_ov003_020a5a94(self->effect);
                     if (self->timer > 0xE) {
                         if (self->soundPlayed == 0) {
-                            func_ov003_02087f28(0x6E, func_ov003_020a6438()->position.x);
+                            CombatSe_PlayAtMainX(0x6E, func_ov003_020a6438()->position.x);
                             self->soundPlayed = 1;
                         }
                         if (self->burstTimer != 0) {
@@ -90,7 +90,7 @@ static s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage
         case 2:
             return 1;
         case 3:
-            func_ov003_02085c78();
+            CombatTouch_Clear();
             func_ov003_020a6464(0);
             return 1;
     }
@@ -106,9 +106,9 @@ static void func_ov003_020b8654(Ov003BurstShot* self) {
     s32                       targetX;
     s32                       targetY;
     kind    = &data_ov003_020dce58[self->effect->index];
-    targetX = func_ov003_0208442c(0, self->x);
-    targetY = func_ov003_02084460(0, self->y, -0x27000);
-    player  = data_ov003_020e71b8->unk3D898;
+    targetX = CombatStage_ToWorldX(0, self->x);
+    targetY = CombatStage_ToWorldY(0, self->y, -0x27000);
+    player  = g_CombatGlobal->unk3D898;
     originY = player->position.y;
     if (targetX < player->position.x) {
         originX = player->position.x - 0x18000;

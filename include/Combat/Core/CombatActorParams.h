@@ -4,7 +4,7 @@
 #include "Combat/Core/CombatEnemyActor.h"
 #include <nitro/types.h>
 
-/// Per-actor battle parameters, `data_ov003_020e70ac[group][spriteIndex]`: stats, hit box and drop table.
+/// Per-actor battle parameters, `CombatEnemyParam_Table[group][spriteIndex]`: stats, hit box and drop table.
 /// The data tables fill it through `raw`.
 typedef struct Ov003ActorParams {
     union {
@@ -42,7 +42,5 @@ typedef struct Ov003ActorParams {
         };
     };
 } Ov003ActorParams; // Size: 0x3C
-
-extern const Ov003ActorParams* const* data_ov003_020e70ac[61];
 
 #endif

@@ -17,9 +17,9 @@ s32 func_ov003_020d1eec(Ov003EnemyShotSource* source, s32 x, s32 y, s32 z, s32 s
     args.angle      = angle;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0cb0, NULL, 0, NULL, &args);
 }
 
@@ -44,10 +44,10 @@ static s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleA
         s16 nextX, nextY, x, y;
         s32 projectionEngine = !!self->source.owner->base.sprite.sprite.bits_0_1;
         self->flags |= 2;
-        func_ov003_02084348(projectionEngine, &nextX, &nextY, self->source.position.x + args->velocity.x,
-                            self->source.position.y + args->velocity.y, self->source.position.z + args->velocity.z);
-        func_ov003_02084348(projectionEngine, &x, &y, self->source.position.x, self->source.position.y,
-                            self->source.position.z);
+        CombatStage_WorldToScreen(projectionEngine, &nextX, &nextY, self->source.position.x + args->velocity.x,
+                                  self->source.position.y + args->velocity.y, self->source.position.z + args->velocity.z);
+        CombatStage_WorldToScreen(projectionEngine, &x, &y, self->source.position.x, self->source.position.y,
+                                  self->source.position.z);
         f32 dx = I2F_RND(nextX - x);
         f32 dy = I2F_RND(nextY - y);
         self->angle += FX_Atan2Idx((s32)dy, (s32)dx);
@@ -58,7 +58,7 @@ static s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleA
 }
 
 static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
-    if (data_ov003_020e71b8->unk3D878 & 0x40)
+    if (g_CombatGlobal->unk3D878 & 0x40)
         return 1;
     if (func_ov003_020ccc00(&self->source, &self->sprite))
         return 0;
@@ -68,14 +68,14 @@ static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
     self->source.position.z += self->velocity.z;
     if (self->flags & 1) {
         s16 x, y;
-        func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
-                            self->source.position.y, self->source.position.z);
-        self->source.hitResult =
-            func_ov003_0208a1a4(func_ov003_0208a114(self->source.attackId), &self->source.owner->base.actor.baseArgs, x, y);
+        CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
+                                  self->source.position.y, self->source.position.z);
+        self->source.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.attackId),
+                                                          &self->source.owner->base.actor.baseArgs, x, y);
     } else {
         self->source.hitResult =
-            func_ov003_0208a164(func_ov003_0208a114(self->source.attackId), &self->source.owner->base.actor.baseArgs,
-                                self->source.position.x, self->source.position.y, self->source.position.z);
+            CombatHit_AttackAt(CombatHit_GetAttackInfo(self->source.attackId), &self->source.owner->base.actor.baseArgs,
+                               self->source.position.x, self->source.position.y, self->source.position.z);
     }
     CombatSprite_Update(&self->sprite);
     return 1;
@@ -83,8 +83,8 @@ static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
 
 static s32 func_ov003_020d22e4(Ov003EnemyShotSingle* self) {
     s16 x, y;
-    func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x, self->source.position.y,
-                        self->source.position.z);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
+                              self->source.position.y, self->source.position.z);
     if (self->flags & 2)
         CombatSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 0);
     CombatSprite_SetPosition(&self->sprite, x, y);

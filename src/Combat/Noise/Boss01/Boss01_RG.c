@@ -40,9 +40,7 @@ static s32 Boss01_RG_IsInBounds(Boss01_RG* rg) {
 
     if (var_ip == FALSE) {
         var_ip = FALSE;
-        if ((rg->base.actor.isFlipped != 0) &&
-            (rg->base.actor.position.x > (data_ov003_020e71b8->unk3D7C0[1].unk_0C + 0x80000)))
-        {
+        if ((rg->base.actor.isFlipped != 0) && (rg->base.actor.position.x > (g_CombatGlobal->unk3D7C0[1].unk_0C + 0x80000))) {
             var_ip = TRUE;
         }
     }
@@ -77,7 +75,7 @@ static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
     }
     rg->unk_1D8 = arg1;
 
-    Boss01_RG* var_r4 = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8AC);
+    Boss01_RG* var_r4 = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (var_r4 != NULL) {
         switch (var_r4->base.group) {
             case 7:
@@ -100,7 +98,7 @@ static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
 
             default:
                 if (arg1 != 0) {
-                    data_ov003_020e71b8->unk3D8A0 = EasyTask_GetTaskData(&data_ov003_020e71b8->taskPool, rg->unk_1DC);
+                    g_CombatGlobal->unk3D8A0 = EasyTask_GetTaskData(&g_CombatGlobal->taskPool, rg->unk_1DC);
                     var_r4->base.actor.flags &= ~0x10;
                     var_r4->base.actor.flags &= ~0x20;
                 } else {
@@ -108,12 +106,12 @@ static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
                 }
                 break;
         }
-        var_r4 = func_ov003_02084984((CombatListNode*)&var_r4->base.node.prev);
+        var_r4 = CombatList_GetNext((CombatListNode*)&var_r4->base.node.prev);
     }
 }
 
 static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
-    Boss01_RG* temp_r4 = data_ov003_020e71b8->unk3D89C;
+    Boss01_RG* temp_r4 = g_CombatGlobal->unk3D89C;
     Boss01*    temp_r6 = (Boss01*)rg->base.partner;
     Boss01*    temp_r5 = temp_r6->unk_188;
 
@@ -122,7 +120,7 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
             rg->base.actor.position.x = -0x80000;
             rg->unk_1D4               = 0x4000;
         } else {
-            rg->base.actor.position.x = (data_ov003_020e71b8->unk3D7C0[1].unk_0C + 0x80000);
+            rg->base.actor.position.x = (g_CombatGlobal->unk3D7C0[1].unk_0C + 0x80000);
             rg->unk_1D4               = -0x4000;
         }
 
@@ -131,7 +129,7 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
         func_ov003_020c4c1c(&rg->base);
         func_ov003_020c4988(&rg->base);
         if (temp_r5 != NULL) {
-            rg->unk_1DC  = BtlObs_RG_CreateTask(temp_r5->unk_002, &((CombatActor*)data_ov003_020e71b8->unk3D89C)->baseArgs);
+            rg->unk_1DC  = BtlObs_RG_CreateTask(temp_r5->unk_002, &((CombatActor*)g_CombatGlobal->unk3D89C)->baseArgs);
             s32 var_r0_2 = FX32_CONVERT(temp_r5->unk_76);
             if (var_r0_2 > 0x80000) {
                 f32 var_r0_3              = I2F_RND(temp_r5->unk_76);
@@ -161,8 +159,8 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
     } else {
         func_ov016_02125c20(rg, 0);
     }
-    if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->taskPool, &rg->unk_1DC) != 0) {
-        Boss01* temp_r0_2 = EasyTask_GetTaskData(&data_ov003_020e71b8->taskPool, rg->unk_1DC);
+    if (EasyTask_ValidateTaskId(&g_CombatGlobal->taskPool, &rg->unk_1DC) != 0) {
+        Boss01* temp_r0_2 = EasyTask_GetTaskData(&g_CombatGlobal->taskPool, rg->unk_1DC);
         if (!(temp_r0_2->unk_54 & 2)) {
             temp_r0_2->unk_28 = rg->base.actor.position.x;
             temp_r0_2->unk_2C = rg->base.actor.position.y;
@@ -190,8 +188,8 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
     Boss01_Eff_CreateTask((Boss01*)rg);
     if (Boss01_RG_IsInBounds(rg) != 0) {
         func_ov003_020c4a34(&rg->base);
-        if (EasyTask_ValidateTaskId(&data_ov003_020e71b8->taskPool, &rg->unk_1DC) != 0) {
-            Boss01* temp_r0_5 = EasyTask_GetTaskData(&data_ov003_020e71b8->taskPool, rg->unk_1DC);
+        if (EasyTask_ValidateTaskId(&g_CombatGlobal->taskPool, &rg->unk_1DC) != 0) {
+            Boss01* temp_r0_5 = EasyTask_GetTaskData(&g_CombatGlobal->taskPool, rg->unk_1DC);
             if (temp_r0_5->unk_54 & 2) {
                 rg->base.unk_188 = NULL;
             } else {
@@ -203,7 +201,7 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
         }
 
         rg->base.actor.position.x =
-            (rg->base.actor.position.x < 0) ? -0x80000 : (data_ov003_020e71b8->unk3D7C0[0].unk_0C + 0x80000);
+            (rg->base.actor.position.x < 0) ? -0x80000 : (g_CombatGlobal->unk3D7C0[0].unk_0C + 0x80000);
 
         *data_ov016_021292c0 = 2;
         Boss01_RG_SetState(rg, Boss01_MoveState_WaitToFly);
@@ -262,8 +260,8 @@ static s32 Boss01_RG_Render(TaskPool* pool, Task* task, void* args) {
     Boss01_RG* bossRG = task->data;
 
     if (!(bossRG->base.flags18C & 1)) {
-        func_ov003_02084348(1, &spA, &sp8, bossRG->base.actor.position.x, bossRG->base.actor.position.y,
-                            bossRG->base.actor.position.z);
+        CombatStage_WorldToScreen(1, &spA, &sp8, bossRG->base.actor.position.x, bossRG->base.actor.position.y,
+                                  bossRG->base.actor.position.z);
         CombatSprite_SetPosition(&bossRG->base.sprite, spA, sp8);
         func_ov003_02082730(&bossRG->base.sprite, 0x7FF3FFFF);
         CombatSprite_Render(&bossRG->base.sprite);

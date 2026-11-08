@@ -40,7 +40,7 @@ void func_ov003_020a7284(Ov003TouchActor* actor) {
     BtlBadgeExecEffectArgs sp8;
 
     sp8.actor = actor;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &data_ov003_020dc5d8, NULL, 0, NULL, &sp8);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5d8, NULL, 0, NULL, &sp8);
 }
 
 static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -80,8 +80,7 @@ static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage
             BtlBadgeExecEffect* self = task->data;
             s32                 i;
 
-            if (data_ov003_020e71b8->unk3D884 != 0 || (data_ov003_020e71b8->unk3D878 & 6) != 0 ||
-                (data_ov003_020e71b8->unk3D878 & 0x40) != 0)
+            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
             {
                 return 1;
             }
@@ -106,13 +105,11 @@ static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage
             s32                 posY;
             s32                 i;
 
-            if (func_ov003_02084d80(0) == 1) {
+            if (CombatDebug_GetSetting(0) == 1) {
                 return 1;
             }
             // the battle must be idle: not waiting and not paused (the target branches on both)
-            if ((data_ov003_020e71b8->unk3D878 & 6) != 0 || data_ov003_020e71b8->unk3D884 != 0 ||
-                (data_ov003_020e71b8->unk3D878 & 6) != 0)
-            {
+            if ((g_CombatGlobal->unk3D878 & 6) != 0 || g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0) {
                 return 1;
             }
             posX = (s32)(self->actor->x * 0x10) >> 16;

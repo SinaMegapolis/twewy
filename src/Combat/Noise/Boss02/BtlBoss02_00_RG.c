@@ -72,18 +72,16 @@ static s16 func_ov017_021256e4(BtlBoss02_00_RG* rg) {
 }
 
 static void func_ov017_02125708(BtlBoss02_00_RG* rg) {
-    rg->base.unk_1AC = rg->base.actor.position.x =
-        data_ov003_020e71b8->unk3D7C0[1].unk_20 + data_ov017_02141538[rg->unk_260].x;
-    rg->base.unk_1B0 = rg->base.actor.position.y =
-        data_ov003_020e71b8->unk3D7C0[1].unk_24 + data_ov017_02141538[rg->unk_260].y;
+    rg->base.unk_1AC = rg->base.actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20 + data_ov017_02141538[rg->unk_260].x;
+    rg->base.unk_1B0 = rg->base.actor.position.y = g_CombatGlobal->unk3D7C0[1].unk_24 + data_ov017_02141538[rg->unk_260].y;
     rg->base.unk_1B4 = rg->base.actor.position.z = data_ov017_02141538[rg->unk_260].z;
 }
 
 static void func_ov017_02125794(BtlBoss02_00_RG* rg) {
     CombatSprite_LoadFromTable(1, &rg->unk_1D8, &data_ov017_02141520, &data_ov017_021415a8, 0x10, 7, 0x80);
     rg->unk_238 = &rg->unk_1D8;
-    rg->unk_23C = data_ov003_020e71b8->unk3D7C0[1].unk_0C / 2;
-    rg->unk_240 = data_ov003_020e71b8->unk3D7C0[1].unk_10 / 2;
+    rg->unk_23C = g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
+    rg->unk_240 = g_CombatGlobal->unk3D7C0[1].unk_10 / 2;
     rg->unk_244 = 0x40000;
     func_ov003_020c3acc(1, 762, rg->unk_23C);
     rg->unk_248 = 1;
@@ -94,12 +92,12 @@ static void func_ov017_02125840(BtlBoss02_00_RG* rg) {
         rg->unk_244 -= 0x8000;
         CombatSprite_Update(&rg->unk_1D8);
 
-        s32 var_r1 = ((BtlBoss02_00_RG*)data_ov003_020e71b8->unk3D89C)->base.actor.position.z - rg->unk_244;
+        s32 var_r1 = ((BtlBoss02_00_RG*)g_CombatGlobal->unk3D89C)->base.actor.position.z - rg->unk_244;
         if (var_r1 < 0) {
             var_r1 = -var_r1;
         }
         if (rg->unk_248 == 1 && F2I(var_r1) <= 0x10 &&
-            func_ov003_0208a1e8(func_ov003_0208a114(240), &rg->unk_1D0, rg->unk_23C) != 0)
+            CombatHit_AttackCharacter(CombatHit_GetAttackInfo(240), &rg->unk_1D0, rg->unk_23C) != 0)
         {
             func_ov017_02130178(1, 1256, 1388, rg->base.actor.position.x);
             rg->unk_248 = 0;
@@ -113,8 +111,8 @@ static void func_ov017_02125840(BtlBoss02_00_RG* rg) {
 
 static void func_ov017_02125908(BtlBoss02_00_RG* rg) {
     if (rg->unk_238 != 0) {
-        CombatSprite_SetPosition(&rg->unk_1D8, func_ov003_020843b0(1, rg->unk_23C),
-                                 func_ov003_020843ec(1, rg->unk_240, rg->unk_244));
+        CombatSprite_SetPosition(&rg->unk_1D8, CombatStage_ToScreenX(1, rg->unk_23C),
+                                 CombatStage_ToScreenY(1, rg->unk_240, rg->unk_244));
         func_ov003_02082730(&rg->unk_1D8, 0x7FFFFFFE - rg->unk_240);
         CombatSprite_Render(&rg->unk_1D8);
     }
@@ -130,7 +128,7 @@ static void func_ov017_02125984(BtlBoss02_00_RG* rg) {
     if (rg->unk_25C != 0) {
         s16 temp_r5 = rg->base.actor.maxHp * 3 / 100;
         func_ov017_02130178(1, 1254, 1388, rg->base.actor.position.x);
-        func_ov003_0208b518(1, &rg->base, temp_r5);
+        BtlMgr_AddUnitHp(1, &rg->base, temp_r5);
         func_ov003_0209b564(1, temp_r5, (CombatActor*)rg, 1);
     }
 }
@@ -138,7 +136,7 @@ static void func_ov017_02125984(BtlBoss02_00_RG* rg) {
 static void func_ov017_021259fc(BtlBoss02_00_RG* rg) {
     rg->base.actor.flags &= ~0x40;
     func_ov017_02130178(1, 1255, 1388, rg->base.actor.position.x);
-    func_ov003_0208a128(func_ov003_0208a114(241), &rg->unk_1D0, rg, rg->base.actor.position.x);
+    CombatHit_AttackUnit(CombatHit_GetAttackInfo(241), &rg->unk_1D0, rg, rg->base.actor.position.x);
     rg->unk_262 = 120;
     rg->unk_24C = 1;
 }
@@ -190,11 +188,11 @@ static void func_ov017_02125b58(BtlBoss02_00_RG* rg) {
         CombatSprite_SetAnimFromTable(&rg->base.sprite, 6, 1);
     }
     if (rg->unk_1C0 == 48) {
-        vec.x = data_ov003_020e71b8->unk3D7C0[1].unk_20 + data_ov017_02141538[rg->unk_260].x;
-        vec.y = data_ov003_020e71b8->unk3D7C0[1].unk_24 + data_ov017_02141538[rg->unk_260].y;
+        vec.x = g_CombatGlobal->unk3D7C0[1].unk_20 + data_ov017_02141538[rg->unk_260].x;
+        vec.y = g_CombatGlobal->unk3D7C0[1].unk_24 + data_ov017_02141538[rg->unk_260].y;
         vec.z = data_ov017_02141538[rg->unk_260].z;
         sp14  = (rg->base.sprite.flags46 & 1);
-        EasyTask_CreateTask(&data_ov003_020e71b8->taskPool, &data_ov017_02141f30, 0, 0, 0, &vec);
+        EasyTask_CreateTask(&g_CombatGlobal->taskPool, &data_ov017_02141f30, 0, 0, 0, &vec);
     }
     rg->unk_1C0++;
     if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite)) {
@@ -347,8 +345,8 @@ static s32 BtlBoss02_00_RG_Init(TaskPool* pool, Task* task, void* args) {
     rg->unk_1D4         = 100;
     rg->unk_1D6         = 100;
 
-    rg->base.unk_1AC = rg->base.actor.position.x = data_ov003_020e71b8->unk3D7C0[1].unk_20 + data_ov017_02141538[0].x;
-    rg->base.unk_1B0 = rg->base.actor.position.y = data_ov003_020e71b8->unk3D7C0[1].unk_24 + data_ov017_02141538[0].y;
+    rg->base.unk_1AC = rg->base.actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20 + data_ov017_02141538[0].x;
+    rg->base.unk_1B0 = rg->base.actor.position.y = g_CombatGlobal->unk3D7C0[1].unk_24 + data_ov017_02141538[0].y;
     rg->base.unk_1B4 = rg->base.actor.position.z = data_ov017_02141538[0].z;
 
     rg->base.actor.zVelocity = 0;
@@ -363,8 +361,8 @@ static s32 BtlBoss02_00_RG_Init(TaskPool* pool, Task* task, void* args) {
     }
 
     rg->base.actor.flags |= 0x08000040;
-    data_ov003_020e71b8->unk3D875 = 2;
-    data_ov003_020e71b8->unk3D878 |= 0x200000;
+    g_CombatGlobal->unk3D875 = 2;
+    g_CombatGlobal->unk3D878 |= 0x200000;
     func_ov017_02130148();
     return 1;
 }
@@ -372,9 +370,9 @@ static s32 BtlBoss02_00_RG_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlBoss02_00_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlBoss02_00_RG* rg = task->data;
 
-    if (data_ov003_020e71b8->unk3D8D8 < ((data_ov003_020e71b8->unk3D8DA * 75) / 100) && rg->unk_1CC != func_ov017_02125e38) {
+    if (g_CombatGlobal->unk3D8D8 < ((g_CombatGlobal->unk3D8DA * 75) / 100) && rg->unk_1CC != func_ov017_02125e38) {
         rg->base.actor.pendingCommand = ACTOR_CMD_DEFEAT;
-        data_ov003_020e71b8->unk3D878 |= 0x20000000;
+        g_CombatGlobal->unk3D878 |= 0x20000000;
         func_ov017_021301e0();
     }
 

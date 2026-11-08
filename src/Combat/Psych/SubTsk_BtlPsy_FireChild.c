@@ -40,10 +40,10 @@ static s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage
             child->attackId     = arg->attackId;
             child->scale -= RNG_Next(0x334) + 0x19A;
             child->opacity = 0x1F000;
-            func_ov003_020a3498(&child->sprite, 2, 1, arg->kind, 1);
+            CombatPsyAnim_Load(&child->sprite, 2, 1, arg->kind, 1);
             if (RNG_Next(2))
                 CombatSprite_SetFlip(&child->sprite, 1);
-            func_ov003_02087f28(0x149, child->position.x);
+            CombatSe_PlayAtMainX(0x149, child->position.x);
             return 1;
         case 1:
             child = task->data;
@@ -82,8 +82,8 @@ static s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage
             child->affine.unk_0E               = 0;
             child->sprite.sprite.unk_0A.unk_00 = 1;
             child->sprite.affine               = &child->affine;
-            y                                  = func_ov003_020843ec(0, child->position.y, 0);
-            CombatSprite_SetPosition(&child->sprite, func_ov003_020843b0(0, child->position.x), y);
+            y                                  = CombatStage_ToScreenY(0, child->position.y, 0);
+            CombatSprite_SetPosition(&child->sprite, CombatStage_ToScreenX(0, child->position.x), y);
             func_ov003_02082730(&child->sprite, child->position.y + 0x1F4000);
             if (child->opacity < 0x1F000)
                 CombatSprite_RenderWithPalette(&child->sprite, child->opacity >> 12);

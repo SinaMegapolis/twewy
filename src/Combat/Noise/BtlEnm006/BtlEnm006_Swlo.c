@@ -38,9 +38,9 @@ s32 func_ov010_021270a8(BtlEnm006* owner, BtlEnm006* target) {
     args.unk_00 = NULL;
     args.unk_08 = target;
     if (func_ov003_020c37f8(&owner->base.sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     return EasyTask_CreateTask(pool, &Tsk_BtlEnm006_Swlo, 0, 0, 0, &args);
 }
@@ -52,9 +52,9 @@ void func_ov010_02127110(BtlEnm006* owner, BtlEnm006* target) {
     args.unk_00 = (BtlEnm006*)1;
     args.unk_0C = target;
     if (func_ov003_020c37f8(&owner->base.sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_Swlo, 0, 0, 0, &args);
 }
@@ -88,7 +88,7 @@ static s32 func_ov010_021271c0(Enm006Swlo* data, Enm006Spawn* args) {
     } else {
         target       = args->unk_0C;
         data->unk_0C = target;
-        func_ov003_02084694(&target->base.collider, 1);
+        CombatCollision_SetDisabled(&target->base.collider, 1);
         CombatActor_SetPendingCommand(&target->base.actor, ACTOR_CMD_HIT);
         func_ov010_021256d0(data->unk_04, data->unk_0C);
     }

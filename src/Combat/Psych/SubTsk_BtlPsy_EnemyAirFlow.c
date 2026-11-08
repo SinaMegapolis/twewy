@@ -40,8 +40,8 @@ static s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage
             self->origin.y        = unit->actor.position.y;
             self->origin.z        = unit->actor.position.z;
             func_ov003_020a6164(unit, 4);
-            func_ov003_020a3498(&self->sprite, 2, 1, 0xBD, 0);
-            func_ov003_02087f28(0x89, unit->actor.position.x);
+            CombatPsyAnim_Load(&self->sprite, 2, 1, 0xBD, 0);
+            CombatSe_PlayAtMainX(0x89, unit->actor.position.x);
             return 1;
         }
         case 1: {
@@ -69,8 +69,8 @@ static s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003EnemyAirFlow* self = task->data;
             Ov003EnemyActor*   unit = self->unit;
             if (self->phase == 0) {
-                s32 y = func_ov003_020843ec(0, unit->actor.position.y, unit->actor.position.z);
-                s32 x = func_ov003_020843b0(0, unit->actor.position.x);
+                s32 y = CombatStage_ToScreenY(0, unit->actor.position.y, unit->actor.position.z);
+                s32 x = CombatStage_ToScreenX(0, unit->actor.position.x);
                 CombatSprite_SetPosition(&self->sprite, x, y);
                 func_ov003_02082730(&self->sprite, unit->actor.position.y);
                 CombatSprite_Render(&self->sprite);
@@ -98,7 +98,7 @@ static s32 func_ov003_020b03b4(Ov003EnemyAirFlow* self) {
     func_ov003_020a88c0(&args, unit->actor.position.x, unit->actor.position.y, unit->actor.position.z, 2, 0xBE);
     func_ov003_020a88a8(&args);
     func_ov003_020a8768();
-    func_ov003_02087f28(0x8A, unit->actor.position.x);
+    CombatSe_PlayAtMainX(0x8A, unit->actor.position.x);
     self->landed = 1;
     func_ov003_020a6568(&self->effect->streak, 0x166, unit, unit->actor.position.x, 0, 0);
     return 0;
@@ -108,7 +108,7 @@ static s32 func_ov003_020b0470(Ov003EnemyAirFlow* self) {
     s32 oldX, oldY, oldZ;
 
     Ov003EnemyActor* unit = self->unit;
-    s32              x    = func_ov003_020843b0(0, self->origin.x);
+    s32              x    = CombatStage_ToScreenX(0, self->origin.x);
     if (x <= 128)
         self->angle = (u16)(self->angle - 0x1000);
     else
@@ -122,8 +122,8 @@ static s32 func_ov003_020b0470(Ov003EnemyAirFlow* self) {
     unit->actor.position.x = self->origin.x + FX_Mul(self->radius, COS2(FX_SinCosTable_, self->angle));
     unit->actor.position.y = self->origin.y + FX_Mul(self->radius, SIN2(FX_SinCosTable_, self->angle));
     unit->actor.position.z += self->zVelocity;
-    x     = func_ov003_020843b0(0, unit->actor.position.x);
-    s32 y = func_ov003_020843ec(0, unit->actor.position.y, unit->actor.position.z);
+    x     = CombatStage_ToScreenX(0, unit->actor.position.x);
+    s32 y = CombatStage_ToScreenY(0, unit->actor.position.y, unit->actor.position.z);
     if (!func_ov003_020a6374(x, y, 8)) {
         unit->actor.position.x = oldX;
         unit->actor.position.y = oldY;

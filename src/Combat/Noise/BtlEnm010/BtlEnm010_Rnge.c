@@ -25,9 +25,9 @@ s32 func_ov011_02127c84(Ov003EnemyActor* owner) {
 
     data = owner;
     if (func_ov003_020c37f8(&data->sprite) == 0) {
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     } else {
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     }
     return EasyTask_CreateTask(pool, &data_ov011_0212c1d4, 0, 0, 0, &data);
 }
@@ -68,23 +68,23 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
             CombatSprite_Update(&data->sprite);
             if (func_ov003_020c37f8(&data->sprite) != 0) {
                 snd = 0x5B;
-                pan = func_ov003_020843b0(r, data->unk_060->actor.position.x);
+                pan = CombatStage_ToScreenX(r, data->unk_060->actor.position.x);
             } else {
                 snd = 0x53;
-                pan = func_ov003_020843b0(0, data->unk_060->actor.position.x);
+                pan = CombatStage_ToScreenX(0, data->unk_060->actor.position.x);
             }
             bias = 0x80000;
             if (data->unk_060->actor.isFlipped == 0) {
                 bias = -bias;
             }
             if (data->sprite.sprite.cellIndex == 2 && data->sprite.sprite.frameTimer == 1) {
-                func_ov003_02087f00(SEIDX_SE_010_FIREATTACK, pan);
+                CombatSe_PlayPanned(SEIDX_SE_010_FIREATTACK, pan);
             }
             if (data->sprite.sprite.cellIndex >= 4 && data->sprite.sprite.cellIndex <= 6) {
                 if (func_ov003_020c5b2c((u16)snd, data->unk_060->actor.position.x + bias, data->unk_060->actor.position.y,
                                         data->unk_060->actor.position.z, data->unk_060->actor.position.z) == 1)
                 {
-                    func_ov003_02087f00(SEIDX_SE_010_FIREATTACK_HIT, pan);
+                    CombatSe_PlayPanned(SEIDX_SE_010_FIREATTACK_HIT, pan);
                 }
             }
             if (SpriteMgr_IsAnimationFinished(&data->sprite.sprite) != 0) {
@@ -93,11 +93,11 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
             break;
         case 2:
             if (data->sprite.sprite.bits_0_1) {
-                pan = func_ov003_020843b0(0, data->unk_060->actor.position.x);
-                y   = func_ov003_020843ec(0, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
+                pan = CombatStage_ToScreenX(0, data->unk_060->actor.position.x);
+                y   = CombatStage_ToScreenY(0, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
             } else {
-                pan = func_ov003_020843b0(r, data->unk_060->actor.position.x);
-                y   = func_ov003_020843ec(r, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
+                pan = CombatStage_ToScreenX(r, data->unk_060->actor.position.x);
+                y   = CombatStage_ToScreenY(r, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
             }
             if (data->unk_060->actor.isFlipped == 0) {
                 pan = (s16)(pan - 0x20);

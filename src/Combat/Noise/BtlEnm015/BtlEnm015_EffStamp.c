@@ -90,7 +90,7 @@ static s32 func_ov013_02126254(BtlEnm015Stamp* data) {
 
 static s32 func_ov013_021265b0(BtlEnm015Stamp* data) {
     s32        t     = data->unk_04;
-    BtlEnm015* boss  = (BtlEnm015*)data_ov003_020e71b8->unk3D89C;
+    BtlEnm015* boss  = (BtlEnm015*)g_CombatGlobal->unk3D89C;
     BtlEnm015* owner = data->unk_00;
 
     if (t % 60 == 0) {

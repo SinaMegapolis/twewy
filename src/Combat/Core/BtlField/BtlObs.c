@@ -55,7 +55,7 @@ static void func_ov003_02094288(BtlObs* obs) {
 static void func_ov003_02094294(BtlObs* obs) {
     if (!(obs->state != 0)) {
         obs->effect.actor.flags |= 0x200;
-        func_ov003_02084694(&obs->effect.sprite.collider, 1);
+        CombatCollision_SetDisabled(&obs->effect.sprite.collider, 1);
         CombatSprite_SetAnimFromTable(&obs->sprites[0], 1, 0);
         obs->state++;
     }
@@ -72,18 +72,17 @@ static void func_ov003_020942e8(BtlObs* obs) {
         obs->state++;
     }
     if (func_ov003_020941d4(&obs->effect.actor)) {
-        func_ov003_02086540(0, obs->effect.config, obs->effect.actor.position.x);
+        CombatSys_PlayObsSe(0, obs->effect.config, obs->effect.actor.position.x);
         obs->effect.actor.flags &= ~0x400;
-        func_ov003_02084694(&obs->effect.sprite.collider, 0);
+        CombatCollision_SetDisabled(&obs->effect.sprite.collider, 0);
         if (obs->effect.id == 2) {
             obs->effect.sprite.flags |= 1;
         }
         func_ov003_020941ac(obs, func_ov003_02094200);
     }
-    func_ov003_0208a25c(&obs->effect.actor);
+    CombatHit_ActorImpact(&obs->effect.actor);
 }
 
-// Nonmatching: mwcc predicates the final three stores instead of returning before them.
 static void func_ov003_020943ac(BtlObs* obs) {
     if (obs->timer == 0) {
         obs->effect.actor.flags |= 0x10;
@@ -97,26 +96,26 @@ static void func_ov003_020943ac(BtlObs* obs) {
             obs->visible = 0;
         }
     }
-    if (obs->timer <= 60) {
-        obs->timer++;
+    if (obs->timer > 60) {
+        obs->visible = 0;
+        obs->active  = 0;
         return;
     }
-    obs->visible = 0;
-    obs->active  = 0;
+    obs->timer++;
 }
 
 static s32 BtlObs_Init(TaskPool* pool, Task* task, void* args) {
     BtlObs*           obs   = task->data;
     Ov003EffectSpawn* spawn = args;
 
-    func_ov003_02086680(&obs->effect, spawn);
-    func_ov003_02086404(0, &obs->sprites[0], spawn->id);
-    func_ov003_020864c0(0, &obs->sprites[1], spawn->id);
+    CombatSys_SetupObs(&obs->effect, spawn);
+    CombatSys_LoadObsSprite(0, &obs->sprites[0], spawn->id);
+    CombatSys_LoadObsHitEffect(0, &obs->sprites[1], spawn->id);
     obs->visible = 1;
     obs->active  = 1;
     func_ov003_020941ac(obs, func_ov003_02094200);
-    if (func_ov003_020a3330(13)) {
-        obs->effect.actor.currentHp *= (s16)func_ov003_020a3468(13);
+    if (CombatAbility_IsActive(13)) {
+        obs->effect.actor.currentHp *= (s16)CombatAbility_GetValue(13);
     }
     CombatSprite_SetAnimFromTable(&obs->sprites[0], 0, 0);
     if (RNG_Next(2)) {
@@ -145,7 +144,7 @@ static s32 BtlObs_Update(TaskPool* pool, Task* task, void* args) {
     if (obs->update != NULL) {
         obs->update(obs);
     }
-    func_ov003_020866f8(&obs->effect);
+    CombatSys_UpdateObs(&obs->effect);
     CombatSprite_Update(&obs->sprites[0]);
     CombatSprite_Update(&obs->sprites[1]);
     return obs->active;
@@ -156,7 +155,7 @@ static s32 BtlObs_Render(TaskPool* pool, Task* task, void* args) {
 
     if (obs->visible) {
         CombatActor_Render(&obs->effect.actor, &obs->sprites[0]);
-        func_ov003_0208810c(&obs->sprites[1], &obs->effect.actor);
+        CombatHit_DrawSparkOnActor(&obs->sprites[1], &obs->effect.actor);
     }
     return 1;
 }
@@ -166,7 +165,7 @@ static s32 BtlObs_Release(TaskPool* pool, Task* task, void* args) {
 
     CombatSprite_Release(&obs->sprites[0]);
     CombatSprite_Release(&obs->sprites[1]);
-    func_ov003_02086770(&obs->effect);
+    CombatSys_RemoveObs(&obs->effect);
     return 1;
 }
 

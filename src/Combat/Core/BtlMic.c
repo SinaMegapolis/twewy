@@ -9,20 +9,42 @@ static s32 BtlMic_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static const TaskHandle Tsk_BtlMic = {"Tsk_BtlMic", BtlMic_RunTask, sizeof(BtlMicInput*)};
 
-void func_ov003_020a5080(void) {
-    BtlMicInput* input = &data_ov003_020e71b8->microphone;
+/// Starts sampling the microphone into the battle's sample buffer.
+void BtlMic_Init(void) {
+    BtlMicInput* input;
+    s32          i;
 
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlMic, NULL, 0, NULL, &input);
+    func_020405d4();
+    func_02040ac0();
+    input = &g_CombatGlobal->microphone;
+    for (i = 0; i < 0x20; i++) {
+        input->samples[i] = 0;
+    }
+    input->sampling.type        = 2;
+    input->sampling.buffer      = input->samples;
+    input->sampling.size        = 0x20;
+    input->sampling.rate        = 0x105D;
+    input->sampling.loop        = 0;
+    input->sampling.callback    = func_ov003_020a50f4;
+    input->sampling.callbackArg = input;
+    func_02041030(1);
+    func_02041048(1);
+    input->cooldown = 0xB4;
+}
+
+void BtlMic_CreateTask(void) {
+    BtlMicInput* input = &g_CombatGlobal->microphone;
+
+    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlMic, NULL, 0, NULL, &input);
 }
 
 s32 func_ov003_020a50cc(void) {
-    BtlMicInput* input = &data_ov003_020e71b8->microphone;
+    BtlMicInput* input = &g_CombatGlobal->microphone;
 
     return input->cooldown != 0 ? 0 : input->detected;
 }
 
 // The retail callback tests positive signed samples only; the result code is unused.
-// Nonmatching: mwcc removes the retail loop's initial branch to its condition.
 void func_ov003_020a50f4(s32 result, BtlMicInput* input) {
     input->detected = 0;
     for (s32 i = 0; i < 32; i++) {
@@ -71,7 +93,7 @@ s32 func_ov003_020a51c0(void) {
     s32 seen[6];
     MI_CpuSet(seen, 0, sizeof(seen));
 
-    Ov003TouchActor* actor = func_ov003_0208495c(&data_ov003_020e71b8->unk3D8BC);
+    Ov003TouchActor* actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
     while (actor != NULL) {
         if (actor->kind >= 212 && actor->kind <= 217) {
             s32 index = actor->kind - 212;
@@ -80,7 +102,7 @@ s32 func_ov003_020a51c0(void) {
                 count++;
             }
         }
-        actor = func_ov003_02084984(&actor->node);
+        actor = CombatList_GetNext(&actor->node);
     }
     return count == 6;
 }

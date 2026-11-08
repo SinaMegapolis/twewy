@@ -8,9 +8,9 @@
 static const TaskHandle data_ov003_020dca34;
 
 s32 func_ov003_020b4b60(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02085cfc(6))
+    if (!CombatTouch_IsGesture(6))
         return 0;
-    if (func_ov003_02085d3c(1))
+    if (CombatTouch_IsTargetKind(1))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dca34.taskName);
     *arg                   = effect;
@@ -32,7 +32,7 @@ static s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage
             self->phase        = 0;
             self->spawnCount   = 0;
             self->spawnTimer   = 0;
-            func_ov003_020a4a34(&self->trail.trail);
+            CombatPsyTrail_Init(&self->trail.trail);
             func_ov003_020a6464(1);
             func_ov003_020a64ac();
             return 1;
@@ -42,7 +42,7 @@ static s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage
                 return 0;
             switch (self->phase) {
                 case 0:
-                    switch (func_ov003_020a4aac(&self->trail.trail)) {
+                    switch (CombatPsyTrail_Update(&self->trail.trail)) {
                         case 0:
                             self->phase = 1;
                             self->x     = self->trail.trail.pivotX;
@@ -63,8 +63,8 @@ static s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                     self->spawnTimer = 0x3C;
                     func_ov003_020a5a94(self->trail.effect);
-                    s32 worldY = func_ov003_02084460(0, self->y, 0);
-                    func_ov003_020b42b4(self->trail.effect, 1, func_ov003_0208442c(0, self->x), worldY, -0x190000, 0x5000);
+                    s32 worldY = CombatStage_ToWorldY(0, self->y, 0);
+                    func_ov003_020b42b4(self->trail.effect, 1, CombatStage_ToWorldX(0, self->x), worldY, -0x190000, 0x5000);
                     // Retail's guard always fires on the first spawn, so the re-roll below is dead
                     // unless the counter wraps; kept to match the original control flow.
                     self->spawnCount++;
@@ -87,12 +87,12 @@ static s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage
         case 2: {
             Ov003PsychoFallZ* self = task->data;
             if (self->phase == 0)
-                func_ov003_020a4c8c(&self->trail.trail);
+                CombatPsyTrail_Render(&self->trail.trail);
             return 1;
         }
         case 3: {
             Ov003PsychoFallZ* self = task->data;
-            func_ov003_020a4d50(&self->trail.trail);
+            CombatPsyTrail_Release(&self->trail.trail);
             func_ov003_020a6464(0);
             return 1;
         }

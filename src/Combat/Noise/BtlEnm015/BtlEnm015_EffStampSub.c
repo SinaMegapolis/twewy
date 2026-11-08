@@ -24,9 +24,9 @@ static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
     s32          se;
 
     if (engine != 0) {
-        base = data_ov003_020e71b8->unk3D89C;
+        base = g_CombatGlobal->unk3D89C;
     } else {
-        base = data_ov003_020e71b8->unk3D898;
+        base = g_CombatGlobal->unk3D898;
     }
     se = (engine != 0) ? 0x8A : 0x88;
 
@@ -40,14 +40,14 @@ static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
 
                 func_ov013_02125838(data->unk_00);
                 if (SndMgr_IsSEPlaying(SEIDX_SE_015_FOOTSTAMP02) == 0) {
-                    func_ov003_02087ed8(SEIDX_SE_015_FOOTSTAMP02);
+                    CombatSe_Play(SEIDX_SE_015_FOOTSTAMP02);
                 }
-                h = func_ov003_0208a114(se);
-                r = func_ov003_0208a164(h, &data->unk_00->base.actor.baseArgs, data->unk_68, data->unk_6C, data->unk_70);
+                h = CombatHit_GetAttackInfo(se);
+                r = CombatHit_AttackAt(h, &data->unk_00->base.actor.baseArgs, data->unk_68, data->unk_6C, data->unk_70);
                 if (r == 1) {
                     func_ov003_020c4cc4(&data->unk_00->base, 0x228);
                 } else if (r != 2) {
-                    if (func_ov003_0208a08c(engine, (Ov003EnemyActor*)base, 0) != 0) {
+                    if (CombatHit_Stagger(engine, (Ov003EnemyActor*)base, 0) != 0) {
                         base->unk_10 = 1;
                     }
                 }
@@ -73,7 +73,7 @@ static void func_ov013_021268d8(BtlEnm015StampSub* data) {
     s16 x;
     s16 y;
 
-    func_ov003_02084348(func_ov003_020c37f8(&data->unk_00->base.sprite) != 0, &x, &y, data->unk_68, data->unk_6C, 0);
+    CombatStage_WorldToScreen(func_ov003_020c37f8(&data->unk_00->base.sprite) != 0, &x, &y, data->unk_68, data->unk_6C, 0);
     CombatSprite_SetPosition(&data->sprite, x, y);
     func_ov003_02082730(&data->sprite, 0x7FFFFFFF - data->unk_6C);
     CombatSprite_Render(&data->sprite);

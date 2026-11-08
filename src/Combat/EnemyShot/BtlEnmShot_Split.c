@@ -8,9 +8,9 @@ static const TaskHandle data_ov003_020e0cd4;
 s32 func_ov003_020d2bc0(Ov003EnemyShotSplitArgs* args) {
     TaskPool* pool;
     if (args->source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &data_ov003_020e71b8->unk_00000;
+        pool = &g_CombatGlobal->unk_00000;
     else
-        pool = &data_ov003_020e71b8->taskPool;
+        pool = &g_CombatGlobal->taskPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0cd4, NULL, 0, NULL, args);
 }
 
@@ -77,8 +77,8 @@ static s32 func_ov003_020d2d2c(Ov003EnemyShotSplit* self) {
 static s32 func_ov003_020d2ebc(Ov003EnemyShotSplit* self) {
     if (self->source.visual != NULL) {
         s16 x, y;
-        func_ov003_02084348(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                            self->source.core.position.y, self->source.core.position.z);
+        CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                                  self->source.core.position.y, self->source.core.position.z);
         CombatSprite_SetPosition(&self->sprite, x, y);
         func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
         CombatSprite_Render(&self->sprite);

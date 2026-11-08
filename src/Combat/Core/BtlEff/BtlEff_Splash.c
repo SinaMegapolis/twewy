@@ -44,7 +44,7 @@ extern const BinIdentifier data_ov003_020d77d8, data_ov003_020d77e0, data_ov003_
 
 /// Loads the sub-screen particle sprite of the active partner.
 static void func_ov003_0209f7c4(CombatSprite* sprite, u16 anim) {
-    switch (data_ov003_020e71b8->unk3D88D) {
+    switch (g_CombatGlobal->unk3D88D) {
         case 1:
             CombatSprite_LoadDirect(1, sprite, &data_ov003_020d77e8, 40, 42, 41, 44, anim);
             break;
@@ -83,14 +83,13 @@ static void func_ov003_0209f8b0(BtlEffSplash* splash) {
     }
 }
 
-// Nonmatching: use the callee's declared u16 angle rather than an incompatible call signature.
 static void func_ov003_0209f9c4(BtlEffSplash* splash) {
     s32                i;
     BtlSplashParticle* particle;
 
     for (i = 0; i < splash->count; i++) {
         particle = &splash->particles[i];
-        func_ov003_0208b2fc(&particle->position.x, &particle->position.y, (u16)particle->angle, particle->speed);
+        BtlMgr_MoveByAngle(&particle->position.x, &particle->position.y, particle->angle, particle->speed);
         CombatSprite_Update(&particle->sprite);
     }
 }
@@ -104,12 +103,12 @@ static void func_ov003_0209fa14(BtlEffSplash* splash) {
         particle = &splash->particles[i];
 
         if (particle->sprite.sprite.bits_0_1 == 1) {
-            x   = func_ov003_020843b0(1, particle->position.x);
-            y   = func_ov003_020843ec(1, particle->position.y, particle->position.z);
+            x   = CombatStage_ToScreenX(1, particle->position.x);
+            y   = CombatStage_ToScreenY(1, particle->position.y, particle->position.z);
             key = 0x7FFFFFFF - (particle->position.y + 0x8000);
         } else {
-            x   = func_ov003_020843b0(0, particle->position.x);
-            y   = func_ov003_020843ec(0, particle->position.y, particle->position.z);
+            x   = CombatStage_ToScreenX(0, particle->position.x);
+            y   = CombatStage_ToScreenY(0, particle->position.y, particle->position.z);
             key = y + 8;
         }
         CombatSprite_SetPosition(&particle->sprite, x, y);
@@ -148,7 +147,7 @@ static s32 BtlEff_Splash_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Splash_Update(TaskPool* pool, Task* task, void* args) {
     BtlEffSplash* splash = task->data;
 
-    if (!splash->independent && (data_ov003_020e71b8->unk3D878 & 6)) {
+    if (!splash->independent && (g_CombatGlobal->unk3D878 & 6)) {
         return 1;
     }
     if (splash->timer > 0) {
@@ -163,7 +162,7 @@ static s32 BtlEff_Splash_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Splash_Render(TaskPool* pool, Task* task, void* args) {
     BtlEffSplash* splash = task->data;
 
-    if (!splash->independent && (data_ov003_020e71b8->unk3D878 & 6)) {
+    if (!splash->independent && (g_CombatGlobal->unk3D878 & 6)) {
         return 1;
     }
     func_ov003_0209fa14(splash);
@@ -196,9 +195,9 @@ void func_ov003_0209fc88(s32 engine, s32 x, s32 y, s32 z, s16 count, s32 indepen
     params.count       = count;
     params.independent = independent;
     if (independent) {
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, &Tsk_BtlEff_Splash, NULL, 0, NULL, &params);
-    } else if (data_ov003_020e71b8->unk3D878 & 0x80) {
-        data_ov003_020e71b8->unk3D878 &= ~0x80;
-        EasyTask_CreateTask(&data_ov003_020e71b8->unk_10118, &Tsk_BtlEff_Splash, NULL, 0, NULL, &params);
+        EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BtlEff_Splash, NULL, 0, NULL, &params);
+    } else if (g_CombatGlobal->unk3D878 & 0x80) {
+        g_CombatGlobal->unk3D878 &= ~0x80;
+        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Splash, NULL, 0, NULL, &params);
     }
 }

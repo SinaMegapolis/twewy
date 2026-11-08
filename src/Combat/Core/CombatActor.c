@@ -49,16 +49,16 @@ static void CombatActor_ApplyPeriodicEffectTick(s32 arg0, CombatActor* actor) {
     s32 val = actor->periodicEffectAmount;
 
     if (actor->unk_00 == 0) {
-        func_ov003_0208b3cc(arg0, -val);
+        BtlMgr_AddTeamHp(arg0, -val);
         func_ov003_0209b564(arg0, val, actor, 3);
         if (actor->currentHp <= 0) {
             actor->flags |= 0x2000;
-            CombatActor_ForceDefeat((CombatActor*)data_ov003_020e71b8->unk3D898);
-            CombatActor_ForceDefeat((CombatActor*)data_ov003_020e71b8->unk3D89C);
-            data_ov003_020e71b8->unk3D878 |= 0x30000;
+            CombatActor_ForceDefeat((CombatActor*)g_CombatGlobal->unk3D898);
+            CombatActor_ForceDefeat((CombatActor*)g_CombatGlobal->unk3D89C);
+            g_CombatGlobal->unk3D878 |= 0x30000;
         }
     } else {
-        func_ov003_0208b518(arg0, (Ov003EnemyActor*)actor, -val);
+        BtlMgr_AddUnitHp(arg0, (Ov003EnemyActor*)actor, -val);
         func_ov003_0209b61c(arg0, val, actor);
 
         if (actor->currentHp <= 0) {
@@ -123,7 +123,7 @@ void func_ov003_02082fe0(CombatActor* actor) {
 }
 
 void CombatActor_UpdateEffects(s32 arg0, CombatActor* actor) {
-    if ((data_ov003_020e71b8->unk3D878 & 6) == 0) {
+    if ((g_CombatGlobal->unk3D878 & 6) == 0) {
         if (actor->periodicEffectMode == 1) {
             CombatActor_ApplyPeriodicEffectTick(arg0, actor);
         }
@@ -205,7 +205,7 @@ void CombatActor_Init(CombatActor* actor, s32 arg1) {
 }
 
 void CombatActor_Render(CombatActor* actor, CombatSprite* sprite) {
-    if ((func_ov003_02084d80(0) == 1) && (actor->unk_00 != 0)) {
+    if ((CombatDebug_GetSetting(0) == 1) && (actor->unk_00 != 0)) {
         actor->flags |= 0x80000000;
         return;
     }
@@ -220,11 +220,11 @@ void CombatActor_Render(CombatActor* actor, CombatSprite* sprite) {
     s32 posX;
     s32 posY;
     if (sprite->sprite.bits_0_1 == 0) {
-        posX = func_ov003_020843b0(0, actor->position.x);
-        posY = func_ov003_020843ec(0, actor->position.y, actor->position.z);
+        posX = CombatStage_ToScreenX(0, actor->position.x);
+        posY = CombatStage_ToScreenY(0, actor->position.y, actor->position.z);
     } else {
-        posX = func_ov003_020843b0(1, actor->position.x);
-        posY = func_ov003_020843ec(1, actor->position.y, actor->position.z);
+        posX = CombatStage_ToScreenX(1, actor->position.x);
+        posY = CombatStage_ToScreenY(1, actor->position.y, actor->position.z);
     }
     if (actor->isFlipped == TRUE) {
         CombatSprite_SetFlip(sprite, TRUE);

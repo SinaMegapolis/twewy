@@ -101,5 +101,5 @@ void Feat00_EffDoll_CreateTask(s32 arg0, s16 animIndex, s16 posX, s16 posY, s32 
     args.posX           = posX;
     args.posY           = posY;
     args.unk_8          = arg5;
-    EasyTask_CreateTask(&data_ov003_020e71b8->unk_34230, &Tsk_Feat00_EffDoll, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_Feat00_EffDoll, NULL, 0, NULL, &args);
 }
