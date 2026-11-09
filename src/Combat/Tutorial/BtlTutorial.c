@@ -1,7 +1,7 @@
 #include "Combat/Tutorial/BtlTutorial.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Display.h"
 #include "Engine/Core/DMA.h"
 #include "Engine/EasyTask.h"
@@ -74,10 +74,10 @@ static s32 func_ov008_020e7580(void) {
     return result;
 }
 
-static void func_ov008_020e75f8(CombatSprite* cSprite, s32 variant) {
+static void func_ov008_020e75f8(BattleSprite* cSprite, s32 variant) {
     SpriteAnimationEx anim;
 
-    CombatSprite_InitAnim(&anim.anim, 1, &data_ov008_020e7a20);
+    BtlSprite_InitAnim(&anim.anim, 1, &data_ov008_020e7a20);
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 1;
     anim.anim.bits_10_11 = 0;
@@ -87,8 +87,8 @@ static void func_ov008_020e75f8(CombatSprite* cSprite, s32 variant) {
     anim.anim.unk_20     = 6;
     anim.anim.animIndex  = data_ov008_020e7a94[variant] + 1;
     anim.animTable       = NULL;
-    CombatSprite_Load(cSprite, &anim);
-    CombatSprite_SetPosition(cSprite, 0x80, 0x60);
+    BtlSprite_Load(cSprite, &anim);
+    BtlSprite_SetPosition(cSprite, 0x80, 0x60);
 }
 
 static s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args) {
@@ -137,21 +137,21 @@ static s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args) {
 static s32 func_ov008_020e78e0(TaskPool* pool, Task* task, void* args) {
     BtlTutorial* data = task->data;
 
-    CombatSprite_Update(&data->sprite);
+    BtlSprite_Update(&data->sprite);
     return 1;
 }
 
 static s32 func_ov008_020e78f8(TaskPool* pool, Task* task, void* args) {
     BtlTutorial* data = task->data;
 
-    CombatSprite_Render(&data->sprite);
+    BtlSprite_Render(&data->sprite);
     return 1;
 }
 
 static s32 func_ov008_020e7910(TaskPool* pool, Task* task, void* args) {
     BtlTutorial* data = task->data;
 
-    CombatSprite_Release(&data->sprite);
+    BtlSprite_Release(&data->sprite);
     BgResMgr_ReleaseChar(g_BgResourceManagers[DISPLAY_SUB], data->unk_00);
     BgResMgr_ReleaseChar(g_BgResourceManagers[DISPLAY_SUB], data->unk_04);
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], data->unk_08);

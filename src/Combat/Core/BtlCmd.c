@@ -1,9 +1,9 @@
 #include "Combat/Core/BtlCmd.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "Engine/IO/Input.h"
 #include "Engine/Math/Random.h"
@@ -33,8 +33,8 @@ typedef struct BtlCmdRecord {
     /* 0x004 */ s16          second; // ... and the second
     /* 0x006 */ u16          value;
     /* 0x008 */ s32          ready;
-    /* 0x00C */ CombatSprite marker;
-    /* 0x06C */ CombatSprite cell;
+    /* 0x00C */ BattleSprite marker;
+    /* 0x06C */ BattleSprite cell;
     /* 0x0CC */ BtlCmdCell   cells[16];
 } BtlCmdRecord; // Size: 0x10C
 
@@ -53,10 +53,10 @@ typedef struct BtlCmd {
     /* 0x000 */ u8            reserved000[6];
     /* 0x006 */ s16           timer; // frames left to answer
     /* 0x008 */ u8            reserved008[0x11C - 0x8];
-    /* 0x11C */ CombatSprite  frame;
-    /* 0x17C */ CombatSprite  firstMarker;
-    /* 0x1DC */ CombatSprite  secondMarker;
-    /* 0x23C */ CombatSprite  burst;
+    /* 0x11C */ BattleSprite  frame;
+    /* 0x17C */ BattleSprite  firstMarker;
+    /* 0x1DC */ BattleSprite  secondMarker;
+    /* 0x23C */ BattleSprite  burst;
     /* 0x29C */ s32           x;
     /* 0x2A0 */ s32           y;
     /* 0x2A4 */ s32           targetX;
@@ -122,10 +122,10 @@ static void func_ov003_02097544(BtlCmd* self, BtlCmdState state) {
 }
 
 /// Loads a cell sprite.
-static void func_ov003_0209755c(CombatSprite* sprite, u16 index, s32 mode) {
+static void func_ov003_0209755c(BattleSprite* sprite, u16 index, s32 mode) {
     SpriteAnimationEx anim;
 
-    CombatSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
+    BtlSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 1;
@@ -135,18 +135,18 @@ static void func_ov003_0209755c(CombatSprite* sprite, u16 index, s32 mode) {
     anim.anim.unk_20     = 4;
     anim.anim.animIndex  = index + 1;
     anim.animTable       = NULL;
-    CombatSprite_Load(sprite, &anim);
-    func_ov003_02082738(sprite, 0);
-    CombatSprite_SetAnim(sprite, index, mode);
-    func_ov003_02082730(sprite, 3);
+    BtlSprite_Load(sprite, &anim);
+    BtlSprite_SetPriority(sprite, 0);
+    BtlSprite_SetAnim(sprite, index, mode);
+    BtlSprite_SetSortKey(sprite, 3);
 }
 
 /// Loads a marker sprite for the kind of effect command the battle is running.
-static void func_ov003_02097604(CombatSprite* sprite) {
+static void func_ov003_02097604(BattleSprite* sprite) {
     SpriteAnimationEx anim;
     Ov003EffectCmd*   command = g_CombatGlobal->effectCmd;
 
-    CombatSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
+    BtlSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
     switch (command->mode) {
         case 1:
             anim.anim.bits_10_11 = 0;
@@ -183,9 +183,9 @@ static void func_ov003_02097604(CombatSprite* sprite) {
             anim.animTable       = NULL;
             break;
     }
-    CombatSprite_Load(sprite, &anim);
-    func_ov003_02082738(sprite, 0);
-    func_ov003_02082730(sprite, 3);
+    BtlSprite_Load(sprite, &anim);
+    BtlSprite_SetPriority(sprite, 0);
+    BtlSprite_SetSortKey(sprite, 3);
 }
 
 /// The chain parameter row that applies when no badge asks for another.
@@ -390,20 +390,20 @@ static void func_ov003_02097c68(BtlCmd* self) {
     s16           anim    = 0;
 
     if (self->cursor == current->first) {
-        CombatSprite_SetAnim(&self->firstMarker, 9, 0);
+        BtlSprite_SetAnim(&self->firstMarker, 9, 0);
         anim = 1;
     } else if (self->cursor > current->first) {
-        CombatSprite_SetAnim(&self->firstMarker, 10, 0);
+        BtlSprite_SetAnim(&self->firstMarker, 10, 0);
         func_ov003_02097c24(self->otherA, self->cellWidth);
     }
     if (self->cursor == current->second) {
-        CombatSprite_SetAnim(&self->secondMarker, 12, 0);
+        BtlSprite_SetAnim(&self->secondMarker, 12, 0);
         anim = anim + 2;
     } else if (self->cursor > current->second) {
-        CombatSprite_SetAnim(&self->secondMarker, 13, 0);
+        BtlSprite_SetAnim(&self->secondMarker, 13, 0);
         func_ov003_02097c24(self->otherB, self->cellWidth);
     }
-    CombatSprite_SetAnim(&self->frame, (u16)anim, 0);
+    BtlSprite_SetAnim(&self->frame, (u16)anim, 0);
 }
 
 /// Lays a record out: `count` cells, the branch markers somewhere inside the allowed range.
@@ -458,10 +458,10 @@ static void func_ov003_02097e90(BtlCmd* self, BtlCmdRecord* record, s16 x, s16 y
         if (record->cells[i].state == 0) {
             break;
         }
-        CombatSprite_SetAnim(&record->cell, record->cells[i].anim, 0);
-        CombatSprite_SetPosition(&record->cell, x, y);
-        CombatSprite_Update(&record->cell);
-        CombatSprite_Render(&record->cell);
+        BtlSprite_SetAnim(&record->cell, record->cells[i].anim, 0);
+        BtlSprite_SetPosition(&record->cell, x, y);
+        BtlSprite_Update(&record->cell);
+        BtlSprite_Render(&record->cell);
         x = (s16)(x + self->cellWidth);
     }
     func_ov003_02086d8c(&record->marker, record->value, record->ready, x, y, self->cellWidth);
@@ -489,9 +489,9 @@ static void func_ov003_02097f3c(BtlCmd* self, s32 chain, s32 direction) {
     self->cursorX = self->x + (self->cellWidth << 12);
     self->cursorY = self->y;
     CombatSys_PushPartnerAction(1);
-    CombatSprite_SetAnim(&self->frame, 0, 0);
-    CombatSprite_SetAnim(&self->firstMarker, 8, 0);
-    CombatSprite_SetAnim(&self->secondMarker, 11, 0);
+    BtlSprite_SetAnim(&self->frame, 0, 0);
+    BtlSprite_SetAnim(&self->firstMarker, 8, 0);
+    BtlSprite_SetAnim(&self->secondMarker, 11, 0);
     func_ov003_02097d40(self, self->current, params->firstMin + RNG_Next(params->firstMax - params->firstMin + 1));
     func_ov003_02097d40(self, self->otherA, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
     func_ov003_02097d40(self, self->otherB, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
@@ -520,9 +520,9 @@ static void func_ov003_02098090(BtlCmd* self, BtlCmdRecord* record) {
     self->cursor  = 0;
     self->targetX = self->x;
     self->targetY = self->y;
-    CombatSprite_SetAnim(&self->frame, 0, 0);
-    CombatSprite_SetAnim(&self->firstMarker, 8, 0);
-    CombatSprite_SetAnim(&self->secondMarker, 11, 0);
+    BtlSprite_SetAnim(&self->frame, 0, 0);
+    BtlSprite_SetAnim(&self->firstMarker, 8, 0);
+    BtlSprite_SetAnim(&self->secondMarker, 11, 0);
     if (!(record->first == -1 && record->second == -1)) {
         func_ov003_02097d40(self, self->otherA, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
         func_ov003_02097d40(self, self->otherB, params->branchMin + RNG_Next(params->branchMax - params->branchMin + 1));
@@ -532,7 +532,7 @@ static void func_ov003_02098090(BtlCmd* self, BtlCmdRecord* record) {
 static void func_ov003_020981dc(BtlCmd* self, s32 y) {
     self->burstY   = y;
     self->bursting = 1;
-    CombatSprite_Restart(&self->burst);
+    BtlSprite_Restart(&self->burst);
 }
 
 /// Answers the cell under the cursor (or ends the chain when `cancel` is set).
@@ -730,13 +730,13 @@ static s32 BtlCmd_Init(TaskPool* pool, Task* task, void* args) {
         func_ov003_02097604(&self->records[i].marker);
     }
     func_ov003_0209755c(&self->frame, 3, 0);
-    func_ov003_02082730(&self->frame, 4);
+    BtlSprite_SetSortKey(&self->frame, 4);
     func_ov003_0209755c(&self->firstMarker, 8, 0);
-    func_ov003_02082730(&self->firstMarker, 3);
+    BtlSprite_SetSortKey(&self->firstMarker, 3);
     func_ov003_0209755c(&self->secondMarker, 11, 0);
-    func_ov003_02082730(&self->secondMarker, 3);
+    BtlSprite_SetSortKey(&self->secondMarker, 3);
     func_ov003_0209755c(&self->burst, 14, 1);
-    func_ov003_02082730(&self->burst, 2);
+    BtlSprite_SetSortKey(&self->burst, 2);
     self->visible  = 0;
     self->bursting = 0;
     self->mode     = 0;
@@ -772,21 +772,21 @@ static s32 BtlCmd_Update(TaskPool* pool, Task* task, void* args) {
     if (self->state != NULL) {
         self->state(self);
     }
-    CombatSprite_Update(&self->frame);
+    BtlSprite_Update(&self->frame);
     func_ov003_02097e8c(self, self->current);
     if (self->current->first != -1) {
-        CombatSprite_Update(&self->firstMarker);
+        BtlSprite_Update(&self->firstMarker);
         func_ov003_02097e8c(self, self->otherA);
     }
     if (self->current->second != -1) {
-        CombatSprite_Update(&self->secondMarker);
+        BtlSprite_Update(&self->secondMarker);
         func_ov003_02097e8c(self, self->otherB);
     }
     if (self->bursting != 0) {
         if (SpriteMgr_IsAnimationFinished(&self->burst.sprite) != 0) {
             self->bursting = 0;
         }
-        CombatSprite_Update(&self->burst);
+        BtlSprite_Update(&self->burst);
     }
     return 1;
 }
@@ -800,14 +800,14 @@ static s32 BtlCmd_Render(TaskPool* pool, Task* task, void* args) {
     s16     xx;
 
     if (self->bursting != 0) {
-        CombatSprite_SetPosition(&self->burst, (self->x * 0x10) >> 16, (self->burstY * 0x10) >> 16);
-        CombatSprite_Render(&self->burst);
+        BtlSprite_SetPosition(&self->burst, (self->x * 0x10) >> 16, (self->burstY * 0x10) >> 16);
+        BtlSprite_Render(&self->burst);
     }
     if (self->visible == 0) {
         return 1;
     }
-    CombatSprite_SetPosition(&self->frame, (self->x * 0x10) >> 16, (self->y * 0x10) >> 16);
-    CombatSprite_Render(&self->frame);
+    BtlSprite_SetPosition(&self->frame, (self->x * 0x10) >> 16, (self->y * 0x10) >> 16);
+    BtlSprite_Render(&self->frame);
     px = (self->cursorX * 0x10) >> 16;
     py = (self->cursorY * 0x10) >> 16;
     func_ov003_02097e90(self, self->current, px, py);
@@ -816,16 +816,16 @@ static s32 BtlCmd_Render(TaskPool* pool, Task* task, void* args) {
         yy    = py - 0x12;
         xx    = (s16)(self->current->first * width + px);
         func_ov003_02097e90(self, self->otherA, (s16)(width + xx), yy);
-        CombatSprite_SetPosition(&self->firstMarker, xx, yy);
-        CombatSprite_Render(&self->firstMarker);
+        BtlSprite_SetPosition(&self->firstMarker, xx, yy);
+        BtlSprite_Render(&self->firstMarker);
     }
     if (self->current->second != -1) {
         width = self->cellWidth;
         yy    = py + 0x12;
         xx    = (s16)(self->current->second * width + px);
         func_ov003_02097e90(self, self->otherB, (s16)(width + xx), yy);
-        CombatSprite_SetPosition(&self->secondMarker, xx, yy);
-        CombatSprite_Render(&self->secondMarker);
+        BtlSprite_SetPosition(&self->secondMarker, xx, yy);
+        BtlSprite_Render(&self->secondMarker);
     }
     return 1;
 }
@@ -835,13 +835,13 @@ static s32 BtlCmd_Release(TaskPool* pool, Task* task, void* args) {
     s32     i;
 
     for (i = 0; i < 3; i++) {
-        CombatSprite_Release(&self->records[i].cell);
-        CombatSprite_Release(&self->records[i].marker);
+        BtlSprite_Release(&self->records[i].cell);
+        BtlSprite_Release(&self->records[i].marker);
     }
-    CombatSprite_Release(&self->frame);
-    CombatSprite_Release(&self->firstMarker);
-    CombatSprite_Release(&self->secondMarker);
-    CombatSprite_Release(&self->burst);
+    BtlSprite_Release(&self->frame);
+    BtlSprite_Release(&self->firstMarker);
+    BtlSprite_Release(&self->secondMarker);
+    BtlSprite_Release(&self->burst);
     return 1;
 }
 

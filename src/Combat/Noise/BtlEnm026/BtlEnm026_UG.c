@@ -32,7 +32,7 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
 
     switch (data->unk_1C2) {
         case 0:
-            CombatSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
+            BtlSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
             func_ov003_020c4cc4(&data->base, 0x27F);
             data->unk_1C2 = data->unk_1C2 + 1;
             return;
@@ -62,7 +62,7 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
             {
                 return;
             }
-            CombatSprite_SetAnimFromTable(&data->base.sprite, 0xA, 1);
+            BtlSprite_SetAnimFromTable(&data->base.sprite, 0xA, 1);
             data->unk_1C2 = data->unk_1C2 + 1;
             data->unk_1C0 = 2;
             return;
@@ -80,7 +80,7 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
                 Sprite_Restart(&data->base.sprite.sprite);
                 return;
             }
-            CombatSprite_SetAnimFromTable(&data->base.sprite, 0xB, 0);
+            BtlSprite_SetAnimFromTable(&data->base.sprite, 0xB, 0);
             data->unk_1C2 = data->unk_1C2 + 1;
             dx            = player->position.x - data->base.actor.position.x;
             data->unk_1C0 = ABS(dx) / 0x8000 + 5;
@@ -92,7 +92,7 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
             s32 dy;
             s32 h;
 
-            data->base.actor.position.x += (data->base.sprite.flags46 & 1) ? 0x8000 : -0x8000;
+            data->base.actor.position.x += (data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? 0x8000 : -0x8000;
             dy = player->position.y - data->base.actor.position.y;
             if (dy > 0x800) {
                 dy = 0x800;
@@ -110,8 +110,8 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
             if (data->unk_1C0 >= 0) {
                 return;
             }
-            data->unk_1E8 = (data->base.sprite.flags46 & 1) ? 0x8000 : -0x8000;
-            CombatSprite_SetAnimFromTable(&data->base.sprite, 0xC, 1);
+            data->unk_1E8 = (data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? 0x8000 : -0x8000;
+            BtlSprite_SetAnimFromTable(&data->base.sprite, 0xC, 1);
             data->unk_1C2 = data->unk_1C2 + 1;
             return;
         }
@@ -155,7 +155,7 @@ static void func_ov015_0212736c(BtlEnm026* data) {
     }
     switch (data->unk_1C2) {
         case 0:
-            CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
+            BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
             data->unk_1C2 = data->unk_1C2 + 1;
             data->unk_1C0 = func_ov003_020c42ec(&data->base);
             break;
@@ -169,7 +169,7 @@ static void func_ov015_0212736c(BtlEnm026* data) {
             if (data->unk_1C0 >= 0) {
                 return;
             }
-            CombatSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
+            BtlSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
             r             = RNG_Next(0xFFFF);
             sin           = COS2(FX_SinCosTable_, r);
             cos           = SIN2(FX_SinCosTable_, r);
@@ -194,9 +194,9 @@ static void func_ov015_0212736c(BtlEnm026* data) {
 
 static void func_ov015_02127594(BtlEnm026* data) {
     if (data_ov015_02128500.result10 != -1) {
-        CombatSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
+        BtlSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
     } else {
-        CombatSprite_SetAnimFromTable(&data->base.sprite, 3, 0);
+        BtlSprite_SetAnimFromTable(&data->base.sprite, 3, 0);
     }
     data->base.actor.position.x += data->unk_1D0;
     func_ov003_020c4ab4(&data->base, (data->unk_1D0 > 0) ? 1 : 0);
@@ -390,9 +390,9 @@ void func_ov015_02127ac4(BtlEnm026* data) {
     }
     if (func_ov003_020c37f8(&data->base.sprite) != 0) {
         twin = data->base.partner->unk_188;
-        CombatSprite_SetPaletteMode(&twin->base.sprite, 0);
+        BtlSprite_SetPaletteMode(&twin->base.sprite, BTL_SPRITE_PALETTE_OWN);
         if ((u32)(data_ov015_02128500.unk14 - 1) <= 1) {
-            CombatSprite_SetPaletteMode(&twin->base.sprite, 2);
+            BtlSprite_SetPaletteMode(&twin->base.sprite, BTL_SPRITE_PALETTE_FLICKER);
         }
         if (data->unk_1C4 != (void (*)(BtlEnm026*))data->unk_1C8) {
             return;
@@ -441,7 +441,7 @@ void func_ov015_02127c18(BtlEnm026* data) {
 
 void func_ov015_02127c68(BtlEnm026* data) {
     data_ov015_02128500.flag08 = 0;
-    CombatSprite_SetAnimFromTable(&data->base.sprite, 1, 0);
+    BtlSprite_SetAnimFromTable(&data->base.sprite, 1, 0);
     data->base.flags196.raw &= ~0x2;
 }
 

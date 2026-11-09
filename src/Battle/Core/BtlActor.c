@@ -206,7 +206,7 @@ void BtlActor_Init(BattleActor* actor, BattleActorKind kind) {
     actor->linkedActor = 0;
 }
 
-void BtlActor_Render(BattleActor* actor, CombatSprite* sprite) {
+void BtlActor_Render(BattleActor* actor, BattleSprite* sprite) {
     if ((CombatDebug_GetSetting(0) == 1) && (actor->kind != ACTOR_KIND_PLAYER)) {
         actor->flags |= ACTOR_FLAG_HIDDEN;
         return;
@@ -215,8 +215,8 @@ void BtlActor_Render(BattleActor* actor, CombatSprite* sprite) {
     if (actor->flags & ACTOR_FLAG_HIT_FLASH) {
         actor->flags &= ~ACTOR_FLAG_HIT_FLASH;
         sprite->paletteTimer = 12;
-        sprite->flags46 |= 0x1000;
-        CombatSprite_SetPaletteMode(sprite, 2);
+        sprite->flags |= BTL_SPRITE_FLAG_PALETTE_FLASH;
+        BtlSprite_SetPaletteMode(sprite, BTL_SPRITE_PALETTE_FLICKER);
     }
 
     s32 posX;
@@ -229,14 +229,14 @@ void BtlActor_Render(BattleActor* actor, CombatSprite* sprite) {
         posY = CombatStage_ToScreenY(1, actor->position.y, actor->position.z);
     }
     if (actor->isFlipped == TRUE) {
-        CombatSprite_SetFlip(sprite, TRUE);
+        BtlSprite_SetFlip(sprite, TRUE);
     } else {
-        CombatSprite_SetFlip(sprite, FALSE);
+        BtlSprite_SetFlip(sprite, FALSE);
     }
 
-    CombatSprite_SetPosition(sprite, posX, posY);
-    func_ov003_02082730(sprite, 0x7FFFFFFE - actor->position.y);
-    CombatSprite_Render(sprite);
+    BtlSprite_SetPosition(sprite, posX, posY);
+    BtlSprite_SetSortKey(sprite, 0x7FFFFFFE - actor->position.y);
+    BtlSprite_Render(sprite);
     actor->screenX = posX;
     actor->screenY = posY;
 }

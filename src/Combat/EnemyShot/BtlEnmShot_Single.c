@@ -35,9 +35,9 @@ static s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleA
     self->velocity.z = args->velocity.z;
     if (args->screenHit)
         self->flags |= 1;
-    CombatSprite_LoadDirect(engine, &self->sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex,
-                            entry->frameDataIndex, visual->paletteSlot, entry->animDataIndex);
-    CombatSprite_SetAnim(&self->sprite, args->source->animation, args->source->animationMode);
+    BtlSprite_LoadDirect(engine, &self->sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                         visual->paletteEntry, entry->animIndex);
+    BtlSprite_SetAnim(&self->sprite, args->source->animation, args->source->animationMode);
     self->source.sprite = &self->sprite;
     self->angle         = args->angle;
     if (args->rotate) {
@@ -52,7 +52,7 @@ static s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleA
         f32 dy = I2F_RND(nextY - y);
         self->angle += FX_Atan2Idx((s32)dy, (s32)dx);
     }
-    func_ov003_020cdff4(&self->source, args->source->core.owner->base.sprite.flags46 & 1, 0);
+    func_ov003_020cdff4(&self->source, args->source->core.owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED, 0);
     func_ov003_020cccf0(engine, args->source);
     return 1;
 }
@@ -77,7 +77,7 @@ static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
             CombatHit_AttackAt(CombatHit_GetAttackInfo(self->source.attackId), &self->source.owner->base.actor.baseArgs,
                                self->source.position.x, self->source.position.y, self->source.position.z);
     }
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return 1;
 }
 
@@ -86,15 +86,15 @@ static s32 func_ov003_020d22e4(Ov003EnemyShotSingle* self) {
     CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
                               self->source.position.y, self->source.position.z);
     if (self->flags & 2)
-        CombatSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 0);
-    CombatSprite_SetPosition(&self->sprite, x, y);
-    func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.position.y);
-    CombatSprite_Render(&self->sprite);
+        BtlSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 0);
+    BtlSprite_SetPosition(&self->sprite, x, y);
+    BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.position.y);
+    BtlSprite_Render(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020d2384(Ov003EnemyShotSingle* self) {
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     return 1;
 }
 

@@ -38,17 +38,17 @@ static s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
                 CombatPsyAnim_SetAnim(&self->sprite, 0x11, 0);
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         case 2:
             self = task->data;
-            CombatSprite_SetPosition(&self->sprite, self->entry.actor->screenX,
-                                     (s16)(self->entry.actor->screenY - self->entry.actor->centerHeight));
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, self->entry.actor->screenX,
+                                  (s16)(self->entry.actor->screenY - self->entry.actor->centerHeight));
+            BtlSprite_Render(&self->sprite);
             return 1;
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }

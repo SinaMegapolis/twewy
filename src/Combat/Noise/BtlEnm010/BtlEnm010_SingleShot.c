@@ -14,7 +14,7 @@ typedef struct BtlEnm010Shot {
 
 typedef struct BtlEnm010SingleShot {
     /* 0x00 */ Ov003EnemyActor* unk_000;
-    /* 0x04 */ CombatSprite     sprite;
+    /* 0x04 */ BattleSprite     sprite;
     /* 0x64 */ s16              unk_064; // launch SE played
     /* 0x66 */ u16              unk_066;
     /* 0x68 */ BtlEnm010Shot    shot[3];
@@ -104,7 +104,7 @@ static s32 func_ov011_021283a8(BtlEnm010SingleShot* data, BtlEnm010SingleShotArg
 
     MI_CpuSet(data, 0, 0xB4);
     func_ov011_021258b4(arg1->field_00->sprite.sprite.bits_0_1, &data->sprite, 2);
-    CombatSprite_SetAnimFromTable(&data->sprite, 0, 0);
+    BtlSprite_SetAnimFromTable(&data->sprite, 0, 0);
     for (i = 0; i < 3; i++) {
         data->shot[i].unk_08 = (s32)((((long long)data_ov011_0212c204[i] * (long long)(arg1->field_10)) + 0x800) >> 12);
     }
@@ -141,7 +141,7 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
     if (p->unk_000 != NULL && (p->unk_000->actor.flags & ACTOR_FLAG_DEFEATED) != 0) {
         return r;
     }
-    CombatSprite_Update(&p->sprite);
+    BtlSprite_Update(&p->sprite);
     if (func_ov003_020c37f8(&p->sprite) != 0) {
         mode = 1;
         id   = 0x5C;
@@ -191,15 +191,15 @@ static s32 func_ov011_02128698(BtlEnm010SingleShot* p) {
     base = 0;
     rec  = data->shot;
     for (i = 0; i < 3; i++) {
-        CombatSprite_SetAffineTransform(&data->sprite, base, data_ov011_0212c1ec[i], data_ov011_0212c1ec[i], base);
-        CombatSprite_SetPosition(&data->sprite, rec->unk_0C, rec->unk_0E);
-        CombatSprite_Render(&data->sprite);
+        BtlSprite_SetAffineTransform(&data->sprite, base, data_ov011_0212c1ec[i], data_ov011_0212c1ec[i], base);
+        BtlSprite_SetPosition(&data->sprite, rec->unk_0C, rec->unk_0E);
+        BtlSprite_Render(&data->sprite);
         rec++;
     }
     return 1;
 }
 
 static s32 func_ov011_02128704(BtlEnm010SingleShot* p) {
-    CombatSprite_Release(&p->sprite);
+    BtlSprite_Release(&p->sprite);
     return 1;
 }

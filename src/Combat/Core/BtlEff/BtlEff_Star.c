@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 
 #include "Combat/Core/CombatApi.h"
 #include "main_02026528.h"
@@ -19,7 +19,7 @@ typedef struct BtlStarTrail {
 } BtlStarTrail; // Size: 0x10
 
 typedef struct BtlEffStar {
-    /* 0x000 */ CombatSprite     sprites[4]; // star, owner glow, trail on the sub screen, trail on the main screen
+    /* 0x000 */ BattleSprite     sprites[4]; // star, owner glow, trail on the sub screen, trail on the main screen
     /* 0x180 */ Ov003TouchActor* owner;
     /* 0x184 */ BtlStarTrail     trails[5];
     /* 0x1D4 */ s8               level;
@@ -42,9 +42,9 @@ static const SpriteAnimEntry data_ov003_020d870c = {1, 3, 2, 0};
 
 extern const BinIdentifier data_ov003_020d7800, data_ov003_020d7810;
 
-static void func_ov003_0209fd48(s32 engine, CombatSprite* sprite) {
-    CombatSprite_LoadDirect(engine, sprite, &data_ov003_020d7800, 25, 27, 26, 0x3F, 12);
-    func_ov003_02082738(sprite, 0);
+static void func_ov003_0209fd48(s32 engine, BattleSprite* sprite) {
+    BtlSprite_LoadDirect(engine, sprite, &data_ov003_020d7800, 25, 27, 26, 0x3F, 12);
+    BtlSprite_SetPriority(sprite, 0);
 }
 
 static void func_ov003_0209fd98(BtlEffStar* star) {
@@ -114,12 +114,12 @@ static void func_ov003_0209fef0(BtlEffStar* star) {
         trail = &star->trails[i];
         if (trail->isActive) {
             if (trail->y < 0xD0000) {
-                CombatSprite_SetPosition(&star->sprites[2], (s16)(trail->x >> 12), (s16)(trail->y >> 12));
-                CombatSprite_Render(&star->sprites[2]);
+                BtlSprite_SetPosition(&star->sprites[2], (s16)(trail->x >> 12), (s16)(trail->y >> 12));
+                BtlSprite_Render(&star->sprites[2]);
             }
             if (trail->y > 0xB0000) {
-                CombatSprite_SetPosition(&star->sprites[3], (s16)(trail->x >> 12), (s16)((trail->y >> 12) - 192));
-                CombatSprite_Render(&star->sprites[3]);
+                BtlSprite_SetPosition(&star->sprites[3], (s16)(trail->x >> 12), (s16)((trail->y >> 12) - 192));
+                BtlSprite_Render(&star->sprites[3]);
             }
         }
     }
@@ -137,11 +137,11 @@ static s32 BtlEff_Star_Init(TaskPool* pool, Task* task, void* args) {
     star->owner    = params->owner;
     star->timer    = 0;
     star->isActive = TRUE;
-    CombatSprite_LoadFromTable(1, &star->sprites[0], &data_ov003_020d7800, &data_ov003_020d8714, 0, 0x3F, 16);
-    CombatSprite_SetAnimFromTable(&star->sprites[0], 0, 1);
-    func_ov003_02082738(&star->sprites[0], 0);
-    CombatSprite_SetPosition(&star->sprites[0], 128, 0);
-    CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020d7810);
+    BtlSprite_LoadFromTable(1, &star->sprites[0], &data_ov003_020d7800, &data_ov003_020d8714, 0, 0x3F, 16);
+    BtlSprite_SetAnimFromTable(&star->sprites[0], 0, 1);
+    BtlSprite_SetPriority(&star->sprites[0], 0);
+    BtlSprite_SetPosition(&star->sprites[0], 128, 0);
+    BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020d7810);
     anim.anim.unk_18     = 2;
     anim.anim.unk_26     = 2;
     anim.anim.packIndex  = 1;
@@ -152,10 +152,10 @@ static s32 BtlEff_Star_Init(TaskPool* pool, Task* task, void* args) {
     anim.anim.unk_28     = 3;
     anim.anim.unk_20     = 4;
     anim.animTable       = &data_ov003_020d870c;
-    CombatSprite_Load(&star->sprites[1], &anim);
-    CombatSprite_SetAnimFromTable(&star->sprites[1], 0, 1);
-    func_ov003_02082738(&star->sprites[1], 0);
-    func_ov003_02082730(&star->sprites[1], 0x3E9000);
+    BtlSprite_Load(&star->sprites[1], &anim);
+    BtlSprite_SetAnimFromTable(&star->sprites[1], 0, 1);
+    BtlSprite_SetPriority(&star->sprites[1], 0);
+    BtlSprite_SetSortKey(&star->sprites[1], 0x3E9000);
     func_ov003_0209fd98(star);
     return 1;
 }
@@ -174,19 +174,19 @@ static s32 BtlEff_Star_Update(TaskPool* pool, Task* task, void* args) {
         return 0;
     }
     func_ov003_0209fe58(star);
-    CombatSprite_Update(&star->sprites[0]);
-    CombatSprite_Update(&star->sprites[1]);
-    CombatSprite_Update(&star->sprites[2]);
-    CombatSprite_Update(&star->sprites[3]);
+    BtlSprite_Update(&star->sprites[0]);
+    BtlSprite_Update(&star->sprites[1]);
+    BtlSprite_Update(&star->sprites[2]);
+    BtlSprite_Update(&star->sprites[3]);
     return 1;
 }
 
 static s32 BtlEff_Star_Render(TaskPool* pool, Task* task, void* args) {
     BtlEffStar* star = task->data;
 
-    CombatSprite_Render(&star->sprites[0]);
-    CombatSprite_SetPosition(&star->sprites[1], (s16)(star->owner->x >> 12), (s16)(star->owner->y >> 12));
-    CombatSprite_Render(&star->sprites[1]);
+    BtlSprite_Render(&star->sprites[0]);
+    BtlSprite_SetPosition(&star->sprites[1], (s16)(star->owner->x >> 12), (s16)(star->owner->y >> 12));
+    BtlSprite_Render(&star->sprites[1]);
     func_ov003_0209fef0(star);
     return 1;
 }
@@ -194,10 +194,10 @@ static s32 BtlEff_Star_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Star_Release(TaskPool* pool, Task* task, void* args) {
     BtlEffStar* star = task->data;
 
-    CombatSprite_Release(&star->sprites[0]);
-    CombatSprite_Release(&star->sprites[1]);
-    CombatSprite_Release(&star->sprites[2]);
-    CombatSprite_Release(&star->sprites[3]);
+    BtlSprite_Release(&star->sprites[0]);
+    BtlSprite_Release(&star->sprites[1]);
+    BtlSprite_Release(&star->sprites[2]);
+    BtlSprite_Release(&star->sprites[3]);
     return 1;
 }
 

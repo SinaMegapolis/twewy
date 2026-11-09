@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include <nitro/mi/cpumem.h>
 
@@ -57,7 +57,7 @@ static s32 BtlEff_Fall_Init(TaskPool* pool, Task* task, void* args) {
     temp_r4->unk_6C         = temp_r7->unk_4;
 
     temp_r4->unk_74 = spawn_args->unk_C;
-    CombatSprite_LoadFromTable(0, (CombatSprite*)temp_r4, &data_ov016_0212909c, data_ov016_021290e4, 0, 7, 0);
+    BtlSprite_LoadFromTable(0, (BattleSprite*)temp_r4, &data_ov016_0212909c, data_ov016_021290e4, 0, 7, 0);
 
     s32 temp_r1 = ((Ov016SpriteParams*)temp_r4->unk_60)->unk2;
     if (temp_r1 <= 14) {
@@ -74,7 +74,7 @@ static s32 BtlEff_Fall_Init(TaskPool* pool, Task* task, void* args) {
     }
     if (temp_r1 != 25) {
     escape:
-        func_ov003_020c38e8((CombatSprite*)temp_r4);
+        func_ov003_020c38e8((BattleSprite*)temp_r4);
     }
 
     CombatSe_PlayAtMainX(500, ((Boss01*)temp_r4->unk_64)->unk_28);
@@ -118,7 +118,7 @@ static s32 BtlEff_Fall_Update(TaskPool* pool, Task* task, void* args) {
             }
         }
     }
-    CombatSprite_Update((CombatSprite*)eff);
+    BtlSprite_Update((BattleSprite*)eff);
     return var_r5;
 }
 
@@ -126,11 +126,11 @@ static s32 BtlEff_Fall_Render(TaskPool* pool, Task* task, void* args) {
     BtlEff_Fall* temp_r4 = task->data;
     s16          spA, sp8;
 
-    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)temp_r4), &spA, &sp8, temp_r4->unk_64->position.x,
+    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)temp_r4), &spA, &sp8, temp_r4->unk_64->position.x,
                               temp_r4->unk_64->position.y, temp_r4->unk_64->position.z);
-    CombatSprite_SetPosition((CombatSprite*)temp_r4, spA, sp8);
-    func_ov003_02082730((CombatSprite*)temp_r4, 0x7FFFEFFF - temp_r4->unk_64->position.y);
-    CombatSprite_Render((CombatSprite*)temp_r4);
+    BtlSprite_SetPosition((BattleSprite*)temp_r4, spA, sp8);
+    BtlSprite_SetSortKey((BattleSprite*)temp_r4, 0x7FFFEFFF - temp_r4->unk_64->position.y);
+    BtlSprite_Render((BattleSprite*)temp_r4);
     return 1;
 }
 
@@ -138,7 +138,7 @@ static s32 BtlEff_Fall_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlEff_Fall* temp_r4 = task->data;
 
     if (temp_r4->unk_20 != 0) {
-        CombatSprite_Release((CombatSprite*)temp_r4);
+        BtlSprite_Release((BattleSprite*)temp_r4);
     }
     return 1;
 }

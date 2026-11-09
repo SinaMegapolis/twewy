@@ -97,8 +97,8 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
                     if (self->frame == 2) {
                         CombatPsyAnim_SetAnim(&self->sprites[0], data_ov003_020dd074[self->kind], 0);
                         if (self->kind == 0) {
-                            CombatSprite_Release(&self->sprites[1]);
-                            CombatSprite_Release(&self->sprites[2]);
+                            BtlSprite_Release(&self->sprites[1]);
+                            BtlSprite_Release(&self->sprites[2]);
                         }
                     }
                     self->scales[0] = &data_ov003_020dd088[self->frame];
@@ -107,7 +107,7 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
             }
             for (s32 i = 0; i < 3; i++) {
                 if (Sprite_HasAnimation(&self->sprites[i].sprite))
-                    CombatSprite_Update(&self->sprites[i]);
+                    BtlSprite_Update(&self->sprites[i]);
             }
             return 1;
         case 2: {
@@ -122,18 +122,18 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
                     switch (i) {
                         case 1:
                         case 2:
-                            CombatSprite_SetPosition(&self->sprites[i], x, topY);
+                            BtlSprite_SetPosition(&self->sprites[i], x, topY);
                             break;
                         default:
-                            CombatSprite_SetPosition(&self->sprites[i], x, y);
+                            BtlSprite_SetPosition(&self->sprites[i], x, y);
                             break;
                     }
                     if (self->scales[i] != NULL)
-                        CombatSprite_SetAffineTransform(&self->sprites[i], 0, self->scales[i]->x, self->scales[i]->y, 0);
+                        BtlSprite_SetAffineTransform(&self->sprites[i], 0, self->scales[i]->x, self->scales[i]->y, 0);
                     else
-                        CombatSprite_SetAffineTransform(&self->sprites[i], 0, 0x1000, 0x1000, 0);
-                    func_ov003_02082730(&self->sprites[i], self->position.y + i * 0x1000 + 0x1F4000);
-                    CombatSprite_Render(&self->sprites[i]);
+                        BtlSprite_SetAffineTransform(&self->sprites[i], 0, 0x1000, 0x1000, 0);
+                    BtlSprite_SetSortKey(&self->sprites[i], self->position.y + i * 0x1000 + 0x1F4000);
+                    BtlSprite_Render(&self->sprites[i]);
                 }
             }
             return 1;
@@ -142,7 +142,7 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
             self = task->data;
             for (s32 i = 0; i < 3; i++) {
                 if (Sprite_HasAnimation(&self->sprites[i].sprite))
-                    CombatSprite_Release(&self->sprites[i]);
+                    BtlSprite_Release(&self->sprites[i]);
             }
             self->effect->unk_0A--;
             return 1;

@@ -1,8 +1,8 @@
 #ifndef COMBAT_CORE_COMBATBOSSEXP_H
 #define COMBAT_CORE_COMBATBOSSEXP_H
 
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatSprite.h"
 
 /// The four sprite animations the boss defeat burst task (`Tsk_BossExp1`) is started with, plus the actor it belongs to.
 typedef struct BossExp1Anims {

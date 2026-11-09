@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "main_02026528.h"
 
 #include "Combat/Core/BtlPop.h"
@@ -11,7 +11,7 @@
 // the unit it belongs to, rising slightly while it fades out.
 
 typedef struct BtlPop_Star {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ u16          digits[2];  // digit sprite indices, least significant first
     /* 0x64 */ u16          starAnim;   // star sprite drawn over the last digit
     /* 0x66 */ s16          digitCount; // 1 or 2
@@ -55,10 +55,10 @@ static s32 func_ov003_0209cd0c(s32* digits, s32 value) {
 }
 
 /// Loads the popup sprite on the star-digit animation set.
-static void func_ov003_0209cd74(CombatSprite* sprite, s32 variant) {
-    CombatSprite_LoadDirectNoProto(1, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3F, variant);
-    func_ov003_02082738(sprite, 0);
-    func_ov003_02082730(sprite, 1);
+static void func_ov003_0209cd74(BattleSprite* sprite, s32 variant) {
+    BtlSprite_LoadDirectNoProto(1, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3F, variant);
+    BtlSprite_SetPriority(sprite, 0);
+    BtlSprite_SetSortKey(sprite, 1);
 }
 
 static s32 BtlPop_Star_Init(TaskPool* pool, Task* task, void* args) {
@@ -112,20 +112,20 @@ static s32 BtlPop_Star_Render(TaskPool* pool, Task* task, void* args) {
     half = (star->digitCount * 7) / 2 - 7;
 
     for (i = 0, offset = 0; i < star->digitCount; i++, offset += 7) {
-        CombatSprite_SetAnim(&star->sprite, star->digits[i], 0);
-        CombatSprite_Update(&star->sprite);
-        CombatSprite_SetPosition(&star->sprite, (s16)(half + posX - offset), posY);
-        CombatSprite_Render(&star->sprite);
+        BtlSprite_SetAnim(&star->sprite, star->digits[i], 0);
+        BtlSprite_Update(&star->sprite);
+        BtlSprite_SetPosition(&star->sprite, (s16)(half + posX - offset), posY);
+        BtlSprite_Render(&star->sprite);
     }
-    CombatSprite_SetAnim(&star->sprite, star->starAnim, 0);
-    CombatSprite_Update(&star->sprite);
-    CombatSprite_SetPosition(&star->sprite, (s16)(half + posX - ((star->digitCount - 1) * 7)), posY);
-    CombatSprite_Render(&star->sprite);
+    BtlSprite_SetAnim(&star->sprite, star->starAnim, 0);
+    BtlSprite_Update(&star->sprite);
+    BtlSprite_SetPosition(&star->sprite, (s16)(half + posX - ((star->digitCount - 1) * 7)), posY);
+    BtlSprite_Render(&star->sprite);
     return 1;
 }
 
 static s32 BtlPop_Star_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

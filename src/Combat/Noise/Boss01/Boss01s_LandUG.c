@@ -1,12 +1,12 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 
 /// MARK: Boss01s_LandUG
 
 typedef struct {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s32          unk_60;
     /* 0x64 */ s32          unk_64;
     /* 0x68 */ s32          unk_68;
@@ -24,7 +24,7 @@ s32 Boss01s_LandUG_Init(TaskPool* pool, Task* task, void* args) {
     Boss01s_LandUG* landUG = task->data;
 
     MI_CpuSet(landUG, 0, sizeof(Boss01s_LandUG));
-    CombatSprite_LoadFromTable(0, &landUG->sprite, &data_ov016_02128f98, &LandUG_Anim, 0, 4, 0xC);
+    BtlSprite_LoadFromTable(0, &landUG->sprite, &data_ov016_02128f98, &LandUG_Anim, 0, 4, 0xC);
     landUG->unk_60 = g_CombatGlobal->unk3D7C0[0].unk_0C / 2;
     landUG->unk_64 = -0x1E000;
     landUG->unk_68 = 0;
@@ -40,7 +40,7 @@ s32 Boss01s_LandUG_Update(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatSprite_Update(&landUG->sprite);
+    BtlSprite_Update(&landUG->sprite);
     return 1;
 }
 
@@ -51,17 +51,17 @@ s32 Boss01s_LandUG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)landUG), &spA, &sp8, landUG->unk_60, landUG->unk_64,
+    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)landUG), &spA, &sp8, landUG->unk_60, landUG->unk_64,
                               landUG->unk_68);
-    CombatSprite_SetPosition(&landUG->sprite, spA, sp8);
-    func_ov003_02082730(&landUG->sprite, 0x7FFFFFFF);
-    CombatSprite_Render(&landUG->sprite);
+    BtlSprite_SetPosition(&landUG->sprite, spA, sp8);
+    BtlSprite_SetSortKey(&landUG->sprite, 0x7FFFFFFF);
+    BtlSprite_Render(&landUG->sprite);
     return 1;
 }
 
 s32 Boss01s_LandUG_Destroy(TaskPool* pool, Task* task, void* args) {
     Boss01s_LandUG* landUG = task->data;
-    CombatSprite_Release(&landUG->sprite);
+    BtlSprite_Release(&landUG->sprite);
     return 1;
 }
 

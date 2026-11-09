@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
@@ -13,7 +13,7 @@ extern BinIdentifier data_ov003_020d77d8;
 extern BinIdentifier data_ov003_020d77e0;
 
 typedef struct BtlFeat00_Multi {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s16          unk_60;
     /* 0x62 */ s16          unk_62;
     /* 0x64 */ s32          unk_64;
@@ -59,7 +59,7 @@ void func_ov004_020ebc2c(BtlFeat00_Multi* multi, void (*callback)(BtlFeat00_Mult
 void func_ov004_020ebc40(BtlFeat00_Multi* multi) {
     s16 temp_r5;
 
-    if (multi->sprite.flags46 & 1) {
+    if (multi->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
         temp_r5 = multi->unk_60 + 0x24;
     } else {
         temp_r5 = multi->unk_60 - 0x24;
@@ -76,7 +76,7 @@ void func_ov004_020ebd04(BtlFeat00_Multi* multi) {
     s32 var_r4;
     s16 var_r0;
 
-    if (multi->sprite.flags46 & 1) {
+    if (multi->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
         var_r4 = 1;
         var_r0 = multi->unk_60 + 0x24;
     } else {
@@ -125,7 +125,7 @@ void func_ov004_020ebe64(BtlFeat00_Multi* multi) {
     func_02026590(&multi->unk_68, 0x2000, multi->unk_7A);
     multi->unk_7A--;
     if (multi->unk_7A == 5) {
-        CombatSprite_Release(&multi->sprite);
+        BtlSprite_Release(&multi->sprite);
     }
     if (multi->unk_7A <= 0) {
         multi->unk_80 = 0;
@@ -145,14 +145,14 @@ s32 BtlFeat00_Multi_Init(TaskPool* pool, Task* task, void* args) {
     multi->unk_64 = 0x1000;
     multi->unk_68 = 0x2000;
     if (multiArgs->unk_4 < 3) {
-        CombatSprite_LoadFromTable(multiArgs->unk_0, &multi->sprite, &data_ov003_020d77d8, data_ov004_020f0400,
-                                   multiArgs->unk_4, 58, 80);
+        BtlSprite_LoadFromTable(multiArgs->unk_0, &multi->sprite, &data_ov003_020d77d8, data_ov004_020f0400, multiArgs->unk_4,
+                                58, 80);
     } else {
-        CombatSprite_LoadFromTable(multiArgs->unk_0, &multi->sprite, &data_ov003_020d77e0, data_ov004_020f0400,
-                                   multiArgs->unk_4, 63, 20);
+        BtlSprite_LoadFromTable(multiArgs->unk_0, &multi->sprite, &data_ov003_020d77e0, data_ov004_020f0400, multiArgs->unk_4,
+                                63, 20);
     }
-    CombatSprite_SetAnimFromTable(&multi->sprite, multiArgs->unk_4, 1);
-    CombatSprite_SetFlip(&multi->sprite, multiArgs->unk_C);
+    BtlSprite_SetAnimFromTable(&multi->sprite, multiArgs->unk_4, 1);
+    BtlSprite_SetFlip(&multi->sprite, multiArgs->unk_C);
     func_ov004_020ebc2c(multi, func_ov004_020ebda4);
     return 1;
 }
@@ -166,17 +166,17 @@ s32 BtlFeat00_Multi_Update(TaskPool* pool, Task* task, void* args) {
     if (data_ov003_020e71e0 == 1) {
         return 0;
     }
-    CombatSprite_Update(&multi->sprite);
+    BtlSprite_Update(&multi->sprite);
     return multi->unk_80;
 }
 
 s32 BtlFeat00_Multi_Render(TaskPool* pool, Task* task, void* args) {
     BtlFeat00_Multi* multi = task->data;
 
-    CombatSprite_SetAffineTransform(&multi->sprite, 0, multi->unk_64, multi->unk_68, 1);
-    CombatSprite_SetPosition(&multi->sprite, multi->unk_60, multi->unk_62);
-    func_ov003_02082730(&multi->sprite, 0x7FFFFFFF - multi->unk_62);
-    CombatSprite_Render(&multi->sprite);
+    BtlSprite_SetAffineTransform(&multi->sprite, 0, multi->unk_64, multi->unk_68, 1);
+    BtlSprite_SetPosition(&multi->sprite, multi->unk_60, multi->unk_62);
+    BtlSprite_SetSortKey(&multi->sprite, 0x7FFFFFFF - multi->unk_62);
+    BtlSprite_Render(&multi->sprite);
     return 1;
 }
 
@@ -184,7 +184,7 @@ s32 BtlFeat00_Multi_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlFeat00_Multi* multi = task->data;
 
     if (Sprite_HasAnimation(&multi->sprite.sprite) != 0) {
-        CombatSprite_Release(&multi->sprite);
+        BtlSprite_Release(&multi->sprite);
     }
     return 1;
 }

@@ -1,13 +1,13 @@
 #ifndef COMBAT_COMBATSUIT_H
 #define COMBAT_COMBATSUIT_H
 
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 
 typedef struct CardEntry {
     /* 0x00 */ u16            animId;
     /* 0x02 */ s16            order; // stacking order used for the depth sort
-    /* 0x04 */ CombatSprite   sprite;
+    /* 0x04 */ BattleSprite   sprite;
     /* 0x64 */ u16            state;
     /* 0x66 */ s16            unk_66;
     /* 0x68 */ s32            x;

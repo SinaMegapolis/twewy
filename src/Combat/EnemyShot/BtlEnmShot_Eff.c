@@ -7,7 +7,7 @@ static const BinIdentifier        data_ov003_020e0c30;
 static const TaskHandle           data_ov003_020e0c38;
 static Ov003EnemyShotEffectCounts data_ov003_020e7340;
 
-static s32 func_ov003_020cde74(CombatSprite* source, s32 x, s32 y, s32 z, s32 flip, s32 kind) {
+static s32 func_ov003_020cde74(BattleSprite* source, s32 x, s32 y, s32 z, s32 flip, s32 kind) {
     if (kind == 1 && data_ov003_020e7340.activeParticles > 48)
         return -1;
     Ov003EnemyShotEffectArgs args;
@@ -26,7 +26,7 @@ static s32 func_ov003_020cde74(CombatSprite* source, s32 x, s32 y, s32 z, s32 fl
     return EasyTask_CreateTask(pool, &data_ov003_020e0c38, NULL, 0, NULL, &args);
 }
 
-static s32 func_ov003_020cdf34(u32 flags, s32 x, s32 y, s32 z, CombatSprite* source, const s16* timer, s32 flip, s32 kind) {
+static s32 func_ov003_020cdf34(u32 flags, s32 x, s32 y, s32 z, BattleSprite* source, const s16* timer, s32 flip, s32 kind) {
     switch (kind) {
         case 0:
             if (flags & 0x8000)
@@ -60,11 +60,11 @@ static s32 func_ov003_020ce02c(Ov003EnemyShotEffect* self, Ov003EnemyShotEffectA
     switch (args->kind) {
         case 0:
             animation = 0;
-            CombatSprite_LoadDirect(args->source->sprite.bits_0_1, &self->sprite, &data_ov003_020e0c30, 1, 3, 2, 0, 0);
+            BtlSprite_LoadDirect(args->source->sprite.bits_0_1, &self->sprite, &data_ov003_020e0c30, 1, 3, 2, 0, 0);
             break;
         case 1:
             animation = RNG_Next(2);
-            CombatSprite_LoadDirect(args->source->sprite.bits_0_1, &self->sprite, &data_ov003_020e0c30, 4, 6, 5, 0, 0);
+            BtlSprite_LoadDirect(args->source->sprite.bits_0_1, &self->sprite, &data_ov003_020e0c30, 4, 6, 5, 0, 0);
             self->position.x = args->position.x + FX32_CONVERT(RNG_Next(12) - 6);
             self->position.y = args->position.y + FX32_CONVERT(RNG_Next(12) - 6);
             data_ov003_020e7340.activeParticles++;
@@ -73,9 +73,9 @@ static s32 func_ov003_020ce02c(Ov003EnemyShotEffect* self, Ov003EnemyShotEffectA
     Sprite_ChangePalette(&self->sprite.sprite, args->source->sprite.bits_0_1, args->source->sprite.unk3C, 5, 1);
     self->sprite.basePalette       = self->sprite.sprite.paletteData;
     self->sprite.basePaletteSource = self->sprite.sprite.unk3C;
-    CombatSprite_SetAnim(&self->sprite, animation, 1);
+    BtlSprite_SetAnim(&self->sprite, animation, 1);
     if (args->kind == 0)
-        CombatSprite_SetFlip(&self->sprite, args->flip);
+        BtlSprite_SetFlip(&self->sprite, args->flip);
     return 1;
 }
 
@@ -84,7 +84,7 @@ static s32 func_ov003_020ce24c(Ov003EnemyShotEffect* self) {
         return 0;
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
         return 0;
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return 1;
 }
 
@@ -92,15 +92,15 @@ static s32 func_ov003_020ce288(Ov003EnemyShotEffect* self) {
     s16 x, y;
     CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
                               self->position.z);
-    CombatSprite_SetPosition(&self->sprite, x, y);
+    BtlSprite_SetPosition(&self->sprite, x, y);
     s32 offset = (self->position.y + (self->kind == 1)) ? -10 : 10;
-    func_ov003_02082730(&self->sprite, 0x7FFFFFFF - offset);
-    CombatSprite_Render(&self->sprite);
+    BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - offset);
+    BtlSprite_Render(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020ce318(Ov003EnemyShotEffect* self) {
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     if (self->kind == 1)
         data_ov003_020e7340.activeParticles--;
     return 1;

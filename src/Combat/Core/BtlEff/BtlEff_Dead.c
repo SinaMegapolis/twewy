@@ -1,9 +1,9 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffects.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
@@ -93,7 +93,7 @@ static void func_ov003_0209f1b0(u32 engine) {
 }
 
 /// Copies the spawn position and loads the death animation for the effect's screen.
-// Nonmatching: the retail `CombatSprite_LoadFromTable` materialises its stack arguments in r0/r1
+// Nonmatching: the retail `BtlSprite_LoadFromTable` materialises its stack arguments in r0/r1
 // and reloads `spawn->engine`, while this build keeps the engine in r0 and uses r1/r12 for the
 // constants (argument-setup scheduling only; the call sequence itself is identical).
 static s32 BtlEff_Dead_Init(TaskPool* pool, Task* task, void* args) {
@@ -106,10 +106,10 @@ static s32 BtlEff_Dead_Init(TaskPool* pool, Task* task, void* args) {
     state->position.y = spawn->y;
     state->position.z = spawn->z;
     state->playVoice  = spawn->hasPartner;
-    CombatSprite_LoadFromTable(spawn->engine, &state->sprite, &data_ov003_020d7800, data_ov003_020d86a0, 0,
-                               (spawn->engine == 0) ? 0x3D : 0x3F, 0x20);
-    CombatSprite_SetAnimFromTable(&state->sprite, 0, 1);
-    state->sprite.flags46 |= 2;
+    BtlSprite_LoadFromTable(spawn->engine, &state->sprite, &data_ov003_020d7800, data_ov003_020d86a0, 0,
+                            (spawn->engine == 0) ? 0x3D : 0x3F, 0x20);
+    BtlSprite_SetAnimFromTable(&state->sprite, 0, 1);
+    state->sprite.flags |= BTL_SPRITE_FLAG_OBJ_WINDOW;
     return 1;
 }
 
@@ -139,7 +139,7 @@ static s32 BtlEff_Dead_Update(TaskPool* pool, Task* task, void* args) {
             func_ov003_0209f1b0(state->sprite.sprite.bits_0_1);
         }
     }
-    CombatSprite_Update(&state->sprite);
+    BtlSprite_Update(&state->sprite);
     return state->active;
 }
 
@@ -157,15 +157,15 @@ static s32 BtlEff_Dead_Render(TaskPool* pool, Task* task, void* args) {
         posX = CombatStage_ToScreenX(1, state->position.x);
         posY = CombatStage_ToScreenY(1, state->position.y, state->position.z);
     }
-    CombatSprite_SetPosition(&state->sprite, posX, posY);
-    func_ov003_02082730(&state->sprite, 0x7FFFFFFF - (state->position.y + 0x8000));
-    CombatSprite_Render(&state->sprite);
+    BtlSprite_SetPosition(&state->sprite, posX, posY);
+    BtlSprite_SetSortKey(&state->sprite, 0x7FFFFFFF - (state->position.y + 0x8000));
+    BtlSprite_Render(&state->sprite);
     return 1;
 }
 
 /// Releases the death sprite.
 static s32 BtlEff_Dead_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

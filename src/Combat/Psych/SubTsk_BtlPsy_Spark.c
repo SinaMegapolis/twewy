@@ -51,7 +51,7 @@ static s32 func_ov003_020ad364(TaskPool* pool, Task* task, void* args, s32 stage
             self->position.y += FX_Mul(self->speed, SIN2(FX_SinCosTable_, self->angle));
             self->traveled += self->speed;
             self->speed += self->acceleration;
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             if (func_ov003_020a66f4(self->streak, 0x15C, (s16)(self->position.x >> 12), (s16)(self->position.y >> 12), 0, 0) ==
                 1)
                 return 0;
@@ -71,22 +71,22 @@ static s32 func_ov003_020ad364(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             self = task->data;
-            CombatSprite_SetPosition(&self->sprite, (s16)(self->position.x >> 12), (s16)(self->position.y >> 12));
-            func_ov003_02082730(&self->sprite, 0x385000);
+            BtlSprite_SetPosition(&self->sprite, (s16)(self->position.x >> 12), (s16)(self->position.y >> 12));
+            BtlSprite_SetSortKey(&self->sprite, 0x385000);
             s32 scale                         = self->scale;
             self->affine.rotation             = self->angle;
-            self->affine.scaleX               = (self->sprite.flags46 & 1) ? -scale : scale;
+            self->affine.scaleX               = (self->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? -scale : scale;
             self->affine.scaleY               = scale;
             self->affine.unk_0C               = 0;
             self->affine.unk_0E               = 0;
             self->sprite.affine               = &self->affine;
             self->sprite.sprite.unk_0A.unk_00 = 1;
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_Render(&self->sprite);
             return 1;
         }
         case 3: {
             Ov003Spark* self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             for (s32 i = 0; i < 3; i++)
                 func_ov003_020a90c4(self->trailIds[i]);
             return 1;

@@ -86,11 +86,11 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
                 case 1:
                 case 2:
                     if (SpriteMgr_IsAnimationFinished(&self->spriteB.sprite)) {
-                        CombatSprite_Restart(&self->spriteB);
+                        BtlSprite_Restart(&self->spriteB);
                         CombatSe_PlayAtMainX(0x5D, self->unit->actor.position.x);
                     }
-                    CombatSprite_Update(&self->spriteB);
-                    CombatSprite_Update(&self->spriteA);
+                    BtlSprite_Update(&self->spriteB);
+                    BtlSprite_Update(&self->spriteA);
                     break;
             }
             switch (self->phase) {
@@ -113,12 +113,12 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
             switch (self->phase) {
                 case 1:
                 case 2:
-                    CombatSprite_SetPosition(&self->spriteB, (s16)x, (s16)y);
-                    func_ov003_02082730(&self->spriteB, 0x385000);
-                    CombatSprite_Render(&self->spriteB);
-                    CombatSprite_SetPosition(&self->spriteA, (s16)x, (s16)y);
-                    func_ov003_02082730(&self->spriteA, 0x384000);
-                    CombatSprite_Render(&self->spriteA);
+                    BtlSprite_SetPosition(&self->spriteB, (s16)x, (s16)y);
+                    BtlSprite_SetSortKey(&self->spriteB, 0x385000);
+                    BtlSprite_Render(&self->spriteB);
+                    BtlSprite_SetPosition(&self->spriteA, (s16)x, (s16)y);
+                    BtlSprite_SetSortKey(&self->spriteA, 0x384000);
+                    BtlSprite_Render(&self->spriteA);
                     break;
             }
             return 1;
@@ -127,8 +127,8 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
             self = task->data;
             CombatTouch_Clear();
             func_ov003_020a6464(0);
-            CombatSprite_Release(&self->spriteB);
-            CombatSprite_Release(&self->spriteA);
+            BtlSprite_Release(&self->spriteB);
+            BtlSprite_Release(&self->spriteA);
             return 1;
     }
 }

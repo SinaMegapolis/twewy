@@ -12,7 +12,7 @@ typedef struct Ov003EnemyShotRootLaser {
     /* 0x2C */ Ov003EnemyShotSource source; // the root shot source
     /* 0x58 */ u16                  kind;
     /* 0x5A */ u16                  reserved5A;
-    /* 0x5C */ CombatSprite         sprite;
+    /* 0x5C */ BattleSprite         sprite;
     /* 0xBC */ s16                  spacing;
     /* 0xBE */ s16                  horizontalMin;
     /* 0xC0 */ s16                  horizontalMax;
@@ -78,7 +78,7 @@ static s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
                              ? 0.5f + (f32)(RNG_Next(self->horizontalMax - self->horizontalMin + 1) << 12)
                              : (f32)(RNG_Next(self->horizontalMax - self->horizontalMin + 1) << 12) - 0.5f;
             scale      = FX32_CONVERT(self->horizontalMin) + (s32)jitter;
-            angle      = (self->owner.core.owner->base.sprite.flags46 & 1) ? 0x8000 : 0;
+            angle      = (self->owner.core.owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? 0x8000 : 0;
             result     = func_ov003_020d1228(&self->source, &self->list, angle, x, y, z, scale, 0x1000);
             if (angle == 0x8000) {
                 x += FX_Mul(scale, FX32_CONVERT(self->spacing));
@@ -114,9 +114,9 @@ static s32 func_ov003_020d19b0(Ov003EnemyShotRootLaser* self, Ov003EnemyShotRoot
     if (args->animation >= 0) {
         const Ov003EnemyShotVisual* visual = args->childSource->visual;
         const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
-        CombatSprite_LoadDirect(2, &self->sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex,
-                                entry->frameDataIndex, visual->paletteSlot, entry->animDataIndex);
-        CombatSprite_SetAnim(&self->sprite, args->animation, self->source.animationMode);
+        BtlSprite_LoadDirect(2, &self->sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                             visual->paletteEntry, entry->animIndex);
+        BtlSprite_SetAnim(&self->sprite, args->animation, self->source.animationMode);
     }
     func_ov003_020d1570(self);
     self->timer = self->delay;
@@ -154,9 +154,9 @@ static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
             break;
     }
     if (self->sprite.sprite.resourceData != NULL) {
-        CombatSprite_Update(&self->sprite);
+        BtlSprite_Update(&self->sprite);
         if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             self->sprite.sprite.resourceData = NULL;
         }
     }
@@ -172,9 +172,9 @@ static s32 func_ov003_020d1c98(Ov003EnemyShotRootLaser* self) {
             return 1;
         func_ov003_020d11b8(root, NULL, NULL, NULL, &rootX, &rootY, &rootZ);
         CombatStage_WorldToScreen(0, &x, &y, rootX, rootY, rootZ);
-        CombatSprite_SetPosition(&self->sprite, x, y);
-        func_ov003_02082730(&self->sprite, 0);
-        CombatSprite_Render(&self->sprite);
+        BtlSprite_SetPosition(&self->sprite, x, y);
+        BtlSprite_SetSortKey(&self->sprite, 0);
+        BtlSprite_Render(&self->sprite);
     }
     return 1;
 }
@@ -182,7 +182,7 @@ static s32 func_ov003_020d1c98(Ov003EnemyShotRootLaser* self) {
 static s32 func_ov003_020d1d44(Ov003EnemyShotRootLaser* self) {
     func_ov003_020d117c(&self->list);
     if (self->sprite.sprite.resourceData != NULL)
-        CombatSprite_Release(&self->sprite);
+        BtlSprite_Release(&self->sprite);
     return 1;
 }
 

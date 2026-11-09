@@ -20,7 +20,7 @@ typedef struct Ov003EnemyShotFocusArgs {
 
 typedef struct Ov003EnemyShotFocus {
     /* 0x00 */ Ov003EnemyShotSource source;
-    /* 0x2C */ CombatSprite         sprite;
+    /* 0x2C */ BattleSprite         sprite;
     /* 0x8C */ s16                  phase;
     /* 0x8E */ s16                  turnTimer; // frames of slowing down left before the turn
     /* 0x90 */ s32                  velocityX;
@@ -59,7 +59,7 @@ void func_ov003_020ce448(Ov003EnemyShotSource* source, s32* ids, s32 offsetX, s3
     s32 i;
     s32 savedX = source->core.position.x;
     s32 savedY = source->core.position.y;
-    u16 base   = (source->core.owner->base.sprite.flags46 & 1) ? 0 : 0x8000;
+    u16 base   = (source->core.owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? 0 : 0x8000;
     u16 angle;
 
     angle = base + 0x800;
@@ -107,11 +107,11 @@ static s32 func_ov003_020ce7d4(Ov003EnemyShotFocus* self, Ov003EnemyShotFocusArg
     self->targetX   = args->targetX;
     self->targetY   = args->targetY;
     self->targetZ   = args->targetZ;
-    CombatSprite_LoadDirect(engine, &self->sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex,
-                            entry->frameDataIndex, visual->paletteSlot, entry->animDataIndex);
-    CombatSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
+    BtlSprite_LoadDirect(engine, &self->sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                         visual->paletteEntry, entry->animIndex);
+    BtlSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
     self->source.core.sprite = &self->sprite;
-    func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags46 & 1, 0);
+    func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED, 0);
     func_ov003_020cccf0(engine, &self->source);
     return 1;
 }
@@ -149,7 +149,7 @@ static s32 func_ov003_020ce99c(Ov003EnemyShotFocus* self) {
                               self->source.core.position.z);
     self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
                                                            &self->source.core.owner->base.actor.baseArgs, x, y);
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return 1;
 }
 
@@ -157,14 +157,14 @@ static s32 func_ov003_020ceb9c(Ov003EnemyShotFocus* self) {
     s16 x, y;
     CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
                               self->source.core.position.y, self->source.core.position.z);
-    CombatSprite_SetPosition(&self->sprite, x, y);
-    func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
-    CombatSprite_Render(&self->sprite);
+    BtlSprite_SetPosition(&self->sprite, x, y);
+    BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
+    BtlSprite_Render(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020cec14(Ov003EnemyShotFocus* self) {
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     return 1;
 }
 

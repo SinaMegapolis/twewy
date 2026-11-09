@@ -1,4 +1,4 @@
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Noise/Private/BtlEnm006.h"
 
 /// One of the `Tsk_BtlEnm006` asset variants.
@@ -11,12 +11,12 @@ static const SpriteAnimEntry data_ov010_021290f0[14];
 static const SpriteAnimEntry data_ov010_02129178[17];
 
 typedef struct Enm006VariantTail {
-    /* 0x00 */ BtlSpriteDesc   variant;
-    /* 0x10 */ SpriteAnimEntry anim[3];
+    /* 0x00 */ BattleSpriteDesc variant;
+    /* 0x10 */ SpriteAnimEntry  anim[3];
 } Enm006VariantTail; // Size: 0x28
 
-static const BtlSpriteDesc data_ov010_02129008 = {&data_ov010_02129050[2], data_ov010_021290f0, 0, 0x13, 0x160};
-static const BtlSpriteDesc data_ov010_02129018 = {&data_ov010_02129050[1], data_ov010_02129068, 0, 0x13, 0x150};
+static const BattleSpriteDesc data_ov010_02129008 = {&data_ov010_02129050[2], data_ov010_021290f0, 0, 0x13, 0x160};
+static const BattleSpriteDesc data_ov010_02129018 = {&data_ov010_02129050[1], data_ov010_02129068, 0, 0x13, 0x150};
 
 static const Enm006VariantTail data_ov010_02129028 = {
     {&data_ov010_02129050[0], data_ov010_02129178, 0, 0x13, 0x150},
@@ -96,7 +96,7 @@ static const SpriteAnimEntry data_ov010_02129178[17] = {
     { 1,  3,  2, 0},
 };
 
-BtlSpriteDesc* data_ov010_02129320[3] = {
+BattleSpriteDesc* data_ov010_02129320[3] = {
     &data_ov010_02129028.variant,
     &data_ov010_02129018,
     &data_ov010_02129008,

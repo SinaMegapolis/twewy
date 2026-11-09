@@ -42,7 +42,7 @@ static s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage
             child->opacity = 0x1F000;
             CombatPsyAnim_Load(&child->sprite, 2, 1, arg->kind, 1);
             if (RNG_Next(2))
-                CombatSprite_SetFlip(&child->sprite, 1);
+                BtlSprite_SetFlip(&child->sprite, 1);
             CombatSe_PlayAtMainX(0x149, child->position.x);
             return 1;
         case 1:
@@ -70,30 +70,30 @@ static s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage
                         return 0;
                     break;
             }
-            CombatSprite_Update(&child->sprite);
+            BtlSprite_Update(&child->sprite);
             return 1;
         case 2: {
             s32 y;
-            child                              = task->data;
-            child->affine.rotation             = 0;
-            child->affine.scaleX               = (child->sprite.flags46 & 1) ? -child->scale : child->scale;
-            child->affine.scaleY               = child->scale;
-            child->affine.unk_0C               = 0;
-            child->affine.unk_0E               = 0;
+            child                  = task->data;
+            child->affine.rotation = 0;
+            child->affine.scaleX   = (child->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? -child->scale : child->scale;
+            child->affine.scaleY   = child->scale;
+            child->affine.unk_0C   = 0;
+            child->affine.unk_0E   = 0;
             child->sprite.sprite.unk_0A.unk_00 = 1;
             child->sprite.affine               = &child->affine;
             y                                  = CombatStage_ToScreenY(0, child->position.y, 0);
-            CombatSprite_SetPosition(&child->sprite, CombatStage_ToScreenX(0, child->position.x), y);
-            func_ov003_02082730(&child->sprite, child->position.y + 0x1F4000);
+            BtlSprite_SetPosition(&child->sprite, CombatStage_ToScreenX(0, child->position.x), y);
+            BtlSprite_SetSortKey(&child->sprite, child->position.y + 0x1F4000);
             if (child->opacity < 0x1F000)
-                CombatSprite_RenderWithPalette(&child->sprite, child->opacity >> 12);
+                BtlSprite_RenderTranslucent(&child->sprite, child->opacity >> 12);
             else
-                CombatSprite_Render(&child->sprite);
+                BtlSprite_Render(&child->sprite);
             return 1;
         }
         case 3:
             child = task->data;
-            CombatSprite_Release(&child->sprite);
+            BtlSprite_Release(&child->sprite);
             return 1;
     }
 }

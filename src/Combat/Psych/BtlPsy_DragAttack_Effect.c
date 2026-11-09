@@ -25,10 +25,10 @@ s32 func_ov003_020acdc0(TaskPool* pool, Task* task, void* args) {
         self->position.x    = player->position.x;
         self->position.y    = player->position.y;
         self->position.z    = player->position.z;
-        CombatSprite_SetFlip(&self->sprite, player->isFlipped ? 1 : 0);
+        BtlSprite_SetFlip(&self->sprite, player->isFlipped ? 1 : 0);
         self->captured = 1;
     }
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return self->active;
 }
 
@@ -37,16 +37,16 @@ s32 func_ov003_020ace54(TaskPool* pool, Task* task, void* args) {
     if (self->opacity > 0) {
         s32 x = CombatStage_ToScreenX(0, self->position.x);
         s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-        CombatSprite_SetPosition(&self->sprite, x, y);
-        func_ov003_02082730(&self->sprite, self->position.y + 0x1F4000);
-        CombatSprite_RenderWithPalette(&self->sprite, self->opacity);
+        BtlSprite_SetPosition(&self->sprite, x, y);
+        BtlSprite_SetSortKey(&self->sprite, self->position.y + 0x1F4000);
+        BtlSprite_RenderTranslucent(&self->sprite, self->opacity);
     }
     return 1;
 }
 
 s32 func_ov003_020acebc(TaskPool* pool, Task* task, void* args) {
     Ov003Blur* self = task->data;
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     return 1;
 }
 
@@ -104,7 +104,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003DragAttack* self = task->data;
             Ov003EnemyActor* unit;
             BattleActor*     player = g_CombatGlobal->player;
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             switch (self->phase) {
                 case 0:
                     self->opacity += self->opacityStep;
@@ -158,15 +158,15 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
         case 2: {
             self                = task->data;
             BattleActor* player = g_CombatGlobal->player;
-            CombatSprite_SetPosition(&self->sprite, player->screenX, (s16)(player->screenY - 24));
-            CombatSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 1);
+            BtlSprite_SetPosition(&self->sprite, player->screenX, (s16)(player->screenY - 24));
+            BtlSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 1);
             if (self->opacity >= 0x1000)
-                CombatSprite_RenderWithPalette(&self->sprite, self->opacity >> 12);
+                BtlSprite_RenderTranslucent(&self->sprite, self->opacity >> 12);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }

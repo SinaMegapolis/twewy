@@ -32,9 +32,9 @@ static s32 func_ov003_020d12b4(Ov003EnemyShotRoot* self, Ov003EnemyShotRootArgs*
     CombatList_Append(args->list, &self->node, self);
     if (visual != NULL) {
         const SpriteAnimEntry* entry = &visual->entries[visual->entry];
-        CombatSprite_LoadDirect(2, &self->sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex,
-                                entry->frameDataIndex, visual->paletteSlot, entry->animDataIndex);
-        CombatSprite_SetAnim(&self->sprite, args->source->animation, args->source->animationMode);
+        BtlSprite_LoadDirect(2, &self->sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                             visual->paletteEntry, entry->animIndex);
+        BtlSprite_SetAnim(&self->sprite, args->source->animation, args->source->animationMode);
     }
     func_ov003_020cccf0(0, args->source);
     return 1;
@@ -44,9 +44,9 @@ static s32 func_ov003_020d1398(Ov003EnemyShotRoot* self) {
     if (func_ov003_020c3c28())
         return 0;
     if (self->sprite.sprite.resourceData != NULL) {
-        CombatSprite_Update(&self->sprite);
+        BtlSprite_Update(&self->sprite);
         if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             self->sprite.sprite.resourceData = NULL;
         }
     }
@@ -73,17 +73,17 @@ static s32 func_ov003_020d13ec(Ov003EnemyShotRoot* self) {
         }
         s16 x, y;
         CombatStage_WorldToScreen(0, &x, &y, self->position.x, self->position.y, self->position.z);
-        CombatSprite_SetPosition(&self->sprite, (s16)(x + xOffset), (s16)(y + yOffset));
-        CombatSprite_SetAffineTransform(&self->sprite, self->angle, scaleX, scaleY, 1);
-        func_ov003_02082730(&self->sprite, 0);
-        CombatSprite_Render(&self->sprite);
+        BtlSprite_SetPosition(&self->sprite, (s16)(x + xOffset), (s16)(y + yOffset));
+        BtlSprite_SetAffineTransform(&self->sprite, self->angle, scaleX, scaleY, 1);
+        BtlSprite_SetSortKey(&self->sprite, 0);
+        BtlSprite_Render(&self->sprite);
     }
     return 1;
 }
 
 static s32 func_ov003_020d14cc(Ov003EnemyShotRoot* self) {
     if (self->sprite.sprite.resourceData != NULL)
-        CombatSprite_Release(&self->sprite);
+        BtlSprite_Release(&self->sprite);
     return 1;
 }
 

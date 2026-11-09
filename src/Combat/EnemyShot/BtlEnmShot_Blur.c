@@ -28,17 +28,17 @@ static s32 func_ov003_020cd778(Ov003EnemyShotBlur* self, Ov003EnemyShotBlurArgs*
     self->position.z = args->source->core.position.z;
     self->opacity    = args->opacity * 32 - 0x1000;
     self->decay      = args->decay * 32 - 0x1000;
-    CombatSprite_LoadDirect(func_ov003_020c37f8(&args->source->core.owner->base.sprite) ? 1 : 0, &self->sprite, visual->file,
-                            entry->charDataIndex, entry->paletteDataIndex, entry->frameDataIndex, visual->paletteSlot,
-                            entry->animDataIndex);
-    CombatSprite_SetAnim(&self->sprite, args->source->animation, args->source->animationMode);
+    BtlSprite_LoadDirect(func_ov003_020c37f8(&args->source->core.owner->base.sprite) ? 1 : 0, &self->sprite, visual->file,
+                         entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex, visual->paletteEntry,
+                         entry->animIndex);
+    BtlSprite_SetAnim(&self->sprite, args->source->animation, args->source->animationMode);
     return 1;
 }
 
 static s32 func_ov003_020cd868(Ov003EnemyShotBlur* self) {
     if (func_ov003_020c3c28())
         return 0;
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     self->opacity -= self->decay;
     return self->opacity > 0x1000;
 }
@@ -48,15 +48,15 @@ static s32 func_ov003_020cd8a8(Ov003EnemyShotBlur* self) {
         s16 x, y;
         CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
                                   self->position.z);
-        CombatSprite_SetPosition(&self->sprite, x, y);
-        func_ov003_02082730(&self->sprite, 0x7FFFFFFF);
-        CombatSprite_RenderWithPalette(&self->sprite, self->opacity >> 12);
+        BtlSprite_SetPosition(&self->sprite, x, y);
+        BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF);
+        BtlSprite_RenderTranslucent(&self->sprite, self->opacity >> 12);
     }
     return 1;
 }
 
 static s32 func_ov003_020cd928(Ov003EnemyShotBlur* self) {
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     return 1;
 }
 

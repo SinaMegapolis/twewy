@@ -34,9 +34,9 @@ static s32 func_ov003_020d28b0(Ov003EnemyShotSplitChild* self, Ov003EnemyShotSpl
     self->dampingStep.x = FX_Mul(args->velocity.x, args->damping);
     self->dampingStep.y = FX_Mul(args->velocity.y, args->damping);
     self->dampingStep.z = FX_Mul(args->velocity.z, args->damping);
-    CombatSprite_LoadDirect(engine, &self->sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex,
-                            entry->frameDataIndex, visual->paletteSlot, entry->animDataIndex);
-    CombatSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
+    BtlSprite_LoadDirect(engine, &self->sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                         visual->paletteEntry, entry->animIndex);
+    BtlSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
     self->source.core.sprite = &self->sprite;
     return 1;
 }
@@ -68,7 +68,7 @@ static s32 func_ov003_020d29d4(Ov003EnemyShotSplitChild* self) {
     self->source.core.hitResult =
         CombatHit_AttackAt(CombatHit_GetAttackInfo(self->source.core.attackId), &self->source.core.owner->base.actor.baseArgs,
                            self->source.core.position.x, self->source.core.position.y, self->source.core.position.z);
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return 1;
 }
 
@@ -76,15 +76,15 @@ static s32 func_ov003_020d2adc(Ov003EnemyShotSplitChild* self) {
     s16 x, y;
     CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
                               self->source.core.position.y, self->source.core.position.z);
-    CombatSprite_SetPosition(&self->sprite, x, y);
-    func_ov003_02082730(&self->sprite,
-                        self->source.core.position.y <= 0 ? 0x7FFFFFFF : 0x7FFFFFFF - self->source.core.position.y);
-    CombatSprite_Render(&self->sprite);
+    BtlSprite_SetPosition(&self->sprite, x, y);
+    BtlSprite_SetSortKey(&self->sprite,
+                         self->source.core.position.y <= 0 ? 0x7FFFFFFF : 0x7FFFFFFF - self->source.core.position.y);
+    BtlSprite_Render(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020d2b5c(Ov003EnemyShotSplitChild* self) {
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     return 1;
 }
 

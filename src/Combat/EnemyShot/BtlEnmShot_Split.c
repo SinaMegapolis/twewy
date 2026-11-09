@@ -31,10 +31,10 @@ static s32 func_ov003_020d2c24(Ov003EnemyShotSplit* self, Ov003EnemyShotSplitArg
     self->yScale            = args->yScale;
     if (visual != NULL) {
         const SpriteAnimEntry* entry = &visual->entries[visual->entry];
-        CombatSprite_LoadDirect(self->source.core.owner->base.sprite.sprite.bits_0_1, &self->sprite, visual->file,
-                                entry->charDataIndex, entry->paletteDataIndex, entry->frameDataIndex, visual->paletteSlot,
-                                entry->animDataIndex);
-        CombatSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
+        BtlSprite_LoadDirect(self->source.core.owner->base.sprite.sprite.bits_0_1, &self->sprite, visual->file,
+                             entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex, visual->paletteEntry,
+                             entry->animIndex);
+        BtlSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
     }
     return 1;
 }
@@ -70,7 +70,7 @@ static s32 func_ov003_020d2d2c(Ov003EnemyShotSplit* self) {
         self->travelFrames--;
     }
     if (self->source.visual != NULL)
-        CombatSprite_Update(&self->sprite);
+        BtlSprite_Update(&self->sprite);
     return 1;
 }
 
@@ -79,16 +79,16 @@ static s32 func_ov003_020d2ebc(Ov003EnemyShotSplit* self) {
         s16 x, y;
         CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
                                   self->source.core.position.y, self->source.core.position.z);
-        CombatSprite_SetPosition(&self->sprite, x, y);
-        func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
-        CombatSprite_Render(&self->sprite);
+        BtlSprite_SetPosition(&self->sprite, x, y);
+        BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
+        BtlSprite_Render(&self->sprite);
     }
     return 1;
 }
 
 static s32 func_ov003_020d2f40(Ov003EnemyShotSplit* self) {
     if (self->source.visual != NULL)
-        CombatSprite_Release(&self->sprite);
+        BtlSprite_Release(&self->sprite);
     return 1;
 }
 

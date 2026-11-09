@@ -88,7 +88,7 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                     break;
                 case 2:
-                    CombatSprite_Update(&self->sprite);
+                    BtlSprite_Update(&self->sprite);
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
                         CombatPsyAnim_SetAnim(&self->sprite, 0x11, 0);
                     if (self->hit.refCount == 0)
@@ -115,14 +115,14 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                 x = CombatStage_ToScreenX(0, self->hit.targetPosition.x);
                 y = CombatStage_ToScreenY(0, self->hit.targetPosition.y, self->hit.targetPosition.z);
             }
-            CombatSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
+            BtlSprite_Render(&self->sprite);
             return 1;
         }
         case 3:
             self = task->data;
             func_ov003_020a6464(0);
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }

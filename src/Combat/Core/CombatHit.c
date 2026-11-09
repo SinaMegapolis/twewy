@@ -1,5 +1,6 @@
 #include "Combat/Core/CombatHit.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlDbg.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPop.h"
@@ -7,7 +8,6 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatAttackInfo.h"
-#include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
 #include "Engine/Core/DMA.h"
@@ -167,18 +167,18 @@ static s32 CombatHit_GetSparkSize(s32 arg0) {
     return 5;
 }
 
-void CombatHit_LoadSpark(s32 engine, CombatSprite* sprite, s32 variant) {
+void CombatHit_LoadSpark(s32 engine, BattleSprite* sprite, s32 variant) {
     if (engine == 0) {
-        CombatSprite_LoadDirectNoProto(0, sprite, &data_ov003_020d7800, 0xD, 0xF, 0xE, 0x3D, variant);
+        BtlSprite_LoadDirectNoProto(0, sprite, &data_ov003_020d7800, 0xD, 0xF, 0xE, 0x3D, variant);
     } else {
-        CombatSprite_LoadDirectNoProto(1, sprite, &data_ov003_020d7800, 0xD, 0xF, 0xE, 0x3F, variant);
+        BtlSprite_LoadDirectNoProto(1, sprite, &data_ov003_020d7800, 0xD, 0xF, 0xE, 0x3F, variant);
     }
-    func_ov003_02082730(sprite, 0x7FFFFFFF);
-    sprite->flags46 |= 4;
+    BtlSprite_SetSortKey(sprite, 0x7FFFFFFF);
+    sprite->flags |= BTL_SPRITE_FLAG_TRANSLUCENT;
 }
 
 /// Positions and starts an effect actor for a unit that was just hit.
-void CombatHit_DrawSpark(CombatSprite* visual, s32 x, s32 y) {
+void CombatHit_DrawSpark(BattleSprite* visual, s32 x, s32 y) {
     s32 pan;
     s32 volume;
 
@@ -189,20 +189,20 @@ void CombatHit_DrawSpark(CombatSprite* visual, s32 x, s32 y) {
         pan    = CombatStage_ToScreenX(1, x);
         volume = CombatStage_ToScreenY(1, y, 0);
     }
-    CombatSprite_SetPosition(visual, pan, volume);
+    BtlSprite_SetPosition(visual, pan, volume);
     if (CombatHit_CanDrawSpark() == 0) {
         return;
     }
-    CombatSprite_Render(visual);
+    BtlSprite_Render(visual);
 }
 
 /// Spawns a hit effect for `unit` at the effect size its hit box implies.
-void CombatHit_LoadSparkForUnit(s32 engine, CombatSprite* sprite, BattleActor* unit) {
+void CombatHit_LoadSparkForUnit(s32 engine, BattleSprite* sprite, BattleActor* unit) {
     CombatHit_LoadSpark(engine, sprite, CombatHit_GetSparkSize(unit->radius));
 }
 
 /// Spawns the hit effect of an incoming attack on `unit`.
-void CombatHit_DrawSparkOnActor(CombatSprite* visual, BattleActor* actor) {
+void CombatHit_DrawSparkOnActor(BattleSprite* visual, BattleActor* actor) {
     if (actor->flags & ACTOR_FLAG_HIDDEN) {
         return;
     }

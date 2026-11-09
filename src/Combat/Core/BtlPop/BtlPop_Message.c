@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "main_02026528.h"
 
 #include "Combat/Core/BtlPop.h"
@@ -11,7 +11,7 @@
 // then fades out.
 
 typedef struct BtlPop_Message {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s32          x;     // world position the popup tracks
     /* 0x64 */ s32          y;
     /* 0x68 */ s32          z;     // display Z, eased towards `targetZ`
@@ -58,10 +58,10 @@ static s32 BtlPop_Message_Init(TaskPool* pool, Task* task, void* args) {
         animIndex = 0x3F;
         g_CombatGlobal->popupCountSub++;
     }
-    CombatSprite_LoadDirectNoProto(params->engine, &message->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, animIndex,
-                                   (u16)(params->animBase + 50));
-    func_ov003_02082738(&message->sprite, 0);
-    func_ov003_02082730(&message->sprite, 1);
+    BtlSprite_LoadDirectNoProto(params->engine, &message->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, animIndex,
+                                (u16)(params->animBase + 50));
+    BtlSprite_SetPriority(&message->sprite, 0);
+    BtlSprite_SetSortKey(&message->sprite, 1);
     return 1;
 }
 
@@ -91,7 +91,7 @@ static s32 BtlPop_Message_Update(TaskPool* pool, Task* task, void* args) {
             }
         } break;
     }
-    CombatSprite_Update(&message->sprite);
+    BtlSprite_Update(&message->sprite);
     return message->isActive;
 }
 
@@ -107,8 +107,8 @@ static s32 BtlPop_Message_Render(TaskPool* pool, Task* task, void* args) {
         posX = CombatStage_ToScreenX(1, message->x);
         posY = CombatStage_ToScreenY(1, message->y, message->z);
     }
-    CombatSprite_SetPosition(&message->sprite, posX, posY);
-    CombatSprite_Render(&message->sprite);
+    BtlSprite_SetPosition(&message->sprite, posX, posY);
+    BtlSprite_Render(&message->sprite);
     return 1;
 }
 
@@ -120,7 +120,7 @@ static s32 BtlPop_Message_Release(TaskPool* pool, Task* task, void* args) {
     } else {
         g_CombatGlobal->popupCountSub--;
     }
-    CombatSprite_Release(&message->sprite);
+    BtlSprite_Release(&message->sprite);
     return 1;
 }
 

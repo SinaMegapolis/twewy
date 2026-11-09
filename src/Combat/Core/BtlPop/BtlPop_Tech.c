@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"
 #include "main_02026528.h"
 
@@ -14,7 +14,7 @@
 // sprite animation, and the popup rises towards the actor before awarding the exp.
 
 typedef struct BtlPop_Tech {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s16          digits[4]; // least significant first, each the animation `digit + 20`
     /* 0x68 */ s16          digitCount;
     /* 0x6A */ s16          techId;
@@ -66,10 +66,10 @@ static s32 func_ov003_0209d088(s32* digits, s32 value) {
 }
 
 /// Loads the popup's sprite and starts it on its first animation.
-static void func_ov003_0209d154(CombatSprite* sprite, s32 variant) {
-    CombatSprite_LoadDirectNoProto(0, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, variant);
-    func_ov003_02082738(sprite, 0);
-    func_ov003_02082730(sprite, 1);
+static void func_ov003_0209d154(BattleSprite* sprite, s32 variant) {
+    BtlSprite_LoadDirectNoProto(0, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, variant);
+    BtlSprite_SetPriority(sprite, 0);
+    BtlSprite_SetSortKey(sprite, 1);
 }
 
 static s32 BtlPop_Tech_Init(TaskPool* pool, Task* task, void* args) {
@@ -135,26 +135,26 @@ static s32 BtlPop_Tech_Render(TaskPool* pool, Task* task, void* args) {
     s32          i;
     s32          right;
 
-    CombatSprite_SetAnim(&tech->sprite, 0x35, 0);
-    CombatSprite_Update(&tech->sprite);
+    BtlSprite_SetAnim(&tech->sprite, 0x35, 0);
+    BtlSprite_Update(&tech->sprite);
 
     right = half + posX;
-    CombatSprite_SetPosition(&tech->sprite, (s16)(right - (tech->digitCount - 1) * 7), posY);
-    CombatSprite_Render(&tech->sprite);
+    BtlSprite_SetPosition(&tech->sprite, (s16)(right - (tech->digitCount - 1) * 7), posY);
+    BtlSprite_Render(&tech->sprite);
 
     offset = 0;
     for (i = 0; i < tech->digitCount; i++) {
-        CombatSprite_SetAnim(&tech->sprite, tech->digits[i], 0);
-        CombatSprite_Update(&tech->sprite);
-        CombatSprite_SetPosition(&tech->sprite, (s16)(right - offset), posY);
-        CombatSprite_Render(&tech->sprite);
+        BtlSprite_SetAnim(&tech->sprite, tech->digits[i], 0);
+        BtlSprite_Update(&tech->sprite);
+        BtlSprite_SetPosition(&tech->sprite, (s16)(right - offset), posY);
+        BtlSprite_Render(&tech->sprite);
         offset += 7;
     }
     return 1;
 }
 
 static s32 BtlPop_Tech_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

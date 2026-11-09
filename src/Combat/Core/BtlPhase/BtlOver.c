@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlPhase.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "CriSndMgr.h"
 #include "Display.h"
 #include "EasyFade.h"
@@ -21,7 +21,7 @@ struct BtlOver;
 typedef void (*BtlOverState)(struct BtlOver*);
 
 typedef struct BtlOver {
-    /* 0x00 */ CombatSprite sprites[2]; // [0] main screen, [1] sub screen
+    /* 0x00 */ BattleSprite sprites[2]; // [0] main screen, [1] sub screen
     /* 0xC0 */ s32          x;
     /* 0xC4 */ s32          subX;
     /* 0xC8 */ s32          blend; // how far the blend has closed in, 20.12
@@ -54,10 +54,10 @@ static void func_ov003_020a1714(BtlOver* self, BtlOverState state) {
 }
 
 /// Loads a banner sprite for `engine`.
-static void func_ov003_020a1728(s32 engine, CombatSprite* sprite) {
+static void func_ov003_020a1728(s32 engine, BattleSprite* sprite) {
     SpriteAnimationEx anim;
 
-    CombatSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
+    BtlSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 3;
@@ -67,9 +67,9 @@ static void func_ov003_020a1728(s32 engine, CombatSprite* sprite) {
     anim.anim.unk_20     = 4;
     anim.anim.animIndex  = 1;
     anim.animTable       = NULL;
-    CombatSprite_Load(sprite, &anim);
-    CombatSprite_SetAnim(sprite, 0, 1);
-    func_ov003_02082738(sprite, 0);
+    BtlSprite_Load(sprite, &anim);
+    BtlSprite_SetAnim(sprite, 0, 1);
+    BtlSprite_SetPriority(sprite, 0);
 }
 
 /// Plays the line of the boss of this battle. Returns 0 when the battle has no boss line.
@@ -347,8 +347,8 @@ static void func_ov003_020a1eb4(BtlOver* self) {
     if (self->timer == 0) {
         self->timer = 30;
         EasyFade_FadeBothDisplays(0, 0, 0x1000);
-        CombatSprite_SetAnim(&self->sprites[0], 1, 1);
-        CombatSprite_SetAnim(&self->sprites[1], 1, 1);
+        BtlSprite_SetAnim(&self->sprites[0], 1, 1);
+        BtlSprite_SetAnim(&self->sprites[1], 1, 1);
         g_DisplaySettings.controls[0].layers &= ~8;
         g_DisplaySettings.controls[1].layers &= ~8;
     }
@@ -387,28 +387,28 @@ static s32 BtlOver_Update(TaskPool* pool, Task* task, void* args) {
     if (self->blendTimer > 0) {
         func_ov003_020a1bbc(self);
     }
-    CombatSprite_Update(&self->sprites[0]);
-    CombatSprite_Update(&self->sprites[1]);
+    BtlSprite_Update(&self->sprites[0]);
+    BtlSprite_Update(&self->sprites[1]);
     return 1;
 }
 
 static s32 BtlOver_Render(TaskPool* pool, Task* task, void* args) {
     BtlOver* self = task->data;
 
-    CombatSprite_SetPosition(&self->sprites[0], (self->x * 0x10) >> 16, 0x60);
-    func_ov003_02082730(&self->sprites[0], 0);
-    CombatSprite_Render(&self->sprites[0]);
-    CombatSprite_SetPosition(&self->sprites[1], (self->subX * 0x10) >> 16, 0x60);
-    func_ov003_02082730(&self->sprites[1], 0);
-    CombatSprite_Render(&self->sprites[1]);
+    BtlSprite_SetPosition(&self->sprites[0], (self->x * 0x10) >> 16, 0x60);
+    BtlSprite_SetSortKey(&self->sprites[0], 0);
+    BtlSprite_Render(&self->sprites[0]);
+    BtlSprite_SetPosition(&self->sprites[1], (self->subX * 0x10) >> 16, 0x60);
+    BtlSprite_SetSortKey(&self->sprites[1], 0);
+    BtlSprite_Render(&self->sprites[1]);
     return 1;
 }
 
 static s32 BtlOver_Release(TaskPool* pool, Task* task, void* args) {
     BtlOver* self = task->data;
 
-    CombatSprite_Release(&self->sprites[0]);
-    CombatSprite_Release(&self->sprites[1]);
+    BtlSprite_Release(&self->sprites[0]);
+    BtlSprite_Release(&self->sprites[1]);
     return 1;
 }
 

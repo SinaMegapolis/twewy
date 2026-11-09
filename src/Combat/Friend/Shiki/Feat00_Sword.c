@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
@@ -8,7 +8,7 @@ extern BinIdentifier data_ov003_020d77d8;
 extern s32           data_ov003_020e71e0;
 
 typedef struct {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s32          unk_60;
     /* 0x64 */ s16          unk_64;
     /* 0x66 */ s16          unk_66;
@@ -38,9 +38,9 @@ s32 Feat00_Sword_Init(TaskPool* pool, Task* task, void* args) {
     Feat00_Sword_Args* swordArgs = args;
 
     MI_CpuSet(sword, 0, sizeof(Feat00_Sword));
-    CombatSprite_LoadFromTable(swordArgs->unk_0, &sword->sprite, &data_ov003_020d77d8, data_ov004_020f044c,
-                               (u16)(s32)swordArgs->unk_4, 58, 68);
-    CombatSprite_SetAnimFromTable(&sword->sprite, swordArgs->unk_4, 1);
+    BtlSprite_LoadFromTable(swordArgs->unk_0, &sword->sprite, &data_ov003_020d77d8, data_ov004_020f044c,
+                            (u16)(s32)swordArgs->unk_4, 58, 68);
+    BtlSprite_SetAnimFromTable(&sword->sprite, swordArgs->unk_4, 1);
 
     sword->unk_64 = swordArgs->unk_C;
     sword->unk_66 = swordArgs->unk_E;
@@ -54,7 +54,7 @@ s32 Feat00_Sword_Update(TaskPool* pool, Task* task, void* args) {
     if (SpriteMgr_IsAnimationFinished(&sword->sprite.sprite)) {
         return 0;
     }
-    CombatSprite_Update(&sword->sprite);
+    BtlSprite_Update(&sword->sprite);
     if (data_ov003_020e71e0 != 1) {
         return 1;
     }
@@ -65,20 +65,20 @@ s32 Feat00_Sword_Render(TaskPool* pool, Task* task, void* args) {
     Feat00_Sword* sword = task->data;
 
     if (sword->unk_60 != 0) {
-        CombatSprite_SetFlip(&sword->sprite, 0);
+        BtlSprite_SetFlip(&sword->sprite, 0);
     } else {
-        CombatSprite_SetFlip(&sword->sprite, 1);
+        BtlSprite_SetFlip(&sword->sprite, 1);
     }
-    CombatSprite_SetPosition(&sword->sprite, sword->unk_64, sword->unk_66);
-    func_ov003_02082730(&sword->sprite, 0x7FFFFFFF - sword->unk_66);
-    CombatSprite_Render(&sword->sprite);
+    BtlSprite_SetPosition(&sword->sprite, sword->unk_64, sword->unk_66);
+    BtlSprite_SetSortKey(&sword->sprite, 0x7FFFFFFF - sword->unk_66);
+    BtlSprite_Render(&sword->sprite);
     return 1;
 }
 
 s32 Feat00_Sword_Destroy(TaskPool* pool, Task* task, void* args) {
     Feat00_Sword* sword = task->data;
 
-    CombatSprite_Release(&sword->sprite);
+    BtlSprite_Release(&sword->sprite);
     return 1;
 }
 

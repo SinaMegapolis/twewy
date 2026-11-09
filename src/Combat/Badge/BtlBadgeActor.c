@@ -1,9 +1,9 @@
 #include "Combat/Badge/BtlBadgeActor.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatMic.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
@@ -142,7 +142,7 @@ static const EquippedPin data_ov003_020dc1ec[6] = {
 // ---------------------------------------------------------------------------------------------
 
 /// Builds the badge described by `spawn` and links it into the actor list.
-// Nonmatching: field store scheduling after CombatSprite_InitAnim.
+// Nonmatching: field store scheduling after BtlSprite_InitAnim.
 void BtlBadgeActor_Init(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn) {
     SpriteAnimationEx anim;
     s32               angle;
@@ -160,7 +160,7 @@ void BtlBadgeActor_Init(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn) {
     actor->unk_050 = 0;
     actor->unk_052 = 0;
     actor->unk_054 = 0;
-    CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc04c);
+    BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc04c);
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_1C     = 1;
     anim.anim.animIndex  = 1;
@@ -170,9 +170,9 @@ void BtlBadgeActor_Init(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn) {
     anim.anim.unk_18     = 2;
     anim.anim.unk_26     = 2;
     anim.anim.packIndex  = actor->params.head.unk_00 + 1;
-    CombatSprite_Load(&actor->sprite, &anim);
-    func_ov003_02082738(&actor->sprite, 0);
-    func_ov003_02082730(&actor->sprite, 0x3E8000);
+    BtlSprite_Load(&actor->sprite, &anim);
+    BtlSprite_SetPriority(&actor->sprite, 0);
+    BtlSprite_SetSortKey(&actor->sprite, 0x3E8000);
     actor->radius    = 0x10;
     actor->x         = gSaveData.battleTouchSlots.x[actor->slot] << 12;
     actor->y         = gSaveData.battleTouchSlots.y[actor->slot] << 12;

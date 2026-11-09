@@ -21,7 +21,7 @@ typedef struct BtlPrizeArgs {
 } BtlPrizeArgs;
 
 typedef struct BtlPrizeItem {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ Vec          position; // Y is stored at triple world scale.
     /* 0x6C */ s16          phase;
     /* 0x6E */ s16          timer;
@@ -665,14 +665,14 @@ static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
             break;
     }
     if (args->mode == 2) {
-        CombatSprite_LoadFromTable(args->engine, &self->sprite, &data_ov003_020dd3d0, &data_ov003_020dd3c8, 0, 4, 4);
-        CombatSprite_SetAnimFromTable(&self->sprite, 0, 0);
+        BtlSprite_LoadFromTable(args->engine, &self->sprite, &data_ov003_020dd3d0, &data_ov003_020dd3c8, 0, 4, 4);
+        BtlSprite_SetAnimFromTable(&self->sprite, 0, 0);
     } else {
         if (args->mode == 1) {
             animation = 4;
         }
-        CombatSprite_LoadFromTable(args->engine, &self->sprite, &data_ov003_020d7800, data_ov003_020dd3e4, animation, 0x3D, 4);
-        CombatSprite_SetAnimFromTable(&self->sprite, animation, 0);
+        BtlSprite_LoadFromTable(args->engine, &self->sprite, &data_ov003_020d7800, data_ov003_020dd3e4, animation, 0x3D, 4);
+        BtlSprite_SetAnimFromTable(&self->sprite, animation, 0);
     }
     self->radius = 0x50000;
     self->timer  = 0xB4;
@@ -724,7 +724,7 @@ static s32 func_ov003_020bbc14(BtlPrizeItem* self) {
     if (self->timer < 0) {
         active = 0;
     }
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return active;
 }
 
@@ -736,9 +736,9 @@ static s32 func_ov003_020bbec0(BtlPrizeItem* self) {
     }
     s16 x, y;
     CombatStage_WorldToScreen(engine, &x, &y, self->position.x, FX_Divide(self->position.y, 0x3000), self->position.z);
-    CombatSprite_SetPosition(&self->sprite, x, y);
-    func_ov003_02082730(&self->sprite, 0x7FFFFFFF - FX_Divide(self->position.y, 0x3000));
-    CombatSprite_Render(&self->sprite);
+    BtlSprite_SetPosition(&self->sprite, x, y);
+    BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - FX_Divide(self->position.y, 0x3000));
+    BtlSprite_Render(&self->sprite);
     return 1;
 }
 
@@ -755,7 +755,7 @@ static s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
         }
         CombatSe_PlayPanned(SEIDX_SE_COIN_GET, pan);
     }
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     data_ov003_020e71c4.count--;
     return 1;
 }

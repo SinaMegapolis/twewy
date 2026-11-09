@@ -7,7 +7,7 @@
 
 typedef struct BtlEnm010Sprl {
     /* 0x00 */ Ov003EnemyActor* unk_000;
-    /* 0x04 */ CombatSprite     sprite;
+    /* 0x04 */ BattleSprite     sprite;
     /* 0x64 */ s16              unk_064;    // launch SE played
     /* 0x66 */ u8               unk_066[0x70 - 0x66];
     /* 0x70 */ s32              unk_070[5]; // x of each link, head first
@@ -39,8 +39,8 @@ static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1);
 static s32 func_ov011_02128b80(BtlEnm010Sprl* data);
 static s32 func_ov011_02128c30(BtlEnm010Sprl* p);
 
-/// `CombatSprite_Update` (`CombatSprite_Update`) -- one argument, a `CombatSprite*`; ticks a
-/// palette timer behind the sprite's `flags46` bit 12. Declared in `Combat/Core/CombatSprite.h`.
+/// `BtlSprite_Update` (`BtlSprite_Update`) -- one argument, a `BattleSprite*`; ticks a
+/// palette timer behind BTL_SPRITE_FLAG_PALETTE_FLASH. Declared in `Battle/Core/BtlSprite.h`.
 
 /// `CombatStage_ToScreenX` -- two arguments; turns a 4.12 y coordinate into a sound pan value.
 
@@ -111,7 +111,7 @@ static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
     MI_CpuSet(data, 0, 0xB8);
     data->unk_000 = *arg1;
     func_ov011_021258b4((*arg1)->sprite.sprite.bits_0_1, &data->sprite, 2);
-    CombatSprite_SetAnimFromTable(&data->sprite, 0, 0);
+    BtlSprite_SetAnimFromTable(&data->sprite, 0, 0);
     if ((*arg1)->actor.isFlipped == 0) {
         data->unk_0AC = 0x8000;
         data->unk_0AE = 0xFD00;
@@ -222,7 +222,7 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
     if (p->unk_0A4 > g_CombatGlobal->unk3D7C0[0].unk_0C) {
         return 0;
     }
-    CombatSprite_Update(&p->sprite);
+    BtlSprite_Update(&p->sprite);
     return 1;
 }
 
@@ -240,10 +240,10 @@ static s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
     z = 0;
     for (i = 0; i < 5; i++) {
         CombatStage_WorldToScreen(z, &v0, &v1, data->unk_070[i], data->unk_084[i], data->unk_098);
-        CombatSprite_SetPosition(&data->sprite, v0, v1);
-        func_ov003_02082730(&data->sprite, 0x7FFFFFFF - data->unk_084[i]);
-        CombatSprite_SetAffineTransform(&data->sprite, z, data_ov011_0212c21c[i], data_ov011_0212c21c[i], z);
-        CombatSprite_Render(&data->sprite);
+        BtlSprite_SetPosition(&data->sprite, v0, v1);
+        BtlSprite_SetSortKey(&data->sprite, 0x7FFFFFFF - data->unk_084[i]);
+        BtlSprite_SetAffineTransform(&data->sprite, z, data_ov011_0212c21c[i], data_ov011_0212c21c[i], z);
+        BtlSprite_Render(&data->sprite);
     }
     return 1;
 }
@@ -251,6 +251,6 @@ static s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
 /// Ticks the sprite at `+0x04` and nothing else. Second of the two identical 20-byte tickers
 /// (`0x02128704` was the first).
 static s32 func_ov011_02128c30(BtlEnm010Sprl* p) {
-    CombatSprite_Release(&p->sprite);
+    BtlSprite_Release(&p->sprite);
     return 1;
 }

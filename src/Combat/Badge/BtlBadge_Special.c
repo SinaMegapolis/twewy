@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
 #include "Save.h"
@@ -79,7 +79,7 @@ static const BtlBadgeSpecialAnim data_ov003_020d7d40[9] = {
 /// Loads the ranking sprite `index` (1..3) of the current partner into `sprite`.
 // Nonmatching: the record address is kept in its own register in the target; mwcc here folds it
 // into `mla table, index, 12, table` (every record access then costs a `ldrh [table]`).
-static void func_ov003_02094668(CombatSprite* sprite, s32 index) {
+static void func_ov003_02094668(BattleSprite* sprite, s32 index) {
     SpriteAnimationEx          anim;
     const BtlBadgeSpecialAnim* record;
     int                        partner = 0;
@@ -103,7 +103,7 @@ static void func_ov003_02094668(CombatSprite* sprite, s32 index) {
             break;
     }
     record = &data_ov003_020d7d40[partner];
-    CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020d7810);
+    BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020d7810);
     anim.anim.bits_10_11 = 1;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = record->anim;
@@ -114,9 +114,9 @@ static void func_ov003_02094668(CombatSprite* sprite, s32 index) {
     anim.anim.unk_28     = record->spriteA;
     anim.anim.animIndex  = record->spriteC + 1;
     anim.animTable       = (const SpriteAnimEntry*)&record->unk_02;
-    CombatSprite_Load(sprite, &anim);
-    func_ov003_02082738(sprite, 0);
-    func_ov003_02082730(sprite, 0x3E8000);
+    BtlSprite_Load(sprite, &anim);
+    BtlSprite_SetPriority(sprite, 0);
+    BtlSprite_SetSortKey(sprite, 0x3E8000);
 }
 
 /// Builds the touch actor and parks it on the ranking badge.
@@ -157,7 +157,7 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
 
         if (self->index != index) {
             self->index = index;
-            CombatSprite_Release(&self->actor.sprite);
+            BtlSprite_Release(&self->actor.sprite);
             func_ov003_020a0244(self->index, &self->actor);
             CombatSe_Play(SEIDX_SE_GIRL_ESP_FULL);
             func_ov003_02094668(&self->actor.sprite, self->index);
@@ -179,13 +179,13 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
         func_ov003_02087008();
         self->index         = 0;
         self->actor.unk_044 = 0;
-        CombatSprite_Release(&self->actor.sprite);
+        BtlSprite_Release(&self->actor.sprite);
     }
     if (self->index > 0) {
         if (self->timer > 0) {
             self->timer--;
         }
-        CombatSprite_Update(&self->actor.sprite);
+        BtlSprite_Update(&self->actor.sprite);
     }
     return 1;
 }
@@ -198,9 +198,8 @@ static s32 func_ov003_020949e4(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
     if (self->index > 0 && self->timer <= 0) {
-        CombatSprite_SetPosition(&self->actor.sprite, (s32)((u32)self->actor.x << 4) >> 16,
-                                 (s32)((u32)self->actor.y << 4) >> 16);
-        CombatSprite_Render(&self->actor.sprite);
+        BtlSprite_SetPosition(&self->actor.sprite, (s32)((u32)self->actor.x << 4) >> 16, (s32)((u32)self->actor.y << 4) >> 16);
+        BtlSprite_Render(&self->actor.sprite);
     }
     return 1;
 }
@@ -210,7 +209,7 @@ static s32 func_ov003_02094a4c(TaskPool* pool, Task* task, void* args) {
     BtlBadgeSpecial* self = task->data;
 
     if (self->index > 0) {
-        CombatSprite_Release(&self->actor.sprite);
+        BtlSprite_Release(&self->actor.sprite);
     }
     return 1;
 }

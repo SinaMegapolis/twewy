@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
@@ -10,8 +10,8 @@
 typedef struct {
     /* 0x00 */ u16            unk_00;
     /* 0x02 */ char           unk_02[2];
-    /* 0x04 */ CombatSprite   unk_04;
-    /* 0x64 */ CombatSprite   unk_64;
+    /* 0x04 */ BattleSprite   unk_04;
+    /* 0x64 */ BattleSprite   unk_64;
     /* 0xC4 */ s16            unk_C4;
     /* 0xC6 */ s16            unk_C6;
     /* 0xC8 */ s16            unk_C8;
@@ -33,7 +33,7 @@ typedef struct {
 } CardUnk; // Size: 0x2C4
 
 typedef struct {
-    /* 0x000 */ CombatSprite   sprite;
+    /* 0x000 */ BattleSprite   sprite;
     /* 0x060 */ char           unk_060[0x8];
     /* 0x068 */ Ov003EffectCmd effectCmd;
     /* 0x098 */ CardUnk        unk_098;
@@ -73,23 +73,23 @@ static const SpriteAnimEntry data_ov004_020f0290[25] = {
 
 const TaskHandle Tsk_BtlCard_Esp = {"Tsk_BtlCard_Esp", BtlCard_Esp_RunTask, 0x35C};
 
-static void func_ov004_020eac00(CombatSprite* arg0, s32 arg1, s32 arg2) {
+static void func_ov004_020eac00(BattleSprite* arg0, s32 arg1, s32 arg2) {
     SpriteAnimationEx anim;
 
-    CombatSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
+    BtlSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
     anim.anim.bits_10_11 = 1;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 2;
     anim.anim.unk_1C     = data_ov004_020f0290[arg1].charDataIndex;
     anim.anim.unk_1E     = arg2 << 5;
-    anim.anim.unk_26     = data_ov004_020f0290[arg1].frameDataIndex;
-    anim.anim.unk_28     = data_ov004_020f0290[arg1].paletteDataIndex;
+    anim.anim.unk_26     = data_ov004_020f0290[arg1].cellDataIndex;
+    anim.anim.unk_28     = data_ov004_020f0290[arg1].animDataIndex;
     anim.anim.unk_20     = 7;
-    anim.anim.animIndex  = data_ov004_020f0290[arg1].animDataIndex + 1;
+    anim.anim.animIndex  = data_ov004_020f0290[arg1].animIndex + 1;
     anim.animTable       = data_ov004_020f0290;
-    CombatSprite_Load(arg0, &anim);
-    func_ov003_02082738(arg0, 0);
-    func_ov003_02082730(arg0, 2);
+    BtlSprite_Load(arg0, &anim);
+    BtlSprite_SetPriority(arg0, 0);
+    BtlSprite_SetSortKey(arg0, 2);
 }
 
 static void func_ov004_020eaccc(CardUnk* arg0, s16 arg1, s16 arg2, s16 arg3) {
@@ -106,10 +106,10 @@ static void func_ov004_020eaccc(CardUnk* arg0, s16 arg1, s16 arg2, s16 arg3) {
     temp_r4->unk_D8 = temp_r4->unk_CC * 0x10;
     func_ov004_020eac00(&temp_r4->unk_04, 0, 0x10);
     func_ov004_020eac00(&temp_r4->unk_64, 0x18, 0x14);
-    CombatSprite_SetAnimFromTable(&temp_r4->unk_04, 0, 0);
-    CombatSprite_SetPosition(&temp_r4->unk_04, arg2, arg3);
-    CombatSprite_SetAnimFromTable(&temp_r4->unk_64, 0x18, 0);
-    CombatSprite_SetPosition(&temp_r4->unk_64, (s16)(arg2 + 7), (s16)(arg3 + 7));
+    BtlSprite_SetAnimFromTable(&temp_r4->unk_04, 0, 0);
+    BtlSprite_SetPosition(&temp_r4->unk_04, arg2, arg3);
+    BtlSprite_SetAnimFromTable(&temp_r4->unk_64, 0x18, 0);
+    BtlSprite_SetPosition(&temp_r4->unk_64, (s16)(arg2 + 7), (s16)(arg3 + 7));
     CombatList_Append(&arg0->unk_004, &temp_r4->unk_DC, temp_r4);
 }
 
@@ -117,7 +117,7 @@ static void func_ov004_020eada8(CardUnkEntry* arg0) {
     switch (arg0->unk_C4) {
         case 0: {
             if (arg0->unk_C8 == 0) {
-                CombatSprite_SetAnimFromTable(&arg0->unk_04, 1, 1);
+                BtlSprite_SetAnimFromTable(&arg0->unk_04, 1, 1);
                 arg0->unk_C8++;
             }
             if (SpriteMgr_IsAnimationFinished(&arg0->unk_04.sprite)) {
@@ -128,16 +128,16 @@ static void func_ov004_020eada8(CardUnkEntry* arg0) {
 
         case 1: {
             if (arg0->unk_C8 == 0) {
-                CombatSprite_SetAnimFromTable(&arg0->unk_04, 0, 0);
+                BtlSprite_SetAnimFromTable(&arg0->unk_04, 0, 0);
                 arg0->unk_C8++;
             }
             if (arg0->unk_CA & 1) {
-                CombatSprite_SetAnimFromTable(&arg0->unk_04, arg0->unk_00 + 7, 1);
+                BtlSprite_SetAnimFromTable(&arg0->unk_04, arg0->unk_00 + 7, 1);
                 arg0->unk_C4 = 2;
                 arg0->unk_C8 = 0;
             }
             if (arg0->unk_CA & 0x10) {
-                CombatSprite_SetAnimFromTable(&arg0->unk_04, arg0->unk_00 + 0xC, 1);
+                BtlSprite_SetAnimFromTable(&arg0->unk_04, arg0->unk_00 + 0xC, 1);
                 arg0->unk_CA &= ~0x10;
                 arg0->unk_C4 = 5;
                 arg0->unk_C8 = 0;
@@ -146,7 +146,7 @@ static void func_ov004_020eada8(CardUnkEntry* arg0) {
 
         case 2: {
             if (SpriteMgr_IsAnimationFinished(&arg0->unk_04.sprite)) {
-                CombatSprite_SetAnimFromTable(&arg0->unk_04, arg0->unk_00 + 2, 1);
+                BtlSprite_SetAnimFromTable(&arg0->unk_04, arg0->unk_00 + 2, 1);
                 arg0->unk_CA |= 2;
                 arg0->unk_C4 = 3;
             }
@@ -165,14 +165,14 @@ static void func_ov004_020eaf34(CardUnkEntry* arg0) {
     switch (arg0->unk_C6) {
         case 0: {
             if (arg0->unk_CA & 8) {
-                CombatSprite_SetAnimFromTable(&arg0->unk_64, 23, 1);
+                BtlSprite_SetAnimFromTable(&arg0->unk_64, 23, 1);
                 arg0->unk_C6++;
             }
         } break;
 
         case 1: {
             if (SpriteMgr_IsAnimationFinished(&arg0->unk_64.sprite)) {
-                CombatSprite_SetAnimFromTable(&arg0->unk_64, 24, 0);
+                BtlSprite_SetAnimFromTable(&arg0->unk_64, 24, 0);
                 arg0->unk_C6++;
             }
         } break;
@@ -185,8 +185,8 @@ static void func_ov004_020eafb0(CardUnk* arg0) {
     while (var_r4 != NULL) {
         func_ov004_020eada8(var_r4);
         func_ov004_020eaf34(var_r4);
-        CombatSprite_Update(&var_r4->unk_04);
-        CombatSprite_Update(&var_r4->unk_64);
+        BtlSprite_Update(&var_r4->unk_04);
+        BtlSprite_Update(&var_r4->unk_64);
         CombatSys_EaseToSine(&var_r4->unk_D4, &var_r4->unk_D8);
         var_r4 = CombatList_GetNext(&var_r4->unk_DC);
     }
@@ -203,11 +203,11 @@ static void func_ov004_020eb004(CardUnk* arg0) {
         } else {
             var_r5 = var_r4->unk_D0 + ((s32)var_r4->unk_D4 >> 0xC);
         }
-        CombatSprite_SetPosition(&var_r4->unk_04, var_r4->unk_CE, var_r5);
-        CombatSprite_Render(&var_r4->unk_04);
+        BtlSprite_SetPosition(&var_r4->unk_04, var_r4->unk_CE, var_r5);
+        BtlSprite_Render(&var_r4->unk_04);
         if (var_r4->unk_CA & 8) {
-            CombatSprite_SetPosition(&var_r4->unk_64, (s16)(var_r4->unk_CE + 7), (s16)(var_r5 + 7));
-            CombatSprite_Render(&var_r4->unk_64);
+            BtlSprite_SetPosition(&var_r4->unk_64, (s16)(var_r4->unk_CE + 7), (s16)(var_r5 + 7));
+            BtlSprite_Render(&var_r4->unk_64);
         }
         var_r4 = CombatList_GetNext(&var_r4->unk_DC);
     }
@@ -217,8 +217,8 @@ static void func_ov004_020eb0a0(CardUnk* arg0) {
     CardUnkEntry* var_r4 = CombatList_GetHead(&arg0->unk_004);
 
     while (var_r4 != NULL) {
-        CombatSprite_Release(&var_r4->unk_04);
-        CombatSprite_Release(&var_r4->unk_64);
+        BtlSprite_Release(&var_r4->unk_04);
+        BtlSprite_Release(&var_r4->unk_64);
         var_r4 = CombatList_GetNext(&var_r4->unk_DC);
     }
 }
@@ -227,8 +227,8 @@ static void func_ov004_020eb0d8(BtlCard_Esp* esp) {
     CardUnkEntry* temp_r0 = func_ov004_020e742c((s16*)&esp->unk_098, esp->unk_098.unk_000);
 
     if (temp_r0 != NULL) {
-        CombatSprite_SetPosition(&esp->sprite, temp_r0->unk_CE, (s16)(temp_r0->unk_D0 + (temp_r0->unk_D4 >> 0xC)));
-        CombatSprite_Render(&esp->sprite);
+        BtlSprite_SetPosition(&esp->sprite, temp_r0->unk_CE, (s16)(temp_r0->unk_D0 + (temp_r0->unk_D4 >> 0xC)));
+        BtlSprite_Render(&esp->sprite);
     }
 }
 
@@ -246,7 +246,7 @@ static s32 BtlCard_Esp_Init(TaskPool* pool, Task* task, void* args) {
     func_ov004_020eaccc(&esp->unk_098, 2, 0x66, 0x14);
     func_ov003_020871cc(0);
     func_ov004_020eac00(&esp->sprite, 0x16, 4);
-    CombatSprite_SetAnimFromTable(&esp->sprite, 0x16, 0);
+    BtlSprite_SetAnimFromTable(&esp->sprite, 0x16, 0);
     return 1;
 }
 
@@ -255,7 +255,7 @@ static s32 BtlCard_Esp_Update(TaskPool* pool, Task* task, void* args) {
 
     if ((esp->effectCmd.flags & 1) == 0) {
         func_ov004_020eafb0(&esp->unk_098);
-        CombatSprite_Update(&esp->sprite);
+        BtlSprite_Update(&esp->sprite);
     }
     return 1;
 }
@@ -274,7 +274,7 @@ static s32 BtlCard_Esp_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlCard_Esp* esp = task->data;
 
     func_ov004_020eb0a0(&esp->unk_098);
-    CombatSprite_Release(&esp->sprite);
+    BtlSprite_Release(&esp->sprite);
     func_ov003_020871b0(&esp->effectCmd);
     return 1;
 }

@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyShot.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
@@ -24,7 +24,7 @@ typedef struct {
 
 typedef struct BtlCmd_Esp {
     /* 0x00 */ u16          unk_00;
-    /* 0x04 */ CombatSprite sprite;
+    /* 0x04 */ BattleSprite sprite;
     /* 0x64 */ s32          unk_64;
     /* 0x68 */ s32          unk_68;
     /* 0x6C */ s32          unk_6C;
@@ -54,10 +54,10 @@ static void func_ov004_020ea634(BtlCmd_Esp* cmd, void (*arg1)(BtlCmd_Esp*)) {
     cmd->unk_78 = 0;
 }
 
-static void func_ov004_020ea648(CombatSprite* arg0, u16 arg1) {
+static void func_ov004_020ea648(BattleSprite* arg0, u16 arg1) {
     SpriteAnimationEx sp0;
 
-    CombatSprite_InitAnim(&sp0.anim, 1, &data_ov003_020d7808);
+    BtlSprite_InitAnim(&sp0.anim, 1, &data_ov003_020d7808);
     sp0.anim.bits_10_11 = 0;
     sp0.anim.unk_18     = 2;
     sp0.anim.packIndex  = 2;
@@ -67,10 +67,10 @@ static void func_ov004_020ea648(CombatSprite* arg0, u16 arg1) {
     sp0.anim.unk_20     = 7;
     sp0.anim.animIndex  = arg1 + 1;
     sp0.animTable       = NULL;
-    CombatSprite_Load(arg0, &sp0);
-    CombatSprite_SetAnim(arg0, arg1, 0);
-    func_ov003_02082738(arg0, 0);
-    func_ov003_02082730(arg0, 2);
+    BtlSprite_Load(arg0, &sp0);
+    BtlSprite_SetAnim(arg0, arg1, 0);
+    BtlSprite_SetPriority(arg0, 0);
+    BtlSprite_SetSortKey(arg0, 2);
 }
 
 static s32 func_ov004_020ea6f0(EspUnk* arg0, u16 arg1) {
@@ -188,7 +188,7 @@ static void func_ov004_020ea930(BtlCmd_Esp* cmd) {
 static void func_ov004_020ea9cc(BtlCmd_Esp* cmd) {
     switch (cmd->unk_7A) {
         case 0: {
-            CombatSprite_SetAnim(&cmd->sprite, cmd->unk_00 + 10, 0);
+            BtlSprite_SetAnim(&cmd->sprite, cmd->unk_00 + 10, 0);
             cmd->unk_7A++;
         } break;
 
@@ -228,7 +228,7 @@ static s32 BtlCmd_Esp_Update(TaskPool* pool, Task* task, void* args) {
     if (cmd->unk_74 != NULL) {
         cmd->unk_74(cmd);
     }
-    CombatSprite_Update(&cmd->sprite);
+    BtlSprite_Update(&cmd->sprite);
     return cmd->unk_80;
 }
 
@@ -236,8 +236,8 @@ static s32 BtlCmd_Esp_Render(TaskPool* pool, Task* task, void* args) {
     BtlCmd_Esp* cmd = task->data;
 
     if (cmd->unk_7C != 0) {
-        CombatSprite_SetPosition(&cmd->sprite, F2Ix(cmd->unk_64), F2Ix(cmd->unk_68 + cmd->unk_6C));
-        CombatSprite_Render(&cmd->sprite);
+        BtlSprite_SetPosition(&cmd->sprite, F2Ix(cmd->unk_64), F2Ix(cmd->unk_68 + cmd->unk_6C));
+        BtlSprite_Render(&cmd->sprite);
     }
     return 1;
 }
@@ -245,7 +245,7 @@ static s32 BtlCmd_Esp_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlCmd_Esp_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlCmd_Esp* cmd = task->data;
 
-    CombatSprite_Release(&cmd->sprite);
+    BtlSprite_Release(&cmd->sprite);
     return 1;
 }
 

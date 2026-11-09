@@ -103,9 +103,9 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_EGENERATE_BOOT01_01))
                 CombatSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_BOOT01_01, (s16)self->position.x);
             if (self->phase != 0) {
-                CombatSprite_Update(&self->sprites[0]);
-                CombatSprite_Update(&self->sprites[1]);
-                CombatSprite_Update(&self->sprites[2]);
+                BtlSprite_Update(&self->sprites[0]);
+                BtlSprite_Update(&self->sprites[1]);
+                BtlSprite_Update(&self->sprites[2]);
             }
             return 1;
         }
@@ -115,27 +115,27 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
             s16            y    = self->position.y;
             if (self->phase == 0)
                 return 1;
-            CombatSprite_SetPosition(&self->sprites[0], x, y);
-            func_ov003_02082730(&self->sprites[0], 0x383000);
-            CombatSprite_Render(&self->sprites[0]);
+            BtlSprite_SetPosition(&self->sprites[0], x, y);
+            BtlSprite_SetSortKey(&self->sprites[0], 0x383000);
+            BtlSprite_Render(&self->sprites[0]);
             if (self->auraOpacity >= 0x1000) {
-                CombatSprite_SetPosition(&self->sprites[2], x, y);
-                func_ov003_02082730(&self->sprites[2], 0x382000);
-                CombatSprite_SetAffineTransform(&self->sprites[2], 0, 0x199A, 0x199A, 0);
-                CombatSprite_RenderWithPalette(&self->sprites[2], self->auraOpacity >> 12);
+                BtlSprite_SetPosition(&self->sprites[2], x, y);
+                BtlSprite_SetSortKey(&self->sprites[2], 0x382000);
+                BtlSprite_SetAffineTransform(&self->sprites[2], 0, 0x199A, 0x199A, 0);
+                BtlSprite_RenderTranslucent(&self->sprites[2], self->auraOpacity >> 12);
             }
             if (self->phase == 2) {
-                CombatSprite_SetPosition(&self->sprites[1], x, y);
-                func_ov003_02082730(&self->sprites[0], 0x384000);
-                CombatSprite_Render(&self->sprites[1]);
+                BtlSprite_SetPosition(&self->sprites[1], x, y);
+                BtlSprite_SetSortKey(&self->sprites[0], 0x384000);
+                BtlSprite_Render(&self->sprites[1]);
             }
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprites[0]);
-            CombatSprite_Release(&self->sprites[1]);
-            CombatSprite_Release(&self->sprites[2]);
+            BtlSprite_Release(&self->sprites[0]);
+            BtlSprite_Release(&self->sprites[1]);
+            BtlSprite_Release(&self->sprites[2]);
             SndMgr_StopPlayingSE(SEIDX_SE_PSY_EGENERATE_BOOT01_01);
             return 1;
     }

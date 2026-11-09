@@ -5,7 +5,7 @@
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlEnm010Rnge {
-    /* 0x00 */ CombatSprite     sprite;
+    /* 0x00 */ BattleSprite     sprite;
     /* 0x60 */ Ov003EnemyActor* unk_060;
     /* 0x64 */ s32              unk_064;
     /* 0x68 */ s32              unk_068;
@@ -48,12 +48,12 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
         case 0:
             MI_CpuSet(data, 0, 0x6C);
             func_ov011_021258b4((*spawn)->sprite.sprite.bits_0_1, &data->sprite, 0);
-            CombatSprite_SetAnimFromTable(&data->sprite, 0, r);
+            BtlSprite_SetAnimFromTable(&data->sprite, 0, r);
             data->unk_060 = *spawn;
             if ((*spawn)->actor.isFlipped == 1) {
-                CombatSprite_SetFlip(&data->sprite, r);
+                BtlSprite_SetFlip(&data->sprite, r);
             } else {
-                CombatSprite_SetFlip(&data->sprite, 0);
+                BtlSprite_SetFlip(&data->sprite, 0);
             }
             break;
         case 1:
@@ -65,7 +65,7 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
             {
                 return 0;
             }
-            CombatSprite_Update(&data->sprite);
+            BtlSprite_Update(&data->sprite);
             if (func_ov003_020c37f8(&data->sprite) != 0) {
                 snd = 0x5B;
                 pan = CombatStage_ToScreenX(r, data->unk_060->actor.position.x);
@@ -104,12 +104,12 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
             } else {
                 pan = (s16)(pan + 0x20);
             }
-            CombatSprite_SetPosition(&data->sprite, pan, y);
-            func_ov003_02082730(&data->sprite, 0x7FFFFFFF - (data->unk_060->actor.position.y + 0x20000));
-            CombatSprite_Render(&data->sprite);
+            BtlSprite_SetPosition(&data->sprite, pan, y);
+            BtlSprite_SetSortKey(&data->sprite, 0x7FFFFFFF - (data->unk_060->actor.position.y + 0x20000));
+            BtlSprite_Render(&data->sprite);
             break;
         case 3:
-            CombatSprite_Release(&data->sprite);
+            BtlSprite_Release(&data->sprite);
             break;
     }
     return r;

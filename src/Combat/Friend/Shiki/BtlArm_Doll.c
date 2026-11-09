@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
@@ -12,8 +12,8 @@ extern BinIdentifier data_ov003_020d77e0;
 
 typedef struct BtlArm_Doll {
     /* 0x000 */ BattleActor      actor;
-    /* 0x07C */ CombatSprite     unk_07C;
-    /* 0x0DC */ CombatSprite     unk_0DC;
+    /* 0x07C */ BattleSprite     unk_07C;
+    /* 0x0DC */ BattleSprite     unk_0DC;
     /* 0x13C */ s16              unk_13C;
     /* 0x13E */ char             unk_13E[0x140 - 0x13E];
     /* 0x140 */ s32              unk_140;
@@ -246,7 +246,7 @@ void func_ov004_020e9754(BtlArm_Doll* doll) {
 
         doll->actor.flags &= ~ACTOR_FLAG_STAGGERED;
         *doll->unk_14C = 0;
-        CombatSprite_SetAnimFromTable(&doll->unk_07C, 0, 0);
+        BtlSprite_SetAnimFromTable(&doll->unk_07C, 0, 0);
         doll->unk_17C++;
     }
     func_ov004_020e9304(doll, 0, 1);
@@ -259,7 +259,7 @@ void func_ov004_020e97f8(BtlArm_Doll* doll) {
     switch (doll->unk_17C) {
         case 0:
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 11, 1);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 11, 1);
                 doll->unk_17E++;
             }
             if (SpriteMgr_IsAnimationFinished(&doll->unk_07C.sprite) != 0) {
@@ -269,7 +269,7 @@ void func_ov004_020e97f8(BtlArm_Doll* doll) {
             break;
         case 1:
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 12, 0);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 12, 0);
                 BtlActor_SetJumpDuration(&doll->actor, 58);
                 doll->unk_17E = 29;
             }
@@ -281,7 +281,7 @@ void func_ov004_020e97f8(BtlArm_Doll* doll) {
             break;
         case 2:
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 14, 1);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 14, 1);
                 doll->unk_17E = 4;
             }
             doll->actor.zVelocity = 0;
@@ -293,7 +293,7 @@ void func_ov004_020e97f8(BtlArm_Doll* doll) {
             break;
         case 3:
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 15, 0);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 15, 0);
                 doll->unk_17E++;
             }
             if (doll->actor.position.z >= 0) {
@@ -304,7 +304,7 @@ void func_ov004_020e97f8(BtlArm_Doll* doll) {
             break;
         case 4:
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 16, 1);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 16, 1);
                 doll->unk_17E++;
             }
             if (SpriteMgr_IsAnimationFinished(&doll->unk_07C.sprite) != 0) {
@@ -323,7 +323,7 @@ void func_ov004_020e97f8(BtlArm_Doll* doll) {
 void func_ov004_020e9a34(BtlArm_Doll* doll) {
     doll->actor.zVelocity = 0;
     if (doll->unk_17E == 0) {
-        CombatSprite_SetAnimFromTable(&doll->unk_07C, 1, 0);
+        BtlSprite_SetAnimFromTable(&doll->unk_07C, 1, 0);
         func_ov004_020e929c(doll);
         func_ov004_020e9430(doll);
         doll->unk_17E = 4;
@@ -354,8 +354,8 @@ void func_ov004_020e9b54(BtlArm_Doll* doll) {
     doll->actor.zVelocity = 0;
     if (doll->unk_17C == 0) {
         u32 temp_r4 = doll->unk_150 % 3;
-        CombatSprite_SetAnimFromTable(&doll->unk_07C, temp_r4 + 3, 1);
-        CombatSprite_Restart(&doll->unk_07C);
+        BtlSprite_SetAnimFromTable(&doll->unk_07C, temp_r4 + 3, 1);
+        BtlSprite_Restart(&doll->unk_07C);
         BtlEff_Doll_CreateTask(temp_r4, doll);
         doll->unk_150++;
         doll->unk_17C++;
@@ -394,7 +394,7 @@ void func_ov004_020e9ce0(BtlArm_Doll* doll) {
         case 0:
             if (doll->unk_17E == 0) {
                 CombatSe_PlayAtSubX(0x158, doll->actor.position.x);
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 6, 1);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 6, 1);
                 doll->unk_150 = 0;
                 doll->unk_17E++;
             }
@@ -406,7 +406,7 @@ void func_ov004_020e9ce0(BtlArm_Doll* doll) {
 
         case 1:
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 7, 1);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 7, 1);
                 BtlEff_Doll_CreateTask(3, doll);
                 doll->actor.zGravity = 0x400;
                 BtlActor_SetJumpDuration(&doll->actor, 46);
@@ -426,7 +426,7 @@ void func_ov004_020e9ce0(BtlArm_Doll* doll) {
 
         case 2:
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 8, 1);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 8, 1);
                 doll->unk_17E++;
             }
             if (doll->actor.position.z >= 0) {
@@ -441,7 +441,7 @@ void func_ov004_020e9eac(BtlArm_Doll* doll) {
     switch (doll->unk_17C) {
         case 0: {
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 2, 0);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 2, 0);
                 func_ov004_020e951c(doll);
                 doll->unk_150 = 0;
                 doll->unk_17E = 0x10;
@@ -462,7 +462,7 @@ void func_ov004_020e9eac(BtlArm_Doll* doll) {
         case 1: {
             if (doll->unk_17E == 0) {
                 CombatSe_PlayAtSubX(0x161, doll->actor.position.x);
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 9, 1);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 9, 1);
                 BtlEff_Doll_CreateTask(4, doll);
                 if (doll->actor.isFlipped == 0) {
                     doll->unk_160 = -0x20000;
@@ -492,7 +492,7 @@ void func_ov004_020e9eac(BtlArm_Doll* doll) {
 
         case 2: {
             if (doll->unk_17E == 0) {
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 2, 0);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 2, 0);
                 if (doll->actor.isFlipped == 0) {
                     doll->unk_160 += 0x28000;
                 } else {
@@ -526,7 +526,7 @@ void func_ov004_020ea1ac(BtlArm_Doll* doll) {
         case 0: {
             if (doll->unk_17E == 0) {
                 doll->actor.flags |= ACTOR_FLAG_STAGGERED;
-                CombatSprite_SetAnimFromTable(&doll->unk_07C, 2, 1);
+                BtlSprite_SetAnimFromTable(&doll->unk_07C, 2, 1);
                 doll->actor.zGravity = 0x2800;
                 BtlActor_SetJumpDuration(&doll->actor, 0xC);
                 doll->unk_174          = doll->actor.position.z;
@@ -556,7 +556,7 @@ void func_ov004_020ea1ac(BtlArm_Doll* doll) {
 void func_ov004_020ea304(BtlArm_Doll* doll) {
     doll->actor.zVelocity = 0;
     if (doll->unk_17E == 0) {
-        CombatSprite_SetAnimFromTable(&doll->unk_07C, 9, 0);
+        BtlSprite_SetAnimFromTable(&doll->unk_07C, 9, 0);
         func_ov004_020e929c(doll);
         func_ov004_020e9430(doll);
         doll->unk_17E = 8;
@@ -589,7 +589,7 @@ s32 BtlArm_Doll_Init(TaskPool* pool, Task* task, void* args) {
     doll->actor.position.y = (temp_r5->position.y + 0x8000);
     doll->actor.position.z = 0;
     doll->actor.zGravity   = 0x400;
-    CombatSprite_LoadFromTable(1, &doll->unk_07C, &data_ov003_020d77e0, data_ov004_020f01d0, 0U, 63, 20);
+    BtlSprite_LoadFromTable(1, &doll->unk_07C, &data_ov003_020d77e0, data_ov004_020f01d0, 0U, 63, 20);
     CombatHit_LoadSparkForUnit(1, &doll->unk_0DC, (void*)doll);
     doll->unk_140 = doll->actor.position.x;
     doll->unk_144 = doll->actor.position.y;
@@ -611,8 +611,8 @@ s32 BtlArm_Doll_Update(TaskPool* pool, Task* task, void* args) {
         doll->unk_178(doll);
     }
     BtlActor_UpdatePhysics(&doll->actor);
-    CombatSprite_Update(&doll->unk_07C);
-    CombatSprite_Update(&doll->unk_0DC);
+    BtlSprite_Update(&doll->unk_07C);
+    BtlSprite_Update(&doll->unk_0DC);
     return 1;
 }
 
@@ -632,8 +632,8 @@ s32 BtlArm_Doll_Render(TaskPool* pool, Task* task, void* args) {
 s32 BtlArm_Doll_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlArm_Doll* doll = task->data;
 
-    CombatSprite_Release(&doll->unk_07C);
-    CombatSprite_Release(&doll->unk_0DC);
+    BtlSprite_Release(&doll->unk_07C);
+    BtlSprite_Release(&doll->unk_0DC);
     return 1;
 }
 

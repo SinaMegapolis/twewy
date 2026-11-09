@@ -40,14 +40,14 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
                 if (--self->timer == 0) {
                     self->phase++;
                     if (self->phase == 3) {
-                        CombatSprite_Release(&self->sprites[0]);
-                        CombatSprite_Release(&self->sprites[1]);
+                        BtlSprite_Release(&self->sprites[0]);
+                        BtlSprite_Release(&self->sprites[1]);
                         CombatPsyAnim_Load(&self->sprites[1], 2, 1, self->phase + 0x93, 1);
                         self->timer = 18;
                         CombatSe_PlayAtMainX(0xAD, self->args.position.x);
                     } else {
                         self->timer = self->args.effect->params[0];
-                        CombatSprite_Release(&self->sprites[1]);
+                        BtlSprite_Release(&self->sprites[1]);
                         CombatPsyAnim_Load(&self->sprites[1], 2, 1, self->phase + 0x90, 0);
                         s32 sound = self->phase + 0x96;
                         if (sound < 0x56C)
@@ -67,7 +67,7 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
                         if (!SpriteMgr_IsAnimationFinished(&self->sprites[i].sprite))
                             remaining++;
                         else
-                            CombatSprite_Release(&self->sprites[i]);
+                            BtlSprite_Release(&self->sprites[i]);
                     }
                 }
                 if (remaining == 0)
@@ -79,7 +79,7 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
             }
             for (s32 i = 0; i < 2; i++) {
                 if (Sprite_HasAnimation(&self->sprites[i].sprite))
-                    CombatSprite_Update(&self->sprites[i]);
+                    BtlSprite_Update(&self->sprites[i]);
             }
             return active;
         }
@@ -89,9 +89,9 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
             s32              y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
             for (s32 i = 0; i < 2; i++) {
                 if (Sprite_HasAnimation(&self->sprites[i].sprite)) {
-                    CombatSprite_SetPosition(&self->sprites[i], x, y);
-                    func_ov003_02082730(&self->sprites[i], 0x384000 + i * 0x1000);
-                    CombatSprite_Render(&self->sprites[i]);
+                    BtlSprite_SetPosition(&self->sprites[i], x, y);
+                    BtlSprite_SetSortKey(&self->sprites[i], 0x384000 + i * 0x1000);
+                    BtlSprite_Render(&self->sprites[i]);
                 }
             }
             return 1;
@@ -100,7 +100,7 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
             self = task->data;
             for (s32 i = 0; i < 2; i++) {
                 if (Sprite_HasAnimation(&self->sprites[i].sprite))
-                    CombatSprite_Release(&self->sprites[i]);
+                    BtlSprite_Release(&self->sprites[i]);
             }
             return 1;
     }

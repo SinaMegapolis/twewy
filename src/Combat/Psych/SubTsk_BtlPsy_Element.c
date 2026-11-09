@@ -99,9 +99,9 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
                 s32 sound = data_ov003_020dc7b8[self->kind].loopSound;
                 if (sound < 0x56C)
                     CombatSe_PlayAtMainX(sound, self->position.x);
-                CombatSprite_Restart(&self->sprite);
+                BtlSprite_Restart(&self->sprite);
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             if (self->firstTick) {
                 self->firstTick = 0;
                 return 1;
@@ -126,10 +126,10 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
             self  = task->data;
             s32 x = CombatStage_ToScreenX(0, self->position.x);
             s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-            CombatSprite_SetPosition(&self->sprite, x, y);
+            BtlSprite_SetPosition(&self->sprite, x, y);
             s32 scale                         = self->scale;
             self->affine.rotation             = 0;
-            self->affine.scaleX               = (self->sprite.flags46 & 1) ? -scale : scale;
+            self->affine.scaleX               = (self->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? -scale : scale;
             self->affine.scaleY               = scale;
             self->affine.unk_0C               = 0;
             self->affine.unk_0E               = 0;
@@ -137,12 +137,12 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
             self->sprite.sprite.unk_0A.unk_00 = 1;
             if (self->remainingTicks > 0 && self->remainingTicks < 36 && self->remainingTicks % 18 > 10)
                 return 1;
-            CombatSprite_RenderWithPalette(&self->sprite, self->opacity >> 12);
+            BtlSprite_RenderTranslucent(&self->sprite, self->opacity >> 12);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             self->effect->unk_0A--;
             return 1;
     }

@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
 #include "SpriteMgr.h"
@@ -20,11 +20,11 @@ typedef struct BtlBadgeExecEffect {
     /* 0x000 */ Ov003TouchActor* actor;
     union {
         struct {
-            /* 0x004 */ CombatSprite mae;    // the charge sprite before the actor
-            /* 0x064 */ CombatSprite ato;    // the charge sprite after the actor
-            /* 0x0C4 */ CombatSprite finish; // the finishing animation
+            /* 0x004 */ BattleSprite mae;    // the charge sprite before the actor
+            /* 0x064 */ BattleSprite ato;    // the charge sprite after the actor
+            /* 0x0C4 */ BattleSprite finish; // the finishing animation
         };
-        /* 0x004 */ CombatSprite sprites[3];
+        /* 0x004 */ BattleSprite sprites[3];
     };
 } BtlBadgeExecEffect;
 
@@ -52,7 +52,7 @@ static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage
 
             MI_CpuSet(self, 0, sizeof(*self));
             self->actor = *(Ov003TouchActor**)args;
-            CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
+            BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
             anim.anim.bits_10_11 = 0;
             anim.anim.unk_1C     = 3;
             anim.anim.animIndex  = 1;
@@ -62,18 +62,18 @@ static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage
             anim.anim.unk_18     = 2;
             anim.anim.unk_26     = 0;
             anim.anim.packIndex  = 1;
-            CombatSprite_Load(&self->mae, &anim);
-            CombatSprite_SetAnim(&self->mae, 0, 0);
-            func_ov003_02082738(&self->mae, 0);
-            func_ov003_02082730(&self->mae, 0x3E7000);
-            CombatSprite_Load(&self->ato, &anim);
-            CombatSprite_SetAnim(&self->ato, 1, 0);
-            func_ov003_02082738(&self->ato, 0);
-            func_ov003_02082730(&self->ato, 0x3E7000);
-            CombatSprite_Load(&self->finish, &anim);
-            CombatSprite_SetAnim(&self->finish, 2, 1);
-            func_ov003_02082738(&self->finish, 0);
-            func_ov003_02082730(&self->finish, 0x3F3000);
+            BtlSprite_Load(&self->mae, &anim);
+            BtlSprite_SetAnim(&self->mae, 0, 0);
+            BtlSprite_SetPriority(&self->mae, 0);
+            BtlSprite_SetSortKey(&self->mae, 0x3E7000);
+            BtlSprite_Load(&self->ato, &anim);
+            BtlSprite_SetAnim(&self->ato, 1, 0);
+            BtlSprite_SetPriority(&self->ato, 0);
+            BtlSprite_SetSortKey(&self->ato, 0x3E7000);
+            BtlSprite_Load(&self->finish, &anim);
+            BtlSprite_SetAnim(&self->finish, 2, 1);
+            BtlSprite_SetPriority(&self->finish, 0);
+            BtlSprite_SetSortKey(&self->finish, 0x3F3000);
             return 1;
         }
         case 1: {
@@ -92,10 +92,10 @@ static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage
             }
             if (self->actor->unk_054 != 0) {
                 self->actor->unk_054 = 0;
-                CombatSprite_Restart(&self->finish);
+                BtlSprite_Restart(&self->finish);
             }
             for (i = 0; i < 3; i++) {
-                CombatSprite_Update(&self->sprites[i]);
+                BtlSprite_Update(&self->sprites[i]);
             }
             return 1;
         }
@@ -115,25 +115,25 @@ static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage
             posX = (s32)(self->actor->x * 0x10) >> 16;
             posY = (s32)(self->actor->y * 0x10) >> 16;
             for (i = 0; i < 3; i++) {
-                CombatSprite_SetPosition(&self->sprites[i], posX, posY);
+                BtlSprite_SetPosition(&self->sprites[i], posX, posY);
             }
             if (func_ov003_020a3edc(self->actor) != 0) {
                 if (self->actor->unk_050 > 0) {
-                    CombatSprite_Render(&self->mae);
+                    BtlSprite_Render(&self->mae);
                 } else if (self->actor->unk_052 > 0) {
-                    CombatSprite_Render(&self->ato);
+                    BtlSprite_Render(&self->ato);
                 }
                 if (SpriteMgr_IsAnimationFinished(&self->finish.sprite) == 0) {
-                    CombatSprite_Render(&self->finish);
+                    BtlSprite_Render(&self->finish);
                 }
             } else {
                 if (self->actor->unk_050 > 0) {
-                    CombatSprite_RenderWithPalette(&self->mae, 8);
+                    BtlSprite_RenderTranslucent(&self->mae, 8);
                 } else if (self->actor->unk_052 > 0) {
-                    CombatSprite_RenderWithPalette(&self->ato, 8);
+                    BtlSprite_RenderTranslucent(&self->ato, 8);
                 }
                 if (SpriteMgr_IsAnimationFinished(&self->finish.sprite) == 0) {
-                    CombatSprite_RenderWithPalette(&self->finish, 8);
+                    BtlSprite_RenderTranslucent(&self->finish, 8);
                 }
             }
             return 1;
@@ -143,7 +143,7 @@ static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage
             s32                 i;
 
             for (i = 0; i < 3; i++) {
-                CombatSprite_Release(&self->sprites[i]);
+                BtlSprite_Release(&self->sprites[i]);
             }
             return 1;
         }

@@ -1,76 +1,58 @@
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSpriteDefault.h"
 #include "Engine/Core/OamMgr.h"
 #include "Engine/Core/System.h"
-#include "Engine/Resources/ResourceMgr.h"
 #include "SpriteMgr.h"
 #include "common_data.h"
 
-static inline PaletteResource* Combat_GetSharedPalette(u32 displayEngine) {
-    return g_CombatGlobal->unk3D348[displayEngine];
-}
-
-static inline UnkSmallInternal* Combat_GetSharedPaletteSource(void) {
-    return (UnkSmallInternal*)Data_GetPackEntryData(g_CombatGlobal->unk3D350, 65);
-}
-
-s32 CombatSprite_SetAnimFromTable(CombatSprite* cSprite, u16 animTableIndex, s32 arg2) {
-    Data*            temp_ip;
-    void*            animData;
-    void*            charSource;
-    SpriteCell*      frameData;
-    SpriteAnimEntry* animEntry;
-
+s32 BtlSprite_SetAnimFromTable(BattleSprite* cSprite, u16 animTableIndex, s32 playOnce) {
     if (animTableIndex == cSprite->animTableIndex) {
         return 1;
     }
     cSprite->animTableIndex = animTableIndex;
-    if (arg2 & 1) {
+    if (playOnce & 1) {
         cSprite->sprite.animationMode = ANIM_MODE_ONCE;
     } else {
         cSprite->sprite.animationMode = ANIM_MODE_LOOPED;
     }
 
-    temp_ip   = cSprite->sprite.resourceData;
-    animEntry = &cSprite->animTable[animTableIndex];
-    animData  = Data_GetPackEntryData(temp_ip, animEntry->paletteDataIndex);
-    frameData = Data_GetPackEntryData(temp_ip, animEntry->frameDataIndex);
+    Data*            data      = cSprite->sprite.resourceData;
+    SpriteAnimEntry* animEntry = &cSprite->animTable[animTableIndex];
+    void*            animData  = Data_GetPackEntryData(data, animEntry->animDataIndex);
+    SpriteCell*      cellTable = Data_GetPackEntryData(data, animEntry->cellDataIndex);
 
-    Sprite_ChangeAnimation(&cSprite->sprite, animData, (s16)(animEntry->animDataIndex + 1), frameData);
+    Sprite_ChangeAnimation(&cSprite->sprite, animData, (s16)(animEntry->animIndex + 1), cellTable);
 
     switch (cSprite->sprite.bits_3_4) {
         case 0:
         case 2:
         case 3:
-            break;
         default:
             break;
         case 1:
-            charSource            = Data_GetPackEntryData(cSprite->sprite.resourceData, animEntry->charDataIndex);
-            cSprite->sprite.unk34 = charSource;
+            cSprite->sprite.unk34 = Data_GetPackEntryData(cSprite->sprite.resourceData, animEntry->charDataIndex);
             break;
     }
     return 0;
 }
 
-s32 CombatSprite_SetAnim(CombatSprite* cSprite, u16 animTableIndex, s32 arg2) {
-    if (animTableIndex == cSprite->animTableIndex) {
+s32 BtlSprite_SetAnim(BattleSprite* cSprite, u16 animIndex, s32 playOnce) {
+    if (animIndex == cSprite->animTableIndex) {
         return 1;
     }
-    cSprite->animTableIndex = animTableIndex;
-    if (arg2 & 1) {
+    cSprite->animTableIndex = animIndex;
+    if (playOnce & 1) {
         cSprite->sprite.animationMode = ANIM_MODE_ONCE;
     } else {
         cSprite->sprite.animationMode = ANIM_MODE_LOOPED;
     }
-    Sprite_ChangeAnimation(&cSprite->sprite, cSprite->sprite.animData, animTableIndex + 1, cSprite->sprite.cellTable);
+    Sprite_ChangeAnimation(&cSprite->sprite, cSprite->sprite.animData, animIndex + 1, cSprite->sprite.cellTable);
     return 0;
 }
 
-void CombatSprite_SetAffineTransform(CombatSprite* cSprite, u32 rotation, s32 scaleX, s32 scaleY, s32 arg4) {
-    if (cSprite->flags46 & 1) {
+void BtlSprite_SetAffineTransform(BattleSprite* cSprite, u32 rotation, s32 scaleX, s32 scaleY, s32 doubleSize) {
+    if (cSprite->flags & BTL_SPRITE_FLAG_FLIPPED) {
         scaleX = -scaleX;
     }
 
@@ -95,7 +77,7 @@ void CombatSprite_SetAffineTransform(CombatSprite* cSprite, u32 rotation, s32 sc
 
     cSprite->sprite.unk_0A.raw = (u16)((cSprite->sprite.unk_0A.raw & (~1)) | 1);
 
-    if (arg4 != 0) {
+    if (doubleSize != 0) {
         temp_r0 = 1;
     } else {
         temp_r0 = 0;
@@ -103,58 +85,58 @@ void CombatSprite_SetAffineTransform(CombatSprite* cSprite, u32 rotation, s32 sc
     cSprite->sprite.unk_0A.raw = (cSprite->sprite.unk_0A.raw & (~2)) | (((u32)(((u16)temp_r0) << 0x1F)) >> 0x1E);
 }
 
-void CombatSprite_SetPaletteSource(CombatSprite* cSprite, s32 arg1) {
-    cSprite->sprite.unk3C = Data_GetPackEntryData(cSprite->sprite.resourceData, arg1);
+void BtlSprite_SetPaletteSource(BattleSprite* cSprite, s32 paletteEntry) {
+    cSprite->sprite.unk3C = Data_GetPackEntryData(cSprite->sprite.resourceData, paletteEntry);
     PaletteMgr_SetSource(g_PaletteManagers[cSprite->sprite.bits_0_1], cSprite->sprite.paletteData, cSprite->sprite.unk3C);
 }
 
-void CombatSprite_SetPosition(CombatSprite* cSprite, s32 posX, s32 posY) {
+void BtlSprite_SetPosition(BattleSprite* cSprite, s32 posX, s32 posY) {
     cSprite->sprite.posX = posX;
     cSprite->sprite.posY = posY;
 }
 
-void func_ov003_02082730(CombatSprite* cSprite, s32 arg1) {
-    cSprite->sortKey = arg1;
+void BtlSprite_SetSortKey(BattleSprite* cSprite, s32 sortKey) {
+    cSprite->sortKey = sortKey;
 }
 
-void func_ov003_02082738(CombatSprite* cSprite, s32 arg1) {
-    cSprite->sprite.unk_0A.raw = (u16)((cSprite->sprite.unk_0A.raw & ~0xC00) | ((u32)(arg1 << 0x1E) >> 0x14));
+void BtlSprite_SetPriority(BattleSprite* cSprite, s32 priority) {
+    cSprite->sprite.unk_0A.raw = (u16)((cSprite->sprite.unk_0A.raw & ~0xC00) | ((u32)(priority << 0x1E) >> 0x14));
 }
 
-void CombatSprite_SetFlip(CombatSprite* cSprite, s32 arg1) {
-    if (arg1 != 0) {
+void BtlSprite_SetFlip(BattleSprite* cSprite, s32 flipped) {
+    if (flipped != 0) {
         cSprite->sprite.unk_0A.unk_05 |= 8;
-        cSprite->flags46 |= 1;
+        cSprite->flags |= BTL_SPRITE_FLAG_FLIPPED;
     } else {
         cSprite->sprite.unk_0A.unk_05 &= ~8;
-        cSprite->flags46 &= ~1;
+        cSprite->flags &= ~BTL_SPRITE_FLAG_FLIPPED;
     }
 }
 
-void CombatSprite_SetPaletteMode(CombatSprite* cSprite, s32 arg1) {
-    cSprite->paletteMode = arg1;
+void BtlSprite_SetPaletteMode(BattleSprite* cSprite, BattleSpritePaletteMode mode) {
+    cSprite->paletteMode = mode;
 
     switch (cSprite->paletteMode) {
-        case 1: {
-            cSprite->sprite.paletteData = Combat_GetSharedPalette(cSprite->sprite.bits_0_1);
-            cSprite->sprite.unk3C       = Combat_GetSharedPaletteSource();
+        case BTL_SPRITE_PALETTE_FLASH: {
+            cSprite->sprite.paletteData = g_CombatGlobal->unk3D348[cSprite->sprite.bits_0_1];
+            cSprite->sprite.unk3C       = (UnkSmallInternal*)Data_GetPackEntryData(g_CombatGlobal->unk3D350, 65);
         } break;
 
-        case 0: {
+        case BTL_SPRITE_PALETTE_OWN: {
             cSprite->sprite.paletteData = cSprite->basePalette;
             cSprite->sprite.unk3C       = cSprite->basePaletteSource;
         } break;
 
-        case 2:
+        case BTL_SPRITE_PALETTE_FLICKER:
             break;
     }
 }
 
-void CombatSprite_RenderWithPalette(CombatSprite* cSprite, s32 arg1) {
+void BtlSprite_RenderTranslucent(BattleSprite* cSprite, s32 alpha) {
     cSprite->sprite.unk_0A.unk_02 = 1;
 
     s32 prev             = data_0206a890.unk_0C;
-    data_0206a890.unk_0C = (arg1 & 0x1F);
+    data_0206a890.unk_0C = (alpha & 0x1F);
 
     Sprite_RenderFrame(&cSprite->sprite);
     cSprite->sprite.unk_0A.unk_02 = 0;
@@ -162,7 +144,7 @@ void CombatSprite_RenderWithPalette(CombatSprite* cSprite, s32 arg1) {
     data_0206a890.unk_0C = (prev & 0x1F);
 }
 
-SpriteFrameInfo* CombatSprite_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
+SpriteFrameInfo* BtlSprite_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     SpriteFrameInfo* info = &g_SpriteFrameInfo;
 
     switch (mode) {
@@ -176,8 +158,8 @@ SpriteFrameInfo* CombatSprite_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
 
             temp->pieceCount = 0;
             temp->cellPieces = NULL;
-            temp->affine     = ((CombatSprite*)sprite->owner)->affine;
-            temp->sortKey    = ((CombatSprite*)sprite->owner)->sortKey;
+            temp->affine     = ((BattleSprite*)sprite->owner)->affine;
+            temp->sortKey    = ((BattleSprite*)sprite->owner)->sortKey;
 
             if ((sprite->animData != NULL) && (sprite->cellTable != NULL && sprite->cellIndex >= 0)) {
                 u16* temp_r3 = (u16*)sprite->cellTable;
@@ -195,23 +177,23 @@ SpriteFrameInfo* CombatSprite_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     return NULL;
 }
 
-void CombatSprite_InitAnim(SpriteAnimation* anim, s32 arg1, const BinIdentifier* iden) {
+void BtlSprite_InitAnim(SpriteAnimation* anim, s32 engine, const BinIdentifier* iden) {
     *anim          = CombatSprite_DefaultAnim;
-    anim->bits_0_1 = arg1;
+    anim->bits_0_1 = engine;
     anim->binIden  = iden;
 }
 
-s32 CombatSprite_Load(CombatSprite* cSprite, SpriteAnimationEx* anim) {
+s32 BtlSprite_Load(BattleSprite* cSprite, SpriteAnimationEx* anim) {
     anim->anim.owner        = cSprite;
     cSprite->animTable      = (SpriteAnimEntry*)anim->animTable;
     cSprite->animTableIndex = -1;
     cSprite->sortKey        = -1;
-    cSprite->flags46        = 0;
+    cSprite->flags          = 0;
     cSprite->affine         = NULL;
-    cSprite->paletteMode    = 0;
+    cSprite->paletteMode    = BTL_SPRITE_PALETTE_OWN;
     cSprite->paletteTimer   = 0;
     if (Sprite_Load(&cSprite->sprite, &anim->anim) == 0) {
-        cSprite->flags46 |= 0x8000;
+        cSprite->flags |= BTL_SPRITE_FLAG_LOAD_FAILED;
         return 0;
     }
     cSprite->basePaletteSource = cSprite->sprite.unk3C;
@@ -219,70 +201,70 @@ s32 CombatSprite_Load(CombatSprite* cSprite, SpriteAnimationEx* anim) {
     return 1;
 }
 
-s32 CombatSprite_LoadFromTable(s32 arg0, CombatSprite* arg1, const BinIdentifier* arg2, const SpriteAnimEntry* arg3, u16 arg4,
-                               u16 arg5, u16 arg6) {
+s32 BtlSprite_LoadFromTable(s32 engine, BattleSprite* cSprite, const BinIdentifier* iden, const SpriteAnimEntry* table,
+                            u16 entry, u16 paletteEntry, u16 charTiles) {
     SpriteAnimationEx      anim;
-    const SpriteAnimEntry* entry;
+    const SpriteAnimEntry* animEntry;
 
-    CombatSprite_InitAnim(&anim.anim, arg0, arg2);
+    BtlSprite_InitAnim(&anim.anim, engine, iden);
     anim.anim.bits_10_11 = 1;
-    entry                = &arg3[arg4];
-    anim.anim.unk_1C     = entry->charDataIndex;
-    anim.anim.unk_1E     = (arg6 << 5);
-    anim.anim.unk_26     = entry->frameDataIndex;
-    anim.anim.unk_28     = entry->paletteDataIndex;
-    anim.anim.unk_20     = arg5;
-    anim.anim.animIndex  = entry->animDataIndex + 1;
-    anim.animTable       = arg3;
-    return CombatSprite_Load(arg1, &anim);
+    animEntry            = &table[entry];
+    anim.anim.unk_1C     = animEntry->charDataIndex;
+    anim.anim.unk_1E     = (charTiles << 5);
+    anim.anim.unk_26     = animEntry->cellDataIndex;
+    anim.anim.unk_28     = animEntry->animDataIndex;
+    anim.anim.unk_20     = paletteEntry;
+    anim.anim.animIndex  = animEntry->animIndex + 1;
+    anim.animTable       = table;
+    return BtlSprite_Load(cSprite, &anim);
 }
 
-void CombatSprite_LoadDirect(s32 arg0, CombatSprite* cSprite, const BinIdentifier* iden, s32 arg3, u16 arg4, u16 arg5,
-                             u16 arg6, u16 arg7) {
+void BtlSprite_LoadDirect(s32 engine, BattleSprite* cSprite, const BinIdentifier* iden, s32 charEntry, u16 animEntry,
+                          u16 cellEntry, u16 paletteEntry, u16 animIndex) {
     SpriteAnimationEx anim;
 
-    CombatSprite_InitAnim(&anim.anim, arg0, iden);
+    BtlSprite_InitAnim(&anim.anim, engine, iden);
     anim.anim.bits_10_11 = 0;
-    anim.anim.unk_1C     = arg3;
-    anim.anim.unk_26     = arg5;
-    anim.anim.unk_28     = arg4;
-    anim.anim.unk_20     = arg6;
-    anim.anim.animIndex  = arg7 + 1;
+    anim.anim.unk_1C     = charEntry;
+    anim.anim.unk_26     = cellEntry;
+    anim.anim.unk_28     = animEntry;
+    anim.anim.unk_20     = paletteEntry;
+    anim.anim.animIndex  = animIndex + 1;
     anim.animTable       = NULL;
-    CombatSprite_Load(cSprite, &anim);
+    BtlSprite_Load(cSprite, &anim);
 }
 
-void CombatSprite_Init(CombatSprite* cSprite) {
+void BtlSprite_Init(BattleSprite* cSprite) {
     Sprite_Init(&cSprite->sprite);
 }
 
-void CombatSprite_Update(CombatSprite* cSprite) {
-    if (cSprite->flags46 & 0x1000) {
+void BtlSprite_Update(BattleSprite* cSprite) {
+    if (cSprite->flags & BTL_SPRITE_FLAG_PALETTE_FLASH) {
         cSprite->paletteTimer--;
         if (cSprite->paletteTimer <= 0) {
             cSprite->sprite.unk3C       = cSprite->basePaletteSource;
             cSprite->sprite.paletteData = cSprite->basePalette;
-            cSprite->paletteMode        = 0;
+            cSprite->paletteMode        = BTL_SPRITE_PALETTE_OWN;
             cSprite->paletteTimer       = 0;
-            cSprite->flags46 &= ~0x1000;
+            cSprite->flags &= ~BTL_SPRITE_FLAG_PALETTE_FLASH;
         }
     }
     Sprite_Update(&cSprite->sprite);
 }
 
-void CombatSprite_Render(CombatSprite* cSprite) {
-    if (cSprite->flags46 & 4) {
+void BtlSprite_Render(BattleSprite* cSprite) {
+    if (cSprite->flags & BTL_SPRITE_FLAG_TRANSLUCENT) {
         cSprite->sprite.unk_0A.unk_02 = 1;
-    } else if (cSprite->flags46 & 2) {
+    } else if (cSprite->flags & BTL_SPRITE_FLAG_OBJ_WINDOW) {
         cSprite->sprite.unk_0A.unk_02 = 2;
     } else {
         cSprite->sprite.unk_0A.unk_02 = 0;
     }
 
-    if (cSprite->paletteMode == 2) {
+    if (cSprite->paletteMode == BTL_SPRITE_PALETTE_FLICKER) {
         if (SysControl.frameCount & 1) {
-            cSprite->sprite.paletteData = Combat_GetSharedPalette(cSprite->sprite.bits_0_1);
-            cSprite->sprite.unk3C       = Combat_GetSharedPaletteSource();
+            cSprite->sprite.paletteData = g_CombatGlobal->unk3D348[cSprite->sprite.bits_0_1];
+            cSprite->sprite.unk3C       = (UnkSmallInternal*)Data_GetPackEntryData(g_CombatGlobal->unk3D350, 65);
         } else {
             cSprite->sprite.paletteData = cSprite->basePalette;
             cSprite->sprite.unk3C       = cSprite->basePaletteSource;
@@ -290,13 +272,13 @@ void CombatSprite_Render(CombatSprite* cSprite) {
     }
 
     if (cSprite->sprite.unk_0A.unk_00 == 1) {
-        if (cSprite->flags46 & 1) {
+        if (cSprite->flags & BTL_SPRITE_FLAG_FLIPPED) {
             cSprite->sprite.unk_0A.raw =
                 (cSprite->sprite.unk_0A.raw & ~0x3E0) |
                 ((u32)((u16)(((u32)(cSprite->sprite.unk_0A.raw << 0x16) >> 0x1B) & ~8) << 0x1B) >> 0x16);
         }
         Sprite_RenderFrame(&cSprite->sprite);
-        if (cSprite->flags46 & 1) {
+        if (cSprite->flags & BTL_SPRITE_FLAG_FLIPPED) {
             cSprite->sprite.unk_0A.raw =
                 (cSprite->sprite.unk_0A.raw & ~0x3E0) |
                 ((u32)((u16)(((u32)(cSprite->sprite.unk_0A.raw << 0x16) >> 0x1B) | 8) << 0x1B) >> 0x16);
@@ -306,17 +288,17 @@ void CombatSprite_Render(CombatSprite* cSprite) {
     }
 }
 
-void CombatSprite_Release(CombatSprite* cSprite) {
-    if (cSprite->paletteMode != 0) {
+void BtlSprite_Release(BattleSprite* cSprite) {
+    if (cSprite->paletteMode != BTL_SPRITE_PALETTE_OWN) {
         cSprite->sprite.unk3C       = cSprite->basePaletteSource;
         cSprite->sprite.paletteData = cSprite->basePalette;
-        cSprite->paletteMode        = 0;
+        cSprite->paletteMode        = BTL_SPRITE_PALETTE_OWN;
         cSprite->paletteTimer       = 0;
-        cSprite->flags46 &= ~0x1000;
+        cSprite->flags &= ~BTL_SPRITE_FLAG_PALETTE_FLASH;
     }
     Sprite_Release(&cSprite->sprite);
 }
 
-void CombatSprite_Restart(CombatSprite* cSprite) {
+void BtlSprite_Restart(BattleSprite* cSprite) {
     Sprite_Restart(&cSprite->sprite);
 }

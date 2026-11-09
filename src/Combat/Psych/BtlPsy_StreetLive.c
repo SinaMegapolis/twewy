@@ -99,18 +99,18 @@ static s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
                 CombatPsyAnim_SetAnim(&self->sprite, 0xE4, 0);
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         case 2:
             self = task->data;
-            CombatSprite_SetPosition(&self->sprite, 128, 96);
-            func_ov003_02082730(&self->sprite, 0x385000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, 128, 96);
+            BtlSprite_SetSortKey(&self->sprite, 0x385000);
+            BtlSprite_Render(&self->sprite);
             return 1;
         case 3:
             self = task->data;
             CombatCameraShake_Reset(&self->camera);
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             func_ov003_020a6464(0);
             self->effect->unk_0A--;
             return 1;

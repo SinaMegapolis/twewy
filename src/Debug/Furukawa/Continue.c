@@ -138,8 +138,8 @@ static void func_ov025_020e785c(ContinueUnkStruct* arg0, s16 arg1, s32 arg2, s16
     arg0->unk_60 = arg1;
     arg0->unk_62 = posX;
     arg0->unk_64 = posY;
-    CombatSprite_LoadDirect(0, &arg0->sprite, &data_ov025_020e8308, 7, 9, 8, 10, arg2);
-    CombatSprite_SetPosition(&arg0->sprite, posX, posY);
+    BtlSprite_LoadDirect(0, &arg0->sprite, &data_ov025_020e8308, 7, 9, 8, 10, arg2);
+    BtlSprite_SetPosition(&arg0->sprite, posX, posY);
 }
 
 // Nonmatching: Unreachable branch?
@@ -153,19 +153,19 @@ static void func_ov025_020e78c8(ContinueObject* contObj, u32 arg1) {
         }
         switch (contObj->unk_120D0) {
             case 0:
-                CombatSprite_SetPosition(&contObj->unk_11FB0, 0x80, 0x56);
+                BtlSprite_SetPosition(&contObj->unk_11FB0, 0x80, 0x56);
                 break;
             case 1:
-                CombatSprite_SetPosition(&contObj->unk_11FB0, 0x80, 0x6B);
+                BtlSprite_SetPosition(&contObj->unk_11FB0, 0x80, 0x6B);
                 break;
             case 2:
-                CombatSprite_SetPosition(&contObj->unk_11FB0, 0x80, 0x80);
+                BtlSprite_SetPosition(&contObj->unk_11FB0, 0x80, 0x80);
                 break;
             case 3:
-                CombatSprite_SetPosition(&contObj->unk_11FB0, 0x80, 0x95);
+                BtlSprite_SetPosition(&contObj->unk_11FB0, 0x80, 0x95);
                 break;
         }
-        CombatSprite_Restart(&contObj->unk_11FB0);
+        BtlSprite_Restart(&contObj->unk_11FB0);
     }
 }
 
@@ -223,49 +223,49 @@ static void func_ov025_020e7aac(ContinueObject* contObj) {
     } else {
         func_ov025_020e785c(&contObj->unk_11E10[2], 2, 4, 0x80, 0x80);
     }
-    CombatSprite_LoadDirect(0, &contObj->unk_11FB0, &data_ov025_020e8308, 7, 9, 8, 10, 0);
-    CombatSprite_SetAnim(&contObj->unk_11FB0, 0, 1);
+    BtlSprite_LoadDirect(0, &contObj->unk_11FB0, &data_ov025_020e8308, 7, 9, 8, 10, 0);
+    BtlSprite_SetAnim(&contObj->unk_11FB0, 0, 1);
     func_ov025_020e78c8(contObj, 0xFFFF);
-    CombatSprite_LoadDirect(0, &contObj->unk_12010, &data_ov025_020e8308, 7, 9, 8, 10, 6);
-    CombatSprite_LoadDirect(0, &contObj->unk_12070, &data_ov025_020e8308, 7, 9, 8, 10, 7);
+    BtlSprite_LoadDirect(0, &contObj->unk_12010, &data_ov025_020e8308, 7, 9, 8, 10, 6);
+    BtlSprite_LoadDirect(0, &contObj->unk_12070, &data_ov025_020e8308, 7, 9, 8, 10, 7);
     contObj->unk_120D4 = 0x148000;
     contObj->unk_120D8 = -0x48000;
 }
 
 static void func_ov025_020e7c40(ContinueObject* contObj) {
     if (contObj->unk_120D0 != 0xFFFF) {
-        CombatSprite_Update(&contObj->unk_11FB0);
+        BtlSprite_Update(&contObj->unk_11FB0);
     }
-    CombatSprite_Update(&contObj->unk_11E10[0].sprite);
-    CombatSprite_Update(&contObj->unk_11E10[1].sprite);
-    CombatSprite_Update(&contObj->unk_11E10[2].sprite);
-    CombatSprite_Update(&contObj->unk_11E10[3].sprite);
-    CombatSprite_Update(&contObj->unk_12010);
-    CombatSprite_Update(&contObj->unk_12070);
+    BtlSprite_Update(&contObj->unk_11E10[0].sprite);
+    BtlSprite_Update(&contObj->unk_11E10[1].sprite);
+    BtlSprite_Update(&contObj->unk_11E10[2].sprite);
+    BtlSprite_Update(&contObj->unk_11E10[3].sprite);
+    BtlSprite_Update(&contObj->unk_12010);
+    BtlSprite_Update(&contObj->unk_12070);
 }
 
 static void func_ov025_020e7cb8(ContinueObject* contObj) {
     if (contObj->unk_120D0 != 0xFFFF) {
-        CombatSprite_Render(&contObj->unk_11FB0);
+        BtlSprite_Render(&contObj->unk_11FB0);
     }
-    CombatSprite_Render(&contObj->unk_11E10[0].sprite);
-    CombatSprite_Render(&contObj->unk_11E10[1].sprite);
-    CombatSprite_Render(&contObj->unk_11E10[2].sprite);
-    CombatSprite_Render(&contObj->unk_11E10[3].sprite);
-    CombatSprite_SetPosition(&contObj->unk_12010, contObj->unk_120D4, 0x60);
-    CombatSprite_SetPosition(&contObj->unk_12070, contObj->unk_120D8, 0x60);
-    CombatSprite_Render(&contObj->unk_12010);
-    CombatSprite_Render(&contObj->unk_12070);
+    BtlSprite_Render(&contObj->unk_11E10[0].sprite);
+    BtlSprite_Render(&contObj->unk_11E10[1].sprite);
+    BtlSprite_Render(&contObj->unk_11E10[2].sprite);
+    BtlSprite_Render(&contObj->unk_11E10[3].sprite);
+    BtlSprite_SetPosition(&contObj->unk_12010, contObj->unk_120D4, 0x60);
+    BtlSprite_SetPosition(&contObj->unk_12070, contObj->unk_120D8, 0x60);
+    BtlSprite_Render(&contObj->unk_12010);
+    BtlSprite_Render(&contObj->unk_12070);
 }
 
 static void func_ov025_020e7d70(ContinueObject* contObj) {
-    CombatSprite_Release(&contObj->unk_11FB0);
-    CombatSprite_Release(&contObj->unk_11E10[0].sprite);
-    CombatSprite_Release(&contObj->unk_11E10[1].sprite);
-    CombatSprite_Release(&contObj->unk_11E10[2].sprite);
-    CombatSprite_Release(&contObj->unk_11E10[3].sprite);
-    CombatSprite_Release(&contObj->unk_12010);
-    CombatSprite_Release(&contObj->unk_12070);
+    BtlSprite_Release(&contObj->unk_11FB0);
+    BtlSprite_Release(&contObj->unk_11E10[0].sprite);
+    BtlSprite_Release(&contObj->unk_11E10[1].sprite);
+    BtlSprite_Release(&contObj->unk_11E10[2].sprite);
+    BtlSprite_Release(&contObj->unk_11E10[3].sprite);
+    BtlSprite_Release(&contObj->unk_12010);
+    BtlSprite_Release(&contObj->unk_12070);
 }
 
 static void func_ov025_020e7dd0(ContinueObject* contObj) {

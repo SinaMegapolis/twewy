@@ -33,16 +33,16 @@ static s32 func_ov003_020a8ec4(TaskPool* pool, Task* task, void* args, s32 stage
             effect->fixedRadius = arg->fixedRadius;
             effect->lifetime    = arg->lifetime;
             CombatPsyAnim_Load(&effect->sprite, arg->engine, 1, arg->kind, 1);
-            func_ov003_02082730(&effect->sprite, arg->sortKey);
+            BtlSprite_SetSortKey(&effect->sprite, arg->sortKey);
             effect->offset = func_ov003_020a904c(effect->radius, effect->fixedRadius);
             return 1;
         }
         case 1:
             effect = task->data;
-            CombatSprite_Update(&effect->sprite);
+            BtlSprite_Update(&effect->sprite);
             if (SpriteMgr_IsAnimationFinished(&effect->sprite.sprite)) {
                 effect->offset = func_ov003_020a904c(effect->radius, effect->fixedRadius);
-                CombatSprite_Restart(&effect->sprite);
+                BtlSprite_Restart(&effect->sprite);
             }
             if (effect->lifetime > 0) {
                 if (--effect->lifetime == 0)
@@ -51,13 +51,13 @@ static s32 func_ov003_020a8ec4(TaskPool* pool, Task* task, void* args, s32 stage
             return 1;
         case 2:
             effect = task->data;
-            CombatSprite_SetPosition(&effect->sprite, (s16)(effect->position.x + effect->offset.x),
-                                     (s16)(effect->position.y + effect->offset.y));
-            CombatSprite_Render(&effect->sprite);
+            BtlSprite_SetPosition(&effect->sprite, (s16)(effect->position.x + effect->offset.x),
+                                  (s16)(effect->position.y + effect->offset.y));
+            BtlSprite_Render(&effect->sprite);
             return 1;
         case 3:
             effect = task->data;
-            CombatSprite_Release(&effect->sprite);
+            BtlSprite_Release(&effect->sprite);
             return 1;
     }
 }

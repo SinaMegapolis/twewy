@@ -32,13 +32,13 @@ const SpriteAnimEntry data_ov013_021274dc[2] = {
     {0x13, 0x15, 0x14, 0},
 };
 
-static const BtlSpriteDesc data_ov013_02127444 = {&data_ov013_02127484, data_ov013_0212749c, 0, 0x19, 0x2BC};
+static const BattleSpriteDesc data_ov013_02127444 = {&data_ov013_02127484, data_ov013_0212749c, 0, 0x19, 0x2BC};
 
-static const BtlSpriteDesc data_ov013_02127474 = {&data_ov013_0212748c, data_ov013_0212749c, 0, 0x19, 0x2BC};
+static const BattleSpriteDesc data_ov013_02127474 = {&data_ov013_0212748c, data_ov013_0212749c, 0, 0x19, 0x2BC};
 
-static const BtlSpriteDesc data_ov013_02127464 = {&data_ov013_02127494, data_ov013_0212749c, 0, 0x19, 0x2C8};
+static const BattleSpriteDesc data_ov013_02127464 = {&data_ov013_02127494, data_ov013_0212749c, 0, 0x19, 0x2C8};
 
-const BtlSpriteDesc* data_ov013_02127540[3] = {
+const BattleSpriteDesc* data_ov013_02127540[3] = {
     &data_ov013_02127444,
     &data_ov013_02127474,
     &data_ov013_02127464,
@@ -53,7 +53,7 @@ BinIdentifier* func_ov013_021256c0(s32 index) {
 }
 
 u16 func_ov013_021256d0(s32 index) {
-    return data_ov013_02127540[index]->palette;
+    return data_ov013_02127540[index]->paletteEntry;
 }
 
 SpriteAnimEntry* func_ov013_021256e4(void) {
@@ -201,24 +201,24 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
     func_ov003_020c3efc(&data->base, (void*)arg2);
     data->base.actor.flags |= ACTOR_FLAG_UNCLAMPED_X;
 
-    BtlSpriteDesc*    variant = data_ov013_02127540[data->base.spriteIndex];
+    BattleSpriteDesc* variant = data_ov013_02127540[data->base.spriteIndex];
     Ov003ActorParams* r4      = func_ov003_020c3c88(&data->base);
 
     SpriteAnimationEx anim;
-    CombatSprite_InitAnim(&anim.anim, arg0, variant->iden);
+    BtlSprite_InitAnim(&anim.anim, arg0, variant->iden);
     SpriteAnimEntry* animTable = variant->table;
     SpriteAnimEntry* entry     = &animTable[variant->entry];
-    anim.anim.unk_1E           = (s16)(variant->paletteCount << 5);
+    anim.anim.unk_1E           = (s16)(variant->charTiles << 5);
     anim.anim.bits_10_11       = 1;
-    anim.anim.unk_20           = variant->palette;
+    anim.anim.unk_20           = variant->paletteEntry;
     anim.anim.unk_1C           = entry->charDataIndex;
-    anim.anim.unk_26           = entry->frameDataIndex;
-    anim.anim.unk_28           = entry->paletteDataIndex;
+    anim.anim.unk_26           = entry->cellDataIndex;
+    anim.anim.unk_28           = entry->animDataIndex;
     anim.anim.unk_22           = 2;
-    anim.anim.animIndex        = entry->animDataIndex + 1;
+    anim.anim.animIndex        = entry->animIndex + 1;
     anim.animTable             = animTable;
-    CombatSprite_Load(&data->base.sprite, &anim);
-    CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
+    BtlSprite_Load(&data->base.sprite, &anim);
+    BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
 
     CombatHit_LoadSparkForUnit(arg0, &data->base.subSprite, &data->base.actor);
     func_ov003_020c495c(&data->base);
@@ -326,10 +326,10 @@ void func_ov013_02125efc(BtlEnm015* arg0) {
         arg0->base.actor.flags &= ~ACTOR_FLAG_TOUCHED;
     }
 
-    if (g_CombatGlobal->unk3D87C != 0 && arg0->base.sprite.paletteMode == 1) {
-        CombatSprite_SetPaletteMode(&arg0->base.sprite, 0);
+    if (g_CombatGlobal->unk3D87C != 0 && arg0->base.sprite.paletteMode == BTL_SPRITE_PALETTE_FLASH) {
+        BtlSprite_SetPaletteMode(&arg0->base.sprite, BTL_SPRITE_PALETTE_OWN);
         BtlActor_Render(&arg0->base.actor, &arg0->base.sprite);
-        CombatSprite_SetPaletteMode(&arg0->base.sprite, 1);
+        BtlSprite_SetPaletteMode(&arg0->base.sprite, BTL_SPRITE_PALETTE_FLASH);
     } else {
         BtlActor_Render(&arg0->base.actor, &arg0->base.sprite);
     }

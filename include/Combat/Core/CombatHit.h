@@ -2,15 +2,15 @@
 #define TWEWY_COMBAT_CORE_COMBATHIT_H
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnemyActor.h"
-#include "Combat/Core/CombatSprite.h"
 
-void                   CombatHit_LoadSpark(s32, CombatSprite*, s32);
-void                   CombatHit_DrawSpark(CombatSprite*, s32, s32);
-void                   CombatHit_LoadSparkForUnit(s32, CombatSprite*, BattleActor*);
-void                   CombatHit_DrawSparkOnActor(CombatSprite*, BattleActor*);
+void                   CombatHit_LoadSpark(s32, BattleSprite*, s32);
+void                   CombatHit_DrawSpark(BattleSprite*, s32, s32);
+void                   CombatHit_LoadSparkForUnit(s32, BattleSprite*, BattleActor*);
+void                   CombatHit_DrawSparkOnActor(BattleSprite*, BattleActor*);
 s32                    CombatHit_CanDrawSpark(void);
 s32                    CombatHit_ApplyAttack(s32 mode, BattleActor* unit, u16 attackId);
 s32                    CombatHit_Stagger(s32, BattleActor*, s32);

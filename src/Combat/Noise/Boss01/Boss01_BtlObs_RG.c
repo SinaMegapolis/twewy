@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/BtlEnm.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include "Engine/Math/Random.h"
@@ -70,7 +70,7 @@ static void BtlObs_RG_StateFall(BtlObs_RG* obs) {
 
     if (obs->unk_292 == 0) {
         if (obs->unk_1C2 == 0) {
-            CombatSprite_SetAnimFromTable(&obs->base.sprite, 1, 0);
+            BtlSprite_SetAnimFromTable(&obs->base.sprite, 1, 0);
         }
 
         obs->base.actor.xVelocity = (obs->base.actor.position.x >= temp_r5->position.x) ? 0x5000 : -0x5000;
@@ -97,7 +97,7 @@ static s32 BtlObs_RG_Init(TaskPool* pool, Task* task, void* args) {
     obs->unk_1C2 = spawnArgs->unk_2;
 
     if (RNG_Next(2) != 0) {
-        CombatSprite_SetFlip(&obs->base.sprite, 1);
+        BtlSprite_SetFlip(&obs->base.sprite, 1);
     }
 
     func_ov003_020c4988(&obs->base);
@@ -123,7 +123,7 @@ static s32 BtlObs_RG_Update(TaskPool* pool, Task* task, void* args) {
     }
 
     BtlActor_UpdatePhysics(&obs->base.actor);
-    CombatSprite_Update(&obs->base.sprite);
+    BtlSprite_Update(&obs->base.sprite);
     return obs->unk_294;
 }
 
@@ -140,7 +140,7 @@ static s32 BtlObs_RG_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_RG_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlObs_RG* obs = task->data;
 
-    CombatSprite_Release(&obs->base.sprite);
+    BtlSprite_Release(&obs->base.sprite);
     func_ov003_020c4a34(&obs->base);
     if (g_CombatGlobal->unk3D8A0 == obs) {
         g_CombatGlobal->unk3D8A0 = NULL;

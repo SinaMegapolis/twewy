@@ -78,17 +78,17 @@ static s32 func_ov003_020b3134(TaskPool* pool, Task* task, void* args, s32 stage
                     func_ov003_020b362c(self);
                     break;
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         case 2:
             self = task->data;
-            CombatSprite_SetPosition(&self->sprite, (s16)(self->position.x >> 12), (s16)(self->position.y >> 12));
-            CombatSprite_SetAffineTransform(&self->sprite, (u16)(self->angle - 0x4000), 0x1000, 0x1000, 0);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, (s16)(self->position.x >> 12), (s16)(self->position.y >> 12));
+            BtlSprite_SetAffineTransform(&self->sprite, (u16)(self->angle - 0x4000), 0x1000, 0x1000, 0);
+            BtlSprite_Render(&self->sprite);
             return 1;
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             *self->args.finished = 1;
             return 1;
     }

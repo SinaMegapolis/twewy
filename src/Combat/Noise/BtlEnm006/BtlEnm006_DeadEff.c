@@ -1,12 +1,12 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/BtlEnm006.h"
 
 #include "Combat/Core/CombatApi.h"
 #include <nitro/mi/cpumem.h>
 
 typedef struct Enm006DeadEff {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ Vec          position;
 } Enm006DeadEff; // Size: 0x6C (from the Tsk_BtlEnm006_DeadEff TaskHandle)
 
@@ -81,10 +81,9 @@ static s32 func_ov010_02125780(Enm006DeadEff* data, Enm006Spawn* args) {
     MI_CpuSet(data, 0, 0x6C);
     v = args->unk_00->base.spriteIndex;
     m = args->unk_00->base.sprite.sprite.bits_0_1;
-    CombatSprite_LoadFromTable(m, &data->sprite, func_ov010_021256c0(v), data_ov010_02129380[v], 0, data_ov010_02129200[v],
-                               0x30);
-    CombatSprite_SetAnimFromTable(&data->sprite, 0, 1);
-    CombatSprite_SetFlip(&data->sprite, args->unk_00->base.actor.isFlipped == 1);
+    BtlSprite_LoadFromTable(m, &data->sprite, func_ov010_021256c0(v), data_ov010_02129380[v], 0, data_ov010_02129200[v], 0x30);
+    BtlSprite_SetAnimFromTable(&data->sprite, 0, 1);
+    BtlSprite_SetFlip(&data->sprite, args->unk_00->base.actor.isFlipped == 1);
     data->position.x = args->unk_00->base.actor.position.x;
     data->position.y = args->unk_00->base.actor.position.y;
     data->position.z = args->unk_00->base.actor.position.z;
@@ -92,7 +91,7 @@ static s32 func_ov010_02125780(Enm006DeadEff* data, Enm006Spawn* args) {
 }
 
 static s32 func_ov010_02125854(Enm006DeadEff* data) {
-    CombatSprite_Update(&data->sprite);
+    BtlSprite_Update(&data->sprite);
     return SpriteMgr_IsAnimationFinished(&data->sprite.sprite) == 0;
 }
 
@@ -104,13 +103,13 @@ static s32 func_ov010_02125878(Enm006DeadEff* data) {
     s16 y;
     s32 flag = func_ov003_020c37f8(&data->sprite) != 0;
     CombatStage_WorldToScreen(flag, &x, &y, data->position.x, data->position.y, data->position.z);
-    CombatSprite_SetPosition(&data->sprite, x, y);
-    func_ov003_02082730(&data->sprite, 0x80000000 - data->position.y);
-    CombatSprite_Render(&data->sprite);
+    BtlSprite_SetPosition(&data->sprite, x, y);
+    BtlSprite_SetSortKey(&data->sprite, 0x80000000 - data->position.y);
+    BtlSprite_Render(&data->sprite);
     return 1;
 }
 
 static s32 func_ov010_02125900(Enm006DeadEff* data) {
-    CombatSprite_Release(&data->sprite);
+    BtlSprite_Release(&data->sprite);
     return 1;
 }

@@ -183,8 +183,8 @@ static void func_ov011_02128f10(BtlEnm010TattRec* p, u16 v) {
         i = 0;
     }
     p->unk_70 = v;
-    CombatSprite_SetAnimFromTable(&p->sprite, data_ov011_0212c28c[i].unk_02, 0);
-    CombatSprite_SetFlip(&p->sprite, data_ov011_0212c28c[i].unk_04);
+    BtlSprite_SetAnimFromTable(&p->sprite, data_ov011_0212c28c[i].unk_02, 0);
+    BtlSprite_SetFlip(&p->sprite, data_ov011_0212c28c[i].unk_04);
 }
 
 static BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
@@ -317,12 +317,12 @@ static void func_ov011_02129188(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
 static void func_ov011_021293a8(BtlEnm010Tatt* arg0, BtlEnm010TattRec* p) {
     if (p->unk_60 == 0) {
         p->unk_60 = p->unk_60 + 1;
-        CombatSprite_SetAnimFromTable(&p->sprite, 5, 1);
+        BtlSprite_SetAnimFromTable(&p->sprite, 5, 1);
     }
     if (SpriteMgr_IsAnimationFinished(&p->sprite.sprite) == 0) {
         return;
     }
-    CombatSprite_SetAnimFromTable(&p->sprite, 6, 1);
+    BtlSprite_SetAnimFromTable(&p->sprite, 6, 1);
     p->unk_84 = p->unk_84 & ~0x10;
     p->unk_60 = 0;
     p->unk_64 = 0;
@@ -531,7 +531,7 @@ static s32 func_ov011_02129b84(BtlEnm010Tatt* data) {
     i = 0;
     do {
         if (((u32)(*p << 30) >> 31) == 1) {
-            CombatSprite_Update(&q->sprite);
+            BtlSprite_Update(&q->sprite);
             r = 1;
         }
         NEXT_REC(p);
@@ -572,9 +572,9 @@ static s32 func_ov011_02129cec(BtlEnm010Tatt* data) {
                 a = vx + p->unk_68;
                 b = vy + p->unk_6C;
             }
-            CombatSprite_SetPosition(&p->sprite, (b * 16) >> 16, (a * 16) >> 16);
-            CombatSprite_SetAffineTransform(&p->sprite, i, p->unk_78, p->unk_78, i);
-            CombatSprite_Render(&p->sprite);
+            BtlSprite_SetPosition(&p->sprite, (b * 16) >> 16, (a * 16) >> 16);
+            BtlSprite_SetAffineTransform(&p->sprite, i, p->unk_78, p->unk_78, i);
+            BtlSprite_Render(&p->sprite);
         }
         i++;
         p++;
@@ -588,7 +588,7 @@ static s32 func_ov011_02129ea4(BtlEnm010Tatt* p) {
 
     sp = p->rec;
     for (i = 0; i < 4; i++) {
-        CombatSprite_Release(&sp->sprite);
+        BtlSprite_Release(&sp->sprite);
         sp++;
     }
     return 1;

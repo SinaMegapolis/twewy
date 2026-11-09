@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlPhase.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "CriSndMgr.h"
 #include "Engine/IO/Input.h"
@@ -14,7 +14,7 @@
 // stream through `CriSndMgr_Pause` and swallows the touch input while the menu is up.
 
 typedef struct BtlPause {
-    /* 0x000 */ CombatSprite sprites[3];
+    /* 0x000 */ BattleSprite sprites[3];
     /* 0x120 */ s32          resumed;
 } BtlPause; // Size: 0x124
 
@@ -54,8 +54,8 @@ static void func_ov003_020a210c(BtlPause* self) {
     }
     if (self->resumed == 0) {
         CombatSe_Play(SEIDX_BTL_SYSTEM_CURSOR);
-        CombatSprite_SetAnim(&self->sprites[2], 2, 1);
-        CombatSprite_Restart(&self->sprites[2]);
+        BtlSprite_SetAnim(&self->sprites[2], 2, 1);
+        BtlSprite_Restart(&self->sprites[2]);
         self->resumed = 1;
         return;
     }
@@ -68,22 +68,22 @@ static s32 BtlPause_Init(TaskPool* pool, Task* task, void* args) {
     s32       anim;
 
     self->resumed = 0;
-    CombatSprite_LoadDirect(1, &self->sprites[0], &data_ov003_020d7800, 40, 42, 41, 0x3F, 0);
-    CombatSprite_SetPosition(&self->sprites[0], 128, 96);
-    func_ov003_02082730(&self->sprites[0], 0);
-    func_ov003_02082738(&self->sprites[0], 0);
+    BtlSprite_LoadDirect(1, &self->sprites[0], &data_ov003_020d7800, 40, 42, 41, 0x3F, 0);
+    BtlSprite_SetPosition(&self->sprites[0], 128, 96);
+    BtlSprite_SetSortKey(&self->sprites[0], 0);
+    BtlSprite_SetPriority(&self->sprites[0], 0);
     // The second banner shares the file and the frame range, only its first animation differs
     // between the "new game" and the resumed battle.
     anim = (gSaveData.unk_3140 & 1) ? 3 : 1;
-    CombatSprite_LoadDirect(0, &self->sprites[1], &data_ov003_020d7800, 40, 42, 41, 0x3D, anim);
-    CombatSprite_LoadDirect(0, &self->sprites[2], &data_ov003_020d7800, 40, 42, 41, 0x3D, 2);
-    CombatSprite_SetAnim(&self->sprites[2], 2, 1);
-    CombatSprite_SetPosition(&self->sprites[1], 128, 96);
-    CombatSprite_SetPosition(&self->sprites[2], 128, 96);
-    func_ov003_02082730(&self->sprites[1], 0);
-    func_ov003_02082730(&self->sprites[2], 0);
-    func_ov003_02082738(&self->sprites[1], 0);
-    func_ov003_02082738(&self->sprites[2], 0);
+    BtlSprite_LoadDirect(0, &self->sprites[1], &data_ov003_020d7800, 40, 42, 41, 0x3D, anim);
+    BtlSprite_LoadDirect(0, &self->sprites[2], &data_ov003_020d7800, 40, 42, 41, 0x3D, 2);
+    BtlSprite_SetAnim(&self->sprites[2], 2, 1);
+    BtlSprite_SetPosition(&self->sprites[1], 128, 96);
+    BtlSprite_SetPosition(&self->sprites[2], 128, 96);
+    BtlSprite_SetSortKey(&self->sprites[1], 0);
+    BtlSprite_SetSortKey(&self->sprites[2], 0);
+    BtlSprite_SetPriority(&self->sprites[1], 0);
+    BtlSprite_SetPriority(&self->sprites[2], 0);
     return 1;
 }
 
@@ -111,9 +111,9 @@ static s32 BtlPause_Update(TaskPool* pool, Task* task, void* args) {
         func_ov003_020a210c(self);
     }
     if (g_CombatGlobal->unk3D87C != 0) {
-        CombatSprite_Update(&self->sprites[0]);
-        CombatSprite_Update(&self->sprites[1]);
-        CombatSprite_Update(&self->sprites[2]);
+        BtlSprite_Update(&self->sprites[0]);
+        BtlSprite_Update(&self->sprites[1]);
+        BtlSprite_Update(&self->sprites[2]);
     }
     return 1;
 }
@@ -123,11 +123,11 @@ static s32 BtlPause_Render(TaskPool* pool, Task* task, void* args) {
 
     if (g_CombatGlobal->unk3D87C != 0) {
         if (g_CombatGlobal->unk3D88D != 3) {
-            CombatSprite_Render(&self->sprites[0]);
+            BtlSprite_Render(&self->sprites[0]);
         }
-        CombatSprite_Render(&self->sprites[1]);
+        BtlSprite_Render(&self->sprites[1]);
         if (self->resumed != 0) {
-            CombatSprite_Render(&self->sprites[2]);
+            BtlSprite_Render(&self->sprites[2]);
         }
     }
     return 1;
@@ -136,9 +136,9 @@ static s32 BtlPause_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPause_Release(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
 
-    CombatSprite_Release(&self->sprites[0]);
-    CombatSprite_Release(&self->sprites[1]);
-    CombatSprite_Release(&self->sprites[2]);
+    BtlSprite_Release(&self->sprites[0]);
+    BtlSprite_Release(&self->sprites[1]);
+    BtlSprite_Release(&self->sprites[2]);
     return 1;
 }
 

@@ -1,10 +1,10 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 
 typedef struct {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s32          unk_60;
     /* 0x64 */ s32          unk_64;
     /* 0x68 */ s32          unk_68;
@@ -22,7 +22,7 @@ s32 Boss01s_LandRG_Init(TaskPool* pool, Task* task, void* args) {
     Boss01s_LandRG* rg = task->data;
 
     MI_CpuSet(rg, 0, sizeof(Boss01s_LandRG));
-    CombatSprite_LoadFromTable(1, &rg->sprite, &data_ov016_02128f98, &data_ov016_02129054, 0, 4, 0x3E);
+    BtlSprite_LoadFromTable(1, &rg->sprite, &data_ov016_02128f98, &data_ov016_02129054, 0, 4, 0x3E);
     rg->unk_60 = g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
     rg->unk_64 = 0;
     rg->unk_68 = -0x4B000;
@@ -38,7 +38,7 @@ s32 Boss01s_LandRG_Update(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatSprite_Update(&rg->sprite);
+    BtlSprite_Update(&rg->sprite);
     return 1;
 }
 
@@ -49,17 +49,17 @@ s32 Boss01s_LandRG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)rg), &spA, &sp8, rg->unk_60, rg->unk_64, rg->unk_68);
-    CombatSprite_SetPosition(&rg->sprite, spA, sp8);
-    func_ov003_02082730(&rg->sprite, 0x7FFFFFFF);
-    CombatSprite_Render(&rg->sprite);
+    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)rg), &spA, &sp8, rg->unk_60, rg->unk_64, rg->unk_68);
+    BtlSprite_SetPosition(&rg->sprite, spA, sp8);
+    BtlSprite_SetSortKey(&rg->sprite, 0x7FFFFFFF);
+    BtlSprite_Render(&rg->sprite);
     return 1;
 }
 
 s32 Boss01s_LandRG_Destroy(TaskPool* pool, Task* task, void* args) {
     Boss01s_LandRG* rg = task->data;
 
-    CombatSprite_Release(&rg->sprite);
+    BtlSprite_Release(&rg->sprite);
     return 1;
 }
 

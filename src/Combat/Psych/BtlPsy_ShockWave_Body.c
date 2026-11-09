@@ -258,22 +258,22 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
             self  = task->data;
             s32 x = CombatStage_ToScreenX(0, self->x);
             s32 y = CombatStage_ToScreenY(0, self->y, self->z);
-            CombatSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
-            func_ov003_02082730(&self->sprite, self->y + 0x1F4000);
+            BtlSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
+            BtlSprite_SetSortKey(&self->sprite, self->y + 0x1F4000);
             s32 scale                         = self->scale;
             self->affine.rotation             = self->renderAngle;
-            self->affine.scaleX               = (self->sprite.flags46 & 1) ? -scale : scale;
+            self->affine.scaleX               = (self->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? -scale : scale;
             self->affine.scaleY               = scale;
             self->affine.unk_0C               = 0;
             self->affine.unk_0E               = 0;
             self->sprite.affine               = &self->affine;
             self->sprite.sprite.unk_0A.unk_00 = 1;
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_Render(&self->sprite);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }
@@ -282,7 +282,7 @@ static void func_ov003_020b716c(Ov003ShockWaveBody* self) {
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite) != 0) {
         CombatPsyAnim_SetAnim(&self->sprite, self->animation, 0);
     }
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
 }
 
 static void func_ov003_020b71a0(Ov003ShockWaveBody* self) {

@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/File/DatMgr.h"
 #include "Player/Inventory.h"
 #include "Player/Inventory/Items.h"
@@ -20,8 +20,8 @@ typedef struct BtlInf_ShowValArgs {
 } BtlInf_ShowValArgs; // Size: 0x34
 
 typedef struct BtlInf_ShowVal {
-    /* 0x000 */ CombatSprite       mainSprite;
-    /* 0x060 */ CombatSprite       subSprite;
+    /* 0x000 */ BattleSprite       mainSprite;
+    /* 0x060 */ BattleSprite       subSprite;
     /* 0x0C0 */ BtlInf_ShowValArgs args;
     /* 0x0F4 */ s32                mainDigits[6][4]; // least significant first
     /* 0x154 */ u16                mainLengths[6];
@@ -97,12 +97,12 @@ static s32 BtlInf_ShowVal_Init(TaskPool* pool, Task* task, void* args) {
     showVal->timer           = 0;
     showVal->state           = 0;
     func_ov003_020a2a88(showVal, func_ov003_020a2b54);
-    CombatSprite_LoadDirect(1, &showVal->mainSprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x14);
-    func_ov003_02082738(&showVal->mainSprite, 0);
-    func_ov003_02082730(&showVal->mainSprite, 0);
-    CombatSprite_LoadDirect(0, &showVal->subSprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x14);
-    func_ov003_02082738(&showVal->subSprite, 0);
-    func_ov003_02082730(&showVal->subSprite, 0);
+    BtlSprite_LoadDirect(1, &showVal->mainSprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x14);
+    BtlSprite_SetPriority(&showVal->mainSprite, 0);
+    BtlSprite_SetSortKey(&showVal->mainSprite, 0);
+    BtlSprite_LoadDirect(0, &showVal->subSprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x14);
+    BtlSprite_SetPriority(&showVal->subSprite, 0);
+    BtlSprite_SetSortKey(&showVal->subSprite, 0);
     return 1;
 }
 
@@ -133,10 +133,10 @@ static s32 BtlInf_ShowVal_Render(TaskPool* pool, Task* task, void* args) {
             s16 x = 236;
             u16 digit;
             for (digit = 0; digit < showVal->mainLengths[i]; digit++) {
-                CombatSprite_SetAnim(&showVal->mainSprite, (s16)(showVal->mainDigits[i][digit] + 20), 0);
-                CombatSprite_SetPosition(&showVal->mainSprite, x, y);
-                CombatSprite_Update(&showVal->mainSprite);
-                CombatSprite_Render(&showVal->mainSprite);
+                BtlSprite_SetAnim(&showVal->mainSprite, (s16)(showVal->mainDigits[i][digit] + 20), 0);
+                BtlSprite_SetPosition(&showVal->mainSprite, x, y);
+                BtlSprite_Update(&showVal->mainSprite);
+                BtlSprite_Render(&showVal->mainSprite);
                 x -= 8;
             }
         }
@@ -153,10 +153,10 @@ static s32 BtlInf_ShowVal_Render(TaskPool* pool, Task* task, void* args) {
             s16 x = 236;
             u16 digit;
             for (digit = 0; digit < showVal->subLengths[subIndex]; digit++) {
-                CombatSprite_SetAnim(&showVal->subSprite, (s16)(showVal->subDigits[subIndex][digit] + 20), 0);
-                CombatSprite_SetPosition(&showVal->subSprite, x, subY);
-                CombatSprite_Update(&showVal->subSprite);
-                CombatSprite_Render(&showVal->subSprite);
+                BtlSprite_SetAnim(&showVal->subSprite, (s16)(showVal->subDigits[subIndex][digit] + 20), 0);
+                BtlSprite_SetPosition(&showVal->subSprite, x, subY);
+                BtlSprite_Update(&showVal->subSprite);
+                BtlSprite_Render(&showVal->subSprite);
                 x -= 8;
             }
         }
@@ -168,8 +168,8 @@ static s32 BtlInf_ShowVal_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlInf_ShowVal_Release(TaskPool* pool, Task* task, void* args) {
     BtlInf_ShowVal* showVal = task->data;
 
-    CombatSprite_Release(&showVal->mainSprite);
-    CombatSprite_Release(&showVal->subSprite);
+    BtlSprite_Release(&showVal->mainSprite);
+    BtlSprite_Release(&showVal->subSprite);
     return 1;
 }
 

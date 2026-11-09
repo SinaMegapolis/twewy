@@ -1,9 +1,9 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatEnemyShot.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include "EasyFade.h"
@@ -223,7 +223,7 @@ static s32 Boss01_RG_Init(TaskPool* pool, Task* task, void* args) {
     MI_CpuSet(bossRG, 0, sizeof(Boss01_RG));
     func_ov003_020c3efc(&bossRG->base, args);
     func_ov016_021256c0(&anim, 1, 0);
-    CombatSprite_Load(&bossRG->base.sprite, &anim);
+    BtlSprite_Load(&bossRG->base.sprite, &anim);
     func_ov003_020c4c1c(&bossRG->base);
     bossRG->base.actor.flags |= ACTOR_FLAG_UNCLAMPED_X;
     bossRG->base.actor.zGravity   = 0;
@@ -251,7 +251,7 @@ static s32 Boss01_RG_Update(TaskPool* pool, Task* task, void* args) {
         bossRG->unk_1CC(bossRG);
     }
     BtlActor_UpdateEffects(1, &bossRG->base.actor);
-    CombatSprite_Update(&bossRG->base.sprite);
+    BtlSprite_Update(&bossRG->base.sprite);
     return bossRG->unk_1D0;
 }
 
@@ -262,9 +262,9 @@ static s32 Boss01_RG_Render(TaskPool* pool, Task* task, void* args) {
     if (!(bossRG->base.flags18C & 1)) {
         CombatStage_WorldToScreen(1, &spA, &sp8, bossRG->base.actor.position.x, bossRG->base.actor.position.y,
                                   bossRG->base.actor.position.z);
-        CombatSprite_SetPosition(&bossRG->base.sprite, spA, sp8);
-        func_ov003_02082730(&bossRG->base.sprite, 0x7FF3FFFF);
-        CombatSprite_Render(&bossRG->base.sprite);
+        BtlSprite_SetPosition(&bossRG->base.sprite, spA, sp8);
+        BtlSprite_SetSortKey(&bossRG->base.sprite, 0x7FF3FFFF);
+        BtlSprite_Render(&bossRG->base.sprite);
         bossRG->base.actor.screenX = spA;
         bossRG->base.actor.screenY = sp8 + 80;
     }
@@ -274,7 +274,7 @@ static s32 Boss01_RG_Render(TaskPool* pool, Task* task, void* args) {
 static s32 Boss01_RG_Destroy(TaskPool* pool, Task* task, void* args) {
     Boss01_RG* bossRG = task->data;
 
-    CombatSprite_Release(&bossRG->base.sprite);
+    BtlSprite_Release(&bossRG->base.sprite);
     func_ov003_020c4a34(&bossRG->base);
     return 1;
 }

@@ -1,9 +1,9 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatBossExp.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatEnemyGroup.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Display.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
@@ -40,22 +40,22 @@ typedef struct BossExp1Group {
     /* 0x8 */ s32 screenEntry;
 } BossExp1Group; // Size: 0xC
 
-/// One flying sprite: how many palette slots it uses and how fast its blink advances.
+/// One flying sprite: how much char VRAM it reserves (32-byte units) and how fast its blink advances.
 typedef struct BossExp1Fly {
-    /* 0x0 */ s32 paletteCount;
+    /* 0x0 */ s32 charTiles;
     /* 0x4 */ s32 speed;
 } BossExp1Fly; // Size: 0x8
 
 typedef struct BossExp1 {
     /* 0x000 */ Data*            data;
     /* 0x004 */ BossExp1Anims    anims;
-    /* 0x0C8 */ CombatSprite     groupA[2][2]; // [engine][group]
+    /* 0x0C8 */ BattleSprite     groupA[2][2]; // [engine][group]
     /* 0x248 */ s32              loadedA[2][2];
     /* 0x258 */ s32              visibleA[2][2];
-    /* 0x268 */ CombatSprite     groupB[2][4];
+    /* 0x268 */ BattleSprite     groupB[2][4];
     /* 0x568 */ s32              loadedB[2][4];
     /* 0x588 */ s32              cursor; // the flying sprite the scene is on
-    /* 0x58C */ CombatSprite     groupC[2][6];
+    /* 0x58C */ BattleSprite     groupC[2][6];
     /* 0xA0C */ s32              loadedC[2][6];
     /* 0xA3C */ s32              tintC[2][6];
     /* 0xA6C */ u16              frameC[2][6];
@@ -245,11 +245,11 @@ static void func_ov003_020c7940(BossExp1* self, s32 group) {
         SpriteAnimationEx* anim = &self->anims.slots[e * 2 + group];
 
         anim->anim.bits_0_1      = e;
-        self->loadedA[e][group]  = CombatSprite_Load(&self->groupA[e][group], anim);
+        self->loadedA[e][group]  = BtlSprite_Load(&self->groupA[e][group], anim);
         self->visibleA[e][group] = 1;
         if (self->loadedA[e][group] != 0) {
-            self->groupA[e][group].flags46 |= 2;
-            CombatSprite_Update(&self->groupA[e][group]);
+            self->groupA[e][group].flags |= BTL_SPRITE_FLAG_OBJ_WINDOW;
+            BtlSprite_Update(&self->groupA[e][group]);
         }
     }
 }
@@ -259,7 +259,7 @@ static void func_ov003_020c79f4(BossExp1* self, s32 group) {
 
     for (e = 0; e <= 1; e++) {
         if (self->loadedA[e][group] != 0) {
-            CombatSprite_Release(&self->groupA[e][group]);
+            BtlSprite_Release(&self->groupA[e][group]);
             self->loadedA[e][group]  = 0;
             self->visibleA[e][group] = 0;
         }
@@ -273,7 +273,7 @@ static void func_ov003_020c7a54(BossExp1* self) {
     for (e = 0; e <= 1; e++) {
         for (i = 0; i < 2; i++) {
             if (self->loadedA[e][i] != 0 && self->visibleA[e][i] != 0) {
-                CombatSprite_Render(&self->groupA[e][i]);
+                BtlSprite_Render(&self->groupA[e][i]);
             }
         }
     }
@@ -284,11 +284,11 @@ static void func_ov003_020c7ac0(BossExp1* self, s32 group) {
     s32 e;
 
     for (e = 0; e <= 1; e++) {
-        self->loadedB[e][group] = CombatSprite_LoadFromTable(e, &self->groupB[e][group], &data_ov003_020e0a38.iden,
-                                                             data_ov003_020e0a64, (u16)group, 0x18, 0);
+        self->loadedB[e][group] = BtlSprite_LoadFromTable(e, &self->groupB[e][group], &data_ov003_020e0a38.iden,
+                                                          data_ov003_020e0a64, (u16)group, 0x18, 0);
         if (self->loadedB[e][group] != 0) {
-            CombatSprite_SetPosition(&self->groupB[e][group], 128, 96);
-            func_ov003_02082738(&self->groupB[e][group], 0);
+            BtlSprite_SetPosition(&self->groupB[e][group], 128, 96);
+            BtlSprite_SetPriority(&self->groupB[e][group], 0);
         }
     }
 }
@@ -298,7 +298,7 @@ static void func_ov003_020c7b6c(BossExp1* self, s32 group) {
 
     for (e = 0; e <= 1; e++) {
         if (self->loadedB[e][group] != 0) {
-            CombatSprite_Release(&self->groupB[e][group]);
+            BtlSprite_Release(&self->groupB[e][group]);
             self->loadedB[e][group] = 0;
         }
     }
@@ -311,7 +311,7 @@ static void func_ov003_020c7bc8(BossExp1* self) {
     for (e = 0; e <= 1; e++) {
         for (i = 0; i <= 3; i++) {
             if (self->loadedB[e][i] != 0) {
-                CombatSprite_Update(&self->groupB[e][i]);
+                BtlSprite_Update(&self->groupB[e][i]);
             }
         }
     }
@@ -324,7 +324,7 @@ static void func_ov003_020c7c34(BossExp1* self) {
     for (e = 0; e <= 1; e++) {
         for (i = 0; i <= 3; i++) {
             if (self->loadedB[e][i] != 0) {
-                CombatSprite_Render(&self->groupB[e][i]);
+                BtlSprite_Render(&self->groupB[e][i]);
             }
         }
     }
@@ -336,11 +336,11 @@ static void func_ov003_020c7ca0(BossExp1* self, s32 group) {
 
     for (e = 0; e <= 1; e++) {
         self->loadedC[e][group] =
-            CombatSprite_LoadFromTable(e, &self->groupC[e][group], &data_ov003_020e0a38.iden, data_ov003_020e0ab4[e],
-                                       (u16)group, 0x18, (u16)data_ov003_020e0b14[e][group].paletteCount);
+            BtlSprite_LoadFromTable(e, &self->groupC[e][group], &data_ov003_020e0a38.iden, data_ov003_020e0ab4[e], (u16)group,
+                                    0x18, (u16)data_ov003_020e0b14[e][group].charTiles);
         if (self->loadedC[e][group] != 0) {
-            CombatSprite_SetPosition(&self->groupC[e][group], 128, 96);
-            func_ov003_02082738(&self->groupC[e][group], 0);
+            BtlSprite_SetPosition(&self->groupC[e][group], 128, 96);
+            BtlSprite_SetPriority(&self->groupC[e][group], 0);
         }
     }
 }
@@ -352,7 +352,7 @@ static void func_ov003_020c7d74(BossExp1* self) {
     for (e = 0; e <= 1; e++) {
         for (i = 0; i < 6; i++) {
             if (self->loadedC[e][i] != 0) {
-                CombatSprite_Release(&self->groupC[e][i]);
+                BtlSprite_Release(&self->groupC[e][i]);
                 self->loadedC[e][i] = 0;
             }
         }
@@ -367,7 +367,7 @@ static void func_ov003_020c7de8(BossExp1* self) {
         for (i = 0; i < 6; i++) {
             if (self->loadedC[e][i] != 0) {
                 self->frameC[e][i] = self->frameC[e][i] + data_ov003_020e0b14[e][i].speed;
-                CombatSprite_Update(&self->groupC[e][i]);
+                BtlSprite_Update(&self->groupC[e][i]);
             }
         }
     }
@@ -380,9 +380,9 @@ static void func_ov003_020c7e84(BossExp1* self) {
     for (e = 0; e <= 1; e++) {
         for (i = 0; i < 6; i++) {
             if (self->loadedC[e][i] != 0) {
-                CombatSprite_SetAffineTransform(&self->groupC[e][i], 0, self->tintC[e][i], self->tintC[e][i],
-                                                self->frameC[e][i] != 0 ? 1 : 0);
-                CombatSprite_Render(&self->groupC[e][i]);
+                BtlSprite_SetAffineTransform(&self->groupC[e][i], 0, self->tintC[e][i], self->tintC[e][i],
+                                             self->frameC[e][i] != 0 ? 1 : 0);
+                BtlSprite_Render(&self->groupC[e][i]);
             }
         }
     }
@@ -458,8 +458,8 @@ static void func_ov003_020c80b8(BossExp1* self) {
                 func_ov003_020c7ac0(self, 1);
             }
             func_020265d4(&self->tint, 0x1D00, (u16)(self->limit - self->timer));
-            CombatSprite_SetAffineTransform(&self->groupB[0][1], 0, self->tint, self->tint, 1);
-            CombatSprite_SetAffineTransform(&self->groupB[1][1], 0, self->tint, self->tint, 1);
+            BtlSprite_SetAffineTransform(&self->groupB[0][1], 0, self->tint, self->tint, 1);
+            BtlSprite_SetAffineTransform(&self->groupB[1][1], 0, self->tint, self->tint, 1);
             if (self->timer < self->limit) {
                 self->timer++;
                 return;
@@ -609,7 +609,7 @@ static void func_ov003_020c86b4(BossExp1* self) {
             if (self->timer == 1) {
                 func_ov003_020c7ac0(self, 2);
                 for (e = 0; e <= 1; e++) {
-                    self->groupB[e][2].flags46 |= 2;
+                    self->groupB[e][2].flags |= BTL_SPRITE_FLAG_OBJ_WINDOW;
                 }
             }
             EasyFade_FadeBothDisplays(0, 0, 0x2E1);
@@ -625,7 +625,7 @@ static void func_ov003_020c86b4(BossExp1* self) {
                     g_DisplaySettings.engineState[e].window1Top    = 0x60000 - self->closeA;
                     g_DisplaySettings.engineState[e].window1Right  = 0xFF000;
                     g_DisplaySettings.engineState[e].window1Bottom = (0x60000 - self->closeA) + self->closeA * 2;
-                    CombatSprite_SetAffineTransform(&self->groupB[e][2], 0, 0x1000, scale, 0);
+                    BtlSprite_SetAffineTransform(&self->groupB[e][2], 0, 0x1000, scale, 0);
                 }
             }
             if (self->timer == half + 1) {
@@ -643,7 +643,7 @@ static void func_ov003_020c86b4(BossExp1* self) {
                     g_DisplaySettings.engineState[e].window0Top    = 0x60000 - self->closeB;
                     g_DisplaySettings.engineState[e].window0Right  = 0xFF000;
                     g_DisplaySettings.engineState[e].window0Bottom = (0x60000 - self->closeB) + self->closeB * 2;
-                    CombatSprite_SetAffineTransform(&self->groupB[e][3], 0, 0x1000, scale, 0);
+                    BtlSprite_SetAffineTransform(&self->groupB[e][3], 0, 0x1000, scale, 0);
                 }
             }
             if (self->timer <= half + width) {

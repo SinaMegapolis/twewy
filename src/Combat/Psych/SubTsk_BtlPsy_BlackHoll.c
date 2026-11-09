@@ -80,11 +80,11 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
                 unit = CombatList_GetNext(&unit->node);
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprites[1].sprite)) {
-                CombatSprite_Restart(&self->sprites[1]);
+                BtlSprite_Restart(&self->sprites[1]);
                 CombatSe_PlayAtMainX(0x93, self->position.x);
             }
-            CombatSprite_Update(&self->sprites[0]);
-            CombatSprite_Update(&self->sprites[1]);
+            BtlSprite_Update(&self->sprites[0]);
+            BtlSprite_Update(&self->sprites[1]);
             func_ov003_020a5db8(self->particles, 6, 1, 0x40000, 0x1800, 0x400);
             return 1;
         }
@@ -92,19 +92,19 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003BlackHoll* self = task->data;
             s32             x    = CombatStage_ToScreenX(0, self->position.x);
             s32             y    = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-            CombatSprite_SetPosition(&self->sprites[0], (s16)x, (s16)y);
-            CombatSprite_SetPosition(&self->sprites[1], (s16)x, (s16)y);
-            func_ov003_02082730(&self->sprites[0], self->position.y + 0x1F4000);
-            func_ov003_02082730(&self->sprites[1], self->position.y - 0x1000 + 0x1F4000);
-            CombatSprite_Render(&self->sprites[0]);
-            CombatSprite_Render(&self->sprites[1]);
+            BtlSprite_SetPosition(&self->sprites[0], (s16)x, (s16)y);
+            BtlSprite_SetPosition(&self->sprites[1], (s16)x, (s16)y);
+            BtlSprite_SetSortKey(&self->sprites[0], self->position.y + 0x1F4000);
+            BtlSprite_SetSortKey(&self->sprites[1], self->position.y - 0x1000 + 0x1F4000);
+            BtlSprite_Render(&self->sprites[0]);
+            BtlSprite_Render(&self->sprites[1]);
             func_ov003_020a5ed4(self->particles, 6, x, y);
             return 1;
         }
         case 3: {
             self = task->data;
-            CombatSprite_Release(&self->sprites[0]);
-            CombatSprite_Release(&self->sprites[1]);
+            BtlSprite_Release(&self->sprites[0]);
+            BtlSprite_Release(&self->sprites[1]);
             func_ov003_020a5fc0(self->particles, 6);
             self->effect->unk_0A--;
             Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);

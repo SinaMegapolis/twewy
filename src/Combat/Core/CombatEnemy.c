@@ -1,11 +1,11 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlBar.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatEnemyGroup.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
@@ -103,7 +103,7 @@ void func_ov003_020c20d4(Ov003CutinTracks* tracks, Ov003CutinActor* actor) {
     saved.x = actor->base.actor.position.x;
     saved.y = actor->base.actor.position.y;
     saved.z = actor->base.actor.position.z;
-    actor->base.sprite.flags46 |= 4;
+    actor->base.sprite.flags |= BTL_SPRITE_FLAG_TRANSLUCENT;
     i = 0;
     if ((s32)tracks->count > 0) {
         limit  = 0x7FFFFFFF - saved.y;
@@ -126,16 +126,16 @@ void func_ov003_020c20d4(Ov003CutinTracks* tracks, Ov003CutinActor* actor) {
                     temp        = tracks->count;
                     spriteIndex = (temp + (current - i)) % temp;
                 }
-                CombatSprite_SetPosition(&actor->base.sprite, posX, posY);
-                func_ov003_02082730(&actor->base.sprite, limit + (spriteIndex << 12));
-                CombatSprite_Render(&actor->base.sprite);
+                BtlSprite_SetPosition(&actor->base.sprite, posX, posY);
+                BtlSprite_SetSortKey(&actor->base.sprite, limit + (spriteIndex << 12));
+                BtlSprite_Render(&actor->base.sprite);
                 CombatHit_DrawSparkOnActor(&actor->base.subSprite, &actor->base.actor);
             }
             offset += 0xC;
             i++;
         } while (i < (s32)tracks->count);
     }
-    actor->base.sprite.flags46 &= ~4;
+    actor->base.sprite.flags &= ~BTL_SPRITE_FLAG_TRANSLUCENT;
     tracks->tracks[current]      = saved;
     actor->base.actor.position.x = saved.x;
     actor->base.actor.position.y = saved.y;
@@ -410,9 +410,9 @@ s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 t
                 if (((dir == 0) && (actor->base.actor.position.x >= targetX)) ||
                     ((dir != 0) && (actor->base.actor.position.x <= targetX)))
                 {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim0, 1);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim0, 1);
                 } else {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim3, 1);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim3, 1);
                 }
             }
             if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
@@ -429,9 +429,9 @@ s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 t
                 if (((dir == 0) && (actor->base.actor.position.x >= targetX)) ||
                     ((dir != 0) && (actor->base.actor.position.x <= targetX)))
                 {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim1, 0);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim1, 0);
                 } else {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim4, 0);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim4, 0);
                 }
                 actor->targetX = targetX;
                 actor->targetY = targetY;
@@ -465,9 +465,9 @@ s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 t
                 if (((dir == 0) && (actor->base.actor.position.x >= targetX)) ||
                     ((dir != 0) && (actor->base.actor.position.x <= targetX)))
                 {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim2, 1);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim2, 1);
                 } else {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim5, 1);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim5, 1);
                 }
                 actor->base.actor.position.z = actor->targetZ;
             }
@@ -514,9 +514,9 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
                 actor->velocityY = -spread + RNG_Next(spread * 2 + 1);
                 dir              = actor->base.actor.isFlipped;
                 if (((dir == 0) && (actor->velocityX < 0)) || ((dir != 0) && (actor->velocityX > 0))) {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, animBase, 1);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, animBase, 1);
                 } else {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim3, 1);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim3, 1);
                 }
             }
             if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
@@ -530,9 +530,9 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
             if (actor->timer == 0) {
                 dir = actor->base.actor.isFlipped;
                 if (((dir == 0) && (actor->velocityX < 0)) || ((dir != 0) && (actor->velocityX > 0))) {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim1, 0);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim1, 0);
                 } else {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim4, 0);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim4, 0);
                 }
                 actor->timerLimit = 0x5A;
             }
@@ -554,9 +554,9 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
             if (actor->timer == 0) {
                 dir = actor->base.actor.isFlipped;
                 if (((dir == 0) && (actor->velocityX < 0)) || ((dir != 0) && (actor->velocityX > 0))) {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, anim2, 1);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, anim2, 1);
                 } else {
-                    CombatSprite_SetAnimFromTable(&actor->base.sprite, animFar, 1);
+                    BtlSprite_SetAnimFromTable(&actor->base.sprite, animFar, 1);
                 }
             }
             if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
@@ -619,10 +619,10 @@ static void func_ov003_020c34dc(Ov003CutinActor* actor) {
 }
 
 static void func_ov003_020c353c(Ov003CutinActor* actor) {
-    const BtlSpriteDesc* params = func_ov003_020c3c6c(&actor->base);
+    const BattleSpriteDesc* params = func_ov003_020c3c6c(&actor->base);
 
-    CombatSprite_SetPaletteMode(&actor->base.sprite, 0);
-    CombatSprite_SetPaletteSource(&actor->base.sprite, params->palette);
+    BtlSprite_SetPaletteMode(&actor->base.sprite, BTL_SPRITE_PALETTE_OWN);
+    BtlSprite_SetPaletteSource(&actor->base.sprite, params->paletteEntry);
     actor->base.sprite.basePaletteSource = actor->base.sprite.sprite.unk3C;
 }
 
@@ -648,7 +648,7 @@ s32 func_ov003_020c3570(Ov003CutinActor* actor, u16 animBase) {
             return 1;
         case 1:
             if (actor->timer == 0) {
-                CombatSprite_SetAnimFromTable(&actor->base.sprite, animBase, 1);
+                BtlSprite_SetAnimFromTable(&actor->base.sprite, animBase, 1);
             }
             if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
                 actor->timer = 0;
@@ -659,7 +659,7 @@ s32 func_ov003_020c3570(Ov003CutinActor* actor, u16 animBase) {
             return 1;
         case 2:
             if (actor->timer == 0) {
-                CombatSprite_SetAnimFromTable(&actor->base.sprite, animBase + 1, 1);
+                BtlSprite_SetAnimFromTable(&actor->base.sprite, animBase + 1, 1);
                 actor->base.actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
                 func_ov003_020c34dc(actor);
             }
@@ -719,59 +719,59 @@ void func_ov003_020c37bc(Ov003EnemyActor* actor) {
     actor->actor.flags &= ~ACTOR_FLAG_GUARDING;
 }
 
-s32 func_ov003_020c37f8(CombatSprite* sprite) {
+s32 func_ov003_020c37f8(BattleSprite* sprite) {
     return sprite->sprite.bits_0_1 == 1;
 }
 
 /// Fills an animation descriptor from a noise parameter table and loads it into a sprite.
-void func_ov003_020c3814(s32 engine, CombatSprite* sprite, const BinIdentifier* iden, const u8* table, u16 index, u16 arg4,
+void func_ov003_020c3814(s32 engine, BattleSprite* sprite, const BinIdentifier* iden, const u8* table, u16 index, u16 arg4,
                          u16 arg5, s16 arg6, u16 arg7, s16 arg8) {
     SpriteAnimationEx      out;
     const SpriteAnimEntry* entry;
 
-    CombatSprite_InitAnim(&out.anim, engine, iden);
+    BtlSprite_InitAnim(&out.anim, engine, iden);
     out.anim.bits_10_11 = 1;
     entry               = &((const SpriteAnimEntry*)table)[index];
     out.anim.unk_1C     = entry->charDataIndex;
     out.anim.unk_1E     = arg5 << 5;
-    out.anim.unk_26     = entry->frameDataIndex;
-    out.anim.unk_28     = entry->paletteDataIndex;
+    out.anim.unk_26     = entry->cellDataIndex;
+    out.anim.unk_28     = entry->animDataIndex;
     out.anim.unk_20     = arg4;
-    out.anim.animIndex  = entry->animDataIndex + 1;
+    out.anim.animIndex  = entry->animIndex + 1;
     out.animTable       = (const SpriteAnimEntry*)table;
     out.anim.unk_18     = arg7;
     out.anim.packIndex  = arg8;
     out.anim.unk_22     = arg6;
-    CombatSprite_Load(sprite, &out);
+    BtlSprite_Load(sprite, &out);
 }
 
-s32 func_ov003_020c38b8(CombatSprite* sprite, u16 anim, s32 arg2) {
+s32 func_ov003_020c38b8(BattleSprite* sprite, u16 anim, s32 arg2) {
     u32 mode = sprite->sprite.bits_3_4;
 
     if (mode == 0) {
-        return CombatSprite_SetAnim(sprite, anim, arg2);
+        return BtlSprite_SetAnim(sprite, anim, arg2);
     }
     if (mode != 1) {
         return 1;
     }
-    return CombatSprite_SetAnimFromTable(sprite, anim, arg2);
+    return BtlSprite_SetAnimFromTable(sprite, anim, arg2);
 }
 
-s32 func_ov003_020c38e8(CombatSprite* sprite) {
+s32 func_ov003_020c38e8(BattleSprite* sprite) {
     sprite->animTableIndex = -1;
     Sprite_ChangeAnimation(&sprite->sprite, sprite->sprite.animData, -1, sprite->sprite.cellTable);
     return 0;
 }
 
-s32 func_ov003_020c3908(CombatSprite* sprite) {
+s32 func_ov003_020c3908(BattleSprite* sprite) {
     return func_ov003_020c3950(sprite->sprite.bits_0_1);
 }
 
-s32 func_ov003_020c3920(CombatSprite* sprite) {
+s32 func_ov003_020c3920(BattleSprite* sprite) {
     func_ov003_020c3a48(sprite->sprite.bits_0_1);
 }
 
-static s32 func_ov003_020c3938(CombatSprite* sprite) {
+static s32 func_ov003_020c3938(BattleSprite* sprite) {
     func_ov003_020c3a70(sprite->sprite.bits_0_1);
 }
 
@@ -918,8 +918,8 @@ void func_ov003_020c3c44(Ov003CutinScript* buffer, void* data, s16 count) {
     buffer->unk_10 = 0;
 }
 
-const BtlSpriteDesc* func_ov003_020c3c6c(Ov003EnemyActor* actor) {
-    return (const BtlSpriteDesc*)CombatEnemyGroup_SpriteDescs[actor->group][actor->spriteIndex];
+const BattleSpriteDesc* func_ov003_020c3c6c(Ov003EnemyActor* actor) {
+    return (const BattleSpriteDesc*)CombatEnemyGroup_SpriteDescs[actor->group][actor->spriteIndex];
 }
 
 Ov003ActorParams* func_ov003_020c3c88(Ov003EnemyActor* actor) {

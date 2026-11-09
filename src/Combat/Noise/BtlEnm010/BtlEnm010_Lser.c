@@ -23,7 +23,7 @@ typedef struct BtlEnm010LserEmit {
 typedef struct BtlEnm010Lser {
     /* 0x000 */ Ov003EnemyActor*  unk_00;
     /* 0x004 */ BattleActor       copy; // the owner's actor, refreshed every frame
-    /* 0x080 */ CombatSprite      sprite[4];
+    /* 0x080 */ BattleSprite      sprite[4];
     /* 0x200 */ BtlEnm010LserEmit emit;
     /* 0x22C */ s32               unk_22C;
     /* 0x230 */ s32               unk_230;
@@ -84,7 +84,7 @@ static void func_ov011_02125c00(s32* outX, s32* outY, s32* outZ, BattleActor* ow
     *outZ = owner->position.z + data_ov011_0212c124[index];
 }
 
-static void func_ov011_02125c44(BattleActor* owner, BtlEnm010LserRec* rec, CombatSprite* sprite, s32 enabled) {
+static void func_ov011_02125c44(BattleActor* owner, BtlEnm010LserRec* rec, BattleSprite* sprite, s32 enabled) {
     s32 v = rec->unk_04 + rec->unk_08;
 
     rec->unk_04 = v;
@@ -95,11 +95,11 @@ static void func_ov011_02125c44(BattleActor* owner, BtlEnm010LserRec* rec, Comba
         return;
     }
     if (RNG_Next(0x64) < 0x32) {
-        CombatSprite_SetAnimFromTable(sprite, 1, 1);
+        BtlSprite_SetAnimFromTable(sprite, 1, 1);
     } else {
-        CombatSprite_SetAnimFromTable(sprite, 2, 1);
+        BtlSprite_SetAnimFromTable(sprite, 2, 1);
     }
-    CombatSprite_Restart(sprite);
+    BtlSprite_Restart(sprite);
     rec->unk_00 = RNG_Next(0x4000);
     if (owner->isFlipped == 0) {
         rec->unk_00 = rec->unk_00 + 0x6000;
@@ -129,7 +129,7 @@ static s32 func_ov011_02125cf8(TaskPool* pool, Task* task, void* args, s32 stage
 
 static s32 func_ov011_02125d48(BtlEnm010Lser* data, BtlEnm010LserArgs* args) {
     s32           i;
-    CombatSprite* sp;
+    BattleSprite* sp;
 
     MI_CpuSet(data, 0, 0x254);
     sp = data->sprite;
@@ -161,7 +161,7 @@ static s32 func_ov011_02125d48(BtlEnm010Lser* data, BtlEnm010LserArgs* args) {
 static s32 func_ov011_02125e14(BtlEnm010Lser* data) {
     s32           result = 0;
     s32           i;
-    CombatSprite* sp;
+    BattleSprite* sp;
 
     if (func_ov003_020c3c28() != 0) {
         return 0;
@@ -194,7 +194,7 @@ static s32 func_ov011_02125e14(BtlEnm010Lser* data) {
     }
     sp = data->sprite;
     for (i = 0; i < 4; i++) {
-        CombatSprite_Update(sp);
+        BtlSprite_Update(sp);
         sp++;
     }
     return result;
@@ -203,17 +203,17 @@ static s32 func_ov011_02125e14(BtlEnm010Lser* data) {
 static s32 func_ov011_02125f24(BtlEnm010Lser* data) {
     s32               flag;
     s32               i;
-    CombatSprite*     sp;
+    BattleSprite*     sp;
     BtlEnm010LserRec* rec;
 
     if (data->unk_00 == NULL) {
         return 0;
     }
     if (data->emit.unk_24 == 0) {
-        CombatSprite_SetAnimFromTable(&data->sprite[0], 1, 1);
-        CombatSprite_SetAnimFromTable(&data->sprite[1], 1, 1);
-        CombatSprite_SetAnimFromTable(&data->sprite[2], 1, 1);
-        CombatSprite_SetAnimFromTable(&data->sprite[3], 3, 0);
+        BtlSprite_SetAnimFromTable(&data->sprite[0], 1, 1);
+        BtlSprite_SetAnimFromTable(&data->sprite[1], 1, 1);
+        BtlSprite_SetAnimFromTable(&data->sprite[2], 1, 1);
+        BtlSprite_SetAnimFromTable(&data->sprite[3], 3, 0);
         data->unk_250     = (data->unk_250 & ~1) | 1;
         data->unk_250     = data->unk_250 & ~2;
         data->emit.unk_26 = 0x2F;
@@ -247,7 +247,7 @@ static s32 func_ov011_02126064(BtlEnm010Lser* data) {
         return 0;
     }
     if (data->emit.unk_24 == 0) {
-        CombatSprite_SetAnimFromTable(&data->sprite[3], 3, 0);
+        BtlSprite_SetAnimFromTable(&data->sprite[3], 3, 0);
         data->unk_250     = data->unk_250 | 2;
         data->emit.unk_26 = 4;
     }
@@ -270,8 +270,8 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
     }
     if (data->emit.unk_24 == 0) {
         data->emit.unk_24 = data->emit.unk_24 + 1;
-        CombatSprite_SetAnimFromTable(&data->sprite[0], 5, 0);
-        CombatSprite_SetAnimFromTable(&data->sprite[3], 4, 1);
+        BtlSprite_SetAnimFromTable(&data->sprite[0], 5, 0);
+        BtlSprite_SetAnimFromTable(&data->sprite[3], 4, 1);
         func_ov011_02125c00(&data->unk_22C, &data->unk_230, &data->unk_234, &data->copy, data->unk_24C);
         if (data->copy.isFlipped == 0) {
             data->unk_248 = 0 - 0x8000;
@@ -279,8 +279,8 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
         } else {
             data->unk_248 = 0x8000;
             data->unk_22C = data->unk_22C + 0x28000;
-            CombatSprite_SetFlip(&data->sprite[0], 1);
-            CombatSprite_SetFlip(&data->sprite[3], 1);
+            BtlSprite_SetFlip(&data->sprite[0], 1);
+            BtlSprite_SetFlip(&data->sprite[3], 1);
         }
         data->unk_250 &= ~1;
     }
@@ -339,7 +339,7 @@ static s32 func_ov011_02126354(BtlEnm010Lser* data) {
     s32               vy;
     s32               i;
     BtlEnm010LserRec* rec;
-    CombatSprite*     sp;
+    BattleSprite*     sp;
     s32               mode;
 
     if (func_ov003_020c3c28() != 0) {
@@ -361,36 +361,36 @@ static s32 func_ov011_02126354(BtlEnm010Lser* data) {
             func_ov003_020cbc50(&acc0, &acc1, rec->unk_00, rec->unk_04);
             acc0 += vx;
             acc1 += vy;
-            CombatSprite_SetPosition(sp, (acc0 * 16) >> 16, (acc1 * 16) >> 16);
-            func_ov003_02082730(sp, 0x7FFFFFFE - outY);
-            CombatSprite_Render(sp);
+            BtlSprite_SetPosition(sp, (acc0 * 16) >> 16, (acc1 * 16) >> 16);
+            BtlSprite_SetSortKey(sp, 0x7FFFFFFE - outY);
+            BtlSprite_Render(sp);
             rec++;
             sp++;
         }
     }
 
     if ((u32)(data->unk_250 << 30) >> 31) {
-        CombatSprite_SetPosition(&data->sprite[3], (vx * 16) >> 16, (vy * 16) >> 16);
-        func_ov003_02082730(&data->sprite[3], 0x7FFFFFFF - outY);
-        CombatSprite_Render(&data->sprite[3]);
+        BtlSprite_SetPosition(&data->sprite[3], (vx * 16) >> 16, (vy * 16) >> 16);
+        BtlSprite_SetSortKey(&data->sprite[3], 0x7FFFFFFF - outY);
+        BtlSprite_Render(&data->sprite[3]);
     }
 
     if ((u32)(data->unk_250 << 29) >> 31) {
         CombatStage_WorldToScreen(mode, &t1, &t0, data->unk_22C, data->unk_230, data->unk_234);
-        CombatSprite_SetPosition(&data->sprite[0], t1, t0);
-        func_ov003_02082730(&data->sprite[0], 0x7FFFFFFD - outY);
-        CombatSprite_Render(&data->sprite[0]);
+        BtlSprite_SetPosition(&data->sprite[0], t1, t0);
+        BtlSprite_SetSortKey(&data->sprite[0], 0x7FFFFFFD - outY);
+        BtlSprite_Render(&data->sprite[0]);
     }
     return 1;
 }
 
 static s32 func_ov011_021265a8(BtlEnm010Lser* data) {
     s32           i;
-    CombatSprite* sp;
+    BattleSprite* sp;
 
     sp = data->sprite;
     for (i = 0; i < 4; i++) {
-        CombatSprite_Release(sp);
+        BtlSprite_Release(sp);
         sp++;
     }
     return 1;

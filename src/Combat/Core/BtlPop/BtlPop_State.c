@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 
 #include "Combat/Core/BtlPop.h"
 
@@ -16,7 +16,7 @@ typedef struct BtlPop_StateArgs {
 } BtlPop_StateArgs;                 // Size: 0x8
 
 typedef struct BtlPop_State {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ BattleActor* actor;
     /* 0x64 */ u16          effectMode; // actor->periodicEffectMode the sprite currently shows
     /* 0x66 */ u16          pad_66;
@@ -46,19 +46,19 @@ static void func_ov003_0209ca18(BtlPop_State* state) {
     } else {
         switch (state->effectMode) {
             case 1: {
-                CombatSprite_SetAnimFromTable(&state->sprite, 1, 0);
+                BtlSprite_SetAnimFromTable(&state->sprite, 1, 0);
             } break;
 
             case 2: {
-                CombatSprite_SetAnimFromTable(&state->sprite, 2, 0);
+                BtlSprite_SetAnimFromTable(&state->sprite, 2, 0);
             } break;
 
             case 3: {
-                CombatSprite_SetAnimFromTable(&state->sprite, 3, 0);
+                BtlSprite_SetAnimFromTable(&state->sprite, 3, 0);
             } break;
 
             case 4: {
-                CombatSprite_SetAnimFromTable(&state->sprite, 0, 0);
+                BtlSprite_SetAnimFromTable(&state->sprite, 0, 0);
             } break;
         }
     }
@@ -73,9 +73,9 @@ static s32 BtlPop_State_Init(TaskPool* pool, Task* task, void* args) {
     state->actor      = params->actor;
     state->effectMode = state->actor->periodicEffectMode;
     state->isActive   = TRUE;
-    CombatSprite_LoadFromTableNoProto(params->engine, &state->sprite, &data_ov003_020d7800, data_ov003_020d80f8, 0,
-                                      params->engine == 0 ? 0x3D : 0x3F, 4);
-    func_ov003_02082738(&state->sprite, 0);
+    BtlSprite_LoadFromTableNoProto(params->engine, &state->sprite, &data_ov003_020d7800, data_ov003_020d80f8, 0,
+                                   params->engine == 0 ? 0x3D : 0x3F, 4);
+    BtlSprite_SetPriority(&state->sprite, 0);
     func_ov003_0209ca18(state);
     return 1;
 }
@@ -90,7 +90,7 @@ static s32 BtlPop_State_Update(TaskPool* pool, Task* task, void* args) {
         state->effectMode = state->actor->periodicEffectMode;
         func_ov003_0209ca18(state);
     }
-    CombatSprite_Update(&state->sprite);
+    BtlSprite_Update(&state->sprite);
     return state->isActive;
 }
 
@@ -113,14 +113,14 @@ static s32 BtlPop_State_Render(TaskPool* pool, Task* task, void* args) {
         posY = CombatStage_ToScreenY(1, actor->position.y, actor->position.z);
         posY = (s16)(posY - state->actor->height);
     }
-    CombatSprite_SetPosition(&state->sprite, posX, posY);
-    func_ov003_02082730(&state->sprite, 10);
-    CombatSprite_Render(&state->sprite);
+    BtlSprite_SetPosition(&state->sprite, posX, posY);
+    BtlSprite_SetSortKey(&state->sprite, 10);
+    BtlSprite_Render(&state->sprite);
     return 1;
 }
 
 static s32 BtlPop_State_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

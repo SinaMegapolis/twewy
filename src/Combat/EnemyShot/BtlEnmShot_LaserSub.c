@@ -19,8 +19,8 @@ typedef struct Ov003EnemyShotLaserSubArgs {
 } Ov003EnemyShotLaserSubArgs;               // Size: 0x1C
 
 typedef struct Ov003EnemyShotLaserSub {
-    /* 0x000 */ CombatSprite          sprite;  // the main beam
-    /* 0x060 */ CombatSprite          sprite2; // the glow
+    /* 0x000 */ BattleSprite          sprite;  // the main beam
+    /* 0x060 */ BattleSprite          sprite2; // the glow
     /* 0x0C0 */ Ov003EnemyShotSource* source;
     /* 0x0C4 */ CombatList*           list;
     /* 0x0C8 */ Ov003EnemyShotRoot*   root; // the next root, spawns the next segment when this one has finished
@@ -73,12 +73,12 @@ static s32 func_ov003_020d0834(Ov003EnemyShotLaserSub* self, Ov003EnemyShotLaser
     self->length    = args->length;
     self->step      = args->step;
     self->delay     = args->delay;
-    CombatSprite_LoadDirect(2, &self->sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex,
-                            entry->frameDataIndex, visual->paletteSlot, entry->animDataIndex);
-    CombatSprite_SetAnim(&self->sprite, args->source->animation, 0);
-    CombatSprite_LoadDirect(2, &self->sprite2, visual->file, entry->charDataIndex, entry->paletteDataIndex,
-                            entry->frameDataIndex, visual->paletteSlot, entry->animDataIndex);
-    CombatSprite_SetAnim(&self->sprite2, self->animation, 0);
+    BtlSprite_LoadDirect(2, &self->sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                         visual->paletteEntry, entry->animIndex);
+    BtlSprite_SetAnim(&self->sprite, args->source->animation, 0);
+    BtlSprite_LoadDirect(2, &self->sprite2, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                         visual->paletteEntry, entry->animIndex);
+    BtlSprite_SetAnim(&self->sprite2, self->animation, 0);
     if (args->root == NULL) {
         func_ov003_020d117c(self->list);
         return 0;
@@ -191,8 +191,8 @@ static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
     }
     CombatStage_WorldToScreen(0, &x, &y, boxX, boxY, boxZ);
     CombatHit_AttackAtScreen(&info, &self->source->core.owner->base.actor.baseArgs, x, y);
-    CombatSprite_Update(&self->sprite);
-    CombatSprite_Update(&self->sprite2);
+    BtlSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite2);
     return 1;
 }
 
@@ -215,20 +215,20 @@ static s32 func_ov003_020d0ff4(Ov003EnemyShotLaserSub* self) {
             break;
     }
     CombatStage_WorldToScreen(0, &x, &y, self->x, self->y, self->z);
-    CombatSprite_SetPosition(&self->sprite, (s16)(x + xOffset), (s16)(y + yOffset));
-    CombatSprite_SetAffineTransform(&self->sprite, self->direction, scaleX, scaleY, 1);
-    func_ov003_02082730(&self->sprite, 0x96000);
-    CombatSprite_Render(&self->sprite);
+    BtlSprite_SetPosition(&self->sprite, (s16)(x + xOffset), (s16)(y + yOffset));
+    BtlSprite_SetAffineTransform(&self->sprite, self->direction, scaleX, scaleY, 1);
+    BtlSprite_SetSortKey(&self->sprite, 0x96000);
+    BtlSprite_Render(&self->sprite);
     CombatStage_WorldToScreen(0, &x, &y, self->x, self->y, self->z);
-    CombatSprite_SetPosition(&self->sprite2, x, y);
-    func_ov003_02082730(&self->sprite2, 0x12C000);
-    CombatSprite_Render(&self->sprite2);
+    BtlSprite_SetPosition(&self->sprite2, x, y);
+    BtlSprite_SetSortKey(&self->sprite2, 0x12C000);
+    BtlSprite_Render(&self->sprite2);
     return 1;
 }
 
 static s32 func_ov003_020d1110(Ov003EnemyShotLaserSub* self) {
-    CombatSprite_Release(&self->sprite);
-    CombatSprite_Release(&self->sprite2);
+    BtlSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite2);
     return 1;
 }
 

@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlPhase.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
@@ -18,7 +18,7 @@ struct BtlWin;
 typedef void (*BtlWinState)(struct BtlWin*);
 
 typedef struct BtlWin {
-    /* 0x00 */ CombatSprite sprites[2]; // [0] main screen, [1] sub screen
+    /* 0x00 */ BattleSprite sprites[2]; // [0] main screen, [1] sub screen
     /* 0xC0 */ s32          x;          // the main screen banner
     /* 0xC4 */ s32          subX;       // the sub screen banner
     /* 0xC8 */ BtlWinState  state;
@@ -43,10 +43,10 @@ static void func_ov003_020a0f08(BtlWin* self, BtlWinState state) {
 }
 
 /// Loads a banner sprite for `engine`.
-static void func_ov003_020a0f1c(s32 engine, CombatSprite* sprite) {
+static void func_ov003_020a0f1c(s32 engine, BattleSprite* sprite) {
     SpriteAnimationEx anim;
 
-    CombatSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
+    BtlSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 2;
@@ -56,9 +56,9 @@ static void func_ov003_020a0f1c(s32 engine, CombatSprite* sprite) {
     anim.anim.unk_20     = 4;
     anim.anim.animIndex  = 1;
     anim.animTable       = NULL;
-    CombatSprite_Load(sprite, &anim);
-    func_ov003_02082730(sprite, 0);
-    func_ov003_02082738(sprite, 0);
+    BtlSprite_Load(sprite, &anim);
+    BtlSprite_SetSortKey(sprite, 0);
+    BtlSprite_SetPriority(sprite, 0);
 }
 
 /// The generic victory line; `weak` picks the line for a hard fought win.
@@ -313,29 +313,29 @@ static s32 BtlWin_Update(TaskPool* pool, Task* task, void* args) {
     if (self->state != NULL) {
         self->state(self);
     }
-    CombatSprite_Update(&self->sprites[0]);
-    CombatSprite_Update(&self->sprites[1]);
+    BtlSprite_Update(&self->sprites[0]);
+    BtlSprite_Update(&self->sprites[1]);
     return self->running;
 }
 
 static s32 BtlWin_Render(TaskPool* pool, Task* task, void* args) {
     BtlWin* self = task->data;
 
-    CombatSprite_SetPosition(&self->sprites[1], (self->subX * 0x10) >> 16, 0x60);
-    CombatSprite_Render(&self->sprites[1]);
+    BtlSprite_SetPosition(&self->sprites[1], (self->subX * 0x10) >> 16, 0x60);
+    BtlSprite_Render(&self->sprites[1]);
     if (g_CombatGlobal->unk3D88D == 3) {
         return 1;
     }
-    CombatSprite_SetPosition(&self->sprites[0], (self->x * 0x10) >> 16, 0x60);
-    CombatSprite_Render(&self->sprites[0]);
+    BtlSprite_SetPosition(&self->sprites[0], (self->x * 0x10) >> 16, 0x60);
+    BtlSprite_Render(&self->sprites[0]);
     return 1;
 }
 
 static s32 BtlWin_Release(TaskPool* pool, Task* task, void* args) {
     BtlWin* self = task->data;
 
-    CombatSprite_Release(&self->sprites[0]);
-    CombatSprite_Release(&self->sprites[1]);
+    BtlSprite_Release(&self->sprites[0]);
+    BtlSprite_Release(&self->sprites[1]);
     return 1;
 }
 

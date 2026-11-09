@@ -60,7 +60,7 @@ static s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage
                     result = func_ov003_020b03b4(self);
                     break;
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             self->firstTick = 0;
         done:
             return result;
@@ -71,16 +71,16 @@ static s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage
             if (self->phase == 0) {
                 s32 y = CombatStage_ToScreenY(0, unit->actor.position.y, unit->actor.position.z);
                 s32 x = CombatStage_ToScreenX(0, unit->actor.position.x);
-                CombatSprite_SetPosition(&self->sprite, x, y);
-                func_ov003_02082730(&self->sprite, unit->actor.position.y);
-                CombatSprite_Render(&self->sprite);
+                BtlSprite_SetPosition(&self->sprite, x, y);
+                BtlSprite_SetSortKey(&self->sprite, unit->actor.position.y);
+                BtlSprite_Render(&self->sprite);
             }
             return 1;
         }
         case 3: {
             self                  = task->data;
             Ov003EnemyActor* unit = self->unit;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             func_ov003_020a6198(unit, 4);
             return 1;
         }

@@ -18,18 +18,18 @@ static SpriteAnimEntry const data_ov012_021278b4[8][2];
 
 static const u16 data_ov012_0212783c[4] = {0x10, 0x16, 0x16, 0x16};
 
-static const BtlSpriteDesc data_ov012_02127844 = {&data_ov012_02127894, &data_ov012_021278b4[0][0], 0, 0x10, 0xD8};
+static const BattleSpriteDesc data_ov012_02127844 = {&data_ov012_02127894, &data_ov012_021278b4[0][0], 0, 0x10, 0xD8};
 
 static const SpriteAnimEntry data_ov012_02127854[2] = {
     {   4,    6,    5, 0},
     {0x13, 0x15, 0x14, 0},
 };
 
-static const BtlSpriteDesc data_ov012_02127864 = {&data_ov012_0212789c, &data_ov012_021278b4[0][0], 0, 0x16, 0xF0};
+static const BattleSpriteDesc data_ov012_02127864 = {&data_ov012_0212789c, &data_ov012_021278b4[0][0], 0, 0x16, 0xF0};
 
-static const BtlSpriteDesc data_ov012_02127874 = {&data_ov012_021278ac, &data_ov012_021278b4[0][0], 0, 0x16, 0x104};
+static const BattleSpriteDesc data_ov012_02127874 = {&data_ov012_021278ac, &data_ov012_021278b4[0][0], 0, 0x16, 0x104};
 
-static const BtlSpriteDesc data_ov012_02127884 = {&data_ov012_021278a4, &data_ov012_021278b4[0][0], 0, 0x16, 0x104};
+static const BattleSpriteDesc data_ov012_02127884 = {&data_ov012_021278a4, &data_ov012_021278b4[0][0], 0, 0x16, 0x104};
 
 static const BinIdentifier data_ov012_02127894 = {3, data_ov012_02127990};
 
@@ -50,7 +50,7 @@ static const SpriteAnimEntry data_ov012_021278b4[8][2] = {
     {{0x10, 0x12, 0x11, 0}, {0x10, 0x12, 0x11, 1}},
 };
 
-BtlSpriteDesc* data_ov012_02127980[4] = {
+BattleSpriteDesc* data_ov012_02127980[4] = {
     &data_ov012_02127844,
     &data_ov012_02127864,
     &data_ov012_02127884,
@@ -143,12 +143,12 @@ void func_ov012_02125858(BtlEnm014* data) {
         target = g_CombatGlobal->partner;
     }
     data->base.actor.damageTakenPercent = 100;
-    if (data->base.sprite.flags46 & 1) {
+    if (data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
         if (data->base.actor.position.x < target->position.x) {
             goto hit;
         }
     }
-    if (!(data->base.sprite.flags46 & 1)) {
+    if (!(data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED)) {
         if (data->base.actor.position.x > target->position.x) {
             goto hit;
         }

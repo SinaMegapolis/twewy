@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
 
@@ -21,9 +21,9 @@ typedef struct BtlBadgeTimeBoot {
     /* 0x004 */ s32              unk_004;
     /* 0x008 */ s16              unk_008; // half of the actor's lifetime when the badge started
     /* 0x00A */ s16              unk_00A;
-    /* 0x00C */ CombatSprite     badge;
-    /* 0x06C */ CombatSprite     bar;
-    /* 0x0CC */ CombatSprite     fill;  // the part of the bar that drains
+    /* 0x00C */ BattleSprite     badge;
+    /* 0x06C */ BattleSprite     bar;
+    /* 0x0CC */ BattleSprite     fill;  // the part of the bar that drains
     /* 0x12C */ s32              armed; // the "about to fire" animation has been switched to
 } BtlBadgeTimeBoot;                     // Size: 0x130
 
@@ -59,7 +59,7 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
             self->unk_008        = arg->total;
             self->armed          = 0;
             self->unk_004        = 0;
-            CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
+            BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
             anim.anim.bits_10_11 = 0;
             anim.anim.unk_1C     = 3;
             anim.anim.unk_28     = 1;
@@ -69,18 +69,18 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
             anim.anim.unk_26     = 1;
             anim.anim.packIndex  = 1;
             anim.anim.animIndex  = 1;
-            CombatSprite_Load(&self->badge, &anim);
-            CombatSprite_SetAnim(&self->badge, 0, 0);
-            func_ov003_02082738(&self->badge, 0);
-            func_ov003_02082730(&self->badge, 0x3F5000);
-            CombatSprite_Load(&self->bar, &anim);
-            CombatSprite_SetAnim(&self->bar, 2, 0);
-            func_ov003_02082738(&self->bar, 0);
-            func_ov003_02082730(&self->bar, 0x3F4000);
-            CombatSprite_Load(&self->fill, &anim);
-            CombatSprite_SetAnim(&self->fill, 1, 0);
-            func_ov003_02082738(&self->fill, 0);
-            func_ov003_02082730(&self->fill, 0x3F3000);
+            BtlSprite_Load(&self->badge, &anim);
+            BtlSprite_SetAnim(&self->badge, 0, 0);
+            BtlSprite_SetPriority(&self->badge, 0);
+            BtlSprite_SetSortKey(&self->badge, 0x3F5000);
+            BtlSprite_Load(&self->bar, &anim);
+            BtlSprite_SetAnim(&self->bar, 2, 0);
+            BtlSprite_SetPriority(&self->bar, 0);
+            BtlSprite_SetSortKey(&self->bar, 0x3F4000);
+            BtlSprite_Load(&self->fill, &anim);
+            BtlSprite_SetAnim(&self->fill, 1, 0);
+            BtlSprite_SetPriority(&self->fill, 0);
+            BtlSprite_SetSortKey(&self->fill, 0x3F3000);
             return 1;
         }
         case 1: {
@@ -111,7 +111,7 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
                 }
                 if (self->armed == 0 && self->actor->unk_048 < self->unk_008 / 2) {
                     self->armed = 1;
-                    CombatSprite_SetAnim(&self->bar, 3, 0);
+                    BtlSprite_SetAnim(&self->bar, 3, 0);
                 }
                 if (self->actor->unk_048 < 0) {
                     CombatSe_Play(SEIDX_SE_PSY_FULL);
@@ -119,9 +119,9 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
                     return 0;
                 }
             }
-            CombatSprite_Update(&self->badge);
-            CombatSprite_Update(&self->bar);
-            CombatSprite_Update(&self->fill);
+            BtlSprite_Update(&self->badge);
+            BtlSprite_Update(&self->bar);
+            BtlSprite_Update(&self->fill);
             return 1;
         }
         case 2: {
@@ -138,23 +138,23 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
             }
 
             ratio = FX_Divide(self->actor->unk_048 << 12, self->unk_008 << 12);
-            CombatSprite_SetAffineTransform(&self->fill, (u16)FX_Mul(ratio, 0x10000), 0x1000, 0x1000, 0);
+            BtlSprite_SetAffineTransform(&self->fill, (u16)FX_Mul(ratio, 0x10000), 0x1000, 0x1000, 0);
             posX = (s32)(self->actor->x * 0x10) >> 16;
             posY = (s32)(self->actor->y * 0x10) >> 16;
-            CombatSprite_SetPosition(&self->badge, posX, posY);
-            CombatSprite_SetPosition(&self->bar, posX, posY);
-            CombatSprite_SetPosition(&self->fill, posX, posY);
-            CombatSprite_Render(&self->badge);
-            CombatSprite_Render(&self->bar);
-            CombatSprite_Render(&self->fill);
+            BtlSprite_SetPosition(&self->badge, posX, posY);
+            BtlSprite_SetPosition(&self->bar, posX, posY);
+            BtlSprite_SetPosition(&self->fill, posX, posY);
+            BtlSprite_Render(&self->badge);
+            BtlSprite_Render(&self->bar);
+            BtlSprite_Render(&self->fill);
             return 1;
         }
         case 3: {
             BtlBadgeTimeBoot* self = task->data;
 
-            CombatSprite_Release(&self->badge);
-            CombatSprite_Release(&self->bar);
-            CombatSprite_Release(&self->fill);
+            BtlSprite_Release(&self->badge);
+            BtlSprite_Release(&self->bar);
+            BtlSprite_Release(&self->fill);
             return 1;
         }
     }

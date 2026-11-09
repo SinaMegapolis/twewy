@@ -6,7 +6,7 @@
 
 typedef struct BtlObs {
     /* 0x000 */ Ov003EffectActor effect;
-    /* 0x0C4 */ CombatSprite     sprites[2];
+    /* 0x0C4 */ BattleSprite     sprites[2];
     /* 0x184 */ void (*update)(struct BtlObs*);
     /* 0x188 */ s16 state;
     /* 0x18A */ s16 timer;
@@ -36,9 +36,9 @@ static s32 func_ov003_020941d4(BattleActor* actor) {
 static void func_ov003_02094200(BtlObs* obs) {
     if (obs->state == 0) {
         if (obs->effect.sprite.flags & 1) {
-            CombatSprite_SetAnimFromTable(&obs->sprites[0], 2, 0);
+            BtlSprite_SetAnimFromTable(&obs->sprites[0], 2, 0);
         } else {
-            CombatSprite_SetAnimFromTable(&obs->sprites[0], 0, 0);
+            BtlSprite_SetAnimFromTable(&obs->sprites[0], 0, 0);
         }
         obs->state++;
     }
@@ -56,7 +56,7 @@ static void func_ov003_02094294(BtlObs* obs) {
     if (!(obs->state != 0)) {
         obs->effect.actor.flags |= ACTOR_FLAG_HELD;
         BtlCollision_SetDisabled(&obs->effect.sprite.collider, 1);
-        CombatSprite_SetAnimFromTable(&obs->sprites[0], 1, 0);
+        BtlSprite_SetAnimFromTable(&obs->sprites[0], 1, 0);
         obs->state++;
     }
 }
@@ -65,9 +65,9 @@ static void func_ov003_020942e8(BtlObs* obs) {
     if (obs->state == 0) {
         obs->effect.actor.flags |= ACTOR_FLAG_THROWN;
         if (obs->effect.id == 0) {
-            CombatSprite_SetAnimFromTable(&obs->sprites[0], 2, 0);
+            BtlSprite_SetAnimFromTable(&obs->sprites[0], 2, 0);
         } else {
-            CombatSprite_SetAnimFromTable(&obs->sprites[0], 1, 0);
+            BtlSprite_SetAnimFromTable(&obs->sprites[0], 1, 0);
         }
         obs->state++;
     }
@@ -117,9 +117,9 @@ static s32 BtlObs_Init(TaskPool* pool, Task* task, void* args) {
     if (CombatAbility_IsActive(13)) {
         obs->effect.actor.currentHp *= (s16)CombatAbility_GetValue(13);
     }
-    CombatSprite_SetAnimFromTable(&obs->sprites[0], 0, 0);
+    BtlSprite_SetAnimFromTable(&obs->sprites[0], 0, 0);
     if (RNG_Next(2)) {
-        CombatSprite_SetFlip(&obs->sprites[0], 1);
+        BtlSprite_SetFlip(&obs->sprites[0], 1);
     }
     return 1;
 }
@@ -145,8 +145,8 @@ static s32 BtlObs_Update(TaskPool* pool, Task* task, void* args) {
         obs->update(obs);
     }
     CombatSys_UpdateObs(&obs->effect);
-    CombatSprite_Update(&obs->sprites[0]);
-    CombatSprite_Update(&obs->sprites[1]);
+    BtlSprite_Update(&obs->sprites[0]);
+    BtlSprite_Update(&obs->sprites[1]);
     return obs->active;
 }
 
@@ -163,8 +163,8 @@ static s32 BtlObs_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_Release(TaskPool* pool, Task* task, void* args) {
     BtlObs* obs = task->data;
 
-    CombatSprite_Release(&obs->sprites[0]);
-    CombatSprite_Release(&obs->sprites[1]);
+    BtlSprite_Release(&obs->sprites[0]);
+    BtlSprite_Release(&obs->sprites[1]);
     CombatSys_RemoveObs(&obs->effect);
     return 1;
 }

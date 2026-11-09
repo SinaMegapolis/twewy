@@ -10,9 +10,9 @@ void CombatPsyTrail_Init(Ov003TrailEffect* effect) {
     effect->count = 0;
     effect->scale = 0x1F000;
     CombatPsyAnim_Load(&effect->spriteA, 2, 1, 0xB5, 1);
-    func_ov003_02082730(&effect->spriteA, 0x3E7);
+    BtlSprite_SetSortKey(&effect->spriteA, 0x3E7);
     CombatPsyAnim_Load(&effect->spriteB, 2, 1, 0xB6, 0);
-    func_ov003_02082730(&effect->spriteB, 0x3E8);
+    BtlSprite_SetSortKey(&effect->spriteB, 0x3E8);
 }
 
 /// Updates the psych effect trail; returns 0 when it is finished.
@@ -20,8 +20,8 @@ void CombatPsyTrail_Init(Ov003TrailEffect* effect) {
 s32 CombatPsyTrail_Update(Ov003TrailEffect* effect) {
     s32 count;
 
-    CombatSprite_Update(&effect->spriteA);
-    CombatSprite_Update(&effect->spriteB);
+    BtlSprite_Update(&effect->spriteA);
+    BtlSprite_Update(&effect->spriteB);
     switch (effect->state) {
         case 0:
             effect->points[effect->count][0] = g_CombatGlobal->touchWork.x;
@@ -81,28 +81,28 @@ void CombatPsyTrail_Render(Ov003TrailEffect* effect) {
     s32 i;
 
     for (i = 0; i < effect->count; i++) {
-        CombatSprite_SetPosition(&effect->spriteA, effect->points[i][0], effect->points[i][1]);
-        func_ov003_02082730(&effect->spriteA, 0x3B6000);
+        BtlSprite_SetPosition(&effect->spriteA, effect->points[i][0], effect->points[i][1]);
+        BtlSprite_SetSortKey(&effect->spriteA, 0x3B6000);
         if (effect->scale >= 0x1000) {
             if (effect->scale < 0x1F000) {
-                CombatSprite_RenderWithPalette(&effect->spriteA, effect->scale >> 12);
+                BtlSprite_RenderTranslucent(&effect->spriteA, effect->scale >> 12);
             } else {
-                CombatSprite_Render(&effect->spriteA);
+                BtlSprite_Render(&effect->spriteA);
             }
         }
     }
     if (effect->state != 0) {
         return;
     }
-    CombatSprite_SetPosition(&effect->spriteB, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y);
-    func_ov003_02082730(&effect->spriteB, 0x3B7000);
-    CombatSprite_Render(&effect->spriteB);
+    BtlSprite_SetPosition(&effect->spriteB, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y);
+    BtlSprite_SetSortKey(&effect->spriteB, 0x3B7000);
+    BtlSprite_Render(&effect->spriteB);
 }
 
 // Nonmatching: tail-call register allocation.
 void CombatPsyTrail_Release(Ov003TrailEffect* effect) {
-    CombatSprite_Release(&effect->spriteA);
-    CombatSprite_Release(&effect->spriteB);
+    BtlSprite_Release(&effect->spriteA);
+    BtlSprite_Release(&effect->spriteB);
 }
 
 /// Checks that the trail is long and straight enough to fire the psych.

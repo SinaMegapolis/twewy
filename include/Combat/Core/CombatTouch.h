@@ -2,9 +2,9 @@
 #define COMBAT_COMBATTOUCH_H
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatList.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "Player/Inventory/Pins.h"
 
@@ -115,7 +115,7 @@ typedef struct Ov003TouchActor {
     /* 0x050 */ s16              unk_050;
     /* 0x052 */ s16              unk_052;
     /* 0x054 */ s32              unk_054;
-    /* 0x058 */ CombatSprite     sprite;
+    /* 0x058 */ BattleSprite     sprite;
     /* 0x0B8 */ s16              radius; // collision radius, pixels
     /* 0x0BC */ s32              x;      // 20.12 fixed point
     /* 0x0C0 */ s32              y;
@@ -126,7 +126,7 @@ typedef struct Ov003TouchActor {
 } Ov003TouchActor; // Size: 0x114
 
 typedef struct Ov003AnimSprite {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s16          timer;
     /* 0x62 */ s16          unk_62;
     /* 0x64 */ s32          animTimer;
@@ -137,7 +137,7 @@ typedef struct Ov003AnimSprite {
 
 // Shared with the battle manager's cursor state machine.
 typedef struct BtlIcon {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ u16          animState;
     /* 0x62 */ s16          x;
     /* 0x64 */ s16          y;
@@ -192,8 +192,8 @@ typedef struct Ov003TrailEffect {
     /* 0x000 */ s32          state;
     /* 0x004 */ s32          count;
     /* 0x008 */ s16          points[0x78][2];
-    /* 0x1E8 */ CombatSprite spriteA;
-    /* 0x248 */ CombatSprite spriteB;
+    /* 0x1E8 */ BattleSprite spriteA;
+    /* 0x248 */ BattleSprite spriteB;
     /* 0x2A8 */ s32          scale; // 20.12 fixed point
     /* 0x2AC */ s16          pivotX;
     /* 0x2AE */ s16          pivotY;

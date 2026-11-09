@@ -138,7 +138,7 @@ static void Tutorial_UnregisterVBlank(void) {
 static void func_ov026_020e7728(void* state, s16 arg1) {
     SpriteAnimationEx anim;
 
-    CombatSprite_InitAnim(&anim.anim, 0, &data_ov026_020e7fd8);
+    BtlSprite_InitAnim(&anim.anim, 0, &data_ov026_020e7fd8);
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 1;
     anim.anim.bits_10_11 = 0;
@@ -148,8 +148,8 @@ static void func_ov026_020e7728(void* state, s16 arg1) {
     anim.anim.unk_20     = 6;
     anim.anim.animIndex  = 0;
     anim.animTable       = (const SpriteAnimEntry*)(arg1 + 1);
-    CombatSprite_Load(state, &anim);
-    CombatSprite_SetPosition(state, 0x80, 0x60);
+    BtlSprite_Load(state, &anim);
+    BtlSprite_SetPosition(state, 0x80, 0x60);
 }
 
 static s32 func_ov026_020e77bc(void) {
@@ -224,15 +224,15 @@ static void func_ov026_020e7ba0(TutorialObject* object) {
 }
 
 static void func_ov026_020e7bc0(TutorialObject* object) {
-    CombatSprite_Update(&object->sprite);
+    BtlSprite_Update(&object->sprite);
 }
 
 static void func_ov026_020e7bd4(TutorialObject* object) {
-    CombatSprite_Render(&object->sprite);
+    BtlSprite_Render(&object->sprite);
 }
 
 static void func_ov026_020e7be8(TutorialObject* object) {
-    CombatSprite_Release(&object->sprite);
+    BtlSprite_Release(&object->sprite);
 }
 
 static void func_ov026_020e7bfc(TutorialObject* object) {

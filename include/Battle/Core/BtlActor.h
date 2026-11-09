@@ -1,7 +1,7 @@
 #ifndef BATTLE_CORE_BTLACTOR_H
 #define BATTLE_CORE_BTLACTOR_H
 
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 #include <nitro/fx.h>
 
 /// Which side an actor fights on
@@ -203,6 +203,6 @@ void BtlActor_Init(BattleActor* actor, BattleActorKind kind);
  * @param actor The actor to draw
  * @param sprite The actor's sprite; the screen it is assigned to picks the stage projection
  */
-void BtlActor_Render(BattleActor* actor, CombatSprite* sprite);
+void BtlActor_Render(BattleActor* actor, BattleSprite* sprite);
 
 #endif // BATTLE_CORE_BTLACTOR_H

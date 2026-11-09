@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlTch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/OamMgr.h"
 #include <nitro/mi/cpumem.h>
 
@@ -9,7 +9,7 @@
 // picked by the slash length.
 
 typedef struct BtlTchSlash {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s16          x;
     /* 0x62 */ s16          y;
     /* 0x64 */ s32          scaleX;
@@ -38,11 +38,11 @@ static s32 BtlTch_Slash_Init(TaskPool* pool, Task* task, void* args) {
     effect->angle    = input->angle + 0xC000;
     effect->alpha    = 31;
     effect->fade     = 0x1000;
-    CombatSprite_LoadDirect(2, &effect->sprite, &Iden_BtlTch, 1, 3, 2, 4, 9);
-    CombatSprite_SetAnim(&effect->sprite, 9, 1);
-    CombatSprite_SetPosition(&effect->sprite, effect->x, effect->y);
-    func_ov003_02082738(&effect->sprite, 0);
-    func_ov003_02082730(&effect->sprite, 0x3F2000);
+    BtlSprite_LoadDirect(2, &effect->sprite, &Iden_BtlTch, 1, 3, 2, 4, 9);
+    BtlSprite_SetAnim(&effect->sprite, 9, 1);
+    BtlSprite_SetPosition(&effect->sprite, effect->x, effect->y);
+    BtlSprite_SetPriority(&effect->sprite, 0);
+    BtlSprite_SetSortKey(&effect->sprite, 0x3F2000);
     if (effect->scaleY < 0x800) {
         CombatSe_PlayPanned(SEIDX_SE_PENEFFECTS, effect->x);
     } else if (effect->scaleY < 0x1000) {
@@ -64,7 +64,7 @@ static s32 BtlTch_Slash_Update(TaskPool* pool, Task* task, void* args) {
     if (SpriteMgr_IsAnimationFinished(&effect->sprite.sprite)) {
         effect->isActive = FALSE;
     }
-    CombatSprite_Update(&effect->sprite);
+    BtlSprite_Update(&effect->sprite);
     return effect->isActive;
 }
 
@@ -75,12 +75,12 @@ static s32 BtlTch_Slash_Render(TaskPool* pool, Task* task, void* args) {
 
     effect->sprite.sprite.unk_0A.unk_00 = 1;
     effect->sprite.sprite.unk_0A.unk_05 = affine;
-    CombatSprite_RenderWithPalette(&effect->sprite, effect->alpha);
+    BtlSprite_RenderTranslucent(&effect->sprite, effect->alpha);
     return 1;
 }
 
 static s32 BtlTch_Slash_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

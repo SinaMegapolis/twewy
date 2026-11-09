@@ -69,7 +69,7 @@ s32 func_ov003_020cec78(Ov003EnemyShotSource* source, u16 moveAngle, s32 moveSpe
 static s32 func_ov003_020ced48(Ov003EnemyShotGenerator* self, Ov003EnemyShotGeneratorArgs* args) {
     const Ov003EnemyShotVisual* visual = args->source->visual;
     const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
-    CombatSprite*               sprite = &self->actor.sprite;
+    BattleSprite*               sprite = &self->actor.sprite;
     s32                         engine = args->source->core.owner->base.sprite.sprite.bits_0_1;
     MI_CpuSet(self, 0, sizeof(*self));
     func_ov003_020cc8b0(&self->core, args->source);
@@ -93,9 +93,9 @@ static s32 func_ov003_020ced48(Ov003EnemyShotGenerator* self, Ov003EnemyShotGene
     self->spreadDecay = FX_Mul(FX_CosIdx(args->moveAngle), args->moveDecay);
     self->speedYDecay = FX_Mul(FX_SinIdx(args->moveAngle), args->moveDecay);
     self->core.timer  = args->lifetime;
-    CombatSprite_LoadDirect(engine, sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex, entry->frameDataIndex,
-                            visual->paletteSlot, entry->animDataIndex);
-    CombatSprite_SetAnim(sprite, args->source->animation, args->source->animationMode);
+    BtlSprite_LoadDirect(engine, sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                         visual->paletteEntry, entry->animIndex);
+    BtlSprite_SetAnim(sprite, args->source->animation, args->source->animationMode);
     self->core.sprite = sprite;
     func_ov003_020cdff4(&self->core, self->spreadStep > 0, 0);
     func_ov003_020cccf0(engine, args->source);
@@ -162,7 +162,7 @@ static s32 func_ov003_020cef74(Ov003EnemyShotGenerator* self) {
     self->actor.actor.position.x = self->core.position.x;
     self->actor.actor.position.y = self->core.position.y;
     self->actor.actor.position.z = self->core.position.z;
-    CombatSprite_Update(&self->actor.sprite);
+    BtlSprite_Update(&self->actor.sprite);
     return 1;
 }
 
@@ -170,9 +170,9 @@ static s32 func_ov003_020cf228(Ov003EnemyShotGenerator* self) {
     s16 x, y;
     CombatStage_WorldToScreen(func_ov003_020c37f8(&self->actor.sprite) ? 1 : 0, &x, &y, self->core.position.x,
                               self->core.position.y, self->core.position.z);
-    CombatSprite_SetPosition(&self->actor.sprite, x, y);
-    func_ov003_02082730(&self->actor.sprite, 0x7FFFFFFF - self->core.position.y);
-    CombatSprite_Render(&self->actor.sprite);
+    BtlSprite_SetPosition(&self->actor.sprite, x, y);
+    BtlSprite_SetSortKey(&self->actor.sprite, 0x7FFFFFFF - self->core.position.y);
+    BtlSprite_Render(&self->actor.sprite);
     return 1;
 }
 
@@ -182,7 +182,7 @@ static s32 func_ov003_020cf2a0(Ov003EnemyShotGenerator* self) {
     func_ov003_020c4a08((Ov003CutinActor*)self);
     if (g_CombatGlobal->unk3D8A0 == self)
         g_CombatGlobal->unk3D8A0 = NULL;
-    CombatSprite_Release(&self->actor.sprite);
+    BtlSprite_Release(&self->actor.sprite);
     return 1;
 }
 

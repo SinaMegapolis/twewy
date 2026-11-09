@@ -120,7 +120,7 @@ bump:
 
 static void func_ov010_02127650(BtlEnm006* data) {
     if (data->unk_1C0 == 0) {
-        CombatSprite_SetAnimFromTable(&data->base.sprite, 0xC, 0);
+        BtlSprite_SetAnimFromTable(&data->base.sprite, 0xC, 0);
         s32 mid = func_ov003_020cb744(0);
         if (data->base.actor.position.x < mid >> 1) {
             data->unk_1D0 = data->base.actor.position.x + 0x80000;
@@ -153,7 +153,7 @@ static void func_ov010_02127764(BtlEnm006* data) {
         case 0:
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 3, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 3, 1);
                 func_ov003_020c4c5c(&data->base);
                 if (data->base.actor.flags & ACTOR_FLAG_NO_FLINCH) {
                     data->ext.ug.unk_1F5 |= 2;
@@ -195,7 +195,7 @@ static void func_ov010_02127764(BtlEnm006* data) {
                         data->ext.ug.unk_1F4 = 0;
                     }
                 }
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 0xD, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 0xD, 1);
                 data->base.flags18C &= ~1;
                 if (data->base.actor.position.x < other->position.x) {
                     func_ov003_020c4ab4(&data->base, 1);
@@ -234,7 +234,7 @@ static void func_ov010_02127764(BtlEnm006* data) {
         case 3:
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 0xE, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 0xE, 1);
                 data->base.actor.flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
                 if (data->ext.ug.unk_1F4 == 0) {
                     func_ov003_020cb578(&data->base.actor, 1);
@@ -288,7 +288,7 @@ static void func_ov010_02127764(BtlEnm006* data) {
                 data->unk_1C0 = data->unk_1C0 + 1;
                 data->base.flags18C &= ~1;
                 data->base.actor.flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 4, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 4, 1);
                 func_ov003_020cb578(&data->base.actor, 1);
                 func_ov003_020c4c5c(&data->base);
                 data->base.actor.position.x = RNG_Next((func_ov003_020cb744(0) >> 12) + 1) << 12;
@@ -314,7 +314,7 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
         case 0:
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 3, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 3, 1);
                 CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, CombatStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
@@ -341,7 +341,7 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
         case 2:
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 0xF, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 0xF, 1);
                 data->base.flags18C &= ~1;
                 if (data->base.actor.position.x < g_CombatGlobal->player->position.x) {
                     func_ov003_020c4ab4(&data->base, 0);
@@ -378,7 +378,7 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
             return;
         case 3:
             if (data->unk_1C0 == 0) {
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 0x10, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 0x10, 1);
                 data->base.flags18C &= ~1;
                 data->base.actor.flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
                 func_ov003_020cb578(&data->base.actor, 1);
@@ -441,10 +441,10 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
         case 5:
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 4, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 4, 1);
                 data->base.flags18C &= ~1;
                 data->base.actor.flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 4, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 4, 1);
                 func_ov003_020cb578(&data->base.actor, 1);
                 func_ov003_020c4c5c(&data->base);
                 data->base.actor.position.x = RNG_Next((func_ov003_020cb744(0) >> 12) + 1) << 12;
@@ -707,7 +707,7 @@ static void func_ov010_02128820(BtlEnm006* data, s32 arg1) {
     data->unk_1D4 = o1b;
     data->unk_1D8 = 0;
     func_ov010_021286e8(data, o1a, o1b, &h, &w);
-    CombatSprite_SetAnimFromTable(&data->base.sprite, h, 0);
+    BtlSprite_SetAnimFromTable(&data->base.sprite, h, 0);
     func_ov003_020c4ab4(&data->base, w);
     data->unk_1F2 = func_ov010_02128a6c(data, (void*)0x2800);
 
@@ -848,7 +848,7 @@ static void func_ov010_02128d20(BtlEnm006* data, u16 arg1) {
     if (data->unk_1E8 >= 4) {
         data->unk_1E8 = 3;
     } else {
-        CombatSprite_SetPaletteSource(&data->base.sprite, data_ov010_021292f4[data->base.spriteIndex][data->unk_1E8]);
+        BtlSprite_SetPaletteSource(&data->base.sprite, data_ov010_021292f4[data->base.spriteIndex][data->unk_1E8]);
         data->base.sprite.basePaletteSource    = data->base.sprite.sprite.unk3C;
         data->base.sprite.basePalette          = data->base.sprite.sprite.paletteData;
         data->base.actor.baseArgs.powerPercent = (s16)((((s32)(data->unk_1E8 << 12) / 3 + 0x1000) * 0x64) >> 12);

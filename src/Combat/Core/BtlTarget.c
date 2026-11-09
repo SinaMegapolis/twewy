@@ -1,13 +1,13 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 
 #include "Combat/Core/CombatApi.h"
 
 // The target marker: a reticle drawn on both screens over the battle unit the player is targeting.
 
 typedef struct BtlTarget {
-    /* 0x00 */ CombatSprite sprites[2];
+    /* 0x00 */ BattleSprite sprites[2];
     /* 0xC0 */ BattleActor* target;
     /* 0xC4 */ void (*update)(struct BtlTarget*);
     /* 0xC8 */ s32 active;
@@ -25,7 +25,7 @@ static void func_ov003_0209abdc(BtlTarget* target, void (*update)(BtlTarget*)) {
     target->update = update;
 }
 
-static void func_ov003_0209abe4(CombatSprite* sprite, BattleActor* actor) {
+static void func_ov003_0209abe4(BattleSprite* sprite, BattleActor* actor) {
     s32 x;
     s32 y;
 
@@ -38,16 +38,16 @@ static void func_ov003_0209abe4(CombatSprite* sprite, BattleActor* actor) {
             x = CombatStage_ToScreenX(1, positionX);
             y = CombatStage_ToScreenY(1, actor->position.y, actor->position.z - (actor->centerHeight << 12));
         }
-        CombatSprite_SetPosition(sprite, x, y);
-        func_ov003_02082730(sprite, 10);
-        CombatSprite_Render(sprite);
+        BtlSprite_SetPosition(sprite, x, y);
+        BtlSprite_SetSortKey(sprite, 10);
+        BtlSprite_Render(sprite);
     }
 }
 
 static void func_ov003_0209ac8c(BtlTarget* target) {
     if (SpriteMgr_IsAnimationFinished(&target->sprites[0].sprite)) {
-        CombatSprite_SetAnimFromTable(&target->sprites[0], 0, 0);
-        CombatSprite_SetAnimFromTable(&target->sprites[1], 0, 0);
+        BtlSprite_SetAnimFromTable(&target->sprites[0], 0, 0);
+        BtlSprite_SetAnimFromTable(&target->sprites[1], 0, 0);
         func_ov003_0209abdc(target, NULL);
     }
 }
@@ -58,10 +58,10 @@ static s32 BtlTarget_Init(TaskPool* pool, Task* task, void* args) {
     target->active = 1;
     target->target = NULL;
     func_ov003_0209abdc(target, NULL);
-    CombatSprite_LoadFromTable(1, &target->sprites[0], &data_ov003_020d7800, data_ov003_020d7fec, 0, 0x3F, 0x10);
-    CombatSprite_LoadFromTable(0, &target->sprites[1], &data_ov003_020d7800, data_ov003_020d7fec, 0, 0x3D, 0x10);
-    CombatSprite_SetAnimFromTable(&target->sprites[0], 1, 1);
-    CombatSprite_SetAnimFromTable(&target->sprites[1], 1, 1);
+    BtlSprite_LoadFromTable(1, &target->sprites[0], &data_ov003_020d7800, data_ov003_020d7fec, 0, 0x3F, 0x10);
+    BtlSprite_LoadFromTable(0, &target->sprites[1], &data_ov003_020d7800, data_ov003_020d7fec, 0, 0x3D, 0x10);
+    BtlSprite_SetAnimFromTable(&target->sprites[0], 1, 1);
+    BtlSprite_SetAnimFromTable(&target->sprites[1], 1, 1);
     return 1;
 }
 
@@ -74,17 +74,17 @@ static s32 BtlTarget_Update(TaskPool* pool, Task* task, void* args) {
     }
     if (target->target != g_CombatGlobal->unk3D8A0) {
         target->target = g_CombatGlobal->unk3D8A0;
-        CombatSprite_SetAnim(&target->sprites[0], 2, 1);
-        CombatSprite_SetAnim(&target->sprites[1], 2, 1);
-        CombatSprite_Restart(&target->sprites[0]);
-        CombatSprite_Restart(&target->sprites[1]);
+        BtlSprite_SetAnim(&target->sprites[0], 2, 1);
+        BtlSprite_SetAnim(&target->sprites[1], 2, 1);
+        BtlSprite_Restart(&target->sprites[0]);
+        BtlSprite_Restart(&target->sprites[1]);
         func_ov003_0209abdc(target, func_ov003_0209ac8c);
     }
     if (target->update != NULL) {
         target->update(target);
     }
-    CombatSprite_Update(&target->sprites[0]);
-    CombatSprite_Update(&target->sprites[1]);
+    BtlSprite_Update(&target->sprites[0]);
+    BtlSprite_Update(&target->sprites[1]);
     return target->active;
 }
 
@@ -106,8 +106,8 @@ static s32 BtlTarget_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlTarget_Release(TaskPool* pool, Task* task, void* args) {
     BtlTarget* target = task->data;
 
-    CombatSprite_Release(&target->sprites[0]);
-    CombatSprite_Release(&target->sprites[1]);
+    BtlSprite_Release(&target->sprites[0]);
+    BtlSprite_Release(&target->sprites[1]);
     return 1;
 }
 

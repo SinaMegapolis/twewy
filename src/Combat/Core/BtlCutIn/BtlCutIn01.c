@@ -25,7 +25,7 @@ typedef struct BtlCutIn01Scene {
     /* 0x44 */ ScreenMapEntry   mainMap;
     /* 0x6C */ void*            mainTiles[2];
     /* 0x74 */ s32              x;
-    /* 0x78 */ CombatSprite     sprite;
+    /* 0x78 */ BattleSprite     sprite;
     /* 0xD8 */ s16              y;
     /* 0xDA */ u16              reservedDA;
 } BtlCutIn01Scene; // Size: 0xDC
@@ -68,7 +68,7 @@ typedef struct BtlCutIn01Resources {
 
 /// Per partner: the sprite's palette slot and its height on screen.
 typedef struct BtlCutIn01SpriteLayout {
-    u16 paletteSlots[3], y[3];
+    u16 paletteEntries[3], y[3];
 } BtlCutIn01SpriteLayout;
 
 extern const BinIdentifier data_ov003_020d7828;
@@ -175,8 +175,8 @@ static s32 BtlCutIn01_StepRelease(BtlCutIn01* self) {
     BgResMgr_ReleaseChar(g_BgResourceManagers[1], self->scenes[0].characters[0]);
     BgResMgr_ReleaseChar(g_BgResourceManagers[0], self->scenes[1].characters[1]);
     BgResMgr_ReleaseChar(g_BgResourceManagers[1], self->scenes[1].characters[0]);
-    CombatSprite_Release(&self->scenes[0].sprite);
-    CombatSprite_Release(&self->scenes[1].sprite);
+    BtlSprite_Release(&self->scenes[0].sprite);
+    BtlSprite_Release(&self->scenes[1].sprite);
     func_0200d954(0, 1);
     func_0200d954(0, 2);
     func_0200d954(0, 3);
@@ -253,9 +253,9 @@ static void BtlCutIn01_LoadScenes(BtlCutIn01* self, u16 kind) {
     func_0200d1d8(&neku->mainMap, 0, 1, NULL, neku->mainTiles, 1, 1);
     PaletteMgr_Flush(g_PaletteManagers[0], neku->palettes[1]);
     func_0200d858(&neku->mainMap, 0, 0, 0);
-    CombatSprite_LoadFromTable(1, &neku->sprite, &data_ov003_020d7828, BtlCutIn01_NekuAnims, 0, 4, 80);
-    CombatSprite_SetAnimFromTable(&neku->sprite, 0, 1);
-    CombatSprite_SetFlip(&neku->sprite, 0);
+    BtlSprite_LoadFromTable(1, &neku->sprite, &data_ov003_020d7828, BtlCutIn01_NekuAnims, 0, 4, 80);
+    BtlSprite_SetAnimFromTable(&neku->sprite, 0, 1);
+    BtlSprite_SetFlip(&neku->sprite, 0);
     neku->x                = -0x100000;
     partner->pack          = DatMgr_LoadPackEntry(1, NULL, 0, &Iden_BtlSpecial3, partnerRes->pack, 0);
     palette                = Data_GetPackEntryData(partner->pack, partnerRes->subPalette);
@@ -284,10 +284,10 @@ static void BtlCutIn01_LoadScenes(BtlCutIn01* self, u16 kind) {
     BtlCutIn01_LoadOverlays(self, kind);
     BtlCutIn01SpriteLayout layout = BtlCutIn01_PartnerSpriteLayout;
     partner->y                    = layout.y[kind];
-    CombatSprite_LoadFromTable(1, &partner->sprite, &data_ov003_020d7828, BtlCutIn01_PartnerAnims, (u16)(kind * 2),
-                               layout.paletteSlots[kind], 80);
-    CombatSprite_SetAnimFromTable(&partner->sprite, self->kind * 2, 1);
-    CombatSprite_SetFlip(&partner->sprite, 0);
+    BtlSprite_LoadFromTable(1, &partner->sprite, &data_ov003_020d7828, BtlCutIn01_PartnerAnims, (u16)(kind * 2),
+                            layout.paletteEntries[kind], 80);
+    BtlSprite_SetAnimFromTable(&partner->sprite, self->kind * 2, 1);
+    BtlSprite_SetFlip(&partner->sprite, 0);
     partner->x = 0x100000;
 }
 
@@ -325,8 +325,8 @@ static s32 BtlCutIn01_StepSlideIn(BtlCutIn01* self) {
 }
 
 static s32 BtlCutIn01_StepPose(BtlCutIn01* self) {
-    CombatSprite_SetAnimFromTable(&self->scenes[0].sprite, 1, 1);
-    CombatSprite_SetAnimFromTable(&self->scenes[1].sprite, self->kind * 2 + 1, 1);
+    BtlSprite_SetAnimFromTable(&self->scenes[0].sprite, 1, 1);
+    BtlSprite_SetAnimFromTable(&self->scenes[1].sprite, self->kind * 2 + 1, 1);
     self->timer = 30;
     BtlCutIn01_NextStep(self);
     return 2;
@@ -408,8 +408,8 @@ static s32 BtlCutIn01_Update(TaskPool* pool, Task* task, void* args) {
         BtlCutIn_PlaySecondVoice(self->kind, 1);
     }
     self->elapsed++;
-    CombatSprite_Update(&self->scenes[0].sprite);
-    CombatSprite_Update(&self->scenes[1].sprite);
+    BtlSprite_Update(&self->scenes[0].sprite);
+    BtlSprite_Update(&self->scenes[1].sprite);
     if ((self->overlaySubY >> 12) >= 512) {
         self->overlaySubY  = 0x200000;
         self->overlayMainY = 0;
@@ -435,14 +435,14 @@ static s32 BtlCutIn01_Render(TaskPool* pool, Task* task, void* args) {
     if (!self->active) {
         return 1;
     }
-    CombatSprite_SetPosition(&self->scenes[0].sprite, (s16)((self->scenes[0].x >> 12) + 128), 80);
-    CombatSprite_SetAffineTransform(&self->scenes[0].sprite, 0, 0x1000, 0x1000, 1);
-    func_ov003_02082730(&self->scenes[0].sprite, 1);
-    CombatSprite_Render(&self->scenes[0].sprite);
-    CombatSprite_SetPosition(&partner->sprite, (s16)((partner->x >> 12) + 128), partner->y);
-    CombatSprite_SetAffineTransform(&partner->sprite, 0, 0x1000, 0x1000, 1);
-    func_ov003_02082730(&partner->sprite, 2);
-    CombatSprite_Render(&partner->sprite);
+    BtlSprite_SetPosition(&self->scenes[0].sprite, (s16)((self->scenes[0].x >> 12) + 128), 80);
+    BtlSprite_SetAffineTransform(&self->scenes[0].sprite, 0, 0x1000, 0x1000, 1);
+    BtlSprite_SetSortKey(&self->scenes[0].sprite, 1);
+    BtlSprite_Render(&self->scenes[0].sprite);
+    BtlSprite_SetPosition(&partner->sprite, (s16)((partner->x >> 12) + 128), partner->y);
+    BtlSprite_SetAffineTransform(&partner->sprite, 0, 0x1000, 0x1000, 1);
+    BtlSprite_SetSortKey(&partner->sprite, 2);
+    BtlSprite_Render(&partner->sprite);
     return 1;
 }
 

@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Save.h"
 
 #include "Combat/Core/BtlInf.h"
@@ -9,8 +9,8 @@
 // shown for three seconds whenever that value changes.
 
 typedef struct BtlInf_Exp {
-    /* 0x000 */ CombatSprite label;
-    /* 0x060 */ CombatSprite digits[5]; // least significant first
+    /* 0x000 */ BattleSprite label;
+    /* 0x060 */ BattleSprite digits[5]; // least significant first
     /* 0x240 */ s32          value;     // exp to the next level currently displayed
     /* 0x244 */ s16          digitCount;
     /* 0x246 */ s16          timer;     // frames left to show the panel
@@ -61,7 +61,7 @@ static void func_ov003_0209d9a8(BtlInf_Exp* exp) {
     exp->value      = gSaveData.battleExpToNextLevel;
     exp->digitCount = func_ov003_0209d8a0(digits, exp->value);
     for (i = 0; i < exp->digitCount; i++) {
-        CombatSprite_SetAnim(&exp->digits[i], (s16)digits[i], 0);
+        BtlSprite_SetAnim(&exp->digits[i], (s16)digits[i], 0);
     }
 }
 
@@ -69,12 +69,12 @@ static s32 BtlInf_Exp_Init(TaskPool* pool, Task* task, void* args) {
     BtlInf_Exp* exp = task->data;
     s32         i;
 
-    CombatSprite_LoadDirect(1, &exp->label, &data_ov003_020d7800, 7, 9, 8, 0x3F, 0);
-    CombatSprite_SetPosition(&exp->label, 6, 15);
-    func_ov003_02082738(&exp->label, 0);
+    BtlSprite_LoadDirect(1, &exp->label, &data_ov003_020d7800, 7, 9, 8, 0x3F, 0);
+    BtlSprite_SetPosition(&exp->label, 6, 15);
+    BtlSprite_SetPriority(&exp->label, 0);
     for (i = 0; i < 5; i++) {
-        CombatSprite_LoadDirect(1, &exp->digits[i], &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3F, 0);
-        func_ov003_02082738(&exp->digits[i], 0);
+        BtlSprite_LoadDirect(1, &exp->digits[i], &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3F, 0);
+        BtlSprite_SetPriority(&exp->digits[i], 0);
     }
     func_ov003_0209d9a8(exp);
     exp->timer = 0;
@@ -92,9 +92,9 @@ static s32 BtlInf_Exp_Update(TaskPool* pool, Task* task, void* args) {
     if (exp->timer > 0) {
         exp->timer--;
     }
-    CombatSprite_Update(&exp->label);
+    BtlSprite_Update(&exp->label);
     for (i = 0; i < exp->digitCount; i++) {
-        CombatSprite_Update(&exp->digits[i]);
+        BtlSprite_Update(&exp->digits[i]);
     }
     return 1;
 }
@@ -107,11 +107,11 @@ static s32 BtlInf_Exp_Render(TaskPool* pool, Task* task, void* args) {
     if (exp->timer <= 0) {
         return 1;
     }
-    CombatSprite_Render(&exp->label);
+    BtlSprite_Render(&exp->label);
     x = 6 + (exp->digitCount - 1) * 7;
     for (i = 0; i < exp->digitCount; i++) {
-        CombatSprite_SetPosition(&exp->digits[i], (s16)(x - i * 7), 15);
-        CombatSprite_Render(&exp->digits[i]);
+        BtlSprite_SetPosition(&exp->digits[i], (s16)(x - i * 7), 15);
+        BtlSprite_Render(&exp->digits[i]);
     }
     return 1;
 }
@@ -120,9 +120,9 @@ static s32 BtlInf_Exp_Release(TaskPool* pool, Task* task, void* args) {
     BtlInf_Exp* exp = task->data;
     s32         i;
 
-    CombatSprite_Release(&exp->label);
+    BtlSprite_Release(&exp->label);
     for (i = 0; i < 5; i++) {
-        CombatSprite_Release(&exp->digits[i]);
+        BtlSprite_Release(&exp->digits[i]);
     }
     return 1;
 }

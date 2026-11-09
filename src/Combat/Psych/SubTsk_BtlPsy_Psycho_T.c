@@ -61,11 +61,11 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
                 goto done;
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                 result = 1;
-                CombatSprite_Restart(&self->sprite);
+                BtlSprite_Restart(&self->sprite);
             }
             if (result)
                 CombatSe_PlayAtMainX(0x9D, self->unit->actor.position.x);
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             if (self->phase >= 2) {
                 self->unit->actor.zVelocity = 0;
                 if (!func_ov003_020a60a8(self->unit, 5)) {
@@ -156,15 +156,15 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
             y    = unit->actor.screenY - unit->actor.centerHeight;
             if (self->phase != 3 && self->phase != 4)
                 return 1;
-            CombatSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
-            func_ov003_02082730(&self->sprite, self->unit->actor.position.y + 0x1F5000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
+            BtlSprite_SetSortKey(&self->sprite, self->unit->actor.position.y + 0x1F5000);
+            BtlSprite_Render(&self->sprite);
             return 1;
         }
         case 3:
             self = task->data;
             self->context->refCount--;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             func_ov003_020a6198(self->unit, 5);
             return 1;
     }

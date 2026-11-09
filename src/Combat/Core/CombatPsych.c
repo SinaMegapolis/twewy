@@ -1,9 +1,9 @@
 #include "Combat/Core/CombatPsych.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
@@ -57,7 +57,7 @@ typedef struct Ov003EffectEntry {
 
 /// The touch-slot origin/destination block at `Ov003Global + 0x3D358`.
 
-/// One of the 0x70-byte sprite slots an effect owns: a `CombatSprite` plus its spin/fade timers.
+/// One of the 0x70-byte sprite slots an effect owns: a `BattleSprite` plus its spin/fade timers.
 
 // Defined in this unit.
 static Ov003EffectEntry* func_ov003_020a5d74(s32 state);

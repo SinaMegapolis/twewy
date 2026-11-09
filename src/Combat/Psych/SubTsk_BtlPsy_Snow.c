@@ -52,24 +52,24 @@ static s32 func_ov003_020afbc4(TaskPool* pool, Task* task, void* args, s32 stage
                         self->angle = 0x4000;
                 }
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         case 2:
             self = task->data;
-            CombatSprite_SetPosition(&self->sprite, (s16)(self->position.x >> 12), (s16)(self->position.y >> 12));
-            func_ov003_02082730(&self->sprite, 0x385000);
+            BtlSprite_SetPosition(&self->sprite, (s16)(self->position.x >> 12), (s16)(self->position.y >> 12));
+            BtlSprite_SetSortKey(&self->sprite, 0x385000);
             self->affine.rotation             = self->rotation;
-            self->affine.scaleX               = (self->sprite.flags46 & 1) ? -0x1000 : 0x1000;
+            self->affine.scaleX               = (self->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? -0x1000 : 0x1000;
             self->affine.scaleY               = 0x1000;
             self->affine.unk_0C               = 0;
             self->affine.unk_0E               = 0;
             self->sprite.affine               = &self->affine;
             self->sprite.sprite.unk_0A.unk_00 = 1;
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_Render(&self->sprite);
             return 1;
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }

@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 
 #include <nitro/mi/cpumem.h>
@@ -22,7 +22,7 @@ typedef struct BtlBadgeRankingEffectArgs {
 /// The payload of the task.
 typedef struct BtlBadgeRankingEffect {
     /* 0x00 */ Ov003TouchActor* source; // the actor the sprite follows
-    /* 0x04 */ CombatSprite     sprite;
+    /* 0x04 */ BattleSprite     sprite;
 } BtlBadgeRankingEffect;                // Size: 0x64
 
 // ---------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage
 
             MI_CpuSet(self, 0, sizeof(*self));
             self->source = arg->actor;
-            CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
+            BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
             anim.anim.bits_10_11 = 0;
             anim.anim.unk_1C     = 3;
             anim.anim.animIndex  = 2;
@@ -100,10 +100,10 @@ static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage
             anim.anim.unk_18     = 2;
             anim.anim.unk_26     = 2;
             anim.anim.packIndex  = 1;
-            CombatSprite_Load(&self->sprite, &anim);
-            CombatSprite_SetAnim(&self->sprite, arg->spriteIndex, 0);
-            func_ov003_02082738(&self->sprite, 0);
-            func_ov003_02082730(&self->sprite, 0x3F6000);
+            BtlSprite_Load(&self->sprite, &anim);
+            BtlSprite_SetAnim(&self->sprite, arg->spriteIndex, 0);
+            BtlSprite_SetPriority(&self->sprite, 0);
+            BtlSprite_SetSortKey(&self->sprite, 0x3F6000);
             return 1;
         }
         case 1: {
@@ -112,7 +112,7 @@ static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage
             if (g_CombatGlobal->unk3D874 == 2) {
                 return 0;
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         }
         case 2: {
@@ -128,18 +128,18 @@ static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage
             }
             x = (s32)((u32)self->source->x << 4) >> 16;
             y = (s32)((u32)self->source->y << 4) >> 16;
-            CombatSprite_SetPosition(&self->sprite, x, y);
+            BtlSprite_SetPosition(&self->sprite, x, y);
             if (func_ov003_020a3edc(self->source) != 0) {
-                CombatSprite_Render(&self->sprite);
+                BtlSprite_Render(&self->sprite);
             } else {
-                CombatSprite_RenderWithPalette(&self->sprite, 8);
+                BtlSprite_RenderTranslucent(&self->sprite, 8);
             }
             return 1;
         }
         case 3: {
             BtlBadgeRankingEffect* self = task->data;
 
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
         }
     }

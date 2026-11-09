@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"
 #include "Save.h"
 #include "main_02026528.h"
@@ -15,7 +15,7 @@
 // `data_ov003_020e71bc` command mailbox.
 
 typedef struct BtlPop_Combo {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ u16          digits[4];     // current combo digits, least significant first
     /* 0x68 */ u16          prevDigits[4]; // digits of the combo shown when the popup was last
                                            // refreshed; they slide in as the "gain" digits
@@ -302,9 +302,9 @@ static s32 BtlPop_Combo_Init(TaskPool* pool, Task* task, void* args) {
     combo->digitCount        = 0;
     combo->isActive          = FALSE;
 
-    CombatSprite_LoadDirect(0, &combo->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x36);
-    func_ov003_02082738(&combo->sprite, 0);
-    func_ov003_02082730(&combo->sprite, 0);
+    BtlSprite_LoadDirect(0, &combo->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x36);
+    BtlSprite_SetPriority(&combo->sprite, 0);
+    BtlSprite_SetSortKey(&combo->sprite, 0);
     return 1;
 }
 
@@ -334,16 +334,16 @@ static s32 BtlPop_Combo_Render(TaskPool* pool, Task* task, void* args) {
     }
 
     if (combo->prevDigitCount > 0) {
-        CombatSprite_SetAnim(&combo->sprite, 0x36, 0);
-        CombatSprite_SetPosition(&combo->sprite, 0x20, 0xAA);
-        CombatSprite_Update(&combo->sprite);
-        CombatSprite_Render(&combo->sprite);
+        BtlSprite_SetAnim(&combo->sprite, 0x36, 0);
+        BtlSprite_SetPosition(&combo->sprite, 0x20, 0xAA);
+        BtlSprite_Update(&combo->sprite);
+        BtlSprite_Render(&combo->sprite);
     }
     for (s32 i = 0, offset = 0; i < combo->prevDigitCount; i++, offset += 7) {
-        CombatSprite_SetAnim(&combo->sprite, (s16)(combo->prevDigits[i] + 0x14), 0);
-        CombatSprite_SetPosition(&combo->sprite, (s16)(0x20 - (offset + 7)), 170);
-        CombatSprite_Update(&combo->sprite);
-        CombatSprite_Render(&combo->sprite);
+        BtlSprite_SetAnim(&combo->sprite, (s16)(combo->prevDigits[i] + 0x14), 0);
+        BtlSprite_SetPosition(&combo->sprite, (s16)(0x20 - (offset + 7)), 170);
+        BtlSprite_Update(&combo->sprite);
+        BtlSprite_Render(&combo->sprite);
     }
 
     posX = (combo->x * 0x10) >> 0x10;
@@ -356,22 +356,22 @@ static s32 BtlPop_Combo_Render(TaskPool* pool, Task* task, void* args) {
     }
 
     if (combo->state != 2 && combo->state != 3 && (combo->state != 4 || combo->timer != 0)) {
-        CombatSprite_SetAnim(&combo->sprite, 0x36, 0);
-        CombatSprite_SetPosition(&combo->sprite, posX, posY);
-        CombatSprite_Update(&combo->sprite);
-        CombatSprite_Render(&combo->sprite);
+        BtlSprite_SetAnim(&combo->sprite, 0x36, 0);
+        BtlSprite_SetPosition(&combo->sprite, posX, posY);
+        BtlSprite_Update(&combo->sprite);
+        BtlSprite_Render(&combo->sprite);
     }
     for (s32 i = 0, offset = 0; i < combo->digitCount; i++, offset += 7) {
-        CombatSprite_SetAnim(&combo->sprite, (s16)(animOffset + combo->digits[i]), 0);
-        CombatSprite_SetPosition(&combo->sprite, (s16)(posX - (offset + 7)), posY);
-        CombatSprite_Update(&combo->sprite);
-        CombatSprite_Render(&combo->sprite);
+        BtlSprite_SetAnim(&combo->sprite, (s16)(animOffset + combo->digits[i]), 0);
+        BtlSprite_SetPosition(&combo->sprite, (s16)(posX - (offset + 7)), posY);
+        BtlSprite_Update(&combo->sprite);
+        BtlSprite_Render(&combo->sprite);
     }
     return 1;
 }
 
 static s32 BtlPop_Combo_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

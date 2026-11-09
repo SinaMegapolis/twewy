@@ -1,7 +1,7 @@
 #ifndef COMBAT_FRIEND_SHIKI_H
 #define COMBAT_FRIEND_SHIKI_H
 
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Engine/EasyTask.h"
 #include <nitro/types.h>
 

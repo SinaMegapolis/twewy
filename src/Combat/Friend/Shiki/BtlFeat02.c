@@ -1,9 +1,9 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlFeat.h"
 #include "Combat/Core/BtlSpecial.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
@@ -14,27 +14,27 @@ typedef struct BtlFeat02 {
     /* 0x000 */ s32 (**stateCallbacks)(struct BtlFeat02*);
     /* 0x004 */ char unk_004[4];
 
-    /* 0x008 */ CombatSprite phaseSpriteMainLeft;
+    /* 0x008 */ BattleSprite phaseSpriteMainLeft;
     /* 0x068 */ s32          phaseSpriteMainLeftPosX;
     /* 0x06C */ s32          phaseSpriteMainLeftPosY;
 
-    /* 0x070 */ CombatSprite phaseSpriteMainRight;
+    /* 0x070 */ BattleSprite phaseSpriteMainRight;
     /* 0x0D0 */ s32          phaseSpriteMainRightPosX;
     /* 0x0D4 */ s32          phaseSpriteMainRightPosY;
 
-    /* 0x0D8 */ CombatSprite phaseSpriteSubLeft;
+    /* 0x0D8 */ BattleSprite phaseSpriteSubLeft;
     /* 0x138 */ s32          phaseSpriteSubLeftPosX;
     /* 0x13C */ s32          phaseSpriteSubLeftPosY;
 
-    /* 0x140 */ CombatSprite phaseSpriteSubRight;
+    /* 0x140 */ BattleSprite phaseSpriteSubRight;
     /* 0x1A0 */ s32          phaseSpriteSubRightPosX;
     /* 0x1A4 */ s32          phaseSpriteSubRightPosY;
 
-    /* 0x1A8 */ CombatSprite companionSpriteA;
+    /* 0x1A8 */ BattleSprite companionSpriteA;
     /* 0x208 */ s32          unk_208;
     /* 0x20C */ s32          unk_20C;
 
-    /* 0x210 */ CombatSprite companionSpriteB;
+    /* 0x210 */ BattleSprite companionSpriteB;
     /* 0x270 */ s32          unk_270;
     /* 0x274 */ s32          unk_274;
 
@@ -245,10 +245,10 @@ void BtlFeat02_ReleasePhaseResources(BtlFeat02* feat) {
         feat->rapidFrameSubPackData = NULL;
     }
 
-    CombatSprite_Release(&feat->phaseSpriteMainLeft);
-    CombatSprite_Release(&feat->phaseSpriteMainRight);
-    CombatSprite_Release(&feat->phaseSpriteSubLeft);
-    CombatSprite_Release(&feat->phaseSpriteSubRight);
+    BtlSprite_Release(&feat->phaseSpriteMainLeft);
+    BtlSprite_Release(&feat->phaseSpriteMainRight);
+    BtlSprite_Release(&feat->phaseSpriteSubLeft);
+    BtlSprite_Release(&feat->phaseSpriteSubRight);
 }
 
 void BtlFeat02_ReleaseAllResources(BtlFeat02* feat) {
@@ -302,12 +302,12 @@ void BtlFeat02_ReleaseAllResources(BtlFeat02* feat) {
         feat->rapidFrameSubPackData = NULL;
     }
 
-    CombatSprite_Release(&feat->phaseSpriteMainLeft);
-    CombatSprite_Release(&feat->phaseSpriteMainRight);
-    CombatSprite_Release(&feat->phaseSpriteSubLeft);
-    CombatSprite_Release(&feat->phaseSpriteSubRight);
-    CombatSprite_Release(&feat->companionSpriteA);
-    CombatSprite_Release(&feat->companionSpriteB);
+    BtlSprite_Release(&feat->phaseSpriteMainLeft);
+    BtlSprite_Release(&feat->phaseSpriteMainRight);
+    BtlSprite_Release(&feat->phaseSpriteSubLeft);
+    BtlSprite_Release(&feat->phaseSpriteSubRight);
+    BtlSprite_Release(&feat->companionSpriteA);
+    BtlSprite_Release(&feat->companionSpriteB);
 }
 
 void BtlFeat02_LoadPhasePairedSprites(BtlFeat02* feat, s32 arg1) {
@@ -317,63 +317,63 @@ void BtlFeat02_LoadPhasePairedSprites(BtlFeat02* feat, s32 arg1) {
     sp10[2] = data_ov004_020f051c[2];
 
     if (arg1 > 0) {
-        CombatSprite_Release(&feat->phaseSpriteMainLeft);
-        CombatSprite_Release(&feat->phaseSpriteMainRight);
-        CombatSprite_Release(&feat->phaseSpriteSubLeft);
-        CombatSprite_Release(&feat->phaseSpriteSubRight);
+        BtlSprite_Release(&feat->phaseSpriteMainLeft);
+        BtlSprite_Release(&feat->phaseSpriteMainRight);
+        BtlSprite_Release(&feat->phaseSpriteSubLeft);
+        BtlSprite_Release(&feat->phaseSpriteSubRight);
     }
 
     s32 temp_r4 = arg1 * 2;
     u32 temp_r7 = (u32)(temp_r4 << 0x10) >> 0xD;
     u16 temp_r6 = data_ov004_020f0570[temp_r7].unk_6;
-    CombatSprite_LoadDirect(1, &feat->phaseSpriteMainLeft, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r7].unk_0,
-                            (s32)data_ov004_020f0570[temp_r7].unk_2, data_ov004_020f0570[temp_r7].unk_4, (s32)sp10[arg1],
-                            (s32)data_ov004_020f0570[temp_r7].unk_6);
-    CombatSprite_SetAnim(&feat->phaseSpriteMainLeft, temp_r6, 0);
-    func_ov003_02082738(&feat->phaseSpriteMainLeft, 2);
-    func_ov003_02082730(&feat->phaseSpriteMainLeft, 0x7FFFFFFF);
-    CombatSprite_SetFlip(&feat->phaseSpriteMainLeft, 0);
+    BtlSprite_LoadDirect(1, &feat->phaseSpriteMainLeft, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r7].unk_0,
+                         (s32)data_ov004_020f0570[temp_r7].unk_2, data_ov004_020f0570[temp_r7].unk_4, (s32)sp10[arg1],
+                         (s32)data_ov004_020f0570[temp_r7].unk_6);
+    BtlSprite_SetAnim(&feat->phaseSpriteMainLeft, temp_r6, 0);
+    BtlSprite_SetPriority(&feat->phaseSpriteMainLeft, 2);
+    BtlSprite_SetSortKey(&feat->phaseSpriteMainLeft, 0x7FFFFFFF);
+    BtlSprite_SetFlip(&feat->phaseSpriteMainLeft, 0);
 
     u32 temp_r7_2 = temp_r4 + 1;
     u32 temp_r3   = (u32)(temp_r7_2 << 0x10) >> 0xD;
     u16 temp_r6_2 = data_ov004_020f0570[temp_r3].unk_6;
-    CombatSprite_LoadDirect(1, &feat->phaseSpriteMainRight, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r3].unk_0,
-                            (u16)(s32)data_ov004_020f0570[temp_r3].unk_2, (u16)(s32)data_ov004_020f0570[temp_r3].unk_4,
-                            (u16)(s32)sp10[arg1], (u16)(s32)temp_r6_2);
-    CombatSprite_SetAnim(&feat->phaseSpriteMainRight, (s16)temp_r6_2, 0);
-    CombatSprite_SetFlip(&feat->phaseSpriteMainRight, 0);
-    func_ov003_02082738(&feat->phaseSpriteMainRight, 2);
-    func_ov003_02082730(&feat->phaseSpriteMainRight, 0x7FFFFFFF);
+    BtlSprite_LoadDirect(1, &feat->phaseSpriteMainRight, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r3].unk_0,
+                         (u16)(s32)data_ov004_020f0570[temp_r3].unk_2, (u16)(s32)data_ov004_020f0570[temp_r3].unk_4,
+                         (u16)(s32)sp10[arg1], (u16)(s32)temp_r6_2);
+    BtlSprite_SetAnim(&feat->phaseSpriteMainRight, (s16)temp_r6_2, 0);
+    BtlSprite_SetFlip(&feat->phaseSpriteMainRight, 0);
+    BtlSprite_SetPriority(&feat->phaseSpriteMainRight, 2);
+    BtlSprite_SetSortKey(&feat->phaseSpriteMainRight, 0x7FFFFFFF);
 
     u32 temp_r3_2 = (u32)(temp_r4 << 0x10) >> 0xD;
     s16 temp_r4_2 = data_ov004_020f0570[temp_r3_2].unk_6;
-    CombatSprite_LoadDirect(0, &feat->phaseSpriteSubLeft, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r3_2].unk_0,
-                            (u16)(s32)data_ov004_020f0570[temp_r3_2].unk_2, (u16)(s32)data_ov004_020f0570[temp_r3_2].unk_4,
-                            (u16)(s32)sp10[arg1], (u16)(s32)temp_r4_2);
-    CombatSprite_SetAnim(&feat->phaseSpriteSubLeft, temp_r4_2, 0);
-    CombatSprite_SetFlip(&feat->phaseSpriteSubLeft, 0);
-    func_ov003_02082738(&feat->phaseSpriteSubLeft, 2);
-    func_ov003_02082730(&feat->phaseSpriteSubLeft, 0x7FFFFFFF);
+    BtlSprite_LoadDirect(0, &feat->phaseSpriteSubLeft, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r3_2].unk_0,
+                         (u16)(s32)data_ov004_020f0570[temp_r3_2].unk_2, (u16)(s32)data_ov004_020f0570[temp_r3_2].unk_4,
+                         (u16)(s32)sp10[arg1], (u16)(s32)temp_r4_2);
+    BtlSprite_SetAnim(&feat->phaseSpriteSubLeft, temp_r4_2, 0);
+    BtlSprite_SetFlip(&feat->phaseSpriteSubLeft, 0);
+    BtlSprite_SetPriority(&feat->phaseSpriteSubLeft, 2);
+    BtlSprite_SetSortKey(&feat->phaseSpriteSubLeft, 0x7FFFFFFF);
 
     u32 temp_r6_3 = (u32)(temp_r7_2 << 0x10) >> 0xD;
     s16 temp_r4_3 = data_ov004_020f0570[temp_r6_3].unk_6;
-    CombatSprite_LoadDirect(0, &feat->phaseSpriteSubRight, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r6_3].unk_0,
-                            (u16)(s32)data_ov004_020f0570[temp_r6_3].unk_2, (u16)(s32)data_ov004_020f0570[temp_r6_3].unk_4,
-                            (u16)(s32)sp10[arg1], (u16)(s32)temp_r4_3);
-    CombatSprite_SetAnim(&feat->phaseSpriteSubRight, temp_r4_3, 0);
-    CombatSprite_SetFlip(&feat->phaseSpriteSubRight, 0);
-    func_ov003_02082738(&feat->phaseSpriteSubRight, 2);
-    func_ov003_02082730(&feat->phaseSpriteSubRight, 0x7FFFFFFF);
+    BtlSprite_LoadDirect(0, &feat->phaseSpriteSubRight, &Iden_BtlSpecialSiki, (s32)data_ov004_020f0570[temp_r6_3].unk_0,
+                         (u16)(s32)data_ov004_020f0570[temp_r6_3].unk_2, (u16)(s32)data_ov004_020f0570[temp_r6_3].unk_4,
+                         (u16)(s32)sp10[arg1], (u16)(s32)temp_r4_3);
+    BtlSprite_SetAnim(&feat->phaseSpriteSubRight, temp_r4_3, 0);
+    BtlSprite_SetFlip(&feat->phaseSpriteSubRight, 0);
+    BtlSprite_SetPriority(&feat->phaseSpriteSubRight, 2);
+    BtlSprite_SetSortKey(&feat->phaseSpriteSubRight, 0x7FFFFFFF);
 }
 
 void BtlFeat02_LoadCompanionSpritesDefault(BtlFeat02* feat) {
-    CombatSprite_LoadFromTable(1, &feat->companionSpriteA, &Iden_BtlSpecialSiki, data_ov004_020f0540, 0, 17, 0x50);
-    CombatSprite_SetAnimFromTable(&feat->companionSpriteA, 0, 0);
-    CombatSprite_SetFlip(&feat->companionSpriteA, 0);
+    BtlSprite_LoadFromTable(1, &feat->companionSpriteA, &Iden_BtlSpecialSiki, data_ov004_020f0540, 0, 17, 0x50);
+    BtlSprite_SetAnimFromTable(&feat->companionSpriteA, 0, 0);
+    BtlSprite_SetFlip(&feat->companionSpriteA, 0);
 
-    CombatSprite_LoadFromTable(1, &feat->companionSpriteB, &Iden_BtlSpecialSiki, data_ov004_020f0540, 1, 25, 0x50);
-    CombatSprite_SetAnimFromTable(&feat->companionSpriteB, 1, 0);
-    CombatSprite_SetFlip(&feat->companionSpriteB, 0);
+    BtlSprite_LoadFromTable(1, &feat->companionSpriteB, &Iden_BtlSpecialSiki, data_ov004_020f0540, 1, 25, 0x50);
+    BtlSprite_SetAnimFromTable(&feat->companionSpriteB, 1, 0);
+    BtlSprite_SetFlip(&feat->companionSpriteB, 0);
 }
 
 s32 BtlFeat02_Step_FadeInSlow(BtlFeat02* feat) {
@@ -740,15 +740,15 @@ s32 BtlFeat02_Step_LoadPhase2Resources(BtlFeat02* feat) {
     feat->subStateInterval     = 0;
     feat->companionLayoutMode  = 1;
 
-    CombatSprite_Release(&feat->companionSpriteA);
-    CombatSprite_LoadFromTable(1, &feat->companionSpriteA, &Iden_BtlSpecialSiki, data_ov004_020f0550, 0, 0x15, 0x50);
-    CombatSprite_SetAnimFromTable(&feat->companionSpriteA, 0, 0);
-    CombatSprite_SetFlip(&feat->companionSpriteA, 0);
+    BtlSprite_Release(&feat->companionSpriteA);
+    BtlSprite_LoadFromTable(1, &feat->companionSpriteA, &Iden_BtlSpecialSiki, data_ov004_020f0550, 0, 0x15, 0x50);
+    BtlSprite_SetAnimFromTable(&feat->companionSpriteA, 0, 0);
+    BtlSprite_SetFlip(&feat->companionSpriteA, 0);
 
-    CombatSprite_Release(&feat->companionSpriteB);
-    CombatSprite_LoadFromTable(1, &feat->companionSpriteB, &Iden_BtlSpecialSiki, data_ov004_020f0550, 1, 0x1D, 0x50);
-    CombatSprite_SetAnimFromTable(&feat->companionSpriteB, 1, 0);
-    CombatSprite_SetFlip(&feat->companionSpriteB, 0);
+    BtlSprite_Release(&feat->companionSpriteB);
+    BtlSprite_LoadFromTable(1, &feat->companionSpriteB, &Iden_BtlSpecialSiki, data_ov004_020f0550, 1, 0x1D, 0x50);
+    BtlSprite_SetAnimFromTable(&feat->companionSpriteB, 1, 0);
+    BtlSprite_SetFlip(&feat->companionSpriteB, 0);
 
     SndMgr_StartPlayingSE(SEIDX_SE_GIRL_SP_LV3_04);
     BtlFeat02_NextState(feat);
@@ -778,8 +778,8 @@ s32 BtlFeat02_Step_BeginRapidFrameSequence(BtlFeat02* feat) {
     feat->frameStepCountdown = feat->subStateInterval;
     feat->shakeAmpLimit      = 0;
     feat->shakeScreenOffset  = 0;
-    CombatSprite_SetAnimFromTable(&feat->companionSpriteA, 2, 0);
-    CombatSprite_SetAnimFromTable(&feat->companionSpriteB, 3, 0);
+    BtlSprite_SetAnimFromTable(&feat->companionSpriteA, 2, 0);
+    BtlSprite_SetAnimFromTable(&feat->companionSpriteB, 3, 0);
     BtlFeat02_NextState(feat);
     return 0;
 }
@@ -865,8 +865,8 @@ s32 BtlFeat02_Step_LoadFinalPhaseResources(BtlFeat02* feat) {
     Display_Commit();
     func_ov003_020bce18(0, 0, 2, 180);
     func_ov003_020bce18(1, 0, 2, 180);
-    CombatSprite_SetAnimFromTable(&feat->companionSpriteA, 0, 0);
-    CombatSprite_SetAnimFromTable(&feat->companionSpriteB, 1, 0);
+    BtlSprite_SetAnimFromTable(&feat->companionSpriteA, 0, 0);
+    BtlSprite_SetAnimFromTable(&feat->companionSpriteB, 1, 0);
     SndMgr_StartPlayingSE(SEIDX_SE_GIRL_SP_LV3_06);
     feat->shakeCallbackCooldown = 0;
     BtlFeat02_NextState(feat);
@@ -928,8 +928,8 @@ s32 BtlFeat02_Step_ReleasePhase(BtlFeat02* feat) {
 }
 
 s32 BtlFeat02_Step_ReleaseCompanionSprite(BtlFeat02* feat) {
-    CombatSprite_Release(&feat->companionSpriteA);
-    CombatSprite_Release(&feat->companionSpriteB);
+    BtlSprite_Release(&feat->companionSpriteA);
+    BtlSprite_Release(&feat->companionSpriteB);
     BtlFeat02_NextState(feat);
     return 0;
 }
@@ -992,14 +992,14 @@ s32 BtlFeat02_Update(TaskPool* pool, Task* task, void* args) {
     }
 
     BtlFeat_ForEachEnmSnapshot(1, (Ov003SnapshotCallback)func_ov004_020efab8, feat);
-    CombatSprite_Update(&feat->phaseSpriteMainLeft);
-    CombatSprite_Update(&feat->phaseSpriteMainRight);
+    BtlSprite_Update(&feat->phaseSpriteMainLeft);
+    BtlSprite_Update(&feat->phaseSpriteMainRight);
     if (SpriteMgr_IsAnimationFinished(&feat->phaseSpriteSubLeft.sprite) == 0) {
-        CombatSprite_Update(&feat->phaseSpriteSubLeft);
-        CombatSprite_Update(&feat->phaseSpriteSubRight);
+        BtlSprite_Update(&feat->phaseSpriteSubLeft);
+        BtlSprite_Update(&feat->phaseSpriteSubRight);
     }
-    CombatSprite_Update(&feat->companionSpriteA);
-    CombatSprite_Update(&feat->companionSpriteB);
+    BtlSprite_Update(&feat->companionSpriteA);
+    BtlSprite_Update(&feat->companionSpriteB);
 
     if (feat->shakeDirectionToggle != 0) {
         feat->shakeScreenOffset += feat->shakeStep;
@@ -1048,32 +1048,32 @@ s32 BtlFeat02_Render(TaskPool* pool, Task* task, void* args) {
     feat->phaseSpriteSubLeftPosY   = (feat->pairedSpriteBaseY - 0x120000);
     feat->phaseSpriteSubRightPosY  = (feat->pairedSpriteBaseY - 0x120000);
 
-    CombatSprite_SetPosition(&feat->phaseSpriteMainLeft, feat->phaseSpriteMainLeftPosX, feat->phaseSpriteMainLeftPosY);
-    CombatSprite_Render(&feat->phaseSpriteMainLeft);
+    BtlSprite_SetPosition(&feat->phaseSpriteMainLeft, feat->phaseSpriteMainLeftPosX, feat->phaseSpriteMainLeftPosY);
+    BtlSprite_Render(&feat->phaseSpriteMainLeft);
 
-    CombatSprite_SetPosition(&feat->phaseSpriteMainRight, feat->phaseSpriteMainRightPosX, feat->phaseSpriteMainRightPosY);
-    CombatSprite_Render(&feat->phaseSpriteMainRight);
+    BtlSprite_SetPosition(&feat->phaseSpriteMainRight, feat->phaseSpriteMainRightPosX, feat->phaseSpriteMainRightPosY);
+    BtlSprite_Render(&feat->phaseSpriteMainRight);
 
     if (SpriteMgr_IsAnimationFinished(&feat->phaseSpriteSubLeft.sprite) == 0) {
-        CombatSprite_SetPosition(&feat->phaseSpriteSubLeft, feat->phaseSpriteSubLeftPosX, feat->phaseSpriteSubLeftPosY);
-        CombatSprite_Render(&feat->phaseSpriteSubLeft);
-        CombatSprite_SetPosition(&feat->phaseSpriteSubRight, feat->phaseSpriteSubRightPosX, feat->phaseSpriteSubRightPosY);
-        CombatSprite_Render(&feat->phaseSpriteSubRight);
+        BtlSprite_SetPosition(&feat->phaseSpriteSubLeft, feat->phaseSpriteSubLeftPosX, feat->phaseSpriteSubLeftPosY);
+        BtlSprite_Render(&feat->phaseSpriteSubLeft);
+        BtlSprite_SetPosition(&feat->phaseSpriteSubRight, feat->phaseSpriteSubRightPosX, feat->phaseSpriteSubRightPosY);
+        BtlSprite_Render(&feat->phaseSpriteSubRight);
     }
 
     s16 var_r0 =
         (feat->companionLayoutMode == 0) ? (-feat->bgLayerAOffsetV >> 0xC) + 198 : (-feat->bgLayerAOffsetV >> 0xC) + 96;
-    CombatSprite_SetPosition(&feat->companionSpriteA, ((-feat->bgLayerAOffsetH >> 0xC) + 128), var_r0);
-    func_ov003_02082738(&feat->companionSpriteA, 3);
-    func_ov003_02082730(&feat->companionSpriteA, 0x7FFFFFFF - feat->unk_20C);
-    CombatSprite_Render(&feat->companionSpriteA);
+    BtlSprite_SetPosition(&feat->companionSpriteA, ((-feat->bgLayerAOffsetH >> 0xC) + 128), var_r0);
+    BtlSprite_SetPriority(&feat->companionSpriteA, 3);
+    BtlSprite_SetSortKey(&feat->companionSpriteA, 0x7FFFFFFF - feat->unk_20C);
+    BtlSprite_Render(&feat->companionSpriteA);
 
     s16 var_r0_2 =
         (feat->companionLayoutMode == 0) ? (-feat->bgLayerAOffsetV >> 0xC) + 0x60 : (feat->bgLayerAOffsetV >> 0xC) + 0xC6;
-    CombatSprite_SetPosition(&feat->companionSpriteB, ((-feat->bgLayerAOffsetH >> 0xC) + 0x80), var_r0_2);
-    func_ov003_02082738(&feat->companionSpriteB, 3);
-    func_ov003_02082730(&feat->companionSpriteB, 0x7FFFFFFF - feat->unk_274);
-    CombatSprite_Render(&feat->companionSpriteB);
+    BtlSprite_SetPosition(&feat->companionSpriteB, ((-feat->bgLayerAOffsetH >> 0xC) + 0x80), var_r0_2);
+    BtlSprite_SetPriority(&feat->companionSpriteB, 3);
+    BtlSprite_SetSortKey(&feat->companionSpriteB, 0x7FFFFFFF - feat->unk_274);
+    BtlSprite_Render(&feat->companionSpriteB);
     return 1;
 }
 

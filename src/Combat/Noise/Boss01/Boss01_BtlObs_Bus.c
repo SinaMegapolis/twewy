@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include <nitro/mi/cpumem.h>
@@ -11,8 +11,8 @@ typedef struct BtlObs_Bus {
     /* 0x002 */ s16          unk_002;
     /* 0x004 */ BattleActor  actor;
     /* 0x080 */ char         unk_080[0xC4 - 0x80];
-    /* 0x0C4 */ CombatSprite unk_0C4;
-    /* 0x124 */ CombatSprite unk_124;
+    /* 0x0C4 */ BattleSprite unk_0C4;
+    /* 0x124 */ BattleSprite unk_124;
     /* 0x184 */ s32          unk_184;
     /* 0x188 */ void (*unk_188)(struct BtlObs_Bus*);
     /* 0x18C */ s16 unk_18C;
@@ -44,9 +44,9 @@ static void BtlObs_Bus_OnPhaseStart(BtlObs_Bus* obs) {
         if ((*data_ov016_021292c0 == 2) && (obs->unk_124.sprite.resourceData == obs->unk_0C4.sprite.resourceData)) {
             obs->actor.radius = 60;
             obs->actor.height = 100;
-            CombatSprite_SetAnimFromTable(&obs->unk_0C4, 2, 0);
-            CombatSprite_SetPaletteSource(&obs->unk_0C4, 11);
-            CombatSprite_Release(&obs->unk_124);
+            BtlSprite_SetAnimFromTable(&obs->unk_0C4, 2, 0);
+            BtlSprite_SetPaletteSource(&obs->unk_0C4, 11);
+            BtlSprite_Release(&obs->unk_124);
             CombatHit_LoadSparkForUnit(0, &obs->unk_124, &obs->actor);
         }
     }
@@ -102,10 +102,10 @@ static s32 BtlObs_Bus_Init(TaskPool* pool, Task* task, void* args) {
     obs->actor.height            = 100;
     obs->actor.zGravity          = 0xCD;
     obs->actor.linearDampingStep = 0xE66;
-    CombatSprite_LoadFromTable(0, &obs->unk_0C4, &Iden_BtlObs_Bus, (SpriteAnimEntry*)data_ov016_02129120, 0, 10, 0x180);
-    CombatSprite_LoadFromTable(0, &obs->unk_124, &Iden_BtlObs_Bus, (SpriteAnimEntry*)data_ov016_02129120, 1, 10, 0);
-    CombatSprite_SetAnimFromTable(&obs->unk_0C4, 0, 0);
-    CombatSprite_SetAnimFromTable(&obs->unk_124, 1, 0);
+    BtlSprite_LoadFromTable(0, &obs->unk_0C4, &Iden_BtlObs_Bus, (SpriteAnimEntry*)data_ov016_02129120, 0, 10, 0x180);
+    BtlSprite_LoadFromTable(0, &obs->unk_124, &Iden_BtlObs_Bus, (SpriteAnimEntry*)data_ov016_02129120, 1, 10, 0);
+    BtlSprite_SetAnimFromTable(&obs->unk_0C4, 0, 0);
+    BtlSprite_SetAnimFromTable(&obs->unk_124, 1, 0);
     BtlObs_Bus_SetState(obs, BtlObs_Bus_StateIdle);
     return 1;
 }
@@ -132,8 +132,8 @@ static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
     }
     BtlActor_UpdatePhysics(&obs->actor);
     BtlObs_Bus_OnPhaseStart(obs);
-    CombatSprite_Update(&obs->unk_0C4);
-    CombatSprite_Update(&obs->unk_124);
+    BtlSprite_Update(&obs->unk_0C4);
+    BtlSprite_Update(&obs->unk_124);
     return obs->unk_194;
 }
 
@@ -153,16 +153,16 @@ static s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
     if (obs->unk_0C4.animTableIndex == 0) {
         s16 posYOff = posY + 8;
 
-        CombatSprite_SetPosition(&obs->unk_124, posX, posYOff);
-        func_ov003_02082730(&obs->unk_124, 0x7FFFEFFF);
-        CombatSprite_Render(&obs->unk_124);
-        CombatSprite_SetPosition(&obs->unk_0C4, posX, posY);
-        func_ov003_02082730(&obs->unk_0C4, 0x7FFFEFFF);
-        CombatSprite_Render(&obs->unk_0C4);
+        BtlSprite_SetPosition(&obs->unk_124, posX, posYOff);
+        BtlSprite_SetSortKey(&obs->unk_124, 0x7FFFEFFF);
+        BtlSprite_Render(&obs->unk_124);
+        BtlSprite_SetPosition(&obs->unk_0C4, posX, posY);
+        BtlSprite_SetSortKey(&obs->unk_0C4, 0x7FFFEFFF);
+        BtlSprite_Render(&obs->unk_0C4);
     } else {
-        CombatSprite_SetPosition(&obs->unk_0C4, posX, (s16)posY32);
-        func_ov003_02082730(&obs->unk_0C4, 0x7FFFFFFF - obs->actor.position.y);
-        CombatSprite_Render(&obs->unk_0C4);
+        BtlSprite_SetPosition(&obs->unk_0C4, posX, (s16)posY32);
+        BtlSprite_SetSortKey(&obs->unk_0C4, 0x7FFFFFFF - obs->actor.position.y);
+        BtlSprite_Render(&obs->unk_0C4);
         CombatHit_DrawSparkOnActor(&obs->unk_124, &obs->actor);
     }
     return 1;
@@ -171,8 +171,8 @@ static s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_Bus_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus* obs = task->data;
 
-    CombatSprite_Release(&obs->unk_0C4);
-    CombatSprite_Release(&obs->unk_124);
+    BtlSprite_Release(&obs->unk_0C4);
+    BtlSprite_Release(&obs->unk_124);
     return 1;
 }
 

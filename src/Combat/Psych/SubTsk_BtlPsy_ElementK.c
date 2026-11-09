@@ -110,20 +110,20 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
                 func_ov003_020add40(&self->rays[i], self->x, self->y, self->effect);
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_EGENERATE_BOOT01_01))
                 CombatSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_BOOT01_01, self->x);
-            CombatSprite_Update(&self->sprite);
-            CombatSprite_Update(&self->aura);
+            BtlSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->aura);
             return 1;
         }
         case 2: {
             Ov003ElementK* self = task->data;
-            CombatSprite_SetPosition(&self->sprite, self->x, self->y);
-            func_ov003_02082730(&self->sprite, 0x384000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, self->x, self->y);
+            BtlSprite_SetSortKey(&self->sprite, 0x384000);
+            BtlSprite_Render(&self->sprite);
             if (self->auraOpacity >= 0x1000) {
-                CombatSprite_SetPosition(&self->aura, self->x, self->y);
-                func_ov003_02082730(&self->aura, 0x383000);
-                CombatSprite_SetAffineTransform(&self->aura, 0, self->auraScale, self->auraScale, 0);
-                CombatSprite_RenderWithPalette(&self->aura, self->auraOpacity >> 12);
+                BtlSprite_SetPosition(&self->aura, self->x, self->y);
+                BtlSprite_SetSortKey(&self->aura, 0x383000);
+                BtlSprite_SetAffineTransform(&self->aura, 0, self->auraScale, self->auraScale, 0);
+                BtlSprite_RenderTranslucent(&self->aura, self->auraOpacity >> 12);
             }
             for (s32 i = 0; i < 3; i++)
                 func_ov003_020ade3c(&self->rays[i], self->x, self->y);
@@ -131,8 +131,8 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
-            CombatSprite_Release(&self->aura);
+            BtlSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->aura);
             for (s32 i = 0; i < 3; i++)
                 func_ov003_020ade74(&self->rays[i]);
             SndMgr_StopPlayingSE(SEIDX_SE_PSY_EGENERATE_BOOT01_01);
@@ -175,8 +175,8 @@ static void func_ov003_020adcd8(Ov003ElementKRay* ray, s32 level, s32 direction)
     s32 animation = direction & 1 ? 0x7A : 0x7E;
     animation += level;
     CombatPsyAnim_SetAnim(&ray->sprite, animation, 1);
-    CombatSprite_Restart(&ray->sprite);
-    CombatSprite_SetAffineTransform(&ray->sprite, (direction / 2) * 0x4000, 0x1000, 0x1000, 0);
+    BtlSprite_Restart(&ray->sprite);
+    BtlSprite_SetAffineTransform(&ray->sprite, (direction / 2) * 0x4000, 0x1000, 0x1000, 0);
 }
 
 static void func_ov003_020add40(Ov003ElementKRay* ray, s16 x, s16 y, Ov003EffectState* effect) {
@@ -189,19 +189,19 @@ static void func_ov003_020add40(Ov003ElementKRay* ray, s16 x, s16 y, Ov003Effect
     s16 offsetX = FX_Mul(COS2(FX_SinCosTable_, ray->angle), 0x24000) >> 12;
     s16 offsetY = FX_Mul(SIN2(FX_SinCosTable_, ray->angle), 0x24000) >> 12;
     func_ov003_020a66f4(&effect->streak, 0x161, (s16)(x + offsetX), (s16)(y + offsetY), 0, 0);
-    CombatSprite_Update(&ray->sprite);
+    BtlSprite_Update(&ray->sprite);
 }
 
 static void func_ov003_020ade3c(Ov003ElementKRay* ray, s32 x, s32 y) {
     if (!ray->active)
         return;
-    CombatSprite_SetPosition(&ray->sprite, x, y);
-    func_ov003_02082730(&ray->sprite, 0x385000);
-    CombatSprite_Render(&ray->sprite);
+    BtlSprite_SetPosition(&ray->sprite, x, y);
+    BtlSprite_SetSortKey(&ray->sprite, 0x385000);
+    BtlSprite_Render(&ray->sprite);
 }
 
 static void func_ov003_020ade74(Ov003ElementKRay* ray) {
-    CombatSprite_Release(&ray->sprite);
+    BtlSprite_Release(&ray->sprite);
 }
 
 static char             data_ov003_020e4bd4[24] = "SubTsk_BtlPsy_ElementK";

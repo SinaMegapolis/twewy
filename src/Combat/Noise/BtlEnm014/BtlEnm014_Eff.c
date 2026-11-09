@@ -4,7 +4,7 @@
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlEnm014Eff {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s16          unk_60;
     /* 0x62 */ s16          unk_62;
     /* 0x64 */ s32          unk_64;
@@ -37,11 +37,10 @@ static s32 func_ov012_021259bc(BtlEnm014Eff* data, Enm014Spawn* args) {
         unk_06 = 0x50;
     }
 
-    CombatSprite_LoadFromTable(args->unk_04, &data->sprite, func_ov012_021256c0(args->unk_00->base.spriteIndex),
-                               func_ov012_021256d0(), args->unk_08, func_ov012_021256dc(args->unk_00->base.spriteIndex),
-                               unk_06);
-    CombatSprite_SetAnimFromTable(&data->sprite, args->unk_08, 1);
-    CombatSprite_SetFlip(&data->sprite, data->unk_70->base.sprite.flags46 & 1);
+    BtlSprite_LoadFromTable(args->unk_04, &data->sprite, func_ov012_021256c0(args->unk_00->base.spriteIndex),
+                            func_ov012_021256d0(), args->unk_08, func_ov012_021256dc(args->unk_00->base.spriteIndex), unk_06);
+    BtlSprite_SetAnimFromTable(&data->sprite, args->unk_08, 1);
+    BtlSprite_SetFlip(&data->sprite, data->unk_70->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED);
     return 1;
 }
 
@@ -70,7 +69,7 @@ static s32 func_ov012_02125ab4(TaskPool* pool, Task* task, void* args, s32 stage
                 if (data->unk_70->base.actor.flags & ACTOR_FLAG_DEFEATED) {
                     return 0;
                 }
-                CombatSprite_SetFlip(&data->sprite, data->unk_70->base.sprite.flags46 & 1);
+                BtlSprite_SetFlip(&data->sprite, data->unk_70->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED);
                 data->unk_64 = data->unk_70->base.actor.position.x;
                 data->unk_68 = data->unk_70->base.actor.position.y;
                 data->unk_6C = data->unk_70->base.actor.position.z;
@@ -78,19 +77,19 @@ static s32 func_ov012_02125ab4(TaskPool* pool, Task* task, void* args, s32 stage
             if (SpriteMgr_IsAnimationFinished(&data->sprite.sprite) != 0) {
                 return 0;
             }
-            CombatSprite_Update(&data->sprite);
+            BtlSprite_Update(&data->sprite);
             break;
         case 2: {
             s16 x;
             s16 y;
             CombatStage_WorldToScreen(func_ov003_020c37f8(&data->sprite) != 0, &x, &y, data->unk_64, data->unk_68,
                                       data->unk_6C);
-            CombatSprite_SetPosition(&data->sprite, x, y);
-            func_ov003_02082730(&data->sprite, 0x7FFFFFFF - data->unk_68);
-            CombatSprite_Render(&data->sprite);
+            BtlSprite_SetPosition(&data->sprite, x, y);
+            BtlSprite_SetSortKey(&data->sprite, 0x7FFFFFFF - data->unk_68);
+            BtlSprite_Render(&data->sprite);
         } break;
         case 3:
-            CombatSprite_Release(&data->sprite);
+            BtlSprite_Release(&data->sprite);
             break;
     }
     return 1;

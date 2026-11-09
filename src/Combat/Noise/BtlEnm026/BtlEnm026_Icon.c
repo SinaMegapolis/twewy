@@ -6,9 +6,9 @@
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlEnm026Icon {
-    /* 0x000 */ CombatSprite unk_00;
-    /* 0x060 */ CombatSprite unk_60;
-    /* 0x0C0 */ CombatSprite unk_C0;
+    /* 0x000 */ BattleSprite unk_00;
+    /* 0x060 */ BattleSprite unk_60;
+    /* 0x0C0 */ BattleSprite unk_C0;
     /* 0x120 */ BtlEnm026*   unk_120;
     /* 0x124 */ s16          unk_124;
     /* 0x126 */ u16          unk_126;
@@ -62,7 +62,7 @@ static s32 func_ov015_021261d8(BtlEnm026Icon* data, Enm026IconSpawn* args) {
     switch (args->unk_04) {
         case 0: {
             SpriteAnimationEx anim;
-            CombatSprite_InitAnim(&anim.anim, r5, &data_ov015_02128230);
+            BtlSprite_InitAnim(&anim.anim, r5, &data_ov015_02128230);
             r5                   = 0x11;
             anim.anim.unk_18     = 2;
             anim.anim.unk_26     = 2;
@@ -73,36 +73,36 @@ static s32 func_ov015_021261d8(BtlEnm026Icon* data, Enm026IconSpawn* args) {
             anim.anim.unk_20     = 4;
             anim.anim.animIndex  = 1;
             anim.animTable       = NULL;
-            CombatSprite_Load(&data->unk_60, &anim);
-            CombatSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_C0, &data_ov015_02128228,
-                                       data_ov015_02128238, 3, 4, 0x10);
+            BtlSprite_Load(&data->unk_60, &anim);
+            BtlSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_C0, &data_ov015_02128228,
+                                    data_ov015_02128238, 3, 4, 0x10);
             break;
         }
 
         case 1:
-            CombatSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_60, &data_ov015_02128228,
-                                       data_ov015_02128238, 3, 4, 2);
+            BtlSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_60, &data_ov015_02128228,
+                                    data_ov015_02128238, 3, 4, 2);
             r5 = 0x10;
-            CombatSprite_SetAnimFromTable(&data->unk_60, 3, 0);
-            CombatSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_C0, &data_ov015_02128228,
-                                       data_ov015_02128238, 3, 4, 2);
-            CombatSprite_SetAnimFromTable(&data->unk_C0, 3, 0);
+            BtlSprite_SetAnimFromTable(&data->unk_60, 3, 0);
+            BtlSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_C0, &data_ov015_02128228,
+                                    data_ov015_02128238, 3, 4, 2);
+            BtlSprite_SetAnimFromTable(&data->unk_C0, 3, 0);
             break;
 
         case 2:
             r5 = 4;
-            CombatSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_60, &data_ov015_02128228,
-                                       data_ov015_02128238, 3, 4, 0);
-            CombatSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_C0, &data_ov015_02128228,
-                                       data_ov015_02128238, 3, 4, 0);
+            BtlSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_60, &data_ov015_02128228,
+                                    data_ov015_02128238, 3, 4, 0);
+            BtlSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_C0, &data_ov015_02128228,
+                                    data_ov015_02128238, 3, 4, 0);
             break;
     }
 
-    CombatSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_00, &data_ov015_02128228, data_ov015_02128238,
-                               data->unk_124, 4, r5);
-    CombatSprite_SetAnimFromTable(&data->unk_00, data->unk_124, data->unk_124 == 2);
+    BtlSprite_LoadFromTable(owner->base.sprite.sprite.bits_0_1, &data->unk_00, &data_ov015_02128228, data_ov015_02128238,
+                            data->unk_124, 4, r5);
+    BtlSprite_SetAnimFromTable(&data->unk_00, data->unk_124, data->unk_124 == 2);
     if (data->unk_124 != 2) {
-        CombatSprite_SetFlip(&data->unk_00, owner->base.sprite.flags46 & 1);
+        BtlSprite_SetFlip(&data->unk_00, owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED);
     }
     return 1;
 }
@@ -111,14 +111,14 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
     BtlEnm026* owner = data->unk_120;
 
     if (data->unk_124 != 2) {
-        CombatSprite_SetFlip(&data->unk_00, owner->base.sprite.flags46 & 1);
+        BtlSprite_SetFlip(&data->unk_00, owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED);
     }
     if (owner->base.actor.flags & ACTOR_FLAG_DEFEATED) {
         return 0;
     }
     switch (data->unk_00.animTableIndex) {
         case 0:
-            CombatSprite_Update(&data->unk_60);
+            BtlSprite_Update(&data->unk_60);
             break;
 
         case 1: {
@@ -141,7 +141,7 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
                 }
             }
             data->unk_12C = hp;
-            CombatSprite_SetAnimFromTable(&data->unk_60, hp % 10 + 3, 0);
+            BtlSprite_SetAnimFromTable(&data->unk_60, hp % 10 + 3, 0);
             {
                 s32 tens;
                 if (hp < 0xA) {
@@ -149,12 +149,12 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
                 } else {
                     tens = hp / 10;
                 }
-                CombatSprite_SetAnimFromTable(&data->unk_C0, tens + 3, 0);
+                BtlSprite_SetAnimFromTable(&data->unk_C0, tens + 3, 0);
                 if (tens > 0) {
-                    CombatSprite_Update(&data->unk_C0);
+                    BtlSprite_Update(&data->unk_C0);
                 }
             }
-            CombatSprite_Update(&data->unk_60);
+            BtlSprite_Update(&data->unk_60);
             break;
         }
 
@@ -162,7 +162,7 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
             if (SpriteMgr_IsAnimationFinished(&data->unk_00.sprite) == 0) {
                 break;
             }
-            CombatSprite_Restart(&data->unk_00);
+            BtlSprite_Restart(&data->unk_00);
             if (SndMgr_IsSEPlaying(SEIDX_SE_026_VOC_IBIKI) == 0) {
                 if (data_ov015_02128500.flag08 == 0) {
                     if (g_CombatGlobal->unk3D874 == 2) {
@@ -172,7 +172,7 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
             }
             break;
     }
-    CombatSprite_Update(&data->unk_00);
+    BtlSprite_Update(&data->unk_00);
     return 1;
 }
 
@@ -190,48 +190,48 @@ static s32 func_ov015_02126660(BtlEnm026Icon* data) {
             return 1;
         }
     }
-    px = owner->base.actor.position.x + ((owner->base.sprite.flags46 & 1) ? 0xF000 : -0xF000);
+    px = owner->base.actor.position.x + ((owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? 0xF000 : -0xF000);
     pz = owner->base.actor.position.z - 0x19000;
     py = owner->base.actor.position.y;
 
     switch (data->unk_00.animTableIndex) {
         case 0:
             CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
-            CombatSprite_SetPosition(&data->unk_60, sx, sy);
-            func_ov003_02082730(&data->unk_60, 0x7FFFFFFD - py);
-            CombatSprite_Render(&data->unk_60);
+            BtlSprite_SetPosition(&data->unk_60, sx, sy);
+            BtlSprite_SetSortKey(&data->unk_60, 0x7FFFFFFD - py);
+            BtlSprite_Render(&data->unk_60);
             break;
 
         case 1:
             if (data->unk_C0.animTableIndex != 3) {
                 CombatStage_WorldToScreen(engine, &sx, &sy, px - 0x4000, py, pz);
-                CombatSprite_SetPosition(&data->unk_C0, sx, sy);
-                func_ov003_02082730(&data->unk_C0, 0x7FFFFFFD - py);
-                CombatSprite_Render(&data->unk_C0);
+                BtlSprite_SetPosition(&data->unk_C0, sx, sy);
+                BtlSprite_SetSortKey(&data->unk_C0, 0x7FFFFFFD - py);
+                BtlSprite_Render(&data->unk_C0);
                 CombatStage_WorldToScreen(engine, &sx, &sy, px + 0x4000, py, pz);
-                CombatSprite_SetPosition(&data->unk_60, sx, sy);
-                func_ov003_02082730(&data->unk_60, 0x7FFFFFFD - py);
-                CombatSprite_Render(&data->unk_60);
+                BtlSprite_SetPosition(&data->unk_60, sx, sy);
+                BtlSprite_SetSortKey(&data->unk_60, 0x7FFFFFFD - py);
+                BtlSprite_Render(&data->unk_60);
             } else {
                 CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
-                CombatSprite_SetPosition(&data->unk_60, sx, sy);
-                func_ov003_02082730(&data->unk_60, 0x7FFFFFFD - py);
-                CombatSprite_Render(&data->unk_60);
+                BtlSprite_SetPosition(&data->unk_60, sx, sy);
+                BtlSprite_SetSortKey(&data->unk_60, 0x7FFFFFFD - py);
+                BtlSprite_Render(&data->unk_60);
             }
             break;
     }
 
     CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
-    CombatSprite_SetPosition(&data->unk_00, sx, sy);
-    func_ov003_02082730(&data->unk_00, 0x7FFFFFFE - py);
-    CombatSprite_Render(&data->unk_00);
+    BtlSprite_SetPosition(&data->unk_00, sx, sy);
+    BtlSprite_SetSortKey(&data->unk_00, 0x7FFFFFFE - py);
+    BtlSprite_Render(&data->unk_00);
     return 1;
 }
 
 static s32 func_ov015_0212683c(BtlEnm026Icon* data) {
-    CombatSprite_Release(&data->unk_00);
-    CombatSprite_Release(&data->unk_60);
-    CombatSprite_Release(&data->unk_C0);
+    BtlSprite_Release(&data->unk_00);
+    BtlSprite_Release(&data->unk_60);
+    BtlSprite_Release(&data->unk_C0);
     return 1;
 }
 

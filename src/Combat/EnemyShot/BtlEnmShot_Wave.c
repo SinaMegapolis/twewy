@@ -32,11 +32,11 @@ static s32 func_ov003_020d3044(Ov003EnemyShotWave* self, Ov003EnemyShotWaveArgs*
     self->velocityY = FX_Mul(FX_SinIdx(args->angle), args->speed);
     self->amplitude = args->amplitude;
     self->phaseStep = args->phaseStep;
-    CombatSprite_LoadDirect(engine, &self->sprite, visual->file, entry->charDataIndex, entry->paletteDataIndex,
-                            entry->frameDataIndex, visual->paletteSlot, entry->animDataIndex);
-    CombatSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
+    BtlSprite_LoadDirect(engine, &self->sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
+                         visual->paletteEntry, entry->animIndex);
+    BtlSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
     self->source.core.sprite = &self->sprite;
-    func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags46 & 1, 0);
+    func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED, 0);
     func_ov003_020cccf0(engine, &self->source);
     return 1;
 }
@@ -59,7 +59,7 @@ static s32 func_ov003_020d3198(Ov003EnemyShotWave* self) {
                               self->source.core.position.y + self->offsetY, self->source.core.position.z);
     self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
                                                            &self->source.core.owner->base.actor.baseArgs, x, y);
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return 1;
 }
 
@@ -67,14 +67,14 @@ static s32 func_ov003_020d3304(Ov003EnemyShotWave* self) {
     s16 x, y;
     CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x + self->offsetX,
                               self->source.core.position.y + self->offsetY, self->source.core.position.z);
-    CombatSprite_SetPosition(&self->sprite, x, y);
-    func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
-    CombatSprite_Render(&self->sprite);
+    BtlSprite_SetPosition(&self->sprite, x, y);
+    BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
+    BtlSprite_Render(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020d338c(Ov003EnemyShotWave* self) {
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     return 1;
 }
 

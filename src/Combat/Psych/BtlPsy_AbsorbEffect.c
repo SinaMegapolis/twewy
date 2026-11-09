@@ -5,7 +5,7 @@
 
 typedef struct BtlAbsorbEffect {
     /* 0x00 */ Ov003EffectSlots* slots;
-    /* 0x04 */ CombatSprite      sprite;
+    /* 0x04 */ BattleSprite      sprite;
     /* 0x64 */ Vec               position;
 } BtlAbsorbEffect; // Size: 0x70
 
@@ -63,7 +63,7 @@ s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage) {
                 effect->position.y = effect->slots->position.y;
                 effect->position.z = effect->slots->position.z;
             }
-            CombatSprite_Update(&effect->sprite);
+            BtlSprite_Update(&effect->sprite);
             return 1;
         }
         case 2: {
@@ -71,14 +71,14 @@ s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage) {
             effect = task->data;
             x      = CombatStage_ToScreenX(0, effect->position.x);
             y      = CombatStage_ToScreenY(0, effect->position.y, effect->position.z);
-            CombatSprite_SetPosition(&effect->sprite, x, y);
-            func_ov003_02082730(&effect->sprite, effect->position.y + 0x1F4000);
-            CombatSprite_Render(&effect->sprite);
+            BtlSprite_SetPosition(&effect->sprite, x, y);
+            BtlSprite_SetSortKey(&effect->sprite, effect->position.y + 0x1F4000);
+            BtlSprite_Render(&effect->sprite);
             return 1;
         }
         case 3:
             effect = task->data;
-            CombatSprite_Release(&effect->sprite);
+            BtlSprite_Release(&effect->sprite);
             if (effect->slots->onAbsorb != NULL)
                 effect->slots->onAbsorb(effect->slots->callbackArg);
             effect->slots->unk_15--;

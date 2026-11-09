@@ -94,7 +94,7 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
                 s32 width = unit->actor.radius;
                 CombatStage_ClampXY(&unit->actor.position.x, &unit->actor.position.y, width * 4096, (width / 2) * 4096);
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         }
         case 2:
@@ -102,17 +102,17 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
             if (self->sprite.animTableIndex == 2) {
                 s32 x = CombatStage_ToScreenX(0, self->position.x);
                 s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-                CombatSprite_SetPosition(&self->sprite, x, (s16)(y - self->height));
+                BtlSprite_SetPosition(&self->sprite, x, (s16)(y - self->height));
             } else {
                 BattleActor* actor = &self->unit->actor;
-                CombatSprite_SetPosition(&self->sprite, actor->screenX, (s16)(actor->screenY - actor->centerHeight));
+                BtlSprite_SetPosition(&self->sprite, actor->screenX, (s16)(actor->screenY - actor->centerHeight));
             }
-            func_ov003_02082730(&self->sprite, self->unit->actor.position.y + 0x1F4000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetSortKey(&self->sprite, self->unit->actor.position.y + 0x1F4000);
+            BtlSprite_Render(&self->sprite);
             return 1;
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }

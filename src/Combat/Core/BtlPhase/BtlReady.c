@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlPhase.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
@@ -19,7 +19,7 @@ struct BtlReady;
 typedef void (*BtlReadyState)(struct BtlReady*);
 
 typedef struct BtlReady {
-    /* 0x000 */ CombatSprite  sprites[6]; // 0/1 background, 2/3 "READY", 4/5 battle number; even entries are main screen
+    /* 0x000 */ BattleSprite  sprites[6]; // 0/1 background, 2/3 "READY", 4/5 battle number; even entries are main screen
     /* 0x240 */ s32           x;          // the main screen sprites
     /* 0x244 */ s32           subX;       // the sub screen sprites
     /* 0x248 */ s16           y;
@@ -69,33 +69,33 @@ static void func_ov003_020a060c(BtlReady* self, BtlReadyState state) {
     self->phase = 0;
 }
 
-/// Loads sprite `index` of the banner table for `engine`, `x` tiles off to the side.
-static void func_ov003_020a0624(s32 engine, CombatSprite* sprite, u16 index, u16 x) {
+/// Loads sprite `index` of the banner table on screen `engine`, reserving `charTiles` 32-byte units of char VRAM.
+static void func_ov003_020a0624(s32 engine, BattleSprite* sprite, u16 index, u16 charTiles) {
     SpriteAnimationEx anim;
     u16               charIndex;
-    u16               paletteIndex;
-    u16               frameIndex;
+    u16               animDataIndex;
+    u16               cellIndex;
     s16               animIndex;
 
-    CombatSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
+    BtlSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
     anim.anim.bits_10_11 = 1;
     charIndex            = data_ov003_020d8780[index].charDataIndex;
-    paletteIndex         = data_ov003_020d8780[index].paletteDataIndex;
-    frameIndex           = data_ov003_020d8780[index].frameDataIndex;
-    animIndex            = data_ov003_020d8780[index].animDataIndex;
-    anim.anim.unk_1E     = x << 5;
+    animDataIndex        = data_ov003_020d8780[index].animDataIndex;
+    cellIndex            = data_ov003_020d8780[index].cellDataIndex;
+    animIndex            = data_ov003_020d8780[index].animIndex;
+    anim.anim.unk_1E     = charTiles << 5;
     anim.anim.unk_18     = 2;
     anim.anim.unk_1C     = charIndex;
     anim.anim.packIndex  = 1;
-    anim.anim.unk_26     = frameIndex;
-    anim.anim.unk_28     = paletteIndex;
+    anim.anim.unk_26     = cellIndex;
+    anim.anim.unk_28     = animDataIndex;
     anim.anim.unk_20     = 4;
     anim.anim.animIndex  = animIndex + 1;
     anim.animTable       = data_ov003_020d8780;
-    CombatSprite_Load(sprite, &anim);
-    CombatSprite_SetAnimFromTable(sprite, index, 0);
-    func_ov003_02082730(sprite, 0);
-    func_ov003_02082738(sprite, 0);
+    BtlSprite_Load(sprite, &anim);
+    BtlSprite_SetAnimFromTable(sprite, index, 0);
+    BtlSprite_SetSortKey(sprite, 0);
+    BtlSprite_SetPriority(sprite, 0);
 }
 
 /// The generic line.
@@ -291,13 +291,13 @@ static s32 BtlReady_Update(TaskPool* pool, Task* task, void* args) {
     if (self->state != NULL) {
         self->state(self);
     }
-    CombatSprite_Update(&self->sprites[0]);
-    CombatSprite_Update(&self->sprites[3]);
+    BtlSprite_Update(&self->sprites[0]);
+    BtlSprite_Update(&self->sprites[3]);
     if (g_CombatGlobal->unk3D878 & 0x80000000) {
-        CombatSprite_Update(&self->sprites[1]);
-        CombatSprite_Update(&self->sprites[4]);
-        CombatSprite_Update(&self->sprites[2]);
-        CombatSprite_Update(&self->sprites[5]);
+        BtlSprite_Update(&self->sprites[1]);
+        BtlSprite_Update(&self->sprites[4]);
+        BtlSprite_Update(&self->sprites[2]);
+        BtlSprite_Update(&self->sprites[5]);
     }
     return self->running;
 }
@@ -312,24 +312,24 @@ static s32 BtlReady_Render(TaskPool* pool, Task* task, void* args) {
     }
     subX = (self->subX * 0x10) >> 16;
     x    = (self->x * 0x10) >> 16;
-    CombatSprite_SetPosition(&self->sprites[3], subX, self->y);
-    CombatSprite_Render(&self->sprites[3]);
+    BtlSprite_SetPosition(&self->sprites[3], subX, self->y);
+    BtlSprite_Render(&self->sprites[3]);
     if (g_CombatGlobal->unk3D878 & 0x80000000) {
-        CombatSprite_SetPosition(&self->sprites[4], x, self->y);
-        CombatSprite_Render(&self->sprites[4]);
-        CombatSprite_SetPosition(&self->sprites[5], x, self->y);
-        CombatSprite_Render(&self->sprites[5]);
+        BtlSprite_SetPosition(&self->sprites[4], x, self->y);
+        BtlSprite_Render(&self->sprites[4]);
+        BtlSprite_SetPosition(&self->sprites[5], x, self->y);
+        BtlSprite_Render(&self->sprites[5]);
     }
     if (g_CombatGlobal->unk3D88D == 3) {
         return 1;
     }
-    CombatSprite_SetPosition(&self->sprites[0], x, self->y);
-    CombatSprite_Render(&self->sprites[0]);
+    BtlSprite_SetPosition(&self->sprites[0], x, self->y);
+    BtlSprite_Render(&self->sprites[0]);
     if (g_CombatGlobal->unk3D878 & 0x80000000) {
-        CombatSprite_SetPosition(&self->sprites[1], subX, self->y);
-        CombatSprite_Render(&self->sprites[1]);
-        CombatSprite_SetPosition(&self->sprites[2], subX, self->y);
-        CombatSprite_Render(&self->sprites[2]);
+        BtlSprite_SetPosition(&self->sprites[1], subX, self->y);
+        BtlSprite_Render(&self->sprites[1]);
+        BtlSprite_SetPosition(&self->sprites[2], subX, self->y);
+        BtlSprite_Render(&self->sprites[2]);
     }
     return 1;
 }
@@ -337,12 +337,12 @@ static s32 BtlReady_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlReady_Release(TaskPool* pool, Task* task, void* args) {
     BtlReady* self = task->data;
 
-    CombatSprite_Release(&self->sprites[0]);
-    CombatSprite_Release(&self->sprites[3]);
-    CombatSprite_Release(&self->sprites[1]);
-    CombatSprite_Release(&self->sprites[4]);
-    CombatSprite_Release(&self->sprites[2]);
-    CombatSprite_Release(&self->sprites[5]);
+    BtlSprite_Release(&self->sprites[0]);
+    BtlSprite_Release(&self->sprites[3]);
+    BtlSprite_Release(&self->sprites[1]);
+    BtlSprite_Release(&self->sprites[4]);
+    BtlSprite_Release(&self->sprites[2]);
+    BtlSprite_Release(&self->sprites[5]);
     if (g_CombatGlobal->unk3D874 == 2) {
         g_CombatGlobal->unk3D878 &= ~0x10000;
     }

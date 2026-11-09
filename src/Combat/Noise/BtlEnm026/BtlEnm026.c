@@ -56,25 +56,25 @@ static const BinIdentifier   data_ov015_021280b8;
 static const BinIdentifier   data_ov015_021280c0;
 static const SpriteAnimEntry data_ov015_021280c8[13];
 
-static const BtlSpriteDesc data_ov015_02127fd8 = {&data_ov015_02128078, data_ov015_021280c8, 0, 0x0D, 0x40};
+static const BattleSpriteDesc data_ov015_02127fd8 = {&data_ov015_02128078, data_ov015_021280c8, 0, 0x0D, 0x40};
 
-static const BtlSpriteDesc data_ov015_02127fe8 = {&data_ov015_02128088, data_ov015_021280c8, 0, 0x0D, 0x44};
+static const BattleSpriteDesc data_ov015_02127fe8 = {&data_ov015_02128088, data_ov015_021280c8, 0, 0x0D, 0x44};
 
-static const BtlSpriteDesc data_ov015_02127ff8 = {&data_ov015_021280a0, data_ov015_021280c8, 0, 0x0D, 0x30};
+static const BattleSpriteDesc data_ov015_02127ff8 = {&data_ov015_021280a0, data_ov015_021280c8, 0, 0x0D, 0x30};
 
-static const BtlSpriteDesc data_ov015_02128008 = {&data_ov015_021280b0, data_ov015_021280c8, 0, 0x0D, 0x42};
+static const BattleSpriteDesc data_ov015_02128008 = {&data_ov015_021280b0, data_ov015_021280c8, 0, 0x0D, 0x42};
 
-static const BtlSpriteDesc data_ov015_02128018 = {&data_ov015_02128090, data_ov015_021280c8, 0, 0x0D, 0x30};
+static const BattleSpriteDesc data_ov015_02128018 = {&data_ov015_02128090, data_ov015_021280c8, 0, 0x0D, 0x30};
 
-static const BtlSpriteDesc data_ov015_02128028 = {&data_ov015_02128080, data_ov015_021280c8, 0, 0x0D, 0x40};
+static const BattleSpriteDesc data_ov015_02128028 = {&data_ov015_02128080, data_ov015_021280c8, 0, 0x0D, 0x40};
 
-static const BtlSpriteDesc data_ov015_02128038 = {&data_ov015_021280c0, data_ov015_021280c8, 0, 0x10, 0x44};
+static const BattleSpriteDesc data_ov015_02128038 = {&data_ov015_021280c0, data_ov015_021280c8, 0, 0x10, 0x44};
 
-static const BtlSpriteDesc data_ov015_02128048 = {&data_ov015_02128098, data_ov015_021280c8, 0, 0x0D, 0x30};
+static const BattleSpriteDesc data_ov015_02128048 = {&data_ov015_02128098, data_ov015_021280c8, 0, 0x0D, 0x30};
 
-static const BtlSpriteDesc data_ov015_02128058 = {&data_ov015_021280b8, data_ov015_021280c8, 0, 0x0D, 0x46};
+static const BattleSpriteDesc data_ov015_02128058 = {&data_ov015_021280b8, data_ov015_021280c8, 0, 0x0D, 0x46};
 
-static const BtlSpriteDesc data_ov015_02128068 = {&data_ov015_021280a8, data_ov015_021280c8, 0, 0x0D, 0x42};
+static const BattleSpriteDesc data_ov015_02128068 = {&data_ov015_021280a8, data_ov015_021280c8, 0, 0x0D, 0x42};
 
 static const BinIdentifier data_ov015_02128078 = {3, data_ov015_021282e0};
 
@@ -171,13 +171,13 @@ static char data_ov015_021283dc[20] = "Apl_Hor/Grp_BtlEnm02";
 
 char data_ov015_021283f0[8] = "6b.bin";
 
-const BtlSpriteDesc* data_ov015_021283f8[11] = {
+const BattleSpriteDesc* data_ov015_021283f8[11] = {
     &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fd8,
     &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fd8,
     &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fd8,
 };
 
-static const BtlSpriteDesc* data_ov015_02128424[18] = {
+static const BattleSpriteDesc* data_ov015_02128424[18] = {
     &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02127fe8, &data_ov015_02128058, &data_ov015_02128028,
     &data_ov015_02128018, &data_ov015_02128018, &data_ov015_02128008, &data_ov015_02128048, &data_ov015_02127ff8,
     &data_ov015_02128068, &data_ov015_02127fd8, &data_ov015_02127fd8, &data_ov015_02128068, &data_ov015_02128068,
@@ -205,7 +205,7 @@ static void func_ov015_021256f8(BtlEnm026* data) {
         data_ov015_02128500.flag08      = 1;
         data_ov015_02128500.initialized = 1;
     }
-    CombatSprite_Release(&data->base.sprite);
+    BtlSprite_Release(&data->base.sprite);
     func_ov003_020ccf94(engine, &data->base.sprite, data_ov015_02128424[data_ov015_02128500.variant]);
     func_ov003_020c4af0(&data->base);
     if (func_ov003_020c37f8(&data->base.sprite) == 0) {
@@ -312,7 +312,7 @@ void func_ov015_02125a8c(s32 engine, BtlEnm026* data, void* args, s32 stateFn) {
     data->unk_1E0 = -1;
     data->unk_1CC = 1;
     data->unk_1C8 = stateFn;
-    data->unk_1D0 = (data->base.sprite.flags46 & 1) ? 0xC00 : -0xC00;
+    data->unk_1D0 = (data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? 0xC00 : -0xC00;
     func_ov015_021256f8(data);
     BtlCollision_SetDisabled(&data->base.collider, 1);
 }
@@ -414,7 +414,7 @@ void func_ov015_02125e5c(BtlEnm026* data) {
         ret = func_ov003_020ccfc8(&data->base, 4);
     } else if (data_ov015_02128500.variant != 7) {
         if (data->unk_1C0 == 0) {
-            CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
+            BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
         }
         data->unk_1C0 = data->unk_1C0 + 1;
         ret           = data->unk_1C0 < 0xF;

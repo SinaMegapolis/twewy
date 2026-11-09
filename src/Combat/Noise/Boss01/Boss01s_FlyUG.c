@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "main_02026528.h"
 #include <nitro/fx.h>
@@ -8,7 +8,7 @@
 /// MARK: Boss01s_FlyUG
 
 typedef struct {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ Vec          unk_60;
     /* 0x6C */ Vec          unk_6C;
     /* 0x78 */ s16          unk_78;
@@ -41,7 +41,7 @@ s32 Boss01s_FlyUG_Init(TaskPool* pool, Task* task, void* args) {
     Boss01s_FlyUG* flyUG = task->data;
 
     MI_CpuSet(flyUG, 0, sizeof(Boss01s_FlyUG));
-    CombatSprite_LoadFromTable(0, &flyUG->sprite, &data_ov016_02128f98, data_ov016_0212903c, 0, 4, 4);
+    BtlSprite_LoadFromTable(0, &flyUG->sprite, &data_ov016_02128f98, data_ov016_0212903c, 0, 4, 4);
     Boss01s_FlyUG_GetSpawnPos(flyUG, &flyUG->unk_60);
     return 1;
 }
@@ -58,7 +58,7 @@ s32 Boss01s_FlyUG_Update(TaskPool* pool, Task* task, void* args) {
     switch (flyUG->unk_7C) {
         case 0:
             if (flyUG->unk_78 == 0) {
-                CombatSprite_SetAnimFromTable(&flyUG->sprite, (RNG_Next(2) + 1), 0);
+                BtlSprite_SetAnimFromTable(&flyUG->sprite, (RNG_Next(2) + 1), 0);
                 flyUG->unk_7A = (RNG_Next(301) + 300);
             }
             if (flyUG->unk_78 <= flyUG->unk_7A) {
@@ -70,7 +70,7 @@ s32 Boss01s_FlyUG_Update(TaskPool* pool, Task* task, void* args) {
             break;
         case 1:
             if (flyUG->unk_78 == 0) {
-                CombatSprite_SetAnimFromTable(&flyUG->sprite, 0, 0);
+                BtlSprite_SetAnimFromTable(&flyUG->sprite, 0, 0);
                 flyUG->unk_6C.x = (RNG_Next(2) == 0) ? -0x1000 : 0x1000;
                 flyUG->unk_6C.z = -0x2000;
             }
@@ -124,7 +124,7 @@ s32 Boss01s_FlyUG_Update(TaskPool* pool, Task* task, void* args) {
             }
             break;
     }
-    CombatSprite_Update(&flyUG->sprite);
+    BtlSprite_Update(&flyUG->sprite);
     return 1;
 }
 
@@ -135,18 +135,18 @@ s32 Boss01s_FlyUG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)flyUG), &spA, &sp8, flyUG->unk_60.x, flyUG->unk_60.y,
+    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)flyUG), &spA, &sp8, flyUG->unk_60.x, flyUG->unk_60.y,
                               flyUG->unk_60.z);
-    CombatSprite_SetPosition(&flyUG->sprite, spA, sp8);
-    func_ov003_02082730(&flyUG->sprite, 0x7FFFFFFF);
-    CombatSprite_Render(&flyUG->sprite);
+    BtlSprite_SetPosition(&flyUG->sprite, spA, sp8);
+    BtlSprite_SetSortKey(&flyUG->sprite, 0x7FFFFFFF);
+    BtlSprite_Render(&flyUG->sprite);
     return 1;
 }
 
 s32 Boss01s_FlyUG_Destroy(TaskPool* pool, Task* task, void* args) {
     Boss01s_FlyUG* flyUG = task->data;
 
-    CombatSprite_Release(&flyUG->sprite);
+    BtlSprite_Release(&flyUG->sprite);
     return 1;
 }
 

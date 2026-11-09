@@ -33,17 +33,17 @@ static s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage
             CombatPsyAnim_Load(&self->sprites[1], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
             CombatPsyAnim_Load(&self->sprites[2], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
             CombatPsyAnim_Load(&self->sprites[3], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
-            CombatSprite_SetAnim(&self->sprites[0], 2, 1);
-            CombatSprite_SetAnim(&self->sprites[1], 3, 1);
-            CombatSprite_SetAnim(&self->sprites[2], 0, 1);
-            CombatSprite_SetAnim(&self->sprites[3], 1, 1);
+            BtlSprite_SetAnim(&self->sprites[0], 2, 1);
+            BtlSprite_SetAnim(&self->sprites[1], 3, 1);
+            BtlSprite_SetAnim(&self->sprites[2], 0, 1);
+            BtlSprite_SetAnim(&self->sprites[3], 1, 1);
             return 1;
         case 1:
             self = task->data;
-            CombatSprite_Update(&self->sprites[0]);
-            CombatSprite_Update(&self->sprites[1]);
-            CombatSprite_Update(&self->sprites[3]);
-            CombatSprite_Update(&self->sprites[2]);
+            BtlSprite_Update(&self->sprites[0]);
+            BtlSprite_Update(&self->sprites[1]);
+            BtlSprite_Update(&self->sprites[3]);
+            BtlSprite_Update(&self->sprites[2]);
             func_ov003_020a6628(&self->args.effect->streak, (u16)self->args.attackId, self->args.position.x,
                                 self->args.position.y, 0, 0, 0);
             return SpriteMgr_IsAnimationFinished(&self->sprites[0].sprite) ? 0 : 1;
@@ -51,30 +51,30 @@ static s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage
             self  = task->data;
             s32 x = CombatStage_ToScreenX(0, self->args.position.x);
             s32 y = CombatStage_ToScreenY(0, self->args.position.y, 0);
-            CombatSprite_SetPosition(&self->sprites[2], x, y);
-            CombatSprite_SetPosition(&self->sprites[0], x, y);
-            CombatSprite_SetPosition(&self->sprites[1], x, y);
-            CombatSprite_SetPosition(&self->sprites[3], x, y);
-            func_ov003_02082730(&self->sprites[2], self->args.position.y + 0x1F3000);
-            func_ov003_02082730(&self->sprites[0], self->args.position.y + 0x1F4000);
-            func_ov003_02082730(&self->sprites[1], self->args.position.y + 0x1F5000);
-            func_ov003_02082730(&self->sprites[3], self->args.position.y + 0x1F6000);
+            BtlSprite_SetPosition(&self->sprites[2], x, y);
+            BtlSprite_SetPosition(&self->sprites[0], x, y);
+            BtlSprite_SetPosition(&self->sprites[1], x, y);
+            BtlSprite_SetPosition(&self->sprites[3], x, y);
+            BtlSprite_SetSortKey(&self->sprites[2], self->args.position.y + 0x1F3000);
+            BtlSprite_SetSortKey(&self->sprites[0], self->args.position.y + 0x1F4000);
+            BtlSprite_SetSortKey(&self->sprites[1], self->args.position.y + 0x1F5000);
+            BtlSprite_SetSortKey(&self->sprites[3], self->args.position.y + 0x1F6000);
             if (!SpriteMgr_IsAnimationFinished(&self->sprites[2].sprite))
-                CombatSprite_Render(&self->sprites[2]);
+                BtlSprite_Render(&self->sprites[2]);
             if (!SpriteMgr_IsAnimationFinished(&self->sprites[0].sprite))
-                CombatSprite_Render(&self->sprites[0]);
+                BtlSprite_Render(&self->sprites[0]);
             if (!SpriteMgr_IsAnimationFinished(&self->sprites[1].sprite))
-                CombatSprite_Render(&self->sprites[1]);
+                BtlSprite_Render(&self->sprites[1]);
             if (!SpriteMgr_IsAnimationFinished(&self->sprites[3].sprite))
-                CombatSprite_Render(&self->sprites[3]);
+                BtlSprite_Render(&self->sprites[3]);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprites[2]);
-            CombatSprite_Release(&self->sprites[0]);
-            CombatSprite_Release(&self->sprites[1]);
-            CombatSprite_Release(&self->sprites[3]);
+            BtlSprite_Release(&self->sprites[2]);
+            BtlSprite_Release(&self->sprites[0]);
+            BtlSprite_Release(&self->sprites[1]);
+            BtlSprite_Release(&self->sprites[3]);
             return 1;
     }
 }

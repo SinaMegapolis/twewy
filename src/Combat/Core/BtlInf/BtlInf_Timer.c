@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Save.h"
 
 #include "Combat/Core/BtlInf.h"
@@ -10,7 +10,7 @@
 // The battle clock: shows the battle clear time as mm:ss.hh, saturating at 99:59.99.
 
 typedef struct BtlInf_Timer {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ u16          minutes[2]; // least significant digit first
     /* 0x64 */ u16          seconds[2];
     /* 0x68 */ u16          hundredths[2];
@@ -70,9 +70,9 @@ static s32 BtlInf_Timer_Init(TaskPool* pool, Task* task, void* args) {
     timer->state             = 0;
     timer->unk_6C            = 0;
     func_ov003_0209de24(timer, func_ov003_0209de38);
-    CombatSprite_LoadDirect(0, &timer->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x37);
-    func_ov003_02082738(&timer->sprite, 0);
-    func_ov003_02082730(&timer->sprite, 0);
+    BtlSprite_LoadDirect(0, &timer->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x37);
+    BtlSprite_SetPriority(&timer->sprite, 0);
+    BtlSprite_SetSortKey(&timer->sprite, 0);
     return 1;
 }
 
@@ -85,11 +85,11 @@ static s32 BtlInf_Timer_Update(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 
-#define DRAW_TIMER_DIGIT(digit, x)                                \
-    CombatSprite_SetAnim(&timer->sprite, (s16)((digit) + 20), 0); \
-    CombatSprite_SetPosition(&timer->sprite, (x), 170);           \
-    CombatSprite_Update(&timer->sprite);                          \
-    CombatSprite_Render(&timer->sprite)
+#define DRAW_TIMER_DIGIT(digit, x)                             \
+    BtlSprite_SetAnim(&timer->sprite, (s16)((digit) + 20), 0); \
+    BtlSprite_SetPosition(&timer->sprite, (x), 170);           \
+    BtlSprite_Update(&timer->sprite);                          \
+    BtlSprite_Render(&timer->sprite)
 
 static s32 BtlInf_Timer_Render(TaskPool* pool, Task* task, void* args) {
     BtlInf_Timer* timer = task->data;
@@ -105,16 +105,16 @@ static s32 BtlInf_Timer_Render(TaskPool* pool, Task* task, void* args) {
     if (timer->minutes[1] != 0) {
         DRAW_TIMER_DIGIT(timer->minutes[1], 196);
     }
-    CombatSprite_SetAnim(&timer->sprite, 0x37, 0);
-    CombatSprite_SetPosition(&timer->sprite, 196, 170);
-    CombatSprite_Update(&timer->sprite);
-    CombatSprite_Render(&timer->sprite);
+    BtlSprite_SetAnim(&timer->sprite, 0x37, 0);
+    BtlSprite_SetPosition(&timer->sprite, 196, 170);
+    BtlSprite_Update(&timer->sprite);
+    BtlSprite_Render(&timer->sprite);
     return 1;
 }
 #undef DRAW_TIMER_DIGIT
 
 static s32 BtlInf_Timer_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

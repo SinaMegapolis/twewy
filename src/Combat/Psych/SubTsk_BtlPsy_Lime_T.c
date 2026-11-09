@@ -44,7 +44,7 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
             self->angle = func_ov003_020a62b8(self->position.x, self->position.z, self->target.x, self->target.z);
             self->speed = self->effect->params[0];
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0xAF, 0);
-            CombatSprite_SetAnim(&self->sprite, 0, 0);
+            BtlSprite_SetAnim(&self->sprite, 0, 0);
             CombatHit_LoadSpark(0, &self->icon, 2);
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
@@ -76,18 +76,18 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
                                             0, 0) == 1)
                     {
                         self->phase = 3;
-                        CombatSprite_SetAnim(&self->sprite, 2, 1);
+                        BtlSprite_SetAnim(&self->sprite, 2, 1);
                         CombatSe_PlayAtMainX(0xAF, self->position.x);
                         break;
                     }
                     self->phase = 2;
                     self->angle = (u16)(0x10000 - self->angle);
-                    CombatSprite_SetAnim(&self->sprite, 1, 0);
+                    BtlSprite_SetAnim(&self->sprite, 1, 0);
                     CombatSe_PlayAtMainX(0xA3, self->position.x);
                     break;
                 case 3:
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                        CombatSprite_SetAnim(&self->sprite, 3, 1);
+                        BtlSprite_SetAnim(&self->sprite, 3, 1);
                         self->phase = 4;
                     }
                     break;
@@ -95,7 +95,7 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         self->phase = 2;
                         self->angle = (u16)(0x10000 - self->angle);
-                        CombatSprite_SetAnim(&self->sprite, 1, 0);
+                        BtlSprite_SetAnim(&self->sprite, 1, 0);
                         CombatSe_PlayAtMainX(0xA3, self->position.x);
                     }
                     break;
@@ -105,23 +105,23 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
                         return 0;
                     break;
             }
-            CombatSprite_Update(&self->sprite);
-            CombatSprite_Update(&self->icon);
+            BtlSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->icon);
             return 1;
         case 2: {
             self  = task->data;
             s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
             s32 x = CombatStage_ToScreenX(0, self->position.x);
-            CombatSprite_SetPosition(&self->sprite, x, y);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, x, y);
+            BtlSprite_Render(&self->sprite);
             CombatHit_DrawSpark(&self->icon, self->position.x, self->position.y);
             return 1;
         }
         case 3:
             self = task->data;
             func_ov003_020a6464(0);
-            CombatSprite_Release(&self->sprite);
-            CombatSprite_Release(&self->icon);
+            BtlSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->icon);
             self->effect->unk_0A--;
             return 1;
     }

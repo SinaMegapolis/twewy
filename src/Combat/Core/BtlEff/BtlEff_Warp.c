@@ -1,9 +1,9 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffects.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "SpriteMgr.h"
 #include <nitro/mi/cpumem.h>
@@ -33,9 +33,9 @@ static const SpriteAnimEntry data_ov003_020d86e0[2];
 /// Loads one half of the warp effect: animation `animIndex` of the warp sprite, flipped to match
 /// the display actor it belongs to, and marks that half as playing.
 static s32 func_ov003_0209f4a0(s32 mode, CombatEffect* sprite, u16 animIndex, s32 flip) {
-    CombatSprite_LoadFromTable(mode, &sprite->sprite, &data_ov003_020d77f8, data_ov003_020d86e0, animIndex, 1, 0x30);
-    CombatSprite_SetAnimFromTable(&sprite->sprite, animIndex, 1);
-    CombatSprite_SetFlip(&sprite->sprite, flip);
+    BtlSprite_LoadFromTable(mode, &sprite->sprite, &data_ov003_020d77f8, data_ov003_020d86e0, animIndex, 1, 0x30);
+    BtlSprite_SetAnimFromTable(&sprite->sprite, animIndex, 1);
+    BtlSprite_SetFlip(&sprite->sprite, flip);
     sprite->active = 1;
     return 1;
 }
@@ -45,7 +45,7 @@ static void func_ov003_0209f508(CombatEffect* sprite) {
     if (SpriteMgr_IsAnimationFinished(&sprite->sprite.sprite)) {
         sprite->active = 0;
     }
-    CombatSprite_Update(&sprite->sprite);
+    BtlSprite_Update(&sprite->sprite);
 }
 
 /// Draws one half of the warp effect at its world position, depth-sorted by Y.
@@ -61,14 +61,14 @@ static void func_ov003_0209f52c(CombatEffect* sprite) {
             posX = CombatStage_ToScreenX(0, sprite->position.x);
             posY = CombatStage_ToScreenY(0, sprite->position.y, sprite->position.z);
         }
-        CombatSprite_SetPosition(&sprite->sprite, posX, posY);
-        func_ov003_02082730(&sprite->sprite, 0x7FFFFFFF - (sprite->position.y + 0x8000));
-        CombatSprite_Render(&sprite->sprite);
+        BtlSprite_SetPosition(&sprite->sprite, posX, posY);
+        BtlSprite_SetSortKey(&sprite->sprite, 0x7FFFFFFF - (sprite->position.y + 0x8000));
+        BtlSprite_Render(&sprite->sprite);
     }
 }
 
-static void func_ov003_0209f5c8(CombatSprite* sprite) {
-    CombatSprite_Release(sprite);
+static void func_ov003_0209f5c8(BattleSprite* sprite) {
+    BtlSprite_Release(sprite);
 }
 
 /// Moves one half of the warp effect to a world position.

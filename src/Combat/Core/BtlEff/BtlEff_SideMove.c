@@ -1,9 +1,9 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatBossExp.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include <nitro/mi/cpumem.h>
 
@@ -21,7 +21,7 @@ typedef struct BossExp1State {
 
 /// One sprite that flies out of the boss.
 typedef struct BossExp1Piece {
-    /* 0x00 */ CombatSprite     sprite;
+    /* 0x00 */ BattleSprite     sprite;
     /* 0x60 */ Ov003CutinActor* actor;
     /* 0x64 */ Vec              position;
     /* 0x70 */ s32              velocityX;
@@ -146,13 +146,13 @@ static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 s
                 self->velocityY  = (self->actor->base.unk_1B0 - self->actor->base.actor.position.y) / 20;
                 self->fall       = -0xA000;
                 self->frame      = 0;
-                CombatSprite_LoadFromTable(1, &self->sprite, &data_ov003_020d7800, data_ov003_020e0b80, 0, 0x3F, 0);
-                CombatSprite_SetAnimFromTable(&self->sprite, 0, 1);
+                BtlSprite_LoadFromTable(1, &self->sprite, &data_ov003_020d7800, data_ov003_020e0b80, 0, 0x3F, 0);
+                BtlSprite_SetAnimFromTable(&self->sprite, 0, 1);
                 if (self->actor->base.actor.position.x > g_CombatGlobal->partner->position.x) {
-                    CombatSprite_SetFlip(&self->sprite, 1);
+                    BtlSprite_SetFlip(&self->sprite, 1);
                     self->position.x -= 0x18000;
                 } else {
-                    CombatSprite_SetFlip(&self->sprite, 0);
+                    BtlSprite_SetFlip(&self->sprite, 0);
                     self->position.x += 0x18000;
                 }
                 self->position.y += 0x8000;
@@ -162,7 +162,7 @@ static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 s
                 if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                     result = 0;
                 }
-                CombatSprite_Update(&self->sprite);
+                BtlSprite_Update(&self->sprite);
                 self->position.x += self->velocityX;
                 self->position.y += self->velocityY;
                 self->position.z += self->fall + FX32_CONVERT(self->frame);
@@ -173,13 +173,13 @@ static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 s
                 s16 y;
 
                 CombatStage_WorldToScreen(1, &x, &y, self->position.x, self->position.y, self->position.z);
-                CombatSprite_SetPosition(&self->sprite, x, y);
-                func_ov003_02082730(&self->sprite, 0x7FFFFFFF - (self->position.y + 0x8000));
-                CombatSprite_Render(&self->sprite);
+                BtlSprite_SetPosition(&self->sprite, x, y);
+                BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - (self->position.y + 0x8000));
+                BtlSprite_Render(&self->sprite);
                 break;
             }
             case 3:
-                CombatSprite_Release(&self->sprite);
+                BtlSprite_Release(&self->sprite);
                 break;
         }
     }

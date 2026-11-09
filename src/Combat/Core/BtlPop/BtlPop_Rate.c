@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "SpriteMgr.h"
 #include "main_02026528.h"
 
@@ -13,8 +13,8 @@
 // rate has a non-zero tens digit.
 
 typedef struct BtlPop_Rate {
-    /* 0x00 */ CombatSprite sprite;     // hundreds digit
-    /* 0x60 */ CombatSprite tensSprite; // tens digit
+    /* 0x00 */ BattleSprite sprite;     // hundreds digit
+    /* 0x60 */ BattleSprite tensSprite; // tens digit
     /* 0xC0 */ s32          unkC0;      // x offset (half-pixels) applied to the tens digit
     /* 0xC4 */ BOOL         isTensVisible;
     /* 0xC8 */ s32          x;          // world position the popup tracks
@@ -74,8 +74,8 @@ static void func_ov003_0209c1f0(BtlPop_Rate* rate, s32 value) {
     func_ov003_0209c1a4(digits, value);
     rate->unkC0         = digits[1] - 2;
     rate->isTensVisible = digits[0] != 0;
-    CombatSprite_SetAnimFromTable(&rate->sprite, (s16)rate->unkC0, 0);
-    CombatSprite_SetAnimFromTable(&rate->tensSprite, (s16)(digits[0] + 4), 0);
+    BtlSprite_SetAnimFromTable(&rate->sprite, (s16)rate->unkC0, 0);
+    BtlSprite_SetAnimFromTable(&rate->tensSprite, (s16)(digits[0] + 4), 0);
 }
 
 // Nonmatching: argument scheduling
@@ -103,14 +103,14 @@ static s32 BtlPop_Rate_Init(TaskPool* pool, Task* task, void* args) {
         animIndex = 0x3F;
     }
 
-    CombatSprite_LoadFromTableNoProto(params->engine, &rate->sprite, &data_ov003_020d7800, data_ov003_020d8050, 0, animIndex,
-                                      0x24);
-    func_ov003_02082738(&rate->sprite, 0);
-    func_ov003_02082730(&rate->sprite, 1);
-    CombatSprite_LoadFromTableNoProto(params->engine, &rate->tensSprite, &data_ov003_020d7800, data_ov003_020d8050, 4,
-                                      animIndex, 4);
-    func_ov003_02082738(&rate->tensSprite, 0);
-    func_ov003_02082730(&rate->tensSprite, 1);
+    BtlSprite_LoadFromTableNoProto(params->engine, &rate->sprite, &data_ov003_020d7800, data_ov003_020d8050, 0, animIndex,
+                                   0x24);
+    BtlSprite_SetPriority(&rate->sprite, 0);
+    BtlSprite_SetSortKey(&rate->sprite, 1);
+    BtlSprite_LoadFromTableNoProto(params->engine, &rate->tensSprite, &data_ov003_020d7800, data_ov003_020d8050, 4, animIndex,
+                                   4);
+    BtlSprite_SetPriority(&rate->tensSprite, 0);
+    BtlSprite_SetSortKey(&rate->tensSprite, 1);
     func_ov003_0209c1f0(rate, params->rate);
     return 1;
 }
@@ -125,8 +125,8 @@ static s32 BtlPop_Rate_Update(TaskPool* pool, Task* task, void* args) {
     if (rate->timer < -30) {
         rate->isActive = FALSE;
     }
-    CombatSprite_Update(&rate->sprite);
-    CombatSprite_Update(&rate->tensSprite);
+    BtlSprite_Update(&rate->sprite);
+    BtlSprite_Update(&rate->tensSprite);
     return rate->isActive;
 }
 
@@ -148,11 +148,11 @@ static s32 BtlPop_Rate_Render(TaskPool* pool, Task* task, void* args) {
     if (posX > 232) {
         posX = 232;
     }
-    CombatSprite_SetPosition(&rate->sprite, posX, posY);
-    CombatSprite_Render(&rate->sprite);
+    BtlSprite_SetPosition(&rate->sprite, posX, posY);
+    BtlSprite_Render(&rate->sprite);
     if (rate->isTensVisible) {
-        CombatSprite_SetPosition(&rate->tensSprite, (s16)(posX + rate->unkC0 * 2), posY);
-        CombatSprite_Render(&rate->tensSprite);
+        BtlSprite_SetPosition(&rate->tensSprite, (s16)(posX + rate->unkC0 * 2), posY);
+        BtlSprite_Render(&rate->tensSprite);
     }
     return 1;
 }
@@ -169,8 +169,8 @@ static s32 BtlPop_Rate_Release(TaskPool* pool, Task* task, void* args) {
             g_CombatGlobal->unk3D902 = 0;
         }
     }
-    CombatSprite_Release(&rate->sprite);
-    CombatSprite_Release(&rate->tensSprite);
+    BtlSprite_Release(&rate->sprite);
+    BtlSprite_Release(&rate->tensSprite);
     return 1;
 }
 

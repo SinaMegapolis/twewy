@@ -1,4 +1,5 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlField.h"
 #include "Combat/Core/BtlFieldData.h"
@@ -7,7 +8,6 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatObsSpawn.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Beat.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "Combat/Friend/Shiki.h"
@@ -381,14 +381,14 @@ void CombatSys_DropObsGroup(s32 kind, s32 count) {
 }
 
 // Nonmatching: regswaps
-s32 CombatSys_LoadObsSprite(s32 engine, CombatSprite* sprite, u32 id) {
+s32 CombatSys_LoadObsSprite(s32 engine, BattleSprite* sprite, u32 id) {
     SpriteAnimationEx anim;
     int               new_var2;
     if (id >= 24) {
         return 0;
     }
     const Ov003AnimSet* set = &CombatSys_ObsAnimSets[id];
-    CombatSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7820);
+    BtlSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7820);
     new_var2                       = set->unk_04;
     anim.anim.bits_10_11           = 1;
     anim.anim.packIndex            = new_var2;
@@ -397,18 +397,18 @@ s32 CombatSys_LoadObsSprite(s32 engine, CombatSprite* sprite, u32 id) {
     const SpriteAnimEntry* entry   = set->entries;
     anim.anim.unk_1C               = entry->charDataIndex;
     anim.anim.unk_1E               = set->unk_08 << 5;
-    anim.anim.unk_26               = entry->frameDataIndex;
-    u16 new_var3                   = entry->paletteDataIndex;
+    anim.anim.unk_26               = entry->cellDataIndex;
+    u16 new_var3                   = entry->animDataIndex;
     anim.anim.unk_20               = new_var;
     anim.anim.unk_28               = new_var3;
-    anim.anim.animIndex            = entry->animDataIndex + 1;
+    anim.anim.animIndex            = entry->animIndex + 1;
     anim.animTable                 = set->entries;
-    return CombatSprite_Load(sprite, &anim);
+    return BtlSprite_Load(sprite, &anim);
 }
 
 /// Reads a halfword out of the unmodelled part of `Ov003Global`.
 
-void CombatSys_LoadObsHitEffect(s32 arg0, CombatSprite* arg1, s32 arg2) {
+void CombatSys_LoadObsHitEffect(s32 arg0, BattleSprite* arg1, s32 arg2) {
     CombatHit_LoadSpark(arg0, arg1, CombatSys_ObsConfigs[arg2].unk_02);
 }
 
@@ -770,7 +770,7 @@ u16 func_ov003_02086d24(void) {
 
 /// Draws one battle effect frame: a sprite animation for the charge effects, a delegated draw for
 /// the special ones.
-void func_ov003_02086d8c(CombatSprite* sprite, s32 animId, s32 flipped, s32 x, s16 y, s16 z) {
+void func_ov003_02086d8c(BattleSprite* sprite, s32 animId, s32 flipped, s32 x, s16 y, s16 z) {
     switch (g_CombatGlobal->effectCmd->mode) {
         case 0:
         case 1: {
@@ -779,10 +779,10 @@ void func_ov003_02086d8c(CombatSprite* sprite, s32 animId, s32 flipped, s32 x, s
             if (flipped != 0) {
                 anim++;
             }
-            CombatSprite_SetAnim(sprite, anim, 0);
-            CombatSprite_Update(sprite);
-            CombatSprite_SetPosition(sprite, x, y);
-            CombatSprite_Render(sprite);
+            BtlSprite_SetAnim(sprite, anim, 0);
+            BtlSprite_Update(sprite);
+            BtlSprite_SetPosition(sprite, x, y);
+            BtlSprite_Render(sprite);
             break;
         }
         case 2:

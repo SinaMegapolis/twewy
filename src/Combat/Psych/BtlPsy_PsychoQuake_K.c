@@ -106,30 +106,30 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
                 self->spriteOffset--;
             if (SpriteMgr_IsAnimationFinished(&self->spriteA.sprite))
                 CombatPsyAnim_SetAnim(&self->spriteA, 0xC1, 0);
-            CombatSprite_Update(&self->spriteA);
-            CombatSprite_Update(&self->spriteB);
+            BtlSprite_Update(&self->spriteA);
+            BtlSprite_Update(&self->spriteB);
         done:
             return result;
         }
         case 2:
             self = task->data;
-            CombatSprite_SetPosition(&self->spriteA, 128, 96);
-            CombatSprite_SetPosition(&self->spriteB, 128, (s16)(self->spriteOffset + 96));
-            func_ov003_02082730(&self->spriteA, 0x384000);
-            func_ov003_02082730(&self->spriteB, 0x385000);
+            BtlSprite_SetPosition(&self->spriteA, 128, 96);
+            BtlSprite_SetPosition(&self->spriteB, 128, (s16)(self->spriteOffset + 96));
+            BtlSprite_SetSortKey(&self->spriteA, 0x384000);
+            BtlSprite_SetSortKey(&self->spriteB, 0x385000);
             switch (self->phase) {
                 case 0:
                 case 1:
                     if (self->opacity > 0) {
                         if (self->opacity > 0x14000)
-                            CombatSprite_RenderWithPalette(&self->spriteA, self->opacity >> 12);
-                        CombatSprite_RenderWithPalette(&self->spriteB, self->opacity >> 12);
+                            BtlSprite_RenderTranslucent(&self->spriteA, self->opacity >> 12);
+                        BtlSprite_RenderTranslucent(&self->spriteB, self->opacity >> 12);
                     }
                     break;
                 case 2:
                     if (self->opacity > 0) {
-                        CombatSprite_RenderWithPalette(&self->spriteA, self->opacity >> 12);
-                        CombatSprite_RenderWithPalette(&self->spriteB, self->opacity >> 12);
+                        BtlSprite_RenderTranslucent(&self->spriteA, self->opacity >> 12);
+                        BtlSprite_RenderTranslucent(&self->spriteB, self->opacity >> 12);
                     }
                     break;
             }
@@ -148,8 +148,8 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
             }
             CombatCameraShake_Reset(&self->camera);
             SndMgr_StopPlayingSE(SEIDX_SE_PSY_SYCOQUAKE01);
-            CombatSprite_Release(&self->spriteA);
-            CombatSprite_Release(&self->spriteB);
+            BtlSprite_Release(&self->spriteA);
+            BtlSprite_Release(&self->spriteB);
             return 1;
         }
     }

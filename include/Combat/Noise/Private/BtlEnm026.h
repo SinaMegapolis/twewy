@@ -2,8 +2,8 @@
 #define COMBAT_NOISE_PRIVATE_BTLENM026_H
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatEnemyActor.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 
 typedef struct Enm026IconSpawn {

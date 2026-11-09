@@ -116,27 +116,27 @@ static s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
             }
             func_ov003_020a647c(self->unit->actor.position.x);
-            CombatSprite_Update(&self->spriteA);
-            CombatSprite_Update(&self->spriteB);
+            BtlSprite_Update(&self->spriteA);
+            BtlSprite_Update(&self->spriteB);
             return 1;
         }
         case 2: {
             Ov003IceHold* self = task->data;
             s32           y    = (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight);
             s32           x    = self->unit->actor.screenX;
-            CombatSprite_SetPosition(&self->spriteA, x, y);
-            CombatSprite_SetPosition(&self->spriteB, x, y);
-            func_ov003_02082730(&self->spriteA, 0x384000);
-            func_ov003_02082730(&self->spriteB, 0x385000);
-            CombatSprite_Render(&self->spriteA);
+            BtlSprite_SetPosition(&self->spriteA, x, y);
+            BtlSprite_SetPosition(&self->spriteB, x, y);
+            BtlSprite_SetSortKey(&self->spriteA, 0x384000);
+            BtlSprite_SetSortKey(&self->spriteB, 0x385000);
+            BtlSprite_Render(&self->spriteA);
             if (self->state == 2)
-                CombatSprite_Render(&self->spriteB);
+                BtlSprite_Render(&self->spriteB);
             return 1;
         }
         case 3: {
             Ov003IceHold* self = task->data;
-            CombatSprite_Release(&self->spriteA);
-            CombatSprite_Release(&self->spriteB);
+            BtlSprite_Release(&self->spriteA);
+            BtlSprite_Release(&self->spriteB);
             return 1;
         }
     }

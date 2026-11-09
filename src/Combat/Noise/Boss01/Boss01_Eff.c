@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include "EasyFade.h"
 #include "Engine/Core/OamMgr.h"
@@ -14,7 +14,7 @@ typedef struct {
 } Boss01_Eff_Args;
 
 typedef struct {
-    /* 0x00 */ CombatSprite    sprite;
+    /* 0x00 */ BattleSprite    sprite;
     /* 0x60 */ Boss01_Eff_Args unk_60;
     /* 0x70 */ s32             unk_70;
     /* 0x74 */ s32             unk_74;
@@ -38,9 +38,9 @@ s32 Boss01_Eff_Init(TaskPool* pool, Task* task, void* args) {
 
     eff->unk_60 = *effArgs;
 
-    CombatSprite_LoadDirect(eff->unk_60.unk_C, &eff->sprite, data_ov016_021291ac[eff->unk_60.unk_C], 1, 3, 2, 4,
-                            (RNG_Next(5) + 1));
-    CombatSprite_SetFlip(&eff->sprite, RNG_Next(2));
+    BtlSprite_LoadDirect(eff->unk_60.unk_C, &eff->sprite, data_ov016_021291ac[eff->unk_60.unk_C], 1, 3, 2, 4,
+                         (RNG_Next(5) + 1));
+    BtlSprite_SetFlip(&eff->sprite, RNG_Next(2));
     eff->unk_7C = (RNG_Next(1) + 0x1666);
     eff->unk_78 = -(RNG_Next(0x219B) + 0x666);
     return 1;
@@ -83,7 +83,7 @@ s32 Boss01_Eff_Update(TaskPool* pool, Task* task, void* args) {
             }
 
         default:
-            CombatSprite_Update(&eff->sprite);
+            BtlSprite_Update(&eff->sprite);
             return 1;
     }
 }
@@ -92,15 +92,15 @@ s32 Boss01_Eff_Render(TaskPool* pool, Task* task, void* args) {
     s16         spA, sp8;
     Boss01_Eff* eff = task->data;
 
-    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)eff), &spA, &sp8, eff->unk_60.unk_0.x, eff->unk_60.unk_0.y,
+    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)eff), &spA, &sp8, eff->unk_60.unk_0.x, eff->unk_60.unk_0.y,
                               eff->unk_60.unk_0.z);
-    CombatSprite_SetPosition(&eff->sprite, spA, sp8);
-    CombatSprite_Render(&eff->sprite);
+    BtlSprite_SetPosition(&eff->sprite, spA, sp8);
+    BtlSprite_Render(&eff->sprite);
     return 1;
 }
 
 s32 Boss01_Eff_Destroy(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

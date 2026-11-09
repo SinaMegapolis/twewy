@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlSpecial.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
@@ -10,7 +10,7 @@ extern s32 data_ov003_020e71e0;
 typedef struct BtlFeat01_Multi {
     /* 0x000 */ s32 (**unk_000)(struct BtlFeat01_Multi*);
     /* 0x004 */ s32          unk_004;
-    /* 0x008 */ CombatSprite unk_008;
+    /* 0x008 */ BattleSprite unk_008;
     /* 0x068 */ char         unk_068[0xC8 - 0x68];
     /* 0x0C8 */ s32          unk_0C8;
     /* 0x0CC */ s32          unk_0CC;
@@ -134,18 +134,18 @@ s32 BtlFeat01_Multi_Init(TaskPool* pool, Task* task, void* args) {
     if (multi->unk_004 == 1) {
         SpriteAnimEntry* animEntry = &data_ov004_020f04d0[multiArgs->unk_DC];
 
-        CombatSprite_LoadDirect(multiArgs->unk_00, &multi->unk_008, &Iden_BtlSpecialSiki, animEntry->charDataIndex,
-                                animEntry->paletteDataIndex, animEntry->frameDataIndex, 3, animEntry->animDataIndex);
-        CombatSprite_SetAnim(&multi->unk_008, animEntry->animDataIndex, 0);
+        BtlSprite_LoadDirect(multiArgs->unk_00, &multi->unk_008, &Iden_BtlSpecialSiki, animEntry->charDataIndex,
+                             animEntry->animDataIndex, animEntry->cellDataIndex, 3, animEntry->animIndex);
+        BtlSprite_SetAnim(&multi->unk_008, animEntry->animIndex, 0);
     } else {
         SpriteAnimEntry* animEntry = &data_ov004_020f04d0[multiArgs->unk_DC];
 
-        CombatSprite_LoadDirect(multiArgs->unk_00, &multi->unk_008, &Iden_BtlSpecialSiki, animEntry->charDataIndex,
-                                animEntry->paletteDataIndex, animEntry->frameDataIndex, 4, animEntry->animDataIndex);
-        CombatSprite_SetAnim(&multi->unk_008, animEntry->animDataIndex, 0);
+        BtlSprite_LoadDirect(multiArgs->unk_00, &multi->unk_008, &Iden_BtlSpecialSiki, animEntry->charDataIndex,
+                             animEntry->animDataIndex, animEntry->cellDataIndex, 4, animEntry->animIndex);
+        BtlSprite_SetAnim(&multi->unk_008, animEntry->animIndex, 0);
     }
-    CombatSprite_SetAnimFromTable(&multi->unk_008, multiArgs->unk_DC, 1);
-    CombatSprite_SetFlip(&multi->unk_008, multiArgs->unk_D8);
+    BtlSprite_SetAnimFromTable(&multi->unk_008, multiArgs->unk_DC, 1);
+    BtlSprite_SetFlip(&multi->unk_008, multiArgs->unk_D8);
     if (multi->unk_004 == 0) {
         func_ov004_020ed21c(multi, data_ov004_020f07c8);
     } else {
@@ -170,24 +170,24 @@ s32 BtlFeat01_Multi_Update(TaskPool* pool, Task* task, void* args) {
     if (data_ov003_020e71e0 == 1) {
         return 0;
     }
-    CombatSprite_Update(&multi->unk_008);
+    BtlSprite_Update(&multi->unk_008);
     return 1;
 }
 
 s32 BtlFeat01_Multi_Render(TaskPool* pool, Task* task, void* args) {
     BtlFeat01_Multi* multi = task->data;
 
-    CombatSprite_SetPosition(&multi->unk_008, F2Ix(multi->unk_0C8), F2Ix(multi->unk_0CC));
-    CombatSprite_SetAffineTransform(&multi->unk_008, 0, multi->unk_0D0, multi->unk_0D4, 1);
-    func_ov003_02082730(&multi->unk_008, 0x7FFFFFFF - multi->unk_0CC);
-    CombatSprite_Render(&multi->unk_008);
+    BtlSprite_SetPosition(&multi->unk_008, F2Ix(multi->unk_0C8), F2Ix(multi->unk_0CC));
+    BtlSprite_SetAffineTransform(&multi->unk_008, 0, multi->unk_0D0, multi->unk_0D4, 1);
+    BtlSprite_SetSortKey(&multi->unk_008, 0x7FFFFFFF - multi->unk_0CC);
+    BtlSprite_Render(&multi->unk_008);
     return 1;
 }
 
 s32 BtlFeat01_Multi_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlFeat01_Multi* multi = task->data;
 
-    CombatSprite_Release(&multi->unk_008);
+    BtlSprite_Release(&multi->unk_008);
     return 0;
 }
 

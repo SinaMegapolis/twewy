@@ -1,5 +1,5 @@
 #include "Combat/Core/CombatSpriteDefault.h"
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 
 SpriteAnimation CombatSprite_DefaultAnim = {
     .bits_0_1          = 0,
@@ -12,7 +12,7 @@ SpriteAnimation CombatSprite_DefaultAnim = {
     .unk_02.raw        = 0x800,
     .posX              = 0,
     .posY              = 0,
-    .frameInfoCallback = CombatSprite_GetFrameInfo,
+    .frameInfoCallback = BtlSprite_GetFrameInfo,
     .callbackArg       = 0,
     .owner             = NULL,
     .binIden           = NULL,

@@ -42,7 +42,7 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
             CombatPsyAnim_Load(&barrier->sprites[0], 2, 1, data_ov003_020dc6b4[barrier->animationKind], 0);
             CombatPsyAnim_Load(&barrier->sprites[3], 2, 1, data_ov003_020dc6b4[barrier->animationKind], 0);
             CombatPsyAnim_Load(&barrier->sprites[1], 2, 1, data_ov003_020dc6b4[barrier->animationKind] + 1, 0);
-            CombatSprite_SetAnim(&barrier->sprites[1], 1, 1);
+            BtlSprite_SetAnim(&barrier->sprites[1], 1, 1);
             switch (barrier->spawn.mode) {
                 case 0:
                     func_ov003_020a6464(1);
@@ -114,7 +114,7 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
             }
             for (s32 i = 0; i < 4; i++)
-                CombatSprite_Update(&barrier->sprites[i]);
+                BtlSprite_Update(&barrier->sprites[i]);
             return active;
         }
         case 2: {
@@ -127,22 +127,22 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
             barrier->affine.unk_0C   = 0;
             barrier->affine.unk_0E   = 0;
             for (s32 i = 0; i < 4; i++) {
-                CombatSprite_SetPosition(&barrier->sprites[i], player->screenX, player->screenY);
-                func_ov003_02082730(&barrier->sprites[i], 0x384000 + (i << 12));
-                CombatSprite_SetFlip(&barrier->sprites[i], flip);
+                BtlSprite_SetPosition(&barrier->sprites[i], player->screenX, player->screenY);
+                BtlSprite_SetSortKey(&barrier->sprites[i], 0x384000 + (i << 12));
+                BtlSprite_SetFlip(&barrier->sprites[i], flip);
                 barrier->sprites[i].sprite.unk_0A.unk_00 = 1;
                 barrier->sprites[i].affine               = &barrier->affine;
                 if (i == 0 || i == 2)
-                    CombatSprite_RenderWithPalette(&barrier->sprites[i], 0x10);
+                    BtlSprite_RenderTranslucent(&barrier->sprites[i], 0x10);
                 else
-                    CombatSprite_Render(&barrier->sprites[i]);
+                    BtlSprite_Render(&barrier->sprites[i]);
             }
             return 1;
         }
         case 3:
             barrier = task->data;
             for (s32 i = 0; i < 4; i++)
-                CombatSprite_Release(&barrier->sprites[i]);
+                BtlSprite_Release(&barrier->sprites[i]);
             switch (barrier->spawn.mode) {
                 case 0:
                     func_ov003_020a6464(0);
@@ -161,20 +161,20 @@ static void func_ov003_020aa860(Ov003Barrier* barrier) {
         if (!SpriteMgr_IsAnimationFinished(&barrier->sprites[1].sprite))
             return;
         barrier->phase = 1;
-        CombatSprite_SetAnim(&barrier->sprites[1], 2, 0);
-        CombatSprite_SetAnim(&barrier->sprites[2], 1, 0);
-        CombatSprite_SetAnim(&barrier->sprites[0], 3, 0);
-        CombatSprite_SetAnim(&barrier->sprites[3], 5, 1);
+        BtlSprite_SetAnim(&barrier->sprites[1], 2, 0);
+        BtlSprite_SetAnim(&barrier->sprites[2], 1, 0);
+        BtlSprite_SetAnim(&barrier->sprites[0], 3, 0);
+        BtlSprite_SetAnim(&barrier->sprites[3], 5, 1);
         return;
     }
     if (SpriteMgr_IsAnimationFinished(&barrier->sprites[2].sprite))
-        CombatSprite_SetAnim(&barrier->sprites[2], 1, 0);
+        BtlSprite_SetAnim(&barrier->sprites[2], 1, 0);
     if (SpriteMgr_IsAnimationFinished(&barrier->sprites[0].sprite))
-        CombatSprite_SetAnim(&barrier->sprites[0], 3, 0);
+        BtlSprite_SetAnim(&barrier->sprites[0], 3, 0);
     if (!SpriteMgr_IsAnimationFinished(&barrier->sprites[3].sprite))
         return;
-    CombatSprite_SetAnim(&barrier->sprites[3], 5, 1);
-    CombatSprite_Restart(&barrier->sprites[3]);
+    BtlSprite_SetAnim(&barrier->sprites[3], 5, 1);
+    BtlSprite_Restart(&barrier->sprites[3]);
     switch (barrier->spawn.kind) {
         case 0:
             CombatSe_PlayAtMainX(0xB3, player->position.x);
@@ -192,12 +192,12 @@ static void func_ov003_020aa990(Ov003Barrier* barrier) {
     func_ov003_020a6438();
     if (barrier->phase == 0)
         return;
-    CombatSprite_SetAnim(&barrier->sprites[2], 2, 1);
-    CombatSprite_Restart(&barrier->sprites[2]);
-    CombatSprite_SetAnim(&barrier->sprites[0], 4, 1);
-    CombatSprite_Restart(&barrier->sprites[0]);
-    CombatSprite_SetAnim(&barrier->sprites[3], 6, 1);
-    CombatSprite_Restart(&barrier->sprites[3]);
+    BtlSprite_SetAnim(&barrier->sprites[2], 2, 1);
+    BtlSprite_Restart(&barrier->sprites[2]);
+    BtlSprite_SetAnim(&barrier->sprites[0], 4, 1);
+    BtlSprite_Restart(&barrier->sprites[0]);
+    BtlSprite_SetAnim(&barrier->sprites[3], 6, 1);
+    BtlSprite_Restart(&barrier->sprites[3]);
 }
 
 static void func_ov003_020aa9f4(Ov003EffectState* effect, s32 percent) {

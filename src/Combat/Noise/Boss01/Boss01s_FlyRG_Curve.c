@@ -1,12 +1,12 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Engine/Math/Random.h"
 #include <nitro/fx.h>
 
 typedef struct {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ Vec          unk_60;
     /* 0x6C */ s32          unk_6C;
     /* 0x70 */ s32          unk_70;
@@ -57,7 +57,7 @@ s32 Boss01s_FlyRG_Curve_Init(TaskPool* pool, Task* task, void* args) {
     Boss01s_FlyRG_Curve* curve = task->data;
 
     MI_CpuSet(curve, 0, sizeof(Boss01s_FlyRG_Curve));
-    CombatSprite_LoadFromTable(1, &curve->sprite, &data_ov016_02128f98, data_ov016_02129010, RNG_Next(2), 4, 4);
+    BtlSprite_LoadFromTable(1, &curve->sprite, &data_ov016_02128f98, data_ov016_02129010, RNG_Next(2), 4, 4);
     Boss01s_FlyRG_Curve_Randomize(curve);
 
     f32 var_r0;
@@ -104,7 +104,7 @@ s32 Boss01s_FlyRG_Curve_Update(TaskPool* pool, Task* task, void* args) {
             }
             break;
     }
-    CombatSprite_Update(&curve->sprite);
+    BtlSprite_Update(&curve->sprite);
     return 1;
 }
 
@@ -115,17 +115,17 @@ s32 Boss01s_FlyRG_Curve_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)curve), &spA, &sp8, curve->unk_60.x, curve->unk_60.y,
+    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)curve), &spA, &sp8, curve->unk_60.x, curve->unk_60.y,
                               curve->unk_60.z);
-    CombatSprite_SetPosition(&curve->sprite, spA, sp8);
-    func_ov003_02082730(&curve->sprite, 0x7FFFFFFF);
-    CombatSprite_Render(&curve->sprite);
+    BtlSprite_SetPosition(&curve->sprite, spA, sp8);
+    BtlSprite_SetSortKey(&curve->sprite, 0x7FFFFFFF);
+    BtlSprite_Render(&curve->sprite);
     return 1;
 }
 
 s32 Boss01s_FlyRG_Curve_Destroy(TaskPool* pool, Task* task, void* args) {
     Boss01s_FlyRG_Curve* curve = task->data;
-    CombatSprite_Release(&curve->sprite);
+    BtlSprite_Release(&curve->sprite);
     return 1;
 }
 

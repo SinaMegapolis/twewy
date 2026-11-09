@@ -375,11 +375,11 @@ static const Ov003TouchIconParams CombatPsyAnim_Table[258] = {
 /// Loads the icon of touch entry `index` into `cSprite`; `arg2` selects the looped/one-shot form
 /// and `arg4` is passed through to the animation setup.
 // Nonmatching: the SpriteAnimationEx field stores are scheduled differently.
-s32 CombatPsyAnim_Load(CombatSprite* cSprite, s32 arg1, s32 arg2, s32 index, u16 arg4) {
+s32 CombatPsyAnim_Load(BattleSprite* cSprite, s32 arg1, s32 arg2, s32 index, u16 arg4) {
     const Ov003TouchIconParams* params = &CombatPsyAnim_Table[index];
     SpriteAnimationEx           anim;
 
-    CombatSprite_InitAnim(&anim.anim, arg1, params->binIden);
+    BtlSprite_InitAnim(&anim.anim, arg1, params->binIden);
     anim.anim.bits_7_9  = 6;
     anim.anim.unk_18    = params->unk_04;
     anim.anim.packIndex = params->unk_06;
@@ -387,29 +387,29 @@ s32 CombatPsyAnim_Load(CombatSprite* cSprite, s32 arg1, s32 arg2, s32 index, u16
         anim.anim.bits_10_11 = 1;
         anim.anim.unk_1C     = params->entry.charDataIndex;
         anim.anim.unk_1E     = params->unk_14 << 5;
-        anim.anim.unk_26     = params->entry.frameDataIndex;
-        anim.anim.unk_28     = params->entry.paletteDataIndex;
+        anim.anim.unk_26     = params->entry.cellDataIndex;
+        anim.anim.unk_28     = params->entry.animDataIndex;
         anim.anim.unk_20     = params->unk_12;
-        anim.anim.animIndex  = params->entry.animDataIndex + 1;
+        anim.anim.animIndex  = params->entry.animIndex + 1;
         anim.animTable       = &params->entry;
     } else {
         anim.anim.bits_10_11 = 0;
         anim.anim.unk_1C     = params->entry.charDataIndex;
-        anim.anim.unk_26     = params->entry.frameDataIndex;
-        anim.anim.unk_28     = params->entry.paletteDataIndex;
+        anim.anim.unk_26     = params->entry.cellDataIndex;
+        anim.anim.unk_28     = params->entry.animDataIndex;
         anim.anim.unk_20     = params->unk_12;
         anim.anim.animIndex  = 1;
         anim.animTable       = NULL;
     }
-    if (CombatSprite_Load(cSprite, &anim) == 0) {
+    if (BtlSprite_Load(cSprite, &anim) == 0) {
         return 0;
     }
-    CombatSprite_SetAnim(cSprite, params->unk_10, arg4);
+    BtlSprite_SetAnim(cSprite, params->unk_10, arg4);
     return 1;
 }
 
-void CombatPsyAnim_SetAnim(CombatSprite* cSprite, s32 index, s32 arg2) {
+void CombatPsyAnim_SetAnim(BattleSprite* cSprite, s32 index, s32 arg2) {
     const Ov003TouchIconParams* params = &CombatPsyAnim_Table[index];
 
-    CombatSprite_SetAnim(cSprite, params->unk_10, arg2);
+    BtlSprite_SetAnim(cSprite, params->unk_10, arg2);
 }

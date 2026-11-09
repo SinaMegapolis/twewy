@@ -13,7 +13,7 @@ const TaskHandle Tsk_BtlEnm015_RG = {"Tsk_BtlEnm015_RG", func_ov013_02126dd8, 0x
 static void func_ov013_02126ab0(BtlEnm015* arg0) {
     switch (arg0->unk_1C2) {
         case 0:
-            CombatSprite_SetAnimFromTable(&arg0->base.sprite, 0, 0);
+            BtlSprite_SetAnimFromTable(&arg0->base.sprite, 0, 0);
             func_ov003_020c4ee0(&arg0->base);
             arg0->unk_1C2 = arg0->unk_1C2 + 1;
             arg0->unk_1C0 = RNG_Next(0x3C) + 0x3C;
@@ -38,7 +38,7 @@ static void func_ov013_02126b30(BtlEnm015* arg0) {
             break;
 
         case 1:
-            CombatSprite_SetAnimFromTable(&arg0->base.sprite, 7, 1);
+            BtlSprite_SetAnimFromTable(&arg0->base.sprite, 7, 1);
             func_ov003_020c4cc4(&arg0->base, 0x220);
             arg0->unk_1C2 = arg0->unk_1C2 + 1;
             arg0->unk_1C0 = 0;
@@ -48,7 +48,7 @@ static void func_ov013_02126b30(BtlEnm015* arg0) {
             if (SpriteMgr_IsAnimationFinished(&arg0->base.sprite.sprite) == 0) {
                 return;
             }
-            CombatSprite_SetAnimFromTable(&arg0->base.sprite, 8, 1);
+            BtlSprite_SetAnimFromTable(&arg0->base.sprite, 8, 1);
             func_ov003_020c4cc4(&arg0->base, 0x226);
             func_ov013_021257a4(arg0, 0);
             CombatHit_Stagger(1, partner, 0);
@@ -79,7 +79,7 @@ static void func_ov013_02126c64(BtlEnm015* arg0) {
             break;
 
         case 1:
-            CombatSprite_SetAnimFromTable(&arg0->base.sprite, 9, 1);
+            BtlSprite_SetAnimFromTable(&arg0->base.sprite, 9, 1);
             arg0->unk_1DC = partner->position.x;
             arg0->unk_1E0 = partner->position.y;
             arg0->unk_1E4 = partner->position.z;

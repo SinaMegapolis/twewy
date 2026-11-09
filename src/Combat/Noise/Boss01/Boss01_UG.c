@@ -1,11 +1,11 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatEnemyShot.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Combat/Noise/BtlEnm.h"
 #include "Combat/Noise/Private/Boss01.h"
@@ -59,7 +59,7 @@ static void func_ov016_021262d8(Boss01_UG* bossUG) {
     PaletteResource* temp_r4 = bossUG->unk_1D8;
 
     u16 var_r0;
-    if (bossUG->base.sprite.flags46 & 1) {
+    if (bossUG->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
         var_r0 = OamMgr_AllocAffineGroup(&g_OamMgr[DISPLAY_EXTENDED], 0, bossUG->unk_1DC, bossUG->unk_1DC, 1);
     } else {
         var_r0 = OamMgr_AllocAffineGroup(&g_OamMgr[DISPLAY_EXTENDED], 0, bossUG->unk_1DC, bossUG->unk_1DC, 0);
@@ -77,7 +77,7 @@ static void func_ov016_021262d8(Boss01_UG* bossUG) {
     bossUG->base.sprite.sprite.unk_0A.raw  = (u16)((bossUG->base.sprite.sprite.unk_0A.raw & ~1) | 1);
     bossUG->base.sprite.sprite.unk_0A.raw &= ~2;
     bossUG->base.sprite.sprite.unk_0A.raw = (u16)((bossUG->base.sprite.sprite.unk_0A.raw & ~0xC) | 4);
-    CombatSprite_RenderWithPalette(&bossUG->base.sprite, 8);
+    BtlSprite_RenderTranslucent(&bossUG->base.sprite, 8);
     bossUG->base.sprite.sprite.paletteData   = temp_r6;
     bossUG->base.sprite.sprite.unk3C         = temp_r5;
     bossUG->base.sprite.sprite.scaleY        = temp_r7;
@@ -85,7 +85,7 @@ static void func_ov016_021262d8(Boss01_UG* bossUG) {
     bossUG->base.sprite.sprite.unk_0A.unk_01 = 0;
     bossUG->base.sprite.sprite.unk_0A.unk_02 = 0;
 
-    if (bossUG->base.sprite.flags46 & 1) {
+    if (bossUG->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
         bossUG->base.sprite.sprite.unk_0A.raw =
             (u16)((bossUG->base.sprite.sprite.unk_0A.raw & ~0x3E0) |
                   ((u32)((u16)((bossUG->base.sprite.sprite.unk_0A.raw << 0x16 >> 0x1B) | 8) << 0x1B) >> 0x16));
@@ -471,12 +471,12 @@ static void func_ov016_02126ff0(Boss01_UG* bossUG) {
     SpriteAnimationEx subroutine;
 
     if (bossUG->unk_1C0 == 0) {
-        func_ov016_021256c0(&subroutine, 0, bossUG->base.sprite.flags46 & 1);
+        func_ov016_021256c0(&subroutine, 0, bossUG->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED);
         func_ov003_020c9064(&subroutine);
     }
     s32 temp_r5 = func_ov003_020c9338(&bossUG->base);
     if ((func_ov003_020c9008() != 0) && (data_ov016_021291d8 != 0)) {
-        CombatSprite_Release(&bossUG->base.sprite);
+        BtlSprite_Release(&bossUG->base.sprite);
         data_ov016_021291d8 = 0;
     }
     if (temp_r5 == 0) {
@@ -500,7 +500,7 @@ static s32 Boss01_UG_Init(TaskPool* pool, Task* task, void* args) {
 
     func_ov003_020c3efc(&bossUG->base, args);
     func_ov016_021256c0(&subroutine, 2, 0);
-    CombatSprite_Load(&bossUG->base.sprite, &subroutine);
+    BtlSprite_Load(&bossUG->base.sprite, &subroutine);
     func_ov003_020c49c8(&bossUG->base);
     func_ov003_020c4c5c(&bossUG->base);
     bossUG->base.actor.flags |= ACTOR_FLAG_INTANGIBLE | ACTOR_FLAG_UNCLAMPED_X;
@@ -538,7 +538,7 @@ static s32 Boss01_UG_Update(TaskPool* pool, Task* task, void* args) {
         func_ov016_021264d8(bossUG);
     }
     BtlActor_UpdateEffects(0, &bossUG->base.actor);
-    CombatSprite_Update(&bossUG->base.sprite);
+    BtlSprite_Update(&bossUG->base.sprite);
     return bossUG->unk_1CC;
 }
 
@@ -553,12 +553,12 @@ static s32 Boss01_UG_Render(TaskPool* pool, Task* task, void* args) {
     if (!(bossUG->base.flags18C & 1)) {
         CombatStage_WorldToScreen(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y,
                                   bossUG->base.actor.position.z);
-        CombatSprite_SetPosition(&bossUG->base.sprite, spA, sp8);
-        CombatSprite_Render(&bossUG->base.sprite);
+        BtlSprite_SetPosition(&bossUG->base.sprite, spA, sp8);
+        BtlSprite_Render(&bossUG->base.sprite);
         bossUG->base.actor.screenX = spA;
         bossUG->base.actor.screenY = sp8 + 80;
         CombatStage_WorldToScreen(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y, 0);
-        CombatSprite_SetPosition(&bossUG->base.sprite, spA, sp8);
+        BtlSprite_SetPosition(&bossUG->base.sprite, spA, sp8);
         func_ov016_021262d8(bossUG);
     }
     return 1;
@@ -568,7 +568,7 @@ static s32 Boss01_UG_Destroy(TaskPool* pool, Task* task, void* args) {
     Boss01_UG* bossUG = task->data;
 
     PaletteMgr_ReleaseResource(g_PaletteManagers[DISPLAY_EXTENDED], bossUG->unk_1D8);
-    CombatSprite_Release(&bossUG->base.sprite);
+    BtlSprite_Release(&bossUG->base.sprite);
     func_ov003_020c4a74(&bossUG->base);
     return 1;
 }

@@ -219,15 +219,15 @@ void func_ov011_02125714(void) {
     }
 }
 
-void func_ov011_02125750(s32 arg0, CombatSprite* arg1, s32 arg2) {
-    s32              flag = (arg1->flags46 & 1) ? 1 : 0;
+void func_ov011_02125750(s32 arg0, BattleSprite* arg1, s32 arg2) {
+    s32              flag = (arg1->flags & BTL_SPRITE_FLAG_FLIPPED) ? 1 : 0;
     void*            bin;
     BtlEnm010AnmMgr* data;
     s32              slot;
     s32              size;
     u16              phase;
 
-    CombatSprite_Release(arg1);
+    BtlSprite_Release(arg1);
     data = EasyTask_GetTaskData(&g_CombatGlobal->unk_10118, data_ov011_0212cca0.task);
     bin  = data_ov011_0212cb1c[data->unk_38][arg2];
     if (func_ov003_020cb32c(&data->bins, bin) == 0) {
@@ -251,14 +251,14 @@ void func_ov011_02125750(s32 arg0, CombatSprite* arg1, s32 arg2) {
     if (data->unk_38 != 3) {
         phase = phase + data->unk_38;
     }
-    CombatSprite_LoadFromTable(arg0, arg1, (const BinIdentifier*)bin, (const SpriteAnimEntry*)data_ov011_0212caf4[arg2], 0,
-                               phase, data_ov011_0212bfe0[arg2]);
+    BtlSprite_LoadFromTable(arg0, arg1, (const BinIdentifier*)bin, (const SpriteAnimEntry*)data_ov011_0212caf4[arg2], 0, phase,
+                            data_ov011_0212bfe0[arg2]);
     if (flag == 1) {
-        arg1->flags46 |= 1;
+        arg1->flags |= BTL_SPRITE_FLAG_FLIPPED;
     }
 }
 
-void func_ov011_021258b4(s32 arg0, CombatSprite* arg1, s32 arg2) {
+void func_ov011_021258b4(s32 arg0, BattleSprite* arg1, s32 arg2) {
     void*            bin;
     BtlEnm010AnmMgr* data;
     s32              slot;
@@ -288,8 +288,8 @@ void func_ov011_021258b4(s32 arg0, CombatSprite* arg1, s32 arg2) {
     }
     elem = data_ov011_0212bf78[arg2];
     pal  = data_ov011_0212bf7e[arg2];
-    CombatSprite_LoadFromTable(arg0, arg1, (const BinIdentifier*)bin, (const SpriteAnimEntry*)data_ov011_0212cadc[arg2], 0,
-                               elem, pal);
+    BtlSprite_LoadFromTable(arg0, arg1, (const BinIdentifier*)bin, (const SpriteAnimEntry*)data_ov011_0212cadc[arg2], 0, elem,
+                            pal);
 }
 
 static s32 func_ov011_021259d0(TaskPool* pool, Task* task, void* args, s32 stage) {

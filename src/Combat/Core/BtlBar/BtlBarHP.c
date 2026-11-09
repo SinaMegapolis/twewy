@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlBar.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
@@ -92,18 +92,18 @@ static void func_ov003_02098da0(BtlBar* bar) {
     bar->flags = 0;
     if ((g_CombatGlobal->unk3D8D0 > 0) && (g_CombatGlobal->unk3D8D0 <= (g_CombatGlobal->unk3D8D2 >> 2))) {
         if (bar->unk_3F8 == 0) {
-            CombatSprite_SetAnim(&bar->sprites[0], 5, 1);
-            CombatSprite_SetAnim(&bar->sprites[5], 5, 1);
+            BtlSprite_SetAnim(&bar->sprites[0], 5, 1);
+            BtlSprite_SetAnim(&bar->sprites[5], 5, 1);
             CombatSe_Play(SEIDX_SE_WARNING);
             bar->unk_3F8 = 1;
         } else if (SpriteMgr_IsAnimationFinished(&bar->sprites[0].sprite)) {
-            CombatSprite_Restart(&bar->sprites[0]);
-            CombatSprite_Restart(&bar->sprites[5]);
+            BtlSprite_Restart(&bar->sprites[0]);
+            BtlSprite_Restart(&bar->sprites[5]);
             CombatSe_Play(SEIDX_SE_WARNING);
         }
     } else {
-        CombatSprite_SetAnim(&bar->sprites[0], 0, 0);
-        CombatSprite_SetAnim(&bar->sprites[5], 0, 0);
+        BtlSprite_SetAnim(&bar->sprites[0], 0, 0);
+        BtlSprite_SetAnim(&bar->sprites[5], 0, 0);
         bar->unk_3F8 = 0;
     }
 
@@ -215,34 +215,34 @@ static s32 BtlBarHP_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(bar, 0, sizeof(BtlBar));
 
-    CombatSprite_LoadDirect(1, &bar->sprites[5], &data_ov003_020d7800, 46, 48, 47, 0x3F, 0);
-    CombatSprite_LoadDirect(1, &bar->sprites[6], &data_ov003_020d7800, 46, 48, 47, 0x3F, 1);
-    CombatSprite_LoadDirect(1, &bar->sprites[9], &data_ov003_020d7800, 46, 48, 47, 0x3F, 2);
-    CombatSprite_LoadDirect(1, &bar->sprites[8], &data_ov003_020d7800, 46, 48, 47, 0x3F, 3);
-    CombatSprite_LoadDirect(1, &bar->sprites[7], &data_ov003_020d7800, 46, 48, 47, 0x3F, 4);
-    CombatSprite_LoadDirect(0, &bar->sprites[0], &data_ov003_020d7800, 43, 45, 44, 0x3D, 0);
-    CombatSprite_LoadDirect(0, &bar->sprites[1], &data_ov003_020d7800, 43, 45, 44, 0x3D, 1);
-    CombatSprite_LoadDirect(0, &bar->sprites[4], &data_ov003_020d7800, 43, 45, 44, 0x3D, 2);
-    CombatSprite_LoadDirect(0, &bar->sprites[3], &data_ov003_020d7800, 43, 45, 44, 0x3D, 3);
-    CombatSprite_LoadDirect(0, &bar->sprites[2], &data_ov003_020d7800, 43, 45, 44, 0x3D, 4);
+    BtlSprite_LoadDirect(1, &bar->sprites[5], &data_ov003_020d7800, 46, 48, 47, 0x3F, 0);
+    BtlSprite_LoadDirect(1, &bar->sprites[6], &data_ov003_020d7800, 46, 48, 47, 0x3F, 1);
+    BtlSprite_LoadDirect(1, &bar->sprites[9], &data_ov003_020d7800, 46, 48, 47, 0x3F, 2);
+    BtlSprite_LoadDirect(1, &bar->sprites[8], &data_ov003_020d7800, 46, 48, 47, 0x3F, 3);
+    BtlSprite_LoadDirect(1, &bar->sprites[7], &data_ov003_020d7800, 46, 48, 47, 0x3F, 4);
+    BtlSprite_LoadDirect(0, &bar->sprites[0], &data_ov003_020d7800, 43, 45, 44, 0x3D, 0);
+    BtlSprite_LoadDirect(0, &bar->sprites[1], &data_ov003_020d7800, 43, 45, 44, 0x3D, 1);
+    BtlSprite_LoadDirect(0, &bar->sprites[4], &data_ov003_020d7800, 43, 45, 44, 0x3D, 2);
+    BtlSprite_LoadDirect(0, &bar->sprites[3], &data_ov003_020d7800, 43, 45, 44, 0x3D, 3);
+    BtlSprite_LoadDirect(0, &bar->sprites[2], &data_ov003_020d7800, 43, 45, 44, 0x3D, 4);
 
-    func_ov003_02082730(&bar->sprites[5], 9);
-    func_ov003_02082730(&bar->sprites[6], 7);
-    func_ov003_02082730(&bar->sprites[9], 5);
-    func_ov003_02082730(&bar->sprites[0], 9);
-    func_ov003_02082730(&bar->sprites[1], 7);
-    func_ov003_02082730(&bar->sprites[4], 5);
+    BtlSprite_SetSortKey(&bar->sprites[5], 9);
+    BtlSprite_SetSortKey(&bar->sprites[6], 7);
+    BtlSprite_SetSortKey(&bar->sprites[9], 5);
+    BtlSprite_SetSortKey(&bar->sprites[0], 9);
+    BtlSprite_SetSortKey(&bar->sprites[1], 7);
+    BtlSprite_SetSortKey(&bar->sprites[4], 5);
 
-    func_ov003_02082738(&bar->sprites[5], 0);
-    func_ov003_02082738(&bar->sprites[6], 0);
-    func_ov003_02082738(&bar->sprites[7], 0);
-    func_ov003_02082738(&bar->sprites[8], 0);
-    func_ov003_02082738(&bar->sprites[9], 0);
-    func_ov003_02082738(&bar->sprites[0], 0);
-    func_ov003_02082738(&bar->sprites[1], 0);
-    func_ov003_02082738(&bar->sprites[2], 0);
-    func_ov003_02082738(&bar->sprites[3], 0);
-    func_ov003_02082738(&bar->sprites[4], 0);
+    BtlSprite_SetPriority(&bar->sprites[5], 0);
+    BtlSprite_SetPriority(&bar->sprites[6], 0);
+    BtlSprite_SetPriority(&bar->sprites[7], 0);
+    BtlSprite_SetPriority(&bar->sprites[8], 0);
+    BtlSprite_SetPriority(&bar->sprites[9], 0);
+    BtlSprite_SetPriority(&bar->sprites[0], 0);
+    BtlSprite_SetPriority(&bar->sprites[1], 0);
+    BtlSprite_SetPriority(&bar->sprites[2], 0);
+    BtlSprite_SetPriority(&bar->sprites[3], 0);
+    BtlSprite_SetPriority(&bar->sprites[4], 0);
 
     func_ov003_02098d18(bar);
     return 1;
@@ -264,16 +264,16 @@ static s32 BtlBarHP_Update(TaskPool* pool, Task* task, void* args) {
         func_ov003_02098c28(1, bar->unk_3C0);
     }
 
-    CombatSprite_Update(&bar->sprites[5]);
-    CombatSprite_Update(&bar->sprites[6]);
-    CombatSprite_Update(&bar->sprites[7]);
-    CombatSprite_Update(&bar->sprites[8]);
-    CombatSprite_Update(&bar->sprites[9]);
-    CombatSprite_Update(&bar->sprites[0]);
-    CombatSprite_Update(&bar->sprites[1]);
-    CombatSprite_Update(&bar->sprites[2]);
-    CombatSprite_Update(&bar->sprites[3]);
-    CombatSprite_Update(&bar->sprites[4]);
+    BtlSprite_Update(&bar->sprites[5]);
+    BtlSprite_Update(&bar->sprites[6]);
+    BtlSprite_Update(&bar->sprites[7]);
+    BtlSprite_Update(&bar->sprites[8]);
+    BtlSprite_Update(&bar->sprites[9]);
+    BtlSprite_Update(&bar->sprites[0]);
+    BtlSprite_Update(&bar->sprites[1]);
+    BtlSprite_Update(&bar->sprites[2]);
+    BtlSprite_Update(&bar->sprites[3]);
+    BtlSprite_Update(&bar->sprites[4]);
     return 1;
 }
 
@@ -284,68 +284,68 @@ static s32 BtlBarHP_Render(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
 
-    CombatSprite_SetPosition(&bar->sprites[0], 248, 0);
-    CombatSprite_Render(&bar->sprites[0]);
+    BtlSprite_SetPosition(&bar->sprites[0], 248, 0);
+    BtlSprite_Render(&bar->sprites[0]);
 
     if (bar->flags & 0x800) {
-        CombatSprite_SetPosition(&bar->sprites[1], 248, bar->unk_3C2);
-        CombatSprite_Render(&bar->sprites[1]);
+        BtlSprite_SetPosition(&bar->sprites[1], 248, bar->unk_3C2);
+        BtlSprite_Render(&bar->sprites[1]);
     }
     if (bar->flags & 2) {
-        CombatSprite_SetPosition(&bar->sprites[4], 248, bar->unk_3C6);
-        CombatSprite_Render(&bar->sprites[4]);
+        BtlSprite_SetPosition(&bar->sprites[4], 248, bar->unk_3C6);
+        BtlSprite_Render(&bar->sprites[4]);
     }
     if (bar->flags & 0x10) {
-        func_ov003_02082730(&bar->sprites[3], 8);
-        CombatSprite_SetPosition(&bar->sprites[3], 248, bar->unk_3CA);
-        CombatSprite_Render(&bar->sprites[3]);
+        BtlSprite_SetSortKey(&bar->sprites[3], 8);
+        BtlSprite_SetPosition(&bar->sprites[3], 248, bar->unk_3CA);
+        BtlSprite_Render(&bar->sprites[3]);
     }
     if (bar->flags & 0x20) {
-        func_ov003_02082730(&bar->sprites[3], 6);
-        CombatSprite_SetPosition(&bar->sprites[3], 0xF8, (s16)(bar->unk_3D2 - 0x50));
-        CombatSprite_Render(&bar->sprites[3]);
+        BtlSprite_SetSortKey(&bar->sprites[3], 6);
+        BtlSprite_SetPosition(&bar->sprites[3], 0xF8, (s16)(bar->unk_3D2 - 0x50));
+        BtlSprite_Render(&bar->sprites[3]);
     }
     if (bar->flags & 0x100) {
-        func_ov003_02082730(&bar->sprites[2], 8);
-        CombatSprite_SetPosition(&bar->sprites[2], 248, bar->unk_3CE);
-        CombatSprite_Render(&bar->sprites[2]);
+        BtlSprite_SetSortKey(&bar->sprites[2], 8);
+        BtlSprite_SetPosition(&bar->sprites[2], 248, bar->unk_3CE);
+        BtlSprite_Render(&bar->sprites[2]);
     }
     if (bar->flags & 0x200) {
-        func_ov003_02082730(&bar->sprites[2], 6);
-        CombatSprite_SetPosition(&bar->sprites[2], 0xF8, (s16)(bar->unk_3D6 - 0x50));
-        CombatSprite_Render(&bar->sprites[2]);
+        BtlSprite_SetSortKey(&bar->sprites[2], 6);
+        BtlSprite_SetPosition(&bar->sprites[2], 0xF8, (s16)(bar->unk_3D6 - 0x50));
+        BtlSprite_Render(&bar->sprites[2]);
     }
 
-    CombatSprite_SetPosition(&bar->sprites[5], 248, 192);
-    CombatSprite_Render(&bar->sprites[5]);
+    BtlSprite_SetPosition(&bar->sprites[5], 248, 192);
+    BtlSprite_Render(&bar->sprites[5]);
 
     if (bar->flags & 0x400) {
-        CombatSprite_SetPosition(&bar->sprites[6], 0xF8, (s16)(bar->unk_3C0 + 0xC0));
-        CombatSprite_Render(&bar->sprites[6]);
+        BtlSprite_SetPosition(&bar->sprites[6], 0xF8, (s16)(bar->unk_3C0 + 0xC0));
+        BtlSprite_Render(&bar->sprites[6]);
     }
     if (bar->flags & 1) {
-        CombatSprite_SetPosition(&bar->sprites[9], 0xF8, (s16)(bar->unk_3C4 + 0xC0));
-        CombatSprite_Render(&bar->sprites[9]);
+        BtlSprite_SetPosition(&bar->sprites[9], 0xF8, (s16)(bar->unk_3C4 + 0xC0));
+        BtlSprite_Render(&bar->sprites[9]);
     }
     if (bar->flags & 4) {
-        func_ov003_02082730(&bar->sprites[8], 8);
-        CombatSprite_SetPosition(&bar->sprites[8], 0xF8, (s16)(bar->unk_3C8 + 0xC0));
-        CombatSprite_Render(&bar->sprites[8]);
+        BtlSprite_SetSortKey(&bar->sprites[8], 8);
+        BtlSprite_SetPosition(&bar->sprites[8], 0xF8, (s16)(bar->unk_3C8 + 0xC0));
+        BtlSprite_Render(&bar->sprites[8]);
     }
     if (bar->flags & 8) {
-        func_ov003_02082730(&bar->sprites[8], 6);
-        CombatSprite_SetPosition(&bar->sprites[8], 0xF8, (s16)(bar->unk_3D0 + 0x110));
-        CombatSprite_Render(&bar->sprites[8]);
+        BtlSprite_SetSortKey(&bar->sprites[8], 6);
+        BtlSprite_SetPosition(&bar->sprites[8], 0xF8, (s16)(bar->unk_3D0 + 0x110));
+        BtlSprite_Render(&bar->sprites[8]);
     }
     if (bar->flags & 0x40) {
-        func_ov003_02082730(&bar->sprites[7], 8);
-        CombatSprite_SetPosition(&bar->sprites[7], 0xF8, (s16)(bar->unk_3CC + 0xC0));
-        CombatSprite_Render(&bar->sprites[7]);
+        BtlSprite_SetSortKey(&bar->sprites[7], 8);
+        BtlSprite_SetPosition(&bar->sprites[7], 0xF8, (s16)(bar->unk_3CC + 0xC0));
+        BtlSprite_Render(&bar->sprites[7]);
     }
     if (bar->flags & 0x80) {
-        func_ov003_02082730(&bar->sprites[7], 6);
-        CombatSprite_SetPosition(&bar->sprites[7], 0xF8, (s16)(bar->unk_3D4 + 0x110));
-        CombatSprite_Render(&bar->sprites[7]);
+        BtlSprite_SetSortKey(&bar->sprites[7], 6);
+        BtlSprite_SetPosition(&bar->sprites[7], 0xF8, (s16)(bar->unk_3D4 + 0x110));
+        BtlSprite_Render(&bar->sprites[7]);
     }
     return 1;
 }
@@ -353,16 +353,16 @@ static s32 BtlBarHP_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlBarHP_Release(TaskPool* pool, Task* task, void* args) {
     BtlBar* bar = task->data;
 
-    CombatSprite_Release(&bar->sprites[5]);
-    CombatSprite_Release(&bar->sprites[6]);
-    CombatSprite_Release(&bar->sprites[9]);
-    CombatSprite_Release(&bar->sprites[8]);
-    CombatSprite_Release(&bar->sprites[7]);
-    CombatSprite_Release(&bar->sprites[0]);
-    CombatSprite_Release(&bar->sprites[1]);
-    CombatSprite_Release(&bar->sprites[2]);
-    CombatSprite_Release(&bar->sprites[3]);
-    CombatSprite_Release(&bar->sprites[4]);
+    BtlSprite_Release(&bar->sprites[5]);
+    BtlSprite_Release(&bar->sprites[6]);
+    BtlSprite_Release(&bar->sprites[9]);
+    BtlSprite_Release(&bar->sprites[8]);
+    BtlSprite_Release(&bar->sprites[7]);
+    BtlSprite_Release(&bar->sprites[0]);
+    BtlSprite_Release(&bar->sprites[1]);
+    BtlSprite_Release(&bar->sprites[2]);
+    BtlSprite_Release(&bar->sprites[3]);
+    BtlSprite_Release(&bar->sprites[4]);
     return 1;
 }
 

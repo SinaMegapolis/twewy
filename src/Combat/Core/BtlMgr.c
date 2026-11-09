@@ -1,4 +1,5 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlAura.h"
 #include "Combat/Core/BtlBar.h"
 #include "Combat/Core/BtlCmd.h"
@@ -10,7 +11,6 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnmOverlay.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "Combat/Fusion/BtlFusion.h"
 #include "Combat/Tutorial/BtlTutorial.h"

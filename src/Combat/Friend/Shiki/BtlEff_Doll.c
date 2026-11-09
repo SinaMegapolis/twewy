@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
@@ -19,7 +19,7 @@ typedef struct {
 } DollUnk;
 
 typedef struct {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ DollUnk*     unk_60;
 } BtlEff_Doll; // Size: 0x64
 
@@ -47,8 +47,8 @@ s32 BtlEff_Doll_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(doll, 0, sizeof(BtlEff_Doll));
     doll->unk_60 = (s32)dollArgs->unk_4;
-    CombatSprite_LoadFromTable(1, &doll->sprite, &data_ov003_020d77e0, data_ov004_020f0374, dollArgs->unk_0, 0x3F, 0x40);
-    CombatSprite_SetAnimFromTable(&doll->sprite, dollArgs->unk_0, 1);
+    BtlSprite_LoadFromTable(1, &doll->sprite, &data_ov003_020d77e0, data_ov004_020f0374, dollArgs->unk_0, 0x3F, 0x40);
+    BtlSprite_SetAnimFromTable(&doll->sprite, dollArgs->unk_0, 1);
     return 1;
 }
 
@@ -61,7 +61,7 @@ s32 BtlEff_Doll_Update(TaskPool* pool, Task* task, void* args) {
     if (SpriteMgr_IsAnimationFinished(&doll->sprite.sprite) != 0) {
         return 0;
     }
-    CombatSprite_Update(&doll->sprite);
+    BtlSprite_Update(&doll->sprite);
     return 1;
 }
 
@@ -70,22 +70,22 @@ s32 BtlEff_Doll_Render(TaskPool* pool, Task* task, void* args) {
     DollUnk*     temp_r6 = doll->unk_60;
 
     if (temp_r6->unk_24 == 0) {
-        CombatSprite_SetFlip(&doll->sprite, 0);
+        BtlSprite_SetFlip(&doll->sprite, 0);
     } else {
-        CombatSprite_SetFlip(&doll->sprite, 1);
+        BtlSprite_SetFlip(&doll->sprite, 1);
     }
 
-    CombatSprite_SetPosition(&doll->sprite, CombatStage_ToScreenX(1, temp_r6->unk_28),
-                             CombatStage_ToScreenY(1, temp_r6->unk_2C, temp_r6->unk_30));
-    func_ov003_02082730(&doll->sprite, 0x7FFFFFFF - (temp_r6->unk_2C + 0x1000));
-    CombatSprite_Render(&doll->sprite);
+    BtlSprite_SetPosition(&doll->sprite, CombatStage_ToScreenX(1, temp_r6->unk_28),
+                          CombatStage_ToScreenY(1, temp_r6->unk_2C, temp_r6->unk_30));
+    BtlSprite_SetSortKey(&doll->sprite, 0x7FFFFFFF - (temp_r6->unk_2C + 0x1000));
+    BtlSprite_Render(&doll->sprite);
     return 1;
 }
 
 s32 BtlEff_Doll_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlEff_Doll* doll = task->data;
 
-    CombatSprite_Release(&doll->sprite);
+    BtlSprite_Release(&doll->sprite);
     return 1;
 }
 

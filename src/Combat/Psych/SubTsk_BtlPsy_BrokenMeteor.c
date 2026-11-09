@@ -50,23 +50,23 @@ static s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage
             if (self->trail)
                 func_ov003_020a6628(&self->effect->streak, 0x14F, self->position.x, self->position.y, self->position.z, 0, 0);
             self->velocity.z += 0x333;
-            CombatSprite_Update(&self->sprite);
-            CombatSprite_Update(&self->icon);
+            BtlSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->icon);
             return 1;
         case 2: {
             self  = task->data;
             s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
             s32 x = CombatStage_ToScreenX(0, self->position.x);
-            CombatSprite_SetPosition(&self->sprite, x, y);
-            func_ov003_02082730(&self->sprite, self->position.y + 0x1F4000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, x, y);
+            BtlSprite_SetSortKey(&self->sprite, self->position.y + 0x1F4000);
+            BtlSprite_Render(&self->sprite);
             CombatHit_DrawSpark(&self->icon, self->position.x, self->position.y);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
-            CombatSprite_Release(&self->icon);
+            BtlSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->icon);
             return 1;
     }
 }

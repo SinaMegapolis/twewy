@@ -1,10 +1,10 @@
 #include "Combat/Core/CombatPsyUtil.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
@@ -39,7 +39,7 @@
 
 /// A battle unit: the shared `BattleActor` prefix, its list node at 0x178 and the status word.
 
-/// One of the 0x70-byte sprite slots an effect owns: a `CombatSprite` plus its spin/fade timers.
+/// One of the 0x70-byte sprite slots an effect owns: a `BattleSprite` plus its spin/fade timers.
 
 /// One attack-info record (see `CombatAttack.h`); bit 12 of `flags` selects the hit side and
 /// bits 19..23 hold the per-call amount.
@@ -104,7 +104,7 @@ void func_ov003_020a5db8(Ov003AnimSprite* sprites, s32 count, s32 animSet, s32 a
             sprite->animTimer = arg3;
             sprite->angle     = RNG_Next(0x10000);
             sprite->decay     = arg4;
-            CombatSprite_Restart(&sprite->sprite);
+            BtlSprite_Restart(&sprite->sprite);
         } else {
             sprite->animTimer -= sprite->decay;
             if (sprite->animTimer < 0) {
@@ -115,7 +115,7 @@ void func_ov003_020a5db8(Ov003AnimSprite* sprites, s32 count, s32 animSet, s32 a
     }
     for (sprite = sprites; sprite != end; sprite++) {
         if (Sprite_HasAnimation(&sprite->sprite.sprite) != 0) {
-            CombatSprite_Update(&sprite->sprite);
+            BtlSprite_Update(&sprite->sprite);
         }
     }
 }
@@ -131,11 +131,11 @@ void func_ov003_020a5ed4(Ov003AnimSprite* sprites, s32 count, s32 x, s32 y) {
             u16 angle = sprite->angle;
             s32 speed = sprite->animTimer;
 
-            CombatSprite_SetAffineTransform(&sprite->sprite, (u16)(angle + 0x4000), 0x1000, 0x1000, 1);
-            CombatSprite_SetPosition(&sprite->sprite, (s16)(x + (FX_Mul(FX_CosIdx(angle), speed) >> 12)),
-                                     (s16)(y + (FX_Mul(FX_SinIdx(angle), speed) >> 12)));
-            func_ov003_02082730(&sprite->sprite, 0x385000);
-            CombatSprite_Render(&sprite->sprite);
+            BtlSprite_SetAffineTransform(&sprite->sprite, (u16)(angle + 0x4000), 0x1000, 0x1000, 1);
+            BtlSprite_SetPosition(&sprite->sprite, (s16)(x + (FX_Mul(FX_CosIdx(angle), speed) >> 12)),
+                                  (s16)(y + (FX_Mul(FX_SinIdx(angle), speed) >> 12)));
+            BtlSprite_SetSortKey(&sprite->sprite, 0x385000);
+            BtlSprite_Render(&sprite->sprite);
         }
     }
 }
@@ -147,7 +147,7 @@ void func_ov003_020a5fc0(Ov003AnimSprite* sprites, s32 count) {
 
     for (sprite = sprites; sprite != end; sprite++) {
         if (Sprite_HasAnimation(&sprite->sprite.sprite) != 0) {
-            CombatSprite_Release(&sprite->sprite);
+            BtlSprite_Release(&sprite->sprite);
         }
     }
 }

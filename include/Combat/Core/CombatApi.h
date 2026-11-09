@@ -5,6 +5,7 @@
 /// Grouped by the unit that owns them.
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Badge/BtlBadgeActor.h"
 #include "Combat/Badge/BtlBadgeMgr.h"
 #include "Combat/Core/BtlMgr.h"
@@ -30,7 +31,6 @@
 #include "Combat/Core/CombatPsych.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatSe.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatSpriteSlot.h"
 #include "Combat/Core/CombatStage.h"
 #include "Combat/Core/CombatSys.h"
@@ -164,13 +164,13 @@ void* func_ov003_020cc750(s32);
 void  func_ov003_020cc784(BattleActor*, s32);
 s32   func_ov003_020cc7c0(s32, s32, s32);
 s32   func_ov003_020cc7f4(s32, s32, s32, s32);
-void  func_ov003_020ccea8(BattleActor*, CombatSprite*);
+void  func_ov003_020ccea8(BattleActor*, BattleSprite*);
 void  func_ov003_020ccec0(BattleActor*, s32);
 s32   func_ov003_020ccedc(s32);
 s32   func_ov003_020ccefc(s32);
 void  func_ov003_020ccf1c(s32*, s32);
 void  func_ov003_020ccf58(s32, Ov003EnemyActor*);
-void  func_ov003_020ccf94(s32, CombatSprite*, const BtlSpriteDesc*);
+void  func_ov003_020ccf94(s32, BattleSprite*, const BattleSpriteDesc*);
 s32   func_ov003_020ccfc8(Ov003EnemyActor*, u16);
 s32   func_ov003_020ccfec(Ov003EnemyActor*);
 s32   func_ov003_020cd010(Ov003EnemyActor*);

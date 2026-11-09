@@ -22,9 +22,9 @@ static const Ov016AnimConfig data_ov016_02128f70 = {
 // Nonmatching: Significant variation, needs rewritten
 void func_ov016_021256c0(SpriteAnimationEx* arg0, s32 arg1, s32 arg2) {
     if (arg1 != 2) {
-        CombatSprite_InitAnim(&arg0->anim, arg1, &data_ov016_02128f90);
+        BtlSprite_InitAnim(&arg0->anim, arg1, &data_ov016_02128f90);
     } else {
-        CombatSprite_InitAnim(&arg0->anim, arg1, &data_ov016_02128f88);
+        BtlSprite_InitAnim(&arg0->anim, arg1, &data_ov016_02128f88);
     }
 
     const Ov016SpriteParams* temp_r6 = data_ov016_02128f70.unkC;

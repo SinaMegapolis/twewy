@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlSpecial.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
@@ -13,11 +13,11 @@ typedef enum {
 typedef struct BtlFeat01_BigMulti {
     /* 0x00 */ s32 (**unk_00)(struct BtlFeat01_BigMulti*);
     /* 0x04 */ ResSide      side;
-    /* 0x08 */ CombatSprite mainSprite;    // Primary sprite
+    /* 0x08 */ BattleSprite mainSprite;    // Primary sprite
     /* 0x68 */ s32          posX;          // Horizontal position
     /* 0x6C */ s32          posY;          // Vertical position
     /* 0x70 */ BOOL         movePositive;  // Whether acceleration should be positive or negative
-    /* 0x74 */ CombatSprite overlaySprite; // Secondary sprite for effects
+    /* 0x74 */ BattleSprite overlaySprite; // Secondary sprite for effects
     /* 0xD4 */ s32          ovlPosX;       // Mirror of main sprite X position for overlaySprite
     /* 0xD8 */ s32          ovlPosY;       // Mirror of main sprite Y position for overlaySprite
     /* 0xDC */ BOOL         ovlFlip;       // Whether overlaySprite should be flipped
@@ -159,36 +159,34 @@ s32 BtlFeat01_BigMulti_Init(TaskPool* pool, Task* task, void* args) {
 
     bigMulti->side = bigMultiArgs->side;
     if (bigMulti->side == SIDE_RIGHT) {
-        CombatSprite_LoadDirect(bigMulti->side, &bigMulti->overlaySprite, &Iden_BtlSpecialSiki, 11, 13, 12, 3, 3);
-        CombatSprite_SetAnim(&bigMulti->overlaySprite, 3, 0);
+        BtlSprite_LoadDirect(bigMulti->side, &bigMulti->overlaySprite, &Iden_BtlSpecialSiki, 11, 13, 12, 3, 3);
+        BtlSprite_SetAnim(&bigMulti->overlaySprite, 3, 0);
     } else {
-        CombatSprite_LoadDirect(bigMulti->side, &bigMulti->overlaySprite, &Iden_BtlSpecialSiki, 11, 13, 12, 4, 3);
-        CombatSprite_SetAnim(&bigMulti->overlaySprite, 3, 0);
+        BtlSprite_LoadDirect(bigMulti->side, &bigMulti->overlaySprite, &Iden_BtlSpecialSiki, 11, 13, 12, 4, 3);
+        BtlSprite_SetAnim(&bigMulti->overlaySprite, 3, 0);
     }
 
     if (bigMulti->side == SIDE_LEFT) {
-        CombatSprite_LoadFromTable(bigMulti->side, &bigMulti->mainSprite, &Iden_BtlSpecialSiki, data_ov004_020f0504, 0, 1,
-                                   0x50);
+        BtlSprite_LoadFromTable(bigMulti->side, &bigMulti->mainSprite, &Iden_BtlSpecialSiki, data_ov004_020f0504, 0, 1, 0x50);
         bigMulti->posX         = -0x1E000;
         bigMulti->posY         = 0x64000;
         bigMulti->movePositive = TRUE;
         bigMulti->ovlFlip      = TRUE;
-        CombatSprite_SetAnimFromTable(&bigMulti->mainSprite, 0, 0);
-        CombatSprite_SetFlip(&bigMulti->mainSprite, bigMulti->movePositive);
+        BtlSprite_SetAnimFromTable(&bigMulti->mainSprite, 0, 0);
+        BtlSprite_SetFlip(&bigMulti->mainSprite, bigMulti->movePositive);
     } else {
-        CombatSprite_LoadFromTable(bigMulti->side, &bigMulti->mainSprite, &Iden_BtlSpecialSiki, data_ov004_020f0504, 1, 2,
-                                   0x50);
+        BtlSprite_LoadFromTable(bigMulti->side, &bigMulti->mainSprite, &Iden_BtlSpecialSiki, data_ov004_020f0504, 1, 2, 0x50);
         bigMulti->posX         = 0x11E000;
         bigMulti->posY         = 0x64000;
         bigMulti->movePositive = FALSE;
         bigMulti->ovlFlip      = FALSE;
-        CombatSprite_SetAnimFromTable(&bigMulti->mainSprite, 1, 0);
-        CombatSprite_SetFlip(&bigMulti->mainSprite, bigMulti->movePositive);
+        BtlSprite_SetAnimFromTable(&bigMulti->mainSprite, 1, 0);
+        BtlSprite_SetFlip(&bigMulti->mainSprite, bigMulti->movePositive);
     }
 
-    CombatSprite_SetFlip(&bigMulti->overlaySprite, bigMulti->ovlFlip);
-    func_ov003_02082738(&bigMulti->mainSprite, 0);
-    func_ov003_02082738(&bigMulti->overlaySprite, 0);
+    BtlSprite_SetFlip(&bigMulti->overlaySprite, bigMulti->ovlFlip);
+    BtlSprite_SetPriority(&bigMulti->mainSprite, 0);
+    BtlSprite_SetPriority(&bigMulti->overlaySprite, 0);
     if (bigMulti->side == SIDE_LEFT) {
         BtlFeat01_BigMulti_SetStepTable(bigMulti, data_ov004_020f081c);
     } else {
@@ -213,32 +211,32 @@ s32 BtlFeat01_BigMulti_Update(TaskPool* pool, Task* task, void* args) {
         return 0;
     }
 
-    CombatSprite_Update(&bigMulti->mainSprite);
-    CombatSprite_Update(&bigMulti->overlaySprite);
+    BtlSprite_Update(&bigMulti->mainSprite);
+    BtlSprite_Update(&bigMulti->overlaySprite);
     return 1;
 }
 
 s32 BtlFeat01_BigMulti_Render(TaskPool* pool, Task* task, void* args) {
     BtlFeat01_BigMulti* bigMulti = task->data;
 
-    CombatSprite_SetPosition(&bigMulti->mainSprite, F2Ix(bigMulti->posX), F2Ix(bigMulti->posY));
-    func_ov003_02082730(&bigMulti->mainSprite, 0x7FFFFFFF - bigMulti->posY);
-    CombatSprite_Render(&bigMulti->mainSprite);
+    BtlSprite_SetPosition(&bigMulti->mainSprite, F2Ix(bigMulti->posX), F2Ix(bigMulti->posY));
+    BtlSprite_SetSortKey(&bigMulti->mainSprite, 0x7FFFFFFF - bigMulti->posY);
+    BtlSprite_Render(&bigMulti->mainSprite);
 
     bigMulti->ovlPosX = bigMulti->posX;
     bigMulti->ovlPosY = bigMulti->posY;
 
-    CombatSprite_SetPosition(&bigMulti->overlaySprite, F2Ix(bigMulti->ovlPosX), F2Ix(bigMulti->ovlPosY));
-    func_ov003_02082730(&bigMulti->overlaySprite, 0x7FFFFFFF - bigMulti->ovlPosY);
-    CombatSprite_Render(&bigMulti->overlaySprite);
+    BtlSprite_SetPosition(&bigMulti->overlaySprite, F2Ix(bigMulti->ovlPosX), F2Ix(bigMulti->ovlPosY));
+    BtlSprite_SetSortKey(&bigMulti->overlaySprite, 0x7FFFFFFF - bigMulti->ovlPosY);
+    BtlSprite_Render(&bigMulti->overlaySprite);
     return 1;
 }
 
 s32 BtlFeat01_BigMulti_Destroy(TaskPool* pool, Task* task, void* args) {
     BtlFeat01_BigMulti* bigMulti = task->data;
 
-    CombatSprite_Release(&bigMulti->mainSprite);
-    CombatSprite_Release(&bigMulti->overlaySprite);
+    BtlSprite_Release(&bigMulti->mainSprite);
+    BtlSprite_Release(&bigMulti->overlaySprite);
     return 0;
 }
 

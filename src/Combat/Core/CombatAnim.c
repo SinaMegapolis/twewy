@@ -1,10 +1,10 @@
 #include "Combat/Core/CombatAnim.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActorParams.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatBgTiles.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatSpriteSlot.h"
 #include "Engine/Core/DMA.h"
 #include "Engine/File/DatMgr.h"
@@ -18,15 +18,15 @@
 
 /// One sprite slot of a battle actor's graphic set.
 
-/// Common prefix of every battle unit that owns a combat sprite: the `CombatSprite` sits at 0x84.
+/// Common prefix of every battle unit that owns a combat sprite: the `BattleSprite` sits at 0x84.
 
 /// Points `sprite` (the sprite embedded at 0x84 of `owner`) at `cmd->table[index]` and gives it a
 /// new palette. Returns 0 when the animation could not be loaded.
 static s32 func_ov003_020d36fc(s32 engine, Ov003EnemyActor* owner, const Ov003SpriteLoadCmd* cmd, u16 index, u16 arg4,
                                void* paletteSrc, u16 palIdx, u16 flip) {
     Sprite* sprite = &owner->sprite.sprite;
-    s32     result = CombatSprite_LoadFromTable(engine, &owner->sprite, (const BinIdentifier*)&cmd->entries[index], cmd->table,
-                                                arg4, 0, cmd->unk_0C);
+    s32 result = BtlSprite_LoadFromTable(engine, &owner->sprite, (const BinIdentifier*)&cmd->entries[index], cmd->table, arg4,
+                                         0, cmd->unk_0C);
 
     if (result == 0) {
         return 0;
@@ -49,8 +49,8 @@ static s32 func_ov003_020d37a0(Ov003EnemyActor* owner, const Ov003SpriteLoadCmd*
     u16               count   = palette->chunkCount;
 
     Sprite_Release(sprite);
-    CombatSprite_LoadFromTable(engine, &owner->sprite, (const BinIdentifier*)&cmd->entries[index], cmd->table, arg3, 0,
-                               cmd->unk_0C);
+    BtlSprite_LoadFromTable(engine, &owner->sprite, (const BinIdentifier*)&cmd->entries[index], cmd->table, arg3, 0,
+                            cmd->unk_0C);
     Sprite_ChangePalette(sprite, engine, palSrc, 5, count);
     sprite->animationMode = (flip == 0) ? ANIM_MODE_LOOPED : ANIM_MODE_ONCE;
     return 0;

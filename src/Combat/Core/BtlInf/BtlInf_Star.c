@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"
 
 #include "Combat/Core/BtlInf.h"
@@ -12,7 +12,7 @@
 // sequence is done.
 
 typedef struct BtlInf_Star {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s16          starAnim;   // 0 = filled, 1 = empty
     /* 0x62 */ s16          stepAnim;   // current charge step as an animation index
     /* 0x64 */ s16          progressLo; // progress digits as animation indices, least significant first
@@ -54,11 +54,11 @@ static s32 func_ov003_0209d51c(s32* digits, s32 value) {
 }
 
 /// Draws `sprite` with animation `anim` at (`posX`, `posY`).
-static void func_ov003_0209d570(CombatSprite* sprite, u16 anim, s32 posX, s32 posY) {
-    CombatSprite_SetAnim(sprite, anim, 0);
-    CombatSprite_SetPosition(sprite, posX, posY);
-    CombatSprite_Update(sprite);
-    CombatSprite_Render(sprite);
+static void func_ov003_0209d570(BattleSprite* sprite, u16 anim, s32 posX, s32 posY) {
+    BtlSprite_SetAnim(sprite, anim, 0);
+    BtlSprite_SetPosition(sprite, posX, posY);
+    BtlSprite_Update(sprite);
+    BtlSprite_Render(sprite);
 }
 
 /// Writes the animation indices of `value`'s two decimal digits to `digits`.
@@ -112,8 +112,8 @@ static s32 BtlInf_Star_Init(TaskPool* pool, Task* task, void* args) {
     star->next       = 0;
     star->isComplete = FALSE;
 
-    CombatSprite_LoadDirect(1, &star->sprite, &data_ov003_020d7800, 0x19, 0x1B, 0x1A, 0x3F, 0);
-    func_ov003_02082738(&star->sprite, 0);
+    BtlSprite_LoadDirect(1, &star->sprite, &data_ov003_020d7800, 0x19, 0x1B, 0x1A, 0x3F, 0);
+    BtlSprite_SetPriority(&star->sprite, 0);
 
     star->starAnim = 0;
     star->stepAnim = (s16)(star->step + 2);
@@ -150,7 +150,7 @@ static s32 BtlInf_Star_Render(TaskPool* pool, Task* task, void* args) {
 }
 
 static s32 BtlInf_Star_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

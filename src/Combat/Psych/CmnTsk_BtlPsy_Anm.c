@@ -144,7 +144,7 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
                 anim->position.z = anim->actor->position.z;
                 anim->flags &= ~0x10;
             }
-            CombatSprite_Update(&anim->sprite);
+            BtlSprite_Update(&anim->sprite);
             anim->flags |= 0x80;
             return 1;
         case 2: {
@@ -153,24 +153,24 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
             if (anim->flags & 0x10) {
                 x = CombatStage_ToScreenX(0, anim->actor->position.x);
                 y = CombatStage_ToScreenY(0, anim->actor->position.y, anim->actor->position.z);
-                func_ov003_02082730(&anim->sprite, anim->actor->position.y + 0x1F4000);
+                BtlSprite_SetSortKey(&anim->sprite, anim->actor->position.y + 0x1F4000);
             } else if (anim->flags & 0x800) {
                 x = (s16)anim->position.x;
                 y = (s16)anim->position.y;
-                func_ov003_02082730(&anim->sprite, (CombatStage_ToWorldY(0, y, anim->position.z) << 12) + 0x384000);
+                BtlSprite_SetSortKey(&anim->sprite, (CombatStage_ToWorldY(0, y, anim->position.z) << 12) + 0x384000);
             } else {
                 x = CombatStage_ToScreenX(0, anim->position.x);
                 y = CombatStage_ToScreenY(0, anim->position.y, anim->position.z);
-                func_ov003_02082730(&anim->sprite, anim->position.y + 0x1F4000);
+                BtlSprite_SetSortKey(&anim->sprite, anim->position.y + 0x1F4000);
             }
-            CombatSprite_SetPosition(&anim->sprite, x, y);
+            BtlSprite_SetPosition(&anim->sprite, x, y);
             if (anim->flags & 8)
-                func_ov003_02082730(&anim->sprite, (anim->sortKey << 12) + 0x384000);
+                BtlSprite_SetSortKey(&anim->sprite, (anim->sortKey << 12) + 0x384000);
             if (anim->flags & 2) {
                 s32 scaleY            = anim->scaleY;
                 s32 scaleX            = anim->scaleX;
                 anim->affine.rotation = anim->angle;
-                if (anim->sprite.flags46 & 1)
+                if (anim->sprite.flags & BTL_SPRITE_FLAG_FLIPPED)
                     scaleX = -scaleX;
                 anim->affine.scaleX               = scaleX;
                 anim->affine.scaleY               = scaleY;
@@ -180,16 +180,16 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
                 anim->sprite.sprite.unk_0A.unk_00 = 1;
             }
             if (anim->flags & 4)
-                CombatSprite_SetFlip(&anim->sprite, 1);
+                BtlSprite_SetFlip(&anim->sprite, 1);
             if (anim->flags & 1)
-                CombatSprite_RenderWithPalette(&anim->sprite, anim->opacity >> 12);
+                BtlSprite_RenderTranslucent(&anim->sprite, anim->opacity >> 12);
             else
-                CombatSprite_Render(&anim->sprite);
+                BtlSprite_Render(&anim->sprite);
             return 1;
         }
         case 3:
             anim = task->data;
-            CombatSprite_Release(&anim->sprite);
+            BtlSprite_Release(&anim->sprite);
             return 1;
     }
 }

@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlField.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "SpriteMgr.h"
@@ -33,7 +33,7 @@ typedef struct BtlFieldForeRow {
 
 /// One backdrop band: its sprite and the world position the sprite is projected from.
 typedef struct BtlFieldForeBand {
-    /* 0x00 */ CombatSprite    sprite;
+    /* 0x00 */ BattleSprite    sprite;
     /* 0x60 */ BtlFieldForePos position;
 } BtlFieldForeBand; // Size: 0x6C
 
@@ -81,7 +81,7 @@ static void func_ov003_02093c70(BtlFieldFore* fore, BtlFieldForeBand* band, s32 
     const BtlFieldForeRow* row;
 
     row = &data_ov003_020d7ba0[index];
-    CombatSprite_InitAnim(&anim.anim, 2, row->pack);
+    BtlSprite_InitAnim(&anim.anim, 2, row->pack);
     anim.anim.packIndex  = row->packIndex;
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_28     = row->animDataIndex;
@@ -91,8 +91,8 @@ static void func_ov003_02093c70(BtlFieldFore* fore, BtlFieldForeBand* band, s32 
     anim.anim.unk_26     = row->cellTableIndex;
     anim.anim.animIndex  = row->animIndex + 1;
     anim.animTable       = NULL;
-    CombatSprite_Load(&band->sprite, &anim);
-    func_ov003_02082738(&band->sprite, 0);
+    BtlSprite_Load(&band->sprite, &anim);
+    BtlSprite_SetPriority(&band->sprite, 0);
     band->position.x = row->pos.x << 12;
     band->position.y = row->pos.y << 12;
     band->position.z = row->pos.z << 12;
@@ -158,7 +158,7 @@ static s32 BtlField_Fore_Update(TaskPool* pool, Task* task, void* args) {
     if (fore->count > 0) {
         band = fore->bands;
         do {
-            CombatSprite_Update(&band->sprite);
+            BtlSprite_Update(&band->sprite);
             i++;
             band++;
         } while (i < fore->count);
@@ -183,8 +183,8 @@ static s32 BtlField_Fore_Render(TaskPool* pool, Task* task, void* args) {
         do {
             posX = CombatStage_ToScreenX(0, band->position.x);
             posY = CombatStage_ToScreenY(0, band->position.y, band->position.z);
-            CombatSprite_SetPosition(&band->sprite, posX, posY);
-            CombatSprite_Render(&band->sprite);
+            BtlSprite_SetPosition(&band->sprite, posX, posY);
+            BtlSprite_Render(&band->sprite);
             i++;
             band++;
         } while (i < fore->count);
@@ -202,7 +202,7 @@ static s32 BtlField_Fore_Release(TaskPool* pool, Task* task, void* args) {
     if (fore->count > 0) {
         band = fore->bands;
         do {
-            CombatSprite_Release(&band->sprite);
+            BtlSprite_Release(&band->sprite);
             i++;
             band++;
         } while (i < fore->count);

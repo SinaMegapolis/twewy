@@ -9,7 +9,7 @@
 extern const BinIdentifier data_ov003_020d77f8;
 typedef struct BtlPsyInvisible {
     Ov003EffectState* effect;
-    CombatSprite      sprite;
+    BattleSprite      sprite;
     s32               x;
     s32               y;
     void (*update)(struct BtlPsyInvisible*);
@@ -45,7 +45,7 @@ static void func_ov003_02094db4(BtlPsyInvisible* self) {
     if (self->state == 0) {
         self->x = g_CombatGlobal->player->position.x;
         self->y = g_CombatGlobal->player->position.y;
-        CombatSprite_SetAnim(&self->sprite, 0, 1);
+        BtlSprite_SetAnim(&self->sprite, 0, 1);
         self->state++;
     }
     if (!SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
@@ -65,7 +65,7 @@ static void func_ov003_02094e40(BtlPsyInvisible* self) {
 }
 static void func_ov003_02094edc(BtlPsyInvisible* self) {
     if (self->state == 0) {
-        CombatSprite_SetAnim(&self->sprite, 1, 1);
+        BtlSprite_SetAnim(&self->sprite, 1, 1);
         self->state++;
     }
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
@@ -80,14 +80,14 @@ static s32 func_ov003_02094f24(TaskPool* pool, Task* task, void* args) {
     self->visible            = 1;
     self->active             = 1;
     func_ov003_02094da0(self, func_ov003_02094db4);
-    CombatSprite_LoadFromTable(0, &self->sprite, &data_ov003_020d77f8, data_ov003_020d7de4, 0, 1, 0x30);
+    BtlSprite_LoadFromTable(0, &self->sprite, &data_ov003_020d77f8, data_ov003_020d7de4, 0, 1, 0x30);
     return 1;
 }
 static s32 func_ov003_02094fb8(TaskPool* pool, Task* task, void* args) {
     BtlPsyInvisible* self = task->data;
     if (self->update)
         self->update(self);
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return self->active;
 }
 static s32 func_ov003_02094fe4(TaskPool* pool, Task* task, void* args) {
@@ -96,15 +96,15 @@ static s32 func_ov003_02094fe4(TaskPool* pool, Task* task, void* args) {
     if (self->visible) {
         x = CombatStage_ToScreenX(0, self->x);
         y = CombatStage_ToScreenY(0, self->y, 0);
-        CombatSprite_SetPosition(&self->sprite, x, y);
-        func_ov003_02082730(&self->sprite, 0x7FFFFFFE - self->y);
-        CombatSprite_Render(&self->sprite);
+        BtlSprite_SetPosition(&self->sprite, x, y);
+        BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFE - self->y);
+        BtlSprite_Render(&self->sprite);
     }
     return 1;
 }
 static s32 func_ov003_0209504c(TaskPool* pool, Task* task, void* args) {
     BtlPsyInvisible* self = task->data;
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     return 1;
 }
 

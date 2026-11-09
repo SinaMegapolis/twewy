@@ -141,7 +141,7 @@ static void func_ov011_0212681c(BtlEnm010RG* data) {
     }
     if (data->unk_1C0 == 0) {
         func_ov011_02125750(1, &data->base.sprite, 0);
-        CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
+        BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
         data->unk_1C2 = func_ov003_020c42ec(&data->base);
     }
     if (data->unk_1FC == -1 && data->unk_1C0 >= data->unk_1C2) {
@@ -152,7 +152,7 @@ static void func_ov011_0212681c(BtlEnm010RG* data) {
 }
 
 static void func_ov011_021268c4(BtlEnm010RG* data) {
-    CombatSprite* sp;
+    BattleSprite* sp;
     s32           t;
 
     switch (data->unk_1C4) {
@@ -164,7 +164,7 @@ static void func_ov011_021268c4(BtlEnm010RG* data) {
             if (data->unk_1C0 == 0) {
                 sp = &data->base.sprite;
                 func_ov011_02125750(1, sp, 1);
-                CombatSprite_SetAnimFromTable(sp, 0, 0);
+                BtlSprite_SetAnimFromTable(sp, 0, 0);
                 data->unk_1DC = (func_ov003_020cb744(1) >> 1) - 0x40000;
                 data->unk_1E0 = func_ov003_020cb7a4(1) >> 1;
                 data->unk_1E4 = 0;
@@ -192,13 +192,13 @@ static void func_ov011_021268c4(BtlEnm010RG* data) {
 }
 
 static void func_ov011_02126a04(BtlEnm010RG* data) {
-    CombatSprite* sp;
+    BattleSprite* sp;
     s32           v;
 
     sp = &data->base.sprite;
     if (data->unk_1C0 == 0) {
         func_ov011_02125750(1, sp, 6);
-        CombatSprite_SetAnimFromTable(sp, 0, 1);
+        BtlSprite_SetAnimFromTable(sp, 0, 1);
         func_ov003_020c4c9c(&data->base);
         v                           = 0 - 0x40000;
         data->base.actor.position.z = v;
@@ -367,7 +367,7 @@ static void func_ov011_02126e80(BtlEnm010RG* data) {
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
                 func_ov011_02125750(1, &data->base.sprite, 3);
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 1, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 1, 1);
                 CombatSe_PlayPanned(SEIDX_SE_010_TAILATTACK, CombatStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 6 && data->base.sprite.sprite.frameTimer == 1) {
@@ -398,7 +398,7 @@ static void func_ov011_02126fb0(BtlEnm010RG* data) {
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
                 func_ov011_02125750(1, &data->base.sprite, 9);
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 1);
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -408,7 +408,7 @@ static void func_ov011_02126fb0(BtlEnm010RG* data) {
             return;
         case 2:
             if (data->unk_1C0 == 0) {
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 2, 0);
                 data->unk_1FC = func_ov011_02125b98(&data->base, 0);
                 data->unk_1C2 = 0x4B;
             }
@@ -434,7 +434,7 @@ static void func_ov011_02126fb0(BtlEnm010RG* data) {
                         data->unk_1E8 = 0;
                     }
                     if (q == data_ov011_0212c148[data->base.spriteIndex] - 1) {
-                        CombatSprite_SetAnimFromTable(&data->base.sprite, 3, 1);
+                        BtlSprite_SetAnimFromTable(&data->base.sprite, 3, 1);
                     }
                 }
             }
@@ -472,7 +472,7 @@ static void func_ov011_02127240(BtlEnm010RG* data) {
         case 1:
             if (data->unk_1C0 == 0) {
                 func_ov011_02125750(1, &data->base.sprite, 8);
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 1);
                 CombatSe_PlayPanned(SEIDX_SE_010_TATOO_TOBASHI01, CombatStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (data->unk_1C0 == 0x1C) {
@@ -488,7 +488,7 @@ static void func_ov011_02127240(BtlEnm010RG* data) {
         case 2:
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 1, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 1, 1);
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -514,7 +514,7 @@ static void func_ov011_02127370(BtlEnm010RG* data) {
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
                 func_ov011_02125750(1, &data->base.sprite, 4);
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 1);
                 CombatSe_PlayPanned(SEIDX_SE_010_TATOO_KIRI, CombatStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex >= 3 && data->base.sprite.sprite.cellIndex <= 4) {
@@ -541,7 +541,7 @@ static void func_ov011_02127474(BtlEnm010RG* data) {
         case 1:
             if (data->unk_1C0 == 0) {
                 func_ov011_02125750(1, &data->base.sprite, 5);
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 1);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 1);
                 func_ov003_020cb520(&data->base.actor, 0);
                 data->unk_1C0 = data->unk_1C0 + 1;
                 CombatSe_PlayPanned(SEIDX_SE_010_TOSSHIN_KIDOU, CombatStage_ToScreenX(1, data->base.actor.position.x));
@@ -554,7 +554,7 @@ static void func_ov011_02127474(BtlEnm010RG* data) {
             return;
         case 2:
             if (data->unk_1C0 == 0) {
-                CombatSprite_SetAnimFromTable(&data->base.sprite, 1, 0);
+                BtlSprite_SetAnimFromTable(&data->base.sprite, 1, 0);
                 data->unk_1DC = func_ov003_020cb744(1) + 0xC0000;
                 data->unk_1E0 = data->base.actor.position.y;
                 data->unk_1E4 = 0 - 0x20000;
@@ -614,32 +614,32 @@ static void func_ov011_021276e0(BtlEnm010RG* data) {
 
 static s32 func_ov011_02127758(void* p, s32 arg1) {
     BtlEnm010RG*  data;
-    CombatSprite* sp;
+    BattleSprite* sp;
 
     data = (BtlEnm010RG*)p;
     sp   = &data->base.sprite;
     if (arg1 == 0) {
         func_ov011_02125750(1, sp, 3);
-        CombatSprite_SetAnimFromTable(sp, 0, 1);
+        BtlSprite_SetAnimFromTable(sp, 0, 1);
     }
     if (SpriteMgr_IsAnimationFinished(&sp->sprite) == 0) {
         return 1;
     }
     func_ov011_02125750(1, sp, 0);
-    CombatSprite_SetAnimFromTable(sp, 0, 0);
+    BtlSprite_SetAnimFromTable(sp, 0, 0);
     func_ov003_020c4c9c(&data->base);
     return 0;
 }
 
 static s32 func_ov011_021277c8(void* p, s16* arg1, s16* arg2, s32 arg3) {
     BtlEnm010RG*  data;
-    CombatSprite* sp;
+    BattleSprite* sp;
 
     data = (BtlEnm010RG*)p;
     sp   = &data->base.sprite;
     if (arg3 == 0) {
         func_ov011_02125750(1, sp, 2);
-        CombatSprite_SetAnimFromTable(sp, 0, 1);
+        BtlSprite_SetAnimFromTable(sp, 0, 1);
     }
     switch (sp->animTableIndex) {
         case 0:
@@ -649,14 +649,14 @@ static s32 func_ov011_021277c8(void* p, s16* arg1, s16* arg2, s32 arg3) {
             if (SpriteMgr_IsAnimationFinished(&sp->sprite) != 0) {
                 *arg1 = *arg1 - 1;
                 if (*arg1 <= 0) {
-                    CombatSprite_SetAnimFromTable(sp, 1, 0);
+                    BtlSprite_SetAnimFromTable(sp, 1, 0);
                 }
             }
             break;
         case 1:
             *arg2 = *arg2 - 1;
             if (*arg2 <= 0) {
-                CombatSprite_SetAnimFromTable(sp, 3, 1);
+                BtlSprite_SetAnimFromTable(sp, 3, 1);
             }
             break;
         case 3:

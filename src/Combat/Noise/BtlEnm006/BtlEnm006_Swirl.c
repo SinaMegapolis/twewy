@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/BtlEnm006.h"
 #include "Engine/Core/System.h"
 #include "Engine/Math/Random.h"
@@ -10,7 +10,7 @@
 
 typedef struct Enm006Swirl {
     /* 0x00 */ BtlEnm006*   unk_00; // the owning instance
-    /* 0x04 */ CombatSprite sprite;
+    /* 0x04 */ BattleSprite sprite;
     /* 0x64 */ s16          unk_64; // one-shot "has fired" flag
     u8                      pad66[0x68 - 0x66];
     /* 0x68 */ s32          unk_68; // position.x, biased by 0x20000
@@ -77,8 +77,8 @@ static s32 func_ov010_02126d54(Enm006Swirl* data, Enm006Spawn* args) {
     MI_CpuSet(data, 0, 0xA0);
     v = args->unk_00->base.spriteIndex;
     m = args->unk_00->base.sprite.sprite.bits_0_1;
-    CombatSprite_LoadFromTable(m, &data->sprite, func_ov010_021256c0(v), data_ov010_021292c4, 0, data_ov010_021292b0[v], 0x30);
-    CombatSprite_SetAnimFromTable(&data->sprite, 0, 0);
+    BtlSprite_LoadFromTable(m, &data->sprite, func_ov010_021256c0(v), data_ov010_021292c4, 0, data_ov010_021292b0[v], 0x30);
+    BtlSprite_SetAnimFromTable(&data->sprite, 0, 0);
     data->unk_00 = args->unk_00;
     data->unk_68 = args->unk_00->base.actor.position.x;
     data->unk_6C = args->unk_00->base.actor.position.y;
@@ -108,7 +108,7 @@ static s32 func_ov010_02126e58(Enm006Swirl* data) {
     }
     s32 w = func_ov003_020cb744(0);
     s32 h = func_ov003_020cb7a4(0);
-    CombatSprite_Update(&data->sprite);
+    BtlSprite_Update(&data->sprite);
     data->unk_70 += data->unk_74;
     s32 step = data->unk_74 + 0x9A;
     step += 0x100;
@@ -155,14 +155,14 @@ static s32 func_ov010_02126fdc(Enm006Swirl* data) {
         s16 sy;
         func_ov010_02126c94(data, &x, &y, i);
         CombatStage_WorldToScreen(flag, &sx, &sy, x, y, 0);
-        CombatSprite_SetPosition(&data->sprite, sx, sy);
-        func_ov003_02082730(&data->sprite, 0x7FFFFFFF - y);
-        CombatSprite_Render(&data->sprite);
+        BtlSprite_SetPosition(&data->sprite, sx, sy);
+        BtlSprite_SetSortKey(&data->sprite, 0x7FFFFFFF - y);
+        BtlSprite_Render(&data->sprite);
     }
     return 1;
 }
 
 static s32 func_ov010_02127094(Enm006Swirl* data) {
-    CombatSprite_Release(&data->sprite);
+    BtlSprite_Release(&data->sprite);
     return 1;
 }

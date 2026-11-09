@@ -8,18 +8,18 @@ typedef struct Ov003EnemyShotVisual {
     /* 0x00 */ const BinIdentifier*   file;
     /* 0x04 */ const SpriteAnimEntry* entries;
     /* 0x08 */ u16                    entry;
-    /* 0x0A */ u16                    paletteSlot;
-} Ov003EnemyShotVisual; // Size: 0xC
+    /* 0x0A */ u16                    paletteEntry; // palette data entry
+} Ov003EnemyShotVisual;                             // Size: 0xC
 
 typedef struct Ov003EnemyShotTableVisual {
     /* 0x00 */ Ov003EnemyShotVisual base;
-    /* 0x0C */ u16                  charFormat;
+    /* 0x0C */ u16                  charTiles; // char VRAM to reserve, in 32-byte units
     /* 0x0E */ u16                  reserved;
-} Ov003EnemyShotTableVisual; // Size: 0x10
+} Ov003EnemyShotTableVisual;                   // Size: 0x10
 
 typedef struct Ov003EnemyShotCore {
     /* 0x00 */ Ov003CutinActor* owner;
-    /* 0x04 */ CombatSprite*    sprite;
+    /* 0x04 */ BattleSprite*    sprite;
     /* 0x08 */ s8               hitResult;
     /* 0x09 */ u8               reserved09;
     /* 0x0A */ s16              attackId;
@@ -49,7 +49,7 @@ typedef struct Ov003EnemyShotBlurArgs {
 } Ov003EnemyShotBlurArgs; // Size: 0xC
 
 typedef struct Ov003EnemyShotBlur {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ Vec          position;
     /* 0x6C */ s32          opacity;
     /* 0x70 */ s32          decay;
@@ -66,7 +66,7 @@ typedef struct Ov003EnemyShotRootArgs {
 } Ov003EnemyShotRootArgs; // Size: 0x20
 
 typedef struct Ov003EnemyShotRoot {
-    /* 0x00 */ CombatSprite   sprite;
+    /* 0x00 */ BattleSprite   sprite;
     /* 0x60 */ Vec            position;
     /* 0x6C */ s32            active;
     /* 0x70 */ CombatListNode node;
@@ -116,7 +116,7 @@ typedef struct Ov003EnemyShotSplitChildArgs {
 
 typedef struct Ov003EnemyShotSplitChild {
     /* 0x00 */ Ov003EnemyShotSource source;
-    /* 0x2C */ CombatSprite         sprite;
+    /* 0x2C */ BattleSprite         sprite;
     /* 0x8C */ Vec                  velocity;
     /* 0x98 */ Vec                  dampingStep;
 } Ov003EnemyShotSplitChild; // Size: 0xA4
@@ -142,7 +142,7 @@ typedef struct Ov003EnemyShotSplitArgs {
 typedef struct Ov003EnemyShotSplit {
     /* 0x00 */ Ov003EnemyShotSource       source;
     /* 0x2C */ Ov003EnemyShotSource       childSource;
-    /* 0x58 */ CombatSprite               sprite;
+    /* 0x58 */ BattleSprite               sprite;
     /* 0xB8 */ s16                        travelFrames;
     /* 0xBA */ u16                        reserved;
     /* 0xBC */ Vec                        target;
@@ -162,7 +162,7 @@ typedef struct Ov003EnemyShotWaveArgs {
 
 typedef struct Ov003EnemyShotWave {
     /* 0x00 */ Ov003EnemyShotSource source;
-    /* 0x2C */ CombatSprite         sprite;
+    /* 0x2C */ BattleSprite         sprite;
     /* 0x8C */ u16                  angle;
     /* 0x8E */ u16                  reserved;
     /* 0x90 */ s32                  velocityX;
@@ -185,7 +185,7 @@ typedef struct Ov003EnemyShotSingleArgs {
 
 typedef struct Ov003EnemyShotSingle {
     /* 0x00 */ Ov003EnemyShotCore source;
-    /* 0x1C */ CombatSprite       sprite;
+    /* 0x1C */ BattleSprite       sprite;
     /* 0x7C */ Vec                velocity;
     /* 0x88 */ u8                 flags;
     /* 0x89 */ u8                 reserved;
@@ -193,14 +193,14 @@ typedef struct Ov003EnemyShotSingle {
 } Ov003EnemyShotSingle; // Size: 0x8C
 
 typedef struct Ov003EnemyShotEffectArgs {
-    /* 0x00 */ CombatSprite* source;
+    /* 0x00 */ BattleSprite* source;
     /* 0x04 */ Vec           position;
     /* 0x10 */ s32           flip;
     /* 0x14 */ s32           kind;
 } Ov003EnemyShotEffectArgs; // Size: 0x18
 
 typedef struct Ov003EnemyShotEffect {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ Vec          position;
     /* 0x6C */ u16          kind;
     /* 0x6E */ u16          reserved;
@@ -232,8 +232,8 @@ typedef struct Ov003EnemyShotCharge {
     /* 0x000 */ Ov003EnemyShotSource  source;
     /* 0x02C */ Ov003EnemyShotSource  secondSource;
     /* 0x058 */ Ov003EnemyShotSource* activeSource;
-    /* 0x05C */ CombatSprite*         activeSprite;
-    /* 0x060 */ CombatSprite          sprites[2];
+    /* 0x05C */ BattleSprite*         activeSprite;
+    /* 0x060 */ BattleSprite          sprites[2];
     /* 0x120 */ Vec                   velocity;
     /* 0x12C */ u16                   reserved;
     /* 0x12E */ s16                   phase;
@@ -252,7 +252,7 @@ typedef struct Ov003EnemyShotSpiralArgs {
 
 typedef struct Ov003EnemyShotSpiral {
     /* 0x00 */ Ov003EnemyShotSource source;
-    /* 0x2C */ CombatSprite         sprite;
+    /* 0x2C */ BattleSprite         sprite;
     /* 0x8C */ u16                  angle;
     /* 0x8E */ u16                  angleStep;
     /* 0x90 */ s32                  speed;
@@ -274,7 +274,7 @@ typedef struct Ov003EnemyShotHomingArgs {
 
 typedef struct Ov003EnemyShotHoming {
     /* 0x00 */ Ov003EnemyShotSource source;
-    /* 0x2C */ CombatSprite         sprite;
+    /* 0x2C */ BattleSprite         sprite;
     /* 0x8C */ s32                  targetSpeed;
     /* 0x90 */ u16                  turnFrames;
     /* 0x92 */ u16                  reserved;
@@ -324,7 +324,7 @@ typedef struct Ov003EnemyShotOptionArgs {
 
 typedef struct Ov003EnemyShotOption {
     /* 0x00 */ Ov003EnemyShotSource source;
-    /* 0x2C */ CombatSprite         sprite;
+    /* 0x2C */ BattleSprite         sprite;
     /* 0x8C */ s32                  zVelocity;
     /* 0x90 */ s32                  zOffset;
     /* 0x94 */ u16                  angle;
@@ -394,8 +394,8 @@ void                func_ov003_020d117c(CombatList*);
 Ov003EnemyShotRoot* func_ov003_020d11b8(Ov003EnemyShotRoot*, u16*, s32*, s32*, s32*, s32*, s32*);
 
 void func_ov003_020cc8b0(Ov003EnemyShotCore*, const Ov003EnemyShotSource*);
-s32  func_ov003_020ccb9c(Ov003EnemyShotSource*, CombatSprite*);
-s32  func_ov003_020ccc00(Ov003EnemyShotCore*, CombatSprite*);
+s32  func_ov003_020ccb9c(Ov003EnemyShotSource*, BattleSprite*);
+s32  func_ov003_020ccc00(Ov003EnemyShotCore*, BattleSprite*);
 s32  func_ov003_020ccca4(s32, u32);
 void func_ov003_020cccf0(s32, Ov003EnemyShotSource*);
 s32  func_ov003_020cce34(s32);

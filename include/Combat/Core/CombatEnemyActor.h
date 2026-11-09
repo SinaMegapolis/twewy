@@ -3,8 +3,8 @@
 
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlCollision.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatList.h"
-#include "Combat/Core/CombatSprite.h"
 
 typedef union Ov003CutinFlags {
     /* 0x0 */ u16 raw;
@@ -33,8 +33,8 @@ typedef struct Ov003EnemyActor {
     /* 0x07C */ s32                     group; // index into CombatEnemyParam_Table
     /* 0x080 */ u16                     spriteIndex;
     /* 0x082 */ u16                     id;    // running cut-in instance id
-    /* 0x084 */ CombatSprite            sprite;
-    /* 0x0E4 */ CombatSprite            subSprite;
+    /* 0x084 */ BattleSprite            sprite;
+    /* 0x0E4 */ BattleSprite            subSprite;
     /* 0x144 */ BtlCollider             collider;
     /* 0x178 */ CombatListNode          node;
     /* 0x184 */ struct Ov003EnemyActor* partner; // the actor this one is paired with (UG/RG twin, cut-in partner)

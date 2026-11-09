@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"
 #include "Engine/Math/Random.h"
 
@@ -16,7 +16,7 @@
 
 typedef struct BtlPop_Num {
     /* 0x00 */ s32          engine;    // 0 = main screen, 1 = sub screen
-    /* 0x04 */ CombatSprite sprite;
+    /* 0x04 */ BattleSprite sprite;
     /* 0x64 */ s16          digits[5]; // decimal digits, least significant first, already
                                        // offset by the element's animation base
     /* 0x6E */ s16  critAnim;          // animation drawn right of the number on a critical hit
@@ -86,10 +86,10 @@ static s32 func_ov003_0209af30(s32* digits, s32 value) {
 }
 
 /// Loads the popup sprite and starts it on the digit animation set of `engine`.
-static void func_ov003_0209b04c(s32 engine, CombatSprite* sprite, s32 arg2, s32 variant) {
-    CombatSprite_LoadDirectNoProto(engine, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, variant, arg2);
-    func_ov003_02082738(sprite, 0);
-    func_ov003_02082730(sprite, 1);
+static void func_ov003_0209b04c(s32 engine, BattleSprite* sprite, s32 arg2, s32 variant) {
+    BtlSprite_LoadDirectNoProto(engine, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, variant, arg2);
+    BtlSprite_SetPriority(sprite, 0);
+    BtlSprite_SetSortKey(sprite, 1);
 }
 
 static s32 BtlPop_Num_Init(TaskPool* pool, Task* task, void* args) {
@@ -193,22 +193,22 @@ static s32 BtlPop_Num_Render(TaskPool* pool, Task* task, void* args) {
     half = (num->digitCount * 7) / 2 - 7;
 
     for (i = 0, offset = 0; i < num->digitCount; i++, offset += 7) {
-        CombatSprite_SetAnim(&num->sprite, num->digits[i], 0);
-        CombatSprite_Update(&num->sprite);
-        CombatSprite_SetPosition(&num->sprite, (s16)(half + posX - offset), posY);
-        CombatSprite_Render(&num->sprite);
+        BtlSprite_SetAnim(&num->sprite, num->digits[i], 0);
+        BtlSprite_Update(&num->sprite);
+        BtlSprite_SetPosition(&num->sprite, (s16)(half + posX - offset), posY);
+        BtlSprite_Render(&num->sprite);
     }
     if (num->flags & 2) {
-        CombatSprite_SetAnim(&num->sprite, num->elementAnim, 0);
-        CombatSprite_Update(&num->sprite);
-        CombatSprite_SetPosition(&num->sprite, (s16)(half + posX - ((num->digitCount - 1) * 7)), posY);
-        CombatSprite_Render(&num->sprite);
+        BtlSprite_SetAnim(&num->sprite, num->elementAnim, 0);
+        BtlSprite_Update(&num->sprite);
+        BtlSprite_SetPosition(&num->sprite, (s16)(half + posX - ((num->digitCount - 1) * 7)), posY);
+        BtlSprite_Render(&num->sprite);
     }
     if (num->flags & 1) {
-        CombatSprite_SetAnim(&num->sprite, num->critAnim, 0);
-        CombatSprite_Update(&num->sprite);
-        CombatSprite_SetPosition(&num->sprite, (s16)(half + posX + 7), posY);
-        CombatSprite_Render(&num->sprite);
+        BtlSprite_SetAnim(&num->sprite, num->critAnim, 0);
+        BtlSprite_Update(&num->sprite);
+        BtlSprite_SetPosition(&num->sprite, (s16)(half + posX + 7), posY);
+        BtlSprite_Render(&num->sprite);
     }
     return 1;
 }
@@ -216,7 +216,7 @@ static s32 BtlPop_Num_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPop_Num_Release(TaskPool* pool, Task* task, void* args) {
     BtlPop_Num* num = task->data;
 
-    CombatSprite_Release(&num->sprite);
+    BtlSprite_Release(&num->sprite);
     if (num->engine != 1) {
         g_CombatGlobal->popupCountMain--;
     } else {

@@ -1,8 +1,8 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEnm.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include <nitro/mi/cpumem.h>
 
@@ -19,8 +19,8 @@ typedef struct BtlEnm004BlinkArgs {
 } BtlEnm004BlinkArgs; // Size: 0x10
 
 typedef struct BtlEnm004Blink {
-    /* 0x00 */ CombatSprite     sprite; // the streak
-    /* 0x60 */ CombatSprite     glow;
+    /* 0x00 */ BattleSprite     sprite; // the streak
+    /* 0x60 */ BattleSprite     glow;
     /* 0xC0 */ Ov003CutinActor* owner;
     /* 0xC4 */ s32              reverse;
     /* 0xC8 */ Vec              position;
@@ -62,18 +62,18 @@ static s32 BtlEnm004_Blink_Init(TaskPool* pool, Task* task, void* args) {
     self->position.y = owner->base.actor.position.y - 0x1000;
     self->position.z = owner->base.actor.position.z;
     if (owner->base.group == 4) {
-        CombatSprite_LoadDirect(owner->base.sprite.sprite.bits_0_1, &self->sprite,
-                                &data_ov009_021232d8[owner->base.spriteIndex], 7, 9, 8, 13, 0);
+        BtlSprite_LoadDirect(owner->base.sprite.sprite.bits_0_1, &self->sprite, &data_ov009_021232d8[owner->base.spriteIndex],
+                             7, 9, 8, 13, 0);
     }
     if (owner->base.group == 0x20) {
-        CombatSprite_LoadDirect(owner->base.sprite.sprite.bits_0_1, &self->sprite,
-                                &data_ov018_020fec90[owner->base.spriteIndex], 13, 15, 14, 19, 0);
+        BtlSprite_LoadDirect(owner->base.sprite.sprite.bits_0_1, &self->sprite, &data_ov018_020fec90[owner->base.spriteIndex],
+                             13, 15, 14, 19, 0);
     }
-    CombatSprite_SetFlip(&self->sprite, owner->base.sprite.flags46 & 1);
+    BtlSprite_SetFlip(&self->sprite, owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED);
     Vec_Normalize(&self->dir, &self->step);
     func_ov003_020cac84(0xA000 / self->count, &self->step, &self->step);
     if (self->count > 2) {
-        self->sprite.flags46 |= 4;
+        self->sprite.flags |= BTL_SPRITE_FLAG_TRANSLUCENT;
     }
     if (self->reverse == 0) {
         func_ov003_020cac84(FX32_CONVERT(self->count * self->count) / 2, &self->step, &offset);
@@ -88,7 +88,7 @@ static s32 BtlEnm004_Blink_Update(TaskPool* pool, Task* task, void* args) {
     Vec             offset;
 
     if (self->frame == 0) {
-        CombatSprite_SetAnim(&self->sprite, 0, 0);
+        BtlSprite_SetAnim(&self->sprite, 0, 0);
     }
     if (self->reverse != 0) {
         func_ov003_020cac84(FX32_CONVERT(self->frame), &self->step, &offset);
@@ -98,10 +98,10 @@ static s32 BtlEnm004_Blink_Update(TaskPool* pool, Task* task, void* args) {
         Vec_Add(&self->position, &offset, &self->position);
     }
     if (self->frame == self->count - 1 && self->reverse == 0) {
-        CombatSprite_SetAnim(&self->sprite, 0, 0);
+        BtlSprite_SetAnim(&self->sprite, 0, 0);
     }
-    CombatSprite_Update(&self->sprite);
-    CombatSprite_Update(&self->glow);
+    BtlSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->glow);
     if (self->frame >= self->count) {
         return 0;
     }
@@ -115,9 +115,9 @@ static s32 BtlEnm004_Blink_Render(TaskPool* pool, Task* task, void* args) {
     s32             y    = CombatStage_ToScreenY(func_ov003_020c3908(&self->sprite), self->position.y, self->position.z);
     s32             sort = 0x7FFFFFFF - self->position.y;
 
-    CombatSprite_SetPosition(&self->sprite, x, y);
-    func_ov003_02082730(&self->sprite, sort);
-    CombatSprite_Render(&self->sprite);
+    BtlSprite_SetPosition(&self->sprite, x, y);
+    BtlSprite_SetSortKey(&self->sprite, sort);
+    BtlSprite_Render(&self->sprite);
     CombatHit_DrawSpark(&self->glow, self->position.x, self->position.y);
     return 1;
 }
@@ -125,8 +125,8 @@ static s32 BtlEnm004_Blink_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEnm004_Blink_Release(TaskPool* pool, Task* task, void* args) {
     BtlEnm004Blink* self = task->data;
 
-    CombatSprite_Release(&self->sprite);
-    CombatSprite_Release(&self->glow);
+    BtlSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->glow);
     return 1;
 }
 

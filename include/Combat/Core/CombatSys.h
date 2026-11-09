@@ -2,9 +2,9 @@
 #define TWEWY_COMBAT_CORE_COMBATSYS_H
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatEffectActor.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"
 
 /// The touch cursor graphics.
@@ -12,8 +12,8 @@ extern const BinIdentifier Iden_BtlTch;
 
 void CombatSys_DropObsAtRandom(u16);
 void CombatSys_DropObsGroup(s32, s32);
-s32  CombatSys_LoadObsSprite(s32 engine, CombatSprite* sprite, u32 id);
-void CombatSys_LoadObsHitEffect(s32 arg0, CombatSprite* arg1, s32 arg2);
+s32  CombatSys_LoadObsSprite(s32 engine, BattleSprite* sprite, u32 id);
+void CombatSys_LoadObsHitEffect(s32 arg0, BattleSprite* arg1, s32 arg2);
 /// Plays the field object's sound on the main (`arg0 == 0`) or sub screen.
 void CombatSys_PlayObsSe(s32 arg0, s32 arg1, s32 arg2);
 void CombatSys_SpawnObs(u16 id, s32 arg1, s32 arg2);
@@ -41,7 +41,7 @@ void CombatSys_ShuffleIds(u16* table, u32 count);
 /// Refills the effect command's queue with a fresh shuffle.
 void               func_ov003_02086cc0(void);
 u16                func_ov003_02086d24(void);
-void               func_ov003_02086d8c(CombatSprite* sprite, s32 animId, s32 flipped, s32 x, s16 y, s16 z);
+void               func_ov003_02086d8c(BattleSprite* sprite, s32 animId, s32 flipped, s32 x, s16 y, s16 z);
 void               func_ov003_02086e38(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 s32                func_ov003_02086f7c(void);
 s8                 func_ov003_02086fec(void);

@@ -1,7 +1,7 @@
 #include "Combat/Core/BtlTch.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include <nitro/mi/cpumem.h>
 
@@ -28,7 +28,7 @@ static void BtlTch_FollowGesture(BtlIcon* icon) {
 
     switch (icon->animState) {
         case 5:
-            CombatSprite_SetAnim(&icon->sprite, 4, 1);
+            BtlSprite_SetAnim(&icon->sprite, 4, 1);
             BtlTch_SetUpdate(icon, BtlTch_UpdateHold);
             icon->unk_6C = 1;
             return;
@@ -40,7 +40,7 @@ static void BtlTch_FollowGesture(BtlIcon* icon) {
             return;
 
         case 1:
-            CombatSprite_SetAnim(&icon->sprite, 0, 0);
+            BtlSprite_SetAnim(&icon->sprite, 0, 0);
             BtlTch_SetUpdate(icon, NULL);
             icon->unk_6C = 1;
             return;
@@ -57,18 +57,18 @@ static void BtlTch_UpdateHold(BtlIcon* icon) {
     if (!SpriteMgr_IsAnimationFinished(&icon->sprite.sprite)) {
         return;
     }
-    CombatSprite_SetAnim(&icon->sprite, 5, 0);
+    BtlSprite_SetAnim(&icon->sprite, 5, 0);
     BtlTch_SetUpdate(icon, NULL);
 }
 
 /// Picks the drag animation from how long the stylus has been scribbling.
 static void BtlTch_UpdateDrag(BtlIcon* icon) {
     if (g_CombatGlobal->touchWork.sweepFrames < 2) {
-        CombatSprite_SetAnim(&icon->sprite, 6, 0);
+        BtlSprite_SetAnim(&icon->sprite, 6, 0);
     } else if (g_CombatGlobal->touchWork.sweepFrames < 8) {
-        CombatSprite_SetAnim(&icon->sprite, 7, 0);
+        BtlSprite_SetAnim(&icon->sprite, 7, 0);
     } else {
-        CombatSprite_SetAnim(&icon->sprite, 8, 0);
+        BtlSprite_SetAnim(&icon->sprite, 8, 0);
     }
 }
 
@@ -79,10 +79,10 @@ static s32 BtlTch_Init(TaskPool* pool, Task* task, void* args) {
     icon->unk_6C    = 0;
     icon->animState = 0;
     BtlTch_SetUpdate(icon, NULL);
-    CombatSprite_LoadDirect(2, &icon->sprite, &Iden_BtlTch, 1, 3, 2, 4, 0);
-    CombatSprite_SetAnim(&icon->sprite, 0, 0);
-    func_ov003_02082738(&icon->sprite, 0);
-    func_ov003_02082730(&icon->sprite, 0x3F2000);
+    BtlSprite_LoadDirect(2, &icon->sprite, &Iden_BtlTch, 1, 3, 2, 4, 0);
+    BtlSprite_SetAnim(&icon->sprite, 0, 0);
+    BtlSprite_SetPriority(&icon->sprite, 0);
+    BtlSprite_SetSortKey(&icon->sprite, 0x3F2000);
     return 1;
 }
 
@@ -96,7 +96,7 @@ static s32 BtlTch_Update(TaskPool* pool, Task* task, void* args) {
     if (icon->unk_6C != 0) {
         icon->x = g_CombatGlobal->touchWork.x;
         icon->y = g_CombatGlobal->touchWork.y;
-        CombatSprite_Update(&icon->sprite);
+        BtlSprite_Update(&icon->sprite);
     }
     return 1;
 }
@@ -105,14 +105,14 @@ static s32 BtlTch_Render(TaskPool* pool, Task* task, void* args) {
     BtlIcon* icon = task->data;
 
     if (icon->unk_6C != 0) {
-        CombatSprite_SetPosition(&icon->sprite, icon->x, icon->y);
-        CombatSprite_Render(&icon->sprite);
+        BtlSprite_SetPosition(&icon->sprite, icon->x, icon->y);
+        BtlSprite_Render(&icon->sprite);
     }
     return 1;
 }
 
 static s32 BtlTch_Release(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

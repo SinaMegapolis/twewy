@@ -7,7 +7,7 @@
 
 typedef struct BtlEnm015StampSub {
     /* 0x00 */ BtlEnm015*   unk_00;
-    /* 0x04 */ CombatSprite sprite;
+    /* 0x04 */ BattleSprite sprite;
     /* 0x64 */ s16          unk_64;
     /* 0x66 */ s16          unk_66;
     /* 0x68 */ s32          unk_68;
@@ -65,7 +65,7 @@ static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
             break;
     }
 
-    CombatSprite_Update(&data->sprite);
+    BtlSprite_Update(&data->sprite);
     return 1;
 }
 
@@ -74,13 +74,13 @@ static void func_ov013_021268d8(BtlEnm015StampSub* data) {
     s16 y;
 
     CombatStage_WorldToScreen(func_ov003_020c37f8(&data->unk_00->base.sprite) != 0, &x, &y, data->unk_68, data->unk_6C, 0);
-    CombatSprite_SetPosition(&data->sprite, x, y);
-    func_ov003_02082730(&data->sprite, 0x7FFFFFFF - data->unk_6C);
-    CombatSprite_Render(&data->sprite);
+    BtlSprite_SetPosition(&data->sprite, x, y);
+    BtlSprite_SetSortKey(&data->sprite, 0x7FFFFFFF - data->unk_6C);
+    BtlSprite_Render(&data->sprite);
 }
 
 static void func_ov013_02126950(BtlEnm015StampSub* data) {
-    CombatSprite_Release(&data->sprite);
+    BtlSprite_Release(&data->sprite);
 }
 
 static void func_ov013_02126960(BtlEnm015StampSub* data, Enm015Spawn* args) {
@@ -96,7 +96,7 @@ static void func_ov013_02126960(BtlEnm015StampSub* data, Enm015Spawn* args) {
     s32  engine = owner->base.sprite.sprite.bits_0_1;
 
     SpriteAnimationEx anim;
-    CombatSprite_InitAnim(&anim.anim, engine, func_ov013_021256c0(owner->base.spriteIndex));
+    BtlSprite_InitAnim(&anim.anim, engine, func_ov013_021256c0(owner->base.spriteIndex));
     u16 animData         = table[3];
     anim.anim.unk_20     = func_ov013_021256d0(owner->base.spriteIndex);
     anim.animTable       = NULL;
@@ -106,7 +106,7 @@ static void func_ov013_02126960(BtlEnm015StampSub* data, Enm015Spawn* args) {
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_22     = 2;
     anim.anim.animIndex  = animData + 1;
-    CombatSprite_Load(&data->sprite, &anim);
+    BtlSprite_Load(&data->sprite, &anim);
 }
 
 static s32 func_ov013_02126a30(TaskPool* pool, Task* task, void* args, s32 stage) {

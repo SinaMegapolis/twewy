@@ -1,8 +1,8 @@
 #include "Combat/Core/BtlEff.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffects.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
 #include "SpriteMgr.h"
@@ -53,14 +53,14 @@ static s32 BtlEff_Init(TaskPool* pool, Task* task, void* args) {
     eff->position.z = p->z;
     eff->active     = 1;
 
-    CombatSprite_LoadFromTable(p->mode, &eff->sprite, (def->pack == 4 ? &data_ov003_020d77f8 : &data_ov003_020d77d8),
-                               &def->anim, 0, def->paletteStart, def->paletteCount);
-    if (eff->sprite.flags46 & 0x8000) {
+    BtlSprite_LoadFromTable(p->mode, &eff->sprite, (def->pack == 4 ? &data_ov003_020d77f8 : &data_ov003_020d77d8), &def->anim,
+                            0, def->paletteEntry, def->charTiles);
+    if (eff->sprite.flags & BTL_SPRITE_FLAG_LOAD_FAILED) {
         return 0;
     }
 
-    CombatSprite_SetAnimFromTable(&eff->sprite, 0, 1);
-    CombatSprite_SetFlip(&eff->sprite, p->flip);
+    BtlSprite_SetAnimFromTable(&eff->sprite, 0, 1);
+    BtlSprite_SetFlip(&eff->sprite, p->flip);
 
     if (p->mode != 1) {
         g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE + 1;
@@ -77,7 +77,7 @@ static s32 BtlEff_Update(TaskPool* pool, Task* task, void* args) {
     if (SpriteMgr_IsAnimationFinished(&eff->sprite.sprite) != 0) {
         eff->active = 0;
     }
-    CombatSprite_Update(&eff->sprite);
+    BtlSprite_Update(&eff->sprite);
     return eff->active;
 }
 
@@ -98,9 +98,9 @@ static s32 BtlEff_Render(TaskPool* pool, Task* task, void* args) {
         posY = CombatStage_ToScreenY(1, eff->position.y, eff->position.z);
     }
     sortKey = 0x7FFFFFFF - (eff->position.y + 0x8000);
-    CombatSprite_SetPosition(&eff->sprite, posX, posY);
-    func_ov003_02082730(&eff->sprite, sortKey);
-    CombatSprite_Render(&eff->sprite);
+    BtlSprite_SetPosition(&eff->sprite, posX, posY);
+    BtlSprite_SetSortKey(&eff->sprite, sortKey);
+    BtlSprite_Render(&eff->sprite);
     return 1;
 }
 
@@ -113,7 +113,7 @@ static s32 BtlEff_Release(TaskPool* pool, Task* task, void* args) {
     } else {
         g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF - 1;
     }
-    CombatSprite_Release(&eff->sprite);
+    BtlSprite_Release(&eff->sprite);
     return 1;
 }
 

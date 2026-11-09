@@ -1,7 +1,7 @@
 #ifndef COMBAT_NOISE_PRIVATE_BOSS01_H
 #define COMBAT_NOISE_PRIVATE_BOSS01_H
 
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Noise/Boss01.h"
 #include "Engine/File/BinMgr.h"
 

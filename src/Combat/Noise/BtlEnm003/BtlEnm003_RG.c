@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/BtlEnm.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
@@ -74,7 +74,7 @@ static void func_ov009_02120c48(BtlEnm003_RG* rg) {
 
 static void func_ov009_02120c70(BtlEnm003_RG* rg) {
     if (rg->frameCount == 0) {
-        CombatSprite_SetAnimFromTable(&rg->base.sprite, 0, 0);
+        BtlSprite_SetAnimFromTable(&rg->base.sprite, 0, 0);
         rg->stateDuration = func_ov009_02120b94(rg);
     }
     if (rg->frameCount > rg->stateDuration) {
@@ -126,7 +126,7 @@ static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
             if (rg->frameCount == 0) {
                 CombatSe_PlayAtSubX(415, rg->base.actor.position.x);
             }
-            CombatSprite_SetAnimFromTable(&rg->base.sprite, 7, 1);
+            BtlSprite_SetAnimFromTable(&rg->base.sprite, 7, 1);
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->frameCount = 0;
                 rg->statePhase++;
@@ -137,7 +137,7 @@ static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
 
         case 2: {
             if (rg->frameCount == 0) {
-                CombatSprite_SetAnimFromTable(&rg->base.sprite, 8U, 1);
+                BtlSprite_SetAnimFromTable(&rg->base.sprite, 8U, 1);
                 func_ov009_02120b5c(rg, 0);
                 if (func_ov003_020c5b2c(68, &rg->base, rg->base.actor.position.x, rg->base.actor.position.y,
                                         rg->base.actor.position.z) == 1)
@@ -171,7 +171,7 @@ static void func_ov009_02120f64(BtlEnm003_RG* rg) {
             if (rg->frameCount == 0) {
                 CombatSe_PlayAtSubX(415, rg->base.actor.position.x);
             }
-            CombatSprite_SetAnimFromTable(&rg->base.sprite, 9, 1);
+            BtlSprite_SetAnimFromTable(&rg->base.sprite, 9, 1);
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->frameCount = 0;
                 rg->statePhase++;
@@ -182,7 +182,7 @@ static void func_ov009_02120f64(BtlEnm003_RG* rg) {
 
         case 2: {
             if (rg->frameCount == 0) {
-                CombatSprite_SetAnimFromTable(&rg->base.sprite, 10, 1);
+                BtlSprite_SetAnimFromTable(&rg->base.sprite, 10, 1);
                 func_ov009_02120b5c(rg, 1);
                 if (func_ov003_020c5b2c(69, &rg->base, rg->base.actor.position.x, rg->base.actor.position.y,
                                         rg->base.actor.position.z) == 1)
@@ -221,7 +221,7 @@ static void func_ov009_021210f8(BtlEnm003_RG* rg) {
 
         case 1: {
             if (rg->frameCount == 0) {
-                CombatSprite_SetAnimFromTable(&rg->base.sprite, 12, 1);
+                BtlSprite_SetAnimFromTable(&rg->base.sprite, 12, 1);
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->frameCount = 0;
@@ -233,7 +233,7 @@ static void func_ov009_021210f8(BtlEnm003_RG* rg) {
 
         case 2: {
             if (rg->frameCount == 0) {
-                CombatSprite_SetAnimFromTable(&rg->base.sprite, 13, 1);
+                BtlSprite_SetAnimFromTable(&rg->base.sprite, 13, 1);
                 rg->base.flags18C &= ~0x80;
                 if (rg->unk_1D4 <= 0) {
                     rg->base.actor.baseArgs.powerPercent *= 2;

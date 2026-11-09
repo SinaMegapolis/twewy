@@ -109,7 +109,7 @@ s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage) {
                     break;
                 case 1: {
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                        CombatSprite_Restart(&self->sprite);
+                        BtlSprite_Restart(&self->sprite);
                         CombatSe_PlayAtMainX(0x59, self->renderPosition.x);
                     }
                     if (--self->lifetime == 0) {
@@ -133,26 +133,26 @@ s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage) {
                         return 0;
                     break;
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         case 2: {
             self  = task->data;
             s32 y = CombatStage_ToScreenY(0, self->renderPosition.y, 0);
             s32 x = CombatStage_ToScreenX(0, self->renderPosition.x);
-            CombatSprite_SetPosition(&self->sprite, x, y);
+            BtlSprite_SetPosition(&self->sprite, x, y);
             self->affine.rotation             = self->angle;
-            self->affine.scaleX               = (self->sprite.flags46 & 1) ? -0x1000 : 0x1000;
+            self->affine.scaleX               = (self->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? -0x1000 : 0x1000;
             self->affine.scaleY               = 0x1000;
             self->affine.unk_0C               = 0;
             self->affine.unk_0E               = 0;
             self->sprite.affine               = &self->affine;
             self->sprite.sprite.unk_0A.unk_00 = 1;
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_Render(&self->sprite);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }

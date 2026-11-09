@@ -135,22 +135,22 @@ static s32 func_ov003_020ac76c(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
             }
             if (Sprite_HasAnimation(&self->sprite.sprite) && !SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
-                CombatSprite_Update(&self->sprite);
+                BtlSprite_Update(&self->sprite);
             return 1;
         }
         case 2:
             self = task->data;
             if (Sprite_HasAnimation(&self->sprite.sprite) && !SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                CombatSprite_SetPosition(&self->sprite, self->x, self->y);
-                func_ov003_02082730(&self->sprite, 0x384000);
-                CombatSprite_SetFlip(&self->sprite, self->facingLeft);
-                CombatSprite_Render(&self->sprite);
+                BtlSprite_SetPosition(&self->sprite, self->x, self->y);
+                BtlSprite_SetSortKey(&self->sprite, 0x384000);
+                BtlSprite_SetFlip(&self->sprite, self->facingLeft);
+                BtlSprite_Render(&self->sprite);
             }
             return 1;
         case 3:
             self = task->data;
             if (Sprite_HasAnimation(&self->sprite.sprite))
-                CombatSprite_Release(&self->sprite);
+                BtlSprite_Release(&self->sprite);
             self->effect->unk_0A--;
             func_ov003_020a6464(0);
             return 1;

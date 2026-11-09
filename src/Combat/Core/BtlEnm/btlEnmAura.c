@@ -10,7 +10,7 @@ typedef struct BtlEnmAura BtlEnmAura;
 typedef void (*BtlEnmAuraUpdate)(BtlEnmAura*);
 
 struct BtlEnmAura {
-    /* 0x000 */ CombatSprite       sprites[2];
+    /* 0x000 */ BattleSprite       sprites[2];
     /* 0x0C0 */ CombatList         free;
     /* 0x0C8 */ CombatList         active;
     /* 0x0D0 */ BtlAuraFlameSprite flames[16];
@@ -168,17 +168,17 @@ static void func_ov003_020c98b0(BtlEnmAura* self, s32 mode) {
     }
     Ov003CutinActor* owner = engine ? data_ov003_020e7324.ownerSub : data_ov003_020e7324.ownerMain;
     sortKey                = 0x80000000 - owner->base.actor.position.y;
-    CombatSprite_LoadDirect(engine, &flame->sprite, &data_ov003_020e0b90, 4, 6, 5, palette, (u16)anim);
-    CombatSprite_SetAnim(&flame->sprite, (u16)anim, 1);
-    CombatSprite_SetPosition(&flame->sprite, (x << 4) >> 16, (y << 4) >> 16);
-    func_ov003_02082730(&flame->sprite, sortKey);
+    BtlSprite_LoadDirect(engine, &flame->sprite, &data_ov003_020e0b90, 4, 6, 5, palette, (u16)anim);
+    BtlSprite_SetAnim(&flame->sprite, (u16)anim, 1);
+    BtlSprite_SetPosition(&flame->sprite, (x << 4) >> 16, (y << 4) >> 16);
+    BtlSprite_SetSortKey(&flame->sprite, sortKey);
     CombatList_Remove(&self->free, &flame->node);
     CombatList_Append(&self->active, &flame->node, flame);
 }
 
 static void func_ov003_020c9b4c(BtlEnmAura* self, BtlAuraFlameSprite* flame) {
     if (flame != NULL) {
-        CombatSprite_Release(&flame->sprite);
+        BtlSprite_Release(&flame->sprite);
         CombatList_Remove(&self->active, &flame->node);
         CombatList_Append(&self->free, &flame->node, flame);
     }
@@ -190,7 +190,7 @@ static void func_ov003_020c9b84(BtlEnmAura* self) {
     self->cooldown = 0;
     for (s32 i = 0; i < 16; i++) {
         BtlAuraFlameSprite* flame = &self->flames[i];
-        CombatSprite_Init(&flame->sprite);
+        BtlSprite_Init(&flame->sprite);
         CombatList_Append(&self->free, &flame->node, flame);
     }
 }
@@ -205,7 +205,7 @@ static void func_ov003_020c9bd8(BtlEnmAura* self) {
                 func_ov003_020c9b4c(self, flame);
                 flame = next;
             } else {
-                CombatSprite_Update(&flame->sprite);
+                BtlSprite_Update(&flame->sprite);
                 flame = CombatList_GetNext(&flame->node);
             }
         } while (flame != NULL);
@@ -218,11 +218,11 @@ static void func_ov003_020c9c40(BtlEnmAura* self) {
     if (flame != NULL) {
         do {
             if (flame->sprite.sprite.bits_0_1 == 1) {
-                func_ov003_02082730(&flame->sprite, 0x80000000 - data_ov003_020e7324.ownerSub->base.actor.position.y);
+                BtlSprite_SetSortKey(&flame->sprite, 0x80000000 - data_ov003_020e7324.ownerSub->base.actor.position.y);
             } else {
-                func_ov003_02082730(&flame->sprite, 0x80000000 - data_ov003_020e7324.ownerMain->base.actor.position.y);
+                BtlSprite_SetSortKey(&flame->sprite, 0x80000000 - data_ov003_020e7324.ownerMain->base.actor.position.y);
             }
-            CombatSprite_Render(&flame->sprite);
+            BtlSprite_Render(&flame->sprite);
             flame = CombatList_GetNext(&flame->node);
         } while (flame != NULL);
     }
@@ -231,7 +231,7 @@ static void func_ov003_020c9c40(BtlEnmAura* self) {
 static void func_ov003_020c9cb8(BtlEnmAura* self) {
     for (s32 i = 0; i < 16; i++) {
         if (Sprite_HasAnimation(&self->flames[i].sprite.sprite)) {
-            CombatSprite_Release(&self->flames[i].sprite);
+            BtlSprite_Release(&self->flames[i].sprite);
         }
     }
 }
@@ -385,8 +385,8 @@ static void func_ov003_020ca188(BtlEnmAura* self) {
         case 0:
             if (self->timer == 0) {
                 self->timer = 90;
-                CombatSprite_SetAnimFromTable(&self->sprites[0], 0, 0);
-                CombatSprite_SetAnimFromTable(&self->sprites[1], 0, 0);
+                BtlSprite_SetAnimFromTable(&self->sprites[0], 0, 0);
+                BtlSprite_SetAnimFromTable(&self->sprites[1], 0, 0);
                 self->cooldown = 2;
             }
             if (self->timer > 0) {
@@ -416,8 +416,8 @@ static void func_ov003_020ca188(BtlEnmAura* self) {
             func_ov003_020c96e4();
             self->x = x;
             self->y = y;
-            CombatSprite_SetAnimFromTable(&self->sprites[0], 1, 0);
-            CombatSprite_SetAnimFromTable(&self->sprites[1], 1, 0);
+            BtlSprite_SetAnimFromTable(&self->sprites[0], 1, 0);
+            BtlSprite_SetAnimFromTable(&self->sprites[1], 1, 0);
             func_ov003_020c9788(self, func_ov003_020c9de8);
             return;
     }
@@ -435,10 +435,10 @@ static s32 btlEnmAura_Init(TaskPool* pool, Task* task, void* args) {
     data_ov003_020e7324.ready      = 0;
     data_ov003_020e7324.activeMain = 0;
     data_ov003_020e7324.activeSub  = 0;
-    CombatSprite_LoadFromTable(1, &self->sprites[0], &data_ov003_020e0b90, data_ov003_020e0ba4, 0, 8, 0x40);
-    CombatSprite_LoadFromTable(0, &self->sprites[1], &data_ov003_020e0b90, data_ov003_020e0ba4, 0, 7, 0x40);
-    CombatSprite_SetAnimFromTable(&self->sprites[0], 1, 0);
-    CombatSprite_SetAnimFromTable(&self->sprites[1], 1, 0);
+    BtlSprite_LoadFromTable(1, &self->sprites[0], &data_ov003_020e0b90, data_ov003_020e0ba4, 0, 8, 0x40);
+    BtlSprite_LoadFromTable(0, &self->sprites[1], &data_ov003_020e0b90, data_ov003_020e0ba4, 0, 7, 0x40);
+    BtlSprite_SetAnimFromTable(&self->sprites[0], 1, 0);
+    BtlSprite_SetAnimFromTable(&self->sprites[1], 1, 0);
     func_ov003_020c9b84(self);
     func_ov003_020c9788(self, func_ov003_020c9de8);
     return 1;
@@ -459,8 +459,8 @@ static s32 btlEnmAura_Update(TaskPool* pool, Task* task, void* args) {
     if (data_ov003_020e7324.unk_16 > 0) {
         data_ov003_020e7324.unk_16--;
     }
-    CombatSprite_Update(&self->sprites[0]);
-    CombatSprite_Update(&self->sprites[1]);
+    BtlSprite_Update(&self->sprites[0]);
+    BtlSprite_Update(&self->sprites[1]);
     func_ov003_020c9bd8(self);
     return 1;
 }
@@ -475,18 +475,18 @@ static s32 btlEnmAura_Render(TaskPool* pool, Task* task, void* args) {
     if (scale > 20) {
         if (self->y < 0xD8000 && !data_ov003_020e7324.activeSub) {
             Ov003CutinActor* owner = data_ov003_020e7324.ownerSub;
-            CombatSprite_SetAffineTransform(&self->sprites[0], 0, scale, scale, 1);
-            CombatSprite_SetPosition(&self->sprites[0], (self->x << 4) >> 16, (self->y << 4) >> 16);
-            func_ov003_02082730(&self->sprites[0], 0x80000001 - owner->base.actor.position.y);
-            CombatSprite_Render(&self->sprites[0]);
+            BtlSprite_SetAffineTransform(&self->sprites[0], 0, scale, scale, 1);
+            BtlSprite_SetPosition(&self->sprites[0], (self->x << 4) >> 16, (self->y << 4) >> 16);
+            BtlSprite_SetSortKey(&self->sprites[0], 0x80000001 - owner->base.actor.position.y);
+            BtlSprite_Render(&self->sprites[0]);
         }
         if (self->y > 0xA8000 && !data_ov003_020e7324.activeMain) {
             s32              scale = self->intensity;
             Ov003CutinActor* owner = data_ov003_020e7324.ownerMain;
-            CombatSprite_SetAffineTransform(&self->sprites[1], 0, scale, scale, 1);
-            CombatSprite_SetPosition(&self->sprites[1], (self->x << 4) >> 16, (s16)((self->y >> 12) - 0xC0));
-            func_ov003_02082730(&self->sprites[1], 0x80000001 - owner->base.actor.position.y);
-            CombatSprite_Render(&self->sprites[1]);
+            BtlSprite_SetAffineTransform(&self->sprites[1], 0, scale, scale, 1);
+            BtlSprite_SetPosition(&self->sprites[1], (self->x << 4) >> 16, (s16)((self->y >> 12) - 0xC0));
+            BtlSprite_SetSortKey(&self->sprites[1], 0x80000001 - owner->base.actor.position.y);
+            BtlSprite_Render(&self->sprites[1]);
         }
     }
     func_ov003_020c9c40(self);
@@ -496,8 +496,8 @@ static s32 btlEnmAura_Render(TaskPool* pool, Task* task, void* args) {
 static s32 btlEnmAura_Release(TaskPool* pool, Task* task, void* args) {
     BtlEnmAura* self = task->data;
 
-    CombatSprite_Release(&self->sprites[0]);
-    CombatSprite_Release(&self->sprites[1]);
+    BtlSprite_Release(&self->sprites[0]);
+    BtlSprite_Release(&self->sprites[1]);
     func_ov003_020c9cb8(self);
     return 1;
 }

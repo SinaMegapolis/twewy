@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSprite.h"
 
 #include "Combat/Core/CombatApi.h"
 #include <nitro/mi/cpumem.h>
@@ -11,7 +11,7 @@
 
 /// One screen's half of the effect.
 typedef struct BtlEffLvUp {
-    /* 0x00 */ CombatSprite sprites[2]; // banner, burst
+    /* 0x00 */ BattleSprite sprites[2]; // banner, burst
 } BtlEffLvUp;                           // Size: 0xC0
 
 static s32 BtlEff_LvUp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
@@ -31,17 +31,17 @@ static void func_ov003_020a0290(s32 engine, BtlEffLvUp* data) {
     } else {
         palette = 64;
     }
-    CombatSprite_LoadFromTable(engine, &data->sprites[1], &data_ov003_020d7800, data_ov003_020d8754, 1, palette, 72);
-    CombatSprite_SetAnimFromTable(&data->sprites[1], 1, 1);
-    func_ov003_02082738(&data->sprites[1], 2);
-    CombatSprite_LoadFromTable(engine, &data->sprites[0], &data_ov003_020d7800, data_ov003_020d8754, 0, palette, 52);
-    CombatSprite_SetAnimFromTable(&data->sprites[0], 0, 1);
-    func_ov003_02082738(&data->sprites[0], 2);
+    BtlSprite_LoadFromTable(engine, &data->sprites[1], &data_ov003_020d7800, data_ov003_020d8754, 1, palette, 72);
+    BtlSprite_SetAnimFromTable(&data->sprites[1], 1, 1);
+    BtlSprite_SetPriority(&data->sprites[1], 2);
+    BtlSprite_LoadFromTable(engine, &data->sprites[0], &data_ov003_020d7800, data_ov003_020d8754, 0, palette, 52);
+    BtlSprite_SetAnimFromTable(&data->sprites[0], 0, 1);
+    BtlSprite_SetPriority(&data->sprites[0], 2);
 }
 
 static s32 func_ov003_020a033c(BtlEffLvUp* data) {
-    CombatSprite_Update(&data->sprites[0]);
-    CombatSprite_Update(&data->sprites[1]);
+    BtlSprite_Update(&data->sprites[0]);
+    BtlSprite_Update(&data->sprites[1]);
     return !SpriteMgr_IsAnimationFinished(&data->sprites[0].sprite);
 }
 
@@ -56,17 +56,17 @@ static void func_ov003_020a0368(BtlEffLvUp* data) {
         actor = g_CombatGlobal->partner;
         x     = CombatStage_ToScreenX(1, actor->position.x);
     }
-    CombatSprite_SetPosition(&data->sprites[1], x, 96);
-    func_ov003_02082730(&data->sprites[1], 0x7FFFFFFF - actor->position.y);
-    CombatSprite_Render(&data->sprites[1]);
-    CombatSprite_SetPosition(&data->sprites[0], x, 96);
-    func_ov003_02082730(&data->sprites[0], 0);
-    CombatSprite_Render(&data->sprites[0]);
+    BtlSprite_SetPosition(&data->sprites[1], x, 96);
+    BtlSprite_SetSortKey(&data->sprites[1], 0x7FFFFFFF - actor->position.y);
+    BtlSprite_Render(&data->sprites[1]);
+    BtlSprite_SetPosition(&data->sprites[0], x, 96);
+    BtlSprite_SetSortKey(&data->sprites[0], 0);
+    BtlSprite_Render(&data->sprites[0]);
 }
 
 static void func_ov003_020a0418(BtlEffLvUp* data) {
-    CombatSprite_Release(&data->sprites[0]);
-    CombatSprite_Release(&data->sprites[1]);
+    BtlSprite_Release(&data->sprites[0]);
+    BtlSprite_Release(&data->sprites[1]);
 }
 
 static s32 BtlEff_LvUp_Init(TaskPool* pool, Task* task, void* args) {

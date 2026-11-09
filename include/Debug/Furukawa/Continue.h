@@ -1,7 +1,7 @@
 #ifndef DEBUG_FURUKAWA_CONTINUE_H
 #define DEBUG_FURUKAWA_CONTINUE_H
 
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/DatMgr.h"
@@ -9,7 +9,7 @@
 
 // TODO: Most likely defined by overlay 3
 typedef struct {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s16          unk_60;
     /* 0x62 */ s16          unk_62;
     /* 0x64 */ s16          unk_64;
@@ -23,9 +23,9 @@ typedef struct {
     /* 0x0088C */ ResourceManager   unk_0088C;
     /* 0x11E0C */ Data*             unk_11E0C;
     /* 0x11E10 */ ContinueUnkStruct unk_11E10[4];
-    /* 0x11FB0 */ CombatSprite      unk_11FB0;
-    /* 0x12010 */ CombatSprite      unk_12010;
-    /* 0x12070 */ CombatSprite      unk_12070;
+    /* 0x11FB0 */ BattleSprite      unk_11FB0;
+    /* 0x12010 */ BattleSprite      unk_12010;
+    /* 0x12070 */ BattleSprite      unk_12070;
     /* 0x120D0 */ u16               unk_120D0;
     /* 0x120D2 */ char              unk_120D2[0x2];
     /* 0x120D4 */ s32               unk_120D4;

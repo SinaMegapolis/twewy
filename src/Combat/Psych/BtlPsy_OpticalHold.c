@@ -131,7 +131,7 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
             }
             func_ov003_020a647c(self->unit->actor.position.x);
             for (s32 i = 0; i < 3; i++)
-                CombatSprite_Update(&self->sprites[i]);
+                BtlSprite_Update(&self->sprites[i]);
             switch (self->state) {
                 case 0:
                 case 1:
@@ -145,40 +145,40 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
             s32               y;
             s32               screenX;
             s32               i = 0; // seeded in its declaration so both loop inductions start in order
-            CombatSprite*     sprite;
+            BattleSprite*     sprite;
             s32               sortKey = 0;
             y                         = (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight);
             screenX                   = self->unit->actor.screenX;
             sprite                    = self->sprites;
             for (; i < 3; i++, sprite++, sortKey += 0x1000) {
-                CombatSprite_SetPosition(sprite, screenX, y);
-                func_ov003_02082730(sprite, 0x384000 + sortKey);
+                BtlSprite_SetPosition(sprite, screenX, y);
+                BtlSprite_SetSortKey(sprite, 0x384000 + sortKey);
                 switch (i) {
                     case 0: {
                         s32 angle = self->angle;
                         s32 scale = 0x1800 - angle;
                         s32 alpha;
-                        CombatSprite_SetAffineTransform(sprite, 0, scale, scale, 0);
+                        BtlSprite_SetAffineTransform(sprite, 0, scale, scale, 0);
                         // 20.12 angle ramp -> 0..0x10 palette level; retail rounds at 0x800 and
                         // shifts in two steps, so keep both shifts for matching codegen.
                         alpha = (s32)((((s64)(angle * 2) << 16) + 0x800) >> 12) >> 12;
                         if (alpha > 0)
-                            CombatSprite_RenderWithPalette(sprite, alpha);
+                            BtlSprite_RenderTranslucent(sprite, alpha);
                         break;
                     }
                     case 1: {
                         s32 angle = self->angle;
                         s32 scale = angle + 0x800;
                         s32 alpha;
-                        CombatSprite_SetAffineTransform(sprite, 0, scale, scale, 0);
+                        BtlSprite_SetAffineTransform(sprite, 0, scale, scale, 0);
                         alpha = (s32)((((s64)(angle * 2) << 15) + 0x800) >> 12) >> 12;
                         if (alpha > 0)
-                            CombatSprite_RenderWithPalette(sprite, alpha);
+                            BtlSprite_RenderTranslucent(sprite, alpha);
                         break;
                     }
                     case 2:
                         if (self->state == 2)
-                            CombatSprite_Render(sprite);
+                            BtlSprite_Render(sprite);
                         break;
                 }
             }
@@ -195,7 +195,7 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
             self = task->data;
             func_ov003_020a5fc0(self->particles, 6);
             for (i = 0; i < 3; i++)
-                CombatSprite_Release(&self->sprites[i]);
+                BtlSprite_Release(&self->sprites[i]);
             if (SndMgr_IsSEPlaying(SEIDX_SE_PSY_OPTICALHOLD01_01))
                 SndMgr_StopPlayingSE(SEIDX_SE_PSY_OPTICALHOLD01_01);
             return 1;

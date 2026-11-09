@@ -1,13 +1,13 @@
 #ifndef COMBAT_CORE_COMBATAURA_H
 #define COMBAT_CORE_COMBATAURA_H
 
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatList.h"
-#include "Combat/Core/CombatSprite.h"
 #include "SpriteMgr.h"
 
 typedef struct BtlAuraFlameSprite {
-    /* 0x00 */ CombatSprite   sprite;
+    /* 0x00 */ BattleSprite   sprite;
     /* 0x60 */ CombatListNode node;
 } BtlAuraFlameSprite; // Size: 0x6C
 
@@ -29,7 +29,7 @@ extern BtlEnmAuraState data_ov003_020e7324;
 
 /// One of the sixteen flame sprites (0x70 bytes each); the helpers address it as a `Sprite` at +0.
 typedef struct BtlAuraFlame {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s32          height;    // how far above the ground the flame sits
     /* 0x64 */ s32          riseSpeed; // vertical drift added every frame, 0 = static
     /* 0x68 */ s32          x;
@@ -38,7 +38,7 @@ typedef struct BtlAuraFlame {
 
 /// The aura task data, `TaskHandle.dataSize` = 0x774.
 typedef struct BtlAuraSub {
-    /* 0x000 */ CombatSprite sprite; // the burst sprite, mostly unused here
+    /* 0x000 */ BattleSprite sprite; // the burst sprite, mostly unused here
     /* 0x060 */ BtlAuraFlame flames[16];
     /* 0x760 */ s32          x;
     /* 0x764 */ s32          y;

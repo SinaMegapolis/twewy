@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
 
@@ -20,7 +20,7 @@ typedef struct BtlBadgeConditionBoot {
     /* 0x000 */ Ov003TouchActor* actor;  // the actor the badge follows
     /* 0x004 */ s32              unk_04; // latch once the badge has been triggered
     /* 0x008 */ s32              unk_08; // battle state the badge was spawned for
-    /* 0x00C */ CombatSprite     badge;
+    /* 0x00C */ BattleSprite     badge;
 } BtlBadgeConditionBoot;
 
 /// The task parameter: the actor and the battle state it was spawned for.
@@ -53,7 +53,7 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
             self->actor  = arg->actor;
             self->unk_08 = arg->unk_04;
             self->unk_04 = 0;
-            CombatSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
+            BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);
             anim.anim.bits_10_11 = 0;
             anim.anim.unk_1C     = 3;
             anim.anim.animIndex  = 1;
@@ -63,10 +63,10 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
             anim.anim.unk_18     = 2;
             anim.anim.unk_26     = 2;
             anim.anim.packIndex  = 1;
-            CombatSprite_Load(&self->badge, &anim);
-            CombatSprite_SetAnim(&self->badge, 0x17, 0);
-            func_ov003_02082738(&self->badge, 0);
-            func_ov003_02082730(&self->badge, 0x3F3000);
+            BtlSprite_Load(&self->badge, &anim);
+            BtlSprite_SetAnim(&self->badge, 0x17, 0);
+            BtlSprite_SetPriority(&self->badge, 0);
+            BtlSprite_SetSortKey(&self->badge, 0x3F3000);
             return 1;
         }
         case 1: {
@@ -99,7 +99,7 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                 }
             }
-            CombatSprite_Update(&self->badge);
+            BtlSprite_Update(&self->badge);
             return 1;
         }
         case 2: {
@@ -117,16 +117,16 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
             actor = self->actor;
             posX  = (s32)(actor->x * 0x10) >> 16;
             posY  = (s32)(actor->y * 0x10) >> 16;
-            CombatSprite_SetPosition(&actor->sprite, posX, posY);
-            CombatSprite_SetPosition(&self->badge, posX, posY);
-            CombatSprite_Render(&actor->sprite);
-            CombatSprite_Render(&self->badge);
+            BtlSprite_SetPosition(&actor->sprite, posX, posY);
+            BtlSprite_SetPosition(&self->badge, posX, posY);
+            BtlSprite_Render(&actor->sprite);
+            BtlSprite_Render(&self->badge);
             return 1;
         }
         case 3: {
             BtlBadgeConditionBoot* self = task->data;
 
-            CombatSprite_Release(&self->badge);
+            BtlSprite_Release(&self->badge);
             return 1;
         }
     }

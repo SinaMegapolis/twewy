@@ -55,16 +55,16 @@ static s32 func_ov003_020cdae4(Ov003EnemyShotCharge* self, Ov003EnemyShotChargeA
     self->velocity.y                        = args->velocity.y;
     self->velocity.z                        = args->velocity.z;
     const Ov003EnemyShotTableVisual* visual = args->source->tableVisual;
-    CombatSprite_LoadFromTable(engine, &self->sprites[0], visual->base.file, visual->base.entries, visual->base.entry,
-                               visual->base.paletteSlot, visual->charFormat);
+    BtlSprite_LoadFromTable(engine, &self->sprites[0], visual->base.file, visual->base.entries, visual->base.entry,
+                            visual->base.paletteEntry, visual->charTiles);
     visual = args->secondSource->tableVisual;
-    CombatSprite_LoadFromTable(engine, &self->sprites[1], visual->base.file, visual->base.entries, visual->base.entry,
-                               visual->base.paletteSlot, visual->charFormat);
-    CombatSprite_SetAnimFromTable(&self->sprites[0], self->source.animation, self->source.animationMode);
-    CombatSprite_SetAnimFromTable(&self->sprites[1], self->secondSource.animation, 1);
-    CombatSprite_SetFlip(&self->sprites[0], self->source.core.owner->base.sprite.flags46 & 1);
+    BtlSprite_LoadFromTable(engine, &self->sprites[1], visual->base.file, visual->base.entries, visual->base.entry,
+                            visual->base.paletteEntry, visual->charTiles);
+    BtlSprite_SetAnimFromTable(&self->sprites[0], self->source.animation, self->source.animationMode);
+    BtlSprite_SetAnimFromTable(&self->sprites[1], self->secondSource.animation, 1);
+    BtlSprite_SetFlip(&self->sprites[0], self->source.core.owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED);
     self->source.core.sprite = &self->sprites[0];
-    func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags46 & 1, 0);
+    func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED, 0);
     func_ov003_020cccf0(engine, &self->source);
     self->activeSprite = &self->sprites[0];
     self->activeSource = &self->source;
@@ -72,7 +72,7 @@ static s32 func_ov003_020cdae4(Ov003EnemyShotCharge* self, Ov003EnemyShotChargeA
 }
 
 static s32 func_ov003_020cdc28(Ov003EnemyShotCharge* self) {
-    CombatSprite*         sprite = self->activeSprite;
+    BattleSprite*         sprite = self->activeSprite;
     Ov003EnemyShotSource* source = self->activeSource;
     if (func_ov003_020ccb9c(source, sprite))
         return 0;
@@ -84,7 +84,7 @@ static s32 func_ov003_020cdc28(Ov003EnemyShotCharge* self) {
             source->core.position.z += self->velocity.z;
             if (source->core.position.z > 0) {
                 self->activeSprite = &self->sprites[1];
-                CombatSprite_Update(&self->sprites[1]);
+                BtlSprite_Update(&self->sprites[1]);
                 self->activeSource = &self->secondSource;
                 source->core.flags = (source->core.flags | 2) & ~1;
                 source->core.flags &= ~0x20;
@@ -103,28 +103,28 @@ static s32 func_ov003_020cdc28(Ov003EnemyShotCharge* self) {
                 return 0;
             break;
     }
-    CombatSprite_Update(sprite);
+    BtlSprite_Update(sprite);
     return 1;
 }
 
 static s32 func_ov003_020cdd80(Ov003EnemyShotCharge* self) {
-    CombatSprite*         sprite = self->activeSprite;
+    BattleSprite*         sprite = self->activeSprite;
     Ov003EnemyShotSource* source = self->activeSource;
     s16                   x, y;
     CombatStage_WorldToScreen(func_ov003_020c37f8(sprite) ? 1 : 0, &x, &y, source->core.position.x, source->core.position.y,
                               source->core.position.z);
-    CombatSprite_SetPosition(sprite, x, y);
+    BtlSprite_SetPosition(sprite, x, y);
     s32 depth = source->core.position.y;
     if (depth <= 0)
         depth = 0;
-    func_ov003_02082730(sprite, 0x7FFFFFFF - depth);
-    CombatSprite_Render(sprite);
+    BtlSprite_SetSortKey(sprite, 0x7FFFFFFF - depth);
+    BtlSprite_Render(sprite);
     return 1;
 }
 
 static s32 func_ov003_020cde04(Ov003EnemyShotCharge* self) {
-    CombatSprite_Release(&self->sprites[0]);
-    CombatSprite_Release(&self->sprites[1]);
+    BtlSprite_Release(&self->sprites[0]);
+    BtlSprite_Release(&self->sprites[1]);
     return 1;
 }
 

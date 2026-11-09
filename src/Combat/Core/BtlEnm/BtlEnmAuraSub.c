@@ -1,9 +1,9 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEnm.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAura.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "SpriteMgr.h"
@@ -90,8 +90,8 @@ static void func_ov003_020ca7b0(s32 engine, BtlAuraSub* aura) {
             flame->riseSpeed = (RNG_Next(3) + 1) << 12;
             anim             = RNG_Next(2);
         }
-        CombatSprite_LoadDirectNoProto(engine, &flame->sprite, &data_ov003_020e0b90, 4, 6, 5, palette, anim);
-        CombatSprite_SetAnim((CombatSprite*)flame, (u16)anim, 1);
+        BtlSprite_LoadDirectNoProto(engine, &flame->sprite, &data_ov003_020e0b90, 4, 6, 5, palette, anim);
+        BtlSprite_SetAnim((BattleSprite*)flame, (u16)anim, 1);
         i++;
         spread += 0x1000;
         flame++;
@@ -112,7 +112,7 @@ static void func_ov003_020ca8cc(BtlAuraSub* aura) {
             if (flame->riseSpeed != 0) {
                 BtlMgr_MoveByAngle(&flame->x, &flame->y, flame->height, flame->riseSpeed);
             }
-            CombatSprite_Update((CombatSprite*)flame);
+            BtlSprite_Update((BattleSprite*)flame);
             active = 1;
         }
         i++;
@@ -138,9 +138,9 @@ static void func_ov003_020ca934(BtlAuraSub* aura) {
         }
         sortKey = 0x80000000 - owner->base.actor.position.y;
         if (SpriteMgr_IsAnimationFinished(&flame->sprite.sprite) == 0) {
-            CombatSprite_SetPosition(&flame->sprite, (s32)(flame->x * 0x10) >> 16, (s32)(flame->y * 0x10) >> 16);
-            func_ov003_02082730((CombatSprite*)flame, sortKey);
-            CombatSprite_Render((CombatSprite*)flame);
+            BtlSprite_SetPosition(&flame->sprite, (s32)(flame->x * 0x10) >> 16, (s32)(flame->y * 0x10) >> 16);
+            BtlSprite_SetSortKey((BattleSprite*)flame, sortKey);
+            BtlSprite_Render((BattleSprite*)flame);
         }
         i++;
         flame++;
@@ -155,7 +155,7 @@ static void func_ov003_020ca9bc(BtlAuraSub* aura) {
     i     = 0;
     flame = aura->flames;
     do {
-        CombatSprite_Release((CombatSprite*)flame);
+        BtlSprite_Release((BattleSprite*)flame);
         i++;
         flame++;
     } while (i < 16);
@@ -182,8 +182,8 @@ static s32 BtlEnmAuraSub_Init(TaskPool* pool, Task* task, void* args) {
         aura->y -= 0xC0000;
         palette = 7;
     }
-    CombatSprite_LoadFromTableNoProto(engine, &aura->sprite, &data_ov003_020e0bcc, data_ov003_020e0bc4, 0, palette, 0x90);
-    CombatSprite_SetPosition(&aura->sprite, (s32)(aura->x * 0x10) >> 16, (s32)(aura->y * 0x10) >> 16);
+    BtlSprite_LoadFromTableNoProto(engine, &aura->sprite, &data_ov003_020e0bcc, data_ov003_020e0bc4, 0, palette, 0x90);
+    BtlSprite_SetPosition(&aura->sprite, (s32)(aura->x * 0x10) >> 16, (s32)(aura->y * 0x10) >> 16);
     func_ov003_020ca7b0(engine, aura);
     CombatSe_PlayPanned(SEIDX_SE_GREEN_LIGHT, (s32)(aura->x * 0x10) >> 16);
     return 1;
@@ -205,7 +205,7 @@ static s32 BtlEnmAuraSub_Update(TaskPool* pool, Task* task, void* args) {
         func_020265d4(&aura->sortKey, 0x1000, (u16)aura->timer);
         aura->timer = (s16)(aura->timer - 1);
     }
-    CombatSprite_Update(&aura->sprite);
+    BtlSprite_Update(&aura->sprite);
     func_ov003_020ca8cc(aura);
     return aura->active;
 }
@@ -224,9 +224,9 @@ static s32 BtlEnmAuraSub_Render(TaskPool* pool, Task* task, void* args) {
         } else {
             owner = data_ov003_020e7324.ownerSub;
         }
-        CombatSprite_SetAffineTransform(&aura->sprite, 0, aura->sortKey, aura->sortKey, 1);
-        func_ov003_02082730(&aura->sprite, 0x80000000 - owner->base.actor.position.y);
-        CombatSprite_Render(&aura->sprite);
+        BtlSprite_SetAffineTransform(&aura->sprite, 0, aura->sortKey, aura->sortKey, 1);
+        BtlSprite_SetSortKey(&aura->sprite, 0x80000000 - owner->base.actor.position.y);
+        BtlSprite_Render(&aura->sprite);
     }
     func_ov003_020ca934(aura);
     return 1;
@@ -236,7 +236,7 @@ static s32 BtlEnmAuraSub_Render(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEnmAuraSub_Release(TaskPool* pool, Task* task, void* args) {
     BtlAuraSub* aura = task->data;
 
-    CombatSprite_Release(&aura->sprite);
+    BtlSprite_Release(&aura->sprite);
     func_ov003_020ca9bc(aura);
     return 1;
 }

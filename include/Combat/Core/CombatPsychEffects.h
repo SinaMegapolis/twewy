@@ -22,7 +22,7 @@ typedef struct Ov003TargetEntry {
 typedef struct Ov003Target {
     /* 0x00 */ CombatList*      list;
     /* 0x04 */ Ov003TargetEntry entry;
-    /* 0x18 */ CombatSprite     sprite;
+    /* 0x18 */ BattleSprite     sprite;
 } Ov003Target; // Size: 0x78
 
 void              func_ov003_020b3050(CombatList* list, Ov003TargetEntry* entry);
@@ -40,7 +40,7 @@ typedef struct Ov003Thunder {
     /* 0x00 */ s32              phase;
     /* 0x04 */ Ov003ThunderArgs args;
     /* 0x10 */ BattleActor*     target;
-    /* 0x14 */ CombatSprite     sprite;
+    /* 0x14 */ BattleSprite     sprite;
     /* 0x74 */ Vec2p            position;
     /* 0x7C */ s32              speed;
     /* 0x80 */ s32              angle;
@@ -70,18 +70,18 @@ typedef struct Ov003Lime {
     /* 0x00 */ Ov003EffectState* effect;
     /* 0x04 */ s32               phase;
     /* 0x08 */ s32               entered;
-    /* 0x0C */ CombatSprite      sprite;
+    /* 0x0C */ BattleSprite      sprite;
     /* 0x6C */ Vec               position;
     /* 0x78 */ Vec               target;
     /* 0x84 */ s32               angle;
     /* 0x88 */ s32               speed;
-    /* 0x8C */ CombatSprite      icon;
+    /* 0x8C */ BattleSprite      icon;
 } Ov003Lime; // Size: 0xEC
 
 typedef struct Ov003LockOnThunderP {
     /* 0x00 */ Ov003EffectState* effect;
     /* 0x04 */ CombatList        targets;
-    /* 0x0C */ CombatSprite      sprite;
+    /* 0x0C */ BattleSprite      sprite;
     /* 0x6C */ s32               scaleX;
     /* 0x70 */ s32               scaleY;
     /* 0x74 */ s32               opacity;
@@ -201,7 +201,7 @@ typedef struct Ov003SlashThunder {
     /* 0x10 */ Vec2p             renderPosition;
     /* 0x18 */ Vec2p             position;
     /* 0x20 */ s32               angle;
-    /* 0x24 */ CombatSprite      sprite;
+    /* 0x24 */ BattleSprite      sprite;
     /* 0x84 */ OamAffineParam    affine;
 } Ov003SlashThunder; // Size: 0x94
 
@@ -240,7 +240,7 @@ typedef struct Ov003Speaker {
     /* 0x008 */ Vec               position;
     /* 0x014 */ s32               kind;
     /* 0x018 */ const s32*        parentPhase;
-    /* 0x01C */ CombatSprite      sprites[3];
+    /* 0x01C */ BattleSprite      sprites[3];
     /* 0x13C */ const Vec2p*      scales[3];
     /* 0x148 */ s32               frame;
 } Ov003Speaker; // Size: 0x14C
@@ -255,7 +255,7 @@ typedef struct Ov003VoiceShock {
     /* 0x00 */ Ov003EffectState* effect;
     /* 0x04 */ Vec               position;
     /* 0x10 */ s32               scale;
-    /* 0x14 */ CombatSprite      sprite;
+    /* 0x14 */ BattleSprite      sprite;
 } Ov003VoiceShock; // Size: 0x74
 
 s32 func_ov003_020ba08c(Ov003EffectState* effect, s32 x, s32 y);
@@ -272,7 +272,7 @@ typedef struct Ov003StreetLive {
     /* 0x08 */ s32               speakerPhase;
     /* 0x0C */ s32               quietFrames;
     /* 0x10 */ s32               timer;
-    /* 0x14 */ CombatSprite      sprite;
+    /* 0x14 */ BattleSprite      sprite;
     /* 0x74 */ Ov003CameraAnim   camera;
 } Ov003StreetLive; // Size: 0x8C
 
@@ -288,7 +288,7 @@ typedef struct Ov003PsychoTerritory {
     /* 0x04 */ Ov003EffectState* effect;
     /* 0x08 */ Vec               position;
     /* 0x14 */ s32               angle;
-    /* 0x18 */ CombatSprite      sprite;
+    /* 0x18 */ BattleSprite      sprite;
     /* 0x78 */ OamAffineParam    affine;
     /* 0x88 */ s32               timer;
 } Ov003PsychoTerritory; // Size: 0x8C
@@ -323,7 +323,7 @@ typedef struct Ov003PsychAnimation {
     /* 0x00 */ u32            flags;
     /* 0x04 */ Vec            position;
     /* 0x10 */ BattleActor*   actor;
-    /* 0x14 */ CombatSprite   sprite;
+    /* 0x14 */ BattleSprite   sprite;
     /* 0x74 */ OamAffineParam affine;
     /* 0x84 */ s32            sortKey;
     /* 0x88 */ s32            opacity;
@@ -348,7 +348,7 @@ typedef struct Ov003BrilliantArgs {
 } Ov003BrilliantArgs; // Size: 0x20
 
 typedef struct Ov003BrilliantEffect {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ Vec2p        position;
     /* 0x68 */ Vec2p        offset;
     /* 0x70 */ s32          kind;
@@ -379,7 +379,7 @@ typedef struct Ov003FireChild {
     /* 0x00 */ s32               state;
     /* 0x04 */ Ov003EffectState* effect;
     /* 0x08 */ Vec2p             position;
-    /* 0x10 */ CombatSprite      sprite;
+    /* 0x10 */ BattleSprite      sprite;
     /* 0x70 */ s32               attackId;
     /* 0x74 */ s32               speed;
     /* 0x78 */ s32               angle;
@@ -416,7 +416,7 @@ typedef struct Ov003BadgeFormation {
     /* 0x08 */ Ov003TouchActor*  actors[4];
     /* 0x18 */ s32               index;
     /* 0x1C */ s32               firstIndex;
-    /* 0x20 */ CombatSprite      sprite;
+    /* 0x20 */ BattleSprite      sprite;
     /* 0x80 */ Vec2p             position;
     /* 0x88 */ s32               angle;
 } Ov003BadgeFormation; // Size: 0x8C
@@ -435,7 +435,7 @@ typedef struct Ov003BarrierArgs {
 typedef struct Ov003Barrier {
     /* 0x000 */ Ov003BarrierSpawn spawn;
     /* 0x00C */ s32               animationKind;
-    /* 0x010 */ CombatSprite      sprites[4];
+    /* 0x010 */ BattleSprite      sprites[4];
     /* 0x190 */ OamAffineParam    affine;
     /* 0x1A0 */ s32               unk_1A0;
     /* 0x1A4 */ s32               cooldown;
@@ -459,7 +459,7 @@ typedef struct Ov003BlackHoll {
     /* 0x000 */ Ov003EffectState* effect;
     /* 0x004 */ s32               mode;
     /* 0x008 */ s32               lifetime;
-    /* 0x00C */ CombatSprite      sprites[2];
+    /* 0x00C */ BattleSprite      sprites[2];
     /* 0x0CC */ Ov003AnimSprite   particles[6];
     /* 0x36C */ Vec               position;
     /* 0x378 */ s32               minSpeed;
@@ -480,7 +480,7 @@ typedef struct Ov003BombArgs {
 
 typedef struct Ov003Bomb {
     /* 0x00 */ Ov003BombArgs args;
-    /* 0x1C */ CombatSprite  sprite;
+    /* 0x1C */ BattleSprite  sprite;
 } Ov003Bomb; // Size: 0x7C
 
 typedef struct Ov003PsychPositionArgs {
@@ -491,7 +491,7 @@ typedef struct Ov003PsychPositionArgs {
 typedef struct Ov003FireWorks {
     /* 0x00 */ s32                    phase;
     /* 0x04 */ Ov003PsychPositionArgs args;
-    /* 0x14 */ CombatSprite           sprite;
+    /* 0x14 */ BattleSprite           sprite;
     /* 0x74 */ s32                    timer;
     /* 0x78 */ s32                    particleTimer;
 } Ov003FireWorks; // Size: 0x7C
@@ -508,13 +508,13 @@ typedef struct Ov003PsychUnitArgs {
 typedef struct Ov003ObsBomb {
     /* 0x00 */ s32                phase;
     /* 0x04 */ Ov003PsychUnitArgs args;
-    /* 0x0C */ CombatSprite       sprite;
+    /* 0x0C */ BattleSprite       sprite;
     /* 0x6C */ s32                timer;
 } Ov003ObsBomb; // Size: 0x70
 
 typedef struct Ov003PsychoBomb {
     /* 0x00 */ Ov003PsychPositionArgs args;
-    /* 0x10 */ CombatSprite           sprites[2];
+    /* 0x10 */ BattleSprite           sprites[2];
     /* 0xD0 */ s32                    timer;
     /* 0xD4 */ s32                    phase;
 } Ov003PsychoBomb; // Size: 0xD8
@@ -534,7 +534,7 @@ typedef struct Ov003ChargeLaser {
     /* 0x08 */ Ov003EffectState* effect;
     /* 0x0C */ Ov003TouchActor*  actors[2];
     /* 0x14 */ s32               soundPlayed;
-    /* 0x18 */ CombatSprite      sprite;
+    /* 0x18 */ BattleSprite      sprite;
     /* 0x78 */ s32               animationKind;
     /* 0x7C */ s16               x;
     /* 0x7E */ s16               y;
@@ -549,7 +549,7 @@ typedef struct Ov003ChargeLaser {
 void func_ov003_020acc60(Ov003ChargeLaser*);
 
 typedef struct Ov003Blur {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s32          captured;
     /* 0x64 */ Vec          position;
     /* 0x70 */ s8           opacity;
@@ -565,7 +565,7 @@ typedef struct Ov003ShockWaveBlurArgs {
 } Ov003ShockWaveBlurArgs; // Size: 0x14
 
 typedef struct Ov003ShockWaveBlur {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ Vec          position;
     /* 0x6C */ s8           opacity;
     /* 0x6D */ u8           reserved[3];
@@ -586,7 +586,7 @@ typedef struct Ov003HealAnimations {
 typedef struct Ov003DragAttack {
     /* 0x00 */ Ov003EffectState* effect;
     /* 0x04 */ s32               phase;
-    /* 0x08 */ CombatSprite      sprite;
+    /* 0x08 */ BattleSprite      sprite;
     /* 0x68 */ s32               angle;
     /* 0x6C */ s32               opacity;
     /* 0x70 */ s32               opacityStep;
@@ -607,7 +607,7 @@ typedef struct Ov003SparkArgs {
 
 typedef struct Ov003Spark {
     /* 0x00 */ Ov003AttackStreak* streak;
-    /* 0x04 */ CombatSprite       sprite;
+    /* 0x04 */ BattleSprite       sprite;
     /* 0x64 */ OamAffineParam     affine;
     /* 0x74 */ Vec2p              position;
     /* 0x7C */ s32                angle;
@@ -623,7 +623,7 @@ typedef struct Ov003Spark {
 
 typedef struct Ov003ElementKRay {
     /* 0x00 */ s32          active;
-    /* 0x04 */ CombatSprite sprite;
+    /* 0x04 */ BattleSprite sprite;
     /* 0x64 */ s32          angle;
 } Ov003ElementKRay; // Size: 0x68
 
@@ -632,14 +632,14 @@ typedef struct Ov003ElementK {
     /* 0x004 */ s32               phase;
     /* 0x008 */ s32               heldFrames;
     /* 0x00C */ s32               releasedFrames;
-    /* 0x010 */ CombatSprite      sprite;
+    /* 0x010 */ BattleSprite      sprite;
     /* 0x070 */ s16               x;
     /* 0x072 */ s16               y;
     /* 0x074 */ Ov003ElementKRay  rays[3];
     /* 0x1AC */ s32               emitTimer;
     /* 0x1B0 */ u8                directions[8];
     /* 0x1B8 */ s32               directionIndex;
-    /* 0x1BC */ CombatSprite      aura;
+    /* 0x1BC */ BattleSprite      aura;
     /* 0x21C */ s32               auraOpacity;
     /* 0x220 */ s32               auraScale;
     /* 0x224 */ s32               cancelled;
@@ -650,7 +650,7 @@ typedef struct Ov003ElementR {
     /* 0x004 */ Vec2p             position;
     /* 0x00C */ s32               delay;
     /* 0x010 */ s32               releasedFrames;
-    /* 0x014 */ CombatSprite      sprites[3];
+    /* 0x014 */ BattleSprite      sprites[3];
     /* 0x134 */ s32               phase;
     /* 0x138 */ u8                directions[16];
     /* 0x148 */ s32               directionIndex;
@@ -685,7 +685,7 @@ typedef struct Ov003Element {
     /* 0x38 */ s32               firstTick;
     /* 0x3C */ s32               remainingUses;
     /* 0x40 */ s32               remainingTicks;
-    /* 0x44 */ CombatSprite      sprite;
+    /* 0x44 */ BattleSprite      sprite;
     /* 0xA4 */ s32               scale;
     /* 0xA8 */ OamAffineParam    affine;
     /* 0xB8 */ BattleActor*      target;
@@ -736,7 +736,7 @@ typedef struct Ov003ElementBind {
     /* 0x14 */ s16               height;
     /* 0x16 */ s16               reserved;
     /* 0x18 */ s32               kind;
-    /* 0x1C */ CombatSprite      sprite;
+    /* 0x1C */ BattleSprite      sprite;
     /* 0x7C */ s32               timer;
     /* 0x80 */ s32               attackId;
 } Ov003ElementBind; // Size: 0x84
@@ -756,7 +756,7 @@ typedef struct Ov003SnowArgs {
 
 typedef struct Ov003Snow {
     /* 0x00 */ s32            kind;
-    /* 0x04 */ CombatSprite   sprite;
+    /* 0x04 */ BattleSprite   sprite;
     /* 0x64 */ OamAffineParam affine;
     /* 0x74 */ Vec2p          position;
     /* 0x7C */ s32            angle;
@@ -788,7 +788,7 @@ typedef struct Ov003EnemyAirFlow {
     /* 0x00 */ s32               phase;
     /* 0x04 */ Ov003EffectState* effect;
     /* 0x08 */ Ov003EnemyActor*  unit;
-    /* 0x0C */ CombatSprite      sprite;
+    /* 0x0C */ BattleSprite      sprite;
     /* 0x6C */ s32*              releaseFlag;
     /* 0x70 */ Vec               origin;
     /* 0x7C */ s32               radius;
@@ -805,8 +805,8 @@ typedef struct Ov003PsychoQuake {
     /* 0x20 */ s32               remainingTicks;
     /* 0x24 */ s32               releaseTimer;
     /* 0x28 */ s32               sampleTimer;
-    /* 0x2C */ CombatSprite      spriteA;
-    /* 0x8C */ CombatSprite      spriteB;
+    /* 0x2C */ BattleSprite      spriteA;
+    /* 0x8C */ BattleSprite      spriteB;
     /* 0xEC */ s32               spriteOffset;
     /* 0xF0 */ s32               opacity;
 } Ov003PsychoQuake; // Size: 0xF4
@@ -836,8 +836,8 @@ typedef struct Ov003IceHold {
     /* 0x0C */ s32               timer;
     /* 0x10 */ s32               particleTimer;
     /* 0x14 */ s32               frames;
-    /* 0x18 */ CombatSprite      spriteA;
-    /* 0x78 */ CombatSprite      spriteB;
+    /* 0x18 */ BattleSprite      spriteA;
+    /* 0x78 */ BattleSprite      spriteB;
 } Ov003IceHold; // Size: 0xD8
 
 typedef struct Ov003OpticalHold {
@@ -847,7 +847,7 @@ typedef struct Ov003OpticalHold {
     /* 0x00C */ s32               spawnTimer;
     /* 0x010 */ s32               holdTimer;
     /* 0x014 */ s32               heldFrames;
-    /* 0x018 */ CombatSprite      sprites[3];
+    /* 0x018 */ BattleSprite      sprites[3];
     /* 0x138 */ s32               angle;
     /* 0x13C */ Ov003AnimSprite   particles[6];
 } Ov003OpticalHold; // Size: 0x3DC
@@ -860,7 +860,7 @@ typedef struct Ov003IcePillarArgs {
 
 typedef struct Ov003IcePillar {
     /* 0x000 */ Ov003IcePillarArgs args;
-    /* 0x010 */ CombatSprite       sprites[4];
+    /* 0x010 */ BattleSprite       sprites[4];
 } Ov003IcePillar; // Size: 0x190
 
 s32 func_ov003_020b1ca0(Ov003EffectState* effect, s32 x, s32 y, s32 attackId);
@@ -873,9 +873,9 @@ typedef struct Ov003IcePillarR {
     /* 0x014 */ s32               y[3];
     /* 0x020 */ s32               z;
     /* 0x024 */ s32               phase;
-    /* 0x028 */ CombatSprite      spriteA;
-    /* 0x088 */ CombatSprite      spriteB;
-    /* 0x0E8 */ CombatSprite      spriteC;
+    /* 0x028 */ BattleSprite      spriteA;
+    /* 0x088 */ BattleSprite      spriteB;
+    /* 0x0E8 */ BattleSprite      spriteC;
     /* 0x148 */ s32               xOffset;
     /* 0x14C */ u8                timer;
     /* 0x14D */ u8                pad_14D[3];
@@ -940,12 +940,12 @@ typedef struct Ov003BrokenMeteorArgs {
 
 typedef struct Ov003BrokenMeteor {
     /* 0x00 */ Ov003EffectState* effect;
-    /* 0x04 */ CombatSprite      sprite;
+    /* 0x04 */ BattleSprite      sprite;
     /* 0x64 */ s32               loopAnimation;
     /* 0x68 */ Vec               position;
     /* 0x74 */ s32               baseZ;
     /* 0x78 */ Vec               velocity;
-    /* 0x84 */ CombatSprite      icon;
+    /* 0x84 */ BattleSprite      icon;
     /* 0xE4 */ s32               trail;
 } Ov003BrokenMeteor; // Size: 0xE8
 
@@ -955,13 +955,13 @@ typedef struct Ov003PsychoFall {
     /* 0x000 */ Ov003EffectState* effect;
     /* 0x004 */ s32               index;
     /* 0x008 */ s32               phase;
-    /* 0x00C */ CombatSprite      sprite;
+    /* 0x00C */ BattleSprite      sprite;
     /* 0x06C */ s32               x;
     /* 0x070 */ s32               y;
     /* 0x074 */ s32               z;
     /* 0x078 */ s32               baseZ;
     /* 0x07C */ s32               zStep;
-    /* 0x080 */ CombatSprite      icon;
+    /* 0x080 */ BattleSprite      icon;
     /* 0x0E0 */ u16               variant;
     /* 0x0E2 */ u8                pad_E2[2];
 } Ov003PsychoFall; // Size: 0xE4
@@ -981,7 +981,7 @@ typedef struct Ov003PsychoT {
     /* 0x08 */ Ov003PsychoHitContext hit;
     /* 0x28 */ u8                    timer;
     /* 0x29 */ u8                    reserved[3];
-    /* 0x2C */ CombatSprite          sprite;
+    /* 0x2C */ BattleSprite          sprite;
 } Ov003PsychoT; // Size: 0x8C
 
 typedef struct Ov003PsychoUnitArgs {
@@ -995,7 +995,7 @@ typedef struct Ov003PsychoUnit {
     /* 0x08 */ Ov003PsychoHitContext* context;
     /* 0x0C */ u16                    timer;
     /* 0x0E */ u16                    pad_0E;
-    /* 0x10 */ CombatSprite           sprite;
+    /* 0x10 */ BattleSprite           sprite;
     /* 0x70 */ s32                    angle;
     /* 0x74 */ s32                    unk_74;
 } Ov003PsychoUnit; // Size: 0x78
@@ -1096,8 +1096,8 @@ typedef struct Ov003PsychoD {
     /* 0x20 */ s32               phase;
     /* 0x24 */ s16               subPhase;
     /* 0x26 */ s16               timer;
-    /* 0x28 */ CombatSprite      spriteA;
-    /* 0x88 */ CombatSprite      spriteB;
+    /* 0x28 */ BattleSprite      spriteA;
+    /* 0x88 */ BattleSprite      spriteB;
 } Ov003PsychoD; // Size: 0xE8
 
 typedef struct Ov003ShockWaveKind {
@@ -1124,7 +1124,7 @@ typedef struct Ov003ShockWaveBody {
     /* 0x28 */ s32               scale;
     /* 0x2C */ s32               targetAngle;
     /* 0x30 */ s32               phase;
-    /* 0x34 */ CombatSprite      sprite;
+    /* 0x34 */ BattleSprite      sprite;
     /* 0x94 */ OamAffineParam    affine;
     /* 0xA4 */ s32               animation;
     /* 0xA8 */ s32               renderAngle;

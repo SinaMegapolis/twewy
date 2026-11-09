@@ -2,7 +2,7 @@
 #define COMBAT_TUTORIAL_BTLTUTORIAL_H
 
 #include "Battle/Core/BtlActor.h"
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Engine/EasyTask.h"
 
 /// Task data for `Tsk_BtlPlayerNone`. Layout is a `BattleActor` plus a few
@@ -22,7 +22,7 @@ typedef struct BtlTutorial {
     /* 0x08 */ void*            unk_08;
     /* 0x0C */ void*            unk_0C;
     /* 0x10 */ PaletteResource* unk_10;
-    /* 0x14 */ CombatSprite     sprite;
+    /* 0x14 */ BattleSprite     sprite;
     /* 0x74 */ u8               unk_74[0x8];
 } BtlTutorial; // Size: 0x7C
 

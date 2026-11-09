@@ -2,11 +2,11 @@
 #define COMBAT_COMBATCUTIN_H
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlFeat.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActorParams.h"
 #include "Combat/Core/CombatEnemyActor.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/File/DatMgr.h"
 #include "Engine/Resources/BgResMgr.h"
 #include "Engine/Resources/PaletteMgr.h"

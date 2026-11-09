@@ -95,19 +95,18 @@ static s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage
             }
             func_ov003_020a66f4(&formation->effect->streak, 0x18D, (s16)(formation->position.x >> 12),
                                 (s16)(formation->position.y >> 12), 0, 0);
-            CombatSprite_Update(&formation->sprite);
+            BtlSprite_Update(&formation->sprite);
             return 1;
         case 2:
             formation = task->data;
-            CombatSprite_SetPosition(&formation->sprite, (s16)(formation->position.x >> 12),
-                                     (s16)(formation->position.y >> 12));
-            func_ov003_02082730(&formation->sprite, 0x384000);
-            CombatSprite_SetAffineTransform(&formation->sprite, formation->angle, 0x1000, 0x1000, 0);
-            CombatSprite_Render(&formation->sprite);
+            BtlSprite_SetPosition(&formation->sprite, (s16)(formation->position.x >> 12), (s16)(formation->position.y >> 12));
+            BtlSprite_SetSortKey(&formation->sprite, 0x384000);
+            BtlSprite_SetAffineTransform(&formation->sprite, formation->angle, 0x1000, 0x1000, 0);
+            BtlSprite_Render(&formation->sprite);
             return 1;
         case 3:
             formation = task->data;
-            CombatSprite_Release(&formation->sprite);
+            BtlSprite_Release(&formation->sprite);
             formation->effect->unk_0A--;
             return 1;
     }

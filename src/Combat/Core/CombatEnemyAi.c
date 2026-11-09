@@ -1,10 +1,10 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatEnemyGroup.h"
-#include "Combat/Core/CombatSprite.h"
 #include "EasyFade.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/Core/OamMgr.h"
@@ -97,7 +97,7 @@ static void func_ov003_020c4264(Ov003EnemyActor* actor) {}
 
 /// Releases the main sprite's resources.
 void func_ov003_020c4268(Ov003CutinActor* actor) {
-    CombatSprite_SetPaletteMode(&actor->base.sprite, 0);
+    BtlSprite_SetPaletteMode(&actor->base.sprite, BTL_SPRITE_PALETTE_OWN);
 }
 
 void func_ov003_020c427c(Ov003EnemyActor* actor) {
@@ -106,8 +106,8 @@ void func_ov003_020c427c(Ov003EnemyActor* actor) {
 
 static void func_ov003_020c4288(Ov003EnemyActor* actor) {
     actor->actor.flags &= ~ACTOR_FLAG_HIDDEN;
-    if (actor->sprite.paletteMode == 1) {
-        CombatSprite_SetPaletteMode(&actor->sprite, 0);
+    if (actor->sprite.paletteMode == BTL_SPRITE_PALETTE_FLASH) {
+        BtlSprite_SetPaletteMode(&actor->sprite, BTL_SPRITE_PALETTE_OWN);
     }
     actor->flags18C &= ~1;
     actor->unk_1B8 = 0x1000;
@@ -142,33 +142,33 @@ s32 func_ov003_020c4348(Ov003EnemyActor* actor) {
 
 /// Fills the sprite-load template `anim` from the actor's load parameters.
 void func_ov003_020c439c(Ov003EnemyActor* actor, SpriteAnimationEx* anim) {
-    const BtlSpriteDesc*   params = func_ov003_020c3c6c(actor);
-    const SpriteAnimEntry* entry;
+    const BattleSpriteDesc* params = func_ov003_020c3c6c(actor);
+    const SpriteAnimEntry*  entry;
 
-    CombatSprite_InitAnim(&anim->anim, actor->sprite.sprite.bits_0_1, params->iden);
+    BtlSprite_InitAnim(&anim->anim, actor->sprite.sprite.bits_0_1, params->iden);
     entry                 = &params->table[params->entry];
     anim->anim.bits_10_11 = 1;
     anim->anim.unk_1C     = entry->charDataIndex;
-    anim->anim.unk_1E     = (s16)(params->paletteCount << 5);
-    anim->anim.unk_26     = entry->frameDataIndex;
-    anim->anim.unk_28     = entry->paletteDataIndex;
-    anim->anim.unk_20     = params->palette;
-    anim->anim.animIndex  = (s16)(entry->animDataIndex + 1);
+    anim->anim.unk_1E     = (s16)(params->charTiles << 5);
+    anim->anim.unk_26     = entry->cellDataIndex;
+    anim->anim.unk_28     = entry->animDataIndex;
+    anim->anim.unk_20     = params->paletteEntry;
+    anim->anim.animIndex  = (s16)(entry->animIndex + 1);
     anim->animTable       = params->table;
 }
 
 /// Same as `func_ov003_020c439c`, but without the frame offset/animation index overrides.
 static void func_ov003_020c4428(Ov003CutinActor* actor, SpriteAnimationEx* anim) {
-    const BtlSpriteDesc*   params = func_ov003_020c3c6c(&actor->base);
-    const SpriteAnimEntry* entry  = &params->table[params->entry];
+    const BattleSpriteDesc* params = func_ov003_020c3c6c(&actor->base);
+    const SpriteAnimEntry*  entry  = &params->table[params->entry];
 
-    CombatSprite_InitAnim(&anim->anim, actor->base.sprite.sprite.bits_0_1, params->iden);
+    BtlSprite_InitAnim(&anim->anim, actor->base.sprite.sprite.bits_0_1, params->iden);
     anim->anim.bits_10_11 = 0;
     anim->anim.unk_1C     = entry->charDataIndex;
-    anim->anim.unk_26     = entry->frameDataIndex;
-    anim->anim.unk_28     = entry->paletteDataIndex;
-    anim->anim.unk_20     = params->palette;
-    anim->anim.animIndex  = (s16)(entry->animDataIndex + 1);
+    anim->anim.unk_26     = entry->cellDataIndex;
+    anim->anim.unk_28     = entry->animDataIndex;
+    anim->anim.unk_20     = params->paletteEntry;
+    anim->anim.animIndex  = (s16)(entry->animIndex + 1);
     anim->animTable       = NULL;
 }
 
@@ -183,7 +183,7 @@ s32 func_ov003_020c44ac(Ov003EnemyActor* actor) {
 
     func_ov003_020c439c(actor, &anim);
     anim.anim.bits_0_1 = 1;
-    result             = CombatSprite_Load(&actor->sprite, &anim);
+    result             = BtlSprite_Load(&actor->sprite, &anim);
     if (result == 0) {
         return 0;
     }
@@ -202,7 +202,7 @@ s32 func_ov003_020c4520(Ov003EnemyActor* actor) {
 
     func_ov003_020c439c(actor, &anim);
     anim.anim.bits_0_1 = 0;
-    result             = CombatSprite_Load(&actor->sprite, &anim);
+    result             = BtlSprite_Load(&actor->sprite, &anim);
     if (result == 0) {
         return 0;
     }
@@ -221,7 +221,7 @@ s32 func_ov003_020c45a4(Ov003CutinActor* actor) {
 
     func_ov003_020c4428(actor, &anim);
     anim.anim.bits_0_1 = 0;
-    result             = CombatSprite_Load(&actor->base.sprite, &anim);
+    result             = BtlSprite_Load(&actor->base.sprite, &anim);
     if (result == 0) {
         return 0;
     }
@@ -238,8 +238,8 @@ void func_ov003_020c4628(Ov003EnemyActor* actor) {
         actor->actor.zVelocity = 0;
     }
     BtlActor_UpdatePhysics(&actor->actor);
-    CombatSprite_Update(&actor->sprite);
-    CombatSprite_Update(&actor->subSprite);
+    BtlSprite_Update(&actor->sprite);
+    BtlSprite_Update(&actor->subSprite);
 }
 
 void func_ov003_020c4668(Ov003EnemyActor* actor) {
@@ -264,8 +264,8 @@ void func_ov003_020c4668(Ov003EnemyActor* actor) {
     }
     half = 0;
     BtlCollision_SetPosition(&actor->collider, actor->actor.position.x, actor->actor.position.y, actor->actor.position.z);
-    CombatSprite_Update(&actor->sprite);
-    CombatSprite_Update(&actor->subSprite);
+    BtlSprite_Update(&actor->sprite);
+    BtlSprite_Update(&actor->subSprite);
 }
 
 /// Registers (or re-budgets) the sprite's OAM affine group from the actor's scale fields.
@@ -274,7 +274,7 @@ void func_ov003_020c4748(Ov003EnemyActor* actor) {
     s32 flip;
 
     if ((scaleX != 0x1000) || (actor->unk_1BC != 0x1000)) {
-        flip                            = (actor->sprite.flags46 & 1) ? 1 : 0;
+        flip                            = (actor->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? 1 : 0;
         actor->sprite.sprite.unk_0A.raw = (u16)((actor->sprite.sprite.unk_0A.raw & ~0x3E0) |
                                                 ((u32)(u16)OamMgr_AllocAffineGroup(&g_OamMgr[actor->sprite.sprite.bits_0_1],
                                                                                    0U, scaleX, actor->unk_1BC, flip)
@@ -286,10 +286,10 @@ void func_ov003_020c4748(Ov003EnemyActor* actor) {
     }
     actor->sprite.sprite.unk_0A.raw &= ~0x3E0;
     actor->sprite.sprite.unk_0A.raw &= ~1;
-    if (actor->sprite.flags46 & 1) {
-        CombatSprite_SetFlip(&actor->sprite, 1);
+    if (actor->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
+        BtlSprite_SetFlip(&actor->sprite, 1);
     } else {
-        CombatSprite_SetFlip(&actor->sprite, 0);
+        BtlSprite_SetFlip(&actor->sprite, 0);
     }
 }
 
@@ -348,15 +348,15 @@ void func_ov003_020c48fc(void* arg) {
     func_ov003_020c4ee0(&actor->base);
     func_ov003_020c4a34(&actor->base);
     func_ov003_020c4268(actor);
-    CombatSprite_Release(&actor->base.sprite);
-    CombatSprite_Release(&actor->base.subSprite);
+    BtlSprite_Release(&actor->base.sprite);
+    BtlSprite_Release(&actor->base.subSprite);
 }
 
 void func_ov003_020c492c(Ov003EnemyActor* actor) {
     func_ov003_020c4f00(actor);
     func_ov003_020c4a74(actor);
-    CombatSprite_Release(&actor->sprite);
-    CombatSprite_Release(&actor->subSprite);
+    BtlSprite_Release(&actor->sprite);
+    BtlSprite_Release(&actor->subSprite);
     BtlCollision_Remove(&actor->collider);
 }
 
@@ -411,11 +411,11 @@ s32 func_ov003_020c4a74(Ov003EnemyActor* actor) {
 /// Faces the main sprite towards (1) or away from (0) the sub screen.
 void func_ov003_020c4ab4(Ov003EnemyActor* actor, s32 arg1) {
     if (arg1 != 0) {
-        CombatSprite_SetFlip(&actor->sprite, 1);
+        BtlSprite_SetFlip(&actor->sprite, 1);
         actor->actor.isFlipped = 1;
         return;
     }
-    CombatSprite_SetFlip(&actor->sprite, 0);
+    BtlSprite_SetFlip(&actor->sprite, 0);
     actor->actor.isFlipped = 0;
 }
 
@@ -477,7 +477,7 @@ void func_ov003_020c4c5c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4c9c(Ov003EnemyActor* actor) {
-    if (actor->sprite.flags46 & 1) {
+    if (actor->sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
         func_ov003_020c4ab4(actor, 0);
         return;
     }
@@ -950,7 +950,7 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
 
         case 0:
             if (actor->unk_1A4 == 0) {
-                actor->sprite.flags46 |= 2;
+                actor->sprite.flags |= BTL_SPRITE_FLAG_OBJ_WINDOW;
                 actor->actor.flags |= ACTOR_FLAG_HIDDEN;
                 if ((func_ov003_020c37f8(&actor->sprite) != 0) && (actor->partner != NULL)) {
                     actor->unk_1A6 = actor->partner->unk_1A6;
@@ -988,15 +988,15 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
         case 2:
             if (actor->unk_1A4 < 0xA) {
                 actor->actor.flags ^= ACTOR_FLAG_HIDDEN;
-                actor->sprite.flags46 ^= 2;
+                actor->sprite.flags ^= BTL_SPRITE_FLAG_OBJ_WINDOW;
             } else {
                 s32 flags = actor->actor.flags;
                 if (actor->unk_1A4 % 3 == 0) {
                     actor->actor.flags = flags | ACTOR_FLAG_HIDDEN;
-                    actor->sprite.flags46 |= 2;
+                    actor->sprite.flags |= BTL_SPRITE_FLAG_OBJ_WINDOW;
                 } else {
                     actor->actor.flags = flags & ~ACTOR_FLAG_HIDDEN;
-                    actor->sprite.flags46 &= ~2;
+                    actor->sprite.flags &= ~BTL_SPRITE_FLAG_OBJ_WINDOW;
                 }
             }
             if (actor->unk_1A4 <= 0x14) {
@@ -1005,7 +1005,7 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
                 actor->unk_1A4 = 0;
                 actor->unk_1A8++;
                 actor->actor.flags &= ~ACTOR_FLAG_HIDDEN;
-                actor->sprite.flags46 &= ~2;
+                actor->sprite.flags &= ~BTL_SPRITE_FLAG_OBJ_WINDOW;
             }
             return 1;
 
@@ -1113,7 +1113,7 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
             if (actor->unk_1A4 <= 0x14) {
                 actor->unk_1A4++;
             } else {
-                CombatSprite_SetPaletteMode(&actor->sprite, 0);
+                BtlSprite_SetPaletteMode(&actor->sprite, BTL_SPRITE_PALETTE_OWN);
                 actor->unk_1A4 = 0;
                 actor->unk_1A8++;
             }
@@ -1133,12 +1133,12 @@ s32 func_ov003_020c6230(Ov003EnemyActor* actor) {
         func_ov003_020c4cc4(actor, 0x1C);
     }
     if ((actor->unk_1A4 / 5) % 2 == 0) {
-        CombatSprite_SetPaletteMode(&actor->sprite, 1);
+        BtlSprite_SetPaletteMode(&actor->sprite, BTL_SPRITE_PALETTE_FLASH);
     } else {
-        CombatSprite_SetPaletteMode(&actor->sprite, 0);
+        BtlSprite_SetPaletteMode(&actor->sprite, BTL_SPRITE_PALETTE_OWN);
     }
     if (actor->unk_1A4 > 0x13) {
-        CombatSprite_SetPaletteMode(&actor->sprite, 0);
+        BtlSprite_SetPaletteMode(&actor->sprite, BTL_SPRITE_PALETTE_OWN);
         return 0;
     }
     actor->unk_1A4++;
@@ -1161,7 +1161,7 @@ s32 func_ov003_020c62c4(Ov003EnemyActor* actor, u16 anim) {
                 func_ov003_020c4cc4(actor, ((Ov003CutinCmdIds*)data_ov003_020e0720)[actor->group].main);
                 func_ov003_020c4288(actor);
                 func_ov003_020c38b8(&actor->sprite, anim, 1);
-                CombatSprite_Restart(&actor->sprite);
+                BtlSprite_Restart(&actor->sprite);
                 actor->actor.flags |= ACTOR_FLAG_STAGGERED;
                 func_ov003_020c4ee0(actor);
                 if (func_ov003_020c5220(actor) != 0) {
@@ -1250,7 +1250,7 @@ s32 func_ov003_020c65cc(Ov003EnemyActor* actor, u16 anim) {
             if (actor->unk_1A4 == 0) {
                 func_ov003_020c4cc4(actor, ((Ov003CutinCmdIds*)data_ov003_020e0720)[actor->group].main);
                 func_ov003_020c38b8(&actor->sprite, anim, 1);
-                CombatSprite_Restart(&actor->sprite);
+                BtlSprite_Restart(&actor->sprite);
                 actor->actor.flags |= ACTOR_FLAG_STAGGERED;
                 if (actor->actor.xVelocity < 0) {
                     func_ov003_020c4ab4(actor, 1);
@@ -1384,7 +1384,7 @@ s32 func_ov003_020c6920(Ov003EnemyActor* actor, u16 anim, s32 arg2) {
                     func_ov003_020c4ab4(actor, 0);
                 }
                 func_ov003_020c38b8(&actor->sprite, anim, 1);
-                CombatSprite_Restart(&actor->sprite);
+                BtlSprite_Restart(&actor->sprite);
                 func_ov003_020c4f00(actor);
                 func_ov003_020c3700(actor);
                 actor->actor.linearDampingStep = 0x19A;
@@ -1550,7 +1550,7 @@ static s32 func_ov003_020c6e64(Ov003EnemyActor* actor) {
             s32 hasPartner = ((actor->actor.flags & ACTOR_FLAG_KILLED) && (actor->partner != NULL)) ? 1 : 0;
             func_ov003_0209f444(actor->sprite.sprite.bits_0_1, actor->actor.position.x, actor->actor.position.y,
                                 actor->actor.position.z, hasPartner);
-            actor->sprite.flags46 |= 2;
+            actor->sprite.flags |= BTL_SPRITE_FLAG_OBJ_WINDOW;
         }
         if (actor->actor.flags & ACTOR_FLAG_KILLED) {
             func_ov003_020c5130(actor);
@@ -1591,8 +1591,8 @@ s32 func_ov003_020c6f90(Ov003EnemyActor* actor) {
     }
     result = func_ov003_020c9338(actor);
     if ((func_ov003_020c9008() != 0) && (data_ov003_020e6a30[4] != 0)) {
-        CombatSprite_Release(&actor->sprite);
-        CombatSprite_Release(&actor->partner->sprite);
+        BtlSprite_Release(&actor->sprite);
+        BtlSprite_Release(&actor->partner->sprite);
         data_ov003_020e6a30[4] = 0;
     }
     if (result == 0) {
@@ -1625,8 +1625,8 @@ s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim) {
     switch (actor->base.unk_1A8) {
         case 0:
             if (actor->base.unk_1A4 == 0) {
-                CombatSprite_SetAnimFromTable(&actor->base.sprite, anim, 1);
-                CombatSprite_Restart(&actor->base.sprite);
+                BtlSprite_SetAnimFromTable(&actor->base.sprite, anim, 1);
+                BtlSprite_Restart(&actor->base.sprite);
                 if (actor->base.actor.hit.sourceX == 0) {
                     func_ov003_020c4af0(&actor->base);
                 } else {
@@ -1648,7 +1648,7 @@ s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim) {
             break;
         case 1:
             if (actor->base.unk_1A4 == 0) {
-                CombatSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 1), 0);
+                BtlSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 1), 0);
             }
             if (actor->base.unk_1A4 <= actor->base.unk_1A6) {
                 actor->base.unk_1A4++;
@@ -1659,7 +1659,7 @@ s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim) {
             break;
         case 2:
             if (actor->base.unk_1A4 == 0) {
-                CombatSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 2), 1);
+                BtlSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 2), 1);
                 actor->base.actor.flags &= ~ACTOR_FLAG_GUARDING;
             }
             if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
@@ -1679,8 +1679,8 @@ static void func_ov003_020c7224(Ov003EnemyActor* actor) {
     actor->flags18C &= ~0x10;
     actor->unk_1B8 = 0x1000;
     actor->unk_1BC = 0x1000;
-    CombatSprite_SetPaletteMode(&actor->sprite, 0);
-    actor->sprite.flags46 &= ~2;
+    BtlSprite_SetPaletteMode(&actor->sprite, BTL_SPRITE_PALETTE_OWN);
+    actor->sprite.flags &= ~BTL_SPRITE_FLAG_OBJ_WINDOW;
     actor->actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
     actor->actor.flags &= ~ACTOR_FLAG_HIDDEN;
     actor->actor.zVelocity = 0;

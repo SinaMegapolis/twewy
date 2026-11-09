@@ -52,25 +52,25 @@ static s32 func_ov003_020b3a14(TaskPool* pool, Task* task, void* args, s32 stage
             if (Sprite_HasAnimation(&self->sprite.sprite)) {
                 if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                     CombatSe_PlayPanned(SEIDX_SE_PSY_ROCKONTHUNDER_DRAG01, self->x);
-                    CombatSprite_Restart(&self->sprite);
+                    BtlSprite_Restart(&self->sprite);
                 }
-                CombatSprite_Update(&self->sprite);
+                BtlSprite_Update(&self->sprite);
             }
             return result;
         }
         case 2:
             self = task->data;
             if (Sprite_HasAnimation(&self->sprite.sprite)) {
-                CombatSprite_SetPosition(&self->sprite, self->x, self->y);
-                CombatSprite_SetAffineTransform(&self->sprite, self->angle, self->scaleX, self->scaleY, 1);
-                CombatSprite_RenderWithPalette(&self->sprite, self->opacity >> 12);
+                BtlSprite_SetPosition(&self->sprite, self->x, self->y);
+                BtlSprite_SetAffineTransform(&self->sprite, self->angle, self->scaleX, self->scaleY, 1);
+                BtlSprite_RenderTranslucent(&self->sprite, self->opacity >> 12);
             }
             return 1;
         case 3:
             self = task->data;
             func_ov003_020b2fe4(&self->targets);
             if (Sprite_HasAnimation(&self->sprite.sprite))
-                CombatSprite_Release(&self->sprite);
+                BtlSprite_Release(&self->sprite);
             return 1;
     }
 }
@@ -117,7 +117,7 @@ static s32 func_ov003_020b3d5c(Ov003LockOnThunderP* self) {
     if (Sprite_HasAnimation(&self->sprite.sprite)) {
         self->opacity -= 0x400;
         if (self->opacity < 0x1000)
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
     }
     return 1;
 }

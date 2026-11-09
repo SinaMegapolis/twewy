@@ -37,7 +37,7 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
             switch (self->phase) {
                 case 0:
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                        CombatSprite_Restart(&self->sprite);
+                        BtlSprite_Restart(&self->sprite);
                         CombatSe_PlayAtMainX(0x54, self->args.position.x);
                     }
                     if (--self->timer == 0) {
@@ -58,7 +58,7 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
                 case 1:
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                        CombatSprite_Restart(&self->sprite);
+                        BtlSprite_Restart(&self->sprite);
                         CombatSe_PlayAtMainX(0x54, self->args.position.x);
                     }
                     if (--self->timer == 0) {
@@ -82,21 +82,21 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
                         return 0;
                     break;
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         }
         case 2: {
             Ov003FireWorks* self = task->data;
             s32             x    = CombatStage_ToScreenX(0, self->args.position.x);
             s32             y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
-            CombatSprite_SetPosition(&self->sprite, x, y);
-            func_ov003_02082730(&self->sprite, 0x386000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, x, y);
+            BtlSprite_SetSortKey(&self->sprite, 0x386000);
+            BtlSprite_Render(&self->sprite);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }

@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include <nitro/fx.h>
 
@@ -12,7 +12,7 @@ typedef struct {
 } BtlEff_Bomb_Args;
 
 typedef struct {
-    /* 0x00 */ CombatSprite     sprite;
+    /* 0x00 */ BattleSprite     sprite;
     /* 0x60 */ Vec              unk_60;
     /* 0x6C */ BattleAttackArgs unk_6C;
     /* 0x74 */ s32              unk_74;
@@ -38,9 +38,9 @@ s32 BtlEff_Bomb_Init(TaskPool* pool, Task* task, void* args) {
     eff->unk_7C = bombArgs->unk_14;
     eff->unk_6C = *bombArgs->unk_0C;
 
-    CombatSprite_LoadFromTable(func_ov003_020c3aac(eff->unk_74), &eff->sprite, &data_ov016_0212909c, &data_ov016_021290a4, 0,
-                               7, 0);
-    func_ov003_020c38e8((CombatSprite*)eff);
+    BtlSprite_LoadFromTable(func_ov003_020c3aac(eff->unk_74), &eff->sprite, &data_ov016_0212909c, &data_ov016_021290a4, 0, 7,
+                            0);
+    func_ov003_020c38e8((BattleSprite*)eff);
     return 1;
 }
 
@@ -60,7 +60,7 @@ s32 BtlEff_Bomb_Update(TaskPool* pool, Task* task, void* args) {
 
         case 1:
             if (eff->unk_7E == 0) {
-                CombatSprite_SetAnimFromTable(&eff->sprite, 0, 1);
+                BtlSprite_SetAnimFromTable(&eff->sprite, 0, 1);
                 CombatSe_PlayAtMainX(501, eff->unk_60.x);
             }
             if (eff->unk_78 == 0) {
@@ -73,7 +73,7 @@ s32 BtlEff_Bomb_Update(TaskPool* pool, Task* task, void* args) {
             }
     }
 
-    CombatSprite_Update(&eff->sprite);
+    BtlSprite_Update(&eff->sprite);
     return var_r5;
 }
 
@@ -82,20 +82,20 @@ s32 BtlEff_Bomb_Render(TaskPool* pool, Task* task, void* args) {
     s16          sp8;
     BtlEff_Bomb* temp_r4 = task->data;
 
-    CombatStage_WorldToScreen(func_ov003_020c3908((CombatSprite*)temp_r4), &spA, &sp8, temp_r4->unk_60.x, temp_r4->unk_60.y,
+    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)temp_r4), &spA, &sp8, temp_r4->unk_60.x, temp_r4->unk_60.y,
                               temp_r4->unk_60.z);
-    CombatSprite_SetPosition((CombatSprite*)temp_r4, spA, sp8);
-    if (func_ov003_020c37f8((CombatSprite*)temp_r4) != 0) {
-        func_ov003_02082730((CombatSprite*)temp_r4, 0x7FDFFFFF);
+    BtlSprite_SetPosition((BattleSprite*)temp_r4, spA, sp8);
+    if (func_ov003_020c37f8((BattleSprite*)temp_r4) != 0) {
+        BtlSprite_SetSortKey((BattleSprite*)temp_r4, 0x7FDFFFFF);
     } else {
-        func_ov003_02082730((CombatSprite*)temp_r4, 0x7FFFDFFF - temp_r4->unk_60.y);
+        BtlSprite_SetSortKey((BattleSprite*)temp_r4, 0x7FFFDFFF - temp_r4->unk_60.y);
     }
-    CombatSprite_Render((CombatSprite*)temp_r4);
+    BtlSprite_Render((BattleSprite*)temp_r4);
     return 1;
 }
 
 s32 BtlEff_Bomb_Destroy(TaskPool* pool, Task* task, void* args) {
-    CombatSprite_Release(task->data);
+    BtlSprite_Release(task->data);
     return 1;
 }
 

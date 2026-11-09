@@ -109,23 +109,23 @@ static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a6628(&self->effect->streak, (u16)data_ov003_020dc9f0[self->index].attackId, self->x, self->y,
                                 self->z, 0, 0);
             func_ov003_020b4788(self);
-            CombatSprite_Update(&self->sprite);
-            CombatSprite_Update(&self->icon);
+            BtlSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->icon);
             return 1;
         }
         case 2: {
             Ov003PsychoFall* self = task->data;
             s32              y    = CombatStage_ToScreenY(0, self->y, self->z);
-            CombatSprite_SetPosition(&self->sprite, CombatStage_ToScreenX(0, self->x), y);
-            func_ov003_02082730(&self->sprite, self->y + 0x1F4000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, CombatStage_ToScreenX(0, self->x), y);
+            BtlSprite_SetSortKey(&self->sprite, self->y + 0x1F4000);
+            BtlSprite_Render(&self->sprite);
             CombatHit_DrawSpark(&self->icon, self->x, self->y);
             return 1;
         }
         case 3: {
             Ov003PsychoFall* self = task->data;
-            CombatSprite_Release(&self->sprite);
-            CombatSprite_Release(&self->icon);
+            BtlSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->icon);
             return 1;
         }
     }
@@ -139,7 +139,7 @@ static void func_ov003_020b4788(Ov003PsychoFall* self) {
 
     if (frame == self->variant)
         return;
-    CombatSprite_SetAnim(&self->icon, frame, 1);
+    BtlSprite_SetAnim(&self->icon, frame, 1);
 }
 static char             data_ov003_020e4e50[28]   = "SubTsk_BtlPsy_PsychoFall_T";
 static const TaskHandle data_ov003_020dc9b4       = {data_ov003_020e4e50, func_ov003_020b42f4, sizeof(Ov003PsychoFall)};

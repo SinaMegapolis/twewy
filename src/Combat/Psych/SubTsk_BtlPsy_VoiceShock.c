@@ -45,22 +45,22 @@ static s32 func_ov003_020ba0b8(TaskPool* pool, Task* task, void* args, s32 stage
                                         0, 0);
                 unit = CombatList_GetNext(&unit->node);
             }
-            CombatSprite_Update(&shock->sprite);
+            BtlSprite_Update(&shock->sprite);
             return 1;
         }
         case 2: {
             self  = task->data;
             s32 x = CombatStage_ToScreenX(0, self->position.x);
             s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-            CombatSprite_SetAffineTransform(&self->sprite, 0, self->scale, self->scale, 1);
-            CombatSprite_SetPosition(&self->sprite, x, y);
-            func_ov003_02082730(&self->sprite, 0x384000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetAffineTransform(&self->sprite, 0, self->scale, self->scale, 1);
+            BtlSprite_SetPosition(&self->sprite, x, y);
+            BtlSprite_SetSortKey(&self->sprite, 0x384000);
+            BtlSprite_Render(&self->sprite);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }

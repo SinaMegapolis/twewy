@@ -1,9 +1,9 @@
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPop.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttackInfo.h"
 #include "Combat/Core/CombatEnemyShot.h"
-#include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/BinMgr.h"
@@ -34,7 +34,7 @@ typedef struct Ov003EnemyShotBlossomArgs {
 
 typedef struct Ov003EnemyShotBlossom {
     /* 0x00 */ Ov003EnemyShotSource source;
-    /* 0x2C */ CombatSprite         sprite;
+    /* 0x2C */ BattleSprite         sprite;
     /* 0x8C */ u16                  angle;
     /* 0x8E */ u16                  reserved8E;
     /* 0x90 */ s32                  velocityX;
@@ -853,7 +853,7 @@ void func_ov003_020cc8b0(Ov003EnemyShotCore* dst, const Ov003EnemyShotSource* sr
 /// Whether a shot is over: it left the field, ran out of time, finished its animation, hit something, or its owner
 /// went down, depending on the `flags` of the shot.
 static s32 func_ov003_020cc8fc(u16 flags, s32 engine, s32 x, s32 y, s32 z, s32 marginX, s32 marginY, Ov003CutinActor* owner,
-                               CombatSprite* sprite, s32 hitResult, s16* timer) {
+                               BattleSprite* sprite, s32 hitResult, s16* timer) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
@@ -907,13 +907,13 @@ static s32 func_ov003_020cc8fc(u16 flags, s32 engine, s32 x, s32 y, s32 z, s32 m
     return 0;
 }
 
-s32 func_ov003_020ccb9c(Ov003EnemyShotSource* source, CombatSprite* sprite) {
+s32 func_ov003_020ccb9c(Ov003EnemyShotSource* source, BattleSprite* sprite) {
     return func_ov003_020cc8fc(source->core.flags, sprite->sprite.bits_0_1, source->core.position.x, source->core.position.y,
                                source->core.position.z, source->radius, source->height, source->core.owner, sprite,
                                source->core.hitResult, &source->core.timer);
 }
 
-s32 func_ov003_020ccc00(Ov003EnemyShotCore* core, CombatSprite* sprite) {
+s32 func_ov003_020ccc00(Ov003EnemyShotCore* core, BattleSprite* sprite) {
     return func_ov003_020cc8fc(core->flags, sprite->sprite.bits_0_1, core->position.x, core->position.y, core->position.z, 8,
                                8, core->owner, sprite, core->hitResult, &core->timer);
 }
@@ -1015,8 +1015,8 @@ s32 func_ov003_020cce34(s32 side) {
     return 0;
 }
 
-void func_ov003_020ccea8(BattleActor* actor, CombatSprite* sprite) {
-    actor->isFlipped = (sprite->flags46 & 1) ? 1 : 0;
+void func_ov003_020ccea8(BattleActor* actor, BattleSprite* sprite) {
+    actor->isFlipped = (sprite->flags & BTL_SPRITE_FLAG_FLIPPED) ? 1 : 0;
 }
 
 void func_ov003_020ccec0(BattleActor* actor, s32 flag) {
@@ -1063,8 +1063,8 @@ void func_ov003_020ccf58(s32 side, Ov003EnemyActor* actor) {
 }
 
 /// Loads a sprite from a descriptor.
-void func_ov003_020ccf94(s32 engine, CombatSprite* sprite, const BtlSpriteDesc* desc) {
-    CombatSprite_LoadFromTable(engine, sprite, desc->iden, desc->table, desc->entry, desc->palette, desc->paletteCount);
+void func_ov003_020ccf94(s32 engine, BattleSprite* sprite, const BattleSpriteDesc* desc) {
+    BtlSprite_LoadFromTable(engine, sprite, desc->iden, desc->table, desc->entry, desc->paletteEntry, desc->charTiles);
 }
 
 s32 func_ov003_020ccfc8(Ov003EnemyActor* actor, u16 anim) {
@@ -1103,7 +1103,7 @@ s32 func_ov003_020cd010(Ov003EnemyActor* actor) {
 
             func_ov003_0209f444(actor->sprite.sprite.bits_0_1, actor->actor.position.x, actor->actor.position.y,
                                 actor->actor.position.z, hasPartner);
-            actor->sprite.flags46 |= 2;
+            actor->sprite.flags |= BTL_SPRITE_FLAG_OBJ_WINDOW;
         }
     }
     if (actor->unk_1A4 == 1) {
@@ -1167,11 +1167,11 @@ static s32 func_ov003_020cd1c8(Ov003EnemyShotBlossom* self, Ov003EnemyShotBlosso
         self->curveX     = FX_Mul(FX_CosIdx(side), big);
         self->curveY     = FX_Mul(FX_SinIdx(side), big);
     }
-    CombatSprite_LoadDirect(engine, &self->sprite, visual->base.file, entry->charDataIndex, entry->paletteDataIndex,
-                            entry->frameDataIndex, visual->base.paletteSlot, entry->animDataIndex);
-    CombatSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
+    BtlSprite_LoadDirect(engine, &self->sprite, visual->base.file, entry->charDataIndex, entry->animDataIndex,
+                         entry->cellDataIndex, visual->base.paletteEntry, entry->animIndex);
+    BtlSprite_SetAnim(&self->sprite, self->source.animation, self->source.animationMode);
     self->source.core.sprite = &self->sprite;
-    func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags46 & 1, 0);
+    func_ov003_020cdfbc(&self->source, args->source->core.owner->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED, 0);
     func_ov003_020cccf0(engine, args->source);
     return 1;
 }
@@ -1205,7 +1205,7 @@ static s32 func_ov003_020cd44c(Ov003EnemyShotBlossom* self) {
     self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
                                                            &self->source.core.owner->base.actor.baseArgs, sx, sy);
     self->frame++;
-    CombatSprite_Update(&self->sprite);
+    BtlSprite_Update(&self->sprite);
     return 1;
 }
 
@@ -1215,14 +1215,14 @@ static s32 func_ov003_020cd618(Ov003EnemyShotBlossom* self) {
 
     CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
                               self->source.core.position.y, self->source.core.position.z);
-    CombatSprite_SetPosition(&self->sprite, x, y);
-    func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
-    CombatSprite_Render(&self->sprite);
+    BtlSprite_SetPosition(&self->sprite, x, y);
+    BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
+    BtlSprite_Render(&self->sprite);
     return 1;
 }
 
 static s32 func_ov003_020cd690(Ov003EnemyShotBlossom* self) {
-    CombatSprite_Release(&self->sprite);
+    BtlSprite_Release(&self->sprite);
     return 1;
 }
 

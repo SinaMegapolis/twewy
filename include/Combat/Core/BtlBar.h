@@ -2,14 +2,14 @@
 #define COMBAT_CORE_BTLBAR_H
 
 #include "Battle/Core/BtlActor.h"
-#include "Combat/Core/CombatSprite.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Engine/EasyTask.h"
 
 /// Task data shared by the HP bar and the BS bar HUDs: ten sprites, then the widths, flags and
 /// drain state the per-frame state machine publishes for the render stage. Each bar mirrors one
 /// gauge pair of `Ov003Global`; the comments name the HP bar's reading of the fields.
 typedef struct BtlBar {
-    /* 0x000 */ CombatSprite sprites[10];
+    /* 0x000 */ BattleSprite sprites[10];
     /* 0x3C0 */ s16          unk_3C0; // player bar width in pixels (0..0xA2)
     /* 0x3C2 */ s16          unk_3C2; // partner bar width, mirrored (negative)
     /* 0x3C4 */ s16          unk_3C4;

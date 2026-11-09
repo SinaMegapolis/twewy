@@ -2,8 +2,8 @@
 #define COMBAT_NOISE_PRIVATE_BTLENM010_H
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatEnemyActor.h"
-#include "Combat/Core/CombatSprite.h"
 
 typedef struct BtlEnm010RG {
     /* 0x000 */ Ov003EnemyActor base;
@@ -66,7 +66,7 @@ typedef struct BtlEnm010UG {
 
 /// One of `Tsk_BtlEnm010_Tatt`'s four 0x88-byte arm records.
 typedef struct BtlEnm010TattRec {
-    /* 0x00 */ CombatSprite sprite;
+    /* 0x00 */ BattleSprite sprite;
     /* 0x60 */ s16          unk_60; // frame counter
     /* 0x62 */ s16          unk_62; // frame limit
     /* 0x64 */ s16          unk_64; // state
@@ -103,8 +103,8 @@ typedef struct BtlEnm010Tatt {
 
 void func_ov011_021256c0(u16 arg0);
 void func_ov011_02125714(void);
-void func_ov011_02125750(s32 arg0, CombatSprite* arg1, s32 arg2);
-void func_ov011_021258b4(s32 arg0, CombatSprite* arg1, s32 arg2);
+void func_ov011_02125750(s32 arg0, BattleSprite* arg1, s32 arg2);
+void func_ov011_021258b4(s32 arg0, BattleSprite* arg1, s32 arg2);
 s32  func_ov011_02125b98(Ov003EnemyActor* owner, s32 arg1);
 s32  func_ov011_02127c84(Ov003EnemyActor* owner);
 s32  func_ov011_02127f6c(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u16 arg5, u16 arg6, s32 arg7,

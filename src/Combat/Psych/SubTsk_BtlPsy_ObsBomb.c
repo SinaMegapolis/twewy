@@ -58,25 +58,24 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         CombatSe_PlayAtMainX(0x43, self->args.unit->actor.position.x);
-                        CombatSprite_Restart(&self->sprite);
+                        BtlSprite_Restart(&self->sprite);
                     }
                     break;
             }
-            CombatSprite_Update(&self->sprite);
+            BtlSprite_Update(&self->sprite);
             return 1;
         }
         case 2: {
             Ov003ObsBomb*    self = task->data;
             Ov003EnemyActor* unit = self->args.unit;
-            CombatSprite_SetPosition(&self->sprite, unit->actor.screenX,
-                                     (s16)(unit->actor.screenY - unit->actor.centerHeight));
-            func_ov003_02082730(&self->sprite, unit->actor.position.y + 0x1F4000);
-            CombatSprite_Render(&self->sprite);
+            BtlSprite_SetPosition(&self->sprite, unit->actor.screenX, (s16)(unit->actor.screenY - unit->actor.centerHeight));
+            BtlSprite_SetSortKey(&self->sprite, unit->actor.position.y + 0x1F4000);
+            BtlSprite_Render(&self->sprite);
             return 1;
         }
         case 3:
             self = task->data;
-            CombatSprite_Release(&self->sprite);
+            BtlSprite_Release(&self->sprite);
             return 1;
     }
 }
