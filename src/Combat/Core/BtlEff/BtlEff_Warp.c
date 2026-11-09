@@ -55,11 +55,11 @@ static void func_ov003_0209f52c(CombatEffect* sprite) {
 
     if (!(sprite->active == 0)) {
         if (sprite->sprite.sprite.bits_0_1 == 1) {
-            posX = CombatStage_ToScreenX(1, sprite->position.x);
-            posY = CombatStage_ToScreenY(1, sprite->position.y, sprite->position.z);
+            posX = BtlStage_ToScreenX(1, sprite->position.x);
+            posY = BtlStage_ToScreenY(1, sprite->position.y, sprite->position.z);
         } else {
-            posX = CombatStage_ToScreenX(0, sprite->position.x);
-            posY = CombatStage_ToScreenY(0, sprite->position.y, sprite->position.z);
+            posX = BtlStage_ToScreenX(0, sprite->position.x);
+            posY = BtlStage_ToScreenY(0, sprite->position.y, sprite->position.z);
         }
         BtlSprite_SetPosition(&sprite->sprite, posX, posY);
         BtlSprite_SetSortKey(&sprite->sprite, 0x7FFFFFFF - (sprite->position.y + 0x8000));

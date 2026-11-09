@@ -177,14 +177,14 @@ void func_ov004_020e951c(BtlArm_Doll* doll) {
     s32 var_r6 = 0;
     s16 var_r7 = 0;
 
-    var_r4 = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    var_r4 = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (var_r4 != NULL) {
         if (BtlMgr_IsTargetOnSide((void*)var_r4, doll->unk_15C) != 0) {
             var_r5 += var_r4->actor.position.y;
             var_r6 += var_r4->actor.position.z - (var_r4->actor.centerHeight << 0xC);
             var_r7 += 1;
         }
-        var_r4 = CombatList_GetNext((void*)&var_r4->unk_178);
+        var_r4 = BtlList_GetNext((void*)&var_r4->unk_178);
     }
 
     doll->unk_160 = g_CombatGlobal->partner->position.x;
@@ -252,7 +252,7 @@ void func_ov004_020e9754(BtlArm_Doll* doll) {
     func_ov004_020e9304(doll, 0, 1);
 
     BattleActor* temp_r3 = g_CombatGlobal->partner;
-    CombatStage_SetCameraTarget(1, temp_r3->position.x, temp_r3->position.y, temp_r3->position.z);
+    BtlStage_SetCameraTarget(1, temp_r3->position.x, temp_r3->position.y, temp_r3->position.z);
 }
 
 void func_ov004_020e97f8(BtlArm_Doll* doll) {
@@ -317,7 +317,7 @@ void func_ov004_020e97f8(BtlArm_Doll* doll) {
     }
 
     BattleActor* temp_r3 = g_CombatGlobal->partner;
-    CombatStage_SetCameraTarget(1, temp_r3->position.x, temp_r3->position.y, temp_r3->position.z);
+    BtlStage_SetCameraTarget(1, temp_r3->position.x, temp_r3->position.y, temp_r3->position.z);
 }
 
 void func_ov004_020e9a34(BtlArm_Doll* doll) {
@@ -373,8 +373,8 @@ void func_ov004_020e9b54(BtlArm_Doll* doll) {
                                           &doll->unk_148->actor, doll->actor.position.x);
             if (var_r4 == 1) {
                 CombatSe_PlayAtSubX(0x157, doll->unk_148->actor.position.x);
-                CombatStage_SetCameraTarget(1, doll->unk_148->actor.position.x, doll->unk_148->actor.position.y,
-                                            doll->unk_148->actor.position.z);
+                BtlStage_SetCameraTarget(1, doll->unk_148->actor.position.x, doll->unk_148->actor.position.y,
+                                         doll->unk_148->actor.position.z);
             }
         }
         if (var_r4 != 1) {
@@ -434,7 +434,7 @@ void func_ov004_020e9ce0(BtlArm_Doll* doll) {
             }
             break;
     }
-    CombatStage_SetCameraTarget(1, doll->actor.position.x, doll->actor.position.y, doll->actor.position.z);
+    BtlStage_SetCameraTarget(1, doll->actor.position.x, doll->actor.position.y, doll->actor.position.z);
 }
 
 void func_ov004_020e9eac(BtlArm_Doll* doll) {
@@ -487,7 +487,7 @@ void func_ov004_020e9eac(BtlArm_Doll* doll) {
                 doll->unk_17E = 0;
             }
             doll->actor.zVelocity = 0;
-            CombatStage_SetCameraTarget(1, doll->actor.position.x, doll->actor.position.y, doll->actor.position.z);
+            BtlStage_SetCameraTarget(1, doll->actor.position.x, doll->actor.position.y, doll->actor.position.z);
         } break;
 
         case 2: {
@@ -510,7 +510,7 @@ void func_ov004_020e9eac(BtlArm_Doll* doll) {
                 func_ov004_020e927c(doll, func_ov004_020ea1ac);
             }
             BattleActor* temp_r3 = g_CombatGlobal->partner;
-            CombatStage_SetCameraTarget(1, temp_r3->position.x, temp_r3->position.y, temp_r3->position.z);
+            BtlStage_SetCameraTarget(1, temp_r3->position.x, temp_r3->position.y, temp_r3->position.z);
         } break;
     }
 }

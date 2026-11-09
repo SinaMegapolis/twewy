@@ -1,14 +1,14 @@
 #ifndef COMBAT_CORE_COMBATAURA_H
 #define COMBAT_CORE_COMBATAURA_H
 
+#include "Battle/Core/BtlList.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatList.h"
 #include "SpriteMgr.h"
 
 typedef struct BtlAuraFlameSprite {
     /* 0x00 */ BattleSprite   sprite;
-    /* 0x60 */ CombatListNode node;
+    /* 0x60 */ BattleListNode node;
 } BtlAuraFlameSprite; // Size: 0x6C
 
 typedef struct BtlEnmAuraState {

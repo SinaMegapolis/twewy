@@ -68,8 +68,8 @@ static s32 BtlEff_Sword_Render(TaskPool* pool, Task* task, void* args) {
     } else {
         BtlSprite_SetFlip(sprite, 1);
     }
-    posX = CombatStage_ToScreenX(0, actor->position.x);
-    posY = CombatStage_ToScreenY(0, actor->position.y, actor->position.z);
+    posX = BtlStage_ToScreenX(0, actor->position.x);
+    posY = BtlStage_ToScreenY(0, actor->position.y, actor->position.z);
     BtlSprite_SetPosition(sprite, posX, posY);
     BtlSprite_SetSortKey(sprite, 0x7FFFFFFF - actor->position.y);
     BtlSprite_Render(sprite);

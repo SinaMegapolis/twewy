@@ -53,9 +53,9 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
             self->effect          = arg->effect;
             self->mode            = arg->mode;
             self->kind            = arg->kind;
-            self->position.x      = CombatStage_ToWorldX(0, arg->x);
+            self->position.x      = BtlStage_ToWorldX(0, arg->x);
             self->position.z      = 0x1000;
-            self->position.y      = CombatStage_ToWorldY(0, arg->y, self->position.z);
+            self->position.y      = BtlStage_ToWorldY(0, arg->y, self->position.z);
             self->angle           = arg->angle;
             self->speed           = arg->speed;
             self->scale           = arg->scale;
@@ -124,8 +124,8 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             self  = task->data;
-            s32 x = CombatStage_ToScreenX(0, self->position.x);
-            s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+            s32 x = BtlStage_ToScreenX(0, self->position.x);
+            s32 y = BtlStage_ToScreenY(0, self->position.y, self->position.z);
             BtlSprite_SetPosition(&self->sprite, x, y);
             s32 scale                         = self->scale;
             self->affine.rotation             = 0;
@@ -172,8 +172,8 @@ static void func_ov003_020ae980(Ov003Element* self) {
             s32 dy = FX_Mul(FX_Mul(self->speed, FX_SinIdx(angle)), 0x4000);
             s32 dx = FX_Mul(FX_Mul(self->speed, FX_CosIdx(angle)), 0x4000);
             s32 y  = self->position.y;
-            s32 x  = CombatStage_ToScreenX(0, self->position.x + dx);
-            y      = CombatStage_ToScreenY(0, y + dy, self->position.z);
+            s32 x  = BtlStage_ToScreenX(0, self->position.x + dx);
+            y      = BtlStage_ToScreenY(0, y + dy, self->position.z);
             if (x >= 0 && x <= 256 && y >= 0 && y <= 192)
                 break;
         }
@@ -204,8 +204,8 @@ static void func_ov003_020aeb0c(Ov003Element* self) {
             s32 dy = FX_Mul(FX_Mul(self->speed, FX_SinIdx(angle)), frames * 0x1000);
             s32 dx = FX_Mul(FX_Mul(self->speed, FX_CosIdx(angle)), frames * 0x1000);
             s32 y  = self->position.y;
-            s32 x  = CombatStage_ToScreenX(0, self->position.x + dx);
-            y      = CombatStage_ToScreenY(0, y + dy, self->position.z);
+            s32 x  = BtlStage_ToScreenX(0, self->position.x + dx);
+            y      = BtlStage_ToScreenY(0, y + dy, self->position.z);
             if (x >= 0 && x <= 256 && y >= 0 && y <= 192)
                 break;
         }
@@ -268,8 +268,8 @@ static void func_ov003_020aedf0(Ov003Element* self) {
 }
 
 static void func_ov003_020aee9c(Ov003Element* self) {
-    s32 low  = CombatStage_ToWorldX(0, 0) + self->radius;
-    s32 high = CombatStage_ToWorldX(0, 256) - self->radius;
+    s32 low  = BtlStage_ToWorldX(0, 0) + self->radius;
+    s32 high = BtlStage_ToWorldX(0, 256) - self->radius;
     if (self->position.x < low) {
         self->position.x      = low;
         self->velocity.x      = -self->velocity.x;
@@ -281,8 +281,8 @@ static void func_ov003_020aee9c(Ov003Element* self) {
         self->deflectionSpeed = 0;
         self->remainingUses--;
     }
-    low  = CombatStage_ToWorldY(0, 0, self->position.z) + self->radius;
-    high = CombatStage_ToWorldY(0, 192, self->position.z) - self->radius;
+    low  = BtlStage_ToWorldY(0, 0, self->position.z) + self->radius;
+    high = BtlStage_ToWorldY(0, 192, self->position.z) - self->radius;
     if (self->position.y < low) {
         self->position.y      = low;
         self->velocity.y      = -self->velocity.y;
@@ -302,10 +302,10 @@ static void func_ov003_020aefc0(Ov003Element* self) {
     s32 hit      = 0;
     if (attackId == 0x16F && func_ov003_020a51c0())
         attackId = 0x170;
-    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
-        s32 x       = CombatStage_ToScreenX(0, self->position.x) * 4096;
-        s32 y       = CombatStage_ToScreenY(0, self->position.y, self->position.z) * 4096;
+        s32 x       = BtlStage_ToScreenX(0, self->position.x) * 4096;
+        s32 y       = BtlStage_ToScreenY(0, self->position.y, self->position.z) * 4096;
         s32 targetX = unit->actor.screenX * 4096;
         s32 targetY = (unit->actor.screenY - unit->actor.centerHeight) * 4096;
         if (func_ov003_020a62ec(x, y, targetX, targetY) <= self->radius + (unit->actor.radius / 2) * 4096 &&
@@ -329,7 +329,7 @@ static void func_ov003_020aefc0(Ov003Element* self) {
             self->remainingUses -= 3;
             break;
         }
-        unit = CombatList_GetNext(&unit->node);
+        unit = BtlList_GetNext(&unit->node);
     }
     if (hit == 1) {
         s32 sound = data_ov003_020dc7b8[self->kind].hitSound;
@@ -342,9 +342,9 @@ static void func_ov003_020aefc0(Ov003Element* self) {
 static BattleActor* func_ov003_020af1e0(Ov003Element* self) {
     BattleActor*     best    = NULL;
     s32              nearest = 0x7FFFFFFF;
-    s32              x       = CombatStage_ToScreenX(0, self->position.x);
-    s32              y       = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-    Ov003EnemyActor* unit    = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    s32              x       = BtlStage_ToScreenX(0, self->position.x);
+    s32              y       = BtlStage_ToScreenY(0, self->position.y, self->position.z);
+    Ov003EnemyActor* unit    = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
         if (!(unit->actor.flags & ACTOR_FLAG_DEFEATED)) {
             s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.centerHeight);
@@ -353,7 +353,7 @@ static BattleActor* func_ov003_020af1e0(Ov003Element* self) {
                 nearest = distance;
             }
         }
-        unit = CombatList_GetNext(&unit->node);
+        unit = BtlList_GetNext(&unit->node);
     }
     return best;
 }

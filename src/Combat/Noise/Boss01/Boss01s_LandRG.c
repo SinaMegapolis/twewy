@@ -49,7 +49,7 @@ s32 Boss01s_LandRG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)rg), &spA, &sp8, rg->unk_60, rg->unk_64, rg->unk_68);
+    BtlStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)rg), &spA, &sp8, rg->unk_60, rg->unk_64, rg->unk_68);
     BtlSprite_SetPosition(&rg->sprite, spA, sp8);
     BtlSprite_SetSortKey(&rg->sprite, 0x7FFFFFFF);
     BtlSprite_Render(&rg->sprite);

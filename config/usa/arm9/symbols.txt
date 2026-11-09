@@ -4591,7 +4591,7 @@ data_02071cac kind:bss addr:0x02071cac
 gSaveState kind:bss addr:0x02071cf0
 gSaveData kind:bss addr:0x02071d10
 gCombatCutinSave kind:bss addr:0x02075130
-gCombatSettings kind:bss addr:0x02075164
+gBattleDebugSettings kind:bss addr:0x02075164
 
 /////////////////////////////////////////////////////////////
 // src/EasyFade.c

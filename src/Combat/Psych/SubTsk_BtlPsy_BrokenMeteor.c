@@ -55,8 +55,8 @@ static s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage
             return 1;
         case 2: {
             self  = task->data;
-            s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-            s32 x = CombatStage_ToScreenX(0, self->position.x);
+            s32 y = BtlStage_ToScreenY(0, self->position.y, self->position.z);
+            s32 x = BtlStage_ToScreenX(0, self->position.x);
             BtlSprite_SetPosition(&self->sprite, x, y);
             BtlSprite_SetSortKey(&self->sprite, self->position.y + 0x1F4000);
             BtlSprite_Render(&self->sprite);

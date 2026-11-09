@@ -735,7 +735,7 @@ static s32 func_ov003_020bbec0(BtlPrizeItem* self) {
         return 1;
     }
     s16 x, y;
-    CombatStage_WorldToScreen(engine, &x, &y, self->position.x, FX_Divide(self->position.y, 0x3000), self->position.z);
+    BtlStage_WorldToScreen(engine, &x, &y, self->position.x, FX_Divide(self->position.y, 0x3000), self->position.z);
     BtlSprite_SetPosition(&self->sprite, x, y);
     BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - FX_Divide(self->position.y, 0x3000));
     BtlSprite_Render(&self->sprite);
@@ -749,9 +749,9 @@ static s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
         func_ov003_0209c984(self->sprite.sprite.bits_0_1, 1, self->position.x, FX_Divide(self->position.y, 0x3000),
                             self->position.z);
         if (self->sprite.sprite.bits_0_1 == 0) {
-            pan = CombatStage_ToScreenX(0, self->position.x);
+            pan = BtlStage_ToScreenX(0, self->position.x);
         } else {
-            pan = CombatStage_ToScreenX(1, self->position.x);
+            pan = BtlStage_ToScreenX(1, self->position.x);
         }
         CombatSe_PlayPanned(SEIDX_SE_COIN_GET, pan);
     }

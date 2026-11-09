@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
-#include "Combat/Core/CombatTouch.h"
 #include <nitro/mi/cpumem.h>
 
 #include "SpriteMgr.h"
@@ -55,7 +55,7 @@ static void func_ov003_02094db4(BtlPsyInvisible* self) {
 }
 static void func_ov003_02094e40(BtlPsyInvisible* self) {
     func_ov003_020a5a94(self->effect);
-    if (CombatTouch_IsGesture(6) && func_ov003_020a5aa4(self->effect) && !func_ov003_020a63a8(self->effect))
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) && func_ov003_020a5aa4(self->effect) && !func_ov003_020a63a8(self->effect))
         return;
     g_CombatGlobal->unk3D8C8 = 0;
     self->visible            = 1;
@@ -94,8 +94,8 @@ static s32 func_ov003_02094fe4(TaskPool* pool, Task* task, void* args) {
     BtlPsyInvisible* self = task->data;
     s16              x, y;
     if (self->visible) {
-        x = CombatStage_ToScreenX(0, self->x);
-        y = CombatStage_ToScreenY(0, self->y, 0);
+        x = BtlStage_ToScreenX(0, self->x);
+        y = BtlStage_ToScreenY(0, self->y, 0);
         BtlSprite_SetPosition(&self->sprite, x, y);
         BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFE - self->y);
         BtlSprite_Render(&self->sprite);

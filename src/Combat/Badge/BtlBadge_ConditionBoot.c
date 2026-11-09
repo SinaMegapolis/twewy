@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
 
 #include <nitro/fx.h>
@@ -108,7 +108,7 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
             s32                    posX;
             s32                    posY;
 
-            if (CombatDebug_GetSetting(0) == 1) {
+            if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
                 return 1;
             }
             if ((g_CombatGlobal->unk3D878 & 6) != 0 || g_CombatGlobal->unk3D884 != 0) {

@@ -2,6 +2,18 @@
 #define TWEWY_COMBAT_BADGE_BTLBADGEMGR_H
 
 #include "Combat/Core/Combat.h"
+#include "Player/Inventory/Pins.h"
+
+/// The 0x10-byte action description `BtlBadgeMgr_SpawnBadges` hands to the psych entry points.
+typedef struct Ov003PinAction {
+    /* 0x00 */ u16               pinId;
+    /* 0x02 */ s16               level;
+    /* 0x04 */ u8                unk_04;
+    /* 0x05 */ u8                unk_05[3];
+    /* 0x08 */ const RawPinData* pin;
+    /* 0x0C */ u8                slot;
+    /* 0x0D */ u8                unk_0D[3];
+} Ov003PinAction; // Size: 0x10
 
 /// Drops every badge of the battle.
 void BtlBadgeMgr_Clear(void);

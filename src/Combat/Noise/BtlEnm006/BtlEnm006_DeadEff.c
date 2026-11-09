@@ -102,7 +102,7 @@ static s32 func_ov010_02125878(Enm006DeadEff* data) {
     s16 x;
     s16 y;
     s32 flag = func_ov003_020c37f8(&data->sprite) != 0;
-    CombatStage_WorldToScreen(flag, &x, &y, data->position.x, data->position.y, data->position.z);
+    BtlStage_WorldToScreen(flag, &x, &y, data->position.x, data->position.y, data->position.z);
     BtlSprite_SetPosition(&data->sprite, x, y);
     BtlSprite_SetSortKey(&data->sprite, 0x80000000 - data->position.y);
     BtlSprite_Render(&data->sprite);

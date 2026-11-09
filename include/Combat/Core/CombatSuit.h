@@ -17,12 +17,12 @@ typedef struct CardEntry {
     /* 0x78 */ s32            sortKey;
     /* 0x7C */ s16            timer;
     /* 0x7E */ s16            unk_7E;
-    /* 0x80 */ CombatListNode node;
+    /* 0x80 */ BattleListNode node;
 } CardEntry; // Size: 0x8C
 
 typedef struct CardMgr {
-    /* 0x000 */ CombatList active;
-    /* 0x008 */ CombatList free;
+    /* 0x000 */ BattleList active;
+    /* 0x008 */ BattleList free;
     /* 0x010 */ u16        flags;
     /* 0x012 */ s16        order;
     /* 0x014 */ s8         count;

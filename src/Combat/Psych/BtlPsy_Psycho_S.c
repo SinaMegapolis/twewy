@@ -6,7 +6,7 @@ static const TaskHandle data_ov003_020dca84;
 static Ov003EnemyActor* func_ov003_020b5f04(s32 index);
 
 s32 func_ov003_020b5d54(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(4))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH))
         return 0;
     Ov003EnemyActor* unit = func_ov003_020b5f04(effect->index);
     if (unit == NULL)
@@ -26,8 +26,8 @@ static s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                = task->data;
-            BtlTouchWork* touch = func_ov003_020a62a0();
+            self                   = task->data;
+            BattleTouchWork* touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->args.effect = arg->effect;
             self->args.unit   = arg->unit;
@@ -58,11 +58,11 @@ static s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage
 
 static Ov003EnemyActor* func_ov003_020b5f04(s32 index) {
     Ov003EnemyActor* secondary = NULL;
-    Ov003EnemyActor* primary   = (Ov003EnemyActor*)CombatTouch_GetSlashed(ACTOR_KIND_OBJECT);
+    Ov003EnemyActor* primary   = (Ov003EnemyActor*)BtlTouch_GetSlashed(ACTOR_KIND_OBJECT);
     if (primary != NULL && !func_ov003_020a60ec(primary, 5))
         primary = NULL;
     if (index == 2) {
-        secondary = (Ov003EnemyActor*)CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
+        secondary = (Ov003EnemyActor*)BtlTouch_GetSlashed(ACTOR_KIND_ENEMY);
         if (secondary != NULL && !func_ov003_020a60ec(secondary, 5))
             secondary = NULL;
     }

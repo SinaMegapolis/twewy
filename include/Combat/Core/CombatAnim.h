@@ -2,8 +2,8 @@
 #define TWEWY_COMBAT_CORE_COMBATANIM_H
 
 #include "Combat/Core/Combat.h"
+#include "Combat/Core/CombatBgAnimSlot.h"
 #include "Combat/Core/CombatEnemyActor.h"
-#include "Combat/Core/CombatSpriteSlot.h"
 #include "SpriteMgr.h"
 
 /// Playback cursor over a 4-byte-per-entry animation script (`func_ov003_020d38ac`).
@@ -58,14 +58,14 @@ void CombatAnim_LayerSetFrames(Ov003AnimLayer*, const Ov003AnimFrame*);
 void CombatAnim_LayerChain(Ov003AnimLayer*, Ov003AnimLayer*);
 void CombatAnim_LayerUpdate(Ov003AnimLayer*);
 void CombatAnim_LayerRelease(Ov003AnimLayer*);
-PaletteResource* CombatAnim_SlotReloadPalette(Ov003SpriteSlot* slot);
-void CombatAnim_SlotInit(Ov003SpriteSlot* slot, BinIdentifier* iden, const Ov003SpriteAnim* anims, void* charDest, u32 arg4,
-                         u32 arg5);
-void CombatAnim_SlotSetPalette(Ov003SpriteSlot* slot, PaletteResource* palette, BinIdentifier* iden, u32 engine, u8 palStart,
+PaletteResource* CombatAnim_SlotReloadPalette(Ov003BgAnimSlot* slot);
+void CombatAnim_SlotInit(Ov003BgAnimSlot* slot, BinIdentifier* iden, const Ov003BgAnimFrame* anims, void* charDest, u32 loop,
+                         u32 disabled);
+void CombatAnim_SlotSetPalette(Ov003BgAnimSlot* slot, PaletteResource* palette, BinIdentifier* iden, u32 engine, u8 palStart,
                                u8 palCount);
-void CombatAnim_SlotSetAnims(Ov003SpriteSlot* slot, const Ov003SpriteAnim* anims);
-void CombatAnim_SlotUpdate(Ov003SpriteSlot* slot);
-void CombatAnim_SlotRelease(Ov003SpriteSlot* slot);
+void CombatAnim_SlotSetAnims(Ov003BgAnimSlot* slot, const Ov003BgAnimFrame* anims);
+void CombatAnim_SlotUpdate(Ov003BgAnimSlot* slot);
+void CombatAnim_SlotRelease(Ov003BgAnimSlot* slot);
 void CombatAnim_ShakeStart(Ov003Shake* shake, const Ov003ShakeStep* steps);
 void CombatAnim_ShakeUpdate(Ov003Shake* shake);
 void CombatAnim_ShakeApply(Ov003Shake* shake, BattleActor* actor);

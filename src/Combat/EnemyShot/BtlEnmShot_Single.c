@@ -44,10 +44,10 @@ static s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleA
         s16 nextX, nextY, x, y;
         s32 projectionEngine = !!self->source.owner->base.sprite.sprite.bits_0_1;
         self->flags |= 2;
-        CombatStage_WorldToScreen(projectionEngine, &nextX, &nextY, self->source.position.x + args->velocity.x,
-                                  self->source.position.y + args->velocity.y, self->source.position.z + args->velocity.z);
-        CombatStage_WorldToScreen(projectionEngine, &x, &y, self->source.position.x, self->source.position.y,
-                                  self->source.position.z);
+        BtlStage_WorldToScreen(projectionEngine, &nextX, &nextY, self->source.position.x + args->velocity.x,
+                               self->source.position.y + args->velocity.y, self->source.position.z + args->velocity.z);
+        BtlStage_WorldToScreen(projectionEngine, &x, &y, self->source.position.x, self->source.position.y,
+                               self->source.position.z);
         f32 dx = I2F_RND(nextX - x);
         f32 dy = I2F_RND(nextY - y);
         self->angle += FX_Atan2Idx((s32)dy, (s32)dx);
@@ -68,8 +68,8 @@ static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
     self->source.position.z += self->velocity.z;
     if (self->flags & 1) {
         s16 x, y;
-        CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
-                                  self->source.position.y, self->source.position.z);
+        BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
+                               self->source.position.y, self->source.position.z);
         self->source.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.attackId),
                                                           &self->source.owner->base.actor.baseArgs, x, y);
     } else {
@@ -83,8 +83,8 @@ static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
 
 static s32 func_ov003_020d22e4(Ov003EnemyShotSingle* self) {
     s16 x, y;
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
-                              self->source.position.y, self->source.position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
+                           self->source.position.y, self->source.position.z);
     if (self->flags & 2)
         BtlSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 0);
     BtlSprite_SetPosition(&self->sprite, x, y);

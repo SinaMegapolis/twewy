@@ -5,7 +5,11 @@
 /// Grouped by the unit that owns them.
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlBgScript.h"
+#include "Battle/Core/BtlDebug.h"
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlStage.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Badge/BtlBadgeActor.h"
 #include "Combat/Badge/BtlBadgeMgr.h"
 #include "Combat/Core/BtlMgr.h"
@@ -13,11 +17,10 @@
 #include "Combat/Core/CombatAbility.h"
 #include "Combat/Core/CombatAnim.h"
 #include "Combat/Core/CombatAttack.h"
-#include "Combat/Core/CombatBgRes.h"
+#include "Combat/Core/CombatBgAnimSlot.h"
 #include "Combat/Core/CombatBossExp.h"
 #include "Combat/Core/CombatCameraShake.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatDebug.h"
 #include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatEnemy.h"
 #include "Combat/Core/CombatEnemyAi.h"
@@ -31,10 +34,7 @@
 #include "Combat/Core/CombatPsych.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatSe.h"
-#include "Combat/Core/CombatSpriteSlot.h"
-#include "Combat/Core/CombatStage.h"
 #include "Combat/Core/CombatSys.h"
-#include "Combat/Core/CombatTouch.h"
 #include "Field/FieldRegion.h"
 
 // BtlMic.c

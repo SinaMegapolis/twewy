@@ -1,27 +1,15 @@
-#include "Combat/Core/CombatBgRes.h"
-#include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatApi.h"
+#include "Battle/Core/BtlBgScript.h"
+#include "Combat/Core/CombatAnim.h"
+#include "Combat/Core/CombatBgAnimSlot.h"
 #include "Combat/Core/CombatBgTiles.h"
-#include "Combat/Core/CombatSpriteSlot.h"
 #include "Engine/Core/DMA.h"
 #include "Engine/File/DatMgr.h"
 #include "Engine/Resources/BgResMgr.h"
 #include "Engine/Resources/PaletteMgr.h"
-#include "SpriteMgr.h"
 
 #include <nitro/g2.h>
 
-/// A longer command used by `CombatBgRes_CmdLoadSlot`; the extra operands select the
-/// sprite slot and the palette window.
-typedef struct Ov003ResSlotCmd {
-    /* 0x00 */ s32 (*run)(void* state);
-    /* 0x04 */ const void* anims;   // table of 6-byte animation records
-    /* 0x08 */ u32         bg;      // { u16 bgIndex; u16 unk }
-    /* 0x0C */ u32         slot;    // { u16 slotIndex; u16 charTile }
-    /* 0x10 */ u32         palette; // { u8 count; u8 unk; u8 start; u8 unk }
-} Ov003ResSlotCmd;                  // Size: 0x14
-
-void CombatBgRes_Init(Ov003BgResState* state, s32 engine, BinIdentifier* iden) {
+void BtlBgScript_Init(BattleBgScriptState* state, s32 engine, BinIdentifier* iden) {
     s32 i;
 
     state->engine       = engine;
@@ -39,15 +27,15 @@ void CombatBgRes_Init(Ov003BgResState* state, s32 engine, BinIdentifier* iden) {
     }
 }
 
-void CombatBgRes_RunScript(Ov003BgResState* state, const Ov003ResCmd* script, void* arg) {
-    state->cursor    = script;
-    state->scriptArg = arg;
-    state->data      = NULL;
-    while (state->cursor->run(state)) {
+void BtlBgScript_Run(BattleBgScriptState* state, const BattleBgScriptWord* script, void* arg) {
+    state->cursor.word = script;
+    state->scriptArg   = arg;
+    state->data        = NULL;
+    while (state->cursor.cmd->run(state)) {
     }
 }
 
-void CombatBgRes_Update(Ov003BgResState* state) {
+void BtlBgScript_Update(BattleBgScriptState* state) {
     s32 i;
 
     for (i = 0; i < 2; i++) {
@@ -57,7 +45,7 @@ void CombatBgRes_Update(Ov003BgResState* state) {
     }
 }
 
-void CombatBgRes_Release(Ov003BgResState* state) {
+void BtlBgScript_Release(BattleBgScriptState* state) {
     s32 i;
 
     if (state->data != NULL) {
@@ -76,18 +64,17 @@ void CombatBgRes_Release(Ov003BgResState* state) {
     }
 }
 
-s32 CombatBgRes_CmdEnd(void) {
+s32 BtlBgScript_CmdEnd(BattleBgScriptState* state) {
     return 0;
 }
 
-/// Script command: load the pack that holds one palette, then copy it into the next palette slot.
-s32 CombatBgRes_CmdLoadPalette(Ov003BgResState* state) {
-    const Ov003ResCmd* cmd       = state->cursor;
-    u16                packIndex = (cmd->operands0 & 0xFFFF0000) >> 16;
-    u16                srcIndex  = (u16)cmd->operands0;
-    u16                palStart  = (cmd->operands1 & 0xFFFF0000) >> 16;
-    u16                palCount  = (u16)cmd->operands1;
-    void*              source;
+s32 BtlBgScript_CmdLoadPalette(BattleBgScriptState* state) {
+    const BattleBgScriptCmd* cmd       = state->cursor.cmd;
+    u16                      packIndex = (cmd->operands0 & 0xFFFF0000) >> 16;
+    u16                      srcIndex  = (u16)cmd->operands0;
+    u16                      palStart  = (cmd->operands1 & 0xFFFF0000) >> 16;
+    u16                      palCount  = (u16)cmd->operands1;
+    void*                    source;
 
     if (state->data != NULL) {
         DatMgr_ReleaseData(state->data);
@@ -106,20 +93,19 @@ s32 CombatBgRes_CmdLoadPalette(Ov003BgResState* state) {
         }
         state->paletteCount++;
     }
-    state->cursor = &state->cursor[1];
+    state->cursor.cmd++;
     return 1;
 }
 
-/// Script command: copy one character (tile) block of the current pack into BG VRAM.
-s32 CombatBgRes_CmdLoadChar(Ov003BgResState* state) {
-    const Ov003ResCmd* cmd       = state->cursor;
-    u16                bgIndex   = (u16)cmd->operands0;
-    u16                packIndex = (cmd->operands0 & 0xFFFF0000) >> 16;
-    u16                srcIndex  = (u16)cmd->operands1;
-    u16                charTile  = (cmd->operands1 & 0xFFFF0000) >> 16;
-    s32                charDest;
-    s32                size;
-    void*              source;
+s32 BtlBgScript_CmdLoadChar(BattleBgScriptState* state) {
+    const BattleBgScriptCmd* cmd       = state->cursor.cmd;
+    u16                      bgIndex   = (u16)cmd->operands0;
+    u16                      packIndex = (cmd->operands0 & 0xFFFF0000) >> 16;
+    u16                      srcIndex  = (u16)cmd->operands1;
+    u16                      charTile  = (cmd->operands1 & 0xFFFF0000) >> 16;
+    void*                    charDest;
+    s32                      size;
+    void*                    source;
 
     if (state->data != NULL) {
         DatMgr_ReleaseData(state->data);
@@ -143,24 +129,22 @@ s32 CombatBgRes_CmdLoadChar(Ov003BgResState* state) {
     if ((((const CombatBgTiles*)source)->format & 0xF0) == 0) {
         size -= 4;
     }
-    func_02001b44(7, charDest, ((const CombatBgTiles*)source)->pixels, size);
-    state->cursor = &state->cursor[1];
+    func_02001b44(7, (s32)charDest, ((const CombatBgTiles*)source)->pixels, size);
+    state->cursor.cmd++;
     return 1;
 }
 
-/// Script command: set up one of the two sprite slots and queue its palette.
-u32 CombatBgRes_CmdLoadSlot(Ov003BgResState* state) {
-    const Ov003ResSlotCmd* cmd       = (const Ov003ResSlotCmd*)state->cursor;
-    u32                    slotWord  = cmd->slot;
-    u16                    palWord   = cmd->palette;
-    u16                    bgIndex   = cmd->bg;
-    u16                    slotIndex = cmd->slot;
-    u16                    charTile  = (slotWord & 0xFFFF0000) >> 16;
-    const void*            anims     = cmd->anims;
-    u8                     palStart;
-    u8                     palCount = palWord;
-    s32                    charDest;
-    Ov003SpriteSlot*       slot;
+s32 BtlBgScript_CmdLoadSlot(BattleBgScriptState* state) {
+    const BattleBgScriptSlotCmd* cmd       = state->cursor.slotCmd;
+    u32                          slotWord  = cmd->slot;
+    u16                          palWord   = cmd->palette;
+    u16                          bgIndex   = cmd->bg;
+    u16                          slotIndex = cmd->slot;
+    u16                          charTile  = (slotWord & 0xFFFF0000) >> 16;
+    const Ov003BgAnimFrame*      anims     = cmd->anims;
+    u8                           palStart;
+    u8                           palCount = palWord;
+    void*                        charDest;
 
     palStart = (cmd->palette & 0xFFFF0000) >> 16;
     if (state->engine == 0) {
@@ -174,11 +158,12 @@ u32 CombatBgRes_CmdLoadSlot(Ov003BgResState* state) {
     } else {
         charDest = func_02036974() + (charTile << 6);
     }
-    slot = &state->slots[slotIndex];
-    CombatAnim_SlotInit(slot, state->iden, anims, (void*)charDest, 1, 0);
+
+    Ov003BgAnimSlot* slot = &state->slots[slotIndex];
+    CombatAnim_SlotInit(slot, state->iden, anims, charDest, 1, 0);
     if (palCount != 0) {
         CombatAnim_SlotSetPalette(slot, 0, state->iden, state->engine, palStart, palCount);
     }
-    state->cursor = (const Ov003ResCmd*)(&((const Ov003ResSlotCmd*)state->cursor)[1]);
+    state->cursor.slotCmd++;
     return 1;
 }

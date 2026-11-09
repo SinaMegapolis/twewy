@@ -116,22 +116,22 @@ static void func_ov003_020c1238(u16 character, u16 level) {
     args.powerPercent     = 0x64;
     args.effectPercent    = 0x64;
     args.comboFrames      = 0x5A;
-    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     if (unit) {
         u16 attack = subAttacks.entries[character][level];
         do {
             BattleActor* owner = g_CombatGlobal->partner;
             CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &owner->baseArgs, &unit->actor, owner->position.x);
-            unit = CombatList_GetNext(&unit->node);
+            unit = BtlList_GetNext(&unit->node);
         } while (unit);
     }
-    unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     if (unit) {
         u16 attack = mainAttacks.entries[character][level];
         do {
             BattleActor* owner = g_CombatGlobal->player;
             CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &args, &unit->actor, owner->position.x);
-            unit = CombatList_GetNext(&unit->node);
+            unit = BtlList_GetNext(&unit->node);
         } while (unit);
     }
     // Retail callers supply level 0..2; the tables use the same range.
@@ -329,8 +329,8 @@ static void func_ov003_020c1918(BtlActSp* self) {
             self->timer = 0;
             g_CombatGlobal->unk3D878 &= ~0x1000;
             g_CombatGlobal->unk3D878 &= ~0x2000;
-            CombatStage_StartFieldTasks(1);
-            CombatStage_StartSandstorm();
+            BtlStage_StartFieldTasks(1);
+            BtlStage_StartSandstorm();
             if (self->character == 3) {
                 return;
             }
@@ -339,10 +339,10 @@ static void func_ov003_020c1918(BtlActSp* self) {
         case 4:
             if (self->character == 3) {
                 if (!self->timer) {
-                    Ov003EnemyActor* unit  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+                    Ov003EnemyActor* unit  = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
                     BattleActor*     owner = g_CombatGlobal->partner;
                     CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0x12D), &unit->actor.baseArgs, owner->position.x);
-                    unit  = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+                    unit  = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
                     owner = g_CombatGlobal->player;
                     CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0x12E), &unit->actor.baseArgs, owner->position.x);
                 }

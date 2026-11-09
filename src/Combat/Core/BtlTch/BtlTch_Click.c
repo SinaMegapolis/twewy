@@ -16,8 +16,8 @@ static s32 BtlTch_Click_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
 const TaskHandle Tsk_BtlTch_Click = {"Tsk_BtlTch_Click", BtlTch_Click_RunTask, sizeof(BtlTchClick)};
 
 static s32 BtlTch_Click_Init(TaskPool* pool, Task* task, void* args) {
-    BtlTchClick*  effect = task->data;
-    BtlTouchWork* input  = &g_CombatGlobal->touchWork;
+    BtlTchClick*     effect = task->data;
+    BattleTouchWork* input  = &g_CombatGlobal->touchWork;
 
     MI_CpuSet(effect, 0, sizeof(*effect));
     effect->isActive = TRUE;

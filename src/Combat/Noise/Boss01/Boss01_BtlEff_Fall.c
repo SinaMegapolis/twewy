@@ -126,8 +126,8 @@ static s32 BtlEff_Fall_Render(TaskPool* pool, Task* task, void* args) {
     BtlEff_Fall* temp_r4 = task->data;
     s16          spA, sp8;
 
-    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)temp_r4), &spA, &sp8, temp_r4->unk_64->position.x,
-                              temp_r4->unk_64->position.y, temp_r4->unk_64->position.z);
+    BtlStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)temp_r4), &spA, &sp8, temp_r4->unk_64->position.x,
+                           temp_r4->unk_64->position.y, temp_r4->unk_64->position.z);
     BtlSprite_SetPosition((BattleSprite*)temp_r4, spA, sp8);
     BtlSprite_SetSortKey((BattleSprite*)temp_r4, 0x7FFFEFFF - temp_r4->unk_64->position.y);
     BtlSprite_Render((BattleSprite*)temp_r4);

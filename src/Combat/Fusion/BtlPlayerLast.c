@@ -19,8 +19,8 @@ static void func_ov007_020e7360(BtlPlayerLast* data, void (*callback)(BtlPlayerL
 
 static void func_ov007_020e7374(BtlPlayerLast* data, u16 arg) {
     func_ov021_020f11bc((s16)arg, &data->actor.position.x, &data->actor.position.y, &data->actor.position.z);
-    data->actor.screenX      = CombatStage_ToScreenX(1, data->actor.position.x);
-    data->actor.screenY      = CombatStage_ToScreenY(1, data->actor.position.y, data->actor.position.z);
+    data->actor.screenX      = BtlStage_ToScreenX(1, data->actor.position.x);
+    data->actor.screenY      = BtlStage_ToScreenY(1, data->actor.position.y, data->actor.position.z);
     g_CombatGlobal->unk3D8EC = 2;
     func_ov021_020f13b0();
 }
@@ -64,7 +64,7 @@ static s32 func_ov007_020e7478(TaskPool* pool, Task* task, void* args) {
     data->actor.height       = 0x30;
     data->actor.centerHeight = 0x18;
     data->actor.flags |= ACTOR_FLAG_INTANGIBLE;
-    CombatStage_SetCameraTarget(1, data->actor.position.x, data->actor.position.y, data->actor.position.z);
+    BtlStage_SetCameraTarget(1, data->actor.position.x, data->actor.position.y, data->actor.position.z);
     func_ov007_020e7360(data, func_ov007_020e73d8);
     return 1;
 }

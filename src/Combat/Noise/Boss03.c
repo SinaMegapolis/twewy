@@ -19,8 +19,8 @@
 #include <nitro/mi/cpumem.h>
 
 // void  BtlSprite_SetSortKey(void*, s32);                                                /* extern */
-// void  CombatStage_WorldToScreen(s32, s16*, s16*, s32, ...);                                 /* extern */
-// s32   CombatStage_ToScreenX(s32, s32);                                                  /* extern */
+// void  BtlStage_WorldToScreen(s32, s16*, s16*, s32, ...);                                 /* extern */
+// s32   BtlStage_ToScreenX(s32, s32);                                                  /* extern */
 // void   BtlCollision_SetDisabled(void**, s32);                                               /* extern */
 // void  CombatSe_Play(s32);                                                       /* extern */
 // s32   func_ov003_020c37f8(void**);                                                    /* extern */
@@ -54,7 +54,7 @@
 // void  func_ov003_020cb264(void*, void*);                                              /* extern */
 // s32   func_ov003_020cb348(void*, s32);                                                /* extern */
 // s32   func_ov003_020cb3c4(s32, s32);                                                  /* extern */
-// s32   CombatStage_ClampXY(void*, void*, s32, s32);                                    /* extern */
+// s32   BtlStage_ClampXY(void*, void*, s32, s32);                                    /* extern */
 // s32   func_ov003_020c3d28(s32, s32, s32*, s32*, s32*, s32*);                          /* extern */
 // void  func_ov003_020c495c(void*);                                                     /* extern */
 // void  func_ov003_020c4a08(void*);                                                     /* extern */
@@ -63,16 +63,16 @@
 // s32   func_ov003_020cb7a4(s32);                                                       /* extern */
 // void  func_ov003_020cbafc(void*, void*, void*, s32, s32, s32, s32, s32, s32, s32);    /* extern */
 // s32   func_ov003_020cc5d0(void**);                                                    /* extern */
-// void  CombatStage_SetCamera(s32, s32, s32, s32, s32, s32);                              /* extern */
-// void  CombatStage_SetCameraTarget(s32, s32, s32, s32);                                        /* extern */
-// s16   CombatStage_ToScreenY(s32, s32, s32);                                             /* extern */
+// void  BtlStage_SetCamera(s32, s32, s32, s32, s32, s32);                              /* extern */
+// void  BtlStage_SetCameraTarget(s32, s32, s32, s32);                                        /* extern */
+// s16   BtlStage_ToScreenY(s32, s32, s32);                                             /* extern */
 // void  BtlCollision_Add(void*, s32, s32, s32);                                      /* extern */
 // void  BtlCollision_Remove(s32);                                                       /* extern */
 // void  BtlCollision_SetPosition(void*, s32, s32, s32);                                      /* extern */
 // s32   BtlCollision_GetLayerList(s32);                                                       /* extern */
 // void  BtlCollision_CollideAll(s32, s32);                                                  /* extern */
-// void* CombatList_GetHead(s32);                                                       /* extern */
-// void* CombatList_GetNext(void*);                                                     /* extern */
+// void* BtlList_GetHead(s32);                                                       /* extern */
+// void* BtlList_GetNext(void*);                                                     /* extern */
 // s32   CombatSys_SpawnObsTask(u16, void*, s32, void*);                                    /* extern */
 // void  CombatHit_AttackUnit(s32, void*, void*, s32);                                    /* extern */
 // void  BtlMgr_AddUnitHp(s32, void*, s16);                                           /* extern */
@@ -135,7 +135,7 @@
 // void  func_ov003_020d1dc0(void*, s32, s32, s32, s32);                                 /* extern */
 // void  func_ov003_020d23e8(void*, u16, s32, s32, s32, s32);                            /* extern */
 // void  func_ov003_020d2bc0(void**);                                                    /* extern */
-// s32   CombatStage_ToWorldX(s32, s32);                                                  /* extern */
+// s32   BtlStage_ToWorldX(s32, s32);                                                  /* extern */
 // void  CombatHit_DrawSparkOnActor(void*, void*);                                              /* extern */
 // void  func_ov003_020c4748();                                                          /* extern */
 // void  func_ov003_020c4c5c(void*);                                                     /* extern */
@@ -611,7 +611,7 @@ static void func_ov017_02130714(BtlBoss03_00_RG* rg) {
 
 static void func_ov017_021307c4(BtlBoss03_00_RG* rg) {
     if (rg->unk_1C0 == 0) {
-        CombatSe_PlayPanned(SEIDX_MINAMI_BTL_FB04, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+        CombatSe_PlayPanned(SEIDX_MINAMI_BTL_FB04, BtlStage_ToScreenX(1, rg->base.actor.position.x));
     }
 
     s32 prev = rg->unk_1C0;
@@ -633,7 +633,7 @@ static void func_ov017_0213082c(BtlBoss03_00_RG* rg) {
 
         case 1: {
             if (rg->unk_1C0 == 0) {
-                CombatSe_PlayPanned(SEIDX_MINAMI_BTL_FB03, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_MINAMI_BTL_FB03, BtlStage_ToScreenX(1, rg->base.actor.position.x));
             }
             if (func_ov017_021309d8(rg, rg->unk_1C0) == 0) {
                 rg->unk_1C0 = 0;
@@ -686,7 +686,7 @@ static s32 func_ov017_021309d8(BtlBoss03_00_RG* rg, s16 arg1) {
             func_ov017_02140b9c(rg, 0);
         }
 
-        CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+        CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, BtlStage_ToScreenX(1, rg->base.actor.position.x));
     }
 
     return SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) == 0;
@@ -963,13 +963,13 @@ static s32 BtlBoss03_01_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 s
 static inline void BtlBoss03_01_RG_PlaySE_BtlFb(BtlBoss03_01_RG* rg, s32 arg1) {
     if ((SndMgr_IsSEPlaying(SEIDX_MINAMI_BTL_FB06) == FALSE) || (SndMgr_IsSEPlaying(SEIDX_MINAMI_BTL_FB01) == FALSE)) {
         SndMgrSeIdx seIdx = (RNG_Next(100) < 50) ? SEIDX_MINAMI_BTL_FB06 : SEIDX_MINAMI_BTL_FB01;
-        CombatSe_PlayPanned(seIdx, CombatStage_ToScreenX(arg1, rg->base.actor.position.x));
+        CombatSe_PlayPanned(seIdx, BtlStage_ToScreenX(arg1, rg->base.actor.position.x));
     }
 }
 
 static inline void BtlBoss03_01_RG_PlaySE_BtlAtc(BtlBoss03_01_RG* rg, s32 arg1) {
     SndMgrSeIdx seIdx = (RNG_Next(100) < 50) ? SEIDX_MINAMI_BTL_ATCM02 : SEIDX_MINAMI_BTL_ATCS03;
-    CombatSe_PlayPanned(seIdx, CombatStage_ToScreenX(arg1, rg->base.actor.position.x));
+    CombatSe_PlayPanned(seIdx, BtlStage_ToScreenX(arg1, rg->base.actor.position.x));
 }
 
 const TaskHandle Tsk_BtlBoss03_01_RG = {"Tsk_BtlBoss03_01_RG", BtlBoss03_01_RG_RunTask, sizeof(BtlBoss03_01_RG)};
@@ -1227,7 +1227,7 @@ static void func_ov017_021316f0(BtlBoss03_01_RG* rg) {
                 while (func_ov017_0213ef4c() > 0) {
                     func_ov017_02140b9c(rg, 0);
                 }
-                CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, BtlStage_ToScreenX(1, rg->base.actor.position.x));
             }
             if (temp_r6 == 0) {
                 rg->unk_1C0 = 0;
@@ -1291,7 +1291,7 @@ static void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
         case 1: {
             if (rg->unk_1C0 == 0) {
                 SndMgrSeIdx seIdx = (rg->base.spriteIndex == 0) ? SEIDX_MINAMI_BTL_ATCM04 : SEIDX_MINAMI_H_BTL_ATCS03;
-                CombatSe_PlayPanned(seIdx, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(seIdx, BtlStage_ToScreenX(1, rg->base.actor.position.x));
                 if (rg->base.spriteIndex == 0) {
                     BtlSprite_Release(&rg->base.sprite);
                     func_ov017_02140a8c(1, &rg->base.sprite, 4, 0);
@@ -1321,7 +1321,7 @@ static void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
                     sp8E = 0x20;
                     sp92 = ((Boss03*)var_r6)->unk8;
                     func_ov003_020d1dc0((Ov003EnemyShotSource*)&sp74, 0x4000, var_r5, 0x1000, 5);
-                    CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SHOT, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                    CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SHOT, BtlStage_ToScreenX(1, rg->base.actor.position.x));
                 } else {
                     ((s32(*)())func_ov003_020cc834)(&sp48, rg, var_r6, 0, 0);
                     ((s32(*)())func_ov003_020cc834)(&sp1C, rg, var_r6, 0xF8, 0);
@@ -1335,7 +1335,7 @@ static void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
                     sp3A = ((Boss03*)var_r6)->unk8 - 0x16;
                     func_ov003_020d0518((Ov003EnemyShotSource*)&sp48, 0x4000, var_r5, 0x1000, 4, (Ov003EnemyShotSource*)&sp1C,
                                         0x3000, var_r5, 0x1000, 3, 0x1E);
-                    CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_RAPID_SLOW, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                    CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_RAPID_SLOW, BtlStage_ToScreenX(1, rg->base.actor.position.x));
                     ((Boss03*)rg)->unk1E8 = 0x1E;
                 }
             }
@@ -1360,8 +1360,7 @@ static void func_ov017_021318a8(BtlBoss03_01_RG* rg) {
                 if ((s32)temp_r1_4 > 0) {
                     ((Boss03*)rg)->unk1E8 = (s16)(temp_r1_4 - 1);
                     if (((Boss03*)rg)->unk1E8 == 0) {
-                        CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_RAPID_SLOW,
-                                            CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                        CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_RAPID_SLOW, BtlStage_ToScreenX(1, rg->base.actor.position.x));
                     }
                 }
             }
@@ -1414,7 +1413,7 @@ static void func_ov017_02131cd0(BtlBoss03_01_RG* rg) {
         case 1: {
             if (rg->unk_1C0 == 0) {
                 SndMgrSeIdx seIdx = (rg->base.spriteIndex == 0) ? SEIDX_MINAMI_BTL_FB05 : SEIDX_MINAMI_H_BTL_ATCS01;
-                CombatSe_PlayPanned(seIdx, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(seIdx, BtlStage_ToScreenX(1, rg->base.actor.position.x));
                 if (rg->base.spriteIndex == 0) {
                     BtlSprite_Release(&rg->base.sprite);
                     func_ov017_02140a8c(1, &rg->base.sprite, 4, 0);
@@ -1450,7 +1449,7 @@ static void func_ov017_02131cd0(BtlBoss03_01_RG* rg) {
                     var_r9 += 1;
                     var_r10 += 0x2000;
                 } while (var_r9 < 8);
-                CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SPIRAL, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SPIRAL, BtlStage_ToScreenX(1, rg->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->unk_1C0 = 0;
@@ -1555,7 +1554,7 @@ static void func_ov017_02131fcc(BtlBoss03_01_RG* rg) {
                 } else {
                     BtlSprite_SetAnimFromTable(sprite, 28, 1);
                 }
-                CombatSe_PlayPanned(SEIDX_MINAMI_BTL_OTHER01, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_MINAMI_BTL_OTHER01, BtlStage_ToScreenX(1, rg->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite)) {
                 rg->unk_1C0 = 0;
@@ -1571,7 +1570,7 @@ static void func_ov017_02131fcc(BtlBoss03_01_RG* rg) {
                 } else {
                     BtlSprite_SetAnimFromTable(sprite, 29, 1);
                 }
-                CombatSe_PlayPanned(SEIDX_SE_B005_NINGEN_LION_HENSHIN, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_B005_NINGEN_LION_HENSHIN, BtlStage_ToScreenX(1, rg->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite)) {
                 rg->unk_1C0 = 0;
@@ -1649,13 +1648,13 @@ static void func_ov017_02132378(BtlBoss03_01_RG* rg) {
                     rg->unk_1EC[i] = func_ov017_02140c40(rg, var_r5 * data_ov017_0214269c[i].unk_0, RNG_Next(0x3001) - 0x1800,
                                                          data_ov017_0214269c[i].unk_4, 0x78);
                 }
-                CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, BtlStage_ToScreenX(1, rg->base.actor.position.x));
             } else if (rg->base.sprite.sprite.cellIndex == 8 && rg->base.sprite.sprite.frameTimer == 1) {
                 for (s32 i = 0; i < 4; i++) {
                     rg->unk_200[i] = func_ov017_02140c40(rg, var_r5 * data_ov017_0214267c[i].unk_0, RNG_Next(0x3001) - 0x1800,
                                                          data_ov017_0214267c[i].unk_4, 0x78);
                 }
-                CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, BtlStage_ToScreenX(1, rg->base.actor.position.x));
             }
             if (temp_r0 == 0) {
                 rg->unk_1C0 = 0;
@@ -1708,7 +1707,7 @@ static void func_ov017_02132378(BtlBoss03_01_RG* rg) {
                 } else {
                     BtlSprite_SetAnimFromTable(&rg->base.sprite, 28, 1);
                 }
-                CombatSe_PlayPanned(SEIDX_MINAMI_BTL_OTHER02, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_MINAMI_BTL_OTHER02, BtlStage_ToScreenX(1, rg->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite)) {
                 rg->unk_1C0 = 0;
@@ -1723,7 +1722,7 @@ static void func_ov017_02132378(BtlBoss03_01_RG* rg) {
                 } else {
                     BtlSprite_SetAnimFromTable(&rg->base.sprite, 29, 1);
                 }
-                CombatSe_PlayPanned(SEIDX_SE_B005_NINGEN_LION_HENSHIN, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_B005_NINGEN_LION_HENSHIN, BtlStage_ToScreenX(1, rg->base.actor.position.x));
                 rg->unk_1C2 = 30;
             }
             if (rg->unk_1C0 < rg->unk_1C2) {
@@ -1859,7 +1858,7 @@ static s32 BtlBoss03_01_RG_WarpDisappear(BtlBoss03_01_RG* rg, s16 arg1) {
         if (g_CombatGlobal->unk3D8A0 == rg) {
             g_CombatGlobal->unk3D8A0 = 0;
         }
-        CombatSe_PlayPanned(SEIDX_SE_B005_KUUKANN_TENNI_DISAPPEAR, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+        CombatSe_PlayPanned(SEIDX_SE_B005_KUUKANN_TENNI_DISAPPEAR, BtlStage_ToScreenX(1, rg->base.actor.position.x));
     }
     if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) == FALSE) {
         return 1;
@@ -1881,7 +1880,7 @@ static s32 BtlBoss03_01_RG_WarpAppear(BtlBoss03_01_RG* rg, s16 arg1) {
             BtlSprite_SetAnimFromTable(sprite, 8, 1);
         }
         func_ov003_020c4b1c(&rg->base);
-        CombatSe_PlayPanned(SEIDX_SE_B005_KUUKANN_TENNI_APPEAR, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+        CombatSe_PlayPanned(SEIDX_SE_B005_KUUKANN_TENNI_APPEAR, BtlStage_ToScreenX(1, rg->base.actor.position.x));
         rg->base.unk_1AC = rg->base.actor.position.x;
         rg->base.unk_1B0 = rg->base.actor.position.y;
         rg->base.unk_1B4 = rg->base.actor.position.z;
@@ -2079,7 +2078,7 @@ static s32 BtlBoss03_01_RG_Update(BtlBoss03_01_RG* rg) {
         (func_ov003_020cb648(&rg->base, 0xA) != 0))
     {
         rg->unk_1E6 = (u16)((rg->unk_1E6 & ~1) | 1);
-        CombatSe_PlayPanned(SEIDX_MINAMI_BTL_PNC01, CombatStage_ToScreenX(1, rg->base.actor.position.x));
+        CombatSe_PlayPanned(SEIDX_MINAMI_BTL_PNC01, BtlStage_ToScreenX(1, rg->base.actor.position.x));
     }
 
     switch (BtlActor_PopPendingCommand(&rg->base.actor)) {
@@ -2313,8 +2312,8 @@ block_18:
             }
         default:
         block_28:
-            if ((CombatTouch_GetTapped(ACTOR_KIND_ENEMY) == arg0) || (CombatTouch_GetDragged(ACTOR_KIND_ENEMY) == arg0) ||
-                (CombatTouch_GetSlashed(ACTOR_KIND_ENEMY) == arg0) || (CombatTouch_GetRapidTapped(ACTOR_KIND_ENEMY) == arg0))
+            if ((BtlTouch_GetTapped(ACTOR_KIND_ENEMY) == arg0) || (BtlTouch_GetDragged(ACTOR_KIND_ENEMY) == arg0) ||
+                (BtlTouch_GetSlashed(ACTOR_KIND_ENEMY) == arg0) || (BtlTouch_GetRapidTapped(ACTOR_KIND_ENEMY) == arg0))
             {
                 ((Boss03*)arg0)->unk220 = 1;
             }
@@ -2394,7 +2393,7 @@ static void func_ov017_02133ad0(void* arg0) {
         case 1:
             if (((Boss03*)arg0)->unk1C0 == 0) {
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, (u16)(((Boss03*)arg0)->unkC8 + 1), 0U);
-                CombatSe_PlayPanned(SEIDX_SE_B005_TSUUJYOU_IDOU, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B005_TSUUJYOU_IDOU, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             ((Boss03*)arg0)->unk28 = (s32)(((Boss03*)arg0)->unk28 + ((Boss03*)arg0)->unk1DC);
             ((Boss03*)arg0)->unk2C = (s32)(((Boss03*)arg0)->unk2C + ((Boss03*)arg0)->unk1E0);
@@ -2564,7 +2563,7 @@ static void func_ov017_02134190(void* arg0) {
                 }
                 func_ov003_020c4ab4(arg0, 0);
                 SndMgrSeIdx seIdx = (RNG_Next(100) < 50) ? SEIDX_MINAMI_BTL_ATCM02 : SEIDX_MINAMI_BTL_ATCS03;
-                CombatSe_PlayPanned(seIdx, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(seIdx, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
                 ((Boss03*)arg0)->unk224 = (u16)(((Boss03*)arg0)->unk224 & ~2);
             }
             if ((((Boss03*)arg0)->unk9A == 4) && (((Boss03*)arg0)->unk8C == 1)) {
@@ -2573,7 +2572,7 @@ static void func_ov017_02134190(void* arg0) {
                         func_ov017_02140b9c(arg0, 0);
                     } while (func_ov017_0213ef4c() > 0);
                 }
-                CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) == 0) {
                 return;
@@ -2623,7 +2622,7 @@ static void func_ov017_02134378(void* arg0) {
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
         SndMgrSeIdx seIdx = (((Boss03*)arg0)->unk80 == 0) ? SEIDX_MINAMI_BTL_ATCM04 : SEIDX_MINAMI_H_BTL_ATCS03;
-        CombatSe_PlayPanned(seIdx, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(seIdx, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
         ((Boss03*)arg0)->unk218 = 0x3C;
         ((Boss03*)arg0)->unk224 = (u16)(((Boss03*)arg0)->unk224 | 2);
     }
@@ -2649,7 +2648,7 @@ static void func_ov017_02134378(void* arg0) {
             sp8E = 0x20;
             sp92 = ((Boss03*)var_r7)->unk8;
             func_ov003_020d1dc0((Ov003EnemyShotSource*)&sp74, 0x4000, var_r6, 0x1000, 5);
-            CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SHOT, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+            CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SHOT, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
         } else {
             ((s32(*)())func_ov003_020cc834)(&sp48, arg0, var_r7, 0);
             ((s32(*)())func_ov003_020cc834)(&sp1C, arg0, var_r7, 0xF2, 0);
@@ -2661,13 +2660,13 @@ static void func_ov017_02134378(void* arg0) {
             sp30 -= 0x28000;
             sp66 = ((Boss03*)var_r7)->unk8 - 0x16;
             sp3A = ((Boss03*)var_r7)->unk8 - 0x16;
-            CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_RAPID_SLOW, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+            CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_RAPID_SLOW, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             func_ov003_020d0518((Ov003EnemyShotSource*)&sp48, 0x4000, var_r6, 0x1000, 4, (Ov003EnemyShotSource*)&sp1C, 0x3000,
                                 var_r6, 0x1000, 3, 0x1E);
         }
     }
     if ((((Boss03*)arg0)->unk80 != 0) && (((Boss03*)arg0)->unk1C0 == 0x2A)) {
-        CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_RAPID_SLOW, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_RAPID_SLOW, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (temp_r4 == 0) {
         func_ov017_02133524(arg0, func_ov017_021337e4);
@@ -2702,7 +2701,7 @@ static void func_ov017_02134600(void* arg0) {
                 } else {
                     seIdx = SEIDX_MINAMI_H_BTL_ATCS01;
                 }
-                CombatSe_PlayPanned(seIdx, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(seIdx, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
                 if (((Boss03*)arg0)->unk80 == 0) {
                     BtlSprite_Release(arg0);
                     func_ov017_02140a8c(0, arg0 + 0x84, 4, 0);
@@ -2739,7 +2738,7 @@ static void func_ov017_02134600(void* arg0) {
                     var_r9 += 1;
                     var_r10 += 0x2000;
                 } while (var_r9 < 8);
-                CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SPIRAL, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SPIRAL, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
                 ((Boss03*)arg0)->unk1C0 = 0;
@@ -2836,7 +2835,7 @@ static void func_ov017_021348c0(void* arg0) {
                     seIdx = SEIDX_MINAMI_H_BTL_FB07;
                 }
 
-                CombatSe_PlayPanned(seIdx, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(seIdx, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
                 if (((Boss03*)arg0)->unk80 == 0) {
                     BtlSprite_Release(arg0);
                     func_ov017_02140a8c(0, arg0 + 0x84, 4, 0);
@@ -2887,7 +2886,7 @@ static void func_ov017_021348c0(void* arg0) {
                     spB0                              = 0x4000;
                     spB4                              = 0x4000;
                     func_ov003_020d2bc0((Ov003EnemyShotSplitArgs*)&sp94);
-                    CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SPLIT, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                    CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_SPLIT, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
                 } else {
                     BtlBoss03_ShotEff_CreateTask((s32)arg0);
                     ((s32(*)())func_ov003_020cc834)(&sp68, arg0, var_r6, 0xF2, 0);
@@ -2924,7 +2923,7 @@ static void func_ov017_021348c0(void* arg0) {
                         charge.yScale                = 0xC00;
                         func_ov003_020cd988(&charge);
                     }
-                    CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_BURST, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                    CombatSe_PlayPanned(SEIDX_SE_B005_FIRING_BURST, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
                 }
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
@@ -3047,7 +3046,7 @@ static void func_ov017_02134d58(void* arg0) {
                 } else {
                     BtlSprite_SetAnimFromTable(temp_r0_2, 28, 1);
                 }
-                CombatSe_PlayPanned(SEIDX_MINAMI_BTL_OTHER01, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_MINAMI_BTL_OTHER01, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) == 0) {
                 return;
@@ -3065,7 +3064,7 @@ static void func_ov017_02134d58(void* arg0) {
                 } else {
                     BtlSprite_SetAnimFromTable(temp_r0_3, 29, 1);
                 }
-                CombatSe_PlayPanned(SEIDX_SE_B005_NINGEN_LION_HENSHIN, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B005_NINGEN_LION_HENSHIN, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) == 0) {
                 return;
@@ -3178,7 +3177,7 @@ static void func_ov017_021352ec(void* arg0) {
             } else {
                 var_r4 = SEIDX_MINAMI_BTL_DMG02;
             }
-            CombatSe_PlayPanned(var_r4, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+            CombatSe_PlayPanned(var_r4, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
         }
         if (((Boss03*)arg0)->unk80 == 0) {
             BtlSprite_Release(arg0 + 0x84);
@@ -3225,7 +3224,7 @@ static s32 func_ov017_02135438(void* arg0, s16 arg1) {
         } else {
             BtlSprite_SetAnimFromTable(arg0 + 0x84, 7U, 1U);
         }
-        CombatSe_PlayPanned(SEIDX_SE_B005_KUUKANN_TENNI_DISAPPEAR, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B005_KUUKANN_TENNI_DISAPPEAR, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) == 0) {
         return 1;
@@ -3245,7 +3244,7 @@ static s32 func_ov017_021354e4(void* arg0, s16 arg1) {
             BtlSprite_SetAnimFromTable(arg0 + 0x84, 8U, 1U);
         }
         func_ov003_020c4b5c(arg0);
-        CombatSe_PlayPanned(SEIDX_SE_B005_KUUKANN_TENNI_APPEAR, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B005_KUUKANN_TENNI_APPEAR, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) == 0) {
         return 1;
@@ -3446,7 +3445,7 @@ static s32 BtlBoss03_01_UG_Update(TaskPool* pool, Task* task, void* args) {
         (func_ov003_020cb648((Ov003EnemyActor*)temp_r4, 0xA) != 0))
     {
         ((Boss03*)temp_r4)->unk224 = (u16)((((Boss03*)temp_r4)->unk224 & ~1) | 1);
-        CombatSe_PlayPanned(SEIDX_MINAMI_BTL_PNC01, CombatStage_ToScreenX(0, ((Boss03*)temp_r4)->unk28));
+        CombatSe_PlayPanned(SEIDX_MINAMI_BTL_PNC01, BtlStage_ToScreenX(0, ((Boss03*)temp_r4)->unk28));
     }
     temp_r0 = BtlActor_PopPendingCommand(temp_r4);
     switch (temp_r0) { /* irregular */
@@ -3756,7 +3755,7 @@ static void func_ov017_021362b0(void* arg0) {
         case 1:
             if (((Boss03*)arg0)->unk1C0 == 0) {
                 func_ov003_020c4b1c(arg0);
-                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCS02, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCS02, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
             }
             if (func_ov017_02137494(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
                 func_ov017_02135eec(arg0, func_ov017_021360ac);
@@ -3788,8 +3787,8 @@ static void func_ov017_021363c4(void* arg0) {
         case 1:
             if (((Boss03*)arg0)->unk1C0 == 0) {
                 func_ov003_020c4b1c(arg0);
-                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCS03, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
-                CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_L, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCS03, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_L, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
             }
             if (func_ov017_02137600(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
                 func_ov017_02135eec(arg0, func_ov017_021360ac);
@@ -3855,7 +3854,7 @@ static void func_ov017_021364b8(void* arg0) {
                 func_ov017_02140a8c(1, arg0 + 0x84, 8, 0);
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 3U, 0U);
                 ((Boss03*)arg0)->unk1FC = BtlBoss03_EffSign_CreateTask(arg0);
-                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_FB06, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_FB06, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
             }
             if (EasyTask_ValidateTaskId(&g_CombatGlobal->taskPool, arg0 + 0x1FC) != 0) {
                 return;
@@ -3898,7 +3897,7 @@ static void func_ov017_021364b8(void* arg0) {
                 ((Boss03*)arg0)->unk1C4 = 4;
                 return;
             }
-            CombatStage_WorldToScreen(1, &spA, &sp8, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30);
+            BtlStage_WorldToScreen(1, &spA, &sp8, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30);
             if (func_ov003_020cc7c0(spA, sp8, 0x40) != 0) {
                 return;
             }
@@ -3910,7 +3909,7 @@ static void func_ov017_021364b8(void* arg0) {
             if (temp_r0_5 == 0) {
                 ((Boss03*)arg0)->unk1C0 = (s16)(temp_r0_5 + 1);
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 4U, 1U);
-                CombatSe_PlayPanned(SEIDX_SE_B006_TUKAMIKOUGEKI_01, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B006_TUKAMIKOUGEKI_01, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
                 ((Boss03*)arg0)->unk1C0 = 0;
@@ -4164,7 +4163,7 @@ static void func_ov017_02136d90(void* arg0) {
                 } else {
                     var_r4 = 0x507;
                 }
-                CombatSe_PlayPanned(var_r4, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(var_r4, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
                 func_ov003_020c4b1c(arg0);
             }
             if (func_ov017_021373d8(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
@@ -4308,7 +4307,7 @@ static s32 func_ov017_0213731c(void* arg0, s32 arg1) {
         if (g_CombatGlobal->unk3D8A0 == arg0) {
             g_CombatGlobal->unk3D8A0 = 0;
         }
-        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_DISAPPEAR, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_DISAPPEAR, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C | 1);
@@ -4324,7 +4323,7 @@ static s32 func_ov017_021373d8(void* arg0, s32 arg1) {
         BtlSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(1, arg0 + 0x84, 0xB, 0);
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 1, 1);
-        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_APPEAR, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_APPEAR, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
         ((Boss03*)arg0)->unk1AC = (s32)((Boss03*)arg0)->unk28;
         ((Boss03*)arg0)->unk1B0 = (s32)((Boss03*)arg0)->unk2C;
         ((Boss03*)arg0)->unk1B4 = (s32)((Boss03*)arg0)->unk30;
@@ -4354,7 +4353,7 @@ static s32 func_ov017_02137494(void* arg0, s32 arg1) {
         case 0:
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 1, 1);
-                CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_S, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_S, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
             }
         default:
             return 1;
@@ -4674,8 +4673,8 @@ static void func_ov017_02137d64(void* arg0) {
         ((Boss03*)arg0)->unk1C2 = func_ov003_020c42ec(arg0);
     }
     func_ov017_02138fdc(arg0, ((Boss03*)arg0)->unk1C0);
-    if (((CombatTouch_GetTapped(ACTOR_KIND_ENEMY) == arg0) || (CombatTouch_GetDragged(ACTOR_KIND_ENEMY) == arg0) ||
-         (CombatTouch_GetSlashed(ACTOR_KIND_ENEMY) == arg0) || (CombatTouch_GetRapidTapped(ACTOR_KIND_ENEMY) == arg0)) &&
+    if (((BtlTouch_GetTapped(ACTOR_KIND_ENEMY) == arg0) || (BtlTouch_GetDragged(ACTOR_KIND_ENEMY) == arg0) ||
+         (BtlTouch_GetSlashed(ACTOR_KIND_ENEMY) == arg0) || (BtlTouch_GetRapidTapped(ACTOR_KIND_ENEMY) == arg0)) &&
         ((u32)RNG_Next(0x64) < 0x14U))
     {
         ((Boss03*)arg0)->unk208 = (u8)(((Boss03*)arg0)->unk208 | 4);
@@ -4731,7 +4730,7 @@ static void func_ov017_02137edc(void* arg0) {
 static void func_ov017_02137fd0(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c4b5c(arg0);
-        CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCS02, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCS02, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (func_ov017_02139194(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
         func_ov017_02137c18(arg0, func_ov017_02137d64);
@@ -4743,8 +4742,8 @@ static void func_ov017_02137fd0(void* arg0) {
 static void func_ov017_02138048(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c4b5c(arg0);
-        CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCS03, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
-        CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_L, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCS03, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_L, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (func_ov017_021392b8(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
         func_ov017_02137c18(arg0, func_ov017_02137d64);
@@ -4796,7 +4795,7 @@ static void func_ov017_021380dc(void* arg0) {
                 func_ov017_02140a8c(0, arg0 + 0x84, 8, 0);
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 3, 1);
                 ((Boss03*)arg0)->unk204 = BtlBoss03_EffSign_CreateTask(arg0);
-                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_FB06, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_FB06, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             EasyTask_ValidateTaskId(&g_CombatGlobal->unk_00000, arg0 + 0x204);
             if (((Boss03*)arg0)->unk204 != -1) {
@@ -4842,7 +4841,7 @@ static void func_ov017_021380dc(void* arg0) {
                 ((Boss03*)arg0)->unk1C4 = 3;
                 return;
             }
-            CombatStage_WorldToScreen(0, &spA, &sp8, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30);
+            BtlStage_WorldToScreen(0, &spA, &sp8, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30);
             var_r0 = func_ov003_020cc7c0(spA, sp8, 0x40);
             if ((var_r0 == 0) && (((temp_r2 = ((Boss03*)arg0)->unk24, (temp_r2 == 0)) && ((s32)spA > 0x80)) ||
                                   ((temp_r2 == 1) && ((s32)spA < 0x80))))
@@ -4860,7 +4859,7 @@ static void func_ov017_021380dc(void* arg0) {
             if (temp_r0_4 == 0) {
                 ((Boss03*)arg0)->unk1C0 = (s16)(temp_r0_4 + 1);
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 4, 1);
-                CombatSe_PlayPanned(SEIDX_SE_B006_TUKAMIKOUGEKI_01, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B006_TUKAMIKOUGEKI_01, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
                 ((Boss03*)arg0)->unk1C0 = 0;
@@ -5036,9 +5035,9 @@ static void func_ov017_021380dc(void* arg0) {
         case 11:
             if (((Boss03*)arg0)->unk1C0 == 0) {
                 if ((s32)((Boss03*)arg0)->unk28 < (s32)((Boss03*)temp_r4)->unk28) {
-                    var_r0_9 = CombatStage_ToWorldX(0, 0x40);
+                    var_r0_9 = BtlStage_ToWorldX(0, 0x40);
                 } else {
-                    var_r0_9 = CombatStage_ToWorldX(0, 0xC0);
+                    var_r0_9 = BtlStage_ToWorldX(0, 0xC0);
                 }
                 func_ov017_02139464(arg0, var_r0_9, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30);
                 if ((s32)((Boss03*)arg0)->unk1D0 > (s32)((Boss03*)arg0)->unk28) {
@@ -5095,7 +5094,7 @@ static void func_ov017_021389d0(void* arg0) {
                 } else {
                     var_r4 = 0x507;
                 }
-                CombatSe_PlayPanned(var_r4, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(var_r4, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
                 func_ov003_020c4b5c(arg0);
             }
             if (func_ov017_021390e4(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
@@ -5183,7 +5182,7 @@ static void func_ov017_02138ce0(void* arg0) {
             } else {
                 var_r5 = 0x4F0;
             }
-            CombatSe_PlayPanned(var_r5, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+            CombatSe_PlayPanned(var_r5, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
         }
         temp_r0 = ((Boss03*)arg0)->unk208;
         if (((u32)(temp_r0 << 0x1F) >> 0x1F) != 0) {
@@ -5238,7 +5237,7 @@ static s32 func_ov017_02138eb4(void* arg0, s32 arg1, s16 arg2) {
     if ((temp_r0 != 3) && (temp_r0 != 6)) {
 
     } else {
-        CombatSe_PlayPanned(SEIDX_SE_B006_FOOTSTEP, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_FOOTSTEP, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (((s32)((Boss03*)arg0)->unk20A >= (s32)((Boss03*)arg0)->unk20C) || (func_ov017_02139474(arg0) < 0x4000) ||
         ((arg1 != 0) && (func_ov003_020cc300(arg0, 0) == 0)))
@@ -5271,7 +5270,7 @@ static s32 func_ov017_0213903c(void* arg0, s16 arg1) {
         BtlSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(0, arg0 + 0x84, 0xB, 0);
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 0, 1);
-        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_DISAPPEAR, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_DISAPPEAR, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C | 1);
@@ -5287,7 +5286,7 @@ static s32 func_ov017_021390e4(void* arg0, s16 arg1) {
         BtlSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(0, arg0 + 0x84, 0xB, 0);
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 1, 1);
-        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_APPEAR, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_APPEAR, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
         ((Boss03*)arg0)->unk54 = (s32)(((Boss03*)arg0)->unk54 & ~0x10);
@@ -5316,7 +5315,7 @@ static s32 func_ov017_02139194(void* arg0, s16 arg1) {
         case 0:
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 1, 1);
-                CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_S, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_S, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
         default:
             return 1;
@@ -5770,8 +5769,8 @@ static void func_ov017_02139de0(void* arg0) {
             if (((Boss03*)arg0)->unk1C0 == 0) {
                 ((Boss03*)arg0)->unk1E8 = (s16)(((Boss03*)arg0)->unk1E8 + 1);
                 func_ov003_020c4b1c(arg0);
-                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCM03, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
-                CombatSe_PlayPanned(SEIDX_SE_B007_KINNKYORI_KOUGEKI_S, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCM03, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B007_KINNKYORI_KOUGEKI_S, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
             }
             if (func_ov017_0213a9cc(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
                 func_ov017_021399dc(arg0, func_ov017_02139b40);
@@ -5804,8 +5803,8 @@ static void func_ov017_02139f1c(void* arg0) {
             if (((Boss03*)arg0)->unk1C0 == 0) {
                 ((Boss03*)arg0)->unk1E8 = (s16)(((Boss03*)arg0)->unk1E8 + 1);
                 func_ov003_020c4b1c(arg0);
-                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCM04, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
-                CombatSe_PlayPanned(SEIDX_SE_B007_KINNKYORI_KOUGEKI_L, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_ATCM04, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B007_KINNKYORI_KOUGEKI_L, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
             }
             if (func_ov017_0213ab24(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
                 func_ov017_021399dc(arg0, func_ov017_02139b40);
@@ -5856,8 +5855,8 @@ static void func_ov017_0213a01c(void* arg0) {
                 BtlSprite_Release(arg0 + 0x84);
                 func_ov017_02140a8c(1, arg0 + 0x84, 9, 0);
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 0xC, 1);
-                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_FB06, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
-                CombatSe_PlayPanned(SEIDX_SE_B007_BLION_TOSSHIN_KOUGEKI, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_FB06, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B007_BLION_TOSSHIN_KOUGEKI, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) == 0) {
                 return;
@@ -5978,7 +5977,7 @@ static void func_ov017_0213a458(void* arg0) {
         }
     }
     if (((Boss03*)arg0)->unk1C0 == 0x16) {
-        CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B005_BADGE_NAGE01, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
         func_ov017_021399dc(arg0, func_ov017_02139b40);
@@ -6090,7 +6089,7 @@ static s32 func_ov017_0213a818(void* arg0, s16 arg1) {
         if (g_CombatGlobal->unk3D8A0 == arg0) {
             g_CombatGlobal->unk3D8A0 = 0;
         }
-        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_DISAPPEAR, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_DISAPPEAR, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C | 1);
@@ -6116,7 +6115,7 @@ static s32 func_ov017_0213a8e0(void* arg0, s16 arg1) {
         BtlSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(1, arg0 + 0x84, 0xB, 0);
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 1, 1);
-        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_APPEAR, CombatStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_APPEAR, BtlStage_ToScreenX(1, ((Boss03*)arg0)->unk28));
         ((Boss03*)arg0)->unk1AC = (s32)((Boss03*)arg0)->unk28;
         ((Boss03*)arg0)->unk1B0 = (s32)((Boss03*)arg0)->unk2C;
         ((Boss03*)arg0)->unk1B4 = (s32)((Boss03*)arg0)->unk30;
@@ -6342,7 +6341,7 @@ static s32 BtlBoss03_03_RG_Update(TaskPool* pool, Task* task, void* args) {
         (func_ov003_020cb648((Ov003EnemyActor*)temp_r4, 0xA) != 0))
     {
         ((Boss03*)temp_r4)->unk1FA = (u8)((((Boss03*)temp_r4)->unk1FA & ~1) | 1);
-        CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_FB05, CombatStage_ToScreenX(1, ((Boss03*)temp_r4)->unk28));
+        CombatSe_PlayPanned(SEIDX_MINAMI_N_BTL_FB05, BtlStage_ToScreenX(1, ((Boss03*)temp_r4)->unk28));
     }
     temp_r0 = BtlActor_PopPendingCommand(temp_r4);
     switch (temp_r0) {         /* switch 1; irregular */
@@ -6591,8 +6590,8 @@ static void func_ov017_0213b594(void* arg0) {
         ((Boss03*)arg0)->unk1C2 = func_ov003_020c42ec(arg0);
     }
     func_ov017_0213cd00(arg0, ((Boss03*)arg0)->unk1C0);
-    if (((CombatTouch_GetTapped(ACTOR_KIND_ENEMY) == arg0) || (CombatTouch_GetDragged(ACTOR_KIND_ENEMY) == arg0) ||
-         (CombatTouch_GetSlashed(ACTOR_KIND_ENEMY) == arg0) || (CombatTouch_GetRapidTapped(ACTOR_KIND_ENEMY) == arg0)) &&
+    if (((BtlTouch_GetTapped(ACTOR_KIND_ENEMY) == arg0) || (BtlTouch_GetDragged(ACTOR_KIND_ENEMY) == arg0) ||
+         (BtlTouch_GetSlashed(ACTOR_KIND_ENEMY) == arg0) || (BtlTouch_GetRapidTapped(ACTOR_KIND_ENEMY) == arg0)) &&
         (func_ov003_020cb648(arg0, 0x28) != 0) && ((u32)RNG_Next(0x64) < 0x21U))
     {
         ((Boss03*)arg0)->unk200 = (u8)(((Boss03*)arg0)->unk200 | 8);
@@ -6648,7 +6647,7 @@ static void func_ov017_0213b6d0(void* arg0) {
 static void func_ov017_0213b7c4(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c4b5c(arg0);
-        CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_ATCS01, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_ATCS01, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (func_ov017_0213ced0(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
         func_ov017_0213b454(arg0, func_ov017_0213b594);
@@ -6660,8 +6659,8 @@ static void func_ov017_0213b7c4(void* arg0) {
 static void func_ov017_0213b83c(void* arg0) {
     if (((Boss03*)arg0)->unk1C0 == 0) {
         func_ov003_020c4b5c(arg0);
-        CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_ATCM01, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
-        CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_L, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_ATCM01, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_L, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (func_ov017_0213cfec(arg0, ((Boss03*)arg0)->unk1C0) == 0) {
         func_ov017_0213b454(arg0, func_ov017_0213b594);
@@ -6713,7 +6712,7 @@ static void func_ov017_0213b8cc(void* arg0) {
                 func_ov017_02140a8c(0, arg0 + 0x84, 8, 1);
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 3, 1);
                 ((Boss03*)arg0)->unk1FC = BtlBoss03_EffSign_CreateTask(arg0);
-                CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_FB07, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_FB07, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             EasyTask_ValidateTaskId(&g_CombatGlobal->unk_00000, arg0 + 0x1FC);
             if (((Boss03*)arg0)->unk1FC != -1) {
@@ -6759,7 +6758,7 @@ static void func_ov017_0213b8cc(void* arg0) {
                 ((Boss03*)arg0)->unk1C4 = 3;
                 return;
             }
-            CombatStage_WorldToScreen(0, &spA, &sp8, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30);
+            BtlStage_WorldToScreen(0, &spA, &sp8, ((Boss03*)arg0)->unk28, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30);
             var_r0 = func_ov003_020cc7c0(spA, sp8, 0x40);
             if ((var_r0 == 0) && (((temp_r2 = ((Boss03*)arg0)->unk24, (temp_r2 == 0)) && ((s32)spA > 0x80)) ||
                                   ((temp_r2 == 1) && ((s32)spA < 0x80))))
@@ -6777,7 +6776,7 @@ static void func_ov017_0213b8cc(void* arg0) {
             if (temp_r0_4 == 0) {
                 ((Boss03*)arg0)->unk1C0 = (s16)(temp_r0_4 + 1);
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 4, 1);
-                CombatSe_PlayPanned(SEIDX_SE_B006_TUKAMIKOUGEKI_01, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B006_TUKAMIKOUGEKI_01, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
                 ((Boss03*)arg0)->unk1C0 = 0;
@@ -6955,9 +6954,9 @@ static void func_ov017_0213b8cc(void* arg0) {
         case 11:
             if (((Boss03*)arg0)->unk1C0 == 0) {
                 if ((s32)((Boss03*)arg0)->unk28 < (s32)((Boss03*)temp_r4)->unk28) {
-                    var_r0_9 = CombatStage_ToWorldX(0, 0x40);
+                    var_r0_9 = BtlStage_ToWorldX(0, 0x40);
                 } else {
-                    var_r0_9 = CombatStage_ToWorldX(0, 0xC0);
+                    var_r0_9 = BtlStage_ToWorldX(0, 0xC0);
                 }
                 func_ov017_0213d198(arg0, var_r0_9, ((Boss03*)arg0)->unk2C, ((Boss03*)arg0)->unk30);
                 if ((s32)((Boss03*)arg0)->unk1D0 > (s32)((Boss03*)arg0)->unk28) {
@@ -7018,8 +7017,8 @@ static void func_ov017_0213c1d4(void* arg0) {
                 BtlSprite_Release(arg0 + 0x84);
                 func_ov017_02140a8c(0, arg0 + 0x84, 9, 1);
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 0xC, 1);
-                CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_ATCM04, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
-                CombatSe_PlayPanned(SEIDX_SE_B007_BLION_TOSSHIN_KOUGEKI, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_ATCM04, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B007_BLION_TOSSHIN_KOUGEKI, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
                 func_ov003_020c4c5c(arg0);
             }
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) == 0) {
@@ -7173,7 +7172,7 @@ static void func_ov017_0213c60c(void* arg0) {
                 }
                 if (func_ov017_0213d27c(arg0, 1) != 0) {
                     func_ov017_0213d1e0(arg0, 1);
-                    CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_FB05, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                    CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_FB05, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
                 }
                 func_ov003_020c4b5c(arg0);
             }
@@ -7217,7 +7216,7 @@ static void func_ov017_0213c7c0(void* arg0) {
         BtlSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(0, arg0 + 0x84, 9, 1);
         if (SndMgr_IsSEPlaying(SEIDX_HANEKOMA_N_BTL_DMG03) == 0) {
-            CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_DMG03, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+            CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_DMG03, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
         }
         temp_r0_2 = ((Boss03*)arg0)->unk200;
         if (((u32)(temp_r0_2 << 0x1F) >> 0x1F) != 0) {
@@ -7331,7 +7330,7 @@ static s32 func_ov017_0213cbcc(void* arg0, s32 arg1, s16 arg2) {
     if ((temp_r0 != 3) && (temp_r0 != 6)) {
 
     } else {
-        CombatSe_PlayPanned(SEIDX_SE_B006_FOOTSTEP, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_FOOTSTEP, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (((s32)((Boss03*)arg0)->unk208 >= (s32)((Boss03*)arg0)->unk20A) || (func_ov017_0213d1a8(arg0) < 0x4000) ||
         ((arg1 != 0) && (func_ov003_020cc300(arg0, 0) == 0)))
@@ -7365,7 +7364,7 @@ static s32 func_ov017_0213cd60(void* arg0, s16 arg1) {
         BtlSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(0, arg0 + 0x84, 0xB, 1);
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 0, 1);
-        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_DISAPPEAR, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_DISAPPEAR, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
         ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C | 1);
@@ -7381,7 +7380,7 @@ static s32 func_ov017_0213ce14(void* arg0, s16 arg1) {
         BtlSprite_Release(arg0 + 0x84);
         func_ov017_02140a8c(0, arg0 + 0x84, 0xB, 1);
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 1, 1);
-        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_APPEAR, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+        CombatSe_PlayPanned(SEIDX_SE_B006_KUUKANN_TENNI_APPEAR, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
     }
     if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
         ((Boss03*)arg0)->unk54 = (s32)(((Boss03*)arg0)->unk54 & ~0x10);
@@ -7411,7 +7410,7 @@ static s32 func_ov017_0213ced0(void* arg0, s16 arg1) {
         case 3:
             if (SpriteMgr_IsAnimationFinished((Sprite*)((u8*)arg0 + 0x84)) != 0) {
                 BtlSprite_SetAnimFromTable(arg0 + 0x84, 4, 1);
-                CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_S, CombatStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
+                CombatSe_PlayPanned(SEIDX_SE_B006_KINNKYORI_KOUGEKI_S, BtlStage_ToScreenX(0, ((Boss03*)arg0)->unk28));
             }
         default:
             return 1;
@@ -7599,7 +7598,7 @@ static s32 BtlBoss03_04_UG_Update(TaskPool* pool, Task* task, void* args) {
         (func_ov003_020cb648((Ov003EnemyActor*)temp_r4, 0x32) != 0))
     {
         ((Boss03*)temp_r4)->unk200 = (u8)(((Boss03*)temp_r4)->unk200 | 2);
-        CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_FB04, CombatStage_ToScreenX(0, ((Boss03*)temp_r4)->unk28));
+        CombatSe_PlayPanned(SEIDX_HANEKOMA_N_BTL_FB04, BtlStage_ToScreenX(0, ((Boss03*)temp_r4)->unk28));
     }
     temp_r0 = BtlActor_PopPendingCommand((BattleActor*)temp_r4);
     switch (temp_r0) { /* irregular */
@@ -7996,8 +7995,8 @@ static s32 BtlBoss03_BlckBall_Abs_RunTask(TaskPool* pool, Task* task, void* args
             } else {
                 var_r0_3 = 0;
             }
-            CombatStage_WorldToScreen(var_r0_3, &sp1A, &sp18, ((Boss03*)temp_r5)->unk60, ((Boss03*)temp_r5)->unk64,
-                                      ((Boss03*)temp_r5)->unk68);
+            BtlStage_WorldToScreen(var_r0_3, &sp1A, &sp18, ((Boss03*)temp_r5)->unk60, ((Boss03*)temp_r5)->unk64,
+                                   ((Boss03*)temp_r5)->unk68);
             BtlSprite_SetPosition((BattleSprite*)temp_r5, sp1A, sp18);
             BtlSprite_SetSortKey((BattleSprite*)temp_r5, 0x7FFFFFFF - ((Boss03*)temp_r5)->unk64);
             BtlSprite_Render((BattleSprite*)temp_r5);
@@ -8350,8 +8349,8 @@ static s32 BtlBoss03_EffPosture_RunTask(TaskPool* pool, Task* task, void* args, 
             } else {
                 var_r0 = 0;
             }
-            CombatStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_r6)->unk28, ((Boss03*)temp_r6)->unk2C,
-                                      ((Boss03*)temp_r6)->unk30);
+            BtlStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_r6)->unk28, ((Boss03*)temp_r6)->unk2C,
+                                   ((Boss03*)temp_r6)->unk30);
             BtlSprite_SetPosition((BattleSprite*)temp_r4, spA, sp8);
             BtlSprite_SetSortKey((BattleSprite*)temp_r4, 0x7FFFFFFF - ((Boss03*)((Boss03*)temp_r4)->unk60)->unk2C);
             BtlSprite_Render((BattleSprite*)temp_r4);
@@ -8417,8 +8416,8 @@ static s32 BtlBoss03_EffCatch_RunTask(TaskPool* pool, Task* task, void* args, s3
             } else {
                 var_r0 = 0;
             }
-            CombatStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_r6)->unk28, ((Boss03*)temp_r6)->unk2C,
-                                      ((Boss03*)temp_r6)->unk30);
+            BtlStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_r6)->unk28, ((Boss03*)temp_r6)->unk2C,
+                                   ((Boss03*)temp_r6)->unk30);
             BtlSprite_SetPosition((BattleSprite*)temp_r4, spA, sp8);
             BtlSprite_SetSortKey((BattleSprite*)temp_r4, 0x7FFFFFFF - ((Boss03*)((Boss03*)temp_r4)->unk60)->unk2C);
             BtlSprite_Render((BattleSprite*)temp_r4);
@@ -8472,9 +8471,9 @@ static s32 BtlBoss03_EffPress_RunTask(TaskPool* pool, Task* task, void* args, s3
                 ((Boss03*)temp_r4)->unk64 = (s16)(temp_r0_2 + 1);
                 temp_r1_2                 = ((Boss03*)temp_r4)->unk60;
                 if (func_ov003_020c37f8(((Boss03*)temp_r4)->unk60 + 0x84) != 0) {
-                    var_r0 = CombatStage_ToScreenX(1, ((Boss03*)temp_r1_2)->unk28);
+                    var_r0 = BtlStage_ToScreenX(1, ((Boss03*)temp_r1_2)->unk28);
                 } else {
-                    var_r0 = CombatStage_ToScreenX(0, ((Boss03*)temp_r1_2)->unk28);
+                    var_r0 = BtlStage_ToScreenX(0, ((Boss03*)temp_r1_2)->unk28);
                 }
                 CombatSe_PlayPanned(SEIDX_SE_B006_TUKAMIKOUGEKI_02, var_r0);
             }
@@ -8499,9 +8498,8 @@ static s32 BtlBoss03_EffPress_RunTask(TaskPool* pool, Task* task, void* args, s3
             } else {
                 var_r0_2 = 0;
             }
-            CombatStage_WorldToScreen(var_r0_2, &spA, &sp8, ((Boss03*)((Boss03*)temp_r4)->unk60)->unk28,
-                                      ((Boss03*)((Boss03*)temp_r4)->unk60)->unk2C,
-                                      ((Boss03*)((Boss03*)temp_r4)->unk60)->unk30);
+            BtlStage_WorldToScreen(var_r0_2, &spA, &sp8, ((Boss03*)((Boss03*)temp_r4)->unk60)->unk28,
+                                   ((Boss03*)((Boss03*)temp_r4)->unk60)->unk2C, ((Boss03*)((Boss03*)temp_r4)->unk60)->unk30);
             BtlSprite_SetPosition((BattleSprite*)temp_r4, spA, sp8);
             BtlSprite_SetSortKey((BattleSprite*)temp_r4, 0x7FFFFFFF - ((Boss03*)((Boss03*)temp_r4)->unk60)->unk2C);
             BtlSprite_Render((BattleSprite*)temp_r4);
@@ -8582,8 +8580,8 @@ static s32 BtlBoss03_EffRush_RunTask(TaskPool* pool, Task* task, void* args, s32
             } else {
                 var_r0 = 0;
             }
-            CombatStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_r6)->unk28, ((Boss03*)temp_r6)->unk2C,
-                                      ((Boss03*)temp_r6)->unk30);
+            BtlStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_r6)->unk28, ((Boss03*)temp_r6)->unk2C,
+                                   ((Boss03*)temp_r6)->unk30);
             BtlSprite_SetPosition((BattleSprite*)temp_r4 + 4, spA, sp8);
             BtlSprite_SetSortKey((BattleSprite*)temp_r4 + 4, 0x7FFFFFFF - ((Boss03*)*temp_r4)->unk2C);
             BtlSprite_Render((BattleSprite*)temp_r4 + 4);
@@ -9698,8 +9696,8 @@ static s32 BtlBoss03_NoisAttk_Update(TaskPool* pool, Task* task, void* args) {
     }
     BtlActor_SetPendingCommand(((Boss03*)temp_r4)->unkDC, ACTOR_CMD_FEAT);
     temp_ip = ((Boss03*)temp_r4)->unkD0;
-    if (CombatStage_ClampXY(temp_r4 + 0x88, temp_r4 + 0x8C, temp_ip << 0xC,
-                            ((s32)(temp_ip + ((u32)temp_ip >> 0x1F)) >> 1) << 0xC) != 0)
+    if (BtlStage_ClampXY(temp_r4 + 0x88, temp_r4 + 0x8C, temp_ip << 0xC,
+                         ((s32)(temp_ip + ((u32)temp_ip >> 0x1F)) >> 1) << 0xC) != 0)
     {
         ((Boss03*)temp_r4)->unkF8  = 0;
         ((Boss03*)temp_r4)->unkFC  = 0;
@@ -9725,8 +9723,8 @@ static s32 BtlBoss03_NoisAttk_Render(TaskPool* pool, Task* task, void* args) {
         } else {
             var_r0 = 0;
         }
-        CombatStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_r4)->unk88, ((Boss03*)temp_r4)->unk8C,
-                                  ((Boss03*)temp_r4)->unk90);
+        BtlStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_r4)->unk88, ((Boss03*)temp_r4)->unk8C,
+                               ((Boss03*)temp_r4)->unk90);
         BtlSprite_SetPosition(temp_r4, spA, sp8);
         BtlSprite_SetSortKey(temp_r4, 0x7FFFFFFF - ((Boss03*)temp_r4)->unk8C);
         BtlSprite_Render(temp_r4);
@@ -9962,8 +9960,8 @@ static s32 BtlBoss03_ShotEff_Render(BtlBoss03_ShotEff* shotEff) {
     } else {
         var_r0 = 0;
     }
-    CombatStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_ip)->unk28, ((Boss03*)temp_ip)->unk2C,
-                              ((Boss03*)temp_ip)->unk30);
+    BtlStage_WorldToScreen(var_r0, &spA, &sp8, ((Boss03*)temp_ip)->unk28, ((Boss03*)temp_ip)->unk2C,
+                           ((Boss03*)temp_ip)->unk30);
     if (((Boss03*)*temp_r1)->unk24 == 0) {
         BtlSprite_SetPosition(&shotEff->unk_04, (s16)(spA - 0x20), (s16)(sp8 - 0x30));
     } else {
@@ -10318,8 +10316,8 @@ static s32 BtlBoss03_ThrwBdge_Render(BtlBoss03_ThrwBdge* thrwBdge) {
     BOOL var_r0 = func_ov003_020c37f8(&thrwBdge->unk_004) != 0;
     s16  spA, sp8;
 
-    CombatStage_WorldToScreen(var_r0, &spA, &sp8, thrwBdge->actor.position.x, thrwBdge->actor.position.y,
-                              thrwBdge->actor.position.z);
+    BtlStage_WorldToScreen(var_r0, &spA, &sp8, thrwBdge->actor.position.x, thrwBdge->actor.position.y,
+                           thrwBdge->actor.position.z);
     BtlSprite_SetPosition(&thrwBdge->unk_004, spA, sp8);
     BtlSprite_SetSortKey(&thrwBdge->unk_004, 0x7FFFFFFF - thrwBdge->actor.position.y);
     BtlSprite_Render(&thrwBdge->unk_004);

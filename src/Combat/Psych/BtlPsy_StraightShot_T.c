@@ -5,7 +5,7 @@
 static const TaskHandle data_ov003_020dcf2c;
 
 s32 func_ov003_020b8c1c(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(2))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dcf2c.taskName);
     *arg                   = effect;
@@ -21,8 +21,8 @@ static s32 func_ov003_020b8c74(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                = task->data;
-            BtlTouchWork* touch = &g_CombatGlobal->touchWork;
+            self                   = task->data;
+            BattleTouchWork* touch = &g_CombatGlobal->touchWork;
             MI_CpuSet(self, 0, sizeof(*self));
             self->phase        = 0;
             self->effect       = *arg;
@@ -54,8 +54,8 @@ static s32 func_ov003_020b8c74(TaskPool* pool, Task* task, void* args, s32 stage
                 case 1:
                     if (--self->timer == 0)
                         return 0;
-                    if (CombatTouch_IsGesture(2) || CombatTouch_IsGesture(3)) {
-                        BtlTouchWork* touch = &g_CombatGlobal->touchWork;
+                    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) || BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP)) {
+                        BattleTouchWork* touch = &g_CombatGlobal->touchWork;
                         func_ov003_020a6494(touch->x);
                         self->x = touch->x;
                         self->y = touch->y;

@@ -4,8 +4,8 @@
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatActorParams.h"
 #include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatBgAnimSlot.h"
 #include "Combat/Core/CombatBgTiles.h"
-#include "Combat/Core/CombatSpriteSlot.h"
 #include "Engine/Core/DMA.h"
 #include "Engine/File/DatMgr.h"
 #include "Engine/Math/Random.h"
@@ -234,11 +234,11 @@ void CombatAnim_LayerRelease(Ov003AnimLayer* layer) {
     }
 }
 
-/// Uploads the cell data of `slot`'s current animation entry to its BG VRAM destination.
-static void CombatAnim_SlotUploadChars(Ov003SpriteSlot* slot) {
-    const Ov003SpriteAnim* anim = &slot->anims[slot->animIndex];
-    s32                    size;
-    void*                  source;
+/// Copies the BG tiles of `slot`'s current frame to its BG char VRAM destination.
+static void CombatAnim_SlotUploadChars(Ov003BgAnimSlot* slot) {
+    const Ov003BgAnimFrame* anim = &slot->anims[slot->animIndex];
+    s32                     size;
+    void*                   source;
 
     if (slot->charData != NULL) {
         DatMgr_ReleaseData(slot->charData);
@@ -253,12 +253,12 @@ static void CombatAnim_SlotUploadChars(Ov003SpriteSlot* slot) {
     func_02001b44(7, (s32)slot->charDest, ((const CombatBgTiles*)source)->pixels, size);
 }
 
-/// Reloads `slot`'s palette for the current animation entry. Returns the new palette resource.
+/// Reloads `slot`'s palette from the current frame, if the slot has one. Returns the new palette resource.
 // Nonmatching: register allocation around the allocation (the palette-manager base and the
 // start/count temporaries are assigned differently).
-PaletteResource* CombatAnim_SlotReloadPalette(Ov003SpriteSlot* slot) {
-    const Ov003SpriteAnim* anim = &slot->anims[slot->animIndex];
-    void*                  source;
+PaletteResource* CombatAnim_SlotReloadPalette(Ov003BgAnimSlot* slot) {
+    const Ov003BgAnimFrame* anim = &slot->anims[slot->animIndex];
+    void*                   source;
 
     if (!slot->hasPal) {
         return NULL;
@@ -275,9 +275,9 @@ PaletteResource* CombatAnim_SlotReloadPalette(Ov003SpriteSlot* slot) {
     return slot->palette;
 }
 
-/// Sets `slot` up for the animation table `anims`, uploading cell data to `charDest`.
-void CombatAnim_SlotInit(Ov003SpriteSlot* slot, BinIdentifier* iden, const Ov003SpriteAnim* anims, void* charDest, u32 arg4,
-                         u32 arg5) {
+/// Sets `slot` up to animate `anims` into `charDest`; nothing is uploaded until the first update.
+void CombatAnim_SlotInit(Ov003BgAnimSlot* slot, BinIdentifier* iden, const Ov003BgAnimFrame* anims, void* charDest, u32 loop,
+                         u32 disabled) {
     if (anims == NULL) {
         return;
     }
@@ -291,13 +291,13 @@ void CombatAnim_SlotInit(Ov003SpriteSlot* slot, BinIdentifier* iden, const Ov003
     slot->animIndex   = 0;
     slot->timer       = 0;
     slot->hasPal      = 0;
-    slot->loop        = (u16)arg4;
-    slot->oneShot     = (u16)arg5;
+    slot->loop        = (u16)loop;
+    slot->disabled    = (u16)disabled;
     slot->finished    = 0;
 }
 
-/// Points `slot` at the palette pack `iden` and queues a palette allocation.
-void CombatAnim_SlotSetPalette(Ov003SpriteSlot* slot, PaletteResource* palette, BinIdentifier* iden, u32 engine, u8 palStart,
+/// Gives `slot` its own palette from the pack `iden`, loaded at the first palette switch marker.
+void CombatAnim_SlotSetPalette(Ov003BgAnimSlot* slot, PaletteResource* palette, BinIdentifier* iden, u32 engine, u8 palStart,
                                u8 palCount) {
     slot->palIden     = iden;
     slot->paletteData = NULL;
@@ -309,7 +309,7 @@ void CombatAnim_SlotSetPalette(Ov003SpriteSlot* slot, PaletteResource* palette, 
 }
 
 /// Swaps `slot` to a different animation table without reloading anything else.
-void CombatAnim_SlotSetAnims(Ov003SpriteSlot* slot, const Ov003SpriteAnim* anims) {
+void CombatAnim_SlotSetAnims(Ov003BgAnimSlot* slot, const Ov003BgAnimFrame* anims) {
     if (anims == NULL) {
         return;
     }
@@ -319,17 +319,17 @@ void CombatAnim_SlotSetAnims(Ov003SpriteSlot* slot, const Ov003SpriteAnim* anims
     slot->finished  = 0;
 }
 
-/// Advances `slot`'s animation while it has one, uploading cells and switching palettes on markers.
+/// Advances `slot`'s animation while it has one, uploading tiles and switching palettes on markers.
 // Nonmatching: the target lays the palette-marker (-2) case out of line and falls through into the
 // end-marker (-1) case; ours has the two cases the other way round.
-void CombatAnim_SlotUpdate(Ov003SpriteSlot* slot) {
-    const Ov003SpriteAnim* anim;
-    s32                    run;
+void CombatAnim_SlotUpdate(Ov003BgAnimSlot* slot) {
+    const Ov003BgAnimFrame* anim;
+    s32                     run;
 
     if (slot->anims == NULL) {
         return;
     }
-    if (slot->oneShot != 1 && slot->finished != 1) {
+    if (slot->disabled != 1 && slot->finished != 1) {
         anim = &slot->anims[slot->animIndex];
         if (slot->timer == 0) {
             do {
@@ -362,7 +362,7 @@ void CombatAnim_SlotUpdate(Ov003SpriteSlot* slot) {
     }
 }
 
-void CombatAnim_SlotRelease(Ov003SpriteSlot* slot) {
+void CombatAnim_SlotRelease(Ov003BgAnimSlot* slot) {
     if (slot->anims == NULL) {
         return;
     }

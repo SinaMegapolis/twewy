@@ -1,7 +1,7 @@
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatMic.h"
-#include "Combat/Core/CombatTouch.h"
 #include "Engine/Core/System.h"
 #include <nitro/mi/cpumem.h>
 
@@ -93,7 +93,7 @@ s32 func_ov003_020a51c0(void) {
     s32 seen[6];
     MI_CpuSet(seen, 0, sizeof(seen));
 
-    Ov003TouchActor* actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
+    Ov003TouchActor* actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
     while (actor != NULL) {
         if (actor->kind >= 212 && actor->kind <= 217) {
             s32 index = actor->kind - 212;
@@ -102,7 +102,7 @@ s32 func_ov003_020a51c0(void) {
                 count++;
             }
         }
-        actor = CombatList_GetNext(&actor->node);
+        actor = BtlList_GetNext(&actor->node);
     }
     return count == 6;
 }

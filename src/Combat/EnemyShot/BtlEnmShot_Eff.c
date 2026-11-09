@@ -90,8 +90,8 @@ static s32 func_ov003_020ce24c(Ov003EnemyShotEffect* self) {
 
 static s32 func_ov003_020ce288(Ov003EnemyShotEffect* self) {
     s16 x, y;
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
-                              self->position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
+                           self->position.z);
     BtlSprite_SetPosition(&self->sprite, x, y);
     s32 offset = (self->position.y + (self->kind == 1)) ? -10 : 10;
     BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - offset);

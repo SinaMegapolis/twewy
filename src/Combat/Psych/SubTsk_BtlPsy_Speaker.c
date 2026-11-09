@@ -112,8 +112,8 @@ s32 func_ov003_020b9c18(TaskPool* pool, Task* task, void* args, s32 stage) {
             return 1;
         case 2: {
             self           = task->data;
-            s32 projectedX = CombatStage_ToScreenX(0, self->position.x);
-            s32 projectedY = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+            s32 projectedX = BtlStage_ToScreenX(0, self->position.x);
+            s32 projectedY = BtlStage_ToScreenY(0, self->position.y, self->position.z);
             s16 x          = projectedX;
             s16 y          = projectedY;
             s16 topY       = projectedY - 24;

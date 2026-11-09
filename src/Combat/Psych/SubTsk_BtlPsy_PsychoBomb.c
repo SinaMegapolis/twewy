@@ -72,8 +72,8 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
                 }
                 if (remaining == 0)
                     active = 0;
-                s32 y = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
-                s32 x = CombatStage_ToScreenX(0, self->args.position.x);
+                s32 y = BtlStage_ToScreenY(0, self->args.position.y, self->args.position.z);
+                s32 x = BtlStage_ToScreenX(0, self->args.position.x);
                 if (func_ov003_020a66f4(&self->args.effect->streak, 0x18E, x, y, 0, 0) == 1)
                     CombatSe_PlayAtMainX(0x56, self->args.position.x);
             }
@@ -85,8 +85,8 @@ static s32 func_ov003_020abe60(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003PsychoBomb* self = task->data;
-            s32              x    = CombatStage_ToScreenX(0, self->args.position.x);
-            s32              y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
+            s32              x    = BtlStage_ToScreenX(0, self->args.position.x);
+            s32              y    = BtlStage_ToScreenY(0, self->args.position.y, self->args.position.z);
             for (s32 i = 0; i < 2; i++) {
                 if (Sprite_HasAnimation(&self->sprites[i].sprite)) {
                     BtlSprite_SetPosition(&self->sprites[i], x, y);

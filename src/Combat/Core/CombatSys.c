@@ -482,7 +482,7 @@ s32 CombatSys_SpawnObsTask(u16 id, s32 arg1, s32 arg2, s32* out) {
             break;
     }
     *out = EasyTask_CreateTask(&g_CombatGlobal->unk_00000, handle, NULL, 0, NULL, &spawn);
-    return (s32)CombatList_GetTail(&g_CombatGlobal->unk3D8B4);
+    return (s32)BtlList_GetTail(&g_CombatGlobal->unk3D8B4);
 }
 
 void CombatSys_DefeatObs(Ov003EffectActor* effect) {
@@ -501,7 +501,7 @@ void CombatSys_SetupObs(Ov003EffectActor* effect, Ov003EffectSpawn* spawn) {
     effect->actor.position.y = spawn->arg2;
     effect->actor.position.z = 0;
     BtlCollision_Add(&effect->sprite.collider, 3, effect->actor.radius, effect->actor.height);
-    CombatList_Append(&g_CombatGlobal->unk3D8B4, &effect->node, effect);
+    BtlList_Append(&g_CombatGlobal->unk3D8B4, &effect->node, effect);
 }
 
 void CombatSys_UpdateObs(Ov003EffectActor* effect) {
@@ -512,10 +512,10 @@ void CombatSys_UpdateObs(Ov003EffectActor* effect) {
     if (!(effect->actor.flags & ACTOR_FLAG_HELD)) {
         range = effect->actor.radius;
         half  = (range / 2) << 12;
-        if (CombatStage_ClampX(&effect->actor.position.x, range << 12) != 0) {
+        if (BtlStage_ClampX(&effect->actor.position.x, range << 12) != 0) {
             effect->actor.xVelocity = 0;
         }
-        if (CombatStage_ClampY(&effect->actor.position.y, half, effect->actor.position.x) != 0) {
+        if (BtlStage_ClampY(&effect->actor.position.y, half, effect->actor.position.x) != 0) {
             effect->actor.yVelocity = 0;
         }
     }
@@ -525,18 +525,18 @@ void CombatSys_UpdateObs(Ov003EffectActor* effect) {
 
 void CombatSys_RemoveObs(Ov003EffectActor* effect) {
     BtlCollision_Remove(&effect->sprite.collider);
-    CombatList_Remove(&g_CombatGlobal->unk3D8B4, &effect->node);
+    BtlList_Remove(&g_CombatGlobal->unk3D8B4, &effect->node);
 }
 
 void CombatSys_ResetObsList(void) {
-    CombatList_Init(&g_CombatGlobal->unk3D8B4);
+    BtlList_Init(&g_CombatGlobal->unk3D8B4);
 }
 
 /// Picks the hit effect/SE combo for whatever the main engine's camera is currently showing.
 void CombatSys_RollObsDrop(void) {
     s32                      index;
     const CombatObsSpawnCmd* commands = NULL;
-    Ov003Camera*             camera   = &g_CombatGlobal->unk3D7C0[0];
+    BattleCamera*            camera   = &g_CombatGlobal->unk3D7C0[0];
     const u8*                weights;
     s16                      roll;
 
@@ -579,14 +579,14 @@ void CombatSys_PushPartnerAction(u16 value) {
     Ov003ChargeEntry* entry;
 
     state->unk_08 = 0;
-    entry         = CombatList_GetHead(&state->unk_0C);
+    entry         = BtlList_GetHead(&state->unk_0C);
     if (entry != NULL) {
         entry->value = value;
-        CombatList_Remove(&state->unk_0C, &entry->node);
-        CombatList_Append(&state->unk_14, &entry->node, entry);
+        BtlList_Remove(&state->unk_0C, &entry->node);
+        BtlList_Append(&state->unk_14, &entry->node, entry);
         return;
     }
-    entry = CombatList_GetTail(&state->unk_14);
+    entry = BtlList_GetTail(&state->unk_14);
     if (entry != NULL) {
         entry->value = value;
     }
@@ -599,18 +599,18 @@ static void CombatSys_FreePartnerAction(Ov003ChargeEntry* entry) {
         return;
     }
     entry->value = 0;
-    CombatList_Remove(&state->unk_14, &entry->node);
-    CombatList_Append(&state->unk_0C, &entry->node, entry);
+    BtlList_Remove(&state->unk_14, &entry->node);
+    BtlList_Append(&state->unk_0C, &entry->node, entry);
 }
 
 void CombatSys_ClearPartnerActions(void) {
-    Ov003ChargeEntry* entry = CombatList_GetHead(&g_CombatGlobal->chargeState->unk_14);
+    Ov003ChargeEntry* entry = BtlList_GetHead(&g_CombatGlobal->chargeState->unk_14);
 
     if (entry == NULL) {
         return;
     }
     do {
-        Ov003ChargeEntry* next = CombatList_GetNext(&entry->node);
+        Ov003ChargeEntry* next = BtlList_GetNext(&entry->node);
         CombatSys_FreePartnerAction(entry);
         entry = next;
     } while (entry != NULL);
@@ -623,13 +623,13 @@ void CombatSys_SetPartnerDirection(s32 value) {
 u16 CombatSys_PopPartnerAction(void) {
     Ov003ChargeState* state = g_CombatGlobal->chargeState;
     u16               value = 0;
-    Ov003ChargeEntry* entry = CombatList_GetHead(&state->unk_14);
+    Ov003ChargeEntry* entry = BtlList_GetHead(&state->unk_14);
 
     if (entry != NULL) {
         value        = entry->value;
         entry->value = 0;
-        CombatList_Remove(&state->unk_14, &entry->node);
-        CombatList_Append(&state->unk_0C, &entry->node, entry);
+        BtlList_Remove(&state->unk_14, &entry->node);
+        BtlList_Append(&state->unk_0C, &entry->node, entry);
     }
     return value;
 }
@@ -682,12 +682,12 @@ void CombatSys_InitPartnerActions(Ov003ChargeState* state) {
     state->unk_06               = 0;
     state->unk_08               = 0;
     state->unk_00               = 0;
-    CombatList_Init(&state->unk_0C);
-    CombatList_Init(&state->unk_14);
+    BtlList_Init(&state->unk_0C);
+    BtlList_Init(&state->unk_14);
     entry = state->entries;
     for (i = 0; i < 16; i++) {
         entry->value = 0;
-        CombatList_Append(&state->unk_0C, &entry->node, entry);
+        BtlList_Append(&state->unk_0C, &entry->node, entry);
         entry++;
     }
 }
@@ -961,15 +961,15 @@ void func_ov003_02087250(Ov003EffectState* state, BattleActor* target, s32 angle
     if (target == NULL) {
         return;
     }
-    effect = CombatList_GetHead(&pool->free);
+    effect = BtlList_GetHead(&pool->free);
     if (effect == NULL) {
         return;
     }
     effect->state  = state;
     effect->target = target;
     effect->angle  = angle;
-    CombatList_Remove(&pool->free, &effect->node);
-    CombatList_Append(&pool->active, &effect->node, effect);
+    BtlList_Remove(&pool->free, &effect->node);
+    BtlList_Append(&pool->active, &effect->node, effect);
 }
 
 void func_ov003_020872b4(Ov003ActionEffect* effect) {
@@ -982,25 +982,25 @@ void func_ov003_020872b4(Ov003ActionEffect* effect) {
     effect->state  = NULL;
     effect->target = NULL;
     effect->angle  = 0;
-    CombatList_Remove(&pool->active, &effect->node);
-    CombatList_Append(&pool->free, &effect->node, effect);
+    BtlList_Remove(&pool->active, &effect->node);
+    BtlList_Append(&pool->free, &effect->node, effect);
 }
 
 void func_ov003_02087310(void) {
-    Ov003ActionEffect* effect = CombatList_GetHead(&g_CombatGlobal->actionEffects.active);
+    Ov003ActionEffect* effect = BtlList_GetHead(&g_CombatGlobal->actionEffects.active);
 
     if (effect == NULL) {
         return;
     }
     do {
-        Ov003ActionEffect* next = CombatList_GetNext(&effect->node);
+        Ov003ActionEffect* next = BtlList_GetNext(&effect->node);
         func_ov003_020872b4(effect);
         effect = next;
     } while (effect != NULL);
 }
 
 Ov003ActionEffect* func_ov003_02087358(void) {
-    return CombatList_GetHead(&g_CombatGlobal->actionEffects.active);
+    return BtlList_GetHead(&g_CombatGlobal->actionEffects.active);
 }
 
 void func_ov003_02087378(void) {
@@ -1008,22 +1008,22 @@ void func_ov003_02087378(void) {
     s32                    i;
     Ov003ActionEffect*     effect;
 
-    CombatList_Init(&pool->free);
-    CombatList_Init(&pool->active);
+    BtlList_Init(&pool->free);
+    BtlList_Init(&pool->active);
     effect = pool->entries;
     for (i = 0; i < 8; i++) {
         effect->unk_00 = 0;
         effect->state  = NULL;
         effect->target = NULL;
         effect->angle  = 0;
-        CombatList_Append(&pool->free, &effect->node, effect);
+        BtlList_Append(&pool->free, &effect->node, effect);
         effect++;
     }
 }
 
 /// Retires the action effects whose target actor is gone or defeated.
 void func_ov003_020873e0(void) {
-    Ov003ActionEffect* effect = CombatList_GetHead(&g_CombatGlobal->actionEffects.active);
+    Ov003ActionEffect* effect = BtlList_GetHead(&g_CombatGlobal->actionEffects.active);
 
     if (effect == NULL) {
         return;
@@ -1032,11 +1032,11 @@ void func_ov003_020873e0(void) {
         s32 flags = effect->target->flags;
 
         if ((flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_INTANGIBLE) || (flags & ACTOR_FLAG_LAUNCHED)) {
-            Ov003ActionEffect* next = CombatList_GetNext(&effect->node);
+            Ov003ActionEffect* next = BtlList_GetNext(&effect->node);
             func_ov003_020872b4(effect);
             effect = next;
         } else {
-            effect = CombatList_GetNext(&effect->node);
+            effect = BtlList_GetNext(&effect->node);
         }
     } while (effect != NULL);
 }
@@ -1138,12 +1138,12 @@ s32 func_ov003_02087704(void) {
     s32          dx;
     s32          dy;
 
-    if (CombatTouch_IsGesture(6) == 0 || CombatTouch_IsTargetKind(1) == 0) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) == 0 || BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER) == 0) {
         return 0;
     }
-    x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-    y = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-    CombatStage_ClampXY(&x, &y, 0x8000, 0x8000);
+    x = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+    y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+    BtlStage_ClampXY(&x, &y, 0x8000, 0x8000);
     actor = g_CombatGlobal->player;
     dx    = x - actor->position.x;
     dy    = y - actor->position.y;

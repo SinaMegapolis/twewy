@@ -1,8 +1,8 @@
 #include "Combat/Core/BtlTch.h"
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatTouch.h"
 #include <nitro/mi/cpumem.h>
 
 // The stylus cursor icon: a sprite on the touch screen that follows the stylus while it is down.

@@ -232,7 +232,7 @@ static void func_ov003_020a09f4(BtlReady* self) {
         case 1:
             EasyFade_FadeBothDisplays(0, 0, 0x800);
             BtlMgr_SetState(2);
-            CombatTouch_Clear();
+            BtlTouch_Clear();
             func_ov003_020a060c(self, func_ov003_020a0ac0);
             break;
     }

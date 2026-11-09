@@ -375,7 +375,7 @@ static BOOL func_ov003_0208f8d4(BtlPlayer00* self) {
     s32          dx;
     s32          dy;
 
-    if (!CombatTouch_IsGesture(6) || !CombatTouch_IsTargetKind(1)) {
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) || !BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER)) {
         return FALSE;
     }
     global = g_CombatGlobal;
@@ -438,12 +438,12 @@ static void func_ov003_0208fa78(BtlPlayer00* self, s32 mode) {
     if (self->flags & 4) {
         BOOL moved;
 
-        if (!CombatTouch_IsGesture(6)) {
+        if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG)) {
             moved = FALSE;
         } else {
-            self->targetX = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-            self->targetY = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-            CombatStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
+            self->targetX = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+            self->targetY = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+            BtlStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
             moved = TRUE;
         }
         if (!moved) {
@@ -479,7 +479,7 @@ static void func_ov003_0208fa78(BtlPlayer00* self, s32 mode) {
     }
     self->actor.position.x += vx;
     self->actor.position.y += vy;
-    CombatStage_SetCameraTarget(0, self->targetX, self->targetY, 0);
+    BtlStage_SetCameraTarget(0, self->targetX, self->targetY, 0);
 }
 
 /// Casts the hit box `id` of the current attack `x`,`z` pixels in front of the player.
@@ -673,7 +673,7 @@ static void func_ov003_0208fff8(BtlPlayer00* self) {
             }
             break;
     }
-    CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, 0);
+    BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, 0);
 }
 
 /// Gets up with the help of the revive item.
@@ -691,7 +691,7 @@ static void func_ov003_02090288(BtlPlayer00* self) {
             }
             break;
     }
-    CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, 0);
+    BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, 0);
 }
 
 /// The battle ends in a win: the player cheers.
@@ -742,7 +742,7 @@ static void func_ov003_0209040c(BtlPlayer00* self) {
             }
             break;
     }
-    CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
+    BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
 }
 
 static void func_ov003_0209052c(BtlPlayer00* self) {
@@ -755,7 +755,7 @@ static void func_ov003_0209052c(BtlPlayer00* self) {
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
         func_ov003_0208f384(self, func_ov003_02090588);
     }
-    CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, 0);
+    BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, 0);
 }
 
 /// Idle: stands, walks in place and waits for the stylus.
@@ -776,7 +776,7 @@ static void func_ov003_02090588(BtlPlayer00* self) {
         BtlSprite_SetAnimFromTable(&self->sprite, 2, 0);
     }
     self->timer++;
-    CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
+    BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
     if (!func_ov003_0208f664(self)) {
         func_ov003_0208f8d4(self);
     }
@@ -796,14 +796,14 @@ static void func_ov003_02090688(BtlPlayer00* self) {
     if (func_ov003_0208f664(self)) {
         return;
     }
-    if (!CombatTouch_IsTargetKind(1)) {
+    if (!BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER)) {
         func_ov003_0208f384(self, func_ov003_02090588);
         return;
     }
-    if (CombatTouch_IsGesture(6)) {
-        self->targetX = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-        self->targetY = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-        CombatStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG)) {
+        self->targetX = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+        self->targetY = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+        BtlStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
     }
     dx       = self->targetX - self->actor.position.x;
     dy       = self->targetY - self->actor.position.y;
@@ -817,12 +817,12 @@ static void func_ov003_02090688(BtlPlayer00* self) {
         global = g_CombatGlobal;
         BtlMgr_MoveByAngle(&self->actor.position.x, &self->actor.position.y, FX_Atan2Idx(dy, dx),
                            global->unk3D894 * 0x2CCD / 100);
-        CombatStage_SetCameraTarget(0, self->targetX, self->targetY, 0);
+        BtlStage_SetCameraTarget(0, self->targetX, self->targetY, 0);
         BtlSprite_SetAnimFromTable(&self->sprite, 14, 0);
         func_ov003_0208f418(&self->sprite, self->actor.position.x);
         return;
     }
-    if (CombatTouch_IsGesture(6)) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG)) {
         BtlSprite_SetAnimFromTable(&self->sprite, 14, 0);
         func_ov003_0208f418(&self->sprite, self->actor.position.x);
         return;
@@ -958,7 +958,7 @@ static void func_ov003_02090c18(BtlPlayer00* self) {
         func_ov003_0208f998(self, self->command.target, 1);
         self->targetX = self->actor.position.x;
         self->targetY = self->actor.position.y;
-        CombatStage_SetCameraTarget(0, self->targetX, self->actor.position.y, 0);
+        BtlStage_SetCameraTarget(0, self->targetX, self->actor.position.y, 0);
     }
     if (self->timer == 10) {
         if (self->command.state->unk_08 < self->command.state->flag) {
@@ -1049,7 +1049,7 @@ static void func_ov003_020910ac(BtlPlayer00* self) {
         func_ov003_0208f998(self, self->command.target, 0);
         self->targetX = self->actor.position.x;
         self->targetY = self->actor.position.y;
-        CombatStage_SetCameraTarget(0, self->targetX, self->actor.position.y, 0);
+        BtlStage_SetCameraTarget(0, self->targetX, self->actor.position.y, 0);
     }
     if (self->timer == 0x11) {
         if (func_ov003_0208fc24(self, 3, 0x3C, -0x18)) {
@@ -1092,7 +1092,7 @@ static void func_ov003_02091214(BtlPlayer00* self) {
         } else {
             BtlMgr_MoveByAngle(&self->actor.position.x, &self->actor.position.y, 0, speed << 12);
         }
-        CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
+        BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
         func_ov003_0208fc7c(self, 5, 0x3C, -0x18);
     }
     x          = self->actor.position.x;
@@ -1126,7 +1126,7 @@ static void func_ov003_02091468(BtlPlayer00* self) {
             func_ov003_0208f998(self, self->command.target, 1);
             self->targetX = self->actor.position.x;
             self->targetY = self->actor.position.y;
-            CombatStage_SetCameraTarget(0, self->targetX, self->actor.position.y, 0);
+            BtlStage_SetCameraTarget(0, self->targetX, self->actor.position.y, 0);
             if (!SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                 return;
             }
@@ -1295,7 +1295,7 @@ static void func_ov003_02091a14(BtlPlayer00* self) {
     tick = BtlPlayer00_Tick(&self->sprite);
     if (tick < 2) {
         func_ov003_0208f998(self, self->command.target, 1);
-        CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
+        BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
         self->targetX = self->actor.position.x;
         self->targetY = self->actor.position.y;
     }
@@ -1339,7 +1339,7 @@ static void func_ov003_02091b7c(BtlPlayer00* self) {
         self->targetY = self->actor.position.y;
         func_ov003_0208fc24(self, 6, 0, -0x18);
     }
-    CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, 0);
+    BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, 0);
     if (tick == 7) {
         g_CombatGlobal->unk3D8C8 = 0;
         func_ov003_0208f384(self, func_ov003_0209052c);
@@ -1447,17 +1447,17 @@ static void func_ov003_020920c8(BtlPlayer00* self) {
         self->flags |= 1;
     }
     if (self->timer > 4) {
-        if (CombatTouch_IsGesture(6)) {
-            self->targetX = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-            self->targetY = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-            CombatStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
+        if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG)) {
+            self->targetX = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+            self->targetY = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+            BtlStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
         }
-        CombatStage_SetCameraTarget(0, self->targetX, self->targetY, 0);
+        BtlStage_SetCameraTarget(0, self->targetX, self->targetY, 0);
         BtlPlayer00_FaceX(&self->actor, self->targetX);
         self->actor.position.x = self->targetX;
         self->actor.position.y = self->targetY;
-        self->actor.screenX    = CombatStage_ToScreenX(0, self->actor.position.x);
-        self->actor.screenY    = CombatStage_ToScreenY(0, self->actor.position.y, self->actor.position.z);
+        self->actor.screenX    = BtlStage_ToScreenX(0, self->actor.position.x);
+        self->actor.screenY    = BtlStage_ToScreenY(0, self->actor.position.y, self->actor.position.z);
     }
     if (g_CombatGlobal->unk3D8C8 == 0) {
         self->flags &= ~1;
@@ -1558,7 +1558,7 @@ static s32 BtlPlayer00_Init(TaskPool* pool, Task* task, void* args) {
     BtlSprite_LoadFromTable(0, &self->sprite, &data_ov003_020d77d8, data_ov003_020d79cc, 2, 0x3A, 0x64);
     CombatHit_LoadSpark(0, &self->shadow, 2);
     BtlSprite_LoadDirect(0, &self->target, &data_ov003_020d7800, 22, 24, 23, 0x3D, 0);
-    CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
+    BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
     BtlCollision_Add(&self->collider, 0, 0xC, 0x30);
     func_ov003_0208f384(self, func_ov003_0208fde0);
     return 1;
@@ -1606,7 +1606,7 @@ static s32 BtlPlayer00_Update(TaskPool* pool, Task* task, void* args) {
     if (self->collider.hitLayers != 0) {
         BtlCollision_ApplyPush(&self->collider, &self->actor.position.x, &self->actor.position.y, &self->actor.position.z);
     }
-    CombatStage_ClampXY(&self->actor.position.x, &self->actor.position.y, 0x8000, 0x8000);
+    BtlStage_ClampXY(&self->actor.position.x, &self->actor.position.y, 0x8000, 0x8000);
     BtlCollision_SetPosition(&self->collider, self->actor.position.x, self->actor.position.y, self->actor.position.z);
     BtlSprite_Update(&self->sprite);
     BtlSprite_Update(&self->shadow);
@@ -1630,8 +1630,8 @@ static s32 BtlPlayer00_Render(TaskPool* pool, Task* task, void* args) {
         CombatHit_DrawSparkOnActor(&self->shadow, &self->actor);
     }
     if (self->flags & 2) {
-        s32 x = CombatStage_ToScreenX(0, self->targetX);
-        s32 y = CombatStage_ToScreenY(0, self->targetY, 0);
+        s32 x = BtlStage_ToScreenX(0, self->targetX);
+        s32 y = BtlStage_ToScreenY(0, self->targetY, 0);
 
         BtlSprite_SetPosition(&self->target, x, y);
         BtlSprite_SetSortKey(&self->target, 0x7FFFFFFF - self->targetY);

@@ -2,55 +2,26 @@
 #define COMBAT_CORE_COMBAT_H
 
 #include "Battle/Core/BtlActor.h"
-#include "Combat/Core/CombatList.h"
+#include "Battle/Core/BtlList.h"
+#include "Battle/Core/BtlStage.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/CombatMic.h"
-#include "Combat/Core/CombatTouch.h"
+#include "Combat/Core/CombatPsych.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/DatMgr.h"
 #include "Engine/Resources/PaletteMgr.h"
 #include "Save/MainData.h"
 #include "SndMgrSeIdx.h"
 
-/// One per screen engine; `BtlEnm015_Shake` jitters the offset at 0x44..0x4C.
-typedef struct Ov003Camera {
-    /* 0x00 */ union {
-        s16 unk_00;
-        u16 pathId;
-    };
-    /* 0x02 */ u16 unk_02;
-    /* 0x04 */ s32 unk_04;
-    /* 0x08 */ s32 unk_08;
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ s32 unk_10;
-    /* 0x14 */ s32 posY;
-    /* 0x18 */ s32 posX;
-    /* 0x1C */ u16 rotation;
-    /* 0x1E */ s16 unk_1E;
-    /* 0x20 */ s32 unk_20;
-    /* 0x24 */ s32 unk_24;
-    /* 0x28 */ s32 unk_28; // screen-space centre X used by the battle projection
-    /* 0x2C */ s32 unk_2C;
-    /* 0x30 */ s32 unk_30;
-    /* 0x34 */ s32 unk_34;
-    /* 0x38 */ s32 unk_38;
-    /* 0x3C */ s32 unk_3C;
-    /* 0x40 */ s32 unk_40; // screen-space centre Y used by the battle projection
-    /* 0x44 */ s32 unk_44;
-    /* 0x48 */ s32 unk_48;
-    /* 0x4C */ s32 unk_4C;
-    /* 0x50 */ s32 shakeY;
-    /* 0x54 */ s32 shakeX;
-} Ov003Camera; // Size: 0x58
-
 /// The camera shake animation driven through the battle camera views.
 typedef struct Ov003CameraAnim {
-    /* 0x00 */ s32          index; // which of the two cameras
-    /* 0x04 */ Ov003Camera* camera;
-    /* 0x08 */ s32          timer; // -1 = idle
-    /* 0x0C */ s32          period;
-    /* 0x10 */ s32          dir;   // 1 = negative offset
-    /* 0x14 */ s32          offset;
-} Ov003CameraAnim;                 // Size: 0x18
+    /* 0x00 */ s32           index; // which of the two cameras
+    /* 0x04 */ BattleCamera* camera;
+    /* 0x08 */ s32           timer; // -1 = idle
+    /* 0x0C */ s32           period;
+    /* 0x10 */ s32           dir;   // 1 = negative offset
+    /* 0x14 */ s32           offset;
+} Ov003CameraAnim;                  // Size: 0x18
 
 typedef struct Ov003EffectSlots {
     union {
@@ -79,12 +50,12 @@ typedef struct Ov003ActionEffect {
     /* 0x04 */ Ov003EffectState* state;
     /* 0x08 */ BattleActor*      target;
     /* 0x0C */ s32               angle;
-    /* 0x10 */ CombatListNode    node;
+    /* 0x10 */ BattleListNode    node;
 } Ov003ActionEffect; // Size: 0x1C
 
 typedef struct Ov003ActionEffectPool {
-    /* 0x000 */ CombatList        free;
-    /* 0x008 */ CombatList        active;
+    /* 0x000 */ BattleList        free;
+    /* 0x008 */ BattleList        active;
     /* 0x010 */ Ov003ActionEffect entries[8];
 } Ov003ActionEffectPool; // Size: 0xF0
 
@@ -116,7 +87,7 @@ typedef struct Ov003TouchEvent {
 typedef struct Ov003ChargeEntry {
     /* 0x00 */ u16            value;
     /* 0x02 */ u16            unk_02;
-    /* 0x04 */ CombatListNode node;
+    /* 0x04 */ BattleListNode node;
 } Ov003ChargeEntry; // Size: 0x10
 
 typedef struct Ov003ChargeState {
@@ -125,8 +96,8 @@ typedef struct Ov003ChargeState {
     /* 0x004 */ u16              unk_04;
     /* 0x006 */ u16              unk_06;
     /* 0x008 */ s32              unk_08;
-    /* 0x00C */ CombatList       unk_0C;
-    /* 0x014 */ CombatList       unk_14;
+    /* 0x00C */ BattleList       unk_0C;
+    /* 0x014 */ BattleList       unk_14;
     /* 0x01C */ Ov003ChargeEntry entries[16];
 } Ov003ChargeState; // Size: 0x11C
 
@@ -168,13 +139,13 @@ typedef struct {
     /* 0x3D350 */ Data*                 unk3D350;
     /* 0x3D354 */ Data*                 unk3D354;
     /* 0x3D358 */ Ov003EffectSlots      effectSlots;
-    /* 0x3D370 */ BtlTouchWork          touchWork;
+    /* 0x3D370 */ BattleTouchWork       touchWork;
     /* 0x3D3CC */ Ov003ActionEffectPool actionEffects;
     /* 0x3D4BC */ Ov003TouchEvent       touchEvents[14];
     /* 0x3D75C */ u8                    unk_3D75C[4];
     /* 0x3D760 */ BtlMicInput           microphone;
     /* 0x3D7A4 */ u8                    unk_3D7A4[0x3D7C0 - 0x3D7A4];
-    /* 0x3D7C0 */ Ov003Camera           unk3D7C0[2]; // [0] main engine, [1] sub engine
+    /* 0x3D7C0 */ BattleCamera          unk3D7C0[2]; // [0] main engine, [1] sub engine
     /* 0x3D870 */ s32                   unk3D870;
     /* 0x3D874 */ u8                    unk3D874;    // battle state
     /* 0x3D875 */ u8                    unk3D875;    // battle sub state
@@ -194,10 +165,10 @@ typedef struct {
     /* 0x3D898 */ BattleActor*          player;   // Neku (BtlPlayer00), on the main engine
     /* 0x3D89C */ BattleActor*          partner;  // the partner, on the sub engine
     /* 0x3D8A0 */ void*                 unk3D8A0;
-    /* 0x3D8A4 */ CombatList            unk3D8A4; // units the sub screen attacks
-    /* 0x3D8AC */ CombatList            unk3D8AC; // units the main screen attacks
-    /* 0x3D8B4 */ CombatList            unk3D8B4;
-    /* 0x3D8BC */ CombatList            unk3D8BC;
+    /* 0x3D8A4 */ BattleList            unk3D8A4; // units the sub screen attacks
+    /* 0x3D8AC */ BattleList            unk3D8AC; // units the main screen attacks
+    /* 0x3D8B4 */ BattleList            unk3D8B4;
+    /* 0x3D8BC */ BattleList            unk3D8BC;
     /* 0x3D8C4 */ u16                   touchActorCount;
     /* 0x3D8C6 */ u8                    unk_3D8C6[0x2];
     /* 0x3D8C8 */ s32                   unk3D8C8;
@@ -285,19 +256,7 @@ typedef struct Ov003CutinSaveState {
     /* 0x30 */ u32 magic;
 } Ov003CutinSaveState; // Size: 0x34
 
-/// The persistent settings array (25 limits and tunables), validated with a magic word.
-typedef struct Ov003Settings {
-    /* 0x00 */ s32 reserved00;
-    /* 0x04 */ s32 values[25];
-    /* 0x68 */ s32 unk_68;
-    /* 0x6C */ s32 unk_6C;
-    /* 0x70 */ s32 magic;
-    /* 0x74 */ s8  current;
-    /* 0x75 */ u8  reserved75[3];
-} Ov003Settings; // Size: 0x78
-
 extern Ov003CutinSaveState gCombatCutinSave;
-extern Ov003Settings       gCombatSettings;
 
 /// Battle scene work area, allocated from `gDebugHeap` and referenced from the overlay dispatcher
 /// (`MainOvlDisp_SetCbArg`) and the debug overlay stack.

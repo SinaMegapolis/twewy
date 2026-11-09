@@ -108,8 +108,8 @@ static void func_ov017_02125840(BtlBoss02_00_RG* rg) {
 
 static void func_ov017_02125908(BtlBoss02_00_RG* rg) {
     if (rg->unk_238 != 0) {
-        BtlSprite_SetPosition(&rg->unk_1D8, CombatStage_ToScreenX(1, rg->unk_23C),
-                              CombatStage_ToScreenY(1, rg->unk_240, rg->unk_244));
+        BtlSprite_SetPosition(&rg->unk_1D8, BtlStage_ToScreenX(1, rg->unk_23C),
+                              BtlStage_ToScreenY(1, rg->unk_240, rg->unk_244));
         BtlSprite_SetSortKey(&rg->unk_1D8, 0x7FFFFFFE - rg->unk_240);
         BtlSprite_Render(&rg->unk_1D8);
     }

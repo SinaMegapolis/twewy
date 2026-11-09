@@ -1,6 +1,7 @@
 #ifndef TWEWY_COMBAT_CORE_COMBATPSYUTIL_H
 #define TWEWY_COMBAT_CORE_COMBATPSYUTIL_H
 
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnemyActor.h"
@@ -25,10 +26,11 @@ void func_ov003_020a6198(Ov003EnemyActor* unit, s32 arg1);
 /// Applies pending command 5 and launches `unit` at `speed` in direction `angle`.
 void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, BattleAttackArgs* args, s32 angle, s32 speed,
                          s32 zVelocity);
-s32  func_ov003_020a62b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-s32  func_ov003_020a62d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-s32  func_ov003_020a62ec(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-s32  func_ov003_020a632c(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+BattleTouchWork* func_ov003_020a62a0(void);
+s32              func_ov003_020a62b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+s32              func_ov003_020a62d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+s32              func_ov003_020a62ec(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+s32              func_ov003_020a632c(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 /// Whether a (0..0x100, 0..0xC0) point lies inside a square of half-size `arg2`.
 s32 func_ov003_020a6374(s32 arg0, s32 arg1, s32 arg2);
 /// Whether the current battle lets the effect run.

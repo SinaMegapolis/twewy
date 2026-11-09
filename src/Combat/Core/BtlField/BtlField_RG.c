@@ -1,9 +1,9 @@
+#include "Battle/Core/BtlBgScript.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlField.h"
 #include "Combat/Core/BtlFieldData.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatBgRes.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Display.h"
 #include "Engine/Core/DMA.h"
@@ -26,7 +26,7 @@
 struct BtlFieldRG;
 
 typedef struct BtlFieldRG {
-    /* 0x00 */ Ov003Camera*     camera;
+    /* 0x00 */ BattleCamera*    camera;
     /* 0x04 */ Data*            data;
     /* 0x08 */ PaletteResource* palette;
     /* 0x0C */ BgResource*      charResA;
@@ -40,7 +40,7 @@ typedef struct BtlFieldRG {
     /* 0xA4 */ s16              timer; // fade-in timer, 0 = idle
     /* 0xA6 */ s16              unk_A6;
     /* 0xA8 */ void (*update)(struct BtlFieldRG* self);
-    /* 0xAC */ Ov003BgResState baseMap;
+    /* 0xAC */ BattleBgScriptState bgScript;
 } BtlFieldRG; // Size: 0x138
 
 static s32 BtlField_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
@@ -81,15 +81,15 @@ static void func_ov003_020929b8(void) {
     g_DisplaySettings.controls[1].layers |= 6;
 }
 
-/// Starts the scroll script that the save's battle index picks (the first one if it is out of range).
-static void func_ov003_02092a5c(BtlFieldRG* state, const Ov003ResCmd** scripts, u16 count) {
+/// Runs the background script that the save's battle index picks (the first one if it is out of range).
+static void BtlField_RG_RunBgScript(BtlFieldRG* state, const BattleBgScriptWord** scripts, u16 count) {
     u16 index = gSaveData.unk_3232;
 
     if (scripts != NULL) {
         if (index >= count) {
             index = 0;
         }
-        CombatBgRes_RunScript(&state->baseMap, scripts[index], state->data);
+        BtlBgScript_Run(&state->bgScript, scripts[index], state->data);
     }
 }
 
@@ -140,7 +140,7 @@ static void func_ov003_02092c10(BtlFieldRG* state) {
 }
 
 /// Eases the camera's view point toward its target, keeping it inside the floor's bounds.
-static void func_ov003_02092c88(Ov003Camera* camera) {
+static void func_ov003_02092c88(BattleCamera* camera) {
     s32 dx;
     s32 dy;
     s32 dz;
@@ -210,7 +210,7 @@ static s32 BtlField_RG_Init(TaskPool* pool, Task* task, void* args) {
     state->camera->unk_02 |= 1;
 
     def = &BtlField_RG_Defs[state->camera->pathId];
-    CombatBgRes_Init(&state->baseMap, 1, def->iden);
+    BtlBgScript_Init(&state->bgScript, 1, def->iden);
 
     state->data = DatMgr_LoadPackEntry(1, NULL, 0, def->iden, def->charPack, 0);
     palData     = Data_GetPackEntryData(state->data, def->paletteIndex);
@@ -226,7 +226,7 @@ static s32 BtlField_RG_Init(TaskPool* pool, Task* task, void* args) {
     PaletteMgr_Flush(g_PaletteManagers[1], state->palette);
     DMA_Flush();
 
-    func_ov003_02092a5c(state, def->scripts, def->scrollRows);
+    BtlField_RG_RunBgScript(state, def->scripts, def->scriptCount);
     DatMgr_ReleaseData(state->data);
 
     state->data = DatMgr_LoadPackEntry(1, NULL, 0, def->iden, def->rowPack, 0);
@@ -263,7 +263,7 @@ static s32 BtlField_RG_Update(TaskPool* pool, Task* task, void* args) {
     if (state->update != NULL) {
         state->update(state);
     }
-    CombatBgRes_Update(&state->baseMap);
+    BtlBgScript_Update(&state->bgScript);
     func_ov003_02092c88(state->camera);
     return 1;
 }
@@ -283,7 +283,7 @@ static s32 BtlField_RG_Release(TaskPool* pool, Task* task, void* args) {
     PaletteMgr_ReleaseResource(g_PaletteManagers[1], state->palette);
     func_0200d954(1, 1);
     func_0200d954(1, 2);
-    CombatBgRes_Release(&state->baseMap);
+    BtlBgScript_Release(&state->bgScript);
     if (state->extraChars != NULL) {
         BgResMgr_ReleaseChar(g_BgResourceManagers[1], state->extraChars);
     }

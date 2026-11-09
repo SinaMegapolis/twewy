@@ -103,12 +103,12 @@ static void func_ov003_0209fa14(BtlEffSplash* splash) {
         particle = &splash->particles[i];
 
         if (particle->sprite.sprite.bits_0_1 == 1) {
-            x   = CombatStage_ToScreenX(1, particle->position.x);
-            y   = CombatStage_ToScreenY(1, particle->position.y, particle->position.z);
+            x   = BtlStage_ToScreenX(1, particle->position.x);
+            y   = BtlStage_ToScreenY(1, particle->position.y, particle->position.z);
             key = 0x7FFFFFFF - (particle->position.y + 0x8000);
         } else {
-            x   = CombatStage_ToScreenX(0, particle->position.x);
-            y   = CombatStage_ToScreenY(0, particle->position.y, particle->position.z);
+            x   = BtlStage_ToScreenX(0, particle->position.x);
+            y   = BtlStage_ToScreenY(0, particle->position.y, particle->position.z);
             key = y + 8;
         }
         BtlSprite_SetPosition(&particle->sprite, x, y);

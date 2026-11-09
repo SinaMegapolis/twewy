@@ -160,11 +160,11 @@ s32 func_ov013_02125a04(BtlEnm015* arg0, s32 arg1, s32 arg2, s32 arg3) {
                 return 0;
             }
         } else {
-            s16 x = CombatStage_ToScreenX(0, arg0->base.actor.position.x);
+            s16 x = BtlStage_ToScreenX(0, arg0->base.actor.position.x);
             if (x >= 0xDC || x <= 0x1E) {
                 return 0;
             }
-            if (CombatStage_ToScreenY(0, arg0->base.actor.position.y, arg0->base.actor.position.z) <= 0x32) {
+            if (BtlStage_ToScreenY(0, arg0->base.actor.position.y, arg0->base.actor.position.z) <= 0x32) {
                 return 0;
             }
         }

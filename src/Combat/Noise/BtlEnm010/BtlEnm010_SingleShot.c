@@ -145,17 +145,17 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
     if (func_ov003_020c37f8(&p->sprite) != 0) {
         mode = 1;
         id   = 0x5C;
-        pan  = CombatStage_ToScreenX(mode, p->unk_098);
+        pan  = BtlStage_ToScreenX(mode, p->unk_098);
     } else {
         mode = 0;
         id   = 0x54;
-        pan  = CombatStage_ToScreenX(mode, p->unk_098);
+        pan  = BtlStage_ToScreenX(mode, p->unk_098);
     }
     if (p->unk_064 == 0) {
         p->unk_064 = p->unk_064 + 1;
         CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK, pan);
     }
-    CombatStage_WorldToScreen(mode, &va, &vb, p->unk_09C, p->unk_0A0, p->unk_0A4);
+    BtlStage_WorldToScreen(mode, &va, &vb, p->unk_09C, p->unk_0A0, p->unk_0A4);
     rec = p->shot;
     for (i = 0; i < 3; i++) {
         if (p->unk_0A8 > 0) {
@@ -171,7 +171,7 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
             CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, rec->unk_0C);
         }
         {
-            s32 v = CombatStage_ToWorldX(mode, rec->unk_0C);
+            s32 v = BtlStage_ToWorldX(mode, rec->unk_0C);
             if (v < 0 - 0x8000 || v > func_ov003_020cb744(mode) + 0x8000) {
                 r++;
             }

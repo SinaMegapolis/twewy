@@ -256,8 +256,8 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
             // The render path re-derives the on-screen position and mirrors the affine scale
             // for flipped sprites; the sprite keeps its position as 16-bit cells.
             self  = task->data;
-            s32 x = CombatStage_ToScreenX(0, self->x);
-            s32 y = CombatStage_ToScreenY(0, self->y, self->z);
+            s32 x = BtlStage_ToScreenX(0, self->x);
+            s32 y = BtlStage_ToScreenY(0, self->y, self->z);
             BtlSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
             BtlSprite_SetSortKey(&self->sprite, self->y + 0x1F4000);
             s32 scale                         = self->scale;
@@ -295,8 +295,8 @@ static void func_ov003_020b71a0(Ov003ShockWaveBody* self) {
 // Nonmatching: the two `return 1` sites are merged into one tail block in the target and the
 // `if (phase == 4) return 0; return 1;` pair stays a branch there; mwcc if-converts it here.
 static s32 func_ov003_020b7240(Ov003ShockWaveBody* self) {
-    s32 x = CombatStage_ToScreenX(0, self->x);
-    s32 y = CombatStage_ToScreenY(0, self->y, self->z);
+    s32 x = BtlStage_ToScreenX(0, self->x);
+    s32 y = BtlStage_ToScreenY(0, self->y, self->z);
 
     if (func_ov003_020a6374(x, y, 0x30) == 0) {
         if (self->kind >= 0x11 && self->kind <= 0x14) {
@@ -327,8 +327,8 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
     s16                  targetX;
     s16                  targetY;
 
-    x    = CombatStage_ToScreenX(0, self->x);
-    y    = CombatStage_ToScreenY(0, self->y, self->z);
+    x    = BtlStage_ToScreenX(0, self->x);
+    y    = BtlStage_ToScreenY(0, self->y, self->z);
     kind = data_ov003_020dcb10[self->kind].attackKind;
     if (kind == 0x180 && func_ov003_020a51c0() != 0) {
         kind = 0x181;
@@ -429,11 +429,11 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
 }
 
 static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
-    BtlTouchWork* touch = &g_CombatGlobal->touchWork;
-    s32           x     = CombatStage_ToScreenX(0, self->x);
-    s32           y     = CombatStage_ToScreenY(0, self->y, self->z);
+    BattleTouchWork* touch = &g_CombatGlobal->touchWork;
+    s32              x     = BtlStage_ToScreenX(0, self->x);
+    s32              y     = BtlStage_ToScreenY(0, self->y, self->z);
 
-    if (!CombatTouch_IsGesture(2)) {
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP)) {
         return;
     }
     CombatSe_PlayAtMainX(0xA5, self->x);
@@ -441,9 +441,9 @@ static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
 }
 
 static void func_ov003_020b7760(Ov003ShockWaveBody* self) {
-    BtlTouchWork* touch = &g_CombatGlobal->touchWork;
+    BattleTouchWork* touch = &g_CombatGlobal->touchWork;
 
-    if (!CombatTouch_IsGesture(4)) {
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH)) {
         return;
     }
     CombatSe_PlayAtMainX(0xA5, self->x);
@@ -517,8 +517,8 @@ static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
             self->acceleration  = -self->acceleration;
             return;
         case 3:
-            x = CombatStage_ToScreenX(0, self->x);
-            y = CombatStage_ToScreenY(0, self->y, self->z);
+            x = BtlStage_ToScreenX(0, self->x);
+            y = BtlStage_ToScreenY(0, self->y, self->z);
             BtlMgr_WorldToScreen(&targetX, &targetY, actor->position.x, actor->position.y,
                                  actor->position.z - ((actor->height / 2) << 12));
             self->angle = func_ov003_020a62d0(x, y, targetX, targetY);

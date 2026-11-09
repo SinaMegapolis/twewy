@@ -115,8 +115,8 @@ s32 Boss01s_FlyRG_Curve_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)curve), &spA, &sp8, curve->unk_60.x, curve->unk_60.y,
-                              curve->unk_60.z);
+    BtlStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)curve), &spA, &sp8, curve->unk_60.x, curve->unk_60.y,
+                           curve->unk_60.z);
     BtlSprite_SetPosition(&curve->sprite, spA, sp8);
     BtlSprite_SetSortKey(&curve->sprite, 0x7FFFFFFF);
     BtlSprite_Render(&curve->sprite);

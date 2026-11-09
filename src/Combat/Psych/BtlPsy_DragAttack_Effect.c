@@ -35,8 +35,8 @@ s32 func_ov003_020acdc0(TaskPool* pool, Task* task, void* args) {
 s32 func_ov003_020ace54(TaskPool* pool, Task* task, void* args) {
     Ov003Blur* self = task->data;
     if (self->opacity > 0) {
-        s32 x = CombatStage_ToScreenX(0, self->position.x);
-        s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+        s32 x = BtlStage_ToScreenX(0, self->position.x);
+        s32 y = BtlStage_ToScreenY(0, self->position.y, self->position.z);
         BtlSprite_SetPosition(&self->sprite, x, y);
         BtlSprite_SetSortKey(&self->sprite, self->position.y + 0x1F4000);
         BtlSprite_RenderTranslucent(&self->sprite, self->opacity);
@@ -121,7 +121,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
                                 CombatSe_PlayAtMainX(0x65, player->position.x);
                             break;
                         case 0x1D: {
-                            unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+                            unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
                             while (unit != NULL) {
                                 s32 dz = player->position.z - unit->actor.position.z;
                                 if (dz < 0)
@@ -139,7 +139,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
                                                             self->effect->params[0], self->effect->params[1]);
                                     }
                                 }
-                                unit = CombatList_GetNext(&unit->node);
+                                unit = BtlList_GetNext(&unit->node);
                             }
                             break;
                         }

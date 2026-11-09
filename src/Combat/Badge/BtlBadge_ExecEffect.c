@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
 #include "SpriteMgr.h"
 
@@ -105,7 +105,7 @@ static s32 func_ov003_020a72cc(TaskPool* pool, Task* task, void* args, s32 stage
             s32                 posY;
             s32                 i;
 
-            if (CombatDebug_GetSetting(0) == 1) {
+            if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
                 return 1;
             }
             // the battle must be idle: not waiting and not paused (the target branches on both)

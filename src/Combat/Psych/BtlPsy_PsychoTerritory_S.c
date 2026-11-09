@@ -5,7 +5,7 @@
 static const TaskHandle data_ov003_020dd21c;
 
 s32 func_ov003_020baa58(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(4))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH))
         return 0;
     Ov003PsychArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dd21c.taskName);
     arg->effect         = effect;
@@ -22,15 +22,15 @@ static s32 func_ov003_020baab0(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                = task->data;
-            BtlTouchWork* touch = func_ov003_020a62a0();
-            s16           midX  = touch->startX + (touch->endX - touch->startX) / 2;
-            s16           midY  = touch->startY + (touch->endY - touch->startY) / 2;
+            self                   = task->data;
+            BattleTouchWork* touch = func_ov003_020a62a0();
+            s16              midX  = touch->startX + (touch->endX - touch->startX) / 2;
+            s16              midY  = touch->startY + (touch->endY - touch->startY) / 2;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
             self->timer  = 8;
-            s32 y        = CombatStage_ToWorldY(0, midY, 0);
-            s32 x        = CombatStage_ToWorldX(0, midX);
+            s32 y        = BtlStage_ToWorldY(0, midY, 0);
+            s32 x        = BtlStage_ToWorldX(0, midX);
             s32 angle    = func_ov003_020a62d0(touch->startX, touch->startY, touch->endX, touch->endY);
             func_ov003_020ba71c(self->effect, x, y, angle);
             func_ov003_020a6464(1);

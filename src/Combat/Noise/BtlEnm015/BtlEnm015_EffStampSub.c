@@ -73,7 +73,7 @@ static void func_ov013_021268d8(BtlEnm015StampSub* data) {
     s16 x;
     s16 y;
 
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&data->unk_00->base.sprite) != 0, &x, &y, data->unk_68, data->unk_6C, 0);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&data->unk_00->base.sprite) != 0, &x, &y, data->unk_68, data->unk_6C, 0);
     BtlSprite_SetPosition(&data->sprite, x, y);
     BtlSprite_SetSortKey(&data->sprite, 0x7FFFFFFF - data->unk_6C);
     BtlSprite_Render(&data->sprite);

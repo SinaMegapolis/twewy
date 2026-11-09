@@ -197,13 +197,13 @@ static BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
     best = NULL;
     v    = 0x7FFFFFFF;
     if (((u32)(data->unk_24C << 30) >> 31) != 0) {
-        d = (s32)(CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x) > 0
-                      ? 0.5f + (f32)(CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x) << 12)
-                      : (f32)(CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x) << 12) - 0.5f);
+        d = (s32)(BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x) > 0
+                      ? 0.5f + (f32)(BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x) << 12)
+                      : (f32)(BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x) << 12) - 0.5f);
     } else {
-        d = (s32)(CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x) > 0
-                      ? 0.5f + (f32)(CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x) << 12)
-                      : (f32)(CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x) << 12) - 0.5f);
+        d = (s32)(BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x) > 0
+                      ? 0.5f + (f32)(BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x) << 12)
+                      : (f32)(BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x) << 12) - 0.5f);
     }
     p = data->rec;
     for (i = 0; i < 4; i++) {
@@ -340,11 +340,11 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
     s32 off;
 
     if (((u32)(p->unk_24C << 30) >> 31) != 0) {
-        vx = FX32_CONVERT(CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x));
-        vy = FX32_CONVERT(CombatStage_ToScreenY(1, g_CombatGlobal->partner->position.y, g_CombatGlobal->partner->position.z));
+        vx = FX32_CONVERT(BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x));
+        vy = FX32_CONVERT(BtlStage_ToScreenY(1, g_CombatGlobal->partner->position.y, g_CombatGlobal->partner->position.z));
     } else {
-        vx = FX32_CONVERT(CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x));
-        vy = FX32_CONVERT(CombatStage_ToScreenY(0, g_CombatGlobal->player->position.y, g_CombatGlobal->player->position.z));
+        vx = FX32_CONVERT(BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x));
+        vy = FX32_CONVERT(BtlStage_ToScreenY(0, g_CombatGlobal->player->position.y, g_CombatGlobal->player->position.z));
     }
     switch (rec->unk_64) {
         case 0:
@@ -457,13 +457,13 @@ static s32 func_ov011_02129994(BtlEnm010Tatt* data, Ov003EnemyActor** arg1) {
     data->unk_230 = (*arg1)->actor.position.x;
     data->unk_234 = (*arg1)->actor.position.y;
     data->unk_238 = (*arg1)->actor.position.z;
-    data->unk_23C = (s32)(CombatStage_ToScreenX(r, (*arg1)->actor.position.x) > 0
-                              ? 0.5f + (f32)(CombatStage_ToScreenX(r, (*arg1)->actor.position.x) << 12)
-                              : (f32)(CombatStage_ToScreenX(r, (*arg1)->actor.position.x) << 12) - 0.5f);
+    data->unk_23C = (s32)(BtlStage_ToScreenX(r, (*arg1)->actor.position.x) > 0
+                              ? 0.5f + (f32)(BtlStage_ToScreenX(r, (*arg1)->actor.position.x) << 12)
+                              : (f32)(BtlStage_ToScreenX(r, (*arg1)->actor.position.x) << 12) - 0.5f);
     data->unk_240 =
-        (s32)(CombatStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) > 0
-                  ? 0.5f + (f32)(CombatStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) << 12)
-                  : (f32)(CombatStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) << 12) - 0.5f);
+        (s32)(BtlStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) > 0
+                  ? 0.5f + (f32)(BtlStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) << 12)
+                  : (f32)(BtlStage_ToScreenY(r, (*arg1)->actor.position.y, (*arg1)->actor.position.z) << 12) - 0.5f);
     q = data->rec;
     p = &data->rec[0].unk_84;
     i = 0;
@@ -513,11 +513,11 @@ static s32 func_ov011_02129b84(BtlEnm010Tatt* data) {
     }
     dir = ((u32)(data->unk_24C << 30) >> 31) != 0 ? 1 : 0;
     data->unk_23C =
-        (s32)(CombatStage_ToScreenX(dir, data->unk_230) > 0 ? 0.5f + (f32)(CombatStage_ToScreenX(dir, data->unk_230) << 12)
-                                                            : (f32)(CombatStage_ToScreenX(dir, data->unk_230) << 12) - 0.5f);
-    data->unk_240 = (s32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) > 0
-                              ? 0.5f + (f32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12)
-                              : (f32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12) - 0.5f);
+        (s32)(BtlStage_ToScreenX(dir, data->unk_230) > 0 ? 0.5f + (f32)(BtlStage_ToScreenX(dir, data->unk_230) << 12)
+                                                         : (f32)(BtlStage_ToScreenX(dir, data->unk_230) << 12) - 0.5f);
+    data->unk_240 = (s32)(BtlStage_ToScreenY(dir, data->unk_234, data->unk_238) > 0
+                              ? 0.5f + (f32)(BtlStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12)
+                              : (f32)(BtlStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12) - 0.5f);
     {
         void (*cb)(BtlEnm010Tatt*) = data->unk_224;
 
@@ -551,11 +551,11 @@ static s32 func_ov011_02129cec(BtlEnm010Tatt* data) {
     BtlEnm010TattRec* p;
 
     dir = (s32)(((u32)(data->unk_24C << 30) >> 31) != 0) ? 1 : 0;
-    vx  = (s32)(CombatStage_ToScreenX(dir, data->unk_230) > 0 ? 0.5f + (f32)(CombatStage_ToScreenX(dir, data->unk_230) << 12)
-                                                              : (f32)(CombatStage_ToScreenX(dir, data->unk_230) << 12) - 0.5f);
-    vy  = (s32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) > 0
-                    ? 0.5f + (f32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12)
-                    : (f32)(CombatStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12) - 0.5f);
+    vx  = (s32)(BtlStage_ToScreenX(dir, data->unk_230) > 0 ? 0.5f + (f32)(BtlStage_ToScreenX(dir, data->unk_230) << 12)
+                                                           : (f32)(BtlStage_ToScreenX(dir, data->unk_230) << 12) - 0.5f);
+    vy  = (s32)(BtlStage_ToScreenY(dir, data->unk_234, data->unk_238) > 0
+                    ? 0.5f + (f32)(BtlStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12)
+                    : (f32)(BtlStage_ToScreenY(dir, data->unk_234, data->unk_238) << 12) - 0.5f);
     a   = 0;
     b   = 0;
     p   = data->rec;

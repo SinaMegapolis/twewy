@@ -4,41 +4,41 @@
 
 static const TaskHandle data_ov003_020dc978;
 
-void func_ov003_020b3050(CombatList* list, Ov003TargetEntry* entry) {
+void func_ov003_020b3050(BattleList* list, Ov003TargetEntry* entry) {
     if (entry == NULL)
         return;
     func_ov003_020a6060(entry->taskId);
-    CombatList_Remove(list, &entry->node);
+    BtlList_Remove(list, &entry->node);
 }
 
-void func_ov003_020b3078(CombatList* list) {
+void func_ov003_020b3078(BattleList* list) {
     Ov003TargetEntry* entry = func_ov003_020b3094(list);
     func_ov003_020b3050(list, entry);
 }
 
-Ov003TargetEntry* func_ov003_020b3094(CombatList* list) {
-    return CombatList_GetHead(list);
+Ov003TargetEntry* func_ov003_020b3094(BattleList* list) {
+    return BtlList_GetHead(list);
 }
 
-Ov003TargetEntry* func_ov003_020b30a0(CombatList* list, BattleActor* actor) {
-    Ov003TargetEntry* entry = CombatList_GetHead(list);
+Ov003TargetEntry* func_ov003_020b30a0(BattleList* list, BattleActor* actor) {
+    Ov003TargetEntry* entry = BtlList_GetHead(list);
     while (entry != NULL) {
         if (entry->actor == actor)
             return entry;
-        entry = CombatList_GetNext(&entry->node);
+        entry = BtlList_GetNext(&entry->node);
     }
     return NULL;
 }
 
-s32 func_ov003_020b30d8(CombatList* list) {
+s32 func_ov003_020b30d8(BattleList* list) {
     return func_ov003_020b3094(list) == NULL;
 }
 
-s32 func_ov003_020b30f0(CombatList* list, BattleActor* actor) {
+s32 func_ov003_020b30f0(BattleList* list, BattleActor* actor) {
     return func_ov003_020b30a0(list, actor) != NULL;
 }
 
-s32 func_ov003_020b3108(Ov003EffectState* effect, CombatList* targets, s32* finished) {
+s32 func_ov003_020b3108(Ov003EffectState* effect, BattleList* targets, s32* finished) {
     Ov003ThunderArgs args;
     args.effect   = effect;
     args.targets  = targets;

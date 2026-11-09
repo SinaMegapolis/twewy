@@ -56,9 +56,9 @@ static s32 func_ov003_020cf554(Ov003EnemyShotHoming* self) {
         return 0;
     func_ov003_020cdfbc(&self->source, 0, 1);
     s16 x, y, targetX, targetY;
-    CombatStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
-                              self->source.core.position.z);
-    CombatStage_WorldToScreen(engine, &targetX, &targetY, target->position.x, target->position.y, target->position.z);
+    BtlStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
+                           self->source.core.position.z);
+    BtlStage_WorldToScreen(engine, &targetX, &targetY, target->position.x, target->position.y, target->position.z);
     u16 angle     = FX_Atan2Idx(targetY - y, targetX - x);
     s32 velocityY = FX_Mul(FX_SinIdx(angle), self->targetSpeed);
     s32 velocityX = FX_Mul(FX_CosIdx(angle), self->targetSpeed);
@@ -70,8 +70,8 @@ static s32 func_ov003_020cf554(Ov003EnemyShotHoming* self) {
         self->velocityY += dy / self->turnFrames;
     self->source.core.position.x += self->velocityX;
     self->source.core.position.y += self->velocityY;
-    CombatStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
-                              self->source.core.position.z);
+    BtlStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
+                           self->source.core.position.z);
     self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
                                                            &self->source.core.owner->base.actor.baseArgs, x, y);
     BtlSprite_Update(&self->sprite);
@@ -80,8 +80,8 @@ static s32 func_ov003_020cf554(Ov003EnemyShotHoming* self) {
 
 static s32 func_ov003_020cf740(Ov003EnemyShotHoming* self) {
     s16 x, y;
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                              self->source.core.position.y, self->source.core.position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                           self->source.core.position.y, self->source.core.position.z);
     BtlSprite_SetPosition(&self->sprite, x, y);
     BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     BtlSprite_Render(&self->sprite);

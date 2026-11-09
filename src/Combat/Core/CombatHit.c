@@ -183,11 +183,11 @@ void CombatHit_DrawSpark(BattleSprite* visual, s32 x, s32 y) {
     s32 volume;
 
     if (visual->sprite.bits_0_1 == 0) {
-        pan    = CombatStage_ToScreenX(0, x);
-        volume = CombatStage_ToScreenY(0, y, 0);
+        pan    = BtlStage_ToScreenX(0, x);
+        volume = BtlStage_ToScreenY(0, y, 0);
     } else {
-        pan    = CombatStage_ToScreenX(1, x);
-        volume = CombatStage_ToScreenY(1, y, 0);
+        pan    = BtlStage_ToScreenX(1, x);
+        volume = BtlStage_ToScreenY(1, y, 0);
     }
     BtlSprite_SetPosition(visual, pan, volume);
     if (CombatHit_CanDrawSpark() == 0) {
@@ -671,11 +671,11 @@ static void func_ov003_02088d0c(BattleActor* unit, Ov003Hit* hit) {
     switch (hit->kind) {
         case 3:
             if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-                x = CombatStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
-                y = CombatStage_ToWorldY(0, (hit->y * 0x10) >> 0x10, unit->position.z);
+                x = BtlStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
+                y = BtlStage_ToWorldY(0, (hit->y * 0x10) >> 0x10, unit->position.z);
             } else {
-                x = CombatStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
-                y = CombatStage_ToWorldY(1, (hit->y * 0x10) >> 0x10, unit->position.z);
+                x = BtlStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
+                y = BtlStage_ToWorldY(1, (hit->y * 0x10) >> 0x10, unit->position.z);
             }
             z       = unit->position.z;
             targetX = x;
@@ -967,9 +967,9 @@ static s32 func_ov003_02089974(Ov003Hit* hit) {
     halfH = hit->info->unk_06 << 12;
     halfD = hit->info->unk_07 << 12;
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        enemy = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+        enemy = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     } else {
-        enemy = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+        enemy = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     }
     while (enemy != NULL) {
         if (func_ov003_02088714(&enemy->actor, hit->info) == 0 &&
@@ -988,7 +988,7 @@ static s32 func_ov003_02089974(Ov003Hit* hit) {
                 result = 1;
             }
         }
-        enemy = CombatList_GetNext(&enemy->node);
+        enemy = BtlList_GetNext(&enemy->node);
     }
     if (result == 1) {
         if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
@@ -1049,14 +1049,14 @@ static s32 func_ov003_02089c74(Ov003Hit* hit) {
 
     func_ov003_020881b4(hit);
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        x = CombatStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
+        x = BtlStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
     } else {
-        x = CombatStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
+        x = BtlStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
     }
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        enemy = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+        enemy = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     } else {
-        enemy = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+        enemy = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     }
     while (enemy != NULL) {
         if (func_ov003_02088714(&enemy->actor, hit->info) == 0 && func_ov003_0208882c(&enemy->actor, hit) != 0 &&
@@ -1074,7 +1074,7 @@ static s32 func_ov003_02089c74(Ov003Hit* hit) {
                 result = 1;
             }
         }
-        enemy = CombatList_GetNext(&enemy->node);
+        enemy = BtlList_GetNext(&enemy->node);
     }
     if (result == 1) {
         if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
@@ -1093,9 +1093,9 @@ static s32 func_ov003_02089e18(Ov003Hit* hit) {
 
     func_ov003_020881b4(hit);
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
-        x = CombatStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
+        x = BtlStage_ToWorldX(0, (hit->x * 0x10) >> 0x10);
     } else {
-        x = CombatStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
+        x = BtlStage_ToWorldX(1, (hit->x * 0x10) >> 0x10);
     }
     if (((u32)(hit->info->flags << 0x17) >> 0x1F) == 0) {
         unit = g_CombatGlobal->player;

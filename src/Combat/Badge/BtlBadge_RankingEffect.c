@@ -120,7 +120,7 @@ static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage
             s32                    x;
             s32                    y;
 
-            if (CombatDebug_GetSetting(0) == 1) {
+            if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
                 return 1;
             }
             if ((g_CombatGlobal->unk3D878 & 6) != 0 || g_CombatGlobal->unk3D884 != 0) {

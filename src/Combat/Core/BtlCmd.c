@@ -265,7 +265,7 @@ static u32 func_ov003_02097984(u32 wanted) {
     s32              ahead  = 0;
     s32              behind = 0;
     u32              result = 0;
-    Ov003CutinActor* enemy  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    Ov003CutinActor* enemy  = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
 
     while (enemy != NULL) {
         if (!(enemy->base.actor.flags & ACTOR_FLAG_DEFEATED) && !(enemy->base.actor.flags & ACTOR_FLAG_INTANGIBLE)) {
@@ -275,7 +275,7 @@ static u32 func_ov003_02097984(u32 wanted) {
                 behind++;
             }
         }
-        enemy = CombatList_GetNext(&enemy->base.node);
+        enemy = BtlList_GetNext(&enemy->base.node);
     }
     if (wanted == 0x800 && behind > 0) {
         return wanted;

@@ -199,7 +199,7 @@ s32 func_ov003_020cb368(BinIdentifier* iden) {
 /// How many enemies of the screen `side` belong to `group` (0x3C counts all).
 u16 func_ov003_020cb3c4(s32 side, s32 group) {
     u16             count = 0;
-    CombatListNode* node;
+    BattleListNode* node;
 
     if (side == 1) {
         node = g_CombatGlobal->unk3D8AC.head;
@@ -223,7 +223,7 @@ u16 func_ov003_020cb3c4(s32 side, s32 group) {
 /// The `n`-th enemy of the screen `side` that belongs to `group`.
 Ov003EnemyActor* func_ov003_020cb42c(s32 side, s32 group, s32 n) {
     Ov003EnemyActor* actor;
-    CombatListNode*  node;
+    BattleListNode*  node;
 
     if (side == 1) {
         node = g_CombatGlobal->unk3D8AC.head;
@@ -250,7 +250,7 @@ Ov003EnemyActor* func_ov003_020cb42c(s32 side, s32 group, s32 n) {
 /// How many enemies of `group` on the screen `side` pass `filter`.
 s32 func_ov003_020cb498(s32 side, s32 group, BtlActorFilter filter, void* arg) {
     s32             count = 0;
-    CombatListNode* node;
+    BattleListNode* node;
 
     if (side == 1) {
         node = g_CombatGlobal->unk3D8AC.head;
@@ -332,8 +332,8 @@ s32 func_ov003_020cb648(Ov003EnemyActor* actor, s32 percent) {
 
 /// Pushes `*value` past the camera's left edge shifted by the view angle.
 static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
-    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s32          limit  = camera->posX + FX_Mul(FX_SinIdx(camera->rotation), scale);
+    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+    s32           limit  = camera->posX + FX_Mul(FX_SinIdx(camera->rotation), scale);
 
     if (*value - margin < limit) {
         *value = limit + margin;
@@ -343,8 +343,8 @@ static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
 }
 
 static s32 func_ov003_020cb6e8(s32 index, s32* value, s32 margin, s32 scale) {
-    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s32          moved  = 0;
+    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+    s32           moved  = 0;
 
     if (func_ov003_020cb674(index, value, margin, scale) != 0) {
         moved = 1;
@@ -382,8 +382,8 @@ s32 func_ov003_020cb7c4(s32 index, s32 x, s32 y) {
 
 /// Keeps (`*x`, `*y`) at least a margin inside the camera's field. Returns whether it had to move them.
 static s32 func_ov003_020cb814(s32 index, s32* x, s32* y, s32 marginX, s32 marginY) {
-    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s32          moved  = 0;
+    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+    s32           moved  = 0;
 
     if (*x - marginX < 0) {
         *x    = marginX;
@@ -657,16 +657,16 @@ s32 func_ov003_020cc38c(BattleActor* actor, s32 x, s32 y, s32 z, s32 marginX, s3
 
 /// A mask of the 32 points around the actor (at `radius`, `yScale` as tall) that are inside the camera's field.
 u32 func_ov003_020cc430(Ov003CutinActor* actor, s32 index, s32 radius, s32 yScale) {
-    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s16          size   = actor->base.actor.radius;
-    s32          left   = FX32_CONVERT(size);
-    s32          right  = camera->unk_0C - FX32_CONVERT(size);
-    s32          top    = FX32_CONVERT(size) / 2;
-    s32          bottom = camera->unk_10 - FX32_CONVERT(size) / 2;
-    u32          mask   = 0;
-    s32          i;
-    s32          px;
-    s32          py;
+    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+    s16           size   = actor->base.actor.radius;
+    s32           left   = FX32_CONVERT(size);
+    s32           right  = camera->unk_0C - FX32_CONVERT(size);
+    s32           top    = FX32_CONVERT(size) / 2;
+    s32           bottom = camera->unk_10 - FX32_CONVERT(size) / 2;
+    u32           mask   = 0;
+    s32           i;
+    s32           px;
+    s32           py;
 
     for (i = 0; i < 0x20; i++) {
         func_ov003_020cbcb4(&px, &py, (u16)(i * 0x800), radius, yScale);
@@ -700,7 +700,7 @@ s32 func_ov003_020cc5d0(BattleActor* actor) {
 /// How many entries of `id` the touch list holds (0x19 counts all).
 s32 func_ov003_020cc5fc(s32 unused, s32 id) {
     s32             count = 0;
-    CombatListNode* node  = g_CombatGlobal->unk3D8B4.head;
+    BattleListNode* node  = g_CombatGlobal->unk3D8B4.head;
 
     if (node == NULL) {
         return count;
@@ -719,7 +719,7 @@ s32 func_ov003_020cc5fc(s32 unused, s32 id) {
 /// The `n`-th entry of `id` in the touch list (nothing on the sub screen).
 void* func_ov003_020cc644(s32 side, s32 id, s32 n) {
     void*           item = NULL;
-    CombatListNode* node;
+    BattleListNode* node;
 
     if (side == 1) {
         return item;
@@ -750,7 +750,7 @@ void* func_ov003_020cc644(s32 side, s32 id, s32 n) {
 
 /// How many entries of `id` in the touch list pass `filter`.
 s32 func_ov003_020cc6a4(s32 unused, s32 id, BtlItemFilter filter, s32 arg) {
-    CombatListNode* node  = g_CombatGlobal->unk3D8B4.head;
+    BattleListNode* node  = g_CombatGlobal->unk3D8B4.head;
     s32             count = 0;
 
     if (node == NULL) {
@@ -954,16 +954,16 @@ void func_ov003_020cccf0(s32 engine, Ov003EnemyShotSource* source) {
         return;
     }
     if (engine == 1) {
-        pan = CombatStage_ToScreenX(1, source->core.position.x);
+        pan = BtlStage_ToScreenX(1, source->core.position.x);
     } else {
-        pan = CombatStage_ToScreenX(0, source->core.position.x);
+        pan = BtlStage_ToScreenX(0, source->core.position.x);
     }
     CombatSe_PlayPanned(source->sound, pan);
 }
 
 /// Whether a box of `marginX` by `marginY` around (`x`,`y`) lies outside the camera's field.
 static s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY) {
-    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
+    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
 
     if (x + marginX < 0) {
         return 1;
@@ -982,7 +982,7 @@ static s32 func_ov003_020ccdb8(s32 engine, s32 x, s32 y, s32 z, s32 marginX, s32
     s16 screenX;
     s16 screenY;
 
-    CombatStage_WorldToScreen(engine, &screenX, &screenY, x, y, z);
+    BtlStage_WorldToScreen(engine, &screenX, &screenY, x, y, z);
     if (screenX + (marginX >> 12) < 0) {
         return 1;
     }
@@ -1000,16 +1000,16 @@ s32 func_ov003_020cce34(s32 side) {
     Ov003CutinActor* actor;
 
     if (side == 0) {
-        actor = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+        actor = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     } else {
-        actor = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+        actor = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     }
     if (actor != NULL) {
         do {
             if (actor->base.group < 0x3C && actor->base.group >= 0) {
                 return 1;
             }
-            actor = CombatList_GetNext(&actor->base.node);
+            actor = BtlList_GetNext(&actor->base.node);
         } while (actor != NULL);
     }
     return 0;
@@ -1200,8 +1200,8 @@ static s32 func_ov003_020cd44c(Ov003EnemyShotBlossom* self) {
     if (self->frame % 5 == 0) {
         func_ov003_020cd6f4(&self->source, 0xC00, 0x180);
     }
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &sy, &sx, self->source.core.position.x,
-                              self->source.core.position.y, self->source.core.position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &sy, &sx, self->source.core.position.x,
+                           self->source.core.position.y, self->source.core.position.z);
     self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
                                                            &self->source.core.owner->base.actor.baseArgs, sx, sy);
     self->frame++;
@@ -1213,8 +1213,8 @@ static s32 func_ov003_020cd618(Ov003EnemyShotBlossom* self) {
     s16 x;
     s16 y;
 
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                              self->source.core.position.y, self->source.core.position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                           self->source.core.position.y, self->source.core.position.z);
     BtlSprite_SetPosition(&self->sprite, x, y);
     BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     BtlSprite_Render(&self->sprite);

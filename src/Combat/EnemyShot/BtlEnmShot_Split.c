@@ -77,8 +77,8 @@ static s32 func_ov003_020d2d2c(Ov003EnemyShotSplit* self) {
 static s32 func_ov003_020d2ebc(Ov003EnemyShotSplit* self) {
     if (self->source.visual != NULL) {
         s16 x, y;
-        CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                                  self->source.core.position.y, self->source.core.position.z);
+        BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                               self->source.core.position.y, self->source.core.position.z);
         BtlSprite_SetPosition(&self->sprite, x, y);
         BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
         BtlSprite_Render(&self->sprite);

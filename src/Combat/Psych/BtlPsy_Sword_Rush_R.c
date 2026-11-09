@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
-#include "Combat/Core/CombatTouch.h"
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlPsyRushArgs {
@@ -73,7 +73,7 @@ static s32 func_ov003_02095c64(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_02095cac(Ov003EffectContext* context, Ov003EffectState* effect) {
-    void* target = CombatTouch_GetRapidTapped(ACTOR_KIND_ENEMY);
+    void* target = BtlTouch_GetRapidTapped(ACTOR_KIND_ENEMY);
     if (!target)
         return 0;
     BtlPsyRushArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7e48.taskName);

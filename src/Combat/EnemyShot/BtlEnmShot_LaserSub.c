@@ -1,15 +1,15 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlList.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnemyShot.h"
-#include "Combat/Core/CombatList.h"
 #include "Engine/Math/Random.h"
 #include <nitro/mi/cpumem.h>
 
 /// The task parameter: the root of the beam to follow and how the beam grows along it.
 typedef struct Ov003EnemyShotLaserSubArgs {
     /* 0x00 */ Ov003EnemyShotSource* source;
-    /* 0x04 */ CombatList*           list;  // the roots of the beam
+    /* 0x04 */ BattleList*           list;  // the roots of the beam
     /* 0x08 */ Ov003EnemyShotRoot*   root;  // the root this segment lies on
     /* 0x0C */ u16                   animation;
     /* 0x0E */ s16                   inset; // half width of the beam, pixels
@@ -22,7 +22,7 @@ typedef struct Ov003EnemyShotLaserSub {
     /* 0x000 */ BattleSprite          sprite;  // the main beam
     /* 0x060 */ BattleSprite          sprite2; // the glow
     /* 0x0C0 */ Ov003EnemyShotSource* source;
-    /* 0x0C4 */ CombatList*           list;
+    /* 0x0C4 */ BattleList*           list;
     /* 0x0C8 */ Ov003EnemyShotRoot*   root; // the next root, spawns the next segment when this one has finished
     /* 0x0CC */ u16                   direction;
     /* 0x0CE */ u16                   reservedCE;
@@ -45,7 +45,7 @@ typedef struct Ov003EnemyShotLaserSub {
 
 static const TaskHandle data_ov003_020e0c8c;
 
-void func_ov003_020d07a8(Ov003EnemyShotSource* source, CombatList* list, Ov003EnemyShotRoot* root, u16 animation, s16 inset,
+void func_ov003_020d07a8(Ov003EnemyShotSource* source, BattleList* list, Ov003EnemyShotRoot* root, u16 animation, s16 inset,
                          s16 length, s32 step, s16 delay) {
     Ov003EnemyShotLaserSubArgs args;
     MI_CpuSet(&args, 0, sizeof(args));
@@ -189,7 +189,7 @@ static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
             boxY += FX_Mul(self->growY, FX32_CONVERT(self->inset)) >> 1;
             break;
     }
-    CombatStage_WorldToScreen(0, &x, &y, boxX, boxY, boxZ);
+    BtlStage_WorldToScreen(0, &x, &y, boxX, boxY, boxZ);
     CombatHit_AttackAtScreen(&info, &self->source->core.owner->base.actor.baseArgs, x, y);
     BtlSprite_Update(&self->sprite);
     BtlSprite_Update(&self->sprite2);
@@ -214,12 +214,12 @@ static s32 func_ov003_020d0ff4(Ov003EnemyShotLaserSub* self) {
             xOffset = -1;
             break;
     }
-    CombatStage_WorldToScreen(0, &x, &y, self->x, self->y, self->z);
+    BtlStage_WorldToScreen(0, &x, &y, self->x, self->y, self->z);
     BtlSprite_SetPosition(&self->sprite, (s16)(x + xOffset), (s16)(y + yOffset));
     BtlSprite_SetAffineTransform(&self->sprite, self->direction, scaleX, scaleY, 1);
     BtlSprite_SetSortKey(&self->sprite, 0x96000);
     BtlSprite_Render(&self->sprite);
-    CombatStage_WorldToScreen(0, &x, &y, self->x, self->y, self->z);
+    BtlStage_WorldToScreen(0, &x, &y, self->x, self->y, self->z);
     BtlSprite_SetPosition(&self->sprite2, x, y);
     BtlSprite_SetSortKey(&self->sprite2, 0x12C000);
     BtlSprite_Render(&self->sprite2);
@@ -248,13 +248,13 @@ static s32 func_ov003_020d112c(TaskPool* pool, Task* task, void* args, s32 stage
     }
 }
 
-void func_ov003_020d117c(CombatList* list) {
-    Ov003EnemyShotRoot* node = CombatList_GetHead(list);
+void func_ov003_020d117c(BattleList* list) {
+    Ov003EnemyShotRoot* node = BtlList_GetHead(list);
     if (node == NULL)
         return;
-    for (; node != NULL; node = CombatList_GetNext(&node->node))
+    for (; node != NULL; node = BtlList_GetNext(&node->node))
         node->active = 0;
-    CombatList_Init(list);
+    BtlList_Init(list);
 }
 
 Ov003EnemyShotRoot* func_ov003_020d11b8(Ov003EnemyShotRoot* root, u16* angle, s32* scaleX, s32* scaleY, s32* x, s32* y,
@@ -273,7 +273,7 @@ Ov003EnemyShotRoot* func_ov003_020d11b8(Ov003EnemyShotRoot* root, u16* angle, s3
         *y = root->position.y;
     if (z != NULL)
         *z = root->position.z;
-    return CombatList_GetNext(&root->node);
+    return BtlList_GetNext(&root->node);
 }
 
 static char             data_ov003_020e6cfc[24] = "Tsk_BtlEnmShot_LaserSub";

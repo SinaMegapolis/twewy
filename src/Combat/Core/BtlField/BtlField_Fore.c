@@ -181,8 +181,8 @@ static s32 BtlField_Fore_Render(TaskPool* pool, Task* task, void* args) {
     if (fore->count > 0) {
         band = fore->bands;
         do {
-            posX = CombatStage_ToScreenX(0, band->position.x);
-            posY = CombatStage_ToScreenY(0, band->position.y, band->position.z);
+            posX = BtlStage_ToScreenX(0, band->position.x);
+            posY = BtlStage_ToScreenY(0, band->position.y, band->position.z);
             BtlSprite_SetPosition(&band->sprite, posX, posY);
             BtlSprite_Render(&band->sprite);
             i++;

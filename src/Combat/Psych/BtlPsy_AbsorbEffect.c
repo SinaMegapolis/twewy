@@ -25,13 +25,13 @@ s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage) {
         default:
         case 0: {
             Ov003AbsorbArgs* arg = args;
-            BtlTouchWork*    touch;
+            BattleTouchWork* touch;
             effect = task->data;
             MI_CpuSet(effect, 0, sizeof(*effect));
             effect->slots      = arg->slots;
             touch              = &g_CombatGlobal->touchWork;
-            effect->position.x = CombatStage_ToWorldX(0, touch->x);
-            effect->position.y = CombatStage_ToWorldY(0, touch->y, 0x1000);
+            effect->position.x = BtlStage_ToWorldX(0, touch->x);
+            effect->position.y = BtlStage_ToWorldY(0, touch->y, 0x1000);
             effect->position.z = 0x1000;
             effect->slots->unk_15++;
             // FX32_CONVERT deliberately evaluates RNG_Next twice per axis, as in retail.
@@ -69,8 +69,8 @@ s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage) {
         case 2: {
             s32 x, y;
             effect = task->data;
-            x      = CombatStage_ToScreenX(0, effect->position.x);
-            y      = CombatStage_ToScreenY(0, effect->position.y, effect->position.z);
+            x      = BtlStage_ToScreenX(0, effect->position.x);
+            y      = BtlStage_ToScreenY(0, effect->position.y, effect->position.z);
             BtlSprite_SetPosition(&effect->sprite, x, y);
             BtlSprite_SetSortKey(&effect->sprite, effect->position.y + 0x1F4000);
             BtlSprite_Render(&effect->sprite);

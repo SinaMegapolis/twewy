@@ -1,10 +1,10 @@
 #include "Combat/Core/CombatPsych.h"
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
-#include "Combat/Core/CombatTouch.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
 #include "Engine/Core/DMA.h"
@@ -161,10 +161,10 @@ static char data_ov003_020e48cc[0x14] = "Data/PsyData.bin";
 /// from overlapping actors; also ramps the effect speed of actors near the effect origin.
 static void func_ov003_020a5250(Ov003TouchActor* actor) {
     Ov003TouchActor* other;
-    BtlTouchWork*    origin;
+    BattleTouchWork* origin;
     s32              angle;
 
-    if (CombatTouch_IsGesture(2) != 0) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) != 0) {
         origin = func_ov003_020a62a0();
         if (func_ov003_020a62ec(origin->x << 12, origin->y << 12, actor->x, actor->y) < 0xF000) {
             angle            = (func_ov003_020a62b8(origin->x << 12, origin->y << 12, actor->x, actor->y) >> 4) * 2;
@@ -200,7 +200,7 @@ static void func_ov003_020a5250(Ov003TouchActor* actor) {
         actor->velocityY = -actor->velocityY;
     }
 
-    for (other = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); other != NULL; other = CombatList_GetNext(&other->node)) {
+    for (other = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); other != NULL; other = BtlList_GetNext(&other->node)) {
         if (other != actor &&
             func_ov003_020a62ec(other->x, other->y, actor->x, actor->y) < ((other->radius + actor->radius) << 12))
         {
@@ -303,7 +303,7 @@ static s32 func_ov003_020a5738(Ov003TouchActor** slots, s32 count, s32 mode) {
     for (i = 0; i < count; i++) {
         slots[i] = NULL;
     }
-    for (actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = CombatList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->kind == 0xFFFE) {
             continue;
         }
@@ -430,7 +430,7 @@ u8 func_ov003_020a5a1c(void) {
 Ov003TouchActor* func_ov003_020a5a34(Ov003EffectState* effect) {
     Ov003TouchActor* actor;
 
-    for (actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = CombatList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->kind != 0xFFFE && &actor->effect == effect) {
             return actor;
         }
@@ -469,7 +469,7 @@ s32 func_ov003_020a5b18(s32 state) {
     Ov003TouchActor* actor;
     s32              total = 0;
 
-    for (actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = CombatList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->kind != 0xFFFE && actor->effect.state == state) {
             total += actor->effect.unk_0A;
         }
@@ -498,21 +498,21 @@ static void func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectS
     for (i = 0; i < count; i++) {
         slots[i] = NULL;
     }
-    actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
+    actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
     while (actor != NULL) {
         if (actor->kind == 0xFFFE) {
-            actor = CombatList_GetNext(&actor->node);
+            actor = BtlList_GetNext(&actor->node);
         } else if (actor->effect.state != effect->state) {
-            actor = CombatList_GetNext(&actor->node);
+            actor = BtlList_GetNext(&actor->node);
         } else if (actor->effect.index == effect->index && &actor->effect != effect) {
-            actor = CombatList_GetNext(&actor->node);
+            actor = BtlList_GetNext(&actor->node);
         } else if (func_ov003_020a3edc(actor) == 0) {
-            actor = CombatList_GetNext(&actor->node);
+            actor = BtlList_GetNext(&actor->node);
         } else if (arg3 != 0) {
             if (actor->params.unk_12 != 0 && actor->unk_044 <= 0) {
-                actor = CombatList_GetNext(&actor->node);
+                actor = BtlList_GetNext(&actor->node);
             } else if (actor->state != 3) {
-                actor = CombatList_GetNext(&actor->node);
+                actor = BtlList_GetNext(&actor->node);
             } else {
                 goto add;
             }
@@ -520,12 +520,12 @@ static void func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectS
         add:
             slot = actor->effect.index;
             if (slot >= count) {
-                actor = CombatList_GetNext(&actor->node);
+                actor = BtlList_GetNext(&actor->node);
             } else if (slots[slot] != NULL) {
-                actor = CombatList_GetNext(&actor->node);
+                actor = BtlList_GetNext(&actor->node);
             } else {
                 slots[slot] = actor;
-                actor       = CombatList_GetNext(&actor->node);
+                actor       = BtlList_GetNext(&actor->node);
             }
         }
     }

@@ -4,7 +4,7 @@
 
 static const TaskHandle data_ov003_020dc96c;
 
-static s32 func_ov003_020b2e30(CombatList* list, BattleActor* actor) {
+static s32 func_ov003_020b2e30(BattleList* list, BattleActor* actor) {
     Ov003TargetArgs args;
     args.list  = list;
     args.actor = actor;
@@ -22,18 +22,18 @@ static s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage
             self->list         = arg->list;
             self->entry.taskId = ((u32)task->generation << 16) | (u32)task->id;
             self->entry.actor  = arg->actor;
-            CombatList_Append(self->list, &self->entry.node, &self->entry);
+            BtlList_Append(self->list, &self->entry.node, &self->entry);
             CombatSe_PlayAtMainX(0x14C, self->entry.actor->position.x);
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0x10, 1);
             return 1;
         case 1:
             self = task->data;
             if (self->entry.actor == NULL) {
-                CombatList_Remove(self->list, &self->entry.node);
+                BtlList_Remove(self->list, &self->entry.node);
                 return 0;
             }
             if ((self->entry.actor->flags & ACTOR_FLAG_DEFEATED) || (self->entry.actor->flags & ACTOR_FLAG_INTANGIBLE)) {
-                CombatList_Remove(self->list, &self->entry.node);
+                BtlList_Remove(self->list, &self->entry.node);
                 return 0;
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite))
@@ -53,11 +53,11 @@ static s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage
     }
 }
 
-void func_ov003_020b2fd8(CombatList* list) {
-    CombatList_Init(list);
+void func_ov003_020b2fd8(BattleList* list) {
+    BtlList_Init(list);
 }
 
-void func_ov003_020b2fe4(CombatList* list) {
+void func_ov003_020b2fe4(BattleList* list) {
     if (func_ov003_020b30d8(list))
         return;
     do {
@@ -65,7 +65,7 @@ void func_ov003_020b2fe4(CombatList* list) {
     } while (!func_ov003_020b30d8(list));
 }
 
-void func_ov003_020b3014(CombatList* list, BattleActor* actor) {
+void func_ov003_020b3014(BattleList* list, BattleActor* actor) {
     if (actor->flags & ACTOR_FLAG_DEFEATED)
         return;
     if (actor->flags & ACTOR_FLAG_INTANGIBLE)
@@ -73,7 +73,7 @@ void func_ov003_020b3014(CombatList* list, BattleActor* actor) {
     func_ov003_020b2e30(list, actor);
 }
 
-void func_ov003_020b3034(CombatList* list, BattleActor* actor) {
+void func_ov003_020b3034(BattleList* list, BattleActor* actor) {
     Ov003TargetEntry* entry = func_ov003_020b30a0(list, actor);
     func_ov003_020b3050(list, entry);
 }

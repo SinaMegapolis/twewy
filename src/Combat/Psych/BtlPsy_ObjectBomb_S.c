@@ -12,7 +12,7 @@ typedef struct BtlObjectBombCharge {
 static const TaskHandle data_ov003_020dc73c;
 
 s32 func_ov003_020ac36c(Ov003EffectContext* context, Ov003EffectState* effect) {
-    Ov003EnemyActor* unit = (Ov003EnemyActor*)CombatTouch_GetDragged(ACTOR_KIND_OBJECT);
+    Ov003EnemyActor* unit = (Ov003EnemyActor*)BtlTouch_GetDragged(ACTOR_KIND_OBJECT);
     if (unit == NULL || !func_ov003_020a63e4())
         return 0;
     Ov003PsychUnitArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc73c.taskName);

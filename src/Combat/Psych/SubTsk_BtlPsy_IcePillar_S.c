@@ -27,7 +27,7 @@ static s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage
             self->args.effect     = arg->effect;
             self->args.position.x = arg->position.x;
             self->args.position.y = arg->position.y;
-            CombatStage_ClampXY(&self->args.position.x, &self->args.position.y, 0, 0);
+            BtlStage_ClampXY(&self->args.position.x, &self->args.position.y, 0, 0);
             self->args.attackId = arg->attackId;
             CombatPsyAnim_Load(&self->sprites[0], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
             CombatPsyAnim_Load(&self->sprites[1], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
@@ -49,8 +49,8 @@ static s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage
             return SpriteMgr_IsAnimationFinished(&self->sprites[0].sprite) ? 0 : 1;
         case 2: {
             self  = task->data;
-            s32 x = CombatStage_ToScreenX(0, self->args.position.x);
-            s32 y = CombatStage_ToScreenY(0, self->args.position.y, 0);
+            s32 x = BtlStage_ToScreenX(0, self->args.position.x);
+            s32 y = BtlStage_ToScreenY(0, self->args.position.y, 0);
             BtlSprite_SetPosition(&self->sprites[2], x, y);
             BtlSprite_SetPosition(&self->sprites[0], x, y);
             BtlSprite_SetPosition(&self->sprites[1], x, y);

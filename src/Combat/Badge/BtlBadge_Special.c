@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
 #include "Save.h"
 
@@ -140,7 +140,7 @@ static s32 func_ov003_0209477c(TaskPool* pool, Task* task, void* args) {
     self->actor.unk_044 = val;
     self->index         = 0;
     self->timer         = val;
-    CombatList_Append(&g_CombatGlobal->unk3D8BC, &self->actor.node, &self->actor);
+    BtlList_Append(&g_CombatGlobal->unk3D8BC, &self->actor.node, &self->actor);
     return 1;
 }
 

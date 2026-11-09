@@ -196,7 +196,7 @@ static s32 func_ov015_02126660(BtlEnm026Icon* data) {
 
     switch (data->unk_00.animTableIndex) {
         case 0:
-            CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
+            BtlStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
             BtlSprite_SetPosition(&data->unk_60, sx, sy);
             BtlSprite_SetSortKey(&data->unk_60, 0x7FFFFFFD - py);
             BtlSprite_Render(&data->unk_60);
@@ -204,16 +204,16 @@ static s32 func_ov015_02126660(BtlEnm026Icon* data) {
 
         case 1:
             if (data->unk_C0.animTableIndex != 3) {
-                CombatStage_WorldToScreen(engine, &sx, &sy, px - 0x4000, py, pz);
+                BtlStage_WorldToScreen(engine, &sx, &sy, px - 0x4000, py, pz);
                 BtlSprite_SetPosition(&data->unk_C0, sx, sy);
                 BtlSprite_SetSortKey(&data->unk_C0, 0x7FFFFFFD - py);
                 BtlSprite_Render(&data->unk_C0);
-                CombatStage_WorldToScreen(engine, &sx, &sy, px + 0x4000, py, pz);
+                BtlStage_WorldToScreen(engine, &sx, &sy, px + 0x4000, py, pz);
                 BtlSprite_SetPosition(&data->unk_60, sx, sy);
                 BtlSprite_SetSortKey(&data->unk_60, 0x7FFFFFFD - py);
                 BtlSprite_Render(&data->unk_60);
             } else {
-                CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
+                BtlStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
                 BtlSprite_SetPosition(&data->unk_60, sx, sy);
                 BtlSprite_SetSortKey(&data->unk_60, 0x7FFFFFFD - py);
                 BtlSprite_Render(&data->unk_60);
@@ -221,7 +221,7 @@ static s32 func_ov015_02126660(BtlEnm026Icon* data) {
             break;
     }
 
-    CombatStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
+    BtlStage_WorldToScreen(engine, &sx, &sy, px, py, pz);
     BtlSprite_SetPosition(&data->unk_00, sx, sy);
     BtlSprite_SetSortKey(&data->unk_00, 0x7FFFFFFE - py);
     BtlSprite_Render(&data->unk_00);

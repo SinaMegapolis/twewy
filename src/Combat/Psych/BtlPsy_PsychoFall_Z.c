@@ -8,9 +8,9 @@
 static const TaskHandle data_ov003_020dca34;
 
 s32 func_ov003_020b4b60(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(6))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG))
         return 0;
-    if (CombatTouch_IsTargetKind(1))
+    if (BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dca34.taskName);
     *arg                   = effect;
@@ -63,8 +63,8 @@ static s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                     self->spawnTimer = 0x3C;
                     func_ov003_020a5a94(self->trail.effect);
-                    s32 worldY = CombatStage_ToWorldY(0, self->y, 0);
-                    func_ov003_020b42b4(self->trail.effect, 1, CombatStage_ToWorldX(0, self->x), worldY, -0x190000, 0x5000);
+                    s32 worldY = BtlStage_ToWorldY(0, self->y, 0);
+                    func_ov003_020b42b4(self->trail.effect, 1, BtlStage_ToWorldX(0, self->x), worldY, -0x190000, 0x5000);
                     // Retail's guard always fires on the first spawn, so the re-roll below is dead
                     // unless the counter wraps; kept to match the original control flow.
                     self->spawnCount++;

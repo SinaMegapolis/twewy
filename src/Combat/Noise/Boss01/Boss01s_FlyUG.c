@@ -135,8 +135,8 @@ s32 Boss01s_FlyUG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)flyUG), &spA, &sp8, flyUG->unk_60.x, flyUG->unk_60.y,
-                              flyUG->unk_60.z);
+    BtlStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)flyUG), &spA, &sp8, flyUG->unk_60.x, flyUG->unk_60.y,
+                           flyUG->unk_60.z);
     BtlSprite_SetPosition(&flyUG->sprite, spA, sp8);
     BtlSprite_SetSortKey(&flyUG->sprite, 0x7FFFFFFF);
     BtlSprite_Render(&flyUG->sprite);

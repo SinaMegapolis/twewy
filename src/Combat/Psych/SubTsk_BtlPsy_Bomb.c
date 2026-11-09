@@ -48,8 +48,8 @@ static s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage
             return 1;
         case 1: {
             Ov003Bomb* self = task->data;
-            s32        x    = CombatStage_ToScreenX(0, self->args.position.x);
-            s32        y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
+            s32        x    = BtlStage_ToScreenX(0, self->args.position.x);
+            s32        y    = BtlStage_ToScreenY(0, self->args.position.y, self->args.position.z);
             if (!func_ov003_020a6374(x, y, 32))
                 return 0;
             if (func_ov003_020a66f4(self->args.streak, (u16)data_ov003_020dc700[self->args.kind].attackId, x, y, 0, 0) == 1) {
@@ -67,8 +67,8 @@ static s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003Bomb* self = task->data;
-            s32        x    = CombatStage_ToScreenX(0, self->args.position.x);
-            s32        y    = CombatStage_ToScreenY(0, self->args.position.y, self->args.position.z);
+            s32        x    = BtlStage_ToScreenX(0, self->args.position.x);
+            s32        y    = BtlStage_ToScreenY(0, self->args.position.y, self->args.position.z);
             BtlSprite_SetPosition(&self->sprite, x, y);
             BtlSprite_SetSortKey(&self->sprite, 0x38E000);
             BtlSprite_Render(&self->sprite);

@@ -4,6 +4,17 @@
 #include "Combat/Core/Combat.h"
 #include "Player/Inventory/Pins.h"
 
+/// The spawn record `BtlBadgeActor_Init` builds a touch actor from (also read by the badge tasks).
+typedef struct Ov003ActorSpawn {
+    /* 0x00 */ u16                     kind;
+    /* 0x02 */ u16                     unk_02;
+    /* 0x04 */ u8                      unk_04;
+    /* 0x05 */ u8                      unk_05[3];
+    /* 0x08 */ const Ov003PsychParams* params;
+    /* 0x0C */ u8                      slot;
+    /* 0x0D */ u8                      unk_0D[3];
+} Ov003ActorSpawn; // Size: 0x10
+
 void BtlBadgeActor_Init(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn);
 void func_ov003_020a3d98(Ov003TouchActor* actor);
 void func_ov003_020a3dac(Ov003TouchActor* actor);

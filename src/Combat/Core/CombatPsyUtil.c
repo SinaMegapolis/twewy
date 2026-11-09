@@ -1,11 +1,11 @@
 #include "Combat/Core/CombatPsyUtil.h"
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
-#include "Combat/Core/CombatTouch.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
 #include "Engine/Core/DMA.h"
@@ -258,7 +258,7 @@ void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, BattleAt
 // Geometry helpers
 // ---------------------------------------------------------------------------------------------
 
-BtlTouchWork* func_ov003_020a62a0(void) {
+BattleTouchWork* func_ov003_020a62a0(void) {
     return &g_CombatGlobal->touchWork;
 }
 
@@ -309,10 +309,10 @@ s32 func_ov003_020a63a8(Ov003EffectState* effect) {
 
 /// Whether the battle is in the post-boss state that unlocks the extra effects.
 s32 func_ov003_020a63e4(void) {
-    if (CombatTouch_IsGesture(6) == 0) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) == 0) {
         return 0;
     }
-    if (CombatTouch_IsTargetKind(1) != 0) {
+    if (BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER) != 0) {
         return 0;
     }
     if (g_CombatGlobal->touchWork.stillFrames > 0xB) {
@@ -339,7 +339,7 @@ void func_ov003_020a647c(s32 arg0) {
 }
 
 void func_ov003_020a6494(s16 arg0) {
-    func_ov003_020a647c(CombatStage_ToWorldX(0, arg0));
+    func_ov003_020a647c(BtlStage_ToWorldX(0, arg0));
 }
 
 void func_ov003_020a64ac(void) {
@@ -422,8 +422,8 @@ s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s
         streak->hits++;
         if (((u32)info.flags << 19) >> 31) {
             streak->hits = 0;
-            s32 posY     = CombatStage_ToWorldY(0, y, 0);
-            s32 posX     = CombatStage_ToWorldX(0, x);
+            s32 posY     = BtlStage_ToWorldY(0, y, 0);
+            s32 posX     = BtlStage_ToWorldX(0, x);
 
             func_ov003_0209fc88(2, posX, posY, 0, 0x10, 0);
         }
@@ -569,7 +569,7 @@ s32 func_ov003_020a6acc(Ov003AttackStreak* streak, u16 attackId, s32 x1, s32 y1,
     Ov003EnemyActor* unit;
     s32              hit = 0;
 
-    for (unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         if (func_ov003_020a6924(unit, x1, y1, x2, y2) != 0 && func_ov003_020a6568(streak, attackId, unit, x, 0, 0) == 1) {
             hit = 1;
         }

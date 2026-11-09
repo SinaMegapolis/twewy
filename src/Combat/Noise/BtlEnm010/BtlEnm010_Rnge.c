@@ -68,10 +68,10 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
             BtlSprite_Update(&data->sprite);
             if (func_ov003_020c37f8(&data->sprite) != 0) {
                 snd = 0x5B;
-                pan = CombatStage_ToScreenX(r, data->unk_060->actor.position.x);
+                pan = BtlStage_ToScreenX(r, data->unk_060->actor.position.x);
             } else {
                 snd = 0x53;
-                pan = CombatStage_ToScreenX(0, data->unk_060->actor.position.x);
+                pan = BtlStage_ToScreenX(0, data->unk_060->actor.position.x);
             }
             bias = 0x80000;
             if (data->unk_060->actor.isFlipped == 0) {
@@ -93,11 +93,11 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
             break;
         case 2:
             if (data->sprite.sprite.bits_0_1 == 0) {
-                pan = CombatStage_ToScreenX(0, data->unk_060->actor.position.x);
-                y   = CombatStage_ToScreenY(0, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
+                pan = BtlStage_ToScreenX(0, data->unk_060->actor.position.x);
+                y   = BtlStage_ToScreenY(0, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
             } else {
-                pan = CombatStage_ToScreenX(r, data->unk_060->actor.position.x);
-                y   = CombatStage_ToScreenY(r, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
+                pan = BtlStage_ToScreenX(r, data->unk_060->actor.position.x);
+                y   = BtlStage_ToScreenY(r, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
             }
             if (data->unk_060->actor.isFlipped == 0) {
                 pan = (s16)(pan - 0x20);

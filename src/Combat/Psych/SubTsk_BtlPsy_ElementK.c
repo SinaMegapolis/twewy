@@ -16,7 +16,7 @@ static void             func_ov003_020ade3c(Ov003ElementKRay* ray, s32 x, s32 y)
 static void             func_ov003_020ade74(Ov003ElementKRay* ray);
 
 s32 func_ov003_020ad720(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(7))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SCRIBBLE))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc794.taskName);
     *arg                   = effect;
@@ -32,8 +32,8 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                = task->data;
-            BtlTouchWork* touch = func_ov003_020a62a0();
+            self                   = task->data;
+            BattleTouchWork* touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect    = *arg;
             self->x         = touch->sweepCenterX;
@@ -91,7 +91,7 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
                             }
                         }
                     }
-                    if (CombatTouch_IsGesture(7)) {
+                    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SCRIBBLE)) {
                         if (self->phase < 4 && ++self->heldFrames == 25)
                             func_ov003_020adbec(self);
                     } else if (++self->releasedFrames == 30) {

@@ -11,9 +11,9 @@ static const s32        data_ov003_020dc954[3];
 
 s32 func_ov003_020b2710(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EffectState** arg;
-    BtlTouchWork*      touch;
+    BattleTouchWork*   touch;
 
-    if (!CombatTouch_IsGesture(4))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH))
         return 0;
     touch = func_ov003_020a62a0();
     if (touch->endY > touch->startY)
@@ -32,12 +32,12 @@ static s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage
         default:
         case 0: {
             Ov003IcePillarS* self  = task->data;
-            BtlTouchWork*    touch = func_ov003_020a62a0();
+            BattleTouchWork* touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = *arg;
-            self->x      = CombatStage_ToWorldX(0, touch->startX);
-            self->y      = CombatStage_ToWorldY(0, touch->startY, 0);
-            CombatStage_ClampXY(&self->x, &self->y, 0, 0);
+            self->x      = BtlStage_ToWorldX(0, touch->startX);
+            self->y      = BtlStage_ToWorldY(0, touch->startY, 0);
+            BtlStage_ClampXY(&self->x, &self->y, 0, 0);
             self->count = (u8)self->effect->params[0];
             self->timer = 0;
             func_ov003_020a6464(1);

@@ -9,7 +9,7 @@ static void func_ov003_020b9764(s32* outX, s32* outY, s32 x1, s32 y1, s32 x2, s3
 
 // Nonmatching: the compiler merges two identical task-handle literals.
 s32 func_ov003_020b94b8(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(4))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH))
         return 0;
     Ov003PsychArgs  value = {effect};
     Ov003PsychArgs* arg   = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dd05c.taskName);
@@ -27,8 +27,8 @@ s32 func_ov003_020b9518(TaskPool* pool, Task* task, void* args, s32 stage) {
     switch (stage) {
         default:
         case 0: {
-            self                = task->data;
-            BtlTouchWork* touch = func_ov003_020a62a0();
+            self                   = task->data;
+            BattleTouchWork* touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect    = arg->effect;
             self->x         = touch->startX;
@@ -61,12 +61,12 @@ s32 func_ov003_020b9518(TaskPool* pool, Task* task, void* args, s32 stage) {
                 case 1:
                     if (--self->timer == 0)
                         return 0;
-                    if (CombatTouch_IsGesture(4)) {
-                        BtlTouchWork* touch = func_ov003_020a62a0();
-                        self->x             = touch->startX;
-                        self->y             = touch->startY;
-                        self->previousX     = touch->endX;
-                        self->previousY     = touch->endY;
+                    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH)) {
+                        BattleTouchWork* touch = func_ov003_020a62a0();
+                        self->x                = touch->startX;
+                        self->y                = touch->startY;
+                        self->previousX        = touch->endX;
+                        self->previousY        = touch->endY;
                         func_ov003_020b96d8(self);
                         if (!func_ov003_020a5aa4(self->effect))
                             return 0;

@@ -89,8 +89,8 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
             anim->flags    = arg->flags;
             anim->position = arg->position;
             if ((arg->flags & 0x400) && !(arg->flags & 0x800)) {
-                anim->position.x = CombatStage_ToWorldX(0, (s16)anim->position.x);
-                anim->position.y = CombatStage_ToWorldY(0, (s16)anim->position.y, anim->position.z);
+                anim->position.x = BtlStage_ToWorldX(0, (s16)anim->position.x);
+                anim->position.y = BtlStage_ToWorldY(0, (s16)anim->position.y, anim->position.z);
             }
             if (anim->flags & 0x10)
                 anim->actor = arg->actor;
@@ -151,16 +151,16 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003PsychAnimation* anim = task->data;
             s32                  y, x;
             if (anim->flags & 0x10) {
-                x = CombatStage_ToScreenX(0, anim->actor->position.x);
-                y = CombatStage_ToScreenY(0, anim->actor->position.y, anim->actor->position.z);
+                x = BtlStage_ToScreenX(0, anim->actor->position.x);
+                y = BtlStage_ToScreenY(0, anim->actor->position.y, anim->actor->position.z);
                 BtlSprite_SetSortKey(&anim->sprite, anim->actor->position.y + 0x1F4000);
             } else if (anim->flags & 0x800) {
                 x = (s16)anim->position.x;
                 y = (s16)anim->position.y;
-                BtlSprite_SetSortKey(&anim->sprite, (CombatStage_ToWorldY(0, y, anim->position.z) << 12) + 0x384000);
+                BtlSprite_SetSortKey(&anim->sprite, (BtlStage_ToWorldY(0, y, anim->position.z) << 12) + 0x384000);
             } else {
-                x = CombatStage_ToScreenX(0, anim->position.x);
-                y = CombatStage_ToScreenY(0, anim->position.y, anim->position.z);
+                x = BtlStage_ToScreenX(0, anim->position.x);
+                y = BtlStage_ToScreenY(0, anim->position.y, anim->position.z);
                 BtlSprite_SetSortKey(&anim->sprite, anim->position.y + 0x1F4000);
             }
             BtlSprite_SetPosition(&anim->sprite, x, y);

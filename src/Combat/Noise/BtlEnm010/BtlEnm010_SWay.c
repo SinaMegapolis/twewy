@@ -117,9 +117,9 @@ static s32 func_ov011_02128150(BtlEnm010SWay* p) {
         o = p->unk_00;
         s32 pan;
         if (func_ov003_020c37f8(&o->sprite) != 0) {
-            pan = CombatStage_ToScreenX(1, o->actor.position.x);
+            pan = BtlStage_ToScreenX(1, o->actor.position.x);
         } else {
-            pan = CombatStage_ToScreenX(0, o->actor.position.x);
+            pan = BtlStage_ToScreenX(0, o->actor.position.x);
         }
         CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK, pan);
         p->unk_08 = p->unk_08 + 1;

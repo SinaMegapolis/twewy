@@ -27,7 +27,7 @@ s32 CombatPsyTrail_Update(Ov003TrailEffect* effect) {
             effect->points[effect->count][0] = g_CombatGlobal->touchWork.x;
             effect->points[effect->count][1] = g_CombatGlobal->touchWork.y;
             effect->count++;
-            if (CombatTouch_IsGesture(6) == 0) {
+            if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) == 0) {
                 effect->state = 3;
                 return 1;
             }

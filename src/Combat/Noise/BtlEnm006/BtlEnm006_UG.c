@@ -137,7 +137,7 @@ static void func_ov010_02127650(BtlEnm006* data) {
         }
     }
     if (data->base.sprite.sprite.cellIndex == 1 && data->base.sprite.sprite.frameTimer == 1) {
-        CombatSe_PlayPanned(SEIDX_SE_006_WATER_MOVEL, CombatStage_ToScreenX(0, data->base.actor.position.x));
+        CombatSe_PlayPanned(SEIDX_SE_006_WATER_MOVEL, BtlStage_ToScreenX(0, data->base.actor.position.x));
     }
     func_ov003_020c5b2c(0x4C, &data->base, data->base.actor.position.x, data->base.actor.position.y,
                         data->base.actor.position.z);
@@ -161,7 +161,7 @@ static void func_ov010_02127764(BtlEnm006* data) {
                     data->ext.ug.unk_1F5 &= ~2;
                     data->base.actor.flags |= ACTOR_FLAG_NO_FLINCH;
                 }
-                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -222,7 +222,7 @@ static void func_ov010_02127764(BtlEnm006* data) {
                 }
             }
             if (data->base.sprite.sprite.cellIndex == 0xF && data->base.sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_006_WATER_SIGN, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_WATER_SIGN, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -240,13 +240,13 @@ static void func_ov010_02127764(BtlEnm006* data) {
                     func_ov003_020cb578(&data->base.actor, 1);
                 }
                 func_ov003_020c4c9c(&data->base);
-                CombatSe_PlayPanned(SEIDX_SE_006_VOC_BITE, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_VOC_BITE, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 6 && data->base.sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_006_BITE, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_BITE, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 9 && data->base.sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH_SP, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH_SP, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 4 && data->base.sprite.sprite.frameTimer == 1) {
                 void* t = g_CombatGlobal->player;
@@ -294,7 +294,7 @@ static void func_ov010_02127764(BtlEnm006* data) {
                 data->base.actor.position.x = RNG_Next((func_ov003_020cb744(0) >> 12) + 1) << 12;
                 data->base.actor.position.y = RNG_Next((func_ov003_020cb7a4(0) >> 12) + 1) << 12;
                 data->base.actor.position.z = 0;
-                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -315,7 +315,7 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
             if (data->unk_1C0 == 0) {
                 data->unk_1C0 = data->unk_1C0 + 1;
                 BtlSprite_SetAnimFromTable(&data->base.sprite, 3, 1);
-                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -368,7 +368,7 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
                 }
             }
             if (data->base.sprite.sprite.cellIndex == 0xC && data->base.sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_006_WATER_SIGN, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_WATER_SIGN, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -387,7 +387,7 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
                 if (data->base.spriteIndex == 2) {
                     func_ov010_02126c38(data);
                 }
-                CombatSe_PlayPanned(SEIDX_SE_006_WATER_IN, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_WATER_IN, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (data->base.spriteIndex == 1) {
                 v = 0xF;
@@ -450,7 +450,7 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
                 data->base.actor.position.x = RNG_Next((func_ov003_020cb744(0) >> 12) + 1) << 12;
                 data->base.actor.position.y = RNG_Next((func_ov003_020cb7a4(0) >> 12) + 1) << 12;
                 data->base.actor.position.z = 0;
-                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, CombatStage_ToScreenX(0, data->base.actor.position.x));
+                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;
@@ -738,7 +738,7 @@ static s32 func_ov010_02128a08(BtlEnm006* data, s32 arg1) {
     func_ov010_02128820(data, arg1);
     if ((data->base.sprite.sprite.cellIndex - 1) % 4 == 0) {
         if (data->base.sprite.sprite.frameTimer == 1) {
-            CombatSe_PlayPanned(SEIDX_SE_006_WATER_MOVES, CombatStage_ToScreenX(0, data->base.actor.position.x));
+            CombatSe_PlayPanned(SEIDX_SE_006_WATER_MOVES, BtlStage_ToScreenX(0, data->base.actor.position.x));
         }
     }
     return 1;

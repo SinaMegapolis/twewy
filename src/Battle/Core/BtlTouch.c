@@ -1,23 +1,25 @@
-#include "Combat/Core/CombatTouch.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlTch.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatApi.h"
+#include "Combat/Core/CombatEffectActor.h"
 #include "Engine/EasyTask.h"
 #include "Engine/IO/TouchInput.h"
+#include "FixedPoint.h"
+#include "nitro/math.h"
 #include <nitro/fx.h>
 
 /// Distance between the middle of an actor's box and a screen point.
-static s32 CombatTouch_DistanceToActor(BattleActor* actor, s32 x, s32 y) {
+static s32 BtlTouch_DistanceToActor(BattleActor* actor, s32 x, s32 y) {
     s32 centerY = actor->screenY + (12 - actor->height) / 2;
-    s32 dx      = (x << 12) - (actor->screenX << 12);
-    s32 dy      = (y << 12) - (centerY << 12);
+    s32 dx      = I2F(x) - I2F(actor->screenX);
+    s32 dy      = I2F(y) - I2F(centerY);
 
     return FX_Sqrt(FX_Mul(dx, dx) + FX_Mul(dy, dy));
 }
 
 /// Whether segment (x0,y0)-(x1,y1) crosses segment (ax,ay)-(bx,by).
-static BOOL CombatTouch_SegmentsCross(s32 x0, s32 y0, s32 x1, s32 y1, s32 ax, s32 ay, s32 bx, s32 by) {
+static BOOL BtlTouch_SegmentsCross(s32 x0, s32 y0, s32 x1, s32 y1, s32 ax, s32 ay, s32 bx, s32 by) {
     s32 lo;
     s32 hi;
     s32 denominator;
@@ -60,19 +62,19 @@ static BOOL CombatTouch_SegmentsCross(s32 x0, s32 y0, s32 x1, s32 y1, s32 ax, s3
 }
 
 /// A quick short touch.
-static BOOL CombatTouch_IsQuickTap(BtlTouchWork* touch) {
-    return touch->holdFrames < 12 && touch->distance < 0x10000;
+static BOOL BtlTouch_IsQuickTap(BattleTouchWork* touch) {
+    return touch->holdFrames < 12 && touch->distance < I2F(16);
 }
 
 /// Counts taps; the fifth quick tap starts the tap effect.
-static BOOL CombatTouch_CountRapidTaps(BtlTouchWork* touch) {
-    if (!(touch->flags & 2)) {
+static BOOL BtlTouch_CountRapidTaps(BattleTouchWork* touch) {
+    if ((touch->flags & BTL_TOUCH_ALLOW_RAPID_TAP) == 0) {
         return FALSE;
     }
     if (touch->tapTimer > 0) {
         touch->tapCount++;
     }
-    touch->tapTimer = 0x22;
+    touch->tapTimer = 34;
     if (touch->tapCount < 5) {
         return FALSE;
     }
@@ -80,35 +82,31 @@ static BOOL CombatTouch_CountRapidTaps(BtlTouchWork* touch) {
     return TRUE;
 }
 
-/// A short touch that travelled far: a flick.
-static BOOL CombatTouch_IsSlash(BtlTouchWork* touch) {
-    if (!(touch->flags & 4)) {
+/// A short touch that travelled far: a slash.
+static BOOL BtlTouch_IsSlash(BattleTouchWork* touch) {
+    if ((touch->flags & BTL_TOUCH_ALLOW_SLASH) == 0) {
         return FALSE;
     }
-    if (touch->holdFrames < 12 && touch->distance > 0x10000) {
+    if (touch->holdFrames < 12 && touch->distance > I2F(16)) {
         return TRUE;
     }
     return FALSE;
 }
 
 /// A long touch that stays near where it started.
-static BOOL CombatTouch_IsHold(BtlTouchWork* touch) {
-    s32 dx;
-    s32 dy;
+static BOOL BtlTouch_IsHold(BattleTouchWork* touch) {
+    if ((touch->flags & BTL_TOUCH_ALLOW_HOLD) == 0) {
+        return FALSE;
+    }
+    if (touch->watching == FALSE) {
+        return FALSE;
+    }
 
-    if (!(touch->flags & 8)) {
-        return FALSE;
-    }
-    if (touch->watching == 0) {
-        return FALSE;
-    }
-    dx = (touch->startX - touch->x) << 12;
-    dy = (touch->startY - touch->y) << 12;
-    if (dx < 0) {
-        dx = -dx;
-    }
-    if (dx > 0x4000 || ABS(dy) > 0x4000) {
-        touch->watching = 0;
+    s32 dx = I2F(touch->startX - touch->x);
+    s32 dy = I2F(touch->startY - touch->y);
+
+    if (ABS(dx) > I2F(4) || ABS(dy) > I2F(4)) {
+        touch->watching = FALSE;
         return FALSE;
     }
     touch->watchFrames++;
@@ -116,19 +114,19 @@ static BOOL CombatTouch_IsHold(BtlTouchWork* touch) {
 }
 
 /// A fast back and forth scribble.
-static BOOL CombatTouch_IsScribble(BtlTouchWork* touch) {
+static BOOL BtlTouch_IsScribble(BattleTouchWork* touch) {
     s32 speed;
 
-    if (!(touch->flags & 0x20)) {
+    if ((touch->flags & BTL_TOUCH_ALLOW_SCRIBBLE) == 0) {
         return FALSE;
     }
-    speed = FX_Sqrt(FX_Mul(touch->velocityX << 12, touch->velocityX << 12) +
-                    FX_Mul(touch->velocityY << 12, touch->velocityY << 12));
+    speed =
+        FX_Sqrt(FX_Mul(I2F(touch->velocityX), I2F(touch->velocityX)) + FX_Mul(I2F(touch->velocityY), I2F(touch->velocityY)));
     if (touch->sweepFrames == 0) {
         touch->sweepCenterX = touch->sweepMinX = touch->sweepMaxX = touch->x;
         touch->sweepCenterY = touch->sweepMinY = touch->sweepMaxY = touch->y;
     }
-    if (speed >= 0xC000) {
+    if (speed >= I2F(12)) {
         if (touch->sweepMinX > touch->x) {
             touch->sweepMinX = touch->x;
         } else if (touch->sweepMaxX < touch->x) {
@@ -158,46 +156,27 @@ static BOOL CombatTouch_IsScribble(BtlTouchWork* touch) {
 }
 
 /// Whether the current touch point is on `actor`.
-static BOOL CombatTouch_IsOnActor(BattleActor* actor) {
-    s32 x     = g_CombatGlobal->touchWork.x;
-    s32 y     = g_CombatGlobal->touchWork.y;
-    s32 flags = actor->flags;
+static BOOL BtlTouch_IsOnActor(BattleActor* actor) {
+    s32 x = g_CombatGlobal->touchWork.x;
+    s32 y = g_CombatGlobal->touchWork.y;
 
-    if ((flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_INTANGIBLE)) {
+    if ((actor->flags & ACTOR_FLAG_DEFEATED) || (actor->flags & ACTOR_FLAG_INTANGIBLE)) {
         return FALSE;
     }
     if (actor->kind == ACTOR_KIND_PLAYER) {
-        s32 dx = actor->screenX - x;
-
-        if (dx < 0) {
-            dx = -dx;
+        if (ABS(actor->screenX - x) < actor->radius + 24 && actor->screenY + 30 >= y &&
+            actor->screenY - actor->height - 18 <= y)
+        {
+            return TRUE;
         }
-        if (dx < actor->radius + 0x18) {
-            if (actor->screenY + 0x1E >= y) {
-                if (actor->screenY - actor->height - 0x12 <= y) {
-                    return TRUE;
-                }
-            }
-        }
-    } else {
-        s32 dx = actor->screenX - x;
-
-        if (dx < 0) {
-            dx = -dx;
-        }
-        if (dx <= actor->radius) {
-            if (actor->screenY + 0xC >= y) {
-                if (actor->screenY - actor->height <= y) {
-                    return TRUE;
-                }
-            }
-        }
+    } else if (ABS(actor->screenX - x) <= actor->radius && actor->screenY + 12 >= y && actor->screenY - actor->height <= y) {
+        return TRUE;
     }
     return FALSE;
 }
 
 /// Whether segment (x0,y0)-(x1,y1) touches the box of `actor`.
-static BOOL CombatTouch_StrokeHitsActor(BattleActor* actor, s32 x0, s32 y0, s32 x1, s32 y1) {
+static BOOL BtlTouch_StrokeHitsActor(BattleActor* actor, s32 x0, s32 y0, s32 x1, s32 y1) {
     s32 left   = actor->screenX - actor->radius;
     s32 right  = actor->screenX + actor->radius;
     s32 bottom = actor->screenY;
@@ -230,20 +209,23 @@ static BOOL CombatTouch_StrokeHitsActor(BattleActor* actor, s32 x0, s32 y0, s32 
             }
         }
     }
-    if (CombatTouch_SegmentsCross(x0, y0, x1, y1, left, top, right, top)) {
+    if (BtlTouch_SegmentsCross(x0, y0, x1, y1, left, top, right, top)) {
         return TRUE;
     }
-    if (CombatTouch_SegmentsCross(x0, y0, x1, y1, left, bottom, right, bottom)) {
+    if (BtlTouch_SegmentsCross(x0, y0, x1, y1, left, bottom, right, bottom)) {
         return TRUE;
     }
-    if (CombatTouch_SegmentsCross(x0, y0, x1, y1, left, top, left, bottom)) {
+    if (BtlTouch_SegmentsCross(x0, y0, x1, y1, left, top, left, bottom)) {
         return TRUE;
     }
-    return CombatTouch_SegmentsCross(x0, y0, x1, y1, right, top, right, bottom) != 0;
+    if (BtlTouch_SegmentsCross(x0, y0, x1, y1, right, top, right, bottom)) {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /// Keeps `actor` as the best candidate when the stroke crosses it near its middle.
-static void CombatTouch_PickStrokeTarget(BattleActor** best, s32* bestDistance, BattleActor* actor) {
+static void BtlTouch_PickStrokeTarget(BattleActor** best, s32* bestDistance, BattleActor* actor) {
     Ov003Global* global = g_CombatGlobal;
     s16          x1     = global->touchWork.endX;
     s16          x0     = global->touchWork.startX;
@@ -251,101 +233,88 @@ static void CombatTouch_PickStrokeTarget(BattleActor** best, s32* bestDistance, 
     s16          y1     = global->touchWork.endY;
     s32          distance;
 
-    if (!CombatTouch_StrokeHitsActor(actor, x0, y0, x1, y1)) {
-        return;
-    }
-    distance = CombatTouch_DistanceToActor(actor, (s16)((x0 + x1) / 2), (s16)((y0 + y1) / 2));
-    if (distance < *bestDistance) {
-        *bestDistance = distance;
-        *best         = actor;
+    if (BtlTouch_StrokeHitsActor(actor, x0, y0, x1, y1)) {
+        distance = BtlTouch_DistanceToActor(actor, (s16)((x0 + x1) / 2), (s16)((y0 + y1) / 2));
+        if (distance < *bestDistance) {
+            *bestDistance = distance;
+            *best         = actor;
+        }
     }
 }
 
 /// Keeps `actor` as the best candidate when the touch point is on it and closer than the current best.
-static void CombatTouch_PickPointTarget(BattleActor** best, s32* bestDistance, BattleActor* actor) {
-    s32 distance;
-
-    if (!CombatTouch_IsOnActor(actor)) {
-        return;
-    }
-    distance = CombatTouch_DistanceToActor(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y);
-    if (distance < *bestDistance) {
-        *bestDistance = distance;
-        *best         = actor;
+static void BtlTouch_PickPointTarget(BattleActor** best, s32* bestDistance, BattleActor* actor) {
+    if (BtlTouch_IsOnActor(actor)) {
+        s32 distance = BtlTouch_DistanceToActor(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y);
+        if (distance < *bestDistance) {
+            *bestDistance = distance;
+            *best         = actor;
+        }
     }
 }
 
-static void CombatTouch_PickEnemyAtPoint(BattleActor** best, s32* bestDistance) {
-    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+static void BtlTouch_PickEnemyAtPoint(BattleActor** best, s32* bestDistance) {
+    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
 
-    if (unit == NULL) {
-        return;
+    while (unit != NULL) {
+        BtlTouch_PickPointTarget(best, bestDistance, &unit->actor);
+        unit = BtlList_GetNext(&unit->node);
     }
-    do {
-        CombatTouch_PickPointTarget(best, bestDistance, &unit->actor);
-        unit = CombatList_GetNext(&unit->node);
-    } while (unit != NULL);
 }
 
-static void CombatTouch_PickObjectAtPoint(BattleActor** best, s32* bestDistance) {
-    Ov003EffectActor* obs = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
+static void BtlTouch_PickObjectAtPoint(BattleActor** best, s32* bestDistance) {
+    Ov003EffectActor* obs = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
 
-    if (obs == NULL) {
-        return;
+    while (obs != NULL) {
+        BtlTouch_PickPointTarget(best, bestDistance, &obs->actor);
+        obs = BtlList_GetNext(&obs->node);
     }
-    do {
-        CombatTouch_PickPointTarget(best, bestDistance, &obs->actor);
-        obs = CombatList_GetNext(&obs->node);
-    } while (obs != NULL);
 }
 
 /// The actor under the touch point, the player first and then the closest enemy.
-static BattleActor* CombatTouch_FindActorAtPoint(void) {
+static BattleActor* BtlTouch_FindActorAtPoint(void) {
     BattleActor* best     = NULL;
     s32          distance = 0x7FFFFFFF;
 
-    if (CombatTouch_IsOnActor(g_CombatGlobal->player)) {
+    if (BtlTouch_IsOnActor(g_CombatGlobal->player)) {
         return g_CombatGlobal->player;
     }
-    CombatTouch_PickEnemyAtPoint(&best, &distance);
-    CombatTouch_PickObjectAtPoint(&best, &distance);
+    BtlTouch_PickEnemyAtPoint(&best, &distance);
+    BtlTouch_PickObjectAtPoint(&best, &distance);
     return best;
 }
 
 /// The stylus came down.
-static void CombatTouch_OnPress(BtlTouchWork* touch) {
-    BattleActor* actor = CombatTouch_FindActorAtPoint();
+static void BtlTouch_OnPress(BattleTouchWork* touch) {
+    BattleActor* actor = BtlTouch_FindActorAtPoint();
 
     if (actor != NULL) {
         switch (actor->kind) {
             case ACTOR_KIND_PLAYER:
-                touch->targetKind = 1;
+                touch->targetKind = BTL_TOUCH_TARGET_PLAYER;
                 break;
             case ACTOR_KIND_ENEMY:
-                touch->targetKind = 2;
+                touch->targetKind = BTL_TOUCH_TARGET_ENEMY;
                 break;
             case ACTOR_KIND_OBJECT:
-                touch->targetKind = 3;
+                touch->targetKind = BTL_TOUCH_TARGET_OBJECT;
                 break;
         }
         actor->flags |= ACTOR_FLAG_TOUCHED;
         touch->target = actor;
     } else {
-        touch->targetKind = 0;
+        touch->targetKind = BTL_TOUCH_TARGET_NONE;
         touch->target     = NULL;
     }
     touch->held = touch->target;
 }
 
 /// The stylus came up.
-static void CombatTouch_OnRelease(BtlTouchWork* touch) {
-    s32 dx;
-    s32 dy;
-
+static void BtlTouch_OnRelease(BattleTouchWork* touch) {
     touch->endX     = touch->x;
     touch->endY     = touch->y;
-    dx              = (touch->endX - touch->startX) << 12;
-    dy              = (touch->endY - touch->startY) << 12;
+    s32 dx          = I2F(touch->endX - touch->startX);
+    s32 dy          = I2F(touch->endY - touch->startY);
     touch->distance = FX_Sqrt(FX_Mul(dx, dx) + FX_Mul(dy, dy));
     touch->angle    = FX_Atan2Idx(dy, dx);
     touch->released = touch->held;
@@ -353,116 +322,110 @@ static void CombatTouch_OnRelease(BtlTouchWork* touch) {
 }
 
 /// Re-targets the held actor when the stylus slid off it.
-static void CombatTouch_UpdateHeld(BtlTouchWork* touch) {
+static void BtlTouch_UpdateHeld(BattleTouchWork* touch) {
     if (touch->held != NULL) {
-        if (CombatTouch_IsOnActor(touch->held)) {
-            return;
+        if (BtlTouch_IsOnActor(touch->held) == FALSE) {
+            touch->held = BtlTouch_FindActorAtPoint();
         }
-        touch->held = CombatTouch_FindActorAtPoint();
     } else {
-        touch->held = CombatTouch_FindActorAtPoint();
+        touch->held = BtlTouch_FindActorAtPoint();
     }
 }
 
-/// Classifies the touch of this frame: 0 none, 1 down, 2/3/4 tap kinds, 5 hold, 6 drag, 7 scribble.
-static s32 CombatTouch_Classify(BtlTouchWork* touch) {
+/// Classifies the touch of this frame as a BattleTouchGesture.
+static s32 BtlTouch_Classify(BattleTouchWork* touch) {
     if (TouchInput_WasTouchReleased()) {
-        if (CombatTouch_IsQuickTap(touch)) {
-            if (CombatTouch_CountRapidTaps(touch)) {
-                return 3;
+        if (BtlTouch_IsQuickTap(touch)) {
+            if (BtlTouch_CountRapidTaps(touch)) {
+                return BTL_TOUCH_GESTURE_RAPID_TAP;
             }
-            if (touch->flags & 1) {
+            if (touch->flags & BTL_TOUCH_ALLOW_TAP) {
                 EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Tsk_BtlTch_Click, NULL, 0, NULL, NULL);
-                return 2;
+                return BTL_TOUCH_GESTURE_TAP;
             }
         }
-        if (CombatTouch_IsSlash(touch)) {
+        if (BtlTouch_IsSlash(touch)) {
             EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Tsk_BtlTch_Slash, NULL, 0, NULL, NULL);
-            return 4;
+            return BTL_TOUCH_GESTURE_SLASH;
         }
     }
     if (TouchInput_IsTouchActive()) {
         if (touch->holdFrames >= 12) {
-            if (CombatTouch_IsHold(touch)) {
-                return 5;
+            if (BtlTouch_IsHold(touch)) {
+                return BTL_TOUCH_GESTURE_HOLD;
             }
-            if (CombatTouch_IsScribble(touch)) {
-                return 7;
+            if (BtlTouch_IsScribble(touch)) {
+                return BTL_TOUCH_GESTURE_SCRIBBLE;
             }
-            if (touch->flags & 0x10) {
-                return 6;
+            if (touch->flags & BTL_TOUCH_ALLOW_DRAG) {
+                return BTL_TOUCH_GESTURE_DRAG;
             }
         }
-        return 1;
+        return BTL_TOUCH_GESTURE_DOWN;
     }
-    return 0;
+    return BTL_TOUCH_GESTURE_NONE;
 }
 
-void CombatTouch_Clear(void) {
-    g_CombatGlobal->touchWork.gesture       = 0;
-    g_CombatGlobal->touchWork.active        = 0;
+void BtlTouch_Clear(void) {
+    g_CombatGlobal->touchWork.gesture       = BTL_TOUCH_GESTURE_NONE;
+    g_CombatGlobal->touchWork.active        = FALSE;
     g_CombatGlobal->touchWork.holdFrames    = 0;
     g_CombatGlobal->touchWork.releaseFrames = 0;
     g_CombatGlobal->touchWork.watchFrames   = 0;
-    g_CombatGlobal->touchWork.targetKind    = 0;
+    g_CombatGlobal->touchWork.targetKind    = BTL_TOUCH_TARGET_NONE;
     g_CombatGlobal->touchWork.target        = NULL;
     g_CombatGlobal->touchWork.held          = NULL;
     g_CombatGlobal->touchWork.released      = NULL;
 }
 
-/// Whether the touch state is in gesture `gesture`.
-BOOL CombatTouch_IsGesture(u16 gesture) {
-    if (g_CombatGlobal->touchWork.active != 0) {
+BOOL BtlTouch_IsGesture(u16 gesture) {
+    if (g_CombatGlobal->touchWork.active) {
         return g_CombatGlobal->touchWork.gesture == gesture;
     }
     return FALSE;
 }
 
-BOOL CombatTouch_IsTargetKind(s32 kind) {
+BOOL BtlTouch_IsTargetKind(s32 kind) {
     return g_CombatGlobal->touchWork.targetKind == kind;
 }
 
-/// Whether the current drag crosses `actor`.
-BOOL CombatTouch_SlashCrosses(BattleActor* actor) {
-    Ov003Global* global;
-
-    if (!CombatTouch_IsGesture(4)) {
+BOOL BtlTouch_SlashCrosses(BattleActor* actor) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH) == FALSE) {
         return FALSE;
     }
-    global = g_CombatGlobal;
-    return CombatTouch_StrokeHitsActor(actor, global->touchWork.startX, global->touchWork.startY, global->touchWork.endX,
-                                       global->touchWork.endY);
+
+    Ov003Global* global = g_CombatGlobal;
+    return BtlTouch_StrokeHitsActor(actor, global->touchWork.startX, global->touchWork.startY, global->touchWork.endX,
+                                    global->touchWork.endY);
 }
 
-/// The actor of `kind` under the stylus on a tap.
-BattleActor* CombatTouch_GetTapped(BattleActorKind kind) {
+BattleActor* BtlTouch_GetTapped(BattleActorKind kind) {
     BattleActor* best     = NULL;
     s32          distance = 0x7FFFFFFF;
 
-    if (!CombatTouch_IsGesture(2)) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) == FALSE) {
         return NULL;
     }
     switch (kind) {
         case ACTOR_KIND_PLAYER:
-            if (CombatTouch_IsOnActor(g_CombatGlobal->player)) {
+            if (BtlTouch_IsOnActor(g_CombatGlobal->player)) {
                 best = g_CombatGlobal->player;
             }
             break;
         case ACTOR_KIND_ENEMY:
-            CombatTouch_PickEnemyAtPoint(&best, &distance);
+            BtlTouch_PickEnemyAtPoint(&best, &distance);
             break;
         case ACTOR_KIND_OBJECT:
-            CombatTouch_PickObjectAtPoint(&best, &distance);
+            BtlTouch_PickObjectAtPoint(&best, &distance);
             break;
     }
     return best;
 }
 
-/// The held actor, when it is of `kind`.
-BattleActor* CombatTouch_GetDragged(BattleActorKind kind) {
+BattleActor* BtlTouch_GetDragged(BattleActorKind kind) {
     BattleActor* held = g_CombatGlobal->touchWork.held;
 
-    if (!CombatTouch_IsGesture(6)) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) == FALSE) {
         return NULL;
     }
     if (held != NULL && held->kind != kind) {
@@ -471,19 +434,19 @@ BattleActor* CombatTouch_GetDragged(BattleActorKind kind) {
     return held;
 }
 
-/// The actor of `kind` the drag crosses closest to its middle.
-BattleActor* CombatTouch_GetSlashed(BattleActorKind kind) {
+BattleActor* BtlTouch_GetSlashed(BattleActorKind kind) {
     s32          distance;
     BattleActor* best = NULL;
 
-    if (!CombatTouch_IsGesture(4)) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH) == FALSE) {
         return NULL;
     }
+
     if (kind == ACTOR_KIND_PLAYER) {
         Ov003Global* global = g_CombatGlobal;
 
-        if (CombatTouch_StrokeHitsActor(global->player, global->touchWork.startX, global->touchWork.startY,
-                                        global->touchWork.endX, global->touchWork.endY))
+        if (BtlTouch_StrokeHitsActor(global->player, global->touchWork.startX, global->touchWork.startY,
+                                     global->touchWork.endX, global->touchWork.endY))
         {
             best = g_CombatGlobal->player;
         }
@@ -493,12 +456,10 @@ BattleActor* CombatTouch_GetSlashed(BattleActorKind kind) {
 
         best     = NULL;
         distance = 0x7FFFFFFF;
-        unit     = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-        if (unit != NULL) {
-            do {
-                CombatTouch_PickStrokeTarget(&best, &distance, &unit->actor);
-                unit = CombatList_GetNext(&unit->node);
-            } while (unit != NULL);
+        unit     = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+        while (unit != NULL) {
+            BtlTouch_PickStrokeTarget(&best, &distance, &unit->actor);
+            unit = BtlList_GetNext(&unit->node);
         }
     }
     if (kind == ACTOR_KIND_OBJECT) {
@@ -506,66 +467,62 @@ BattleActor* CombatTouch_GetSlashed(BattleActorKind kind) {
 
         best     = NULL;
         distance = 0x7FFFFFFF;
-        obs      = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
-        if (obs != NULL) {
-            do {
-                CombatTouch_PickStrokeTarget(&best, &distance, &obs->actor);
-                obs = CombatList_GetNext(&obs->node);
-            } while (obs != NULL);
+        obs      = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
+        while (obs != NULL) {
+            BtlTouch_PickStrokeTarget(&best, &distance, &obs->actor);
+            obs = BtlList_GetNext(&obs->node);
         }
     }
     return best;
 }
 
-/// The actor of `kind` under the stylus on a flick.
-BattleActor* CombatTouch_GetRapidTapped(BattleActorKind kind) {
+BattleActor* BtlTouch_GetRapidTapped(BattleActorKind kind) {
     BattleActor* best     = NULL;
     s32          distance = 0x7FFFFFFF;
 
-    if (!CombatTouch_IsGesture(3)) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP) == FALSE) {
         return NULL;
     }
     switch (kind) {
         case ACTOR_KIND_PLAYER:
-            if (CombatTouch_IsOnActor(g_CombatGlobal->player)) {
+            if (BtlTouch_IsOnActor(g_CombatGlobal->player)) {
                 best = g_CombatGlobal->player;
             }
             break;
         case ACTOR_KIND_ENEMY:
-            CombatTouch_PickEnemyAtPoint(&best, &distance);
+            BtlTouch_PickEnemyAtPoint(&best, &distance);
             break;
         case ACTOR_KIND_OBJECT:
-            CombatTouch_PickObjectAtPoint(&best, &distance);
+            BtlTouch_PickObjectAtPoint(&best, &distance);
             break;
     }
     return best;
 }
 
-void CombatTouch_Init(void) {
-    BtlTouchWork* touch = &g_CombatGlobal->touchWork;
+void BtlTouch_Init(void) {
+    BattleTouchWork* touch = &g_CombatGlobal->touchWork;
 
-    touch->active      = 0;
+    touch->active      = FALSE;
     touch->flags       = 0;
-    touch->targetKind  = 0;
+    touch->targetKind  = BTL_TOUCH_TARGET_NONE;
     touch->held        = NULL;
     touch->target      = NULL;
     touch->released    = NULL;
     touch->tapTimer    = 0;
     touch->tapCount    = 0;
-    touch->watching    = 1;
+    touch->watching    = TRUE;
     touch->watchFrames = 0;
-    touch->x           = 0x400;
-    touch->y           = 0x400;
+    touch->x           = 1024;
+    touch->y           = 1024;
     touch->velocityX   = 0;
     touch->velocityY   = 0;
-    touch->flags |= 0x15;
+    touch->flags |= BTL_TOUCH_ALLOW_TAP | BTL_TOUCH_ALLOW_SLASH | BTL_TOUCH_ALLOW_DRAG;
 }
 
-/// Reads the stylus and advances the gesture recognizer by one frame.
-void CombatTouch_Update(void) {
-    BtlTouchWork* touch = &g_CombatGlobal->touchWork;
-    TouchCoord    coord;
-    TouchCoord    delta;
+void BtlTouch_Update(void) {
+    BattleTouchWork* touch = &g_CombatGlobal->touchWork;
+    TouchCoord       coord;
+    TouchCoord       delta;
 
     TouchInput_GetCoord(&coord);
     TouchInput_GetDelta(&delta);
@@ -578,50 +535,36 @@ void CombatTouch_Update(void) {
         touch->tapCount = 0;
         touch->tapTimer = 0;
     }
-    touch->active = 1;
+    touch->active = TRUE;
     if (TouchInput_WasTouchPressed()) {
         touch->startX      = touch->x;
         touch->startY      = touch->y;
         touch->distance    = 0;
         touch->angle       = 0;
-        touch->watching    = 1;
+        touch->watching    = TRUE;
         touch->watchFrames = 0;
         touch->reserved24  = 0;
         touch->sweepFrames = 0;
         touch->stillFrames = 0;
         touch->anchorX     = touch->x;
         touch->anchorY     = touch->y;
-        CombatTouch_OnPress(touch);
+        BtlTouch_OnPress(touch);
     }
     if (TouchInput_WasTouchReleased()) {
-        CombatTouch_OnRelease(touch);
+        BtlTouch_OnRelease(touch);
     }
     if (TouchInput_IsTouchActive()) {
-        s32 dx;
-        s32 dy;
-
         touch->holdFrames = TouchInput_GetHoldDuration();
-        CombatTouch_UpdateHeld(touch);
-        dx = touch->anchorX - touch->x;
-        if (dx < 0) {
-            dx = -dx;
+        BtlTouch_UpdateHeld(touch);
+        if (ABS(touch->anchorX - touch->x) < 4 && ABS(touch->anchorY - touch->y) < 4) {
+            touch->stillFrames++;
+        } else {
+            touch->stillFrames = 0;
+            touch->anchorX     = touch->x;
+            touch->anchorY     = touch->y;
         }
-        if (dx < 4) {
-            dy = touch->anchorY - touch->y;
-            if (dy < 0) {
-                dy = -dy;
-            }
-            if (dy < 4) {
-                touch->stillFrames++;
-                goto classify;
-            }
-        }
-        touch->stillFrames = 0;
-        touch->anchorX     = touch->x;
-        touch->anchorY     = touch->y;
     } else {
         touch->releaseFrames = TouchInput_GetHoldDuration();
     }
-classify:
-    touch->gesture = CombatTouch_Classify(touch);
+    touch->gesture = BtlTouch_Classify(touch);
 }

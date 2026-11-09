@@ -22,13 +22,13 @@ typedef struct {
     /* 0xD4 */ s32            unk_D4;
     /* 0xD8 */ s16            unk_D8;
     /* 0xDA */ char           unk_DA[0x2];
-    /* 0xDC */ CombatListNode unk_DC;
+    /* 0xDC */ BattleListNode unk_DC;
 } CardUnkEntry; // Size: 0xE8
 
 typedef struct {
     /* 0x000 */ s16          unk_000;
     /* 0x002 */ char         unk_002[2];
-    /* 0x004 */ CombatList   unk_004;
+    /* 0x004 */ BattleList   unk_004;
     /* 0x00C */ CardUnkEntry cards[3];
 } CardUnk; // Size: 0x2C4
 
@@ -110,7 +110,7 @@ static void func_ov004_020eaccc(CardUnk* arg0, s16 arg1, s16 arg2, s16 arg3) {
     BtlSprite_SetPosition(&temp_r4->unk_04, arg2, arg3);
     BtlSprite_SetAnimFromTable(&temp_r4->unk_64, 0x18, 0);
     BtlSprite_SetPosition(&temp_r4->unk_64, (s16)(arg2 + 7), (s16)(arg3 + 7));
-    CombatList_Append(&arg0->unk_004, &temp_r4->unk_DC, temp_r4);
+    BtlList_Append(&arg0->unk_004, &temp_r4->unk_DC, temp_r4);
 }
 
 static void func_ov004_020eada8(CardUnkEntry* arg0) {
@@ -180,7 +180,7 @@ static void func_ov004_020eaf34(CardUnkEntry* arg0) {
 }
 
 static void func_ov004_020eafb0(CardUnk* arg0) {
-    CardUnkEntry* var_r4 = CombatList_GetHead(&arg0->unk_004);
+    CardUnkEntry* var_r4 = BtlList_GetHead(&arg0->unk_004);
 
     while (var_r4 != NULL) {
         func_ov004_020eada8(var_r4);
@@ -188,14 +188,14 @@ static void func_ov004_020eafb0(CardUnk* arg0) {
         BtlSprite_Update(&var_r4->unk_04);
         BtlSprite_Update(&var_r4->unk_64);
         CombatSys_EaseToSine(&var_r4->unk_D4, &var_r4->unk_D8);
-        var_r4 = CombatList_GetNext(&var_r4->unk_DC);
+        var_r4 = BtlList_GetNext(&var_r4->unk_DC);
     }
 }
 
 static void func_ov004_020eb004(CardUnk* arg0) {
     s16 var_r5;
 
-    CardUnkEntry* var_r4 = CombatList_GetHead(&arg0->unk_004);
+    CardUnkEntry* var_r4 = BtlList_GetHead(&arg0->unk_004);
 
     while (var_r4 != NULL) {
         if (var_r4->unk_CA & 1) {
@@ -209,17 +209,17 @@ static void func_ov004_020eb004(CardUnk* arg0) {
             BtlSprite_SetPosition(&var_r4->unk_64, (s16)(var_r4->unk_CE + 7), (s16)(var_r5 + 7));
             BtlSprite_Render(&var_r4->unk_64);
         }
-        var_r4 = CombatList_GetNext(&var_r4->unk_DC);
+        var_r4 = BtlList_GetNext(&var_r4->unk_DC);
     }
 }
 
 static void func_ov004_020eb0a0(CardUnk* arg0) {
-    CardUnkEntry* var_r4 = CombatList_GetHead(&arg0->unk_004);
+    CardUnkEntry* var_r4 = BtlList_GetHead(&arg0->unk_004);
 
     while (var_r4 != NULL) {
         BtlSprite_Release(&var_r4->unk_04);
         BtlSprite_Release(&var_r4->unk_64);
-        var_r4 = CombatList_GetNext(&var_r4->unk_DC);
+        var_r4 = BtlList_GetNext(&var_r4->unk_DC);
     }
 }
 
@@ -240,7 +240,7 @@ static s32 BtlCard_Esp_Init(TaskPool* pool, Task* task, void* args) {
     if (func_ov004_020e7360() == 0) {
         func_ov003_0208722c();
     }
-    CombatList_Init(&esp->unk_098.unk_004);
+    BtlList_Init(&esp->unk_098.unk_004);
     func_ov004_020eaccc(&esp->unk_098, 0, 0x98, 0x14);
     func_ov004_020eaccc(&esp->unk_098, 1, 0x7F, 0x14);
     func_ov004_020eaccc(&esp->unk_098, 2, 0x66, 0x14);

@@ -2,7 +2,7 @@
 #define COMBAT_COMBATATTACK_H
 
 #include "Battle/Core/BtlActor.h"
-#include "Combat/Core/CombatList.h"
+#include "Battle/Core/BtlList.h"
 
 typedef struct Ov003AttackInfo {
     /* 0x00 */ s16 unk_00; // base attack power

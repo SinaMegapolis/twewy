@@ -52,7 +52,7 @@ s32 func_ov003_020b6498(Ov003EffectContext* context, Ov003EffectState* effect) {
 static Ov003TouchActor* func_ov003_020b6520(void) {
     Ov003TouchActor* best      = NULL;
     s32              threshold = 0;
-    Ov003TouchActor* actor     = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
+    Ov003TouchActor* actor     = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
     while (actor != NULL) {
         if (actor->kind != 0xFFFE && actor->state == 3 && actor->effect.state == 0x3D) {
             if (threshold < actor->effect.params[0]) {
@@ -60,7 +60,7 @@ static Ov003TouchActor* func_ov003_020b6520(void) {
                 best      = actor;
             }
         }
-        actor = CombatList_GetNext(&actor->node);
+        actor = BtlList_GetNext(&actor->node);
     }
     if (best != NULL && g_CombatGlobal->unk3D8D0 >= g_CombatGlobal->unk3D8D2 * threshold / 100)
         best = NULL;

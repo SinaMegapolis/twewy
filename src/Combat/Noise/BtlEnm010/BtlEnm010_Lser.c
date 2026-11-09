@@ -217,7 +217,7 @@ static s32 func_ov011_02125f24(BtlEnm010Lser* data) {
         data->unk_250     = (data->unk_250 & ~1) | 1;
         data->unk_250     = data->unk_250 & ~2;
         data->emit.unk_26 = 0x2F;
-        CombatSe_PlayPanned((SndMgrSeIdx)0x1E5, CombatStage_ToScreenX(0, data->copy.position.x));
+        CombatSe_PlayPanned((SndMgrSeIdx)0x1E5, BtlStage_ToScreenX(0, data->copy.position.x));
     }
     flag = 1;
     if (data->emit.unk_24 > 0x24) {
@@ -289,11 +289,11 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
     }
     if (data->emit.unk_24 == 0x11) {
         data->unk_250 |= 4;
-        CombatSe_PlayPanned(SEIDX_SE_010_LAZERATTACK, CombatStage_ToScreenX(mode, data->copy.position.x));
+        CombatSe_PlayPanned(SEIDX_SE_010_LAZERATTACK, BtlStage_ToScreenX(mode, data->copy.position.x));
     }
     if ((u32)(data->unk_250 << 29) >> 31) {
         data->unk_22C = data->unk_22C + data->unk_248;
-        if (func_ov003_020cc7f4(CombatStage_ToScreenX(mode, data->unk_22C), 0, 0x60, 0) == 0) {
+        if (func_ov003_020cc7f4(BtlStage_ToScreenX(mode, data->unk_22C), 0, 0x60, 0) == 0) {
             return 0;
         }
     }
@@ -320,7 +320,7 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
             x = data->unk_22C;
         }
         if (CombatHit_AttackAt(&rec, &data->copy.baseArgs, x, data->unk_230, data->unk_234) == 1) {
-            CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, CombatStage_ToScreenX(mode, x));
+            CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, BtlStage_ToScreenX(mode, x));
         }
     }
     data->emit.unk_24 = data->emit.unk_24 + 1;
@@ -351,8 +351,8 @@ static s32 func_ov011_02126354(BtlEnm010Lser* data) {
         mode = 0;
     }
     func_ov011_02125c00(&outX, &outY, &outZ, &data->copy, data->unk_24C);
-    vx = FX32_CONVERT(CombatStage_ToScreenX(mode, outX));
-    vy = FX32_CONVERT(CombatStage_ToScreenY(mode, outY, outZ));
+    vx = FX32_CONVERT(BtlStage_ToScreenX(mode, outX));
+    vy = FX32_CONVERT(BtlStage_ToScreenY(mode, outY, outZ));
 
     if ((u32)(data->unk_250 << 31) >> 31) {
         rec = &data->emit.rec[0];
@@ -376,7 +376,7 @@ static s32 func_ov011_02126354(BtlEnm010Lser* data) {
     }
 
     if ((u32)(data->unk_250 << 29) >> 31) {
-        CombatStage_WorldToScreen(mode, &t1, &t0, data->unk_22C, data->unk_230, data->unk_234);
+        BtlStage_WorldToScreen(mode, &t1, &t0, data->unk_22C, data->unk_230, data->unk_234);
         BtlSprite_SetPosition(&data->sprite[0], t1, t0);
         BtlSprite_SetSortKey(&data->sprite[0], 0x7FFFFFFD - outY);
         BtlSprite_Render(&data->sprite[0]);

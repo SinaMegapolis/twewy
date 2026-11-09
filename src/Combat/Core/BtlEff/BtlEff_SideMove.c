@@ -172,7 +172,7 @@ static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 s
                 s16 x;
                 s16 y;
 
-                CombatStage_WorldToScreen(1, &x, &y, self->position.x, self->position.y, self->position.z);
+                BtlStage_WorldToScreen(1, &x, &y, self->position.x, self->position.y, self->position.z);
                 BtlSprite_SetPosition(&self->sprite, x, y);
                 BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - (self->position.y + 0x8000));
                 BtlSprite_Render(&self->sprite);

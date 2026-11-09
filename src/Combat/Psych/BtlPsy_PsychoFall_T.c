@@ -12,7 +12,7 @@ static s32              func_ov003_020b4a44(Ov003PsychoFallT* self);
 /// meteor shard per `effect->params[0]` while the touch is held.
 
 s32 func_ov003_020b47fc(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(2))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dca28.taskName);
     *arg                   = effect;
@@ -28,7 +28,7 @@ s32 func_ov003_020b47fc(Ov003EffectContext* context, Ov003EffectState* effect) {
 static s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003PsychoFallT*  self;
-    BtlTouchWork*      touch;
+    BattleTouchWork*   touch;
     switch (stage) {
         default:
         case 0:
@@ -65,8 +65,8 @@ static s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage
                 case 1:
                     if (--self->timer == 0)
                         return 0;
-                    if (CombatTouch_IsGesture(2) || CombatTouch_IsGesture(3)) {
-                        BtlTouchWork* held = &g_CombatGlobal->touchWork;
+                    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) || BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP)) {
+                        BattleTouchWork* held = &g_CombatGlobal->touchWork;
                         func_ov003_020a6494(held->x);
                         self->x = held->x;
                         self->y = held->y;
@@ -99,8 +99,8 @@ static s32 func_ov003_020b4a44(Ov003PsychoFallT* self) {
     s32 count = self->effect->params[0];
 
     for (i = 0; i < count; i++) {
-        s32 x = CombatStage_ToWorldX(0, self->x);
-        s32 y = CombatStage_ToWorldY(0, self->y, 0);
+        s32 x = BtlStage_ToWorldX(0, self->x);
+        s32 y = BtlStage_ToWorldY(0, self->y, 0);
         s32 z = -0x190000;
         if (i > 0) {
             s32 angle = RNG_Next(0x20) << 11;

@@ -57,7 +57,7 @@ typedef struct Ov003EnemyShotBlur {
 
 typedef struct Ov003EnemyShotRootArgs {
     /* 0x00 */ Ov003EnemyShotSource* source;
-    /* 0x04 */ CombatList*           list;
+    /* 0x04 */ BattleList*           list;
     /* 0x08 */ u16                   angle;
     /* 0x0A */ u16                   reserved;
     /* 0x0C */ Vec                   position;
@@ -69,7 +69,7 @@ typedef struct Ov003EnemyShotRoot {
     /* 0x00 */ BattleSprite   sprite;
     /* 0x60 */ Vec            position;
     /* 0x6C */ s32            active;
-    /* 0x70 */ CombatListNode node;
+    /* 0x70 */ BattleListNode node;
     /* 0x7C */ s32            scaleX;
     /* 0x80 */ s32            scaleY;
     /* 0x84 */ u16            angle;
@@ -362,7 +362,7 @@ typedef struct Ov003EnemyShotWindMill {
 s32 func_ov003_020d33f0(Ov003EnemyShotSource*, s32, u16, u16, u16, u16, u16, s32);
 
 s32 func_ov003_020cd6f4(Ov003EnemyShotSource* source, s32 opacity, s32 decay);
-s32 func_ov003_020d1228(Ov003EnemyShotSource* source, CombatList* list, u16 angle, s32 x, s32 y, s32 z, s32 scaleX,
+s32 func_ov003_020d1228(Ov003EnemyShotSource* source, BattleList* list, u16 angle, s32 x, s32 y, s32 z, s32 scaleX,
                         s32 scaleY);
 
 s32 func_ov003_020d0518(Ov003EnemyShotSource*, s32, u16, u16, u16, Ov003EnemyShotSource*, s32, u16, u16, u16, s16);
@@ -389,8 +389,8 @@ s32 func_ov003_020cf81c(Ov003EnemyShotSource*, s32, u16, u16, s32, s32, u16, s32
 
 s32 func_ov003_020cfedc(Ov003EnemyShotSource*, u16, s16, s16, s16, s16);
 
-void                func_ov003_020d07a8(Ov003EnemyShotSource*, CombatList*, Ov003EnemyShotRoot*, u16, s16, s16, s32, s16);
-void                func_ov003_020d117c(CombatList*);
+void                func_ov003_020d07a8(Ov003EnemyShotSource*, BattleList*, Ov003EnemyShotRoot*, u16, s16, s16, s32, s16);
+void                func_ov003_020d117c(BattleList*);
 Ov003EnemyShotRoot* func_ov003_020d11b8(Ov003EnemyShotRoot*, u16*, s32*, s32*, s32*, s32*, s32*);
 
 void func_ov003_020cc8b0(Ov003EnemyShotCore*, const Ov003EnemyShotSource*);

@@ -11,8 +11,8 @@ typedef void (*BtlEnmAuraUpdate)(BtlEnmAura*);
 
 struct BtlEnmAura {
     /* 0x000 */ BattleSprite       sprites[2];
-    /* 0x0C0 */ CombatList         free;
-    /* 0x0C8 */ CombatList         active;
+    /* 0x0C0 */ BattleList         free;
+    /* 0x0C8 */ BattleList         active;
     /* 0x0D0 */ BtlAuraFlameSprite flames[16];
     /* 0x790 */ s16                cooldown;
     /* 0x792 */ u16                reserved792;
@@ -115,7 +115,7 @@ static void func_ov003_020c98b0(BtlEnmAura* self, s32 mode) {
         self->cooldown--;
         return;
     }
-    flame = CombatList_GetHead(&self->free);
+    flame = BtlList_GetHead(&self->free);
     if (flame == NULL) {
         return;
     }
@@ -172,48 +172,48 @@ static void func_ov003_020c98b0(BtlEnmAura* self, s32 mode) {
     BtlSprite_SetAnim(&flame->sprite, (u16)anim, 1);
     BtlSprite_SetPosition(&flame->sprite, (x << 4) >> 16, (y << 4) >> 16);
     BtlSprite_SetSortKey(&flame->sprite, sortKey);
-    CombatList_Remove(&self->free, &flame->node);
-    CombatList_Append(&self->active, &flame->node, flame);
+    BtlList_Remove(&self->free, &flame->node);
+    BtlList_Append(&self->active, &flame->node, flame);
 }
 
 static void func_ov003_020c9b4c(BtlEnmAura* self, BtlAuraFlameSprite* flame) {
     if (flame != NULL) {
         BtlSprite_Release(&flame->sprite);
-        CombatList_Remove(&self->active, &flame->node);
-        CombatList_Append(&self->free, &flame->node, flame);
+        BtlList_Remove(&self->active, &flame->node);
+        BtlList_Append(&self->free, &flame->node, flame);
     }
 }
 
 static void func_ov003_020c9b84(BtlEnmAura* self) {
-    CombatList_Init(&self->free);
-    CombatList_Init(&self->active);
+    BtlList_Init(&self->free);
+    BtlList_Init(&self->active);
     self->cooldown = 0;
     for (s32 i = 0; i < 16; i++) {
         BtlAuraFlameSprite* flame = &self->flames[i];
         BtlSprite_Init(&flame->sprite);
-        CombatList_Append(&self->free, &flame->node, flame);
+        BtlList_Append(&self->free, &flame->node, flame);
     }
 }
 
 static void func_ov003_020c9bd8(BtlEnmAura* self) {
-    BtlAuraFlameSprite* flame = CombatList_GetHead(&self->active);
+    BtlAuraFlameSprite* flame = BtlList_GetHead(&self->active);
 
     if (flame != NULL) {
         do {
             if (SpriteMgr_IsAnimationFinished(&flame->sprite.sprite)) {
-                BtlAuraFlameSprite* next = CombatList_GetNext(&flame->node);
+                BtlAuraFlameSprite* next = BtlList_GetNext(&flame->node);
                 func_ov003_020c9b4c(self, flame);
                 flame = next;
             } else {
                 BtlSprite_Update(&flame->sprite);
-                flame = CombatList_GetNext(&flame->node);
+                flame = BtlList_GetNext(&flame->node);
             }
         } while (flame != NULL);
     }
 }
 
 static void func_ov003_020c9c40(BtlEnmAura* self) {
-    BtlAuraFlameSprite* flame = CombatList_GetHead(&self->active);
+    BtlAuraFlameSprite* flame = BtlList_GetHead(&self->active);
 
     if (flame != NULL) {
         do {
@@ -223,7 +223,7 @@ static void func_ov003_020c9c40(BtlEnmAura* self) {
                 BtlSprite_SetSortKey(&flame->sprite, 0x80000000 - data_ov003_020e7324.ownerMain->base.actor.position.y);
             }
             BtlSprite_Render(&flame->sprite);
-            flame = CombatList_GetNext(&flame->node);
+            flame = BtlList_GetNext(&flame->node);
         } while (flame != NULL);
     }
 }

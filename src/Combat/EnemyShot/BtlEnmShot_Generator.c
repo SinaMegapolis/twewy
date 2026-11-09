@@ -1,9 +1,9 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlList.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatEnemyShot.h"
-#include "Combat/Core/CombatList.h"
 #include <nitro/mi/cpumem.h>
 
 // The generator owner: an enemy actor block that also carries the shot emitter state.
@@ -168,8 +168,8 @@ static s32 func_ov003_020cef74(Ov003EnemyShotGenerator* self) {
 
 static s32 func_ov003_020cf228(Ov003EnemyShotGenerator* self) {
     s16 x, y;
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->actor.sprite) ? 1 : 0, &x, &y, self->core.position.x,
-                              self->core.position.y, self->core.position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&self->actor.sprite) ? 1 : 0, &x, &y, self->core.position.x,
+                           self->core.position.y, self->core.position.z);
     BtlSprite_SetPosition(&self->actor.sprite, x, y);
     BtlSprite_SetSortKey(&self->actor.sprite, 0x7FFFFFFF - self->core.position.y);
     BtlSprite_Render(&self->actor.sprite);

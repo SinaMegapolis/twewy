@@ -46,15 +46,15 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0x10, 1);
             return 1;
         case 1: {
-            Ov003PsychoT* self  = task->data;
-            BtlTouchWork* touch = func_ov003_020a62a0();
+            Ov003PsychoT*    self  = task->data;
+            BattleTouchWork* touch = func_ov003_020a62a0();
             switch (self->phase) {
                 case 0:
                     if (--self->timer == 0) {
                         self->phase = 1;
                         break;
                     }
-                    if (CombatTouch_IsGesture(2)) {
+                    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP)) {
                         func_ov003_020a6494(touch->x);
                         Ov003EnemyActor* unit = func_ov003_020b6308(self->effect);
                         if (unit != NULL) {
@@ -63,8 +63,8 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                         } else {
                             self->hit.target = NULL;
                             if (self->hit.target == NULL) {
-                                self->hit.targetPosition.x = CombatStage_ToWorldX(0, touch->x);
-                                self->hit.targetPosition.y = CombatStage_ToWorldY(0, touch->y, 0);
+                                self->hit.targetPosition.x = BtlStage_ToWorldX(0, touch->x);
+                                self->hit.targetPosition.y = BtlStage_ToWorldY(0, touch->y, 0);
                                 self->hit.targetPosition.z = -0x10000;
                             }
                             self->hit.activated = 1;
@@ -74,12 +74,12 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                     break;
                 case 1:
-                    if (CombatTouch_IsGesture(2)) {
+                    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP)) {
                         func_ov003_020a6494(touch->x);
                         self->hit.target = NULL;
                         if (self->hit.target == NULL) {
-                            self->hit.targetPosition.x = CombatStage_ToWorldX(0, touch->x);
-                            self->hit.targetPosition.y = CombatStage_ToWorldY(0, touch->y, 0);
+                            self->hit.targetPosition.x = BtlStage_ToWorldX(0, touch->x);
+                            self->hit.targetPosition.y = BtlStage_ToWorldY(0, touch->y, 0);
                             self->hit.targetPosition.z = 0;
                         }
                         self->hit.activated = 1;
@@ -112,8 +112,8 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                 x = self->hit.target->screenX;
                 y = self->hit.target->screenY - self->hit.target->centerHeight;
             } else {
-                x = CombatStage_ToScreenX(0, self->hit.targetPosition.x);
-                y = CombatStage_ToScreenY(0, self->hit.targetPosition.y, self->hit.targetPosition.z);
+                x = BtlStage_ToScreenX(0, self->hit.targetPosition.x);
+                y = BtlStage_ToScreenY(0, self->hit.targetPosition.y, self->hit.targetPosition.z);
             }
             BtlSprite_SetPosition(&self->sprite, (s16)x, (s16)y);
             BtlSprite_Render(&self->sprite);
@@ -128,8 +128,8 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 static Ov003EnemyActor* func_ov003_020b6308(Ov003EffectState* effect) {
-    Ov003EnemyActor* primary   = (Ov003EnemyActor*)CombatTouch_GetTapped(ACTOR_KIND_OBJECT);
-    Ov003EnemyActor* secondary = (Ov003EnemyActor*)CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
+    Ov003EnemyActor* primary   = (Ov003EnemyActor*)BtlTouch_GetTapped(ACTOR_KIND_OBJECT);
+    Ov003EnemyActor* secondary = (Ov003EnemyActor*)BtlTouch_GetTapped(ACTOR_KIND_ENEMY);
     switch (effect->index) {
         case 0:
         case 1:

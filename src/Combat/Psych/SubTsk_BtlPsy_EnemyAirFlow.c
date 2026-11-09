@@ -69,8 +69,8 @@ static s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003EnemyAirFlow* self = task->data;
             Ov003EnemyActor*   unit = self->unit;
             if (self->phase == 0) {
-                s32 y = CombatStage_ToScreenY(0, unit->actor.position.y, unit->actor.position.z);
-                s32 x = CombatStage_ToScreenX(0, unit->actor.position.x);
+                s32 y = BtlStage_ToScreenY(0, unit->actor.position.y, unit->actor.position.z);
+                s32 x = BtlStage_ToScreenX(0, unit->actor.position.x);
                 BtlSprite_SetPosition(&self->sprite, x, y);
                 BtlSprite_SetSortKey(&self->sprite, unit->actor.position.y);
                 BtlSprite_Render(&self->sprite);
@@ -108,7 +108,7 @@ static s32 func_ov003_020b0470(Ov003EnemyAirFlow* self) {
     s32 oldX, oldY, oldZ;
 
     Ov003EnemyActor* unit = self->unit;
-    s32              x    = CombatStage_ToScreenX(0, self->origin.x);
+    s32              x    = BtlStage_ToScreenX(0, self->origin.x);
     if (x <= 128)
         self->angle = (u16)(self->angle - 0x1000);
     else
@@ -122,8 +122,8 @@ static s32 func_ov003_020b0470(Ov003EnemyAirFlow* self) {
     unit->actor.position.x = self->origin.x + FX_Mul(self->radius, COS2(FX_SinCosTable_, self->angle));
     unit->actor.position.y = self->origin.y + FX_Mul(self->radius, SIN2(FX_SinCosTable_, self->angle));
     unit->actor.position.z += self->zVelocity;
-    x     = CombatStage_ToScreenX(0, unit->actor.position.x);
-    s32 y = CombatStage_ToScreenY(0, unit->actor.position.y, unit->actor.position.z);
+    x     = BtlStage_ToScreenX(0, unit->actor.position.x);
+    s32 y = BtlStage_ToScreenY(0, unit->actor.position.y, unit->actor.position.z);
     if (!func_ov003_020a6374(x, y, 8)) {
         unit->actor.position.x = oldX;
         unit->actor.position.y = oldY;

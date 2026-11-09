@@ -7,9 +7,9 @@ static const TaskHandle data_ov003_020dc6e8;
 s32 func_ov003_020ab35c(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (func_ov003_020a5b18(0x16) || func_ov003_020a5b18(0x15))
         return 0;
-    if (!CombatTouch_IsGesture(6))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG))
         return 0;
-    if (CombatTouch_IsTargetKind(1))
+    if (BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc6e8.taskName);
     *arg                   = effect;

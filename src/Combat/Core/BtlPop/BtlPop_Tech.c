@@ -128,8 +128,8 @@ static s32 BtlPop_Tech_Update(TaskPool* pool, Task* task, void* args) {
 // Nonmatching: regalloc
 static s32 BtlPop_Tech_Render(TaskPool* pool, Task* task, void* args) {
     BtlPop_Tech* tech = task->data;
-    s32          posX = CombatStage_ToScreenX(0, tech->x);
-    s16          posY = (s16)(CombatStage_ToScreenY(0, tech->y, tech->z) - 8);
+    s32          posX = BtlStage_ToScreenX(0, tech->x);
+    s16          posY = (s16)(BtlStage_ToScreenY(0, tech->y, tech->z) - 8);
     s32          half = (tech->digitCount * 7) / 2 - 7;
     s32          offset;
     s32          i;

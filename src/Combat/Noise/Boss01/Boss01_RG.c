@@ -75,7 +75,7 @@ static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
     }
     rg->unk_1D8 = arg1;
 
-    Boss01_RG* var_r4 = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    Boss01_RG* var_r4 = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (var_r4 != NULL) {
         switch (var_r4->base.group) {
             case 7:
@@ -106,7 +106,7 @@ static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
                 }
                 break;
         }
-        var_r4 = CombatList_GetNext((CombatListNode*)&var_r4->base.node.prev);
+        var_r4 = BtlList_GetNext((BattleListNode*)&var_r4->base.node.prev);
     }
 }
 
@@ -260,8 +260,8 @@ static s32 Boss01_RG_Render(TaskPool* pool, Task* task, void* args) {
     Boss01_RG* bossRG = task->data;
 
     if (!(bossRG->base.flags18C & 1)) {
-        CombatStage_WorldToScreen(1, &spA, &sp8, bossRG->base.actor.position.x, bossRG->base.actor.position.y,
-                                  bossRG->base.actor.position.z);
+        BtlStage_WorldToScreen(1, &spA, &sp8, bossRG->base.actor.position.x, bossRG->base.actor.position.y,
+                               bossRG->base.actor.position.z);
         BtlSprite_SetPosition(&bossRG->base.sprite, spA, sp8);
         BtlSprite_SetSortKey(&bossRG->base.sprite, 0x7FF3FFFF);
         BtlSprite_Render(&bossRG->base.sprite);

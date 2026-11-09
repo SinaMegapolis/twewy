@@ -3,36 +3,37 @@
 
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatEnemyActor.h"
+#include "Combat/Core/CombatPsyTrail.h"
 #include "Engine/Core/OamMgr.h"
 #include <nitro/fx.h>
 #include <nitro/math.h>
 
 // List payload shared by target markers and psych target lookup helpers.
 typedef struct Ov003TargetArgs {
-    CombatList*  list;
+    BattleList*  list;
     BattleActor* actor;
 } Ov003TargetArgs; // Size: 0x8
 
 typedef struct Ov003TargetEntry {
     /* 0x00 */ BattleActor*   actor;
     /* 0x04 */ u32            taskId;
-    /* 0x08 */ CombatListNode node;
+    /* 0x08 */ BattleListNode node;
 } Ov003TargetEntry; // Size: 0x14
 
 typedef struct Ov003Target {
-    /* 0x00 */ CombatList*      list;
+    /* 0x00 */ BattleList*      list;
     /* 0x04 */ Ov003TargetEntry entry;
     /* 0x18 */ BattleSprite     sprite;
 } Ov003Target; // Size: 0x78
 
-void              func_ov003_020b3050(CombatList* list, Ov003TargetEntry* entry);
-void              func_ov003_020b3078(CombatList* list);
-Ov003TargetEntry* func_ov003_020b30a0(CombatList* list, BattleActor* actor);
-s32               func_ov003_020b30d8(CombatList* list);
+void              func_ov003_020b3050(BattleList* list, Ov003TargetEntry* entry);
+void              func_ov003_020b3078(BattleList* list);
+Ov003TargetEntry* func_ov003_020b30a0(BattleList* list, BattleActor* actor);
+s32               func_ov003_020b30d8(BattleList* list);
 
 typedef struct Ov003ThunderArgs {
     Ov003EffectState* effect;
-    CombatList*       targets;
+    BattleList*       targets;
     s32*              finished;
 } Ov003ThunderArgs; // Size: 0xC
 
@@ -46,20 +47,20 @@ typedef struct Ov003Thunder {
     /* 0x80 */ s32              angle;
 } Ov003Thunder; // Size: 0x84
 
-Ov003TargetEntry* func_ov003_020b3094(CombatList* list);
-s32               func_ov003_020b30f0(CombatList* list, BattleActor* actor);
-s32               func_ov003_020b3108(Ov003EffectState* effect, CombatList* targets, s32* finished);
+Ov003TargetEntry* func_ov003_020b3094(BattleList* list);
+s32               func_ov003_020b30f0(BattleList* list, BattleActor* actor);
+s32               func_ov003_020b3108(Ov003EffectState* effect, BattleList* targets, s32* finished);
 
 typedef struct Ov003LockOnThunder {
     /* 0x00 */ Ov003EffectState* effect;
-    /* 0x04 */ CombatList        targets;
+    /* 0x04 */ BattleList        targets;
     /* 0x0C */ s32               launched;
     /* 0x10 */ s32               finished;
 } Ov003LockOnThunder; // Size: 0x14
 
-void func_ov003_020b2fd8(CombatList* list);
-void func_ov003_020b2fe4(CombatList* list);
-void func_ov003_020b3014(CombatList* list, BattleActor* actor);
+void func_ov003_020b2fd8(BattleList* list);
+void func_ov003_020b2fe4(BattleList* list);
+void func_ov003_020b3014(BattleList* list, BattleActor* actor);
 void func_ov003_020b33a4(Ov003Thunder* self);
 void func_ov003_020b3400(Ov003Thunder* self);
 void func_ov003_020b34c0(Ov003Thunder* self);
@@ -80,7 +81,7 @@ typedef struct Ov003Lime {
 
 typedef struct Ov003LockOnThunderP {
     /* 0x00 */ Ov003EffectState* effect;
-    /* 0x04 */ CombatList        targets;
+    /* 0x04 */ BattleList        targets;
     /* 0x0C */ BattleSprite      sprite;
     /* 0x6C */ s32               scaleX;
     /* 0x70 */ s32               scaleY;
@@ -94,7 +95,7 @@ typedef struct Ov003LockOnThunderP {
 
 typedef struct Ov003LockOnThunderT {
     /* 0x00 */ Ov003EffectState* effect;
-    /* 0x04 */ CombatList        targets;
+    /* 0x04 */ BattleList        targets;
     /* 0x0C */ u8                timer;
     /* 0x0D */ u8                reserved[3];
     /* 0x10 */ s32               ready;
@@ -103,7 +104,7 @@ typedef struct Ov003LockOnThunderT {
     /* 0x1C */ s32               cancelled;
 } Ov003LockOnThunderT; // Size: 0x20
 
-void func_ov003_020b3034(CombatList* list, BattleActor* actor);
+void func_ov003_020b3034(BattleList* list, BattleActor* actor);
 s32  func_ov003_020b4048(Ov003EffectState* effect, s32 x, s32 y, s32 z, s32 vx, s32 vy, s32 vz, s32 animation, s32 trail);
 
 typedef struct Ov003LineThunder {

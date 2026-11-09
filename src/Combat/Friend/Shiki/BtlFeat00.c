@@ -162,8 +162,8 @@ s32 BtlFeat00_Init(TaskPool* pool, Task* task, void* args) {
     MI_CpuSet(feat, 0, sizeof(BtlFeat00));
     feat->unk_3C = 1;
     feat->unk_24 = 0;
-    feat->unk_28 = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-    feat->unk_2C = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    feat->unk_28 = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    feat->unk_2C = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     feat->unk_30 = 0;
     feat->unk_32 = 2;
     func_ov004_020eb4d0(feat);

@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
-#include "Combat/Core/CombatTouch.h"
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlPsySlashArgs {
@@ -39,11 +39,11 @@ static void func_ov003_0209519c(BtlPsySlash* self) {
     void* target;
     if (!func_ov003_020a5ab4(self->effect))
         return;
-    if (CombatTouch_SlashCrosses(self->target)) {
+    if (BtlTouch_SlashCrosses(self->target)) {
         func_ov003_02087250(self->effect, self->target, func_ov003_02095120());
         return;
     }
-    target = CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
+    target = BtlTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (!target)
         return;
     func_ov003_02087250(self->effect, self->target, func_ov003_02095120());
@@ -96,7 +96,7 @@ static s32 func_ov003_02095308(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_02095350(Ov003EffectContext* context, Ov003EffectState* effect) {
-    void* target = CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
+    void* target = BtlTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (!target)
         return 0;
     BtlPsySlashArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7df4.taskName);

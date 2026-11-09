@@ -59,7 +59,7 @@ static void BtlPsy_Pierce_Fire(Ov003AttackData* data) {
 /// Registers the "pierce" attack: the handler is `BtlPsy_Pierce_Fire`.
 s32 BtlPsy_Pierce_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
     Ov003AttackData* data;
-    BattleActor*     state = CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
+    BattleActor*     state = BtlTouch_GetTapped(ACTOR_KIND_ENEMY);
 
     if (state == 0) {
         return 0;
@@ -85,7 +85,7 @@ s32 BtlPsy_Syoryu_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
     if (BtlPsy_Instant_IsVerticalStroke(0) == 0) {
         return 0;
     }
-    state = CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
+    state = BtlTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (state == 0) {
         return 0;
     }
@@ -113,7 +113,7 @@ s32 BtlPsy_Kabuto_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
     if (BtlPsy_Instant_IsVerticalStroke(1) == 0) {
         return 0;
     }
-    state = CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
+    state = BtlTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (state == 0) {
         return 0;
     }
@@ -130,9 +130,9 @@ static void BtlPsy_Teleport_Fire(Ov003AttackData* data) {
     s32 y;
 
     CombatSe_PlayAtMainX(0x3B, g_CombatGlobal->player->position.x);
-    x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-    y = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-    CombatStage_ClampXY(&x, &y, 0x8000, 0x8000);
+    x = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+    y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+    BtlStage_ClampXY(&x, &y, 0x8000, 0x8000);
     CombatSe_PlayAtMainX(0x3C, x);
     CombatSys_WarpCharacter(0, x, y, 0);
     func_ov003_020a5aa4(data->effect);
@@ -146,10 +146,10 @@ s32 BtlPsy_Teleport_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
     if (g_CombatGlobal->unk3D894 < 0x64) {
         return 0;
     }
-    if (CombatTouch_IsGesture(2) == 0) {
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) == 0) {
         return 0;
     }
-    if (CombatTouch_IsTargetKind(0) == 0) {
+    if (BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_NONE) == 0) {
         return 0;
     }
     data      = (Ov003EffectState**)func_ov003_020a5d2c(4, BtlPsy_Teleport_ArgName);

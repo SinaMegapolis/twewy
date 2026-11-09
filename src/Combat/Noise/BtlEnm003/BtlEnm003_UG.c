@@ -122,13 +122,13 @@ static s32 func_ov009_02121574(BtlEnm003_UG* ug, Ov003EffectActor* arg1) {
 }
 
 static Ov003EffectActor* func_ov009_02121638(BtlEnm003_UG* ug) {
-    Ov003EffectActor* var_r4 = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
+    Ov003EffectActor* var_r4 = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
 
     while (var_r4 != NULL) {
         if (func_ov009_02121574(ug, var_r4) != 0) {
             return var_r4;
         }
-        var_r4 = CombatList_GetNext(&var_r4->node);
+        var_r4 = BtlList_GetNext(&var_r4->node);
     }
     return NULL;
 }
@@ -141,13 +141,13 @@ static void func_ov009_02121690(BtlEnm003_UG* ug, Ov003EffectActor* arg1) {
 }
 
 static void func_ov009_021216e0(BtlEnm003_UG* ug) {
-    Ov003EffectActor* var_r4 = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
+    Ov003EffectActor* var_r4 = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
 
     while (var_r4 != NULL) {
         if (func_ov009_02121574(ug, var_r4) != 0) {
             func_ov009_02121690(ug, var_r4);
         }
-        var_r4 = CombatList_GetNext(&var_r4->node);
+        var_r4 = BtlList_GetNext(&var_r4->node);
     }
 }
 

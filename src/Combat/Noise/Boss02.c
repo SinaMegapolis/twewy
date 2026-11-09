@@ -340,7 +340,7 @@ s32 func_ov017_0212665c(void* arg0, void* arg1, u16* arg2) {
     func_0200d858(temp_r4 + 0x50, 0, 1, 0);
     if (*arg2 == 0) {
         temp_r2_3 = g_CombatGlobal->partner;
-        CombatStage_SetCameraTarget(1, ((Boss03*)temp_r2_3)->unk28, ((Boss03*)temp_r2_3)->unk2C, 0);
+        BtlStage_SetCameraTarget(1, ((Boss03*)temp_r2_3)->unk28, ((Boss03*)temp_r2_3)->unk2C, 0);
         temp_r3                     = ((Boss03*)temp_r4)->unk0;
         ((Boss03*)temp_r3)->unk28   = (s32)((Boss03*)temp_r3)->unk34;
         temp_r3_2                   = ((Boss03*)temp_r4)->unk0;
@@ -700,9 +700,9 @@ static void func_ov017_02127314(void* arg0) {
 }
 
 static void func_ov017_02127358(void* arg0) {
-    BtlCollision_CollideAll((CombatList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C0);
-    BtlCollision_CollideAll((CombatList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C4);
-    BtlCollision_CollideAll((CombatList*)(((Boss03*)arg0)->unk1CC), (CombatList*)(((Boss03*)arg0)->unk1C8));
+    BtlCollision_CollideAll((BattleList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C0);
+    BtlCollision_CollideAll((BattleList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C4);
+    BtlCollision_CollideAll((BattleList*)(((Boss03*)arg0)->unk1CC), (BattleList*)(((Boss03*)arg0)->unk1C8));
 }
 
 static s32 func_ov017_02127388(void* arg0, void* arg1) {
@@ -807,7 +807,7 @@ void func_ov017_02127514(void* arg0) {
     void* var_r5;
     void* var_r5_2;
 
-    var_r0 = CombatList_GetHead(((Boss03*)arg0)->unk1C0);
+    var_r0 = BtlList_GetHead(((Boss03*)arg0)->unk1C0);
     if (var_r0 != NULL) {
         do {
             if (((Boss03*)var_r0)->unk1C & 0x10) {
@@ -818,10 +818,10 @@ void func_ov017_02127514(void* arg0) {
                     ((Boss03*)temp_r3_2)->unk2C = (s32)(((Boss03*)temp_r3_2)->unk2C + ((Boss03*)var_r0)->unk24);
                 }
             }
-            var_r0 = CombatList_GetNext(var_r0 + 0x28);
+            var_r0 = BtlList_GetNext(var_r0 + 0x28);
         } while (var_r0 != NULL);
     }
-    var_r5 = CombatList_GetHead((CombatList*)(((Boss03*)arg0)->unk1C8));
+    var_r5 = BtlList_GetHead((BattleList*)(((Boss03*)arg0)->unk1C8));
     if (var_r5 != NULL) {
         do {
             if (((Boss03*)var_r5)->unk1C & 0x10) {
@@ -830,10 +830,10 @@ void func_ov017_02127514(void* arg0) {
                     func_ov017_02127480(arg0, slot);
                 }
             }
-            var_r5 = CombatList_GetNext(var_r5 + 0x28);
+            var_r5 = BtlList_GetNext(var_r5 + 0x28);
         } while (var_r5 != NULL);
     }
-    var_r5_2 = CombatList_GetHead(((Boss03*)arg0)->unk1C4);
+    var_r5_2 = BtlList_GetHead(((Boss03*)arg0)->unk1C4);
     if (var_r5_2 == NULL) {
         return;
     }
@@ -844,7 +844,7 @@ void func_ov017_02127514(void* arg0) {
                 func_ov017_021274c8(arg0, slot);
             }
         }
-        var_r5_2 = CombatList_GetNext(var_r5_2 + 0x28);
+        var_r5_2 = BtlList_GetNext(var_r5_2 + 0x28);
     } while (var_r5_2 != NULL);
 }
 
@@ -861,7 +861,7 @@ static void func_ov017_02127624(void* arg0) {
     void* var_r4;
     void* var_r4_2;
 
-    var_r0 = CombatList_GetHead(((Boss03*)arg0)->unk1C0);
+    var_r0 = BtlList_GetHead(((Boss03*)arg0)->unk1C0);
     if (var_r0 != NULL) {
         do {
             if (((Boss03*)var_r0)->unk1C & 0x10) {
@@ -872,10 +872,10 @@ static void func_ov017_02127624(void* arg0) {
                     ((Boss03*)temp_r3_2)->unk2C = (s32)(((Boss03*)temp_r3_2)->unk2C + ((Boss03*)var_r0)->unk24);
                 }
             }
-            var_r0 = CombatList_GetNext(var_r0 + 0x28);
+            var_r0 = BtlList_GetNext(var_r0 + 0x28);
         } while (var_r0 != NULL);
     }
-    var_r4 = CombatList_GetHead((CombatList*)(((Boss03*)arg0)->unk1C8));
+    var_r4 = BtlList_GetHead((BattleList*)(((Boss03*)arg0)->unk1C8));
     if (var_r4 != NULL) {
         do {
             if (((Boss03*)var_r4)->unk1C & 0x10) {
@@ -887,10 +887,10 @@ static void func_ov017_02127624(void* arg0) {
                     ((Boss03*)temp_r2)->unk30   = (s32)(((Boss03*)temp_r2)->unk30 + ((Boss03*)var_r4)->unk24);
                 }
             }
-            var_r4 = CombatList_GetNext(var_r4 + 0x28);
+            var_r4 = BtlList_GetNext(var_r4 + 0x28);
         } while (var_r4 != NULL);
     }
-    var_r4_2 = CombatList_GetHead(((Boss03*)arg0)->unk1C4);
+    var_r4_2 = BtlList_GetHead(((Boss03*)arg0)->unk1C4);
     if (var_r4_2 == NULL) {
         return;
     }
@@ -904,7 +904,7 @@ static void func_ov017_02127624(void* arg0) {
                 ((Boss03*)temp_r2_2)->unk2C = (s32)(((Boss03*)temp_r2_2)->unk2C + ((Boss03*)var_r4_2)->unk24);
             }
         }
-        var_r4_2 = CombatList_GetNext(var_r4_2 + 0x28);
+        var_r4_2 = BtlList_GetNext(var_r4_2 + 0x28);
     } while (var_r4_2 != NULL);
 }
 
@@ -1183,8 +1183,8 @@ s32 func_ov017_02127c40(void* arg0, void* arg1, u16* arg2) {
     g_CombatGlobal->unk3D7C0[0].unk_02 = 0;
     g_CombatGlobal->unk3D7C0[1].unk_02 = 0;
     ((Boss03*)temp_r4)->unkFA          = (s16)(RNG_Next(0x12C) + 0x12C);
-    ((void (*)())CombatStage_SetCamera)(0, 0, 0x140, 0x200, 0x1F0, 0);
-    ((void (*)())CombatStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    ((void (*)())BtlStage_SetCamera)(0, 0, 0x140, 0x200, 0x1F0, 0);
+    ((void (*)())BtlStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
     ((Boss03*)temp_r5)->unk18 = (s32)(0x130000 - ((Boss03*)temp_r5)->unk8);
     ((Boss03*)temp_r5)->unk1C = FX_Atan2Idx(0, 0x140);
     if ((arg2 != NULL) && (*arg2 != 0)) {
@@ -1196,7 +1196,7 @@ s32 func_ov017_02127c40(void* arg0, void* arg1, u16* arg2) {
         temp_r2_4                   = g_CombatGlobal->unk3D7C0[0].unk_10;
         temp_r2_5                   = (s32)(temp_r2_4 + (temp_r2_4 >> 0x1F)) >> 1;
         ((Boss03*)temp_r1_6)->unk2C = temp_r2_5;
-        CombatStage_SetCameraTarget(0, ((Boss03*)temp_r1_6)->unk28, temp_r2_5, 0);
+        BtlStage_SetCameraTarget(0, ((Boss03*)temp_r1_6)->unk28, temp_r2_5, 0);
         temp_r3                     = ((Boss03*)temp_r4)->unk0;
         ((Boss03*)temp_r3)->unk28   = (s32)((Boss03*)temp_r3)->unk34;
         temp_r6                     = ((Boss03*)temp_r4)->unk0;
@@ -1240,8 +1240,8 @@ s32 func_ov017_021281e8(void* arg0, void* arg1) {
     s32 temp_r6;
 
     temp_r6 = ((Boss03*)arg1)->unk18;
-    temp_r5 = CombatStage_ToScreenX(0, 0x1EA000);
-    temp_r0 = CombatStage_ToScreenY(0, 0xC0000, 0);
+    temp_r5 = BtlStage_ToScreenX(0, 0x1EA000);
+    temp_r0 = BtlStage_ToScreenY(0, 0xC0000, 0);
     BtlSprite_SetPosition(temp_r6 + 0x100, temp_r5, temp_r0);
     BtlSprite_Render(temp_r6 + 0x100);
     BtlSprite_SetPosition(temp_r6 + 0x160, temp_r5, (s16)(temp_r0 + 0x80));
@@ -2128,8 +2128,8 @@ s32 func_ov017_021299d0(void* arg0, void* arg1, u16* arg2) {
                          temp_r4 + 0x3C, (const Ov003AnimFrame*)&data_ov017_02141cb0);
     g_CombatGlobal->unk3D7C0[0].unk_02 = 0;
     g_CombatGlobal->unk3D7C0[1].unk_02 = 0;
-    ((void (*)())CombatStage_SetCamera)(0, 0x40, 0x140, 0x1C0, 0x1E0, 0);
-    ((void (*)())CombatStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    ((void (*)())BtlStage_SetCamera)(0, 0x40, 0x140, 0x1C0, 0x1E0, 0);
+    ((void (*)())BtlStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
     ((Boss03*)temp_r5)->unk18 = (s32)(0x160000 - ((Boss03*)temp_r5)->unk8);
     ((Boss03*)temp_r5)->unk1C = FX_Atan2Idx(0, 0x140);
     if ((arg2 != NULL) && (*arg2 != 0)) {
@@ -2683,11 +2683,11 @@ static void func_ov017_0212aaa0(void* arg0) {
             var_r7 += 1;
             var_r8 += 0xA;
         } while (var_r7 < 6);
-        var_r5 = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
+        var_r5 = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
         if (var_r5 != 0) {
             do {
                 BtlBadgeActor_Request(var_r5, 4);
-                var_r5 = CombatList_GetNext(var_r5 + 0x108);
+                var_r5 = BtlList_GetNext(var_r5 + 0x108);
             } while (var_r5 != 0);
         }
         data_ov017_021439d8 = 0;
@@ -3235,14 +3235,14 @@ s32 func_ov017_0212b9d0(void* arg0, void* arg1) {
     switch (data_ov017_021439dc.unk0) { /* irregular */
         case 1:
             temp_r1   = *temp_r6;
-            temp_r4_2 = CombatStage_ToScreenX(0, ((Boss03*)*temp_r6)->unk28);
+            temp_r4_2 = BtlStage_ToScreenX(0, ((Boss03*)*temp_r6)->unk28);
             BtlSprite_SetPosition((BattleSprite*)temp_r6 + 0x424, temp_r4_2,
-                                  CombatStage_ToScreenY(0, ((Boss03*)temp_r1)->unk2C - 0x18000, ((Boss03*)temp_r1)->unk30));
+                                  BtlStage_ToScreenY(0, ((Boss03*)temp_r1)->unk2C - 0x18000, ((Boss03*)temp_r1)->unk30));
             BtlSprite_SetSortKey((BattleSprite*)temp_r6 + 0x424, 0x7FFF7FFF - ((Boss03*)*temp_r6)->unk2C);
             BtlSprite_Render((BattleSprite*)temp_r6 + 0x424);
-            temp_r4_3 = CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x);
+            temp_r4_3 = BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x);
             BtlSprite_SetPosition((BattleSprite*)temp_r6 + 0x484, temp_r4_3,
-                                  CombatStage_ToScreenY(0, g_CombatGlobal->player->position.y, 0));
+                                  BtlStage_ToScreenY(0, g_CombatGlobal->player->position.y, 0));
             BtlSprite_SetSortKey((BattleSprite*)temp_r6 + 0x484, 0x7FFF7FFF);
             BtlSprite_Render((BattleSprite*)temp_r6 + 0x484);
             break;
@@ -3257,9 +3257,9 @@ s32 func_ov017_0212b9d0(void* arg0, void* arg1) {
                     ((Boss03*)var_r8_2)->unk544 = (s32)(g_CombatGlobal->player->position.x + ((Boss03*)var_r7_2)->unk0);
                     ((Boss03*)var_r8_2)->unk548 = (s32)(g_CombatGlobal->player->position.y + ((Boss03*)var_r7_2)->unk4);
                     ((Boss03*)var_r8_2)->unk54C = (s32)(g_CombatGlobal->player->position.z + ((Boss03*)var_r7_2)->unk8);
-                    temp_r5_2                   = CombatStage_ToScreenX(0, ((Boss03*)var_r8_2)->unk544);
+                    temp_r5_2                   = BtlStage_ToScreenX(0, ((Boss03*)var_r8_2)->unk544);
                     BtlSprite_SetPosition(var_r9, temp_r5_2,
-                                          CombatStage_ToScreenY(0, ((Boss03*)var_r8_2)->unk548, ((Boss03*)var_r8_2)->unk54C));
+                                          BtlStage_ToScreenY(0, ((Boss03*)var_r8_2)->unk548, ((Boss03*)var_r8_2)->unk54C));
                     BtlSprite_SetSortKey((BattleSprite*)temp_r6 + 0x424, 0x7FFF7FFF - g_CombatGlobal->player->position.y);
                     BtlSprite_Render((BattleSprite*)var_r9);
                 }
@@ -3521,8 +3521,8 @@ s32 func_ov017_0212c300(void* arg0, void* arg1) {
     if (((Boss03*)temp_r4)->unk1DC != 0) {
         func_ov003_020c4878(temp_r4);
     } else {
-        ((Boss03*)temp_r4)->unk34 = CombatStage_ToScreenX(1, ((Boss03*)temp_r4)->unk28);
-        ((Boss03*)temp_r4)->unk36 = CombatStage_ToScreenY(1, ((Boss03*)temp_r4)->unk2C, ((Boss03*)temp_r4)->unk30);
+        ((Boss03*)temp_r4)->unk34 = BtlStage_ToScreenX(1, ((Boss03*)temp_r4)->unk28);
+        ((Boss03*)temp_r4)->unk36 = BtlStage_ToScreenY(1, ((Boss03*)temp_r4)->unk2C, ((Boss03*)temp_r4)->unk30);
     }
     return 1;
 }
@@ -3763,8 +3763,8 @@ s32 func_ov017_0212c98c(void* arg0, void* arg1) {
     if (((Boss03*)temp_r4)->unk1DC != 0) {
         func_ov003_020c48b0(temp_r4);
     } else {
-        ((Boss03*)temp_r4)->unk34 = CombatStage_ToScreenX(0, ((Boss03*)temp_r4)->unk28);
-        ((Boss03*)temp_r4)->unk36 = CombatStage_ToScreenY(0, ((Boss03*)temp_r4)->unk2C, ((Boss03*)temp_r4)->unk30);
+        ((Boss03*)temp_r4)->unk34 = BtlStage_ToScreenX(0, ((Boss03*)temp_r4)->unk28);
+        ((Boss03*)temp_r4)->unk36 = BtlStage_ToScreenY(0, ((Boss03*)temp_r4)->unk2C, ((Boss03*)temp_r4)->unk30);
     }
     return 1;
 }
@@ -3792,8 +3792,8 @@ static u16 func_ov017_0212ca34(void*) {
 
     temp_r5 = g_CombatGlobal->partner;
     temp_r6 = data_ov017_021439f0;
-    temp_r4 = CombatStage_ToScreenX(1, ((Boss03*)temp_r5)->unk28);
-    temp_r0 = CombatStage_ToScreenY(1, ((Boss03*)temp_r5)->unk2C, 0);
+    temp_r4 = BtlStage_ToScreenX(1, ((Boss03*)temp_r5)->unk28);
+    temp_r0 = BtlStage_ToScreenY(1, ((Boss03*)temp_r5)->unk2C, 0);
     var_r2  = ((Boss03*)temp_r6)->unk36;
     if (data_ov017_021439ec != 1) {
         var_r2 += 0xC0;
@@ -4229,8 +4229,8 @@ s32 func_ov017_0212d374(void* arg0, void* arg1, u16* arg2) {
     func_0200d858((ScreenMapEntry*)(temp_r4 + 0x10), 1, 1, 0);
     g_CombatGlobal->unk3D7C0[0].unk_02 = 0;
     g_CombatGlobal->unk3D7C0[1].unk_02 = 0;
-    ((void (*)())CombatStage_SetCamera)(0, 0x20, 0x140, 0x1E0, 0, 0);
-    ((void (*)())CombatStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    ((void (*)())BtlStage_SetCamera)(0, 0x20, 0x140, 0x1E0, 0, 0);
+    ((void (*)())BtlStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
     temp_r6                   = g_CombatGlobal->unk3D7C0;
     ((Boss03*)temp_r6)->unk18 = (s32)(0x100000 - ((Boss03*)temp_r6)->unk8);
     ((Boss03*)temp_r6)->unk1C = FX_Atan2Idx(0, 0x140);
@@ -4536,8 +4536,8 @@ s32 func_ov017_0212de54(void* arg0, void* arg1) {
     void* temp_r5;
 
     temp_r5 = ((Boss03*)arg1)->unk18;
-    temp_r4 = CombatStage_ToScreenX(1, ((Boss03*)temp_r5)->unk68);
-    BtlSprite_SetPosition(temp_r5, temp_r4, CombatStage_ToScreenY(1, ((Boss03*)temp_r5)->unk6C, ((Boss03*)temp_r5)->unk70));
+    temp_r4 = BtlStage_ToScreenX(1, ((Boss03*)temp_r5)->unk68);
+    BtlSprite_SetPosition(temp_r5, temp_r4, BtlStage_ToScreenY(1, ((Boss03*)temp_r5)->unk6C, ((Boss03*)temp_r5)->unk70));
     BtlSprite_SetSortKey(temp_r5, 0x7FFFFFFF - ((Boss03*)temp_r5)->unk6C);
     BtlSprite_Render(temp_r5);
     return 1;
@@ -4651,8 +4651,8 @@ s32 func_ov017_0212e164(void* arg0, void* arg1) {
     void* temp_r5;
 
     temp_r5 = ((Boss03*)arg1)->unk18;
-    temp_r4 = CombatStage_ToScreenX(0, ((Boss03*)temp_r5)->unk68);
-    BtlSprite_SetPosition(temp_r5, temp_r4, CombatStage_ToScreenY(0, ((Boss03*)temp_r5)->unk6C, ((Boss03*)temp_r5)->unk70));
+    temp_r4 = BtlStage_ToScreenX(0, ((Boss03*)temp_r5)->unk68);
+    BtlSprite_SetPosition(temp_r5, temp_r4, BtlStage_ToScreenY(0, ((Boss03*)temp_r5)->unk6C, ((Boss03*)temp_r5)->unk70));
     BtlSprite_SetSortKey(temp_r5, 0x7FFFFFFF - ((Boss03*)temp_r5)->unk6C);
     BtlSprite_Render(temp_r5);
     return 1;
@@ -5627,11 +5627,11 @@ s32 func_ov017_0212fa58(void* arg0, void* arg1) {
     }
     if (((Boss03*)temp_r4)->unk8C != 0) {
         if (((Boss03*)temp_r4)->unk66 == 0) {
-            var_r5 = CombatStage_ToScreenX(0, ((Boss03*)temp_r4)->unk70);
-            var_r0 = CombatStage_ToScreenY(0, ((Boss03*)temp_r4)->unk70, ((Boss03*)temp_r4)->unk74);
+            var_r5 = BtlStage_ToScreenX(0, ((Boss03*)temp_r4)->unk70);
+            var_r0 = BtlStage_ToScreenY(0, ((Boss03*)temp_r4)->unk70, ((Boss03*)temp_r4)->unk74);
         } else {
-            var_r5 = CombatStage_ToScreenX(1, ((Boss03*)temp_r4)->unk70);
-            var_r0 = CombatStage_ToScreenY(1, ((Boss03*)temp_r4)->unk70, ((Boss03*)temp_r4)->unk74);
+            var_r5 = BtlStage_ToScreenX(1, ((Boss03*)temp_r4)->unk70);
+            var_r0 = BtlStage_ToScreenY(1, ((Boss03*)temp_r4)->unk70, ((Boss03*)temp_r4)->unk74);
         }
         BtlSprite_SetPosition(temp_r4, var_r5, var_r0);
         BtlSprite_SetSortKey(temp_r4, 0x7FFFFFFF - ((Boss03*)temp_r4)->unk70);
@@ -5848,9 +5848,9 @@ static void func_ov017_0212ffe4(s32 arg0, s32 arg1, s32 arg2) {
         return;
     }
     temp_r1_2 = g_CombatGlobal->unk3D7C0[0].unk_0C;
-    temp_r4   = CombatStage_ToScreenX(0, ((s32)(temp_r1_2 + (temp_r1_2 >> 0x1F)) >> 1) + 0x8000);
+    temp_r4   = BtlStage_ToScreenX(0, ((s32)(temp_r1_2 + (temp_r1_2 >> 0x1F)) >> 1) + 0x8000);
     temp_r1_3 = g_CombatGlobal->unk3D7C0[0].unk_10;
-    temp_r0_2 = CombatStage_ToScreenY(0, ((s32)(temp_r1_3 + (temp_r1_3 >> 0x1F)) >> 1) - 0x6C000, 0);
+    temp_r0_2 = BtlStage_ToScreenY(0, ((s32)(temp_r1_3 + (temp_r1_3 >> 0x1F)) >> 1) - 0x6C000, 0);
     BtlSprite_SetPosition(arg0, temp_r4, temp_r0_2);
     BtlSprite_SetSortKey(arg0, 0x7FFFFFFF);
     BtlSprite_Render(arg0);

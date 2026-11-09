@@ -1,8 +1,8 @@
 #ifndef TWEWY_COMBAT_CORE_BTLEFF_H
 #define TWEWY_COMBAT_CORE_BTLEFF_H
 
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/CombatBossExp.h"
-#include "Combat/Core/CombatTouch.h"
 #include "Engine/EasyTask.h"
 
 /// The level-up effect shown over the partner when the battle level rises.

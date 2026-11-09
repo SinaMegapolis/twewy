@@ -1,10 +1,10 @@
 #include "Combat/Core/BtlAura.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlList.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAura.h"
-#include "Combat/Core/CombatList.h"
 #include "Engine/EasyTask.h"
 #include "Engine/Math/Random.h"
 #include "SpriteMgr.h"
@@ -22,8 +22,8 @@ typedef void (*BtlAuraState)(struct BtlAura*);
 /// One flame: a sprite plus its link in the free or active list.
 typedef struct BtlAura {
     /* 0x000 */ BattleSprite       sprites[2]; // the two burst sprites, main screen first
-    /* 0x0C0 */ CombatList         free;
-    /* 0x0C8 */ CombatList         active;
+    /* 0x0C0 */ BattleList         free;
+    /* 0x0C8 */ BattleList         active;
     /* 0x0D0 */ BtlAuraFlameSprite flames[16];
     /* 0x790 */ s16                cooldown; // frames until the next flame
     /* 0x792 */ s16                reserved792;
@@ -154,7 +154,7 @@ static void func_ov003_020963a0(BtlAura* self, s32 mode) {
         self->cooldown--;
         return;
     }
-    flame = CombatList_GetHead(&self->free);
+    flame = BtlList_GetHead(&self->free);
     if (flame != NULL) {
         switch (mode) {
             case 1:
@@ -199,8 +199,8 @@ static void func_ov003_020963a0(BtlAura* self, s32 mode) {
         BtlSprite_SetAnim(&flame->sprite, (u16)anim, 1);
         BtlSprite_SetPosition(&flame->sprite, (x * 0x10) >> 16, (y * 0x10) >> 16);
         BtlSprite_SetSortKey(&flame->sprite, sortKey);
-        CombatList_Remove(&self->free, &flame->node);
-        CombatList_Append(&self->active, &flame->node, flame);
+        BtlList_Remove(&self->free, &flame->node);
+        BtlList_Append(&self->active, &flame->node, flame);
     }
 }
 
@@ -208,8 +208,8 @@ static void func_ov003_020963a0(BtlAura* self, s32 mode) {
 static void func_ov003_020965dc(BtlAura* self, BtlAuraFlameSprite* flame) {
     if (flame != NULL) {
         BtlSprite_Release(&flame->sprite);
-        CombatList_Remove(&self->active, &flame->node);
-        CombatList_Append(&self->free, &flame->node, flame);
+        BtlList_Remove(&self->active, &flame->node);
+        BtlList_Append(&self->free, &flame->node, flame);
     }
 }
 
@@ -218,31 +218,31 @@ static void func_ov003_02096614(BtlAura* self) {
     s32                 i;
     BtlAuraFlameSprite* flame;
 
-    CombatList_Init(&self->free);
-    CombatList_Init(&self->active);
+    BtlList_Init(&self->free);
+    BtlList_Init(&self->active);
     self->cooldown = 0;
     flame          = self->flames;
     for (i = 0; i < 16; i++) {
         BtlSprite_Init(&flame->sprite);
-        CombatList_Append(&self->free, &flame->node, flame);
+        BtlList_Append(&self->free, &flame->node, flame);
         flame++;
     }
 }
 
 /// Advances the live flames and retires the finished ones.
 static void func_ov003_02096668(BtlAura* self) {
-    BtlAuraFlameSprite* flame = CombatList_GetHead(&self->active);
+    BtlAuraFlameSprite* flame = BtlList_GetHead(&self->active);
     BtlAuraFlameSprite* next;
 
     if (flame != NULL) {
         do {
             if (SpriteMgr_IsAnimationFinished(&flame->sprite.sprite)) {
-                next = CombatList_GetNext(&flame->node);
+                next = BtlList_GetNext(&flame->node);
                 func_ov003_020965dc(self, flame);
                 flame = next;
             } else {
                 BtlSprite_Update(&flame->sprite);
-                flame = CombatList_GetNext(&flame->node);
+                flame = BtlList_GetNext(&flame->node);
             }
         } while (flame != NULL);
     }
@@ -250,7 +250,7 @@ static void func_ov003_02096668(BtlAura* self) {
 
 /// Draws the live flames behind the gauge actor of their screen.
 static void func_ov003_020966d0(BtlAura* self) {
-    BtlAuraFlameSprite* flame = CombatList_GetHead(&self->active);
+    BtlAuraFlameSprite* flame = BtlList_GetHead(&self->active);
 
     if (flame != NULL) {
         do {
@@ -260,7 +260,7 @@ static void func_ov003_020966d0(BtlAura* self) {
                 BtlSprite_SetSortKey(&flame->sprite, 0x80000000 - g_CombatGlobal->player->position.y);
             }
             BtlSprite_Render(&flame->sprite);
-            flame = CombatList_GetNext(&flame->node);
+            flame = BtlList_GetNext(&flame->node);
         } while (flame != NULL);
     }
 }

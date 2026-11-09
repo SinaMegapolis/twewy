@@ -55,8 +55,8 @@ static s32 func_ov003_020d25e8(Ov003EnemyShotSpiral* self) {
     self->velocityX = FX_Mul(FX_CosIdx(self->angle), self->speed);
     self->velocityY = FX_Mul(FX_SinIdx(self->angle), self->speed);
     s16 x, y;
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                              self->source.core.position.y, self->source.core.position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                           self->source.core.position.y, self->source.core.position.z);
     self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
                                                            &self->source.core.owner->base.actor.baseArgs, x, y);
     BtlSprite_Update(&self->sprite);
@@ -65,8 +65,8 @@ static s32 func_ov003_020d25e8(Ov003EnemyShotSpiral* self) {
 
 static s32 func_ov003_020d2740(Ov003EnemyShotSpiral* self) {
     s16 x, y;
-    CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
-                              self->source.core.position.y, self->source.core.position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
+                           self->source.core.position.y, self->source.core.position.z);
     BtlSprite_SetPosition(&self->sprite, x, y);
     BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     BtlSprite_Render(&self->sprite);

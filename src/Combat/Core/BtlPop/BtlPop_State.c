@@ -101,16 +101,16 @@ static s32 BtlPop_State_Render(TaskPool* pool, Task* task, void* args) {
     s32           posY;
 
     if (state->sprite.sprite.bits_0_1 == 0) {
-        posX = CombatStage_ToScreenX(0, actor->position.x + (actor->centerOffsetX << 12));
-        posY = CombatStage_ToScreenY(0, actor->position.y, actor->position.z);
+        posX = BtlStage_ToScreenX(0, actor->position.x + (actor->centerOffsetX << 12));
+        posY = BtlStage_ToScreenY(0, actor->position.y, actor->position.z);
         if (state->actor->kind == ACTOR_KIND_PLAYER) {
             posY = (s16)(posY - 48);
         } else {
             posY = (s16)(posY - state->actor->height);
         }
     } else {
-        posX = CombatStage_ToScreenX(1, actor->position.x + (actor->centerOffsetX << 12));
-        posY = CombatStage_ToScreenY(1, actor->position.y, actor->position.z);
+        posX = BtlStage_ToScreenX(1, actor->position.x + (actor->centerOffsetX << 12));
+        posY = BtlStage_ToScreenY(1, actor->position.y, actor->position.z);
         posY = (s16)(posY - state->actor->height);
     }
     BtlSprite_SetPosition(&state->sprite, posX, posY);

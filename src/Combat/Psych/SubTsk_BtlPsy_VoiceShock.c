@@ -31,27 +31,27 @@ static s32 func_ov003_020ba0b8(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003VoiceShock* shock = task->data;
             Ov003EnemyActor* unit;
             s32              y;
-            s32              x = CombatStage_ToScreenX(0, shock->position.x);
-            y                  = CombatStage_ToScreenY(0, shock->position.y, shock->position.z);
+            s32              x = BtlStage_ToScreenX(0, shock->position.x);
+            y                  = BtlStage_ToScreenY(0, shock->position.y, shock->position.z);
             shock->scale += 0x4CD;
             if (shock->scale >= 0xA000)
                 return 0;
-            unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+            unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
             while (unit != NULL) {
                 s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.centerHeight);
                 s32 radius   = FX_Mul(shock->scale, 0x10000);
                 if (radius + (unit->actor.radius / 2) * 0x1000 >= distance)
                     func_ov003_020a6568(&shock->effect->streak, (u16)(shock->effect->index + 0x171), unit, shock->position.x,
                                         0, 0);
-                unit = CombatList_GetNext(&unit->node);
+                unit = BtlList_GetNext(&unit->node);
             }
             BtlSprite_Update(&shock->sprite);
             return 1;
         }
         case 2: {
             self  = task->data;
-            s32 x = CombatStage_ToScreenX(0, self->position.x);
-            s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+            s32 x = BtlStage_ToScreenX(0, self->position.x);
+            s32 y = BtlStage_ToScreenY(0, self->position.y, self->position.z);
             BtlSprite_SetAffineTransform(&self->sprite, 0, self->scale, self->scale, 1);
             BtlSprite_SetPosition(&self->sprite, x, y);
             BtlSprite_SetSortKey(&self->sprite, 0x384000);

@@ -183,11 +183,11 @@ static s32 BtlPop_Num_Render(TaskPool* pool, Task* task, void* args) {
     s32         half;
 
     if (num->engine != 1) {
-        posX    = CombatStage_ToScreenX(0, num->x);
-        screenY = CombatStage_ToScreenY(0, num->y, num->z);
+        posX    = BtlStage_ToScreenX(0, num->x);
+        screenY = BtlStage_ToScreenY(0, num->y, num->z);
     } else {
-        posX    = CombatStage_ToScreenX(1, num->x);
-        screenY = CombatStage_ToScreenY(1, num->y, num->z);
+        posX    = BtlStage_ToScreenX(1, num->x);
+        screenY = BtlStage_ToScreenY(1, num->y, num->z);
     }
     posY = screenY - 8;
     half = (num->digitCount * 7) / 2 - 7;

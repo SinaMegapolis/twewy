@@ -7,7 +7,7 @@ static const Ov003BoomerangKind data_ov003_020dce34[3];
 static s32                      func_ov003_020b81cc(Ov003BoomerangShotT* self);
 
 s32 func_ov003_020b7f9c(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(2))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP))
         return 0;
     Ov003PsychArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dce28.taskName);
     arg->effect         = effect;
@@ -23,8 +23,8 @@ static s32 func_ov003_020b7ff4(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                = task->data;
-            BtlTouchWork* touch = &g_CombatGlobal->touchWork;
+            self                   = task->data;
+            BattleTouchWork* touch = &g_CombatGlobal->touchWork;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
             self->x      = touch->x;
@@ -53,8 +53,8 @@ static s32 func_ov003_020b7ff4(TaskPool* pool, Task* task, void* args, s32 stage
                 case 1:
                     if (--self->timer == 0)
                         return 0;
-                    if (CombatTouch_IsGesture(2) || CombatTouch_IsGesture(3)) {
-                        BtlTouchWork* touch = &g_CombatGlobal->touchWork;
+                    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) || BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP)) {
+                        BattleTouchWork* touch = &g_CombatGlobal->touchWork;
                         func_ov003_020a6494(touch->x);
                         self->x = touch->x;
                         self->y = touch->y;
@@ -93,8 +93,8 @@ static s32 func_ov003_020b81cc(Ov003BoomerangShotT* self) {
     s32          distance;
     left    = 0;
     count   = self->effect->params[0];
-    targetX = CombatStage_ToWorldX(0, self->x);
-    targetY = CombatStage_ToWorldY(0, self->y, -0x27000);
+    targetX = BtlStage_ToWorldX(0, self->x);
+    targetY = BtlStage_ToWorldY(0, self->y, -0x27000);
     player  = g_CombatGlobal->player;
     if (targetX < player->position.x) {
         originX = player->position.x - 0x18000;

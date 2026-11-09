@@ -151,11 +151,11 @@ static s32 BtlEff_Dead_Render(TaskPool* pool, Task* task, void* args) {
     s32               posY;
 
     if (engine == 0) {
-        posX = CombatStage_ToScreenX(0, state->position.x);
-        posY = CombatStage_ToScreenY(0, state->position.y, state->position.z);
+        posX = BtlStage_ToScreenX(0, state->position.x);
+        posY = BtlStage_ToScreenY(0, state->position.y, state->position.z);
     } else {
-        posX = CombatStage_ToScreenX(1, state->position.x);
-        posY = CombatStage_ToScreenY(1, state->position.y, state->position.z);
+        posX = BtlStage_ToScreenX(1, state->position.x);
+        posY = BtlStage_ToScreenY(1, state->position.y, state->position.z);
     }
     BtlSprite_SetPosition(&state->sprite, posX, posY);
     BtlSprite_SetSortKey(&state->sprite, 0x7FFFFFFF - (state->position.y + 0x8000));

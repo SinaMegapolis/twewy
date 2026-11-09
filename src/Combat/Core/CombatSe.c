@@ -23,12 +23,12 @@ void CombatSe_PlayAtMainX(SndMgrSeIdx seIdx, s32 pan) {
     if (g_CombatGlobal->unk3D878 & 0x20) {
         return;
     }
-    SndMgr_PlaySEWithPan(seIdx, CombatStage_ToScreenX(0, pan));
+    SndMgr_PlaySEWithPan(seIdx, BtlStage_ToScreenX(0, pan));
 }
 
 void CombatSe_PlayAtSubX(SndMgrSeIdx seIdx, s32 pan) {
     if (g_CombatGlobal->unk3D878 & 0x20) {
         return;
     }
-    SndMgr_PlaySEWithPan(seIdx, CombatStage_ToScreenX(1, pan));
+    SndMgr_PlaySEWithPan(seIdx, BtlStage_ToScreenX(1, pan));
 }

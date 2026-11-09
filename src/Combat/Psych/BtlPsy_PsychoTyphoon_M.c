@@ -36,10 +36,10 @@ static s32 func_ov003_020b0b68(TaskPool* pool, Task* task, void* args, s32 stage
             self->releaseTimer   = 30;
             self->releaseFlag    = 0;
             {
-                Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+                Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
                 while (unit != NULL) {
                     func_ov003_020b0188(self->effect, unit, &self->releaseFlag);
-                    unit = CombatList_GetNext(&unit->node);
+                    unit = BtlList_GetNext(&unit->node);
                 }
             }
             func_ov003_02087804(0);

@@ -82,8 +82,8 @@ static s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage
             child->affine.unk_0E   = 0;
             child->sprite.sprite.unk_0A.unk_00 = 1;
             child->sprite.affine               = &child->affine;
-            y                                  = CombatStage_ToScreenY(0, child->position.y, 0);
-            BtlSprite_SetPosition(&child->sprite, CombatStage_ToScreenX(0, child->position.x), y);
+            y                                  = BtlStage_ToScreenY(0, child->position.y, 0);
+            BtlSprite_SetPosition(&child->sprite, BtlStage_ToScreenX(0, child->position.x), y);
             BtlSprite_SetSortKey(&child->sprite, child->position.y + 0x1F4000);
             if (child->opacity < 0x1F000)
                 BtlSprite_RenderTranslucent(&child->sprite, child->opacity >> 12);

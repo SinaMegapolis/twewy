@@ -753,7 +753,7 @@ static void func_ov003_020c8ddc(BossExp1* self) {
     func_ov003_020c759c();
     g_CombatGlobal->unk3D884 = 0;
     g_CombatGlobal->unk3D878 &= ~0x1000;
-    CombatStage_StartFieldTasks(1);
+    BtlStage_StartFieldTasks(1);
     EasyFade_FadeBothDisplays(0, 0, 0xCCD);
     self->running = 0;
 }

@@ -256,10 +256,10 @@ void func_ov003_020c4668(Ov003EnemyActor* actor) {
     if (func_ov003_020c59f4(actor) == 0) {
         if (actor->actor.flags & ACTOR_FLAG_UNCLAMPED_X) {
             s16 v = actor->actor.radius;
-            CombatStage_ClampY(&actor->actor.position.y, (v / 2) << 0xC, actor->actor.position.x);
+            BtlStage_ClampY(&actor->actor.position.y, (v / 2) << 0xC, actor->actor.position.x);
         } else {
             s16 v = actor->actor.radius;
-            CombatStage_ClampXY(&actor->actor.position.x, &actor->actor.position.y, v << 0xC, (v / 2) << 0xC);
+            BtlStage_ClampXY(&actor->actor.position.x, &actor->actor.position.y, v << 0xC, (v / 2) << 0xC);
         }
     }
     half = 0;
@@ -373,7 +373,7 @@ void func_ov003_020c4988(Ov003EnemyActor* actor) {
         return;
     }
     actor->flags18C = (u16)(actor->flags18C | 2);
-    CombatList_Append(&g_CombatGlobal->unk3D8AC, &actor->node, actor);
+    BtlList_Append(&g_CombatGlobal->unk3D8AC, &actor->node, actor);
 }
 
 void func_ov003_020c49c8(Ov003EnemyActor* actor) {
@@ -381,7 +381,7 @@ void func_ov003_020c49c8(Ov003EnemyActor* actor) {
         return;
     }
     actor->flags18C = (u16)(actor->flags18C | 2);
-    CombatList_Append(&g_CombatGlobal->unk3D8A4, &actor->node, actor);
+    BtlList_Append(&g_CombatGlobal->unk3D8A4, &actor->node, actor);
 }
 
 void func_ov003_020c4a08(Ov003CutinActor* actor) {
@@ -397,7 +397,7 @@ s32 func_ov003_020c4a34(Ov003EnemyActor* actor) {
         return 0;
     }
     actor->flags18C = (u16)(actor->flags18C & ~2);
-    return (s32)CombatList_Remove(&g_CombatGlobal->unk3D8AC, &actor->node);
+    return (s32)BtlList_Remove(&g_CombatGlobal->unk3D8AC, &actor->node);
 }
 
 s32 func_ov003_020c4a74(Ov003EnemyActor* actor) {
@@ -405,7 +405,7 @@ s32 func_ov003_020c4a74(Ov003EnemyActor* actor) {
         return 0;
     }
     actor->flags18C = (u16)(actor->flags18C & ~2);
-    return (s32)CombatList_Remove(&g_CombatGlobal->unk3D8A4, &actor->node);
+    return (s32)BtlList_Remove(&g_CombatGlobal->unk3D8A4, &actor->node);
 }
 
 /// Faces the main sprite towards (1) or away from (0) the sub screen.
@@ -582,14 +582,14 @@ void func_ov003_020c4f00(Ov003EnemyActor* actor) {
 }
 
 /// True if any actor on `list` has noise instance id `id`.
-static s32 func_ov003_020c4f20(s32 id, CombatList* list) {
-    Ov003CutinActor* entry = CombatList_GetHead(list);
+static s32 func_ov003_020c4f20(s32 id, BattleList* list) {
+    Ov003CutinActor* entry = BtlList_GetHead(list);
 
     while (entry != NULL) {
         if (entry->base.group == id) {
             return 1;
         }
-        entry = CombatList_GetNext(&entry->base.node);
+        entry = BtlList_GetNext(&entry->base.node);
     }
     return 0;
 }
@@ -651,15 +651,15 @@ void func_ov003_020c50bc(void) {
     Ov003CutinActor* entry;
     Ov003CutinActor* next;
 
-    entry = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    entry = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (entry != NULL) {
         func_ov003_020c5058(&entry->base);
-        entry = CombatList_GetNext(&entry->base.node);
+        entry = BtlList_GetNext(&entry->base.node);
     }
-    next = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    next = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (next != NULL) {
         func_ov003_020c4ff4(&next->base);
-        next = CombatList_GetNext(&next->base.node);
+        next = BtlList_GetNext(&next->base.node);
     }
 }
 
@@ -725,7 +725,7 @@ static s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
     hitbox[1] = y - FX32_CONVERT(width) / 2;
     hitbox[0] = x - FX32_CONVERT(width);
 
-    entry = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    entry = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (entry != NULL) {
         width2   = entry->base.actor.radius;
         other[3] = FX32_CONVERT(width2);
@@ -735,7 +735,7 @@ static s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
         if (Rect_Intersect(&result, hitbox, other) != 0) {
             return 0;
         }
-        entry = CombatList_GetNext(&entry->base.node);
+        entry = BtlList_GetNext(&entry->base.node);
     }
     return 1;
 }
@@ -746,13 +746,13 @@ static void func_ov003_020c54e0(s32* over, s32* total) {
 
     *over  = 0;
     *total = 0;
-    entry  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    entry  = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (entry != NULL) {
         if (entry->base.actor.height > 0x40) {
             (*over)++;
         }
         (*total)++;
-        entry = CombatList_GetNext(&entry->base.node);
+        entry = BtlList_GetNext(&entry->base.node);
     }
 }
 
@@ -1075,7 +1075,7 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
             if (actor->unk_1A4 < actor->unk_1A6) {
                 func_02026590(&actor->actor.position.x, actor->unk_1AC, (u16)actor->unk_1A6);
                 func_02026590(&actor->actor.position.y, actor->unk_1B0, (u16)actor->unk_1A6);
-                SndMgr_UpdateSEPan(SEIDX_SE_QUICKJUMP02, CombatStage_ToScreenX(1, actor->actor.position.x));
+                SndMgr_UpdateSEPan(SEIDX_SE_QUICKJUMP02, BtlStage_ToScreenX(1, actor->actor.position.x));
                 actor->unk_1A4++;
                 return 1;
             }

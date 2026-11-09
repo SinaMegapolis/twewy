@@ -7,7 +7,7 @@ static s32              func_ov003_020b3edc(Ov003LockOnThunderT* self);
 static s32              func_ov003_020b3fac(Ov003LockOnThunderT* self);
 
 s32 func_ov003_020b3da8(Ov003EffectContext* context, Ov003EffectState* effect) {
-    Ov003EnemyActor* unit = (Ov003EnemyActor*)CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
+    Ov003EnemyActor* unit = (Ov003EnemyActor*)BtlTouch_GetTapped(ACTOR_KIND_ENEMY);
     if (unit == NULL)
         return 0;
     Ov003PsychUnitArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc99c.taskName);
@@ -67,7 +67,7 @@ static s32 func_ov003_020b3edc(Ov003LockOnThunderT* self) {
         self->launched = 1;
         return 1;
     }
-    BattleActor* actor = CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
+    BattleActor* actor = BtlTouch_GetTapped(ACTOR_KIND_ENEMY);
     if (actor != NULL) {
         func_ov003_020b3014(&self->targets, actor);
         self->ready = func_ov003_020a5aa4(self->effect);
@@ -87,7 +87,7 @@ static s32 func_ov003_020b3fac(Ov003LockOnThunderT* self) {
             func_ov003_020a6464(0);
             self->cancelled = 1;
         } else {
-            BattleActor* actor = CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
+            BattleActor* actor = BtlTouch_GetTapped(ACTOR_KIND_ENEMY);
             if (actor != NULL) {
                 func_ov003_020b3014(&self->targets, actor);
                 self->ready = func_ov003_020a5aa4(self->effect);

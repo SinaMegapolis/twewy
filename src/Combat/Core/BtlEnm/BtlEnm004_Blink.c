@@ -111,8 +111,8 @@ static s32 BtlEnm004_Blink_Update(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlEnm004_Blink_Render(TaskPool* pool, Task* task, void* args) {
     BtlEnm004Blink* self = task->data;
-    s32             x    = CombatStage_ToScreenX(func_ov003_020c3908(&self->sprite), self->position.x);
-    s32             y    = CombatStage_ToScreenY(func_ov003_020c3908(&self->sprite), self->position.y, self->position.z);
+    s32             x    = BtlStage_ToScreenX(func_ov003_020c3908(&self->sprite), self->position.x);
+    s32             y    = BtlStage_ToScreenY(func_ov003_020c3908(&self->sprite), self->position.y, self->position.z);
     s32             sort = 0x7FFFFFFF - self->position.y;
 
     BtlSprite_SetPosition(&self->sprite, x, y);

@@ -1,10 +1,10 @@
 #include "Combat/Badge/BtlBadgeActor.h"
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatMic.h"
-#include "Combat/Core/CombatTouch.h"
 #include "EasyFade.h"
 #include "Engine/Color.h"
 #include "Engine/Core/DMA.h"
@@ -183,7 +183,7 @@ void BtlBadgeActor_Init(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn) {
     func_ov003_020a7284(actor);
     func_ov003_020a7ba8(actor);
     g_CombatGlobal->touchActorCount++;
-    CombatList_Append(&g_CombatGlobal->unk3D8BC, &actor->node, actor);
+    BtlList_Append(&g_CombatGlobal->unk3D8BC, &actor->node, actor);
 }
 
 void func_ov003_020a3d98(Ov003TouchActor* actor) {
@@ -199,7 +199,7 @@ void func_ov003_020a3dac(Ov003TouchActor* actor) {
 s32 func_ov003_020a3dbc(Ov003TouchActor* actor) {
     s32 waiting;
 
-    if (CombatDebug_GetSetting(0) == 1) {
+    if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
         return 0;
     }
     waiting = g_CombatGlobal->unk3D878 & 6;
@@ -220,7 +220,7 @@ s32 func_ov003_020a3dbc(Ov003TouchActor* actor) {
 s32 func_ov003_020a3e50(Ov003TouchActor* actor) {
     s32 waiting;
 
-    if (CombatDebug_GetSetting(0) == 1) {
+    if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
         return 0;
     }
     waiting = g_CombatGlobal->unk3D878 & 6;
@@ -250,18 +250,18 @@ s32 func_ov003_020a3edc(Ov003TouchActor* actor) {
 
 /// TRUE when a touch is inside one of the actor's active touch areas.
 s32 func_ov003_020a3f20(Ov003TouchActor* actor) {
-    if (CombatTouch_IsGesture(2) != 0 &&
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) != 0 &&
         BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
     {
         return 1;
     }
-    if (CombatTouch_IsGesture(6) != 0 &&
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) != 0 &&
         BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.startX, g_CombatGlobal->touchWork.startY) != 0 &&
         BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
     {
         return 1;
     }
-    if (CombatTouch_IsGesture(3) != 0 &&
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP) != 0 &&
         BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.endX, g_CombatGlobal->touchWork.endY) != 0)
     {
         return 1;
@@ -271,12 +271,12 @@ s32 func_ov003_020a3f20(Ov003TouchActor* actor) {
 
 /// TRUE when the release point of the current touch is inside the actor.
 s32 func_ov003_020a401c(Ov003TouchActor* actor) {
-    if (CombatTouch_IsGesture(2) != 0 &&
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) != 0 &&
         BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
     {
         return 1;
     }
-    if (CombatTouch_IsGesture(3) != 0 &&
+    if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP) != 0 &&
         BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.endX, g_CombatGlobal->touchWork.endY) != 0)
     {
         return 1;
@@ -295,7 +295,7 @@ s16 func_ov003_020a40bc(Ov003TouchActor* actor) {
 /// Ticks the actor's lifetime counter down and returns it.
 // Nonmatching: the s16 lifetime clamp is narrowed in a different order.
 s16 func_ov003_020a40cc(Ov003TouchActor* actor, s32 amount) {
-    if (CombatDebug_GetSetting(8) == 0 && actor->params.unk_12 != 0) {
+    if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_BADGE_FREE) == FALSE && actor->params.unk_12 != 0) {
         s16 value = actor->unk_044 - amount;
 
         if (value < 0) {
@@ -324,10 +324,10 @@ void BtlBadgeActor_SeparateAll(void) {
     Ov003TouchActor* a;
     Ov003TouchActor* b;
 
-    for (a = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); a != NULL; a = CombatList_GetNext(&a->node)) {
+    for (a = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); a != NULL; a = BtlList_GetNext(&a->node)) {
         s32 aActive = func_ov003_020a3e50(a);
 
-        for (b = CombatList_GetTail(&g_CombatGlobal->unk3D8BC); b != NULL; b = CombatList_GetPrev(&b->node)) {
+        for (b = BtlList_GetTail(&g_CombatGlobal->unk3D8BC); b != NULL; b = BtlList_GetPrev(&b->node)) {
             s32 bActive = func_ov003_020a3e50(b);
             s32 radius;
             s32 dx;
@@ -359,7 +359,7 @@ void BtlBadgeActor_SeparateAll(void) {
             }
         }
     }
-    for (a = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); a != NULL; a = CombatList_GetNext(&a->node)) {
+    for (a = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); a != NULL; a = BtlList_GetNext(&a->node)) {
         s32 radius;
 
         if (func_ov003_020a3e50(a) == 0) {
@@ -508,7 +508,7 @@ void BtlBadgeActor_PickRequest(Ov003TouchActor* actor) {
     if (func_ov003_020a6cc4(actor->params.unk_05) != 0) {
         actor->request = 6;
     }
-    if (CombatDebug_GetSetting(4) == 0x3B) {
+    if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_BADGE_SET) == 59) {
         actor->request = 6;
     }
 }

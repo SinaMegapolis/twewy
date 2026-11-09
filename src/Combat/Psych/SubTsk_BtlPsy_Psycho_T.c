@@ -124,8 +124,8 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
                     func_02026590(&self->unit->actor.position.x, self->context->targetPosition.x, self->timer);
                     func_02026590(&self->unit->actor.position.y, self->context->targetPosition.y, self->timer);
                     func_02026590(&self->unit->actor.position.z, self->context->targetPosition.z, self->timer);
-                    CombatStage_ClampX(&self->unit->actor.position.x, 0);
-                    CombatStage_ClampY(&self->unit->actor.position.y, 0, self->unit->actor.position.x);
+                    BtlStage_ClampX(&self->unit->actor.position.x, 0);
+                    BtlStage_ClampY(&self->unit->actor.position.y, 0, self->unit->actor.position.x);
                     self->timer--;
                     if (func_ov003_020a6b84(&self->context->effect->streak, 0x188, self->unit) == 1) {
                         self->phase = 1;

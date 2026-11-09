@@ -74,7 +74,7 @@ static void func_ov007_020e76dc(BtlAuraLast* data, s32 arg) {
     u16            size;
     s32            posXBase;
 
-    sprite = CombatList_GetHead(&data->freeSprites);
+    sprite = BtlList_GetHead(&data->freeSprites);
     if (sprite == NULL) {
         return;
     }
@@ -115,8 +115,8 @@ static void func_ov007_020e76dc(BtlAuraLast* data, s32 arg) {
     BtlSprite_SetAnim(&sprite->sprite, (u16)animIndex, 1);
     BtlSprite_SetPosition(&sprite->sprite, posX, posY);
     BtlSprite_SetSortKey(&sprite->sprite, flip);
-    CombatList_Remove(&data->freeSprites, &sprite->node);
-    CombatList_Append(&data->activeSprites, &sprite->node, sprite);
+    BtlList_Remove(&data->freeSprites, &sprite->node);
+    BtlList_Append(&data->activeSprites, &sprite->node, sprite);
 }
 
 static void func_ov007_020e78e4(BtlAuraLast* data, BtlAuraSprite* sprite) {
@@ -124,43 +124,43 @@ static void func_ov007_020e78e4(BtlAuraLast* data, BtlAuraSprite* sprite) {
         return;
     }
     BtlSprite_Release(&sprite->sprite);
-    CombatList_Remove(&data->activeSprites, &sprite->node);
-    CombatList_Append(&data->freeSprites, &sprite->node, sprite);
+    BtlList_Remove(&data->activeSprites, &sprite->node);
+    BtlList_Append(&data->freeSprites, &sprite->node, sprite);
 }
 
 static void func_ov007_020e791c(BtlAuraLast* data) {
-    CombatList_Init(&data->freeSprites);
-    CombatList_Init(&data->activeSprites);
+    BtlList_Init(&data->freeSprites);
+    BtlList_Init(&data->activeSprites);
     data->unk_7F0 = 0;
 
     s32            i;
     BtlAuraSprite* s = data->sprites;
     for (i = 0; i < 16; i++, s++) {
         BtlSprite_Init(&s->sprite);
-        CombatList_Append(&data->freeSprites, &s->node, s);
+        BtlList_Append(&data->freeSprites, &s->node, s);
     }
 }
 
 static void func_ov007_020e7970(BtlAuraLast* data) {
-    BtlAuraSprite* sprite = CombatList_GetHead(&data->activeSprites);
+    BtlAuraSprite* sprite = BtlList_GetHead(&data->activeSprites);
     if (sprite == NULL) {
         return;
     }
 
     do {
         if (SpriteMgr_IsAnimationFinished(&sprite->sprite.sprite)) {
-            BtlAuraSprite* next = CombatList_GetNext(&sprite->node);
+            BtlAuraSprite* next = BtlList_GetNext(&sprite->node);
             func_ov007_020e78e4(data, sprite);
             sprite = next;
         } else {
             BtlSprite_Update(&sprite->sprite);
-            sprite = CombatList_GetNext(&sprite->node);
+            sprite = BtlList_GetNext(&sprite->node);
         }
     } while (sprite != NULL);
 }
 
 static void func_ov007_020e79d8(BtlAuraLast* data) {
-    BtlAuraSprite* sprite = CombatList_GetHead(&data->activeSprites);
+    BtlAuraSprite* sprite = BtlList_GetHead(&data->activeSprites);
     if (sprite == NULL) {
         return;
     }
@@ -173,7 +173,7 @@ static void func_ov007_020e79d8(BtlAuraLast* data) {
             BtlSprite_SetSortKey(&sprite->sprite, 0x80000000 - target->position.y);
         }
         BtlSprite_Render(&sprite->sprite);
-        sprite = CombatList_GetNext(&sprite->node);
+        sprite = BtlList_GetNext(&sprite->node);
     } while (sprite != NULL);
 }
 

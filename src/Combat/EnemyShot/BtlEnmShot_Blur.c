@@ -46,8 +46,8 @@ static s32 func_ov003_020cd868(Ov003EnemyShotBlur* self) {
 static s32 func_ov003_020cd8a8(Ov003EnemyShotBlur* self) {
     if (self->opacity > 0x1000) {
         s16 x, y;
-        CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
-                                  self->position.z);
+        BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->position.x, self->position.y,
+                               self->position.z);
         BtlSprite_SetPosition(&self->sprite, x, y);
         BtlSprite_SetSortKey(&self->sprite, 0x7FFFFFFF);
         BtlSprite_RenderTranslucent(&self->sprite, self->opacity >> 12);

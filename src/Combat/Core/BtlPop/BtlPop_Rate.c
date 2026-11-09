@@ -136,11 +136,11 @@ static s32 BtlPop_Rate_Render(TaskPool* pool, Task* task, void* args) {
     s32          posY;
 
     if (rate->sprite.sprite.bits_0_1 == 0) {
-        posX = CombatStage_ToScreenX(0, rate->x);
-        posY = CombatStage_ToScreenY(0, rate->y, rate->z);
+        posX = BtlStage_ToScreenX(0, rate->x);
+        posY = BtlStage_ToScreenY(0, rate->y, rate->z);
     } else {
-        posX = CombatStage_ToScreenX(1, rate->x);
-        posY = CombatStage_ToScreenY(1, rate->y, rate->z);
+        posX = BtlStage_ToScreenX(1, rate->x);
+        posY = BtlStage_ToScreenY(1, rate->y, rate->z);
     }
     if (posX < 24) {
         posX = 24;

@@ -7,7 +7,7 @@ static const TaskHandle data_ov003_020dd068;
 static void             func_ov003_020b9a14(Ov003Psychithunder* self);
 
 s32 func_ov003_020b9838(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(2))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP))
         return 0;
     Ov003PsychArgs  value = {effect};
     Ov003PsychArgs* arg   = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dd068.taskName);
@@ -24,8 +24,8 @@ static s32 func_ov003_020b9898(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                = task->data;
-            BtlTouchWork* touch = func_ov003_020a62a0();
+            self                   = task->data;
+            BattleTouchWork* touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect     = arg->effect;
             self->x          = touch->x;

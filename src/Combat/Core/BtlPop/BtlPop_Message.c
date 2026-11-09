@@ -101,11 +101,11 @@ static s32 BtlPop_Message_Render(TaskPool* pool, Task* task, void* args) {
     s32             posY;
 
     if (message->sprite.sprite.bits_0_1 == 0) {
-        posX = CombatStage_ToScreenX(0, message->x);
-        posY = CombatStage_ToScreenY(0, message->y, message->z);
+        posX = BtlStage_ToScreenX(0, message->x);
+        posY = BtlStage_ToScreenY(0, message->y, message->z);
     } else {
-        posX = CombatStage_ToScreenX(1, message->x);
-        posY = CombatStage_ToScreenY(1, message->y, message->z);
+        posX = BtlStage_ToScreenX(1, message->x);
+        posY = BtlStage_ToScreenY(1, message->y, message->z);
     }
     BtlSprite_SetPosition(&message->sprite, posX, posY);
     BtlSprite_Render(&message->sprite);

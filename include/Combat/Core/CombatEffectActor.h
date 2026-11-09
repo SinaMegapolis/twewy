@@ -2,8 +2,8 @@
 #define COMBAT_CORE_COMBATEFFECTACTOR_H
 
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlList.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatList.h"
 
 typedef struct Ov003EffectSpawn {
     /* 0x00 */ u16 config;
@@ -24,7 +24,7 @@ typedef struct Ov003EffectActor {
     /* 0x002 */ u16               config;
     /* 0x004 */ BattleActor       actor;
     /* 0x080 */ Ov003EffectSprite sprite;
-    /* 0x0B8 */ CombatListNode    node;
+    /* 0x0B8 */ BattleListNode    node;
 } Ov003EffectActor; // Size: 0xC4
 
 // Sprite pack and allocation settings shared by the obstacle loader and battle tables.

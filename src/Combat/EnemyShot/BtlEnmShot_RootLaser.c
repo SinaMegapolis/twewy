@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlList.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnemyShot.h"
-#include "Combat/Core/CombatList.h"
 #include "Engine/Math/Random.h"
 #include "SndMgr.h"
 #include <nitro/mi/cpumem.h>
@@ -22,7 +22,7 @@ typedef struct Ov003EnemyShotRootLaser {
     /* 0xC8 */ s32                  speed;
     /* 0xCC */ s16                  delay;
     /* 0xCE */ s16                  length;
-    /* 0xD0 */ CombatList           list; // the roots placed so far
+    /* 0xD0 */ BattleList           list; // the roots placed so far
     /* 0xD8 */ s16                  timer;
     /* 0xDA */ s16                  state;
     /* 0xDC */ s16                  override; // 2 forces the next root downwards, other non-zero values upwards
@@ -40,15 +40,15 @@ void func_ov003_020d1538(Ov003EnemyShotRootLaserArgs* args) {
 /// Lays the roots of the beam across the screen from the shot's position, alternating a vertical and a horizontal
 /// root, and stops once the next root would fall outside the camera.
 static s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
-    BattleActor* target = g_CombatGlobal->player;
-    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[0];
-    u16          parity = 0;
-    s32          scale;
-    s32          x, y, z;
-    s32          limit;
-    s32          half;
-    u16          angle;
-    s32          result;
+    BattleActor*  target = g_CombatGlobal->player;
+    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
+    u16           parity = 0;
+    s32           scale;
+    s32           x, y, z;
+    s32           limit;
+    s32           half;
+    u16           angle;
+    s32           result;
 
     half  = FX32_CONVERT(target->height);
     z     = self->owner.core.position.z;
@@ -110,7 +110,7 @@ static s32 func_ov003_020d19b0(Ov003EnemyShotRootLaser* self, Ov003EnemyShotRoot
     self->override         = args->override;
     self->sound            = args->sound;
     self->sound2           = args->sound2;
-    CombatList_Init(&self->list);
+    BtlList_Init(&self->list);
     if (args->animation >= 0) {
         const Ov003EnemyShotVisual* visual = args->childSource->visual;
         const SpriteAnimEntry*      entry  = &visual->entries[visual->entry];
@@ -136,10 +136,10 @@ static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
             if (self->timer >= 0)
                 break;
             if (!SndMgr_IsSEPlaying(self->sound) && self->sound != 0x56C)
-                CombatSe_PlayPanned(self->sound, CombatStage_ToScreenX(0, self->owner.core.position.x));
+                CombatSe_PlayPanned(self->sound, BtlStage_ToScreenX(0, self->owner.core.position.x));
             if (!SndMgr_IsSEPlaying(self->sound2) && self->sound2 != 0x56C)
-                CombatSe_PlayPanned(self->sound2, CombatStage_ToScreenX(0, self->owner.core.position.x));
-            Ov003EnemyShotRoot* root = CombatList_GetHead(&self->list);
+                CombatSe_PlayPanned(self->sound2, BtlStage_ToScreenX(0, self->owner.core.position.x));
+            Ov003EnemyShotRoot* root = BtlList_GetHead(&self->list);
             if (root == NULL)
                 return 0;
             func_ov003_020d07a8(&self->owner, &self->list, root, self->kind, self->spacing,
@@ -149,7 +149,7 @@ static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
             break;
         }
         case 1:
-            if (CombatList_GetHead(&self->list) == NULL)
+            if (BtlList_GetHead(&self->list) == NULL)
                 return 0;
             break;
     }
@@ -167,11 +167,11 @@ static s32 func_ov003_020d1c98(Ov003EnemyShotRootLaser* self) {
     s16 x, y;
     s32 rootX, rootY, rootZ;
     if (self->sprite.sprite.resourceData != NULL) {
-        Ov003EnemyShotRoot* root = CombatList_GetHead(&self->list);
+        Ov003EnemyShotRoot* root = BtlList_GetHead(&self->list);
         if (root == NULL)
             return 1;
         func_ov003_020d11b8(root, NULL, NULL, NULL, &rootX, &rootY, &rootZ);
-        CombatStage_WorldToScreen(0, &x, &y, rootX, rootY, rootZ);
+        BtlStage_WorldToScreen(0, &x, &y, rootX, rootY, rootZ);
         BtlSprite_SetPosition(&self->sprite, x, y);
         BtlSprite_SetSortKey(&self->sprite, 0);
         BtlSprite_Render(&self->sprite);

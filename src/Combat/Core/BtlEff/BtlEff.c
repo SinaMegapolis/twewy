@@ -91,11 +91,11 @@ static s32 BtlEff_Render(TaskPool* pool, Task* task, void* args) {
     s32           sortKey;
 
     if (eff->sprite.sprite.bits_0_1 != 1) {
-        posX = CombatStage_ToScreenX(0, eff->position.x);
-        posY = CombatStage_ToScreenY(0, eff->position.y, eff->position.z);
+        posX = BtlStage_ToScreenX(0, eff->position.x);
+        posY = BtlStage_ToScreenY(0, eff->position.y, eff->position.z);
     } else {
-        posX = CombatStage_ToScreenX(1, eff->position.x);
-        posY = CombatStage_ToScreenY(1, eff->position.y, eff->position.z);
+        posX = BtlStage_ToScreenX(1, eff->position.x);
+        posY = BtlStage_ToScreenY(1, eff->position.y, eff->position.z);
     }
     sortKey = 0x7FFFFFFF - (eff->position.y + 0x8000);
     BtlSprite_SetPosition(&eff->sprite, posX, posY);

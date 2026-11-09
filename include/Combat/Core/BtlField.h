@@ -1,7 +1,10 @@
 #ifndef TWEWY_COMBAT_CORE_BTLFIELD_H
 #define TWEWY_COMBAT_CORE_BTLFIELD_H
 
+#include "Battle/Core/BtlStage.h"
+#include "Display.h"
 #include "Engine/EasyTask.h"
+#include "Engine/Resources/ScreenMapper.h"
 
 /// The sub-screen field background: the camera-driven BG tilemap and its scrolling floor strips.
 extern const TaskHandle Tsk_BtlField_RG;
@@ -14,5 +17,15 @@ extern const TaskHandle Tsk_BtlObs;
 
 /// Spawns the foreground task when background `bgIndex` has any bands.
 void func_ov003_0209409c(s32 bgIndex);
+
+/// Scrolls the BG of `map` to the camera's position, shifted by `offsetX`/`offsetY`.
+static inline void BtlField_ScrollRow(ScreenMapEntry* map, BattleCamera* camera, s32 offsetX, s32 offsetY) {
+    s32                 layer  = map->bgLayer;
+    DisplayEngineState* engine = &g_DisplaySettings.engineState[map->engineId];
+    s32                 posY   = camera->unk_40 - offsetY;
+    s32                 posX   = camera->unk_28 - offsetX;
+
+    Display_SetEngineBGOffset(engine, layer, posX, posY);
+}
 
 #endif // TWEWY_COMBAT_CORE_BTLFIELD_H

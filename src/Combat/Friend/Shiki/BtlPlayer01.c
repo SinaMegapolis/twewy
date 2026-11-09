@@ -88,7 +88,7 @@ void func_ov004_020e739c(s16* arg0, s32 arg1) {
 
     // CombatSys_ShuffleIds(&subroutine_arg0, func_ov004_020e737c());
     // var_r5 = 0;
-    // var_r0 = CombatList_GetHead(arg0 + 4);
+    // var_r0 = BtlList_GetHead(arg0 + 4);
     // if (var_r0 != NULL) {
     //     do {
     //         temp_r1 = (&subroutine_arg0)[var_r5];
@@ -103,7 +103,7 @@ void func_ov004_020e739c(s16* arg0, s32 arg1) {
     //         var_r0->unkC4 = var_r1;
     //         var_r0->unkC8 = 0;
     //         var_r0->unkC6 = 0;
-    //         var_r0        = CombatList_GetNext(var_r0 + 0xDC);
+    //         var_r0        = BtlList_GetNext(var_r0 + 0xDC);
     //     } while (var_r0 != NULL);
     // }
     // *arg0 = 0;
@@ -113,7 +113,7 @@ void func_ov004_020e739c(s16* arg0, s32 arg1) {
 void* func_ov004_020e742c(s16* arg0, s16 arg1) {
     // void* var_r0;
 
-    // var_r0 = CombatList_GetHead(arg0 + 4);
+    // var_r0 = BtlList_GetHead(arg0 + 4);
     // if (var_r0 == NULL) {
     //     return;
     // }
@@ -121,7 +121,7 @@ void* func_ov004_020e742c(s16* arg0, s16 arg1) {
     // if (var_r0->unkCC == arg1) {
     //     return;
     // }
-    // var_r0 = CombatList_GetNext(var_r0 + 0xDC);
+    // var_r0 = BtlList_GetNext(var_r0 + 0xDC);
     // if (var_r0 == NULL) {
     //     return;
     // }
@@ -358,7 +358,7 @@ static void func_ov004_020e79a8(BtlPlayer01* player, s32 arg1, s32 arg2) {
 
 // Nonmatching
 void func_ov004_020e7a24(BtlPlayer01* player) {
-    player->actor.isFlipped = CombatStage_ToScreenX(1, player->actor.position.x) < 0x80;
+    player->actor.isFlipped = BtlStage_ToScreenX(1, player->actor.position.x) < 0x80;
 
     if (g_CombatGlobal->unk3D874 == 2) {
         player->unk_14C = func_ov004_020e8394;
@@ -999,7 +999,7 @@ s32 BtlPlayer01_Init(TaskPool* pool, Task* task, void* args) {
     }
     player->actor.baseArgs.power = player->actor.attack;
     player->unk_140              = 0;
-    CombatStage_SetCameraTarget(1, player->actor.position.x, player->actor.position.y, player->actor.position.z);
+    BtlStage_SetCameraTarget(1, player->actor.position.x, player->actor.position.y, player->actor.position.z);
     player->unk_14C = func_ov004_020e7a24;
     player->unk_150 = 0;
     player->unk_152 = 0;

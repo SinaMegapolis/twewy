@@ -92,7 +92,7 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
             }
             if (func_ov003_020a60a8(unit, 3)) {
                 s32 width = unit->actor.radius;
-                CombatStage_ClampXY(&unit->actor.position.x, &unit->actor.position.y, width * 4096, (width / 2) * 4096);
+                BtlStage_ClampXY(&unit->actor.position.x, &unit->actor.position.y, width * 4096, (width / 2) * 4096);
             }
             BtlSprite_Update(&self->sprite);
             return 1;
@@ -100,8 +100,8 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
         case 2:
             self = task->data;
             if (self->sprite.animTableIndex == 2) {
-                s32 x = CombatStage_ToScreenX(0, self->position.x);
-                s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+                s32 x = BtlStage_ToScreenX(0, self->position.x);
+                s32 y = BtlStage_ToScreenY(0, self->position.y, self->position.z);
                 BtlSprite_SetPosition(&self->sprite, x, (s16)(y - self->height));
             } else {
                 BattleActor* actor = &self->unit->actor;

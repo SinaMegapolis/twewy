@@ -957,8 +957,8 @@ s32 BtlFeat02_Step_UpdateDelay(BtlFeat02* feat) {
 
 void BtlFeat02_Reset(BtlFeat02* feat) {
     MI_CpuSet(feat, 0, sizeof(BtlFeat02));
-    feat->unk_3A4 = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-    feat->unk_3A8 = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    feat->unk_3A4 = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    feat->unk_3A8 = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     BtlFeat02_LoadPhasePairedSprites(feat, 0);
     BtlFeat02_LoadCompanionSpritesDefault(feat);
     BtlFeat02_SetStateTable(feat, BtlFeat02_StepTable);

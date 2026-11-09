@@ -15,7 +15,7 @@ typedef struct Ov003Node3D8BC {
     /* 0x044 */ s16            unk_044;
     /* 0x046 */ s16            unk_046;
     /* 0x048 */ u8             unk_048[0x108 - 0x48];
-    /* 0x108 */ CombatListNode node;
+    /* 0x108 */ BattleListNode node;
 } Ov003Node3D8BC;
 
 static void func_ov015_0212736c(BtlEnm026*);
@@ -240,8 +240,8 @@ void func_ov015_021276c4() {}
 
 void func_ov015_021276c8(void) {
     if (data_ov015_02128500.unk_24 == 0) {
-        Ov003Node3D8BC* node = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
-        node                 = CombatList_GetNext(&node->node);
+        Ov003Node3D8BC* node = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
+        node                 = BtlList_GetNext(&node->node);
         while (node != 0) {
             if (node->unk_044 < node->unk_046) {
                 u32 id = node->unk_000;
@@ -250,7 +250,7 @@ void func_ov015_021276c8(void) {
                     return;
                 }
             }
-            node = CombatList_GetNext(&node->node);
+            node = BtlList_GetNext(&node->node);
         }
         return;
     }
@@ -404,10 +404,10 @@ void func_ov015_02127ac4(BtlEnm026* data) {
     if (data->unk_1D4 != 1 || data_ov015_02128500.unk14 != 3) {
         return;
     }
-    node = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    node = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (node != 0) {
         func_ov003_020c4fc8(&node->base);
-        node = CombatList_GetNext(&node->base.node);
+        node = BtlList_GetNext(&node->base.node);
     }
 }
 

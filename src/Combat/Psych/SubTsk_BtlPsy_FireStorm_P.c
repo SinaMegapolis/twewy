@@ -47,8 +47,8 @@ static s32 func_ov003_020a9884(TaskPool* pool, Task* task, void* args, s32 stage
                 return 1;
             }
             storm->cooldown = storm->effect->params[1];
-            x               = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-            y               = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+            x               = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+            y               = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
             radius          = storm->effect->params[0];
             parentId        = ((u32)task->generation << 16) | task->id;
             offsetY         = -radius + RNG_Next(radius * 2 + 1);

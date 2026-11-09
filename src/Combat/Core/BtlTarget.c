@@ -32,11 +32,11 @@ static void func_ov003_0209abe4(BattleSprite* sprite, BattleActor* actor) {
     if (!(actor->flags & ACTOR_FLAG_NO_TARGET_MARKER)) {
         s32 positionX = actor->position.x + (actor->centerOffsetX << 12);
         if (sprite->sprite.bits_0_1 == 0) {
-            x = CombatStage_ToScreenX(0, positionX);
-            y = CombatStage_ToScreenY(0, actor->position.y, actor->position.z - (actor->centerHeight << 12));
+            x = BtlStage_ToScreenX(0, positionX);
+            y = BtlStage_ToScreenY(0, actor->position.y, actor->position.z - (actor->centerHeight << 12));
         } else {
-            x = CombatStage_ToScreenX(1, positionX);
-            y = CombatStage_ToScreenY(1, actor->position.y, actor->position.z - (actor->centerHeight << 12));
+            x = BtlStage_ToScreenX(1, positionX);
+            y = BtlStage_ToScreenY(1, actor->position.y, actor->position.z - (actor->centerHeight << 12));
         }
         BtlSprite_SetPosition(sprite, x, y);
         BtlSprite_SetSortKey(sprite, 10);

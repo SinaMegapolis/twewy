@@ -82,8 +82,8 @@ s32 BtlEff_Bomb_Render(TaskPool* pool, Task* task, void* args) {
     s16          sp8;
     BtlEff_Bomb* temp_r4 = task->data;
 
-    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)temp_r4), &spA, &sp8, temp_r4->unk_60.x, temp_r4->unk_60.y,
-                              temp_r4->unk_60.z);
+    BtlStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)temp_r4), &spA, &sp8, temp_r4->unk_60.x, temp_r4->unk_60.y,
+                           temp_r4->unk_60.z);
     BtlSprite_SetPosition((BattleSprite*)temp_r4, spA, sp8);
     if (func_ov003_020c37f8((BattleSprite*)temp_r4) != 0) {
         BtlSprite_SetSortKey((BattleSprite*)temp_r4, 0x7FDFFFFF);

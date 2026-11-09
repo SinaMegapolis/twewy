@@ -26,9 +26,9 @@ static s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                 = task->data;
-            BattleActor*  player = func_ov003_020a6438();
-            BtlTouchWork* touch  = func_ov003_020a62a0();
+            self                    = task->data;
+            BattleActor*     player = func_ov003_020a6438();
+            BattleTouchWork* touch  = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect      = arg->effect;
             self->x           = touch->x;
@@ -90,7 +90,7 @@ static s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage
         case 2:
             return 1;
         case 3:
-            CombatTouch_Clear();
+            BtlTouch_Clear();
             func_ov003_020a6464(0);
             return 1;
     }
@@ -106,8 +106,8 @@ static void func_ov003_020b8654(Ov003BurstShot* self) {
     s32                       targetX;
     s32                       targetY;
     kind    = &data_ov003_020dce58[self->effect->index];
-    targetX = CombatStage_ToWorldX(0, self->x);
-    targetY = CombatStage_ToWorldY(0, self->y, -0x27000);
+    targetX = BtlStage_ToWorldX(0, self->x);
+    targetY = BtlStage_ToWorldY(0, self->y, -0x27000);
     player  = g_CombatGlobal->player;
     originY = player->position.y;
     if (targetX < player->position.x) {

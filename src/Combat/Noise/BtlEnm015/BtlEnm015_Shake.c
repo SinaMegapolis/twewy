@@ -6,10 +6,10 @@
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlEnm015Shake {
-    /* 0x00 */ BtlEnm015*   unk_00;
-    /* 0x04 */ Ov003Camera* unk_04;
-    /* 0x08 */ s32          unk_08;
-    /* 0x0C */ u16          unk_0C;
+    /* 0x00 */ BtlEnm015*    unk_00;
+    /* 0x04 */ BattleCamera* unk_04;
+    /* 0x08 */ s32           unk_08;
+    /* 0x0C */ u16           unk_0C;
 } BtlEnm015Shake; // Size: 0x10
 static s32 func_ov013_02126ff4(TaskPool* pool, Task* task, void* args, s32 stage);
 

@@ -111,8 +111,8 @@ static s32 func_ov003_020cdd80(Ov003EnemyShotCharge* self) {
     BattleSprite*         sprite = self->activeSprite;
     Ov003EnemyShotSource* source = self->activeSource;
     s16                   x, y;
-    CombatStage_WorldToScreen(func_ov003_020c37f8(sprite) ? 1 : 0, &x, &y, source->core.position.x, source->core.position.y,
-                              source->core.position.z);
+    BtlStage_WorldToScreen(func_ov003_020c37f8(sprite) ? 1 : 0, &x, &y, source->core.position.x, source->core.position.y,
+                           source->core.position.z);
     BtlSprite_SetPosition(sprite, x, y);
     s32 depth = source->core.position.y;
     if (depth <= 0)

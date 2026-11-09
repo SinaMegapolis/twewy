@@ -87,9 +87,9 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                         s32 y;
                         s32 x;
                         self->spawnTimer = 10;
-                        y = CombatStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight),
-                                                 self->unit->actor.position.z);
-                        x = CombatStage_ToWorldX(0, self->unit->actor.screenX);
+                        y = BtlStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight),
+                                              self->unit->actor.position.z);
+                        x = BtlStage_ToWorldX(0, self->unit->actor.screenX);
                         func_ov003_020a88c0(&effectArgs0, x, y, self->unit->actor.position.z, 2, 0xCE);
                         func_ov003_020a899c(&effectArgs0, 0);
                         func_ov003_020a89b0(&effectArgs0, 0x1E);
@@ -109,9 +109,9 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                         s32 y;
                         s32 x;
                         self->spawnTimer = 5;
-                        y = CombatStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight),
-                                                 self->unit->actor.position.z);
-                        x = CombatStage_ToWorldX(0, self->unit->actor.screenX);
+                        y = BtlStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight),
+                                              self->unit->actor.position.z);
+                        x = BtlStage_ToWorldX(0, self->unit->actor.screenX);
                         func_ov003_020a88c0(&effectArgs1, x, y, self->unit->actor.position.z, 2, 0xCE);
                         func_ov003_020a899c(&effectArgs1, 0);
                         func_ov003_020a89b0(&effectArgs1, 0x1E);
@@ -205,11 +205,11 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
 
 /// Returns the held actor while the optical-hold touch is active, or NULL when it is not.
 static Ov003EnemyActor* func_ov003_020b1c50(void) {
-    BtlTouchWork*    touch;
+    BattleTouchWork* touch;
     Ov003EnemyActor* unit;
-    if (!CombatTouch_IsGesture(6))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG))
         return NULL;
-    if (CombatTouch_IsTargetKind(1))
+    if (BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER))
         return NULL;
     touch = func_ov003_020a62a0();
     unit  = (Ov003EnemyActor*)touch->held;

@@ -117,12 +117,12 @@ static s32 BtlEff_Hit_Render(TaskPool* pool, Task* task, void* args) {
     s32              sortKey;
 
     if (eff->effect.sprite.sprite.bits_0_1 == 1) {
-        posX    = CombatStage_ToScreenX(1, eff->effect.position.x);
-        posY    = CombatStage_ToScreenY(1, eff->effect.position.y, eff->effect.position.z);
+        posX    = BtlStage_ToScreenX(1, eff->effect.position.x);
+        posY    = BtlStage_ToScreenY(1, eff->effect.position.y, eff->effect.position.z);
         sortKey = 0x7FFFFFFF - (eff->effect.position.y + 0x8000);
     } else {
-        posX    = CombatStage_ToScreenX(0, eff->effect.position.x);
-        posY    = CombatStage_ToScreenY(0, eff->effect.position.y, eff->effect.position.z);
+        posX    = BtlStage_ToScreenX(0, eff->effect.position.x);
+        posY    = BtlStage_ToScreenY(0, eff->effect.position.y, eff->effect.position.z);
         sortKey = posY + 8;
     }
     BtlSprite_SetPosition(&eff->effect.sprite, posX, posY);

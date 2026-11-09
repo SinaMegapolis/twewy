@@ -87,7 +87,7 @@ static s32 func_ov004_020ea6f0(EspUnk* arg0, u16 arg1) {
 
 static s32 func_ov004_020ea730(u16 arg0) {
     s16*    temp_r0 = func_ov003_02086e94();
-    EspUnk* var_r5  = CombatList_GetHead((CombatList*)(temp_r0 + 2));
+    EspUnk* var_r5  = BtlList_GetHead((BattleList*)(temp_r0 + 2));
     while (var_r5 != NULL) {
         if (var_r5->unk_CC == *temp_r0) {
             if (func_ov004_020ea6f0(var_r5, arg0) != 0) {
@@ -96,18 +96,18 @@ static s32 func_ov004_020ea730(u16 arg0) {
         } else if ((var_r5->unk_CC > *temp_r0) && (var_r5->unk_00 == arg0)) {
             var_r5->unk_CA |= 0x10;
         }
-        var_r5 = CombatList_GetNext((CombatListNode*)&var_r5->unk_DC);
+        var_r5 = BtlList_GetNext((BattleListNode*)&var_r5->unk_DC);
     }
     return 0;
 }
 
 static s32 func_ov004_020ea7ac(void) {
-    EspUnk* var_r0 = CombatList_GetHead((CombatList*)((u8*)func_ov003_02086e94() + 4));
+    EspUnk* var_r0 = BtlList_GetHead((BattleList*)((u8*)func_ov003_02086e94() + 4));
     while (var_r0 != NULL) {
         if ((var_r0->unk_CA & 2) == 0 && (var_r0->unk_CA & 1)) {
             return 0;
         }
-        var_r0 = CombatList_GetNext((CombatListNode*)&var_r0->unk_DC);
+        var_r0 = BtlList_GetNext((BattleListNode*)&var_r0->unk_DC);
     }
     return 1;
 }
@@ -116,7 +116,7 @@ static s32 func_ov004_020ea7f4(void) {
     s16* temp_r0 = func_ov003_02086e94();
     s32  var_r5  = 0;
 
-    EspUnk* temp = CombatList_GetHead((CombatList*)(temp_r0 + 2));
+    EspUnk* temp = BtlList_GetHead((BattleList*)(temp_r0 + 2));
     while (temp != NULL) {
         if (temp->unk_CC == *temp_r0) {
             if (temp->unk_CA & 8) {
@@ -126,7 +126,7 @@ static s32 func_ov004_020ea7f4(void) {
             }
             break;
         } else {
-            temp = CombatList_GetNext((CombatListNode*)&temp->unk_DC);
+            temp = BtlList_GetNext((BattleListNode*)&temp->unk_DC);
         }
     }
     *temp_r0 += 1;

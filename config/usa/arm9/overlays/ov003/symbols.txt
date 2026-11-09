@@ -36,34 +36,34 @@ BtlActor_Init kind:function(arm,size=0xcc) addr:0x02083118
 BtlActor_Render kind:function(arm,size=0x11c) addr:0x020831e4
 
 
-CombatBgRes_Init kind:function(arm,size=0x5c) addr:0x02083300
-CombatBgRes_RunScript kind:function(arm,size=0x34) addr:0x0208335c
-CombatBgRes_Update kind:function(arm,size=0x3c) addr:0x02083390
-CombatBgRes_Release kind:function(arm,size=0xa4) addr:0x020833cc
-CombatBgRes_CmdEnd kind:function(arm,size=0x8) addr:0x02083470
-CombatBgRes_CmdLoadPalette kind:function(arm,size=0x15c) addr:0x02083478
-CombatBgRes_CmdLoadChar kind:function(arm,size=0x12c) addr:0x020835d4
-CombatBgRes_CmdLoadSlot kind:function(arm,size=0x10c) addr:0x02083700
-CombatStage_PlaceMainCamera kind:function(arm,size=0xcc) addr:0x0208380c
-CombatStage_PlaceSubCamera kind:function(arm,size=0x78) addr:0x020838d8
-CombatStage_GetLeadingBrand kind:function(arm,size=0x18) addr:0x02083950 local
-CombatStage_UpdateAreaBrand kind:function(arm,size=0xc4) addr:0x02083968 local
-CombatStage_SetCamera kind:function(arm,size=0x84) addr:0x02083a2c
-CombatStage_SetCameraTarget kind:function(arm,size=0x48) addr:0x02083ab0
-CombatStage_IsOutOfBounds kind:function(arm,size=0x94) addr:0x02083af8
-CombatStage_ClampToFloorTop kind:function(arm,size=0x70) addr:0x02083b8c
-CombatStage_ClampY kind:function(arm,size=0x54) addr:0x02083bfc
-CombatStage_ClampX kind:function(arm,size=0x50) addr:0x02083c50
-CombatStage_ClampXY kind:function(arm,size=0x44) addr:0x02083ca0
-CombatStage_ClampYToBox kind:function(arm,size=0x50) addr:0x02083ce4
-CombatStage_SetupCameras kind:function(arm,size=0x11c) addr:0x02083d34
-CombatStage_StartFieldTasks kind:function(arm,size=0x490) addr:0x02083e50
-CombatStage_StartSandstorm kind:function(arm,size=0x68) addr:0x020842e0
-CombatStage_WorldToScreen kind:function(arm,size=0x68) addr:0x02084348
-CombatStage_ToScreenX kind:function(arm,size=0x3c) addr:0x020843b0
-CombatStage_ToScreenY kind:function(arm,size=0x40) addr:0x020843ec
-CombatStage_ToWorldX kind:function(arm,size=0x34) addr:0x0208442c
-CombatStage_ToWorldY kind:function(arm,size=0x38) addr:0x02084460
+BtlBgScript_Init kind:function(arm,size=0x5c) addr:0x02083300
+BtlBgScript_Run kind:function(arm,size=0x34) addr:0x0208335c
+BtlBgScript_Update kind:function(arm,size=0x3c) addr:0x02083390
+BtlBgScript_Release kind:function(arm,size=0xa4) addr:0x020833cc
+BtlBgScript_CmdEnd kind:function(arm,size=0x8) addr:0x02083470
+BtlBgScript_CmdLoadPalette kind:function(arm,size=0x15c) addr:0x02083478
+BtlBgScript_CmdLoadChar kind:function(arm,size=0x12c) addr:0x020835d4
+BtlBgScript_CmdLoadSlot kind:function(arm,size=0x10c) addr:0x02083700
+BtlStage_PlaceMainCamera kind:function(arm,size=0xcc) addr:0x0208380c
+BtlStage_PlaceSubCamera kind:function(arm,size=0x78) addr:0x020838d8
+BtlStage_GetLeadingBrand kind:function(arm,size=0x18) addr:0x02083950 local
+BtlStage_UpdateAreaBrand kind:function(arm,size=0xc4) addr:0x02083968 local
+BtlStage_SetCamera kind:function(arm,size=0x84) addr:0x02083a2c
+BtlStage_SetCameraTarget kind:function(arm,size=0x48) addr:0x02083ab0
+BtlStage_IsOutOfBounds kind:function(arm,size=0x94) addr:0x02083af8
+BtlStage_ClampToFloorTop kind:function(arm,size=0x70) addr:0x02083b8c
+BtlStage_ClampY kind:function(arm,size=0x54) addr:0x02083bfc
+BtlStage_ClampX kind:function(arm,size=0x50) addr:0x02083c50
+BtlStage_ClampXY kind:function(arm,size=0x44) addr:0x02083ca0
+BtlStage_ClampYToBox kind:function(arm,size=0x50) addr:0x02083ce4
+BtlStage_SetupCameras kind:function(arm,size=0x11c) addr:0x02083d34
+BtlStage_StartFieldTasks kind:function(arm,size=0x490) addr:0x02083e50
+BtlStage_StartSandstorm kind:function(arm,size=0x68) addr:0x020842e0
+BtlStage_WorldToScreen kind:function(arm,size=0x68) addr:0x02084348
+BtlStage_ToScreenX kind:function(arm,size=0x3c) addr:0x020843b0
+BtlStage_ToScreenY kind:function(arm,size=0x40) addr:0x020843ec
+BtlStage_ToWorldX kind:function(arm,size=0x34) addr:0x0208442c
+BtlStage_ToWorldY kind:function(arm,size=0x38) addr:0x02084460
 BtlCollision_FindList kind:function(arm,size=0x50) addr:0x02084498 local
 BtlCollision_ClearHits kind:function(arm,size=0x2c) addr:0x020844e8 local
 BtlCollision_CollidePair kind:function(arm,size=0x120) addr:0x02084514 local
@@ -77,57 +77,57 @@ BtlCollision_CollideAll kind:function(arm,size=0x5c) addr:0x020846fc
 BtlCollision_CollideEnabled kind:function(arm,size=0x98) addr:0x02084758 local
 BtlCollision_Init kind:function(arm,size=0x2c) addr:0x020847f0
 BtlCollision_Update kind:function(arm,size=0x64) addr:0x0208481c
-CombatList_LinkTail kind:function(arm,size=0x34) addr:0x02084880 local
-CombatList_Unlink kind:function(arm,size=0x70) addr:0x020848b4 local
-CombatList_LinkBefore kind:function(arm,size=0x38) addr:0x02084924 local
-CombatList_GetHead kind:function(arm,size=0x14) addr:0x0208495c
-CombatList_GetTail kind:function(arm,size=0x14) addr:0x02084970
-CombatList_GetNext kind:function(arm,size=0x14) addr:0x02084984
-CombatList_GetPrev kind:function(arm,size=0x14) addr:0x02084998
-CombatList_Init kind:function(arm,size=0x10) addr:0x020849ac
-CombatList_Append kind:function(arm,size=0x20) addr:0x020849bc
-CombatList_Remove kind:function(arm,size=0x2c) addr:0x020849dc
-CombatList_InsertBefore kind:function(arm,size=0x28) addr:0x02084a08
-CombatDebug_ClampSetting kind:function(arm,size=0x24) addr:0x02084a30 local
-CombatDebug_LoadDefaults kind:function(arm,size=0x134) addr:0x02084a54 local
-CombatDebug_InitSettings kind:function(arm,size=0x54) addr:0x02084b88
-CombatDebug_ValidateSettings kind:function(arm,size=0x1a4) addr:0x02084bdc
-CombatDebug_GetSetting kind:function(arm,size=0x10) addr:0x02084d80
-CombatDebug_SetSetting kind:function(arm,size=0x10) addr:0x02084d90 local
-CombatDebug_SetCurrent kind:function(arm,size=0x10) addr:0x02084da0
-CombatDebug_GetCurrent kind:function(arm,size=0x10) addr:0x02084db0
-CombatDebug_DrawFootprints kind:function(arm,size=0x124) addr:0x02084dc0 local
-CombatDebug_DrawHitboxes kind:function(arm,size=0x170) addr:0x02084ee4 local
-CombatDebug_DrawCollision kind:function(arm,size=0x38) addr:0x02085054
-CombatDebug_ShowSyncValues kind:function(arm,size=0x78) addr:0x0208508c
-CombatTouch_DistanceToActor kind:function(arm,size=0x60) addr:0x02085104 local
-CombatTouch_SegmentsCross kind:function(arm,size=0x150) addr:0x02085164 local
-CombatTouch_IsQuickTap kind:function(arm,size=0x1c) addr:0x020852b4 local
-CombatTouch_CountRapidTaps kind:function(arm,size=0x88) addr:0x020852d0 local
-CombatTouch_IsSlash kind:function(arm,size=0x34) addr:0x02085358 local
-CombatTouch_IsHold kind:function(arm,size=0x80) addr:0x0208538c local
-CombatTouch_IsScribble kind:function(arm,size=0x158) addr:0x0208540c local
-CombatTouch_IsOnActor kind:function(arm,size=0xd4) addr:0x02085564 local
-CombatTouch_StrokeHitsActor kind:function(arm,size=0x1a8) addr:0x02085638 local
-CombatTouch_PickStrokeTarget kind:function(arm,size=0xa8) addr:0x020857e0 local
-CombatTouch_PickPointTarget kind:function(arm,size=0x5c) addr:0x02085888 local
-CombatTouch_PickEnemyAtPoint kind:function(arm,size=0x50) addr:0x020858e4 local
-CombatTouch_PickObjectAtPoint kind:function(arm,size=0x50) addr:0x02085934 local
-CombatTouch_FindActorAtPoint kind:function(arm,size=0x74) addr:0x02085984 local
-CombatTouch_OnPress kind:function(arm,size=0x78) addr:0x020859f8 local
-CombatTouch_OnRelease kind:function(arm,size=0x8c) addr:0x02085a70 local
-CombatTouch_UpdateHeld kind:function(arm,size=0x38) addr:0x02085afc local
-CombatTouch_Classify kind:function(arm,size=0x144) addr:0x02085b34 local
-CombatTouch_Clear kind:function(arm,size=0x84) addr:0x02085c78
-CombatTouch_IsGesture kind:function(arm,size=0x40) addr:0x02085cfc
-CombatTouch_IsTargetKind kind:function(arm,size=0x24) addr:0x02085d3c
-CombatTouch_SlashCrosses kind:function(arm,size=0x68) addr:0x02085d60
-CombatTouch_GetTapped kind:function(arm,size=0xb0) addr:0x02085dc8
-CombatTouch_GetDragged kind:function(arm,size=0x48) addr:0x02085e78
-CombatTouch_GetSlashed kind:function(arm,size=0x154) addr:0x02085ec0
-CombatTouch_GetRapidTapped kind:function(arm,size=0xb0) addr:0x02086014
-CombatTouch_Init kind:function(arm,size=0x6c) addr:0x020860c4
-CombatTouch_Update kind:function(arm,size=0x174) addr:0x02086130
+BtlList_LinkTail kind:function(arm,size=0x34) addr:0x02084880 local
+BtlList_Unlink kind:function(arm,size=0x70) addr:0x020848b4 local
+BtlList_LinkBefore kind:function(arm,size=0x38) addr:0x02084924 local
+BtlList_GetHead kind:function(arm,size=0x14) addr:0x0208495c
+BtlList_GetTail kind:function(arm,size=0x14) addr:0x02084970
+BtlList_GetNext kind:function(arm,size=0x14) addr:0x02084984
+BtlList_GetPrev kind:function(arm,size=0x14) addr:0x02084998
+BtlList_Init kind:function(arm,size=0x10) addr:0x020849ac
+BtlList_Append kind:function(arm,size=0x20) addr:0x020849bc
+BtlList_Remove kind:function(arm,size=0x2c) addr:0x020849dc
+BtlList_InsertBefore kind:function(arm,size=0x28) addr:0x02084a08
+BtlDebug_ClampSetting kind:function(arm,size=0x24) addr:0x02084a30 local
+BtlDebug_LoadDefaults kind:function(arm,size=0x134) addr:0x02084a54 local
+BtlDebug_InitSettings kind:function(arm,size=0x54) addr:0x02084b88
+BtlDebug_ValidateSettings kind:function(arm,size=0x1a4) addr:0x02084bdc
+BtlDebug_GetSetting kind:function(arm,size=0x10) addr:0x02084d80
+BtlDebug_SetSetting kind:function(arm,size=0x10) addr:0x02084d90 local
+BtlDebug_SetCurrent kind:function(arm,size=0x10) addr:0x02084da0
+BtlDebug_GetCurrent kind:function(arm,size=0x10) addr:0x02084db0
+BtlDebug_DrawFootprints kind:function(arm,size=0x124) addr:0x02084dc0 local
+BtlDebug_DrawHitboxes kind:function(arm,size=0x170) addr:0x02084ee4 local
+BtlDebug_DrawCollision kind:function(arm,size=0x38) addr:0x02085054
+BtlDebug_ShowSyncValues kind:function(arm,size=0x78) addr:0x0208508c
+BtlTouch_DistanceToActor kind:function(arm,size=0x60) addr:0x02085104 local
+BtlTouch_SegmentsCross kind:function(arm,size=0x150) addr:0x02085164 local
+BtlTouch_IsQuickTap kind:function(arm,size=0x1c) addr:0x020852b4 local
+BtlTouch_CountRapidTaps kind:function(arm,size=0x88) addr:0x020852d0 local
+BtlTouch_IsSlash kind:function(arm,size=0x34) addr:0x02085358 local
+BtlTouch_IsHold kind:function(arm,size=0x80) addr:0x0208538c local
+BtlTouch_IsScribble kind:function(arm,size=0x158) addr:0x0208540c local
+BtlTouch_IsOnActor kind:function(arm,size=0xd4) addr:0x02085564 local
+BtlTouch_StrokeHitsActor kind:function(arm,size=0x1a8) addr:0x02085638 local
+BtlTouch_PickStrokeTarget kind:function(arm,size=0xa8) addr:0x020857e0 local
+BtlTouch_PickPointTarget kind:function(arm,size=0x5c) addr:0x02085888 local
+BtlTouch_PickEnemyAtPoint kind:function(arm,size=0x50) addr:0x020858e4 local
+BtlTouch_PickObjectAtPoint kind:function(arm,size=0x50) addr:0x02085934 local
+BtlTouch_FindActorAtPoint kind:function(arm,size=0x74) addr:0x02085984 local
+BtlTouch_OnPress kind:function(arm,size=0x78) addr:0x020859f8 local
+BtlTouch_OnRelease kind:function(arm,size=0x8c) addr:0x02085a70 local
+BtlTouch_UpdateHeld kind:function(arm,size=0x38) addr:0x02085afc local
+BtlTouch_Classify kind:function(arm,size=0x144) addr:0x02085b34 local
+BtlTouch_Clear kind:function(arm,size=0x84) addr:0x02085c78
+BtlTouch_IsGesture kind:function(arm,size=0x40) addr:0x02085cfc
+BtlTouch_IsTargetKind kind:function(arm,size=0x24) addr:0x02085d3c
+BtlTouch_SlashCrosses kind:function(arm,size=0x68) addr:0x02085d60
+BtlTouch_GetTapped kind:function(arm,size=0xb0) addr:0x02085dc8
+BtlTouch_GetDragged kind:function(arm,size=0x48) addr:0x02085e78
+BtlTouch_GetSlashed kind:function(arm,size=0x154) addr:0x02085ec0
+BtlTouch_GetRapidTapped kind:function(arm,size=0xb0) addr:0x02086014
+BtlTouch_Init kind:function(arm,size=0x6c) addr:0x020860c4
+BtlTouch_Update kind:function(arm,size=0x174) addr:0x02086130
 CombatSys_DropObsAtRandom kind:function(arm,size=0x54) addr:0x020862a4
 CombatSys_DropObsGroup kind:function(arm,size=0x10c) addr:0x020862f8
 CombatSys_LoadObsSprite kind:function(arm,size=0xbc) addr:0x02086404
@@ -376,7 +376,7 @@ BtlPlayer00_Release kind:function(arm,size=0x28) addr:0x02092914 local
 BtlPlayer00_RunTask kind:function(arm,size=0x68) addr:0x0209293c local
 func_ov003_020929a4 kind:function(arm,size=0x14) addr:0x020929a4 local
 func_ov003_020929b8 kind:function(arm,size=0xa4) addr:0x020929b8 local
-func_ov003_02092a5c kind:function(arm,size=0x34) addr:0x02092a5c local
+BtlField_RG_RunBgScript kind:function(arm,size=0x34) addr:0x02092a5c local
 func_ov003_02092a90 kind:function(arm,size=0x84) addr:0x02092a90 local
 func_ov003_02092b14 kind:function(arm,size=0xfc) addr:0x02092b14 local
 func_ov003_02092c10 kind:function(arm,size=0x78) addr:0x02092c10 local
@@ -389,7 +389,7 @@ BtlField_RG_Release kind:function(arm,size=0xb0) addr:0x020932e4 local
 BtlField_RG_RunTask kind:function(arm,size=0x48) addr:0x02093394 local
 func_ov003_020933dc kind:function(arm,size=0x14) addr:0x020933dc local
 func_ov003_020933f0 kind:function(arm,size=0xa4) addr:0x020933f0 local
-func_ov003_02093494 kind:function(arm,size=0x34) addr:0x02093494 local
+BtlField_UG_RunBgScript kind:function(arm,size=0x34) addr:0x02093494 local
 func_ov003_020934c8 kind:function(arm,size=0x140) addr:0x020934c8 local
 func_ov003_02093608 kind:function(arm,size=0xf4) addr:0x02093608 local
 func_ov003_020936fc kind:function(arm,size=0x90) addr:0x020936fc local
@@ -2138,7 +2138,7 @@ Tsk_BtlDbg kind:data(any) addr:0x020d8864 local
 Tsk_BtlInf_ShowVal kind:data(any) addr:0x020d8880 local
 @3030 kind:data(any) addr:0x020d888c local
 data_ov003_020d889c kind:data(any) addr:0x020d889c
-data_ov003_020d88ac kind:data(any) addr:0x020d88ac
+data_ov003_020d88ac kind:data(byte[18]) addr:0x020d88ac
 data_ov003_020d88c0 kind:data(any) addr:0x020d88c0
 data_ov003_020d88d8 kind:data(any) addr:0x020d88d8
 data_ov003_020d88f0 kind:data(any) addr:0x020d88f0
@@ -2236,7 +2236,7 @@ data_ov003_020d9a44 kind:data(any) addr:0x020d9a44
 data_ov003_020d9a80 kind:data(any) addr:0x020d9a80
 data_ov003_020d9a90 kind:data(any) addr:0x020d9a90
 data_ov003_020d9aa8 kind:data(any) addr:0x020d9aa8
-data_ov003_020d9ad0 kind:data(any) addr:0x020d9ad0
+data_ov003_020d9ad0 kind:data(byte[42]) addr:0x020d9ad0
 BtlField_RG_Extras kind:data(any) addr:0x020d9afc
 data_ov003_020d9b14 kind:data(any) addr:0x020d9b14
 data_ov003_020d9b1a kind:data(any) addr:0x020d9b1a

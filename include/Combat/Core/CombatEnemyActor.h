@@ -3,8 +3,8 @@
 
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlCollision.h"
+#include "Battle/Core/BtlList.h"
 #include "Battle/Core/BtlSprite.h"
-#include "Combat/Core/CombatList.h"
 
 typedef union Ov003CutinFlags {
     /* 0x0 */ u16 raw;
@@ -36,7 +36,7 @@ typedef struct Ov003EnemyActor {
     /* 0x084 */ BattleSprite            sprite;
     /* 0x0E4 */ BattleSprite            subSprite;
     /* 0x144 */ BtlCollider             collider;
-    /* 0x178 */ CombatListNode          node;
+    /* 0x178 */ BattleListNode          node;
     /* 0x184 */ struct Ov003EnemyActor* partner; // the actor this one is paired with (UG/RG twin, cut-in partner)
     /* 0x188 */ void*                   unk_188; // per-type pointer: a twin's shared state, a spawn list, ...
     /* 0x18C */ u16                     flags18C;

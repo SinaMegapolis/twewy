@@ -103,7 +103,7 @@ static s32 func_ov003_020b0d2c(TaskPool* pool, Task* task, void* args, s32 stage
 
 /// The actor currently held by the touch, if it is a live enemy.
 static Ov003EnemyActor* func_ov003_020b0fa0(void) {
-    if (!CombatTouch_IsGesture(7))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SCRIBBLE))
         return NULL;
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_020a62a0()->held;
     if (unit == NULL)

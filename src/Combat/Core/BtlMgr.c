@@ -1,5 +1,6 @@
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/BtlAura.h"
 #include "Combat/Core/BtlBar.h"
 #include "Combat/Core/BtlCmd.h"
@@ -11,7 +12,6 @@
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnmOverlay.h"
-#include "Combat/Core/CombatTouch.h"
 #include "Combat/Fusion/BtlFusion.h"
 #include "Combat/Tutorial/BtlTutorial.h"
 #include "CriSndMgr.h"
@@ -277,7 +277,7 @@ static void BtlMgr_LoadOverlays(u32 partner, u16 encounterId) {
 
         default:
             if (encounterId == 0) {
-                overlay4 = CombatDebug_GetCurrent();
+                overlay4 = BtlDebug_GetCurrent();
             }
             switch (overlay4) {
                 case 0:
@@ -576,14 +576,14 @@ static BOOL func_ov003_0208aed8(void) {
     Ov003EnemyActor* unit;
     BOOL             result = TRUE;
 
-    for (unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & ACTOR_FLAG_DEFEATED) == 0) {
             result = FALSE;
             break;
         }
     }
 
-    for (unit = CombatList_GetHead(&g_CombatGlobal->unk3D8AC); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&g_CombatGlobal->unk3D8AC); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & ACTOR_FLAG_DEFEATED) == 0) {
             result = FALSE;
             break;
@@ -719,7 +719,7 @@ void BtlMgr_MoveByAngle(s32* x, s32* y, s32 angle, s32 scale) {
 
 /// Projects a world position onto the screen.
 void BtlMgr_WorldToScreen(s16* screenX, s16* screenY, s32 x, s32 y, s32 z) {
-    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[0];
+    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
 
     *screenX = (s16)((camera->unk_04 + (x - camera->unk_28) + 0x80000) >> 12);
     *screenY = (s16)((camera->unk_08 + ((y + z) - camera->unk_40) + 0x60000) >> 12);
@@ -844,8 +844,8 @@ static void func_ov003_0208b71c(void) {
 
     switch (g_CombatGlobal->unk3D875) {
         case 0:
-            unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-            if (unit == NULL && CombatList_GetHead(&g_CombatGlobal->unk3D8AC) == NULL) {
+            unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+            if (unit == NULL && BtlList_GetHead(&g_CombatGlobal->unk3D8AC) == NULL) {
                 finished = TRUE;
             }
             break;
@@ -957,9 +957,9 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
 
     BtlMgr_LoadOverlays(g_CombatGlobal->unk3D88D, g_CombatGlobal->unk3D88E);
 
-    CombatTouch_Init();
+    BtlTouch_Init();
     BtlMic_Init();
-    CombatStage_SetupCameras();
+    BtlStage_SetupCameras();
     BtlCollision_Init();
     func_ov003_02087378();
     CombatSys_ResetObsList();
@@ -970,8 +970,8 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     func_ov003_0208ad34(g_CombatGlobal->unk3D88E);
     func_ov003_0208aa1c(isContinuation);
 
-    CombatList_Init(&g_CombatGlobal->unk3D8A4);
-    CombatList_Init(&g_CombatGlobal->unk3D8AC);
+    BtlList_Init(&g_CombatGlobal->unk3D8A4);
+    BtlList_Init(&g_CombatGlobal->unk3D8AC);
 
     EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_BtlPlayer00, NULL, 0, NULL, NULL);
 
@@ -1005,7 +1005,7 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     }
 
     func_ov003_020c2a34(g_CombatGlobal->unk3D88E);
-    CombatStage_StartFieldTasks(0);
+    BtlStage_StartFieldTasks(0);
     CombatSys_RollObsDrop();
     BtlMic_CreateTask();
 
@@ -1028,9 +1028,9 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Task_BtlTch, NULL, 0, NULL, NULL);
     EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Tsk_BtlPause, NULL, 0, NULL, NULL);
 
-    CombatStage_StartSandstorm();
+    BtlStage_StartSandstorm();
     BtlDbg_CreateTask();
-    CombatDebug_ShowSyncValues();
+    BtlDebug_ShowSyncValues();
 }
 
 /// Per-frame battle update: input, combo tracking, task pools.
@@ -1039,7 +1039,7 @@ static void func_ov003_0208c2a8(void) {
     // register allocation of the whole function.
     s32 pressed;
 
-    CombatTouch_Update();
+    BtlTouch_Update();
     func_ov003_020873e0();
     EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_3C2BC);
 
@@ -1078,7 +1078,7 @@ static void func_ov003_0208c2a8(void) {
         }
     }
 
-    if (CombatDebug_GetSetting(0) == 2) {
+    if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_NO_FRAME_DELAY) {
         EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_00000);
         EasyTask_ProcessPendingTasks(&g_CombatGlobal->taskPool);
         BtlCollision_Update();
@@ -1119,7 +1119,7 @@ static void func_ov003_0208c4bc(void) {
     EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_201A4);
     EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_00000);
     EasyTask_UpdateActiveTasks(&g_CombatGlobal->taskPool);
-    CombatDebug_DrawCollision();
+    BtlDebug_DrawCollision();
 }
 
 /// Tears down the battle globals.
@@ -1203,7 +1203,7 @@ Ov003EnemyActor* BtlMgr_FindNearestTarget(s32 x, s32 side, s32 airborne) {
     s32              bestDist = 0x100000;
     Ov003EnemyActor* unit;
 
-    for (unit = CombatList_GetHead(&g->unk3D8AC); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&g->unk3D8AC); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         s32 dist;
         s32 absDist;
 
@@ -1231,7 +1231,7 @@ Ov003EnemyActor* BtlMgr_FindFarthestTarget(s32 x, s32 side, s32 airborne) {
     s32              bestDist = 0;
     Ov003EnemyActor* unit;
 
-    for (unit = CombatList_GetHead(&g->unk3D8AC); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&g->unk3D8AC); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         s32 dist;
         s32 absDist;
 
@@ -2361,7 +2361,7 @@ static void BtlMgr_Init(BtlMgrWork* work) {
     EasyTask_InitializePool(&work->taskPool, &work->heap, 8, NULL, NULL);
 
     if (gSaveData.unk_3130 == 0 || gSaveData.unk_3130 == 1 || gSaveData.unk_3130 == 2 || gSaveData.unk_3130 == 4) {
-        CombatDebug_InitSettings();
+        BtlDebug_InitSettings();
     }
 
     func_ov003_0208d56c();

@@ -37,7 +37,7 @@ static s32 func_ov003_020ab240(TaskPool* pool, Task* task, void* args, s32 stage
             return 1;
         case 1: {
             BtlBlackHollCharge* charge = task->data;
-            BtlTouchWork*       touch  = func_ov003_020a62a0();
+            BattleTouchWork*    touch  = func_ov003_020a62a0();
             if (func_ov003_020a63a8(charge->effect))
                 return 0;
             if (!func_ov003_020a63e4())

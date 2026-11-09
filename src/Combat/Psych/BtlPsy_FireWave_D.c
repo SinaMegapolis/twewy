@@ -12,9 +12,9 @@ static const TaskHandle  data_ov003_020dc668;
 
 // Nonmatching: mwcc merges the two identical task-handle literals.
 s32 func_ov003_020a9a58(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_IsGesture(6))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG))
         return 0;
-    if (CombatTouch_IsTargetKind(1))
+    if (BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc668.taskName);
     *arg                   = effect;
@@ -33,8 +33,8 @@ static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage
             wave = task->data;
             MI_CpuSet(wave, 0, sizeof(*wave));
             wave->effect     = *(Ov003EffectState**)args;
-            wave->position.x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-            wave->position.y = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+            wave->position.x = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+            wave->position.y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
             wave->flags      = 0;
             wave->hasSpawned = 0;
             wave->exhausted  = 0;
@@ -55,8 +55,8 @@ static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
                 case 1:
                     if (wave->wasHeld == 0) {
-                        wave->position.x  = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-                        wave->position.y  = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+                        wave->position.x  = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+                        wave->position.y  = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
                         wave->activeTicks = 0;
                         wave->flags |= 1;
                     }
@@ -68,17 +68,17 @@ static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage
                     return 0;
             }
             wave->flags &= ~1;
-            if (CombatTouch_IsGesture(6) && wave->exhausted == 0) {
+            if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) && wave->exhausted == 0) {
                 if (!func_ov003_020a5aa4(wave->effect))
                     wave->exhausted = 1;
                 wave->flags |= 1;
             }
             if (wave->flags & 1) {
-                s32 x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-                s32 y = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+                s32 x = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
+                s32 y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
                 wave->position.x += (x - wave->position.x) >> 3;
                 wave->position.y += (y - wave->position.y) >> 3;
-                CombatStage_ClampXY(&wave->position.x, &wave->position.y, 0, 0);
+                BtlStage_ClampXY(&wave->position.x, &wave->position.y, 0, 0);
                 wave->emitTimer--;
                 if (wave->emitTimer < 0) {
                     s32 attackId = data_ov003_020dc674[wave->effect->index].attackId;
@@ -98,7 +98,7 @@ static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage
                 }
                 func_ov003_020a647c(wave->position.x);
                 if (wave->hasSpawned)
-                    CombatStage_SetCameraTarget(0, wave->position.x, wave->position.y, 0);
+                    BtlStage_SetCameraTarget(0, wave->position.x, wave->position.y, 0);
                 wave->activeTicks++;
             } else {
                 if (wave->phase == 2)

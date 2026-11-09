@@ -1,7 +1,7 @@
 #include "Combat/Core/BtlDbg.h"
+#include "Battle/Core/BtlList.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatList.h"
 #include "Engine/Core/OamMgr.h"
 #include "Engine/EasyTask.h"
 #include <nitro/fx.h>
@@ -17,13 +17,13 @@ typedef struct BtlDbgRect {
     /* 0x0A */ s16            height;
     /* 0x0C */ s16            life; // frames left
     /* 0x0E */ u16            kind;
-    /* 0x10 */ CombatListNode node;
+    /* 0x10 */ BattleListNode node;
 } BtlDbgRect; // Size: 0x1C
 
 typedef struct BtlDbg {
     /* 0x000 */ BtlDbgRect rects[0x40];
-    /* 0x700 */ CombatList free;
-    /* 0x708 */ CombatList shown;
+    /* 0x700 */ BattleList free;
+    /* 0x708 */ BattleList shown;
 } BtlDbg; // Size: 0x710
 
 // todo: OamMgr to claim these
@@ -93,15 +93,15 @@ static void BtlDbg_DrawRect(BtlDbgRect* rect) {
         x = rect->x;
         y = rect->y;
     } else {
-        x = CombatStage_ToScreenX(0, rect->x) << 12;
-        y = CombatStage_ToScreenY(0, rect->y, 0) << 12;
+        x = BtlStage_ToScreenX(0, rect->x) << 12;
+        y = BtlStage_ToScreenY(0, rect->y, 0) << 12;
     }
     BtlDbg_DrawQuad(rect->kind, x, y, rect->width, rect->height);
 }
 
 /// Moves a rectangle from the free list to the shown list.
 static void BtlDbg_AddRect(BtlDbg* dbg, u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
-    BtlDbgRect* rect = CombatList_GetHead(&dbg->free);
+    BtlDbgRect* rect = BtlList_GetHead(&dbg->free);
 
     if (rect != NULL) {
         rect->kind   = kind;
@@ -110,15 +110,15 @@ static void BtlDbg_AddRect(BtlDbg* dbg, u16 kind, u16 life, s32 x, s32 y, s16 wi
         rect->y      = y;
         rect->width  = width;
         rect->height = height;
-        CombatList_Remove(&dbg->free, &rect->node);
-        CombatList_Append(&dbg->shown, &rect->node, rect);
+        BtlList_Remove(&dbg->free, &rect->node);
+        BtlList_Append(&dbg->shown, &rect->node, rect);
     }
 }
 
 static void BtlDbg_FreeRect(BtlDbg* dbg, BtlDbgRect* rect) {
     if (rect != NULL) {
-        CombatList_Remove(&dbg->shown, &rect->node);
-        CombatList_Append(&dbg->free, &rect->node, rect);
+        BtlList_Remove(&dbg->shown, &rect->node);
+        BtlList_Append(&dbg->free, &rect->node, rect);
     }
 }
 
@@ -126,10 +126,10 @@ static s32 BtlDbg_Init(TaskPool* pool, Task* task, void* args) {
     BtlDbg* dbg = task->data;
 
     MI_CpuSet(dbg, 0, sizeof(*dbg));
-    CombatList_Init(&dbg->free);
-    CombatList_Init(&dbg->shown);
+    BtlList_Init(&dbg->free);
+    BtlList_Init(&dbg->shown);
     for (s32 i = 0; i < 0x40; i++) {
-        CombatList_Append(&dbg->free, &dbg->rects[i].node, &dbg->rects[i]);
+        BtlList_Append(&dbg->free, &dbg->rects[i].node, &dbg->rects[i]);
     }
     return 1;
 }
@@ -141,16 +141,16 @@ static s32 BtlDbg_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlDbg_Render(TaskPool* pool, Task* task, void* args) {
     BtlDbg* dbg = task->data;
 
-    BtlDbgRect* rect = CombatList_GetHead(&dbg->shown);
+    BtlDbgRect* rect = BtlList_GetHead(&dbg->shown);
     while (rect != NULL) {
         BtlDbg_DrawRect(rect);
         if (rect->life == 0) {
-            BtlDbgRect* next = CombatList_GetNext(&rect->node);
+            BtlDbgRect* next = BtlList_GetNext(&rect->node);
             BtlDbg_FreeRect(dbg, rect);
             rect = next;
         } else {
             rect->life--;
-            rect = CombatList_GetNext(&rect->node);
+            rect = BtlList_GetNext(&rect->node);
         }
     }
     return 1;
@@ -177,7 +177,7 @@ void BtlDbg_CreateTask(void) {
 void BtlDbg_PostRect(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
     BtlDbg* dbg = EasyTask_GetTaskData(&g_CombatGlobal->unk_10118, BtlDbg_TaskId);
 
-    if (CombatDebug_GetSetting(1) != 0) {
+    if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_DISP_AREA) != BTL_DEBUG_DISP_AREA_OFF) {
         BtlDbg_AddRect(dbg, kind, life, x, y, width, height);
     }
 }

@@ -51,8 +51,8 @@ s32 Boss01s_LandUG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_020c3c28() != 0) {
         return 1;
     }
-    CombatStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)landUG), &spA, &sp8, landUG->unk_60, landUG->unk_64,
-                              landUG->unk_68);
+    BtlStage_WorldToScreen(func_ov003_020c3908((BattleSprite*)landUG), &spA, &sp8, landUG->unk_60, landUG->unk_64,
+                           landUG->unk_68);
     BtlSprite_SetPosition(&landUG->sprite, spA, sp8);
     BtlSprite_SetSortKey(&landUG->sprite, 0x7FFFFFFF);
     BtlSprite_Render(&landUG->sprite);

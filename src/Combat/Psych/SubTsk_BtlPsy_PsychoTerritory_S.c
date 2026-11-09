@@ -7,7 +7,7 @@
 static const TaskHandle data_ov003_020dd210;
 
 s32 func_ov003_020ba6c8(Ov003EffectContext* context, Ov003EffectState* effect) {
-    Ov003EnemyActor* unit = (Ov003EnemyActor*)CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
+    Ov003EnemyActor* unit = (Ov003EnemyActor*)BtlTouch_GetTapped(ACTOR_KIND_ENEMY);
     if (unit == NULL)
         return 0;
     func_ov003_020a6568(&effect->streak, 0x150, unit, 0, 0, 13);
@@ -76,8 +76,8 @@ static s32 func_ov003_020ba74c(TaskPool* pool, Task* task, void* args, s32 stage
             switch (self->phase) {
                 case 1:
                 case 2: {
-                    s32 x      = CombatStage_ToScreenX(0, self->position.x);
-                    s32 y      = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+                    s32 x      = BtlStage_ToScreenX(0, self->position.x);
+                    s32 y      = BtlStage_ToScreenY(0, self->position.y, self->position.z);
                     s32 dy     = FX_Mul(SIN2(FX_SinCosTable_, self->angle), 0x12C000);
                     s32 dx     = FX_Mul(COS2(FX_SinCosTable_, self->angle), 0x12C000);
                     s32 endY   = (dy + y * 0x1000) >> 12;
@@ -93,8 +93,8 @@ static s32 func_ov003_020ba74c(TaskPool* pool, Task* task, void* args, s32 stage
             return 1;
         case 2: {
             self  = task->data;
-            s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-            s32 x = CombatStage_ToScreenX(0, self->position.x);
+            s32 y = BtlStage_ToScreenY(0, self->position.y, self->position.z);
+            s32 x = BtlStage_ToScreenX(0, self->position.x);
             BtlSprite_SetPosition(&self->sprite, x, y);
             BtlSprite_SetSortKey(&self->sprite, 0x384000);
             self->affine.rotation             = self->angle;

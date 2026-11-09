@@ -68,7 +68,7 @@ static s32 CombatAbility_IsSourceActive(s32 slot) {
     if (slot == -1) {
         return 1;
     }
-    for (actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = CombatList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->slot != slot) {
             continue;
         }

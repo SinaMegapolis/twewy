@@ -42,7 +42,7 @@ static s32 func_ov008_020e7374(TaskPool* pool, Task* task, void* args) {
     data->actor.height       = 0x30;
     data->actor.centerHeight = 0x18;
     data->actor.flags |= ACTOR_FLAG_INTANGIBLE;
-    CombatStage_SetCameraTarget(1, data->actor.position.x, data->actor.position.y, data->actor.position.z);
+    BtlStage_SetCameraTarget(1, data->actor.position.x, data->actor.position.y, data->actor.position.z);
     func_ov008_020e7360(data, NULL);
     return 1;
 }

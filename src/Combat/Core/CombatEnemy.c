@@ -53,7 +53,7 @@ static const u8          data_ov003_020e0664[];
 static void              func_ov003_020c2b4c(s32 index, s32 value);
 static void              func_ov003_020c353c(Ov003CutinActor* actor);
 static s32               func_ov003_020c3950(u32 index);
-static Ov003Camera*      func_ov003_020c3a48(u32 index);
+static BattleCamera*     func_ov003_020c3a48(u32 index);
 static s32               func_ov003_020c3a70(u32 index);
 static void              func_ov003_020c3b6c(u16* tracks);
 static void              func_ov003_020c3e68(Ov003EnemyActor* main, Ov003EnemyActor* sub);
@@ -114,11 +114,11 @@ void func_ov003_020c20d4(Ov003CutinTracks* tracks, Ov003CutinActor* actor) {
                 actor->base.actor.position.y = tracks->tracks[i].y;
                 actor->base.actor.position.z = tracks->tracks[i].z;
                 if (actor->base.sprite.sprite.bits_0_1 == 0) {
-                    posX = CombatStage_ToScreenX(0, actor->base.actor.position.x);
-                    posY = CombatStage_ToScreenY(0, actor->base.actor.position.y, actor->base.actor.position.z);
+                    posX = BtlStage_ToScreenX(0, actor->base.actor.position.x);
+                    posY = BtlStage_ToScreenY(0, actor->base.actor.position.y, actor->base.actor.position.z);
                 } else {
-                    posX = CombatStage_ToScreenX(1, actor->base.actor.position.x);
-                    posY = CombatStage_ToScreenY(1, actor->base.actor.position.y, actor->base.actor.position.z);
+                    posX = BtlStage_ToScreenX(1, actor->base.actor.position.x);
+                    posY = BtlStage_ToScreenY(1, actor->base.actor.position.y, actor->base.actor.position.z);
                 }
                 if (i == current) {
                     spriteIndex = tracks->count;
@@ -364,9 +364,9 @@ void func_ov003_020c2b68(Ov003CutinActor* actor) {
 
 /// True while the actor is safely inside the camera bounds.
 s32 func_ov003_020c2bbc(Ov003CutinActor* actor) {
-    Ov003Global* p     = g_CombatGlobal;
-    Ov003Camera* cam   = &p->unk3D7C0[0];
-    BattleActor* other = p->player;
+    Ov003Global*  p     = g_CombatGlobal;
+    BattleCamera* cam   = &p->unk3D7C0[0];
+    BattleActor*  other = p->player;
 
     if (actor->base.actor.position.x < 0x50000) {
         if (other->position.x < 0x80000) {
@@ -781,10 +781,10 @@ static s32 func_ov003_020c3950(u32 index) {
 
 /// Clamps `*value` to the camera's horizontal bounds.
 s32 func_ov003_020c3960(s32* value, s32 margin) {
-    Ov003Global* p   = g_CombatGlobal;
-    Ov003Camera* cam = &p->unk3D7C0[0];
-    s32          v   = *value;
-    s32          ret = 0;
+    Ov003Global*  p   = g_CombatGlobal;
+    BattleCamera* cam = &p->unk3D7C0[0];
+    s32           v   = *value;
+    s32           ret = 0;
 
     if (v - margin < 0) {
         *value = margin;
@@ -819,7 +819,7 @@ TaskPool* func_ov003_020c3a10(u32 index) {
     return ((TaskPool**)data_ov003_020e71f8)[index];
 }
 
-static Ov003Camera* func_ov003_020c3a48(u32 index) {
+static BattleCamera* func_ov003_020c3a48(u32 index) {
     return &g_CombatGlobal->unk3D7C0[func_ov003_020c3950(index)];
 }
 
@@ -886,15 +886,15 @@ static void func_ov003_020c3b6c(u16* tracks) {
 }
 
 void func_ov003_020c3ba8(s32 x, s32 y) {
-    Ov003Global* p      = g_CombatGlobal;
-    BattleActor* sub    = p->partner;
-    Ov003Camera* camera = &p->unk3D7C0[1];
+    Ov003Global*  p      = g_CombatGlobal;
+    BattleActor*  sub    = p->partner;
+    BattleCamera* camera = &p->unk3D7C0[1];
 
     camera->unk_20  = x;
     sub->position.x = x;
     camera->unk_24  = y;
     sub->position.y = y;
-    CombatStage_SetCameraTarget(1, sub->position.x, y, sub->position.z);
+    BtlStage_SetCameraTarget(1, sub->position.x, y, sub->position.z);
 }
 
 s32 func_ov003_020c3bf0(void* actor) {

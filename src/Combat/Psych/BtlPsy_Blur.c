@@ -7,7 +7,7 @@ static const TaskStages data_ov003_020dc76c;
 
 // Nonmatching: coordinate-load scheduling and redundant halfword narrowing differ.
 static s32 func_ov003_020acb74(Ov003ChargeLaser* self, Ov003EnemyActor* unit) {
-    s32 x = CombatStage_ToScreenX(0, self->x);
+    s32 x = BtlStage_ToScreenX(0, self->x);
     if (func_ov003_020a6568(&self->effect->streak, 0x16D, unit, x, 0, 0) == 1) {
         Ov003PsychEffectArgs effect;
         if (unit->actor.flags & ACTOR_FLAG_NO_HIT_EFFECT)
@@ -28,7 +28,7 @@ static s32 func_ov003_020acb74(Ov003ChargeLaser* self, Ov003EnemyActor* unit) {
 }
 
 void func_ov003_020acc60(Ov003ChargeLaser* self) {
-    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
         s32 distance = unit->actor.screenY - unit->actor.centerHeight - self->y;
         if (distance < 0)
@@ -37,7 +37,7 @@ void func_ov003_020acc60(Ov003ChargeLaser* self) {
             if ((!self->facingLeft && unit->actor.screenX > self->x) || (self->facingLeft && unit->actor.screenX < self->x))
                 func_ov003_020acb74(self, unit);
         }
-        unit = CombatList_GetNext(&unit->node);
+        unit = BtlList_GetNext(&unit->node);
     }
 }
 

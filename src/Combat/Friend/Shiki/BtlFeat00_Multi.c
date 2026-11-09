@@ -66,9 +66,9 @@ void func_ov004_020ebc40(BtlFeat00_Multi* multi) {
     }
 
     if (multi->sprite.sprite.bits_0_1 != 0) {
-        func_ov003_0209fc88(1, CombatStage_ToWorldX(1, temp_r5), CombatStage_ToWorldY(1, multi->unk_62, 0), 0, 4, 1);
+        func_ov003_0209fc88(1, BtlStage_ToWorldX(1, temp_r5), BtlStage_ToWorldY(1, multi->unk_62, 0), 0, 4, 1);
     } else {
-        func_ov003_0209fc88(2, CombatStage_ToWorldX(0, temp_r5), CombatStage_ToWorldY(0, multi->unk_62, 0), 0, 4, 1);
+        func_ov003_0209fc88(2, BtlStage_ToWorldX(0, temp_r5), BtlStage_ToWorldY(0, multi->unk_62, 0), 0, 4, 1);
     }
 }
 

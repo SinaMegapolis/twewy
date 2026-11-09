@@ -42,9 +42,9 @@ static s32 func_ov011_02128c30(BtlEnm010Sprl* p);
 /// `BtlSprite_Update` (`BtlSprite_Update`) -- one argument, a `BattleSprite*`; ticks a
 /// palette timer behind BTL_SPRITE_FLAG_PALETTE_FLASH. Declared in `Battle/Core/BtlSprite.h`.
 
-/// `CombatStage_ToScreenX` -- two arguments; turns a 4.12 y coordinate into a sound pan value.
+/// `BtlStage_ToScreenX` -- two arguments; turns a 4.12 y coordinate into a sound pan value.
 
-/// `CombatStage_WorldToScreen` -- six arguments: `mode`, two `s16*` out-parameters, then a raw
+/// `BtlStage_WorldToScreen` -- six arguments: `mode`, two `s16*` out-parameters, then a raw
 /// x/y/z triple. The two out-parameters are written through the pointers and read back as
 /// `ldrsh`, so they are `s16`, not `s32`.
 
@@ -144,7 +144,7 @@ static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
 /// `0xA4` accumulates its rate at `0xA8`, the `u16` angle at `0xAC` accumulates `0xAE` (wrapping
 /// at the halfword store), and `func_ov003_020cbcb4` writes the head's x/y -- `unk_070[0]` /
 /// `unk_084[0]` -- from angle and radius; the base at `0x9C`/`0xA0` is then added in. The
-/// `s16` flag at `0x64` plays SE `0x1DE` exactly once, its pan from `CombatStage_ToScreenX` against
+/// `s16` flag at `0x64` plays SE `0x1DE` exactly once, its pan from `BtlStage_ToScreenX` against
 /// the owner's `+0x28`.
 ///
 /// The clamp loop (`i = 1..4`) is a rope constraint: if joint `i` is further than
@@ -185,9 +185,9 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
     if (p->unk_064 == 0) {
         p->unk_064 = p->unk_064 + 1;
         if (func_ov003_020c37f8(&p->sprite) != 0) {
-            pan = CombatStage_ToScreenX(1, p->unk_000->actor.position.x);
+            pan = BtlStage_ToScreenX(1, p->unk_000->actor.position.x);
         } else {
-            pan = CombatStage_ToScreenX(0, p->unk_000->actor.position.x);
+            pan = BtlStage_ToScreenX(0, p->unk_000->actor.position.x);
         }
         CombatSe_PlayPanned(SEIDX_SE_010_SPIRALATTACK, pan);
     }
@@ -212,9 +212,9 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
         if (CombatHit_AttackAt(&fx, &p->args, p->unk_070[i], p->unk_084[i], p->unk_098) == 1) {
             s32 pan;
             if (func_ov003_020c37f8(&p->sprite) != 0) {
-                pan = CombatStage_ToScreenX(1, p->unk_070[i]);
+                pan = BtlStage_ToScreenX(1, p->unk_070[i]);
             } else {
-                pan = CombatStage_ToScreenX(0, p->unk_070[i]);
+                pan = BtlStage_ToScreenX(0, p->unk_070[i]);
             }
             CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, pan);
         }
@@ -228,7 +228,7 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
 
 /// Sprl's phase-2 handler: five passes, each one projecting, positioning and then animating.
 ///
-/// `CombatStage_WorldToScreen`'s arguments are `(mode, out, out, x, y, z)` -- the reference spills
+/// `BtlStage_WorldToScreen`'s arguments are `(mode, out, out, x, y, z)` -- the reference spills
 /// `unk_084[i]` into the first stack slot and `unk_098` into the second, so y comes before the
 /// z height here, in the same order `func_ov011_021284bc` passes its position triple.
 static s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
@@ -239,7 +239,7 @@ static s32 func_ov011_02128b80(BtlEnm010Sprl* data) {
 
     z = 0;
     for (i = 0; i < 5; i++) {
-        CombatStage_WorldToScreen(z, &v0, &v1, data->unk_070[i], data->unk_084[i], data->unk_098);
+        BtlStage_WorldToScreen(z, &v0, &v1, data->unk_070[i], data->unk_084[i], data->unk_098);
         BtlSprite_SetPosition(&data->sprite, v0, v1);
         BtlSprite_SetSortKey(&data->sprite, 0x7FFFFFFF - data->unk_084[i]);
         BtlSprite_SetAffineTransform(&data->sprite, z, data_ov011_0212c21c[i], data_ov011_0212c21c[i], z);

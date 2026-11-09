@@ -15,9 +15,9 @@ typedef enum {
     BTLCOLLISION_LIST_COUNT  = 3
 } BtlCollisionList;
 
-static CombatList BtlCollision_LayerLists[BTLCOLLISION_LIST_COUNT];
+static BattleList BtlCollision_LayerLists[BTLCOLLISION_LIST_COUNT];
 
-static CombatList* BtlCollision_FindList(BtlCollisionLayer layer) {
+static BattleList* BtlCollision_FindList(BtlCollisionLayer layer) {
     switch (layer) {
         case BTLCOLLISION_LAYER_PLAYER:
             return &BtlCollision_LayerLists[BTLCOLLISION_LIST_PLAYER];
@@ -33,13 +33,13 @@ static CombatList* BtlCollision_FindList(BtlCollisionLayer layer) {
     }
 }
 
-static void BtlCollision_ClearHits(CombatList* list) {
-    BtlCollider* collider = CombatList_GetHead(list);
+static void BtlCollision_ClearHits(BattleList* list) {
+    BtlCollider* collider = BtlList_GetHead(list);
 
     while (collider != NULL) {
         collider->hitLayers = 0;
 
-        collider = CombatList_GetNext(&collider->node);
+        collider = BtlList_GetNext(&collider->node);
     }
 }
 
@@ -76,11 +76,11 @@ void BtlCollision_Add(BtlCollider* collider, BtlCollisionLayer layer, s32 radius
     collider->hitLayers = 0;
     collider->pushX     = 0;
     collider->pushY     = 0;
-    CombatList_Append(BtlCollision_FindList(collider->layer), &collider->node, collider);
+    BtlList_Append(BtlCollision_FindList(collider->layer), &collider->node, collider);
 }
 
 void BtlCollision_Remove(BtlCollider* collider) {
-    CombatList_Remove(BtlCollision_FindList(collider->layer), &collider->node);
+    BtlList_Remove(BtlCollision_FindList(collider->layer), &collider->node);
 }
 
 void BtlCollision_SetDisabled(BtlCollider* collider, BOOL disabled) {
@@ -104,55 +104,55 @@ void BtlCollision_ApplyPush(BtlCollider* collider, s32* x, s32* y, s32* z) {
     }
 }
 
-CombatList* BtlCollision_GetLayerList(BtlCollisionLayer layer) {
+BattleList* BtlCollision_GetLayerList(BtlCollisionLayer layer) {
     return BtlCollision_FindList(layer);
 }
 
-void BtlCollision_CollideAll(CombatList* listA, CombatList* listB) {
-    BtlCollider* a = CombatList_GetHead(listA);
+void BtlCollision_CollideAll(BattleList* listA, BattleList* listB) {
+    BtlCollider* a = BtlList_GetHead(listA);
 
     while (a != NULL) {
-        BtlCollider* b = CombatList_GetTail(listB);
+        BtlCollider* b = BtlList_GetTail(listB);
 
         while (b != NULL) {
             if (a == b) {
                 break;
             }
             BtlCollision_CollidePair(a, b);
-            b = CombatList_GetPrev(&b->node);
+            b = BtlList_GetPrev(&b->node);
         }
-        a = CombatList_GetNext(&a->node);
+        a = BtlList_GetNext(&a->node);
     }
 }
 
-static void BtlCollision_CollideEnabled(CombatList* listA, CombatList* listB) {
-    BtlCollider* a = CombatList_GetHead(listA);
+static void BtlCollision_CollideEnabled(BattleList* listA, BattleList* listB) {
+    BtlCollider* a = BtlList_GetHead(listA);
 
     while (a != NULL) {
         if (a->flags & BTLCOLLIDER_FLAG_DISABLED) {
-            a = CombatList_GetNext(&a->node);
+            a = BtlList_GetNext(&a->node);
         } else {
-            BtlCollider* b = CombatList_GetTail(listB);
+            BtlCollider* b = BtlList_GetTail(listB);
 
             while (b != NULL) {
                 if (a == b) {
                     break;
                 }
                 if (b->flags & BTLCOLLIDER_FLAG_DISABLED) {
-                    b = CombatList_GetPrev(&b->node);
+                    b = BtlList_GetPrev(&b->node);
                 } else {
                     BtlCollision_CollidePair(a, b);
-                    b = CombatList_GetPrev(&b->node);
+                    b = BtlList_GetPrev(&b->node);
                 }
             }
-            a = CombatList_GetNext(&a->node);
+            a = BtlList_GetNext(&a->node);
         }
     }
 }
 
 void BtlCollision_Init(void) {
     for (s32 i = 0; i < BTLCOLLISION_LIST_COUNT; i++) {
-        CombatList_Init(&BtlCollision_LayerLists[i]);
+        BtlList_Init(&BtlCollision_LayerLists[i]);
     }
 }
 

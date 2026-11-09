@@ -150,7 +150,7 @@ static s32 func_ov016_02126554(Boss01_UG* bossUG, Ov003EffectActor* arg1, s32 ar
 static Ov003EffectActor* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
     Ov003EffectActor* var_r4  = NULL;
     s32               temp_r5 = RNG_Next(func_ov003_020cc5fc(0, 0x19));
-    Ov003EffectActor* var_r8  = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
+    Ov003EffectActor* var_r8  = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
 
     for (s32 var_r9 = 0; var_r8 != NULL; var_r9++) {
         if (func_ov016_02126554(bossUG, var_r8, arg1) != 0) {
@@ -159,7 +159,7 @@ static Ov003EffectActor* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
                 break;
             }
         }
-        var_r8 = CombatList_GetNext(&var_r8->node);
+        var_r8 = BtlList_GetNext(&var_r8->node);
     }
     return var_r4;
 }
@@ -288,8 +288,8 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
     if (bossUG->unk_1E8 != 0) {
         sp8       = bossUG->base.actor.position.x;
         temp_r1_2 = bossUG->unk_1E0->actor.radius;
-        CombatStage_ClampY(&bossUG->base.actor.position.y, ((s32)(temp_r1_2 + ((u32)temp_r1_2 >> 0x1F)) >> 1) << 0xC,
-                           bossUG->base.actor.position.x);
+        BtlStage_ClampY(&bossUG->base.actor.position.y, ((s32)(temp_r1_2 + ((u32)temp_r1_2 >> 0x1F)) >> 1) << 0xC,
+                        bossUG->base.actor.position.x);
         bossUG->unk_1E0->actor.position.x = bossUG->base.actor.position.x;
         bossUG->unk_1E0->actor.position.y = bossUG->base.actor.position.y;
         bossUG->unk_1E0->actor.position.z = bossUG->base.actor.position.z;
@@ -335,7 +335,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
             Boss01_UG_SetState(bossUG, func_ov016_02126c24);
             return;
         }
-        if (CombatList_GetHead(&g_CombatGlobal->unk3D8B4) != 0) {
+        if (BtlList_GetHead(&g_CombatGlobal->unk3D8B4) != 0) {
             *data_ov016_021292c0 = 3;
             Boss01_UG_SetState(bossUG, func_ov016_02126c24);
             return;
@@ -551,13 +551,13 @@ static s32 Boss01_UG_Render(TaskPool* pool, Task* task, void* args) {
     }
 
     if (!(bossUG->base.flags18C & 1)) {
-        CombatStage_WorldToScreen(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y,
-                                  bossUG->base.actor.position.z);
+        BtlStage_WorldToScreen(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y,
+                               bossUG->base.actor.position.z);
         BtlSprite_SetPosition(&bossUG->base.sprite, spA, sp8);
         BtlSprite_Render(&bossUG->base.sprite);
         bossUG->base.actor.screenX = spA;
         bossUG->base.actor.screenY = sp8 + 80;
-        CombatStage_WorldToScreen(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y, 0);
+        BtlStage_WorldToScreen(0, &spA, &sp8, bossUG->base.actor.position.x, bossUG->base.actor.position.y, 0);
         BtlSprite_SetPosition(&bossUG->base.sprite, spA, sp8);
         func_ov016_021262d8(bossUG);
     }

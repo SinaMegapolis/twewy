@@ -34,9 +34,9 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             self->mode       = arg->mode;
             self->lifetime   = arg->lifetime;
             self->minSpeed   = arg->minSpeed;
-            self->position.x = CombatStage_ToWorldX(0, arg->screenX);
+            self->position.x = BtlStage_ToWorldX(0, arg->screenX);
             self->position.z = -0x40000;
-            self->position.y = CombatStage_ToWorldY(0, arg->screenY, self->position.z);
+            self->position.y = BtlStage_ToWorldY(0, arg->screenY, self->position.z);
             self->effect->unk_0A++;
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
@@ -50,7 +50,7 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003BlackHoll* self = task->data;
             if (--self->lifetime == 0)
                 return 0;
-            Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+            Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
             while (unit != NULL) {
                 if (func_ov003_020a60a8(unit, 2)) {
                     Vec origin = {self->position.x, self->position.y, self->position.z};
@@ -77,7 +77,7 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
                 } else {
                     func_ov003_020a6164(unit, 2);
                 }
-                unit = CombatList_GetNext(&unit->node);
+                unit = BtlList_GetNext(&unit->node);
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprites[1].sprite)) {
                 BtlSprite_Restart(&self->sprites[1]);
@@ -90,8 +90,8 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003BlackHoll* self = task->data;
-            s32             x    = CombatStage_ToScreenX(0, self->position.x);
-            s32             y    = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+            s32             x    = BtlStage_ToScreenX(0, self->position.x);
+            s32             y    = BtlStage_ToScreenY(0, self->position.y, self->position.z);
             BtlSprite_SetPosition(&self->sprites[0], (s16)x, (s16)y);
             BtlSprite_SetPosition(&self->sprites[1], (s16)x, (s16)y);
             BtlSprite_SetSortKey(&self->sprites[0], self->position.y + 0x1F4000);
@@ -107,10 +107,10 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             BtlSprite_Release(&self->sprites[1]);
             func_ov003_020a5fc0(self->particles, 6);
             self->effect->unk_0A--;
-            Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+            Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
             while (unit != NULL) {
                 func_ov003_020a6198(unit, 2);
-                unit = CombatList_GetNext(&unit->node);
+                unit = BtlList_GetNext(&unit->node);
             }
             return 1;
         }

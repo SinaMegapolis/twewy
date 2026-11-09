@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
-#include "Combat/Core/CombatTouch.h"
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlPsyTackle {

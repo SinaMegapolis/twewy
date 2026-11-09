@@ -9,7 +9,7 @@ static const TaskHandle data_ov003_020dc960;
 s32 func_ov003_020b292c(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (func_ov003_020a5b18(effect->state))
         return 0;
-    if (!CombatTouch_IsGesture(2))
+    if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc960.taskName);
     *arg                   = effect;
@@ -26,21 +26,21 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                = task->data;
-            BtlTouchWork* touch = &g_CombatGlobal->touchWork;
+            self                   = task->data;
+            BattleTouchWork* touch = &g_CombatGlobal->touchWork;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect  = *arg;
             self->phase   = 0;
             self->entered = 0;
             func_ov003_020a6464(1);
             self->target.z = -0x8000;
-            self->target.x = CombatStage_ToWorldX(0, touch->x);
-            self->target.y = CombatStage_ToWorldY(0, touch->y, self->target.z);
-            CombatStage_ClampXY(&self->target.x, &self->target.y, 0, 0);
+            self->target.x = BtlStage_ToWorldX(0, touch->x);
+            self->target.y = BtlStage_ToWorldY(0, touch->y, self->target.z);
+            BtlStage_ClampXY(&self->target.x, &self->target.y, 0, 0);
             self->position.z = -0x20000;
-            self->position.x = CombatStage_ToWorldX(0, 0);
+            self->position.x = BtlStage_ToWorldX(0, 0);
             self->position.y = self->target.y;
-            CombatStage_ClampXY(&self->position.x, &self->position.y, 0, 0);
+            BtlStage_ClampXY(&self->position.x, &self->position.y, 0, 0);
             self->angle = func_ov003_020a62b8(self->position.x, self->position.z, self->target.x, self->target.z);
             self->speed = self->effect->params[0];
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0xAF, 0);
@@ -61,8 +61,8 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
             }
             switch (self->phase) {
                 case 0:
-                    if (!self->entered && CombatStage_ToScreenX(0, self->position.x) > 0 &&
-                        CombatStage_ToScreenY(0, self->position.y, self->position.z) > 0)
+                    if (!self->entered && BtlStage_ToScreenX(0, self->position.x) > 0 &&
+                        BtlStage_ToScreenY(0, self->position.y, self->position.z) > 0)
                     {
                         CombatSe_PlayAtMainX(0xA2, self->position.x);
                         self->entered = 1;
@@ -100,8 +100,8 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                     break;
                 case 2:
-                    if (CombatStage_ToScreenX(0, self->position.x) > 0x140 ||
-                        CombatStage_ToScreenY(0, self->position.y, self->position.z) < 0)
+                    if (BtlStage_ToScreenX(0, self->position.x) > 0x140 ||
+                        BtlStage_ToScreenY(0, self->position.y, self->position.z) < 0)
                         return 0;
                     break;
             }
@@ -110,8 +110,8 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
             return 1;
         case 2: {
             self  = task->data;
-            s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
-            s32 x = CombatStage_ToScreenX(0, self->position.x);
+            s32 y = BtlStage_ToScreenY(0, self->position.y, self->position.z);
+            s32 x = BtlStage_ToScreenX(0, self->position.x);
             BtlSprite_SetPosition(&self->sprite, x, y);
             BtlSprite_Render(&self->sprite);
             CombatHit_DrawSpark(&self->icon, self->position.x, self->position.y);

@@ -104,7 +104,7 @@ static s32 func_ov010_02126e58(Enm006Swirl* data) {
     }
     if (data->unk_64 == 0) {
         data->unk_64++;
-        CombatSe_PlayPanned(SEIDX_SE_006_WATER_SWIRL, CombatStage_ToScreenX(0, data->unk_00->base.actor.position.x));
+        CombatSe_PlayPanned(SEIDX_SE_006_WATER_SWIRL, BtlStage_ToScreenX(0, data->unk_00->base.actor.position.x));
     }
     s32 w = func_ov003_020cb744(0);
     s32 h = func_ov003_020cb7a4(0);
@@ -154,7 +154,7 @@ static s32 func_ov010_02126fdc(Enm006Swirl* data) {
         s16 sx;
         s16 sy;
         func_ov010_02126c94(data, &x, &y, i);
-        CombatStage_WorldToScreen(flag, &sx, &sy, x, y, 0);
+        BtlStage_WorldToScreen(flag, &sx, &sy, x, y, 0);
         BtlSprite_SetPosition(&data->sprite, sx, sy);
         BtlSprite_SetSortKey(&data->sprite, 0x7FFFFFFF - y);
         BtlSprite_Render(&data->sprite);

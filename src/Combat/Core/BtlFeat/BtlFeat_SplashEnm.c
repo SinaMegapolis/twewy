@@ -87,8 +87,8 @@ static s32 func_ov003_020bc0ac(BtlFeatSplashEnm* self) {
         self->timer = self->args.start;
         if (self->mainEnemy == NULL && self->subEnemy == NULL) {
             self->rounds++;
-            self->subEnemy  = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-            self->mainEnemy = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+            self->subEnemy  = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+            self->mainEnemy = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
         }
         if (!(self->rounds < self->args.rounds && self->shots < self->args.count)) {
             func_ov003_020bc068(self);
@@ -98,16 +98,16 @@ static s32 func_ov003_020bc0ac(BtlFeatSplashEnm* self) {
             s32 x = self->mainEnemy->base.actor.position.x;
             func_ov003_0209fc88(1, x, self->mainEnemy->base.actor.position.y, self->mainEnemy->base.actor.position.z, 4, 1);
             if (self->args.sound != -1) {
-                SndMgr_PlaySEWithPan(self->args.sound, CombatStage_ToScreenX(1, x));
+                SndMgr_PlaySEWithPan(self->args.sound, BtlStage_ToScreenX(1, x));
             }
-            self->mainEnemy = CombatList_GetNext(&self->mainEnemy->base.node);
+            self->mainEnemy = BtlList_GetNext(&self->mainEnemy->base.node);
         } else if (self->subEnemy != NULL) {
             s32 x = self->subEnemy->base.actor.position.x;
             func_ov003_0209fc88(2, x, self->subEnemy->base.actor.position.y, self->subEnemy->base.actor.position.z, 4, 1);
             if (self->args.sound != -1) {
-                SndMgr_PlaySEWithPan(self->args.sound, CombatStage_ToScreenX(0, x));
+                SndMgr_PlaySEWithPan(self->args.sound, BtlStage_ToScreenX(0, x));
             }
-            self->subEnemy = CombatList_GetNext(&self->subEnemy->base.node);
+            self->subEnemy = BtlList_GetNext(&self->subEnemy->base.node);
         }
         self->shots++;
     } else {
@@ -150,16 +150,16 @@ static s32 func_ov003_020bc280(BtlFeatSplashEnm* self) {
     bitY  = (timer >> 2) & 1;
     y     = (s32)I2F_RND(bitY * 0x60) + (randY << 12);
     if (odd) {
-        z = CombatStage_ToWorldY(0, (y * 0x10) >> 16, 0);
+        z = BtlStage_ToWorldY(0, (y * 0x10) >> 16, 0);
         func_ov003_0209fc88(2, x, z, 0, 4, 1);
         if (self->args.sound != -1) {
-            SndMgr_PlaySEWithPan(self->args.sound, CombatStage_ToScreenX(0, x));
+            SndMgr_PlaySEWithPan(self->args.sound, BtlStage_ToScreenX(0, x));
         }
     } else {
-        z = CombatStage_ToWorldY(1, (y * 0x10) >> 16, 0);
+        z = BtlStage_ToWorldY(1, (y * 0x10) >> 16, 0);
         func_ov003_0209fc88(1, x, z, 0, 4, 1);
         if (self->args.sound != -1) {
-            SndMgr_PlaySEWithPan(self->args.sound, CombatStage_ToScreenX(1, x));
+            SndMgr_PlaySEWithPan(self->args.sound, BtlStage_ToScreenX(1, x));
         }
     }
     self->timer++;
@@ -178,8 +178,8 @@ static s32 BtlFeat_SplashEnm_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(self, 0, sizeof(*self));
     self->args      = *param;
-    self->subEnemy  = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-    self->mainEnemy = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
+    self->subEnemy  = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    self->mainEnemy = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
     switch (param->mode) {
         case 1:
             func_ov003_020bc078(self, data_ov003_020e50d4);

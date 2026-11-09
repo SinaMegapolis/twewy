@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlList.h"
 #include "Combat/Core/BtlFeat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatList.h"
 #include "Engine/Core/Memory.h"
 
 /// The enemies saved for each screen.
@@ -15,55 +15,55 @@ typedef struct Ov003ActorSnapshots {
 static Ov003ActorSnapshots sFeatEnmSnapshots;
 
 /// Count the number of active enemy units in the list.
-static u16 BtlFeat_CountActiveEnm(CombatList* list) {
+static u16 BtlFeat_CountActiveEnm(BattleList* list) {
     u16              count = 0;
-    Ov003EnemyActor* unit  = CombatList_GetHead(list);
+    Ov003EnemyActor* unit  = BtlList_GetHead(list);
     while (unit != NULL) {
         if ((unit->actor.flags & ACTOR_FLAG_DEFEATED) == 0)
             count++;
-        unit = CombatList_GetNext(&unit->node);
+        unit = BtlList_GetNext(&unit->node);
     }
     return count;
 }
 
 /// Save the current state of all active enemy units in the list.
-static u16 BtlFeat_SaveEnmList(CombatList* list, Ov003ActorSnapshot** snapshots) {
+static u16 BtlFeat_SaveEnmList(BattleList* list, Ov003ActorSnapshot** snapshots) {
     u16                 index   = 0;
     u16                 count   = BtlFeat_CountActiveEnm(list);
     Ov003ActorSnapshot* entries = Mem_AllocHeapTail(&gDebugHeap, count * sizeof(*entries));
     Mem_SetSequence(&gDebugHeap, entries, "S_FeatEnm_SavePos");
     *snapshots            = entries;
-    Ov003EnemyActor* unit = CombatList_GetHead(list);
+    Ov003EnemyActor* unit = BtlList_GetHead(list);
     while (unit != NULL) {
         if (!(unit->actor.flags & ACTOR_FLAG_DEFEATED)) {
             entries[index].actor = unit->actor;
             entries[index].unit  = unit;
             index++;
         }
-        unit = CombatList_GetNext(&unit->node);
+        unit = BtlList_GetNext(&unit->node);
     }
     return count;
 }
 
 /// Set a pending command for all active enemy units in the list.
-static void BtlFeat_SetEnmListCommand(CombatList* list, BattleActorCommand command) {
-    Ov003EnemyActor* unit = CombatList_GetHead(list);
+static void BtlFeat_SetEnmListCommand(BattleList* list, BattleActorCommand command) {
+    Ov003EnemyActor* unit = BtlList_GetHead(list);
     while (unit != NULL) {
         BtlActor_SetPendingCommand(&unit->actor, command);
-        unit = CombatList_GetNext(&unit->node);
+        unit = BtlList_GetNext(&unit->node);
     }
 }
 
 /// Restore the state of enemy units from snapshots.
-static void BtlFeat_RestoreEnmList(CombatList* list, Ov003ActorSnapshot* snapshots, u32 count) {
+static void BtlFeat_RestoreEnmList(BattleList* list, Ov003ActorSnapshot* snapshots, u32 count) {
     for (u16 i = 0; i < count; i++) {
-        Ov003EnemyActor* unit = CombatList_GetHead(list);
+        Ov003EnemyActor* unit = BtlList_GetHead(list);
         while (unit != NULL) {
             if (snapshots[i].unit == unit) {
                 unit->actor = snapshots[i].actor;
                 break;
             }
-            unit = CombatList_GetNext(&unit->node);
+            unit = BtlList_GetNext(&unit->node);
         }
     }
 }

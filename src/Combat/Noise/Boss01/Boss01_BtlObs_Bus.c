@@ -147,8 +147,8 @@ static s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
 
-    s16 posX   = CombatStage_ToScreenX(0, obs->actor.position.x);
-    s16 posY   = CombatStage_ToScreenY(0, obs->actor.position.y, obs->actor.position.z);
+    s16 posX   = BtlStage_ToScreenX(0, obs->actor.position.x);
+    s16 posY   = BtlStage_ToScreenY(0, obs->actor.position.y, obs->actor.position.z);
     s32 posY32 = posY;
     if (obs->unk_0C4.animTableIndex == 0) {
         s16 posYOff = posY + 8;

@@ -56,8 +56,8 @@ static s32 BtlPsy_ShockWaveBlur_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPsy_ShockWaveBlur_Render(TaskPool* pool, Task* task, void* args) {
     Ov003ShockWaveBlur* self = task->data;
     if (self->opacity > 0) {
-        s32 x = CombatStage_ToScreenX(0, self->position.x);
-        s32 y = CombatStage_ToScreenY(0, self->position.y, self->position.z);
+        s32 x = BtlStage_ToScreenX(0, self->position.x);
+        s32 y = BtlStage_ToScreenY(0, self->position.y, self->position.z);
         BtlSprite_SetPosition(&self->sprite, x, y);
         BtlSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 0);
         BtlSprite_RenderTranslucent(&self->sprite, self->opacity);

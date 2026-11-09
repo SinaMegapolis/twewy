@@ -66,23 +66,12 @@ void BtlSprite_SetAffineTransform(BattleSprite* cSprite, u32 rotation, s32 scale
         scaleY = -scaleY;
     }
 
-    s32 val     = cSprite->sprite.bits_0_1;
-    s32 temp_r0 = OamMgr_AllocAffineGroup(&g_OamMgr[val], rotation, scaleX, scaleY, flipFlags);
+    s32 value = cSprite->sprite.bits_0_1;
 
-    val = cSprite->sprite.unk_0A.raw & (~0x3E0);
-
-    cSprite->sprite.unk_0A.raw = (u16)(val | (((u32)(((u16)temp_r0) << 0x1B)) >> 0x16));
-
-    val = val;
-
-    cSprite->sprite.unk_0A.raw = (u16)((cSprite->sprite.unk_0A.raw & (~1)) | 1);
-
-    if (doubleSize != 0) {
-        temp_r0 = 1;
-    } else {
-        temp_r0 = 0;
-    }
-    cSprite->sprite.unk_0A.raw = (cSprite->sprite.unk_0A.raw & (~2)) | (((u32)(((u16)temp_r0) << 0x1F)) >> 0x1E);
+    value                         = OamMgr_AllocAffineGroup(&g_OamMgr[value], rotation, scaleX, scaleY, flipFlags);
+    cSprite->sprite.unk_0A.unk_05 = value;
+    cSprite->sprite.unk_0A.unk_00 = 1;
+    cSprite->sprite.unk_0A.unk_01 = doubleSize != 0;
 }
 
 void BtlSprite_SetPaletteSource(BattleSprite* cSprite, s32 paletteEntry) {
@@ -148,31 +137,20 @@ SpriteFrameInfo* BtlSprite_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     SpriteFrameInfo* info = &g_SpriteFrameInfo;
 
     switch (mode) {
-        case SPRITE_FRAME_UPDATE: {
+        case SPRITE_FRAME_UPDATE:
             info->updateSteps = 1;
             return info;
-        } break;
 
-        case SPRITE_FRAME_RENDER: {
-            SpriteFrameInfo* temp = &g_SpriteFrameInfo;
-
-            temp->pieceCount = 0;
-            temp->cellPieces = NULL;
-            temp->affine     = ((BattleSprite*)sprite->owner)->affine;
-            temp->sortKey    = ((BattleSprite*)sprite->owner)->sortKey;
-
-            if ((sprite->animData != NULL) && (sprite->cellTable != NULL && sprite->cellIndex >= 0)) {
-                u16* temp_r3 = (u16*)sprite->cellTable;
-
-                s16 temp_r2 = *((u16*)sprite->cellTable + (sprite->cellIndex * 4 + 1));
-
-                temp->pieceCount = *((u16*)sprite->cellTable + (sprite->cellIndex * 4 + 1));
-                temp->cellPieces =
-                    (OamCellPiece*)((u16*)sprite->cellTable + *((u16*)((u8*)sprite->cellTable + (sprite->cellIndex * 8))));
+        case SPRITE_FRAME_RENDER:
+            info->pieceCount = 0;
+            info->cellPieces = NULL;
+            info->affine     = ((BattleSprite*)sprite->owner)->affine;
+            info->sortKey    = ((BattleSprite*)sprite->owner)->sortKey;
+            if (sprite->animData != NULL && sprite->cellTable != NULL && sprite->cellIndex >= 0) {
+                info->pieceCount = ((u16*)sprite->cellTable)[sprite->cellIndex * 4 + 1];
+                info->cellPieces = (OamCellPiece*)((u16*)sprite->cellTable + sprite->cellTable[sprite->cellIndex].pieceOffset);
             }
-            info = temp;
             return info;
-        } break;
     }
     return NULL;
 }
@@ -273,15 +251,11 @@ void BtlSprite_Render(BattleSprite* cSprite) {
 
     if (cSprite->sprite.unk_0A.unk_00 == 1) {
         if (cSprite->flags & BTL_SPRITE_FLAG_FLIPPED) {
-            cSprite->sprite.unk_0A.raw =
-                (cSprite->sprite.unk_0A.raw & ~0x3E0) |
-                ((u32)((u16)(((u32)(cSprite->sprite.unk_0A.raw << 0x16) >> 0x1B) & ~8) << 0x1B) >> 0x16);
+            cSprite->sprite.unk_0A.unk_05 &= ~8;
         }
         Sprite_RenderFrame(&cSprite->sprite);
         if (cSprite->flags & BTL_SPRITE_FLAG_FLIPPED) {
-            cSprite->sprite.unk_0A.raw =
-                (cSprite->sprite.unk_0A.raw & ~0x3E0) |
-                ((u32)((u16)(((u32)(cSprite->sprite.unk_0A.raw << 0x16) >> 0x1B) | 8) << 0x1B) >> 0x16);
+            cSprite->sprite.unk_0A.unk_05 |= 8;
         }
     } else {
         Sprite_RenderFrame(&cSprite->sprite);

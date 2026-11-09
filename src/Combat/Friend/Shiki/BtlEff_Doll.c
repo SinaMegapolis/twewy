@@ -75,8 +75,8 @@ s32 BtlEff_Doll_Render(TaskPool* pool, Task* task, void* args) {
         BtlSprite_SetFlip(&doll->sprite, 1);
     }
 
-    BtlSprite_SetPosition(&doll->sprite, CombatStage_ToScreenX(1, temp_r6->unk_28),
-                          CombatStage_ToScreenY(1, temp_r6->unk_2C, temp_r6->unk_30));
+    BtlSprite_SetPosition(&doll->sprite, BtlStage_ToScreenX(1, temp_r6->unk_28),
+                          BtlStage_ToScreenY(1, temp_r6->unk_2C, temp_r6->unk_30));
     BtlSprite_SetSortKey(&doll->sprite, 0x7FFFFFFF - (temp_r6->unk_2C + 0x1000));
     BtlSprite_Render(&doll->sprite);
     return 1;

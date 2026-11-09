@@ -1,8 +1,8 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
-#include "Combat/Core/CombatTouch.h"
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlPsyPierce {
@@ -16,7 +16,7 @@ typedef struct BtlPsyPierce {
 static s32 func_ov003_020958e0(void) {
     s32          y, py, x, px, dx, dy;
     Ov003Global* global;
-    if (!CombatTouch_SlashCrosses(g_CombatGlobal->player))
+    if (!BtlTouch_SlashCrosses(g_CombatGlobal->player))
         return 0;
     global = g_CombatGlobal;
     y      = global->touchWork.startY;
@@ -35,7 +35,7 @@ static s32 func_ov003_02095954(TaskPool* pool, Task* task, void* args) {
     BtlPsyPierce*      self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
-    g_CombatGlobal->unk3D8CC = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.endX);
+    g_CombatGlobal->unk3D8CC = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.endX);
     g_CombatGlobal->unk3D8C8 = 1;
     self->effect             = *arg;
     self->active             = 1;

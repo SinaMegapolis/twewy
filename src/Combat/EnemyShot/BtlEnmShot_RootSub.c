@@ -4,7 +4,7 @@
 
 static const TaskHandle data_ov003_020e0c98;
 
-s32 func_ov003_020d1228(Ov003EnemyShotSource* source, CombatList* list, u16 angle, s32 x, s32 y, s32 z, s32 scaleX,
+s32 func_ov003_020d1228(Ov003EnemyShotSource* source, BattleList* list, u16 angle, s32 x, s32 y, s32 z, s32 scaleX,
                         s32 scaleY) {
     Ov003EnemyShotRootArgs args;
     MI_CpuSet(&args, 0, sizeof(args));
@@ -29,7 +29,7 @@ static s32 func_ov003_020d12b4(Ov003EnemyShotRoot* self, Ov003EnemyShotRootArgs*
     self->active     = 1;
     self->scaleX     = args->scaleX;
     self->scaleY     = args->scaleY;
-    CombatList_Append(args->list, &self->node, self);
+    BtlList_Append(args->list, &self->node, self);
     if (visual != NULL) {
         const SpriteAnimEntry* entry = &visual->entries[visual->entry];
         BtlSprite_LoadDirect(2, &self->sprite, visual->file, entry->charDataIndex, entry->animDataIndex, entry->cellDataIndex,
@@ -72,7 +72,7 @@ static s32 func_ov003_020d13ec(Ov003EnemyShotRoot* self) {
                 break;
         }
         s16 x, y;
-        CombatStage_WorldToScreen(0, &x, &y, self->position.x, self->position.y, self->position.z);
+        BtlStage_WorldToScreen(0, &x, &y, self->position.x, self->position.y, self->position.z);
         BtlSprite_SetPosition(&self->sprite, (s16)(x + xOffset), (s16)(y + yOffset));
         BtlSprite_SetAffineTransform(&self->sprite, self->angle, scaleX, scaleY, 1);
         BtlSprite_SetSortKey(&self->sprite, 0);

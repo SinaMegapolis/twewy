@@ -51,10 +51,10 @@ static void func_ov003_020a0368(BtlEffLvUp* data) {
 
     if (data->sprites[0].sprite.bits_0_1 == 0) {
         actor = g_CombatGlobal->player;
-        x     = CombatStage_ToScreenX(0, actor->position.x);
+        x     = BtlStage_ToScreenX(0, actor->position.x);
     } else {
         actor = g_CombatGlobal->partner;
-        x     = CombatStage_ToScreenX(1, actor->position.x);
+        x     = BtlStage_ToScreenX(1, actor->position.x);
     }
     BtlSprite_SetPosition(&data->sprites[1], x, 96);
     BtlSprite_SetSortKey(&data->sprites[1], 0x7FFFFFFF - actor->position.y);
@@ -86,10 +86,10 @@ static s32 BtlEff_LvUp_Update(TaskPool* pool, Task* task, void* args) {
 
     active = func_ov003_020a033c(&data[0]);
     func_ov003_020a033c(&data[1]);
-    x = CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x);
+    x = BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x);
     // Both effect attachment calls intentionally use the sub-screen actor +4 in retail.
     CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(31), &g_CombatGlobal->partner->baseArgs, x, 0);
-    x = CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x);
+    x = BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x);
     CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(32), &g_CombatGlobal->partner->baseArgs, x, 0);
     return active;
 }

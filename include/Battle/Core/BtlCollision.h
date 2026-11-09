@@ -1,7 +1,7 @@
 #ifndef TWEWY_BATTLE_CORE_BTLCOLLISION_H
 #define TWEWY_BATTLE_CORE_BTLCOLLISION_H
 
-#include "Combat/Core/CombatList.h"
+#include "Battle/Core/BtlList.h"
 
 typedef enum {
     BTLCOLLISION_LAYER_PLAYER   = 0,
@@ -25,7 +25,7 @@ typedef struct BtlCollider {
     /* 0x1C */ u32               hitLayers; // bit N: touched a layer N collider last update
     /* 0x20 */ s32               pushX;     // offset away from the last collider hit
     /* 0x24 */ s32               pushY;
-    /* 0x28 */ CombatListNode    node;
+    /* 0x28 */ BattleListNode    node;
 } BtlCollider; // Size: 0x34
 
 /**
@@ -79,7 +79,7 @@ void BtlCollision_ApplyPush(BtlCollider* collider, s32* x, s32* y, s32* z);
  * @param layer The layer to get the list for
  * @return The list corresponding to the given layer
  */
-CombatList* BtlCollision_GetLayerList(BtlCollisionLayer layer);
+BattleList* BtlCollision_GetLayerList(BtlCollisionLayer layer);
 
 /**
  * @brief Collides every collider in listA with every one in listB, ignoring the disabled flag.
@@ -90,7 +90,7 @@ CombatList* BtlCollision_GetLayerList(BtlCollisionLayer layer);
  * @param listA The first list of colliders to test
  * @param listB The second list of colliders to test
  */
-void BtlCollision_CollideAll(CombatList* listA, CombatList* listB);
+void BtlCollision_CollideAll(BattleList* listA, BattleList* listB);
 
 /**
  * @brief Initializes the collision system, clearing all layer lists
