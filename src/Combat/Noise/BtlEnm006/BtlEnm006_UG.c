@@ -875,7 +875,7 @@ static s32 func_ov010_02128e0c(BtlEnm006* data, void* arg1) {
     func_ov003_020c3efc(&data->base, arg1);
     func_ov003_020c4520(&data->base);
     func_ov003_020c4b5c(&data->base);
-    CombatCollision_SetDisabled(&data->base.collider, 1);
+    BtlCollision_SetDisabled(&data->base.collider, 1);
     func_ov010_02127460(data, (void*)func_ov010_02127500);
     data->unk_1CC = 1;
     data->unk_1DC = 0;

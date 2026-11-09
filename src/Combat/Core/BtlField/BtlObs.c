@@ -42,7 +42,7 @@ static void func_ov003_02094200(BtlObs* obs) {
         }
         obs->state++;
     }
-    if (obs->effect.sprite.collider.hitMask != 0) {
+    if (obs->effect.sprite.collider.hitLayers != 0) {
         obs->effect.actor.position.x += obs->effect.sprite.collider.pushX >> 5;
         obs->effect.actor.position.y += obs->effect.sprite.collider.pushY >> 5;
     }
@@ -55,7 +55,7 @@ static void func_ov003_02094288(BtlObs* obs) {
 static void func_ov003_02094294(BtlObs* obs) {
     if (!(obs->state != 0)) {
         obs->effect.actor.flags |= 0x200;
-        CombatCollision_SetDisabled(&obs->effect.sprite.collider, 1);
+        BtlCollision_SetDisabled(&obs->effect.sprite.collider, 1);
         CombatSprite_SetAnimFromTable(&obs->sprites[0], 1, 0);
         obs->state++;
     }
@@ -74,7 +74,7 @@ static void func_ov003_020942e8(BtlObs* obs) {
     if (func_ov003_020941d4(&obs->effect.actor)) {
         CombatSys_PlayObsSe(0, obs->effect.config, obs->effect.actor.position.x);
         obs->effect.actor.flags &= ~0x400;
-        CombatCollision_SetDisabled(&obs->effect.sprite.collider, 0);
+        BtlCollision_SetDisabled(&obs->effect.sprite.collider, 0);
         if (obs->effect.id == 2) {
             obs->effect.sprite.flags |= 1;
         }

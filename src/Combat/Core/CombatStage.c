@@ -117,9 +117,9 @@ void CombatStage_SetCamera(s32 index, s32 x0, s32 y0, s32 x1, s32 y1) {
 void CombatStage_SetCameraTarget(s32 index, s32 x, s32 y, s32 z) {
     Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
 
-    camera->unk_34 = camera->unk_04 + x;
-    camera->unk_38 = camera->unk_08 + y;
-    camera->unk_3C = camera->shakeY + z;
+    camera->unk_34 = x + camera->unk_04;
+    camera->unk_38 = y + camera->unk_08;
+    camera->unk_3C = z + camera->shakeY;
 }
 
 /// Whether a box around (`x`,`y`) is outside the camera's field.

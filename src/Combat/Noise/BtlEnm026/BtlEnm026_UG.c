@@ -304,9 +304,9 @@ void func_ov015_0212786c(BtlEnm026* data) {
     if (func_ov003_020c37f8(&data->base.sprite) == 0) {
         return;
     }
-    twin = (BtlEnm026*)data->base.partner;
+    twin = data->base.partner->unk_188;
     if (data_ov015_02128500.unk14 == 2) {
-        func_ov015_02125a64(twin->base.unk_188, (s32)func_ov015_02125e5c);
+        func_ov015_02125a64(twin, (s32)func_ov015_02125e5c);
     }
 }
 
@@ -371,7 +371,7 @@ void func_ov015_02127a60(BtlEnm026* data) {
 }
 
 void func_ov015_02127a74(BtlEnm026* data) {
-    CombatCollision_SetDisabled(&data->base.collider, 1);
+    BtlCollision_SetDisabled(&data->base.collider, 1);
     if (func_ov003_020c37f8(&data->base.sprite) == 0) {
         return;
     }
@@ -390,19 +390,18 @@ void func_ov015_02127ac4(BtlEnm026* data) {
             data->unk_1CC = 0;
         }
     }
-    if (func_ov003_020c37f8(&data->base.sprite) == 0) {
-        return;
-    }
-    twin = data->base.partner->unk_188;
-    CombatSprite_SetPaletteMode(&twin->base.sprite, 0);
-    if ((u32)(data_ov015_02128500.unk14 - 1) <= 1) {
-        CombatSprite_SetPaletteMode(&twin->base.sprite, 2);
-    }
-    if (data->unk_1C4 != (void (*)(BtlEnm026*))data->unk_1C8) {
-        return;
-    }
-    if (RNG_Next(data->base.unk_19E) == 0) {
-        func_ov015_02125a64(data, (s32)func_ov015_02125f48);
+    if (func_ov003_020c37f8(&data->base.sprite) != 0) {
+        twin = data->base.partner->unk_188;
+        CombatSprite_SetPaletteMode(&twin->base.sprite, 0);
+        if ((u32)(data_ov015_02128500.unk14 - 1) <= 1) {
+            CombatSprite_SetPaletteMode(&twin->base.sprite, 2);
+        }
+        if (data->unk_1C4 != (void (*)(BtlEnm026*))data->unk_1C8) {
+            return;
+        }
+        if (RNG_Next(data->base.unk_19E) == 0) {
+            func_ov015_02125a64(data, (s32)func_ov015_02125f48);
+        }
     }
     if (data->unk_1D4 != 1 || data_ov015_02128500.unk14 != 3) {
         return;
@@ -436,7 +435,7 @@ void func_ov015_02127c18(BtlEnm026* data) {
         return;
     }
     if (data->unk_1D4 == data_ov015_02128500.counter1C + 1) {
-        data_ov015_02128500.counter1C = data_ov015_02128500.counter1C + 1;
+        data_ov015_02128500.counter1C++;
     } else {
         data_ov015_02128500.result10 = -1;
     }

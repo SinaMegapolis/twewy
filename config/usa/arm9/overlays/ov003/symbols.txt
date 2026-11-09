@@ -64,19 +64,19 @@ CombatStage_ToScreenX kind:function(arm,size=0x3c) addr:0x020843b0
 CombatStage_ToScreenY kind:function(arm,size=0x40) addr:0x020843ec
 CombatStage_ToWorldX kind:function(arm,size=0x34) addr:0x0208442c
 CombatStage_ToWorldY kind:function(arm,size=0x38) addr:0x02084460
-CombatCollision_GetList kind:function(arm,size=0x50) addr:0x02084498 local
-CombatCollision_ClearHits kind:function(arm,size=0x2c) addr:0x020844e8 local
-CombatCollision_Resolve kind:function(arm,size=0x120) addr:0x02084514 local
-CombatCollision_Add kind:function(arm,size=0x44) addr:0x02084634
-CombatCollision_Remove kind:function(arm,size=0x1c) addr:0x02084678
-CombatCollision_SetDisabled kind:function(arm,size=0x18) addr:0x02084694
-CombatCollision_SetPosition kind:function(arm,size=0x14) addr:0x020846ac
-CombatCollision_ApplyPush kind:function(arm,size=0x30) addr:0x020846c0
-CombatCollision_GetSideList kind:function(arm,size=0xc) addr:0x020846f0
-CombatCollision_CollideLists kind:function(arm,size=0x5c) addr:0x020846fc
-CombatCollision_CollideEnabled kind:function(arm,size=0x98) addr:0x02084758 local
-CombatCollision_Reset kind:function(arm,size=0x2c) addr:0x020847f0
-CombatCollision_Update kind:function(arm,size=0x64) addr:0x0208481c
+BtlCollision_FindList kind:function(arm,size=0x50) addr:0x02084498 local
+BtlCollision_ClearHits kind:function(arm,size=0x2c) addr:0x020844e8 local
+BtlCollision_CollidePair kind:function(arm,size=0x120) addr:0x02084514 local
+BtlCollision_Add kind:function(arm,size=0x44) addr:0x02084634
+BtlCollision_Remove kind:function(arm,size=0x1c) addr:0x02084678
+ BtlCollision_SetDisabled kind:function(arm,size=0x18) addr:0x02084694
+BtlCollision_SetPosition kind:function(arm,size=0x14) addr:0x020846ac
+BtlCollision_ApplyPush kind:function(arm,size=0x30) addr:0x020846c0
+BtlCollision_GetLayerList kind:function(arm,size=0xc) addr:0x020846f0
+BtlCollision_CollideAll kind:function(arm,size=0x5c) addr:0x020846fc
+BtlCollision_CollideEnabled kind:function(arm,size=0x98) addr:0x02084758 local
+BtlCollision_Init kind:function(arm,size=0x2c) addr:0x020847f0
+BtlCollision_Update kind:function(arm,size=0x64) addr:0x0208481c
 CombatList_LinkTail kind:function(arm,size=0x34) addr:0x02084880 local
 CombatList_Unlink kind:function(arm,size=0x70) addr:0x020848b4 local
 CombatList_LinkBefore kind:function(arm,size=0x38) addr:0x02084924 local
@@ -4429,7 +4429,7 @@ data_ov003_020e7034 kind:data(any) addr:0x020e7034
 data_ov003_020e7050 kind:data(any) addr:0x020e7050
 data_ov003_020e707c kind:data(any) addr:0x020e707c
 CombatEnemyParam_Table kind:data(any) addr:0x020e70ac
-CombatCollision_Lists kind:bss addr:0x020e71a0 local
+BtlCollision_LayerLists kind:bss addr:0x020e71a0 local
 g_CombatGlobal kind:bss addr:0x020e71b8
 data_ov003_020e71bc kind:bss addr:0x020e71bc local
 BtlDbg_TaskId kind:bss addr:0x020e71c0 local

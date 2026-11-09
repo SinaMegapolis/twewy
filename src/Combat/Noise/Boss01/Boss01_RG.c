@@ -111,8 +111,8 @@ static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
 }
 
 static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
-    Boss01_RG* temp_r4 = g_CombatGlobal->unk3D89C;
     Boss01*    temp_r6 = (Boss01*)rg->base.partner;
+    Boss01_RG* temp_r4 = g_CombatGlobal->unk3D89C;
     Boss01*    temp_r5 = temp_r6->unk_188;
 
     if (rg->unk_1C0 == 0) {

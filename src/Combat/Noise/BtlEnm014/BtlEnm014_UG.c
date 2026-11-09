@@ -421,7 +421,7 @@ static s32 func_ov012_0212768c(BtlEnm014* data) {
             }
             break;
         case ACTOR_CMD_DEFEAT:
-            CombatCollision_SetDisabled(&data->base.collider, 1);
+            BtlCollision_SetDisabled(&data->base.collider, 1);
             func_ov012_02125768(data, func_ov012_02125810);
             break;
         case ACTOR_CMD_HOLD:

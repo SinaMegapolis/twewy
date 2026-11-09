@@ -22,7 +22,7 @@ typedef struct Ov003EnemyShotCore {
     /* 0x04 */ CombatSprite*    sprite;
     /* 0x08 */ s8               hitResult;
     /* 0x09 */ u8               reserved09;
-    /* 0x0A */ u16              attackId;
+    /* 0x0A */ s16              attackId;
     /* 0x0C */ Vec              position;
     /* 0x18 */ s16              timer;
     /* 0x1A */ u16              flags;

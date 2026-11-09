@@ -44,9 +44,9 @@ const BtlSpriteDesc* data_ov013_02127540[3] = {
     &data_ov013_02127464,
 };
 
-s32 data_ov013_02127640;
-
 s32 data_ov013_02127644;
+
+s32 data_ov013_02127640;
 
 BinIdentifier* func_ov013_021256c0(s32 index) {
     return (BinIdentifier*)&data_ov013_02127484 + index;
@@ -223,7 +223,7 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
     CombatHit_LoadSparkForUnit(arg0, &data->base.subSprite, &data->base);
     func_ov003_020c495c(&data->base);
     if (arg0 == 0) {
-        CombatCollision_Add(&data->base.collider, 1, r4->unk_03, r4->unk_04);
+        BtlCollision_Add(&data->base.collider, 1, r4->unk_03, r4->unk_04);
     }
     func_ov003_020c4ab4(&data->base, 0);
 
@@ -251,7 +251,7 @@ s32 func_ov013_02125d24(BtlEnm015* arg0) {
         case ACTOR_CMD_KNOCKDOWN:
             break;
         case ACTOR_CMD_DEFEAT: {
-            CombatCollision_SetDisabled(&arg0->base.collider, 1);
+            BtlCollision_SetDisabled(&arg0->base.collider, 1);
             if (arg0->base.flags18C & 0x10) {
                 arg0->base.flags18C |= 0x20;
             } else {

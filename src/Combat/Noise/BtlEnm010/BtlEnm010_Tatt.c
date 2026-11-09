@@ -188,10 +188,10 @@ static void func_ov011_02128f10(BtlEnm010TattRec* p, u16 v) {
 }
 
 static BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
-    s32               v;
     s32               d;
     s32               i;
     BtlEnm010TattRec* best;
+    s32               v;
     BtlEnm010TattRec* p;
 
     best = NULL;
@@ -354,7 +354,7 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
                 rec->unk_62 = 0x3C;
                 rec->unk_7C = vx - p->unk_23C;
                 rec->unk_80 = vy - p->unk_240 - 0x10000;
-                rec->unk_74 = func_ov003_020cba2c(p->unk_23C + rec->unk_68, p->unk_240 + rec->unk_6C, vx, vy);
+                rec->unk_74 = func_ov003_020cba2c(rec->unk_68 + p->unk_23C, p->unk_240 + rec->unk_6C, vx, vy);
                 rec->unk_70 = func_ov003_020cba14(rec->unk_68, rec->unk_6C, rec->unk_7C, rec->unk_80);
                 func_ov011_02128f10(rec, rec->unk_70);
             }
@@ -400,14 +400,14 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
                 idx = 0x58;
             }
             func_ov003_020cbc50(&bx, &by, rec->unk_72, rec->unk_74);
-            bx  = bx + p->unk_23C + rec->unk_68;
-            by  = by + p->unk_240 + rec->unk_6C;
+            bx = bx + p->unk_23C + rec->unk_68;
+            by += p->unk_240 + rec->unk_6C;
             i   = -1;
             off = i - 0xF;
             do {
                 func_ov003_020cbc50(&ox, &oy, rec->unk_72, off * 0x1000);
-                CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(idx), &p->unk_244, (s16)((bx + ox) >> 12),
-                                         (s16)((by + oy) >> 12));
+                CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(idx), &p->unk_244, (s16)((ox + bx) >> 12),
+                                         (s16)((oy + by) >> 12));
                 off = off + 0x10;
                 i   = i + 1;
             } while (i < 4);

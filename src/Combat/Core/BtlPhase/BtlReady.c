@@ -304,8 +304,8 @@ static s32 BtlReady_Update(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlReady_Render(TaskPool* pool, Task* task, void* args) {
     BtlReady* self = task->data;
-    s32       subX;
     s32       x;
+    s32       subX;
 
     if (self->speaks == 0) {
         return 1;

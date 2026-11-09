@@ -452,15 +452,13 @@ static void func_ov011_0212a78c(BtlEnm010UG* data) {
                 }
             }
             if (data->unk_1D0 > 0) {
-                data->unk_1E8 = data->unk_1E8 - 0x33;
-                data->unk_1E8 = data->unk_1E8 - 0x300;
+                data->unk_1E8 -= 0x333;
                 if (data->unk_1D0 + data->unk_1E8 <= 0) {
                     data->unk_1D0 = 0;
                     data->unk_1E8 = 0;
                 }
             } else if (data->unk_1D0 < 0) {
-                data->unk_1E8 = data->unk_1E8 + 0x33;
-                data->unk_1E8 = data->unk_1E8 + 0x300;
+                data->unk_1E8 += 0x333;
                 if (data->unk_1D0 + data->unk_1E8 >= 0) {
                     data->unk_1D0 = 0;
                     data->unk_1E8 = 0;
@@ -580,15 +578,13 @@ static void func_ov011_0212ac0c(BtlEnm010UG* data) {
                 }
             }
             if (data->unk_1D0 > 0) {
-                data->unk_1E8 = data->unk_1E8 - 0x33;
-                data->unk_1E8 = data->unk_1E8 - 0x300;
+                data->unk_1E8 -= 0x333;
                 if (data->unk_1D0 + data->unk_1E8 <= 0) {
                     data->unk_1D0 = 0;
                     data->unk_1E8 = 0;
                 }
             } else if (data->unk_1D0 < 0) {
-                data->unk_1E8 = data->unk_1E8 + 0x33;
-                data->unk_1E8 = data->unk_1E8 + 0x300;
+                data->unk_1E8 += 0x333;
                 if (data->unk_1D0 + data->unk_1E8 >= 0) {
                     data->unk_1D0 = 0;
                     data->unk_1E8 = 0;
@@ -979,19 +975,19 @@ static s32 func_ov011_0212bac8(TaskPool* pool, Task* task, void* args) {
             if (((u32)(data->unk_206 << 31) >> 31) == 0) {
                 break;
             }
-            CombatCollision_SetDisabled(&data->base.collider, 0);
+            BtlCollision_SetDisabled(&data->base.collider, 0);
             func_ov011_02129ed0(data, func_ov011_0212b3ec);
             break;
         case ACTOR_CMD_DEFEAT:
-            CombatCollision_SetDisabled(&data->base.collider, 1);
+            BtlCollision_SetDisabled(&data->base.collider, 1);
             func_ov011_02129ed0(data, func_ov011_0212b4f4);
             break;
         case ACTOR_CMD_HOLD:
-            CombatCollision_SetDisabled(&data->base.collider, 0);
+            BtlCollision_SetDisabled(&data->base.collider, 0);
             func_ov011_02129ed0(data, func_ov011_0212b318);
             break;
         case ACTOR_CMD_RELEASE:
-            CombatCollision_SetDisabled(&data->base.collider, 0);
+            BtlCollision_SetDisabled(&data->base.collider, 0);
             func_ov011_02129ed0(data, func_ov011_0212b388);
             break;
         case ACTOR_CMD_FEAT:

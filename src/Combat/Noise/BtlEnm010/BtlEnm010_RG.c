@@ -439,15 +439,13 @@ static void func_ov011_02126fb0(BtlEnm010RG* data) {
                 }
             }
             if (data->unk_1D0 > 0) {
-                data->unk_1E8 = data->unk_1E8 - 0x33;
-                data->unk_1E8 = data->unk_1E8 - 0x300;
+                data->unk_1E8 -= 0x333;
                 if (data->unk_1D0 + data->unk_1E8 <= 0) {
                     data->unk_1D0 = 0;
                     data->unk_1E8 = 0;
                 }
             } else if (data->unk_1D0 < 0) {
-                data->unk_1E8 = data->unk_1E8 + 0x33;
-                data->unk_1E8 = data->unk_1E8 + 0x300;
+                data->unk_1E8 += 0x333;
                 if (data->unk_1D0 + data->unk_1E8 >= 0) {
                     data->unk_1D0 = 0;
                     data->unk_1E8 = 0;

@@ -314,7 +314,7 @@ void func_ov015_02125a8c(s32 engine, BtlEnm026* data, void* args, s32 stateFn) {
     data->unk_1C8 = stateFn;
     data->unk_1D0 = (data->base.sprite.flags46 & 1) ? 0xC00 : -0xC00;
     func_ov015_021256f8(data);
-    CombatCollision_SetDisabled(&data->base.collider, 1);
+    BtlCollision_SetDisabled(&data->base.collider, 1);
 }
 
 s32 func_ov015_02125b08(BtlEnm026* data) {
@@ -327,7 +327,7 @@ s32 func_ov015_02125b08(BtlEnm026* data) {
             func_ov015_02125a64(data, (s32)func_ov015_02125e5c);
             break;
         case ACTOR_CMD_DEFEAT:
-            CombatCollision_SetDisabled(&data->base.collider, 1);
+            BtlCollision_SetDisabled(&data->base.collider, 1);
             if (data->base.flags18C & 0x10) {
                 data->base.flags18C |= 0x20;
             } else {

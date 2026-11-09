@@ -20,8 +20,8 @@
 /// The payload of the task: the touch actor plus the ranking index it shows.
 typedef struct BtlBadgeSpecial {
     /* 0x000 */ Ov003TouchActor actor;
-    /* 0x114 */ s8              shown; // displayed flag for the actor's last byte
-    /* 0x115 */ s8              index; // ranking index (> 0 while shown)
+    /* 0x114 */ s8              index; // ranking index (> 0 while shown)
+    /* 0x115 */ char            pad_115[0x1];
     /* 0x116 */ s16             timer; // frames until the hit is reported
 } BtlBadgeSpecial;                     // Size: 0x118
 
@@ -120,8 +120,7 @@ static void func_ov003_02094668(CombatSprite* sprite, s32 index) {
 }
 
 /// Builds the touch actor and parks it on the ranking badge.
-// Nonmatching: the target keeps the saved index byte in `r1` across the actor field stores, so
-// its `0`/`6`/`0x17`/`1` store constants come out in different registers than mwcc picks here.
+// Nonmatching: the partner check is materialised as a boolean before the test.
 static s32 func_ov003_0209477c(TaskPool* pool, Task* task, void* args) {
     BtlBadgeSpecial* self = task->data;
     s32              val  = 0;
@@ -139,15 +138,13 @@ static s32 func_ov003_0209477c(TaskPool* pool, Task* task, void* args) {
     self->actor.unk_04C = val;
     self->actor.unk_046 = 1;
     self->actor.unk_044 = val;
-    self->shown         = 0;
+    self->index         = 0;
     self->timer         = val;
     CombatList_Append(&g_CombatGlobal->unk3D8BC, &self->actor.node, &self->actor);
     return 1;
 }
 
 /// Picks the ranking index to show, rebuilds the sprite when it changes and reports the hit.
-// Nonmatching: the `self->index > 0` test loads through `add r0, r4, #0x100; ldrsb r0, [r0, #0x14]`
-// (the tail of the shared actor) where the struct field is reached as `[r4, #0x115]` here.
 static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
     BtlBadgeSpecial* self = task->data;
     s8               index;
@@ -194,7 +191,6 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Moves the badge onto the actor and draws it.
-// Nonmatching: the same `index` addressing as `func_ov003_02094850` (one `ldrsb` operand).
 static s32 func_ov003_020949e4(TaskPool* pool, Task* task, void* args) {
     BtlBadgeSpecial* self = task->data;
 
@@ -210,7 +206,6 @@ static s32 func_ov003_020949e4(TaskPool* pool, Task* task, void* args) {
 }
 
 /// Releases the badge sprite.
-// Nonmatching: the same `index` addressing as `func_ov003_02094850` (one `ldrsb` operand).
 static s32 func_ov003_02094a4c(TaskPool* pool, Task* task, void* args) {
     BtlBadgeSpecial* self = task->data;
 

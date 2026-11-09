@@ -119,10 +119,10 @@ s32 func_ov003_020cb200(BtlBinSet* set, u16 index) {
 
 s32 func_ov003_020cb264(BtlBinSet* set, u32 id) {
     const BtlBinEntry* entry = NULL;
-    s32                count = set->count;
     u32                size;
     u8*                data;
-    s32                i = 0;
+    s32                i     = 0;
+    s32                count = set->count;
 
     if (count > 0) {
         const BtlBinEntry* cursor = set->entries;
@@ -299,7 +299,7 @@ void func_ov003_020cb578(CombatActor* actor, s32 flag) {
 }
 
 void func_ov003_020cb594(Ov003EnemyActor* actor, s32 flag) {
-    CombatCollision_SetDisabled(&actor->collider, flag == 0);
+    BtlCollision_SetDisabled(&actor->collider, flag == 0);
 }
 
 /// Heals `actor` and its partner by `amount` (or just plays the effect for `flag`).
@@ -533,8 +533,8 @@ void func_ov003_020cbcb4(s32* outX, s32* outY, u16 angle, s32 scale, s32 yScale)
 /// Curve evaluation: quadratic Bezier through three 3D points.
 void func_ov003_020cbdd8(Vec* out, Vec p0, Vec p1, Vec p2, s32 t) {
     s32 u = 0x1000 - t;
-    s32 a = FX_Mul(u, t);
     s32 b = FX_Mul(u, u);
+    s32 a = FX_Mul(u, t);
     s32 c = FX_Mul(t, t);
 
     out->x = FX_Mul(p0.x, b) + FX_Mul(p1.x, a) * 2 + FX_Mul(p2.x, c);
@@ -545,9 +545,9 @@ void func_ov003_020cbdd8(Vec* out, Vec p0, Vec p1, Vec p2, s32 t) {
 /// The same in 2D.
 void func_ov003_020cbd30(BtlVec2* out, BtlVec2 p0, BtlVec2 p1, BtlVec2 p2, s32 t) {
     Vec result;
+    Vec c;
     Vec a;
     Vec b;
-    Vec c;
 
     c.x = p0.x;
     c.y = p0.y;
@@ -632,8 +632,8 @@ s32 func_ov003_020cc354(CombatActor* actor) {
 /// Whether the actor's box overlaps the box around (`x`,`y`,`z`).
 s32 func_ov003_020cc38c(Ov003CutinActor* actor, s32 x, s32 y, s32 z, s32 marginX, s32 marginY, s32 marginZ) {
     s16 width  = actor->base.actor.unk_70;
-    s16 height = actor->base.actor.unk_72;
     s32 half   = width / 2;
+    s16 height = actor->base.actor.unk_72;
 
     if (actor->base.actor.position.x - (width << 12) > x + marginX) {
         return 0;
@@ -679,8 +679,8 @@ u32 func_ov003_020cc430(Ov003CutinActor* actor, s32 index, s32 radius, s32 yScal
 
 /// How many frames until `z` becomes non-negative, falling with the actor's gravity.
 s32 func_ov003_020cc5d0(CombatActor* actor) {
-    s32 gravity  = actor->zGravity;
     s32 velocity = actor->zVelocity;
+    s32 gravity  = actor->zGravity;
     s32 z        = actor->position.z;
     s32 frames   = 0;
 
@@ -840,7 +840,7 @@ void func_ov003_020cc8b0(Ov003EnemyShotCore* dst, const Ov003EnemyShotSource* sr
     dst->owner      = src->core.owner;
     dst->sprite     = src->core.sprite;
     dst->hitResult  = src->core.hitResult;
-    dst->attackId   = (s16)src->core.attackId;
+    dst->attackId   = src->core.attackId;
     dst->position.x = src->core.position.x;
     dst->position.y = src->core.position.y;
     dst->position.z = src->core.position.z;
@@ -1211,7 +1211,7 @@ static s32 func_ov003_020cd618(Ov003EnemyShotBlossom* self) {
 
     CombatStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
                               self->source.core.position.y, self->source.core.position.z);
-    CombatSprite_SetPosition(&self->sprite, y, x);
+    CombatSprite_SetPosition(&self->sprite, x, y);
     func_ov003_02082730(&self->sprite, 0x7FFFFFFF - self->source.core.position.y);
     CombatSprite_Render(&self->sprite);
     return 1;

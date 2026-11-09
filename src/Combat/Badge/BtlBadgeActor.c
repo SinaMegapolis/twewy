@@ -468,7 +468,6 @@ static s32 func_ov003_020a4594(void) {
 }
 
 /// Picks the next state request for the actor from the current battle state.
-// Nonmatching: request selection branch layout.
 void BtlBadgeActor_PickRequest(Ov003TouchActor* actor) {
     u16 value = actor->params.unk_18;
 
@@ -487,7 +486,7 @@ void BtlBadgeActor_PickRequest(Ov003TouchActor* actor) {
             }
             break;
     }
-    if (((s32)gSaveData.unk_3142 > 1) && g_CombatGlobal->unk3D890 == 0xD) {
+    if ((gSaveData.unk_3142 > 1) && g_CombatGlobal->unk3D890 == 0xD) {
         switch (gSaveData.battleTouchSlots.kind[actor->slot]) {
             case 3:
                 actor->request = 7;

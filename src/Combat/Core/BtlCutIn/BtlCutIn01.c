@@ -229,8 +229,8 @@ static void BtlCutIn01_LoadOverlays(BtlCutIn01* self, u16 kind) {
 
 // Nonmatching: resource loading and map/sprite register allocation.
 static void BtlCutIn01_LoadScenes(BtlCutIn01* self, u16 kind) {
-    const BtlCutIn01Resources* partnerRes = &BtlCutIn01_SceneResources[kind + 1];
     const BtlCutIn01Resources* nekuRes    = &BtlCutIn01_SceneResources[0];
+    const BtlCutIn01Resources* partnerRes = &BtlCutIn01_SceneResources[kind + 1];
     BtlCutIn01Scene*           neku       = &self->scenes[0];
     BtlCutIn01Scene*           partner    = &self->scenes[1];
 

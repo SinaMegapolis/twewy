@@ -142,8 +142,8 @@ static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
             if (root == NULL)
                 return 0;
             func_ov003_020d07a8(&self->owner, &self->list, root, self->kind, self->spacing,
-                                self->horizontalMax <= self->verticalMax ? self->verticalMax : self->horizontalMax,
-                                self->speed, self->length);
+                                self->horizontalMax > self->verticalMax ? self->horizontalMax : self->verticalMax, self->speed,
+                                self->length);
             self->state++;
             break;
         }

@@ -696,7 +696,7 @@ void BtlMgr_SetState(u32 state) {
             break;
 
         case 7:
-            if ((u8)(g_CombatGlobal->unk3D874 - 3) <= 1) {
+            if (g_CombatGlobal->unk3D874 == 3 || g_CombatGlobal->unk3D874 == 4) {
                 g_CombatGlobal->unk3D874 = state;
             }
             break;
@@ -960,7 +960,7 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     CombatTouch_Init();
     BtlMic_Init();
     CombatStage_SetupCameras();
-    CombatCollision_Reset();
+    BtlCollision_Init();
     func_ov003_02087378();
     CombatSys_ResetObsList();
 
@@ -1081,7 +1081,7 @@ static void func_ov003_0208c2a8(void) {
     if (CombatDebug_GetSetting(0) == 2) {
         EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_00000);
         EasyTask_ProcessPendingTasks(&g_CombatGlobal->taskPool);
-        CombatCollision_Update();
+        BtlCollision_Update();
         return;
     }
 
@@ -1091,7 +1091,7 @@ static void func_ov003_0208c2a8(void) {
         g_CombatGlobal->unk3D904 = g_CombatGlobal->unk3D906;
         g_CombatGlobal->unk3D906 = 0;
         EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_00000);
-        CombatCollision_Update();
+        BtlCollision_Update();
     }
 
     if (g_CombatGlobal->unk3D908 > 0) {
@@ -1701,9 +1701,9 @@ static void func_ov003_0208d5a4(u16 encounterId, s32 duration) {
 
 /// Number of chapter characters that may still join the current battle.
 static s32 func_ov003_0208d5cc(u32 mask) {
-    u32 available = gSaveData.unk_3234;
-    s32 count     = 0;
     s32 i;
+    s32 count     = 0;
+    u32 available = gSaveData.unk_3234;
 
     for (i = 0; i < 18; i++) {
         if ((mask & (1 << i)) && (available & (1 << i)) == 0) {

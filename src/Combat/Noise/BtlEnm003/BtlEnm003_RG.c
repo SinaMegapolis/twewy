@@ -113,11 +113,10 @@ static void func_ov009_02120d64(BtlEnm003_RG* rg) {
     BtlEnm003_RG_SetState(rg, data_ov009_021255d8[func_ov003_020c3b30(var_r0, 3, temp_r2)]);
 }
 
-// Nonmatching: regswap
 static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
     switch (rg->statePhase) {
         case 0: {
-            if (((s32(*)())func_ov003_020c6230)() == 0) {
+            if (func_ov003_020c6230(&rg->base) == 0) {
                 rg->frameCount = 0;
                 rg->statePhase++;
             }
@@ -159,11 +158,10 @@ static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
     }
 }
 
-// Nonmatching: regswap
 static void func_ov009_02120f64(BtlEnm003_RG* rg) {
     switch (rg->statePhase) {
         case 0: {
-            if (((s32(*)())func_ov003_020c6230)() == 0) {
+            if (func_ov003_020c6230(&rg->base) == 0) {
                 rg->frameCount = 0;
                 rg->statePhase++;
             }

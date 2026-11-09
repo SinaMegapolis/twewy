@@ -500,7 +500,7 @@ void CombatSys_SetupObs(Ov003EffectActor* effect, Ov003EffectSpawn* spawn) {
     effect->actor.position.x = spawn->arg1;
     effect->actor.position.y = spawn->arg2;
     effect->actor.position.z = 0;
-    CombatCollision_Add(&effect->sprite.collider, 3, effect->actor.unk_70, effect->actor.unk_72);
+    BtlCollision_Add(&effect->sprite.collider, 3, effect->actor.unk_70, effect->actor.unk_72);
     CombatList_Append(&g_CombatGlobal->unk3D8B4, &effect->node, effect);
 }
 
@@ -519,12 +519,12 @@ void CombatSys_UpdateObs(Ov003EffectActor* effect) {
             effect->actor.yVelocity = 0;
         }
     }
-    CombatCollision_SetPosition(&effect->sprite.collider, effect->actor.position.x, effect->actor.position.y,
-                                effect->actor.position.z);
+    BtlCollision_SetPosition(&effect->sprite.collider, effect->actor.position.x, effect->actor.position.y,
+                             effect->actor.position.z);
 }
 
 void CombatSys_RemoveObs(Ov003EffectActor* effect) {
-    CombatCollision_Remove(&effect->sprite.collider);
+    BtlCollision_Remove(&effect->sprite.collider);
     CombatList_Remove(&g_CombatGlobal->unk3D8B4, &effect->node);
 }
 
@@ -534,9 +534,9 @@ void CombatSys_ResetObsList(void) {
 
 /// Picks the hit effect/SE combo for whatever the main engine's camera is currently showing.
 void CombatSys_RollObsDrop(void) {
-    Ov003Camera*             camera = &g_CombatGlobal->unk3D7C0[0];
     s32                      index;
     const CombatObsSpawnCmd* commands = NULL;
+    Ov003Camera*             camera   = &g_CombatGlobal->unk3D7C0[0];
     const u8*                weights;
     s16                      roll;
 
@@ -1221,9 +1221,9 @@ void func_ov003_02087804(s32 sub) {
 /// Moves the display actor of one engine to a new position and tells the HUD about it.
 void CombatSys_WarpCharacter(s32 mode, s32 x, s32 y, s32 z) {
     CombatActor* actor;
-    s32          oldX;
     s32          oldY;
     s32          oldZ;
+    s32          oldX;
 
     if (mode != 1) {
         actor = g_CombatGlobal->unk3D898;

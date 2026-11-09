@@ -34,7 +34,7 @@ typedef struct BtlPlayer00Step {
 typedef struct BtlPlayer00 {
     /* 0x000 */ CombatActor       actor;
     /* 0x07C */ CombatSprite      sprite;
-    /* 0x0DC */ Ov003Collider     collider;
+    /* 0x0DC */ BtlCollider       collider;
     /* 0x110 */ CombatSprite      shadow;
     /* 0x170 */ CombatSprite      target; // the marker drawn at the stylus
     /* 0x1D0 */ u16               flags;  // 1: hidden, 2: marker shown, 4: follows the stylus
@@ -565,7 +565,7 @@ static void func_ov003_0208fe10(BtlPlayer00* self) {
             if (self->timer == 0) {
                 self->actor.flags |= 2;
                 BtlPlayer00_FaceX(&self->actor, self->actor.unk_0C);
-                CombatCollision_SetDisabled(&self->collider, 0);
+                BtlCollision_SetDisabled(&self->collider, 0);
                 CombatSprite_SetAnimFromTable(&self->sprite, 4, 1);
                 CombatSprite_Restart(&self->sprite);
                 func_ov003_0208f498(self, 0);
@@ -698,7 +698,7 @@ static void func_ov003_02090318(BtlPlayer00* self) {
             if (gSaveData.unk_3134 != 0x2B) {
                 BtlMgr_SetState(4);
                 self->actor.flags |= 4;
-                CombatCollision_SetDisabled(&self->collider, 0);
+                BtlCollision_SetDisabled(&self->collider, 0);
                 CombatSprite_SetAnimFromTable(&self->sprite, 7, 1);
                 EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Task_BtlOver, NULL, 0, NULL, NULL);
             } else {
@@ -715,7 +715,7 @@ static void func_ov003_02090318(BtlPlayer00* self) {
 static void func_ov003_0209040c(BtlPlayer00* self) {
     switch (self->phase) {
         case 0:
-            CombatCollision_SetDisabled(&self->collider, 1);
+            BtlCollision_SetDisabled(&self->collider, 1);
             CombatSprite_SetPaletteMode(&self->sprite, 2);
             CombatSprite_SetAnimFromTable(&self->sprite, 47, 1);
             self->actor.zVelocity = -0x2000;
@@ -733,7 +733,7 @@ static void func_ov003_0209040c(BtlPlayer00* self) {
             break;
         case 2:
             if (!(g_CombatGlobal->unk3D878 & 8)) {
-                CombatCollision_SetDisabled(&self->collider, 0);
+                BtlCollision_SetDisabled(&self->collider, 0);
                 self->actor.flags &= ~0x10;
                 func_ov003_0208f384(self, func_ov003_02090588);
             }
@@ -834,7 +834,7 @@ static void func_ov003_020908c4(BtlPlayer00* self) {
             if (self->timer == 0) {
                 self->flags |= 4;
                 self->actor.flags |= 0x10;
-                CombatCollision_SetDisabled(&self->collider, 1);
+                BtlCollision_SetDisabled(&self->collider, 1);
                 CombatSprite_SetAnimFromTable(&self->sprite, 15, 1);
                 self->timer++;
             }
@@ -861,7 +861,7 @@ static void func_ov003_020908c4(BtlPlayer00* self) {
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                 self->actor.flags &= ~0x10;
-                CombatCollision_SetDisabled(&self->collider, 0);
+                BtlCollision_SetDisabled(&self->collider, 0);
                 func_ov003_0208f384(self, func_ov003_02090588);
             }
             break;
@@ -876,7 +876,7 @@ static void func_ov003_02090a5c(BtlPlayer00* self) {
             if (self->timer == 0) {
                 self->flags |= 4;
                 self->actor.flags |= 0x10;
-                CombatCollision_SetDisabled(&self->collider, 1);
+                BtlCollision_SetDisabled(&self->collider, 1);
                 CombatSprite_SetAnimFromTable(&self->sprite, 18, 1);
                 self->timer++;
             }
@@ -905,7 +905,7 @@ static void func_ov003_02090a5c(BtlPlayer00* self) {
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                 g_CombatGlobal->unk3D8C8 = 0;
                 self->actor.flags &= ~0x10;
-                CombatCollision_SetDisabled(&self->collider, 0);
+                BtlCollision_SetDisabled(&self->collider, 0);
                 func_ov003_0208f384(self, func_ov003_02090588);
             }
             break;
@@ -1083,7 +1083,7 @@ static void func_ov003_02091214(BtlPlayer00* self) {
         func_ov003_0209e9f8(0, 1, self->actor.position.x, self->actor.position.y, 0, self->actor.isFlipped != 0);
     }
     if (tick >= 3 && tick < 6) {
-        CombatCollision_SetDisabled(&self->collider, 1);
+        BtlCollision_SetDisabled(&self->collider, 1);
         if (self->actor.isFlipped == 0) {
             BtlMgr_MoveByAngle(&self->actor.position.x, &self->actor.position.y, 0x8000, speed << 12);
         } else {
@@ -1103,7 +1103,7 @@ static void func_ov003_02091214(BtlPlayer00* self) {
         CombatSe_PlayAtMainX(0x8E, self->actor.position.x);
     }
     if (tick == 6 && self->sprite.sprite.bit_11 == 1) {
-        CombatCollision_SetDisabled(&self->collider, 0);
+        BtlCollision_SetDisabled(&self->collider, 0);
     }
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
         g_CombatGlobal->unk3D8C8 = 0;
@@ -1437,7 +1437,7 @@ static void func_ov003_020920c8(BtlPlayer00* self) {
     if (self->timer == 0) {
         self->flags |= 2;
         self->actor.flags |= 0x10;
-        CombatCollision_SetDisabled(&self->collider, 1);
+        BtlCollision_SetDisabled(&self->collider, 1);
     }
     if (self->timer == 4) {
         CombatSe_PlayAtMainX(0x3B, self->actor.position.x);
@@ -1459,7 +1459,7 @@ static void func_ov003_020920c8(BtlPlayer00* self) {
     if (g_CombatGlobal->unk3D8C8 == 0) {
         self->flags &= ~1;
         self->actor.flags &= ~0x10;
-        CombatCollision_SetDisabled(&self->collider, 0);
+        BtlCollision_SetDisabled(&self->collider, 0);
         CombatSe_PlayAtMainX(0x3C, self->actor.position.x);
         func_ov003_0208f384(self, func_ov003_02090588);
         return;
@@ -1556,7 +1556,7 @@ static s32 BtlPlayer00_Init(TaskPool* pool, Task* task, void* args) {
     CombatHit_LoadSpark(0, &self->shadow, 2);
     CombatSprite_LoadDirect(0, &self->target, &data_ov003_020d7800, 22, 24, 23, 0x3D, 0);
     CombatStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
-    CombatCollision_Add(&self->collider, 0, 0xC, 0x30);
+    BtlCollision_Add(&self->collider, 0, 0xC, 0x30);
     func_ov003_0208f384(self, func_ov003_0208fde0);
     return 1;
 }
@@ -1600,11 +1600,11 @@ static s32 BtlPlayer00_Update(TaskPool* pool, Task* task, void* args) {
     CombatActor_UpdatePhysics(&self->actor);
     func_ov003_02087458(0, &self->gaugeTimer);
     func_ov003_02087540(0);
-    if (self->collider.hitMask != 0) {
-        CombatCollision_ApplyPush(&self->collider, &self->actor.position.x, &self->actor.position.y, &self->actor.position.z);
+    if (self->collider.hitLayers != 0) {
+        BtlCollision_ApplyPush(&self->collider, &self->actor.position.x, &self->actor.position.y, &self->actor.position.z);
     }
     CombatStage_ClampXY(&self->actor.position.x, &self->actor.position.y, 0x8000, 0x8000);
-    CombatCollision_SetPosition(&self->collider, self->actor.position.x, self->actor.position.y, self->actor.position.z);
+    BtlCollision_SetPosition(&self->collider, self->actor.position.x, self->actor.position.y, self->actor.position.z);
     CombatSprite_Update(&self->sprite);
     CombatSprite_Update(&self->shadow);
     if (self->flags & 2) {

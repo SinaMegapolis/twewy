@@ -88,7 +88,7 @@ static s32 func_ov010_021271c0(Enm006Swlo* data, Enm006Spawn* args) {
     } else {
         target       = args->unk_0C;
         data->unk_0C = target;
-        CombatCollision_SetDisabled(&target->base.collider, 1);
+        BtlCollision_SetDisabled(&target->base.collider, 1);
         CombatActor_SetPendingCommand(&target->base.actor, ACTOR_CMD_HIT);
         func_ov010_021256d0(data->unk_04, data->unk_0C);
     }

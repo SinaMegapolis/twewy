@@ -43,10 +43,9 @@ void BtlBadgeMgr_Clear(void) {
 }
 
 /// Publishes the actor positions to the 3D layer's slot table.
-// Nonmatching: the `MainData` slot table base is two adds instead of a folded pool word.
 void BtlBadgeMgr_PublishSlots(void) {
-    Ov003TouchSlotTable* table = &gSaveData.battleTouchSlots;
     Ov003TouchActor*     actor;
+    Ov003TouchSlotTable* table = &gSaveData.battleTouchSlots;
 
     actor = CombatList_GetHead(&g_CombatGlobal->unk3D8BC);
     MI_CpuSet(table->kind, 0, 6);

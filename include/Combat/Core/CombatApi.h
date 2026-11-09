@@ -15,7 +15,6 @@
 #include "Combat/Core/CombatBgRes.h"
 #include "Combat/Core/CombatBossExp.h"
 #include "Combat/Core/CombatCameraShake.h"
-#include "Combat/Core/CombatCollision.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatDebug.h"
 #include "Combat/Core/CombatEffectActor.h"

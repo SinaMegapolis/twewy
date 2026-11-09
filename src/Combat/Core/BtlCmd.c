@@ -261,10 +261,10 @@ static void func_ov003_020977e0(BtlCmd* self) {
 
 /// Which way the enemies mostly stand compared with the gauge actor: 0x800 for one side, 1 for the other.
 static u32 func_ov003_02097984(u32 wanted) {
+    CombatActor*     gauge  = g_CombatGlobal->unk3D89C;
     s32              ahead  = 0;
     s32              behind = 0;
     u32              result = 0;
-    CombatActor*     gauge  = g_CombatGlobal->unk3D89C;
     Ov003CutinActor* enemy  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
 
     while (enemy != NULL) {

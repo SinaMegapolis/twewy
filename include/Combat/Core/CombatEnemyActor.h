@@ -1,7 +1,7 @@
 #ifndef COMBAT_CORE_COMBATENEMYACTOR_H
 #define COMBAT_CORE_COMBATENEMYACTOR_H
 
-#include "Combat/Core/Combat.h"
+#include "Battle/Core/BtlCollision.h"
 #include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatList.h"
 #include "Combat/Core/CombatSprite.h"
@@ -35,7 +35,7 @@ typedef struct Ov003EnemyActor {
     /* 0x082 */ u16                     id;    // running cut-in instance id
     /* 0x084 */ CombatSprite            sprite;
     /* 0x0E4 */ CombatSprite            subSprite;
-    /* 0x144 */ Ov003Collider           collider;
+    /* 0x144 */ BtlCollider             collider;
     /* 0x178 */ CombatListNode          node;
     /* 0x184 */ struct Ov003EnemyActor* partner; // the actor this one is paired with (UG/RG twin, cut-in partner)
     /* 0x188 */ void*                   unk_188; // per-type pointer: a twin's shared state, a spawn list, ...

@@ -215,8 +215,8 @@ static void func_ov003_020965dc(BtlAura* self, BtlAuraFlameSprite* flame) {
 
 /// Puts every flame on the free list.
 static void func_ov003_02096614(BtlAura* self) {
-    BtlAuraFlameSprite* flame;
     s32                 i;
+    BtlAuraFlameSprite* flame;
 
     CombatList_Init(&self->free);
     CombatList_Init(&self->active);

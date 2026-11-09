@@ -151,8 +151,8 @@ static s32 BtlField_Fore_Init(TaskPool* pool, Task* task, void* args) {
 /// Advances every live band.
 static s32 BtlField_Fore_Update(TaskPool* pool, Task* task, void* args) {
     BtlFieldFore*     fore = task->data;
-    BtlFieldForeBand* band;
     s32               i;
+    BtlFieldForeBand* band;
 
     i = 0;
     if (fore->count > 0) {
@@ -169,8 +169,8 @@ static s32 BtlField_Fore_Update(TaskPool* pool, Task* task, void* args) {
 /// Projects and draws the bands.
 static s32 BtlField_Fore_Render(TaskPool* pool, Task* task, void* args) {
     BtlFieldFore*     fore = task->data;
-    BtlFieldForeBand* band;
     s32               i;
+    BtlFieldForeBand* band;
     s32               posX;
     s32               posY;
 
@@ -195,8 +195,8 @@ static s32 BtlField_Fore_Render(TaskPool* pool, Task* task, void* args) {
 /// Releases every live band.
 static s32 BtlField_Fore_Release(TaskPool* pool, Task* task, void* args) {
     BtlFieldFore*     fore = task->data;
-    BtlFieldForeBand* band;
     s32               i;
+    BtlFieldForeBand* band;
 
     i = 0;
     if (fore->count > 0) {

@@ -67,9 +67,9 @@ static void func_ov003_0209703c(s32 engine, BtlAuraSub* aura) {
 
 /// Advances the still-running flames and records whether any of them is left.
 static void func_ov003_02097158(BtlAuraSub* aura) {
-    BtlAuraFlame* flame;
-    s32           i;
     s32           active;
+    s32           i;
+    BtlAuraFlame* flame;
 
     active = 0;
     i      = 0;
@@ -90,8 +90,8 @@ static void func_ov003_02097158(BtlAuraSub* aura) {
 
 /// Draws every still-running flame, depth-sorted against the shared aura palette.
 static void func_ov003_020971c0(BtlAuraSub* aura) {
-    s32              i;
     s32              sortKey;
+    s32              i;
     Ov003CutinActor* owner;
     BtlAuraFlame*    flame;
 

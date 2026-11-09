@@ -586,7 +586,7 @@ static s32 func_ov010_02126a94(BtlEnm006* data) {
         case ACTOR_CMD_HIT:
         case ACTOR_CMD_KNOCKDOWN:
             if (flag == 0) {
-                CombatCollision_SetDisabled(&data->base.collider, 0);
+                BtlCollision_SetDisabled(&data->base.collider, 0);
                 func_ov010_02125910(data, (void*)func_ov010_0212636c);
             }
             break;

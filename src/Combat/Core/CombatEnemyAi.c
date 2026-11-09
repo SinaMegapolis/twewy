@@ -23,8 +23,8 @@
 // ---------------------------------------------------------------------------------------------
 
 /// The 3D motion track of a noise pair: an engine id plus two 20.12 positions.
-/// `CombatCollision_Add` seeds it, `CombatCollision_SetPosition` retargets it and
-/// `CombatCollision_ApplyPush` integrates the offsets at 0x20/0x24 into the actor position.
+/// `BtlCollision_Add` seeds it, `BtlCollision_SetPosition` retargets it and
+/// `BtlCollision_ApplyPush` integrates the offsets at 0x20/0x24 into the actor position.
 
 /// The per-actor tuning record fetched from `CombatEnemyParam_Table[group][sprite]`.
 
@@ -208,7 +208,7 @@ s32 func_ov003_020c4520(Ov003EnemyActor* actor) {
     }
     CombatHit_LoadSparkForUnit(0, &actor->subSprite, actor);
     func_ov003_020c49c8(actor);
-    CombatCollision_Add(&actor->collider, 1, params->unk_03, params->unk_04);
+    BtlCollision_Add(&actor->collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(actor);
     return result;
 }
@@ -227,7 +227,7 @@ s32 func_ov003_020c45a4(Ov003CutinActor* actor) {
     }
     CombatHit_LoadSparkForUnit(0, &actor->base.subSprite, &actor->base);
     func_ov003_020c49c8(&actor->base);
-    CombatCollision_Add(&actor->base.collider, 1, params->unk_03, params->unk_04);
+    BtlCollision_Add(&actor->base.collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(&actor->base);
     return result;
 }
@@ -251,8 +251,7 @@ void func_ov003_020c4668(Ov003EnemyActor* actor) {
     }
     CombatActor_UpdatePhysics(&actor->actor);
     if (!(actor->flags18C & 4) && (actor->collider.flags != 0)) {
-        CombatCollision_ApplyPush(&actor->collider, &actor->actor.position.x, &actor->actor.position.y,
-                                  &actor->actor.position.z);
+        BtlCollision_ApplyPush(&actor->collider, &actor->actor.position.x, &actor->actor.position.y, &actor->actor.position.z);
     }
     if (func_ov003_020c59f4(actor) == 0) {
         if (actor->actor.flags & 0x10000000) {
@@ -264,7 +263,7 @@ void func_ov003_020c4668(Ov003EnemyActor* actor) {
         }
     }
     half = 0;
-    CombatCollision_SetPosition(&actor->collider, actor->actor.position.x, actor->actor.position.y, actor->actor.position.z);
+    BtlCollision_SetPosition(&actor->collider, actor->actor.position.x, actor->actor.position.y, actor->actor.position.z);
     CombatSprite_Update(&actor->sprite);
     CombatSprite_Update(&actor->subSprite);
 }
@@ -358,7 +357,7 @@ void func_ov003_020c492c(Ov003EnemyActor* actor) {
     func_ov003_020c4a74(actor);
     CombatSprite_Release(&actor->sprite);
     CombatSprite_Release(&actor->subSprite);
-    CombatCollision_Remove(&actor->collider);
+    BtlCollision_Remove(&actor->collider);
 }
 
 void func_ov003_020c495c(Ov003EnemyActor* actor) {
@@ -698,8 +697,8 @@ void func_ov003_020c51a4(Ov003CutinActor* actor, s32 x, s32 y) {
 
 /// True if the actor and its partner swapped sides of the sub-screen centre.
 s32 func_ov003_020c5220(Ov003EnemyActor* actor) {
-    s32 x      = actor->actor.position.x;
     s32 centre = g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
+    s32 x      = actor->actor.position.x;
     s32 lower  = centre - 0x10000;
 
     if ((x < lower) && (actor->unk_1AC > centre + 0x10000)) {
@@ -1101,8 +1100,8 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
                 actor->unk_1A6--;
             }
             if (actor->unk_1A6 <= 0) {
-                actor->actor.flags &= ~0x10 & ~0x80000000;
-                actor->unk_1A4 = 0;
+                actor->actor.flags = actor->actor.flags & ~0x10 & ~0x80000000;
+                actor->unk_1A4     = 0;
                 actor->unk_1A8++;
             }
             return 1;

@@ -225,7 +225,7 @@ static void func_ov017_021265e4(void* arg0) {
     func_ov017_021263dc(arg0, NULL);
 }
 
-s32 func_ov017_0212665c(void* arg1, u16* arg2) {
+s32 func_ov017_0212665c(void* arg0, void* arg1, u16* arg2) {
     void* temp_ip;
     void* temp_r0;
     void* temp_r0_2;
@@ -355,7 +355,7 @@ s32 func_ov017_0212665c(void* arg1, u16* arg2) {
     return 1;
 }
 
-s32 func_ov017_02126a80(void* arg1) {
+s32 func_ov017_02126a80(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void* temp_r4;
 
@@ -378,7 +378,7 @@ s32 func_ov017_02126ae4(void) {
     return 1;
 }
 
-s32 func_ov017_02126aec(void* arg1) {
+s32 func_ov017_02126aec(void* arg0, void* arg1) {
     void* temp_r2;
     void* temp_r4;
 
@@ -427,7 +427,7 @@ static void func_ov017_02126cf0(void* arg0) {
     CombatAnim_LayerUpdate(arg0 + 0x7C);
 }
 
-static s32 func_ov017_02126d00(void* arg1, void* arg2, void* arg3, s32 arg4, s32 arg5) {
+static s32 func_ov017_02126d00(void* arg0, void* arg1, void* arg2, void* arg3, s32 arg4) {
     s16   temp_r0;
     s32   var_r4;
     void* var_r3;
@@ -452,7 +452,7 @@ static s32 func_ov017_02126d00(void* arg1, void* arg2, void* arg3, s32 arg4, s32
     return var_r4;
 }
 
-static void func_ov017_02126d90(void* arg1, void* arg2) {
+static void func_ov017_02126d90(void* arg0, void* arg1) {
     data_ov017_02143988.unkA = (s16)(data_ov017_02143988.unkA - (*(Boss03**)((u8*)arg1 + 8))->unk4);
     data_ov017_02143988.unk6 = (s16)(data_ov017_02143988.unk6 - 1);
     data_ov017_02143988.unk2 = (s16)(data_ov017_02143988.unk2 - 1);
@@ -460,7 +460,7 @@ static void func_ov017_02126d90(void* arg1, void* arg2) {
     ((Boss03*)arg1)->unk8    = NULL;
 }
 
-static s32 func_ov017_02126dd4(void* arg1, void* arg2, void* arg3, s32 arg4, s32 arg5) {
+static s32 func_ov017_02126dd4(void* arg0, void* arg1, void* arg2, void* arg3, s32 arg4) {
     s32   sp20;
     s32   sp1C;
     void* sp18;
@@ -495,7 +495,7 @@ static s32 func_ov017_02126dd4(void* arg1, void* arg2, void* arg3, s32 arg4, s32
     return var_r4;
 }
 
-static void func_ov017_02126eb4(void* arg1, void* arg2) {
+static void func_ov017_02126eb4(void* arg0, void* arg1) {
     data_ov017_02143988.unkA = (s16)(data_ov017_02143988.unkA - (*(Boss03**)((u8*)arg1 + 8))->unk4);
     data_ov017_02143988.unk6 = (s16)(data_ov017_02143988.unk6 - 1);
     data_ov017_02143988.unk8 = (s16)(data_ov017_02143988.unk8 - 1);
@@ -695,17 +695,17 @@ static void func_ov017_02127314(void* arg0) {
     void* temp_r4;
 
     temp_r4 = g_CombatGlobal->unk3D7C0;
-    CombatCollision_Add(arg0, 4, 0xC0, 0x40);
-    CombatCollision_SetPosition(arg0, ((Boss03*)temp_r4)->unk4, ((Boss03*)temp_r4)->unk10, 0);
+    BtlCollision_Add(arg0, 4, 0xC0, 0x40);
+    BtlCollision_SetPosition(arg0, ((Boss03*)temp_r4)->unk4, ((Boss03*)temp_r4)->unk10, 0);
 }
 
 static void func_ov017_02127358(void* arg0) {
-    CombatCollision_CollideLists((CombatList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C0);
-    CombatCollision_CollideLists((CombatList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C4);
-    CombatCollision_CollideLists((CombatList*)(((Boss03*)arg0)->unk1CC), (CombatList*)(((Boss03*)arg0)->unk1C8));
+    BtlCollision_CollideAll((CombatList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C0);
+    BtlCollision_CollideAll((CombatList*)(((Boss03*)arg0)->unk1CC), ((Boss03*)arg0)->unk1C4);
+    BtlCollision_CollideAll((CombatList*)(((Boss03*)arg0)->unk1CC), (CombatList*)(((Boss03*)arg0)->unk1C8));
 }
 
-static s32 func_ov017_02127388(void* arg1, void* arg2) {
+static s32 func_ov017_02127388(void* arg0, void* arg1) {
     void* var_ip;
     s32   var_r3;
 
@@ -723,7 +723,7 @@ loop_1:
     goto loop_1;
 }
 
-static s32 func_ov017_021273cc(void* arg1, void* arg2) {
+static s32 func_ov017_021273cc(void* arg0, void* arg1) {
     void* var_ip;
     s32   var_r3;
 
@@ -784,7 +784,7 @@ static void func_ov017_02127480(void* arg0, void* arg1) {
     func_ov017_02126d90(arg0, arg1);
 }
 
-static void func_ov017_021274c8(void* arg1) {
+static void func_ov017_021274c8(void* arg0, void* arg1) {
     void* temp_r1;
 
     temp_r1 = ((Boss03*)arg1)->unk4;
@@ -800,6 +800,7 @@ static void func_ov017_021274c8(void* arg1) {
 }
 
 void func_ov017_02127514(void* arg0) {
+    void* slot;
     void* temp_r3;
     void* temp_r3_2;
     void* var_r0;
@@ -823,8 +824,11 @@ void func_ov017_02127514(void* arg0) {
     var_r5 = CombatList_GetHead((CombatList*)(((Boss03*)arg0)->unk1C8));
     if (var_r5 != NULL) {
         do {
-            if ((((Boss03*)var_r5)->unk1C & 0x10) && (func_ov017_02127388(arg0, var_r5) != 0)) {
-                func_ov017_02127480(arg0, var_r5);
+            if (((Boss03*)var_r5)->unk1C & 0x10) {
+                slot = (void*)func_ov017_02127388(arg0, var_r5);
+                if (slot != NULL) {
+                    func_ov017_02127480(arg0, slot);
+                }
             }
             var_r5 = CombatList_GetNext(var_r5 + 0x28);
         } while (var_r5 != NULL);
@@ -834,8 +838,11 @@ void func_ov017_02127514(void* arg0) {
         return;
     }
     do {
-        if ((((Boss03*)var_r5_2)->unk1C & 0x10) && (func_ov017_021273cc(arg0, var_r5_2) != 0)) {
-            func_ov017_021274c8(arg0);
+        if (((Boss03*)var_r5_2)->unk1C & 0x10) {
+            slot = (void*)func_ov017_021273cc(arg0, var_r5_2);
+            if (slot != NULL) {
+                func_ov017_021274c8(arg0, slot);
+            }
         }
         var_r5_2 = CombatList_GetNext(var_r5_2 + 0x28);
     } while (var_r5_2 != NULL);
@@ -905,10 +912,10 @@ static void func_ov017_02127774(void* arg0) {
     ((Boss03*)arg0)->unkF8  = 0;
     ((Boss03*)arg0)->unk1D0 = 0x48;
     func_ov017_02127314(arg0 + 0xC4);
-    ((Boss03*)arg0)->unk1C0 = CombatCollision_GetSideList(0);
-    ((Boss03*)arg0)->unk1C4 = CombatCollision_GetSideList(1);
-    ((Boss03*)arg0)->unk1C8 = (void*)CombatCollision_GetSideList(3);
-    ((Boss03*)arg0)->unk1CC = (void*)CombatCollision_GetSideList(4);
+    ((Boss03*)arg0)->unk1C0 = BtlCollision_GetLayerList(0);
+    ((Boss03*)arg0)->unk1C4 = BtlCollision_GetLayerList(1);
+    ((Boss03*)arg0)->unk1C8 = (void*)BtlCollision_GetLayerList(3);
+    ((Boss03*)arg0)->unk1CC = (void*)BtlCollision_GetLayerList(4);
 }
 
 static void func_ov017_021277cc(void* arg0) {
@@ -1056,7 +1063,7 @@ static void func_ov017_02127bcc(void* arg0) {
     func_ov017_02126be4(arg0, NULL);
 }
 
-s32 func_ov017_02127c40(void* arg1, u16* arg2) {
+s32 func_ov017_02127c40(void* arg0, void* arg1, u16* arg2) {
     s32   temp_r2_5;
     u32   temp_r2_3;
     u32   temp_r2_4;
@@ -1205,7 +1212,7 @@ s32 func_ov017_02127c40(void* arg1, u16* arg2) {
     return 1;
 }
 
-s32 func_ov017_0212816c(void* arg1) {
+s32 func_ov017_0212816c(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void* temp_r4;
 
@@ -1227,7 +1234,7 @@ s32 func_ov017_0212816c(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_021281e8(void* arg1) {
+s32 func_ov017_021281e8(void* arg0, void* arg1) {
     s16 temp_r0;
     s32 temp_r5;
     s32 temp_r6;
@@ -1242,14 +1249,14 @@ s32 func_ov017_021281e8(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_02128258(void* arg1) {
+s32 func_ov017_02128258(void* arg0, void* arg1) {
     void* temp_r2;
     void* temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     CombatSprite_Release(temp_r4 + 0x100);
     CombatSprite_Release(temp_r4 + 0x160);
-    CombatCollision_Remove(temp_r4 + 0xC4);
+    BtlCollision_Remove(temp_r4 + 0xC4);
     BgResMgr_ReleaseChar(g_BgResourceManagers[0], ((Boss03*)temp_r4)->unk14);
     BgResMgr_ReleaseChar(g_BgResourceManagers[0], ((Boss03*)temp_r4)->unk18);
     PaletteMgr_ReleaseResource(g_PaletteManagers[0], ((Boss03*)temp_r4)->unk10);
@@ -1421,7 +1428,7 @@ static void func_ov017_02128760(void* arg0) {
     func_ov017_02128340(temp_r4, func_ov017_02128568);
 }
 
-s32 func_ov017_021287b8(void* arg1, s32 arg2) {
+s32 func_ov017_021287b8(void* arg0, void* arg1, s32 arg2) {
     s32   temp_r0;
     s32   temp_r0_2;
     s32   temp_r1;
@@ -1458,7 +1465,7 @@ s32 func_ov017_021287b8(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_02128924(void* arg1) {
+s32 func_ov017_02128924(void* arg0, void* arg1) {
     void (*temp_r1_2)(void*);
     s16   temp_lr;
     s32   temp_r0_2;
@@ -1517,7 +1524,7 @@ s32 func_ov017_02128924(void* arg1) {
     return ((Boss03*)temp_r4)->unk29C;
 }
 
-s32 func_ov017_02128ab0(void* arg1) {
+s32 func_ov017_02128ab0(void* arg0, void* arg1) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -1532,7 +1539,7 @@ s32 func_ov017_02128ab0(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_02128b10(void* arg1) {
+s32 func_ov017_02128b10(void* arg0, void* arg1) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -1594,7 +1601,7 @@ static void func_ov017_02128c58(void* arg0) {
     func_ov003_020c4b5c(arg0);
     if (((Boss03*)arg0)->unk1C0 == 0) {
         CombatSprite_SetAnimFromTable(arg0 + 0x84, 0, 0);
-        CombatCollision_SetDisabled(arg0 + 0x144, 0);
+        BtlCollision_SetDisabled(arg0 + 0x144, 0);
         ((Boss03*)arg0)->unk1C4 = func_ov003_020c42ec(arg0);
     }
     temp_r1                 = ((Boss03*)arg0)->unk1C0 + 1;
@@ -1620,7 +1627,7 @@ static void func_ov017_02128d2c(void* arg0) {
     func_ov003_020c4b5c(arg0);
     if (((Boss03*)arg0)->unk1C0 == 0) {
         CombatSprite_SetAnimFromTable(arg0 + 0x84, 0, 0);
-        CombatCollision_SetDisabled(arg0 + 0x144, 0);
+        BtlCollision_SetDisabled(arg0 + 0x144, 0);
         ((Boss03*)arg0)->unk1C4 = func_ov003_020c42ec(arg0);
     }
     temp_r1                 = ((Boss03*)arg0)->unk1C0 + 1;
@@ -1841,7 +1848,7 @@ static void func_ov017_021293c4(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s32)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-s32 func_ov017_02129438(void* arg1, s32 arg2) {
+s32 func_ov017_02129438(void* arg0, void* arg1, s32 arg2) {
     void*  temp_r5;
     void** temp_r4;
 
@@ -1858,7 +1865,7 @@ s32 func_ov017_02129438(void* arg1, s32 arg2) {
     CombatSprite_LoadFromTable(0, (CombatSprite*)temp_r4 + 0x84, &data_ov017_02141518, &data_ov017_02141568, 0, 0xD, 0x120);
     CombatHit_LoadSparkForUnit(0, (CombatSprite*)(temp_r4 + 0xE4), (Ov003EnemyActor*)temp_r4);
     func_ov003_020c49c8((Ov003EnemyActor*)temp_r4);
-    CombatCollision_Add(&((Ov003EnemyActor*)temp_r4)->collider, 1, ((Boss03*)temp_r5)->unk3, ((Boss03*)temp_r5)->unk4);
+    BtlCollision_Add(&((Ov003EnemyActor*)temp_r4)->collider, 1, ((Boss03*)temp_r5)->unk3, ((Boss03*)temp_r5)->unk4);
     func_ov003_020c4b5c((Ov003EnemyActor*)temp_r4);
     func_ov017_02128b7c(temp_r4, (void (*)(void*))func_ov017_02128c24);
     func_ov017_02130280(temp_r4);
@@ -1866,7 +1873,7 @@ s32 func_ov017_02129438(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212952c(void* arg1) {
+s32 func_ov017_0212952c(void* arg0, void* arg1) {
     void (*temp_r1_3)(void*);
     s16    temp_ip;
     s16    temp_r1;
@@ -1888,7 +1895,7 @@ s32 func_ov017_0212952c(void* arg1) {
             break;
         case ACTOR_CMD_HIT:
         case ACTOR_CMD_KNOCKDOWN:
-            CombatCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 0);
+            BtlCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 0);
             func_ov017_02128b7c(temp_r4, (void (*)(void*))func_ov017_021290a4);
             break;
         case ACTOR_CMD_HIT_IGNORED:
@@ -1900,7 +1907,7 @@ s32 func_ov017_0212952c(void* arg1) {
             }
             break;
         case ACTOR_CMD_DEFEAT:
-            CombatCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 1);
+            BtlCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 1);
             func_ov017_02128b7c(temp_r4, (void (*)(void*))func_ov017_02129134);
             break;
         case ACTOR_CMD_FEAT:
@@ -1927,12 +1934,12 @@ s32 func_ov017_0212952c(void* arg1) {
     return ((Boss03*)temp_r4)->unk1E8;
 }
 
-s32 func_ov017_021296f4(void* arg1) {
+s32 func_ov017_021296f4(void* arg0, void* arg1) {
     func_ov003_020c48b0(((Boss03*)arg1)->unk18);
     return 1;
 }
 
-s32 func_ov017_02129708(void* arg1) {
+s32 func_ov017_02129708(void* arg0, void* arg1) {
     func_ov003_020c492c(((Boss03*)arg1)->unk18);
     return 1;
 }
@@ -2023,7 +2030,7 @@ void func_ov017_02129958(void* arg0) {
     func_ov017_021297f8(arg0);
 }
 
-s32 func_ov017_021299d0(void* arg1, u16* arg2) {
+s32 func_ov017_021299d0(void* arg0, void* arg1, u16* arg2) {
     u32    temp_ip;
     u32    temp_r3;
     void*  temp_lr;
@@ -2147,7 +2154,7 @@ s32 func_ov017_021299d0(void* arg1, u16* arg2) {
     return 1;
 }
 
-s32 func_ov017_02129d78(void* arg1) {
+s32 func_ov017_02129d78(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void** temp_r4;
 
@@ -2170,7 +2177,7 @@ s32 func_ov017_02129ddc(void) {
     return 1;
 }
 
-s32 func_ov017_02129de4(void* arg1) {
+s32 func_ov017_02129de4(void* arg0, void* arg1) {
     void* temp_r2;
     void* temp_r4;
 
@@ -2438,7 +2445,7 @@ static void func_ov017_0212a548(void* arg0) {
     ((Boss03*)arg0)->unk18C = (u16)(((Boss03*)arg0)->unk18C | 1);
 }
 
-s32 func_ov017_0212a568(void* arg1, s32 arg2) {
+s32 func_ov017_0212a568(void* arg0, void* arg1, s32 arg2) {
     s32    var_r2;
     void*  temp_r2;
     void** temp_r4;
@@ -2476,7 +2483,7 @@ s32 func_ov017_0212a568(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212a6a4(void* arg1) {
+s32 func_ov017_0212a6a4(void* arg0, void* arg1) {
     void (*temp_r1_2)(void*);
     s16    temp_r3;
     u16    temp_r1;
@@ -2535,16 +2542,16 @@ s32 func_ov017_0212a6a4(void* arg1) {
     return ((Boss03*)temp_r4)->unk29C;
 }
 
-s32 func_ov017_0212a7f0(void* arg1) {
+s32 func_ov017_0212a7f0(void* arg0, void* arg1) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
     func_ov003_020c4878(temp_r4);
-    func_ov017_0212ffe4(temp_r4 + 0x220, temp_r4 + 0x1C0, ((Boss03*)temp_r4)->unk290);
+    func_ov017_0212ffe4(temp_r4 + 0x220, temp_r4 + 0x1C0, (s16)((Boss03*)temp_r4)->unk290);
     return 1;
 }
 
-s32 func_ov017_0212a81c(void* arg1) {
+s32 func_ov017_0212a81c(void* arg0, void* arg1) {
     s32 temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -2700,7 +2707,7 @@ static void func_ov017_0212ac58(void* arg0) {
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
         CombatSprite_SetAnimFromTable(arg0 + 0x84, 0, 0);
-        CombatCollision_SetDisabled(arg0 + 0x144, 0);
+        BtlCollision_SetDisabled(arg0 + 0x144, 0);
         temp_ret                = func_ov003_020c42ec(arg0);
         ((Boss03*)arg0)->unk1C4 = (s32)(((u32)temp_ret >> 0x1F) + (temp_ret / 10));
     }
@@ -2823,7 +2830,7 @@ static void func_ov017_0212afe8(void* arg0) {
     ((Boss03*)arg0)->unk1C0 = (s32)(((Boss03*)arg0)->unk1C0 + 1);
 }
 
-s32 func_ov017_0212b088(void* arg1, s32 arg2) {
+s32 func_ov017_0212b088(void* arg0, void* arg1, s32 arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -2842,7 +2849,7 @@ s32 func_ov017_0212b088(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212b114(void* arg1) {
+s32 func_ov017_0212b114(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     s16    temp_lr;
     u32    temp_r0;
@@ -2862,11 +2869,11 @@ s32 func_ov017_0212b114(void* arg1) {
     switch ((s32)temp_r0) { /* irregular */
         case 1:
         case 2:
-            CombatCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 0);
+            BtlCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 0);
             func_ov017_0212a888(temp_r4, func_ov017_0212af5c);
             break;
         case 3:
-            CombatCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 1);
+            BtlCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 1);
             func_ov017_0212a888(temp_r4, func_ov017_0212afe8);
             break;
     }
@@ -2879,12 +2886,12 @@ s32 func_ov017_0212b114(void* arg1) {
     return ((Boss03*)temp_r4)->unk1E8;
 }
 
-s32 func_ov017_0212b248(void* arg1) {
+s32 func_ov017_0212b248(void* arg0, void* arg1) {
     func_ov003_020c48b0(((Boss03*)arg1)->unk18);
     return 1;
 }
 
-s32 func_ov017_0212b25c(void* arg1) {
+s32 func_ov017_0212b25c(void* arg0, void* arg1) {
     func_ov003_020c492c(((Boss03*)arg1)->unk18);
     return 1;
 }
@@ -3060,7 +3067,7 @@ static void func_ov017_0212b660(void* arg0) {
     } while (var_r5 < 3);
 }
 
-s32 func_ov017_0212b6a4(void* arg1, void* arg2) {
+s32 func_ov017_0212b6a4(void* arg0, void* arg1, void* arg2) {
     s32    var_r8;
     void** temp_r7;
     void** var_r10;
@@ -3089,7 +3096,7 @@ s32 func_ov017_0212b6a4(void* arg1, void* arg2) {
     return 1;
 }
 
-s32 func_ov017_0212b770(void* arg1) {
+s32 func_ov017_0212b770(void* arg0, void* arg1) {
     s32    sp10;
     s32    spC;
     void*  sp8;
@@ -3183,7 +3190,7 @@ s32 func_ov017_0212b770(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212b9d0(void* arg1) {
+s32 func_ov017_0212b9d0(void* arg0, void* arg1) {
     s32    sp4;
     s32    sp0;
     void*  var_r7_2;
@@ -3271,7 +3278,7 @@ s32 func_ov017_0212b9d0(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212bc54(void* arg1) {
+s32 func_ov017_0212bc54(void* arg0, void* arg1) {
     s32   var_r5;
     void* temp_r4;
     void* var_r6;
@@ -3411,7 +3418,7 @@ static void func_ov017_0212c018(void* arg0) {
     s32 var_r0;
 
     if (data_ov017_021439ec == 1) {
-        var_r0 = ((s32(*)())func_ov003_020c6f90)();
+        var_r0 = func_ov003_020c6f90(arg0);
     } else {
         var_r0 = ((s32(*)())func_ov003_020c6f40)();
     }
@@ -3423,7 +3430,7 @@ static void func_ov017_0212c018(void* arg0) {
     ((Boss03*)arg0)->unk1D8  = 0;
 }
 
-s32 func_ov017_0212c078(void* arg1, s32 arg2) {
+s32 func_ov017_0212c078(void* arg0, void* arg1, s32 arg2) {
     s32    temp_r0;
     s32    temp_r1;
     s32    temp_r3;
@@ -3461,7 +3468,7 @@ s32 func_ov017_0212c078(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212c20c(void* arg1) {
+s32 func_ov017_0212c20c(void* arg0, void* arg1) {
     void (*temp_r1_2)(void*);
     u16    temp_r1;
     u32    temp_r0;
@@ -3512,7 +3519,7 @@ s32 func_ov017_0212c20c(void* arg1) {
     return ((Boss03*)temp_r4)->unk1D8;
 }
 
-s32 func_ov017_0212c300(void* arg1) {
+s32 func_ov017_0212c300(void* arg0, void* arg1) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -3525,7 +3532,7 @@ s32 func_ov017_0212c300(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212c34c(void* arg1) {
+s32 func_ov017_0212c34c(void* arg0, void* arg1) {
     func_ov003_020c48fc(((Boss03*)arg1)->unk18);
     return 1;
 }
@@ -3597,7 +3604,7 @@ static void func_ov017_0212c508(void* arg0) {
 
     if (((Boss03*)arg0)->unk1C0 == 0) {
         CombatSprite_SetAnimFromTable(arg0 + 0x84, 0, 0);
-        CombatCollision_SetDisabled(arg0 + 0x144, 0);
+        BtlCollision_SetDisabled(arg0 + 0x144, 0);
         func_ov003_020c4b5c(arg0);
         ((Boss03*)arg0)->unk1C4 = func_ov003_020c42ec(arg0);
     }
@@ -3701,7 +3708,7 @@ static void func_ov017_0212c758(void* arg0) {
     }
 }
 
-s32 func_ov017_0212c7c8(void* arg1, s32 arg2) {
+s32 func_ov017_0212c7c8(void* arg0, void* arg1, s32 arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -3721,7 +3728,7 @@ s32 func_ov017_0212c7c8(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212c8a4(void* arg1) {
+s32 func_ov017_0212c8a4(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     s32    temp_r0;
     void** temp_r4;
@@ -3732,11 +3739,11 @@ s32 func_ov017_0212c8a4(void* arg1) {
     switch (temp_r0) { /* irregular */
         case ACTOR_CMD_HIT:
         case ACTOR_CMD_KNOCKDOWN:
-            CombatCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 0);
+            BtlCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 0);
             func_ov017_0212c3a8(temp_r4, func_ov017_0212c6c0);
             break;
         case ACTOR_CMD_DEFEAT:
-            CombatCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 1);
+            BtlCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 1);
             func_ov017_0212c3a8(temp_r4, func_ov017_0212c758);
             break;
     }
@@ -3754,7 +3761,7 @@ s32 func_ov017_0212c8a4(void* arg1) {
     return ((Boss03*)temp_r4)->unk1E0;
 }
 
-s32 func_ov017_0212c98c(void* arg1) {
+s32 func_ov017_0212c98c(void* arg0, void* arg1) {
     void* temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -3767,7 +3774,7 @@ s32 func_ov017_0212c98c(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212c9d8(void* arg1) {
+s32 func_ov017_0212c9d8(void* arg0, void* arg1) {
     func_ov003_020c492c(((Boss03*)arg1)->unk18);
     return 1;
 }
@@ -3799,7 +3806,7 @@ static u16 func_ov017_0212ca34(void*) {
     return (u16)(FX_Atan2Idx(var_r2 - temp_r0, ((Boss03*)temp_r6)->unk34 - temp_r4) + 0x8000);
 }
 
-s32 func_ov017_0212cab0(void* arg1, void* arg2) {
+s32 func_ov017_0212cab0(void* arg0, void* arg1, void* arg2) {
     s32    var_r6;
     void** temp_r4;
     void** var_r7;
@@ -3818,7 +3825,7 @@ s32 func_ov017_0212cab0(void* arg1, void* arg2) {
     return 1;
 }
 
-s32 func_ov017_0212cb10(void* arg1) {
+s32 func_ov017_0212cb10(void* arg0, void* arg1) {
     s32   var_r5;
     void* temp_r4;
     void* var_r6;
@@ -3835,7 +3842,7 @@ s32 func_ov017_0212cb10(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212cb50(void* arg1) {
+s32 func_ov017_0212cb50(void* arg0, void* arg1) {
     s32   temp_r2;
     s32   temp_r4;
     s32   temp_r7;
@@ -3867,7 +3874,7 @@ s32 func_ov017_0212cb50(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212cbe8(void* arg1) {
+s32 func_ov017_0212cbe8(void* arg0, void* arg1) {
     s32    var_r4;
     void** var_r5;
 
@@ -3905,7 +3912,7 @@ static u16 func_ov017_0212cc60(void*) {
                  0x8000);
 }
 
-s32 func_ov017_0212cccc(void* arg1, void* arg2) {
+s32 func_ov017_0212cccc(void* arg0, void* arg1, void* arg2) {
     s32    var_r6;
     void** temp_r4;
     void** var_r7;
@@ -3924,7 +3931,7 @@ s32 func_ov017_0212cccc(void* arg1, void* arg2) {
     return 1;
 }
 
-s32 func_ov017_0212cd2c(void* arg1) {
+s32 func_ov017_0212cd2c(void* arg0, void* arg1) {
     s32   var_r5;
     void* temp_r4;
     void* var_r6;
@@ -3941,7 +3948,7 @@ s32 func_ov017_0212cd2c(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212cd6c(void* arg1) {
+s32 func_ov017_0212cd6c(void* arg0, void* arg1) {
     s32   temp_r2;
     s32   temp_r4;
     s32   temp_r7;
@@ -3973,7 +3980,7 @@ s32 func_ov017_0212cd6c(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212ce04(void* arg1) {
+s32 func_ov017_0212ce04(void* arg0, void* arg1) {
     s32    var_r4;
     void** var_r5;
 
@@ -4025,7 +4032,7 @@ static void func_ov017_0212cf08(void* arg0) {
                         ((Boss03*)((Boss03*)arg0)->unk0)->unk40 - 0x60000);
 }
 
-s32 func_ov017_0212cf88(void* arg1, u16* arg2) {
+s32 func_ov017_0212cf88(void* arg0, void* arg1, u16* arg2) {
     void*  temp_ip;
     void*  temp_r0;
     void*  temp_r0_2;
@@ -4095,7 +4102,7 @@ s32 func_ov017_0212cf88(void* arg1, u16* arg2) {
     return 1;
 }
 
-s32 func_ov017_0212d17c(void* arg1) {
+s32 func_ov017_0212d17c(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void** temp_r4;
 
@@ -4116,7 +4123,7 @@ s32 func_ov017_0212d1d0(void) {
     return 1;
 }
 
-s32 func_ov017_0212d1d8(void* arg1) {
+s32 func_ov017_0212d1d8(void* arg0, void* arg1) {
     void* temp_r2;
     void* temp_r4;
 
@@ -4167,7 +4174,7 @@ static void func_ov017_0212d310(void* arg0) {
     func_ov017_0212d27c(arg0, NULL);
 }
 
-s32 func_ov017_0212d374(void* arg1, u16* arg2) {
+s32 func_ov017_0212d374(void* arg0, void* arg1, u16* arg2) {
     u32    temp_r2;
     u32    temp_r5;
     void*  temp_ip;
@@ -4253,7 +4260,7 @@ s32 func_ov017_0212d374(void* arg1, u16* arg2) {
     return 1;
 }
 
-s32 func_ov017_0212d630(void* arg1) {
+s32 func_ov017_0212d630(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void** temp_r4;
 
@@ -4274,7 +4281,7 @@ s32 func_ov017_0212d684(void) {
     return 1;
 }
 
-s32 func_ov017_0212d68c(void* arg1) {
+s32 func_ov017_0212d68c(void* arg0, void* arg1) {
     void* temp_r2;
     void* temp_r4;
 
@@ -4377,7 +4384,7 @@ static void func_ov017_0212d8e0(void* arg0) {
 
 static void func_ov017_0212da28(void) {}
 
-s32 func_ov017_0212da2c(void* arg1) {
+s32 func_ov017_0212da2c(void* arg0, void* arg1) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -4393,7 +4400,7 @@ s32 func_ov017_0212da2c(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212dabc(void* arg1) {
+s32 func_ov017_0212dabc(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void* temp_r4;
 
@@ -4491,7 +4498,7 @@ static void func_ov017_0212dbd8(void* arg0) {
     ((Boss03*)arg0)->unk84 = 0;
 }
 
-s32 func_ov017_0212dd54(void* arg1, void* arg2) {
+s32 func_ov017_0212dd54(void* arg0, void* arg1, void* arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -4513,7 +4520,7 @@ s32 func_ov017_0212dd54(void* arg1, void* arg2) {
     return ((Boss03*)temp_r4)->unk84;
 }
 
-s32 func_ov017_0212de18(void* arg1) {
+s32 func_ov017_0212de18(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void* temp_r4;
 
@@ -4529,7 +4536,7 @@ s32 func_ov017_0212de18(void* arg1) {
     return ((Boss03*)temp_r4)->unk84;
 }
 
-s32 func_ov017_0212de54(void* arg1) {
+s32 func_ov017_0212de54(void* arg0, void* arg1) {
     s16   temp_r4;
     void* temp_r5;
 
@@ -4541,7 +4548,7 @@ s32 func_ov017_0212de54(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212deb0(void* arg1) {
+s32 func_ov017_0212deb0(void* arg0, void* arg1) {
     CombatSprite_Release(((Boss03*)arg1)->unk18);
     return 1;
 }
@@ -4606,7 +4613,7 @@ static void func_ov017_0212df88(void* arg0) {
     ((Boss03*)arg0)->unk88 = 0;
 }
 
-s32 func_ov017_0212e064(void* arg1, void* arg2) {
+s32 func_ov017_0212e064(void* arg0, void* arg1, void* arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -4628,7 +4635,7 @@ s32 func_ov017_0212e064(void* arg1, void* arg2) {
     return ((Boss03*)temp_r4)->unk88;
 }
 
-s32 func_ov017_0212e128(void* arg1) {
+s32 func_ov017_0212e128(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void* temp_r4;
 
@@ -4644,7 +4651,7 @@ s32 func_ov017_0212e128(void* arg1) {
     return ((Boss03*)temp_r4)->unk88;
 }
 
-s32 func_ov017_0212e164(void* arg1) {
+s32 func_ov017_0212e164(void* arg0, void* arg1) {
     s16   temp_r4;
     void* temp_r5;
 
@@ -4656,7 +4663,7 @@ s32 func_ov017_0212e164(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212e1c0(void* arg1) {
+s32 func_ov017_0212e1c0(void* arg0, void* arg1) {
     CombatSprite_Release(((Boss03*)arg1)->unk18);
     return 1;
 }
@@ -4740,7 +4747,7 @@ static void func_ov017_0212e380(void* arg0) {
     }
 }
 
-s32 func_ov017_0212e3d8(void* arg1, s32 arg2) {
+s32 func_ov017_0212e3d8(void* arg0, void* arg1, s32 arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -4758,7 +4765,7 @@ s32 func_ov017_0212e3d8(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212e458(void* arg1) {
+s32 func_ov017_0212e458(void* arg0, void* arg1) {
     void (*temp_r1_2)(void*);
     u16    temp_r1;
     u32    temp_r0;
@@ -4804,7 +4811,7 @@ s32 func_ov017_0212e458(void* arg1) {
     return ((Boss03*)temp_r4)->unk1D8;
 }
 
-s32 func_ov017_0212e518(void* arg1) {
+s32 func_ov017_0212e518(void* arg0, void* arg1) {
     void* temp_r0;
 
     temp_r0                   = ((Boss03*)arg1)->unk18;
@@ -4813,7 +4820,7 @@ s32 func_ov017_0212e518(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212e538(void* arg1) {
+s32 func_ov017_0212e538(void* arg0, void* arg1) {
     s32 temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -4902,7 +4909,7 @@ static void func_ov017_0212e740(void* arg0) {
     ((Boss03*)arg0)->unk54 = (s32)(((Boss03*)arg0)->unk54 | 0x30);
 }
 
-s32 func_ov017_0212e774(void* arg1, s32 arg2) {
+s32 func_ov017_0212e774(void* arg0, void* arg1, s32 arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -4917,7 +4924,7 @@ s32 func_ov017_0212e774(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212e7e0(void* arg1) {
+s32 func_ov017_0212e7e0(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void** temp_r4;
 
@@ -4934,7 +4941,7 @@ s32 func_ov017_0212e7e0(void* arg1) {
     return ((Boss03*)temp_r4)->unk1D8;
 }
 
-s32 func_ov017_0212e824(void* arg1) {
+s32 func_ov017_0212e824(void* arg0, void* arg1) {
     void* temp_r0;
 
     temp_r0                   = ((Boss03*)arg1)->unk18;
@@ -4943,7 +4950,7 @@ s32 func_ov017_0212e824(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212e844(void* arg1) {
+s32 func_ov017_0212e844(void* arg0, void* arg1) {
     s32 temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -5109,7 +5116,7 @@ static void func_ov017_0212ec84(void* arg0) {
     func_ov017_0212e8ac(arg0, func_ov017_0212e97c);
 }
 
-s32 func_ov017_0212ecb0(void* arg1, s32 arg2) {
+s32 func_ov017_0212ecb0(void* arg0, void* arg1, s32 arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -5124,7 +5131,7 @@ s32 func_ov017_0212ecb0(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212ed18(void* arg1) {
+s32 func_ov017_0212ed18(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     s32    temp_r0;
     void** temp_r4;
@@ -5139,7 +5146,7 @@ s32 func_ov017_0212ed18(void* arg1) {
             if ((temp_r0 != 1) && (temp_r0 != 2)) {
 
             } else {
-                CombatCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 0);
+                BtlCollision_SetDisabled(&((Ov003EnemyActor*)temp_r4)->collider, 0);
                 func_ov017_0212e8ac(temp_r4, func_ov017_0212ec84);
             }
         }
@@ -5152,16 +5159,16 @@ s32 func_ov017_0212ed18(void* arg1) {
     return ((Boss03*)temp_r4)->unk1DC;
 }
 
-s32 func_ov017_0212edac(void* arg1) {
+s32 func_ov017_0212edac(void* arg0, void* arg1) {
     void* temp_r0;
 
     temp_r0                   = ((Boss03*)arg1)->unk18;
     ((Boss03*)temp_r0)->unk54 = (s32)(((Boss03*)temp_r0)->unk54 | 0x80000000);
-    ((void (*)())func_ov003_020c48b0)();
+    func_ov003_020c48b0(arg0);
     return 1;
 }
 
-s32 func_ov017_0212edcc(void* arg1) {
+s32 func_ov017_0212edcc(void* arg0, void* arg1) {
     func_ov003_020c492c(((Boss03*)arg1)->unk18);
     return 1;
 }
@@ -5377,7 +5384,7 @@ static void func_ov017_0212f3c8(void* arg0) {
     func_ov017_0212ee28(arg0, func_ov017_0212f18c);
 }
 
-s32 func_ov017_0212f3f8(void* arg1, s32 arg2) {
+s32 func_ov017_0212f3f8(void* arg0, void* arg1, s32 arg2) {
     s32    var_r2;
     void*  temp_r2;
     void** temp_r4;
@@ -5410,7 +5417,7 @@ s32 func_ov017_0212f3f8(void* arg1, s32 arg2) {
     return 1;
 }
 
-s32 func_ov017_0212f4f0(void* arg1) {
+s32 func_ov017_0212f4f0(void* arg0, void* arg1) {
     void (*temp_r1_2)(void*);
     s32    temp_r0;
     u16    temp_r1;
@@ -5450,12 +5457,12 @@ s32 func_ov017_0212f4f0(void* arg1) {
     return ((Boss03*)temp_r4)->unk1D8;
 }
 
-s32 func_ov017_0212f5e8(void* arg1) {
+s32 func_ov017_0212f5e8(void* arg0, void* arg1) {
     func_ov003_020c4878(((Boss03*)arg1)->unk18);
     return 1;
 }
 
-s32 func_ov017_0212f5fc(void* arg1) {
+s32 func_ov017_0212f5fc(void* arg0, void* arg1) {
     s32 temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
@@ -5551,7 +5558,7 @@ static void func_ov017_0212f784(void* arg0) {
     ((Boss03*)arg0)->unk8C = 1;
 }
 
-s32 func_ov017_0212f890(void* arg1, void* arg2) {
+s32 func_ov017_0212f890(void* arg0, void* arg1, void* arg2) {
     s16    temp_r1;
     s16    temp_r1_2;
     s32    temp_r2;
@@ -5601,7 +5608,7 @@ s32 func_ov017_0212f890(void* arg1, void* arg2) {
     return ((Boss03*)temp_r4)->unk90;
 }
 
-s32 func_ov017_0212fa2c(void* arg1) {
+s32 func_ov017_0212fa2c(void* arg0, void* arg1) {
     void (*temp_r1)(void*);
     void* temp_r4;
 
@@ -5614,7 +5621,7 @@ s32 func_ov017_0212fa2c(void* arg1) {
     return ((Boss03*)temp_r4)->unk90;
 }
 
-s32 func_ov017_0212fa58(void* arg1) {
+s32 func_ov017_0212fa58(void* arg0, void* arg1) {
     s16   var_r0;
     s16   var_r5;
     void* temp_r4;
@@ -5638,7 +5645,7 @@ s32 func_ov017_0212fa58(void* arg1) {
     return 1;
 }
 
-s32 func_ov017_0212fb0c(void* arg1) {
+s32 func_ov017_0212fb0c(void* arg0, void* arg1) {
     CombatSprite_Release(((Boss03*)arg1)->unk18);
     return 1;
 }

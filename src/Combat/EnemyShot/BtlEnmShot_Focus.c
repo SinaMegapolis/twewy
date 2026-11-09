@@ -56,11 +56,11 @@ static s32 func_ov003_020ce39c(Ov003EnemyShotSource* source, u16 angle, s32 spee
 /// Fires two fans of three focus shots, one on each side of the owner, each shot starting a step further out.
 void func_ov003_020ce448(Ov003EnemyShotSource* source, s32* ids, s32 offsetX, s32 offsetY, s32 speed, s32 spread, s32 accel,
                          s32 targetX, s32 targetY, s32 targetZ) {
+    s32 i;
     s32 savedX = source->core.position.x;
     s32 savedY = source->core.position.y;
     u16 base   = (source->core.owner->base.sprite.flags46 & 1) ? 0 : 0x8000;
     u16 angle;
-    s32 i;
 
     angle = base + 0x800;
     for (i = 0; i < 3; i++) {

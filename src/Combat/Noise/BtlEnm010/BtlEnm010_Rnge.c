@@ -92,7 +92,7 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
             }
             break;
         case 2:
-            if (data->sprite.sprite.bits_0_1) {
+            if (data->sprite.sprite.bits_0_1 == 0) {
                 pan = CombatStage_ToScreenX(0, data->unk_060->actor.position.x);
                 y   = CombatStage_ToScreenY(0, data->unk_060->actor.position.y, data->unk_060->actor.position.z);
             } else {
