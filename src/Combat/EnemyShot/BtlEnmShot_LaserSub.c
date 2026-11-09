@@ -1,4 +1,4 @@
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnemyShot.h"

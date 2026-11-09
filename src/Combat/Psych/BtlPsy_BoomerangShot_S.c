@@ -7,7 +7,7 @@ static const Ov003BoomerangKind data_ov003_020dce10[3];
 static s32                      func_ov003_020b7e68(Ov003BoomerangShotS* self);
 
 s32 func_ov003_020b7bf4(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_GetSlashed(0))
+    if (!CombatTouch_GetSlashed(ACTOR_KIND_PLAYER))
         return 0;
     Ov003PsychArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dce04.taskName);
     arg->effect         = effect;
@@ -54,7 +54,7 @@ static s32 func_ov003_020b7c4c(TaskPool* pool, Task* task, void* args, s32 stage
                 case 1:
                     if (--self->timer == 0)
                         return 0;
-                    if (CombatTouch_GetSlashed(0)) {
+                    if (CombatTouch_GetSlashed(ACTOR_KIND_PLAYER)) {
                         BtlTouchWork* touch = &g_CombatGlobal->touchWork;
                         func_ov003_020a6494(touch->endX);
                         self->angle = func_ov003_020a62d0(touch->startX, touch->startY, touch->endX, touch->endY);
@@ -84,14 +84,14 @@ static s32 func_ov003_020b7c4c(TaskPool* pool, Task* task, void* args, s32 stage
 
 static s32 func_ov003_020b7e68(Ov003BoomerangShotS* self) {
     s32          left;
-    CombatActor* player;
+    BattleActor* player;
     s32          targetX;
     s32          originY;
     s32          originX;
     s32          i;
     s32          count;
     left    = 0;
-    player  = g_CombatGlobal->unk3D898;
+    player  = g_CombatGlobal->player;
     count   = self->effect->params[0];
     targetX = CombatStage_ToWorldX(0, self->x);
     originY = player->position.y;

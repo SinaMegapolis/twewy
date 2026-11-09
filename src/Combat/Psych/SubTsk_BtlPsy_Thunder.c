@@ -20,7 +20,7 @@ Ov003TargetEntry* func_ov003_020b3094(CombatList* list) {
     return CombatList_GetHead(list);
 }
 
-Ov003TargetEntry* func_ov003_020b30a0(CombatList* list, CombatActor* actor) {
+Ov003TargetEntry* func_ov003_020b30a0(CombatList* list, BattleActor* actor) {
     Ov003TargetEntry* entry = CombatList_GetHead(list);
     while (entry != NULL) {
         if (entry->actor == actor)
@@ -34,7 +34,7 @@ s32 func_ov003_020b30d8(CombatList* list) {
     return func_ov003_020b3094(list) == NULL;
 }
 
-s32 func_ov003_020b30f0(CombatList* list, CombatActor* actor) {
+s32 func_ov003_020b30f0(CombatList* list, BattleActor* actor) {
     return func_ov003_020b30a0(list, actor) != NULL;
 }
 

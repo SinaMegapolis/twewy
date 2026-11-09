@@ -87,9 +87,9 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                         s32 y;
                         s32 x;
                         self->spawnTimer = 10;
-                        y                = CombatStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.unk_76),
-                                                                self->unit->actor.position.z);
-                        x                = CombatStage_ToWorldX(0, self->unit->actor.screenX);
+                        y = CombatStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight),
+                                                 self->unit->actor.position.z);
+                        x = CombatStage_ToWorldX(0, self->unit->actor.screenX);
                         func_ov003_020a88c0(&effectArgs0, x, y, self->unit->actor.position.z, 2, 0xCE);
                         func_ov003_020a899c(&effectArgs0, 0);
                         func_ov003_020a89b0(&effectArgs0, 0x1E);
@@ -109,9 +109,9 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                         s32 y;
                         s32 x;
                         self->spawnTimer = 5;
-                        y                = CombatStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.unk_76),
-                                                                self->unit->actor.position.z);
-                        x                = CombatStage_ToWorldX(0, self->unit->actor.screenX);
+                        y = CombatStage_ToWorldY(0, (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight),
+                                                 self->unit->actor.position.z);
+                        x = CombatStage_ToWorldX(0, self->unit->actor.screenX);
                         func_ov003_020a88c0(&effectArgs1, x, y, self->unit->actor.position.z, 2, 0xCE);
                         func_ov003_020a899c(&effectArgs1, 0);
                         func_ov003_020a89b0(&effectArgs1, 0x1E);
@@ -147,7 +147,7 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
             s32               i = 0; // seeded in its declaration so both loop inductions start in order
             CombatSprite*     sprite;
             s32               sortKey = 0;
-            y                         = (s16)(self->unit->actor.screenY - self->unit->actor.unk_76);
+            y                         = (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight);
             screenX                   = self->unit->actor.screenX;
             sprite                    = self->sprites;
             for (; i < 3; i++, sprite++, sortKey += 0x1000) {
@@ -215,7 +215,7 @@ static Ov003EnemyActor* func_ov003_020b1c50(void) {
     unit  = (Ov003EnemyActor*)touch->held;
     if (unit == NULL)
         return NULL;
-    if (unit->actor.unk_00 != 1)
+    if (unit->actor.kind != ACTOR_KIND_ENEMY)
         unit = NULL;
     return unit;
 }

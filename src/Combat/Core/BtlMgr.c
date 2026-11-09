@@ -1,3 +1,4 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlAura.h"
 #include "Combat/Core/BtlBar.h"
 #include "Combat/Core/BtlCmd.h"
@@ -6,7 +7,6 @@
 #include "Combat/Core/BtlPhase.h"
 #include "Combat/Core/BtlTch.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnmOverlay.h"
@@ -562,13 +562,13 @@ static void func_ov003_0208ae24(s32 partner) {
 }
 
 /// Stops a level-up gauge actor and parks it.
-static void func_ov003_0208ae98(Ov003EnemyActor* unit) {
-    unit->actor.flags &= ~0x4002;
-    unit->actor.flags &= ~8;
-    unit->actor.xVelocity = 0;
-    unit->actor.yVelocity = 0;
-    unit->actor.flags |= 0x10;
-    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_LEVEL_UP);
+static void func_ov003_0208ae98(BattleActor* actor) {
+    actor->flags &= ~(ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED);
+    actor->flags &= ~ACTOR_FLAG_GUARDING;
+    actor->xVelocity = 0;
+    actor->yVelocity = 0;
+    actor->flags |= ACTOR_FLAG_INTANGIBLE;
+    BtlActor_SetPendingCommand(actor, ACTOR_CMD_LEVEL_UP);
 }
 
 /// Checks that both unit lists only contain idle, on-screen units.
@@ -577,14 +577,14 @@ static BOOL func_ov003_0208aed8(void) {
     BOOL             result = TRUE;
 
     for (unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
-        if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & 4) == 0) {
+        if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & ACTOR_FLAG_DEFEATED) == 0) {
             result = FALSE;
             break;
         }
     }
 
     for (unit = CombatList_GetHead(&g_CombatGlobal->unk3D8AC); unit != NULL; unit = CombatList_GetNext(&unit->node)) {
-        if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & 4) == 0) {
+        if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & ACTOR_FLAG_DEFEATED) == 0) {
             result = FALSE;
             break;
         }
@@ -627,18 +627,18 @@ void BtlMgr_AddExp(s32 exp) {
     g_CombatGlobal->unk3D8D4 = 0;
     g_CombatGlobal->unk3D8D6 = 0;
 
-    ((CombatActor*)g_CombatGlobal->unk3D898)->maxHp     = g_CombatGlobal->unk3D8D2;
-    ((CombatActor*)g_CombatGlobal->unk3D898)->currentHp = ((CombatActor*)g_CombatGlobal->unk3D898)->maxHp;
-    ((CombatActor*)g_CombatGlobal->unk3D89C)->maxHp     = g_CombatGlobal->unk3D8D2;
-    ((CombatActor*)g_CombatGlobal->unk3D89C)->currentHp = ((CombatActor*)g_CombatGlobal->unk3D89C)->maxHp;
+    g_CombatGlobal->player->maxHp      = g_CombatGlobal->unk3D8D2;
+    g_CombatGlobal->player->currentHp  = g_CombatGlobal->player->maxHp;
+    g_CombatGlobal->partner->maxHp     = g_CombatGlobal->unk3D8D2;
+    g_CombatGlobal->partner->currentHp = g_CombatGlobal->partner->maxHp;
 
     g_CombatGlobal->unk3D904 = 0;
     g_CombatGlobal->unk3D906 = 0;
-    func_ov003_0208ae98((Ov003EnemyActor*)g_CombatGlobal->unk3D898);
+    func_ov003_0208ae98(g_CombatGlobal->player);
 
     g_CombatGlobal->unk3D908 = 0;
     g_CombatGlobal->unk3D90A = 0;
-    func_ov003_0208ae98((Ov003EnemyActor*)g_CombatGlobal->unk3D89C);
+    func_ov003_0208ae98(g_CombatGlobal->partner);
 
     EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_LvUp, NULL, 0, NULL, NULL);
 }
@@ -760,27 +760,27 @@ void BtlMgr_AddTeamHp(s32 bank, s16 delta) {
         }
     }
 
-    ((CombatActor*)g_CombatGlobal->unk3D898)->currentHp = g_CombatGlobal->unk3D8D0;
-    ((CombatActor*)g_CombatGlobal->unk3D89C)->currentHp = g_CombatGlobal->unk3D8D0;
+    g_CombatGlobal->player->currentHp  = g_CombatGlobal->unk3D8D0;
+    g_CombatGlobal->partner->currentHp = g_CombatGlobal->unk3D8D0;
 }
 
-/// Adds (or removes) HP on a unit. Units flagged 0x8000000 use the second gauge instead of their own
+/// Adds (or removes) HP on a unit. Units flagged ACTOR_FLAG_BOSS_GAUGE_HP use the boss gauge instead of their own
 /// HP field.
-void BtlMgr_AddUnitHp(s32 bank, Ov003EnemyActor* unit, s16 delta) {
+void BtlMgr_AddUnitHp(s32 bank, BattleActor* actor, s16 delta) {
     // The original reloads the global on every use; keeping a pointer in a local changes the
     // register allocation of the whole function.
 
-    if ((unit->actor.flags & 0x8000000) == 0) {
+    if ((actor->flags & ACTOR_FLAG_BOSS_GAUGE_HP) == 0) {
         if (delta > 0) {
-            s32 room = unit->actor.maxHp - unit->actor.currentHp;
+            s32 room = actor->maxHp - actor->currentHp;
 
             if (room < delta) {
                 delta = (s16)room;
             }
         }
-        unit->actor.currentHp += delta;
-        if (unit->actor.unk_78 != 0) {
-            ((Ov003EnemyActor*)unit->actor.unk_78)->actor.currentHp = unit->actor.currentHp;
+        actor->currentHp += delta;
+        if (actor->linkedActor != NULL) {
+            actor->linkedActor->currentHp = actor->currentHp;
         }
         return;
     }
@@ -813,9 +813,9 @@ void BtlMgr_AddUnitHp(s32 bank, Ov003EnemyActor* unit, s16 delta) {
         }
     }
 
-    unit->actor.currentHp = g_CombatGlobal->unk3D8D8;
-    if (unit->actor.unk_78 != 0) {
-        ((Ov003EnemyActor*)unit->actor.unk_78)->actor.currentHp = unit->actor.currentHp;
+    actor->currentHp = g_CombatGlobal->unk3D8D8;
+    if (actor->linkedActor != NULL) {
+        actor->linkedActor->currentHp = actor->currentHp;
     }
 }
 
@@ -867,8 +867,8 @@ static void func_ov003_0208b71c(void) {
         g_CombatGlobal->unk3D878 |= 0x30000;
         g_CombatGlobal->unk3D878 |= 0x4000;
         g_CombatGlobal->unk3D878 |= 0x8000;
-        ((Ov003EnemyActor*)g_CombatGlobal->unk3D898)->actor.flags |= 0x10;
-        ((Ov003EnemyActor*)g_CombatGlobal->unk3D89C)->actor.flags |= 0x10;
+        g_CombatGlobal->player->flags |= ACTOR_FLAG_INTANGIBLE;
+        g_CombatGlobal->partner->flags |= ACTOR_FLAG_INTANGIBLE;
     }
 
     if (func_ov003_020bb47c() != 0) {
@@ -881,15 +881,15 @@ static void func_ov003_0208b71c(void) {
     if (g_CombatGlobal->unk3D878 & 0x200000) {
         g_CombatGlobal->unk3D878 |= 0x20;
         BtlMgr_SetState(6);
-        ((Ov003EnemyActor*)g_CombatGlobal->unk3D898)->actor.flags &= ~0x10;
-        ((Ov003EnemyActor*)g_CombatGlobal->unk3D89C)->actor.flags &= ~0x10;
+        g_CombatGlobal->player->flags &= ~ACTOR_FLAG_INTANGIBLE;
+        g_CombatGlobal->partner->flags &= ~ACTOR_FLAG_INTANGIBLE;
         return;
     }
 
     if (EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlWin, NULL, 0, NULL, NULL) != -1) {
         BtlMgr_SetState(3);
-        ((Ov003EnemyActor*)g_CombatGlobal->unk3D898)->actor.flags &= ~0x10;
-        ((Ov003EnemyActor*)g_CombatGlobal->unk3D89C)->actor.flags &= ~0x10;
+        g_CombatGlobal->player->flags &= ~ACTOR_FLAG_INTANGIBLE;
+        g_CombatGlobal->partner->flags &= ~ACTOR_FLAG_INTANGIBLE;
     }
 }
 
@@ -1183,7 +1183,7 @@ static s32 func_ov003_0208c718(void) {
 
 /// True when `unit` is a valid target sitting on the requested side of the screen.
 BOOL BtlMgr_IsTargetOnSide(Ov003EnemyActor* unit, s32 side) {
-    if ((unit->actor.flags & 4) || (unit->actor.flags & 0x10)) {
+    if ((unit->actor.flags & ACTOR_FLAG_DEFEATED) || (unit->actor.flags & ACTOR_FLAG_INTANGIBLE)) {
         return FALSE;
     }
     if (side != 0) {

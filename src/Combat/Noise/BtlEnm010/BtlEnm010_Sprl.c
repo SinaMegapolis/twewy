@@ -19,7 +19,7 @@ typedef struct BtlEnm010Sprl {
     /* 0xA8 */ s32              unk_0A8;    // radius step
     /* 0xAC */ u16              unk_0AC;    // angle
     /* 0xAE */ u16              unk_0AE;    // angle step
-    /* 0xB0 */ u16              unk_0B0[4]; // copy of the owner's actor.unk_04..unk_0A
+    /* 0xB0 */ BattleAttackArgs args;       // copy of the owner's baseArgs
 } BtlEnm010Sprl;                            // Size: 0xB8
 
 static char data_ov011_0212cc54[20];
@@ -127,13 +127,13 @@ static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
         data->unk_070[i] = data->unk_09C;
         data->unk_084[i] = data->unk_0A0;
     }
-    data->unk_098    = 0 - 0x10000;
-    data->unk_0A4    = 0x8000;
-    data->unk_0A8    = 0x800;
-    data->unk_0B0[0] = (*arg1)->actor.unk_04;
-    data->unk_0B0[1] = (*arg1)->actor.unk_06;
-    data->unk_0B0[2] = (*arg1)->actor.unk_08;
-    data->unk_0B0[3] = (*arg1)->actor.unk_0A;
+    data->unk_098            = 0 - 0x10000;
+    data->unk_0A4            = 0x8000;
+    data->unk_0A8            = 0x800;
+    data->args.power         = (*arg1)->actor.baseArgs.power;
+    data->args.comboFrames   = (*arg1)->actor.baseArgs.comboFrames;
+    data->args.powerPercent  = (*arg1)->actor.baseArgs.powerPercent;
+    data->args.effectPercent = (*arg1)->actor.baseArgs.effectPercent;
 }
 
 /// Sprl's phase-2 worker: advances a five-joint spiral chain, clamps the joints to a maximum
@@ -174,7 +174,7 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
     if (func_ov003_020c3c28() != 0) {
         return 0;
     }
-    if (p->unk_000 != NULL && (p->unk_000->actor.flags & 4) != 0) {
+    if (p->unk_000 != NULL && (p->unk_000->actor.flags & ACTOR_FLAG_DEFEATED) != 0) {
         return 0;
     }
     p->unk_0A4 = p->unk_0A4 + p->unk_0A8;
@@ -209,7 +209,7 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
         fx.unk_05 = (u8)v;
         fx.unk_06 = (u8)v;
         fx.unk_07 = (u8)v;
-        if (CombatHit_AttackAt(&fx, (Ov003AttackArgs*)p->unk_0B0, p->unk_070[i], p->unk_084[i], p->unk_098) == 1) {
+        if (CombatHit_AttackAt(&fx, &p->args, p->unk_070[i], p->unk_084[i], p->unk_098) == 1) {
             s32 pan;
             if (func_ov003_020c37f8(&p->sprite) != 0) {
                 pan = CombatStage_ToScreenX(1, p->unk_070[i]);

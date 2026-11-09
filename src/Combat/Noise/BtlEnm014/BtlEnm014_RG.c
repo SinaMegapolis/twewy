@@ -58,7 +58,7 @@ static void func_ov012_02125d84(BtlEnm014* data) {
 }
 
 static void func_ov012_02125de4(BtlEnm014* data) {
-    BtlEnm014* boss = g_CombatGlobal->unk3D89C;
+    BattleActor* partner = g_CombatGlobal->partner;
 
     switch (data->unk_1C2) {
         case 0:
@@ -72,7 +72,7 @@ static void func_ov012_02125de4(BtlEnm014* data) {
         case 1: {
             s32 vel;
             CombatSprite_SetAnimFromTable(&data->base.sprite, 2, 1);
-            vel           = boss->base.actor.position.x - data->base.actor.position.x;
+            vel           = partner->position.x - data->base.actor.position.x;
             data->unk_1DC = vel;
             data->unk_1D8 = vel;
             if (vel > 0x800) {
@@ -106,7 +106,7 @@ static void func_ov012_02125de4(BtlEnm014* data) {
             if (data->unk_1C0 > 0) {
                 return;
             }
-            bx = boss->base.actor.position.x;
+            bx = partner->position.x;
             px = data->base.actor.position.x;
             if (ABS(px - bx) < 0x3C000) {
                 CombatSprite_SetAnimFromTable(&data->base.sprite, 0xC, 1);
@@ -147,7 +147,7 @@ static void func_ov012_02125de4(BtlEnm014* data) {
             if (data->unk_1C0 > 0) {
                 return;
             }
-            bx = boss->base.actor.position.x;
+            bx = partner->position.x;
             px = data->base.actor.position.x;
             if (ABS(px - bx) < 0x3C000) {
                 CombatSprite_SetAnimFromTable(&data->base.sprite, 0xC, 1);
@@ -187,8 +187,8 @@ static void func_ov012_02125de4(BtlEnm014* data) {
                                                    data->base.actor.position.y, data->base.actor.position.z);
                 if (data->unk_1D0 == 1) {
                     func_ov003_020c4cc4(&data->base, 0x21A);
-                    boss->base.actor.zVelocity = FX_Mul(boss->base.actor.zVelocity, 0x1800);
-                    boss->base.actor.yVelocity = FX_Mul(boss->base.actor.yVelocity, 0x1800);
+                    partner->zVelocity = FX_Mul(partner->zVelocity, 0x1800);
+                    partner->yVelocity = FX_Mul(partner->yVelocity, 0x1800);
                 }
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
@@ -403,7 +403,7 @@ static void func_ov012_0212684c(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126898(BtlEnm014* data) {
-    switch (CombatActor_PopPendingCommand(&data->base.actor)) {
+    switch (BtlActor_PopPendingCommand(&data->base.actor)) {
         case ACTOR_CMD_NONE:
             break;
         case ACTOR_CMD_HIT:

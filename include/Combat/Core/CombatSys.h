@@ -1,8 +1,8 @@
 #ifndef TWEWY_COMBAT_CORE_COMBATSYS_H
 #define TWEWY_COMBAT_CORE_COMBATSYS_H
 
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"
@@ -47,7 +47,7 @@ s32                func_ov003_02086f7c(void);
 s8                 func_ov003_02086fec(void);
 void               func_ov003_02087008(void);
 void               func_ov003_020871cc(s32 arg0);
-void               func_ov003_02087250(Ov003EffectState* state, CombatActor* target, s32 angle);
+void               func_ov003_02087250(Ov003EffectState* state, BattleActor* target, s32 angle);
 void               func_ov003_020872b4(Ov003ActionEffect* effect);
 void               func_ov003_02087310(void);
 Ov003ActionEffect* func_ov003_02087358(void);
@@ -64,7 +64,7 @@ void func_ov003_02087804(s32 sub);
 /// Moves the player (`mode != 1`) or the partner to a new position, facing the way it moved.
 void CombatSys_WarpCharacter(s32 mode, s32 x, s32 y, s32 z);
 
-void CombatSys_InitObsActor(CombatActor*, u16);
+void CombatSys_InitObsActor(BattleActor*, u16);
 s32  func_ov003_0208656c(void);
 void CombatSys_EaseToSine(s32*, s16*);
 s16* func_ov003_02086e94(void);

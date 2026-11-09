@@ -109,19 +109,19 @@ static void func_ov003_020c1224(BtlActSp* self, void (*update)(BtlActSp*)) {
 static void func_ov003_020c1238(u16 character, u16 level) {
     BtlActSpAttackTable subAttacks  = data_ov003_020ddad4;
     BtlActSpAttackTable mainAttacks = data_ov003_020ddae6;
-    CombatActor*        mainActor   = g_CombatGlobal->unk3D898;
-    Ov003AttackArgs     args;
+    BattleActor*        mainActor   = g_CombatGlobal->player;
+    BattleAttackArgs    args;
 
-    args.unk_00           = mainActor->unk_66;
-    args.unk_04           = 0x64;
-    args.unk_06           = 0x64;
-    args.unk_02           = 0x5A;
+    args.power            = mainActor->attack;
+    args.powerPercent     = 0x64;
+    args.effectPercent    = 0x64;
+    args.comboFrames      = 0x5A;
     Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     if (unit) {
         u16 attack = subAttacks.entries[character][level];
         do {
-            CombatActor* owner = g_CombatGlobal->unk3D89C;
-            CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &owner->baseArgs, unit, owner->position.x);
+            BattleActor* owner = g_CombatGlobal->partner;
+            CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &owner->baseArgs, &unit->actor, owner->position.x);
             unit = CombatList_GetNext(&unit->node);
         } while (unit);
     }
@@ -129,8 +129,8 @@ static void func_ov003_020c1238(u16 character, u16 level) {
     if (unit) {
         u16 attack = mainAttacks.entries[character][level];
         do {
-            CombatActor* owner = g_CombatGlobal->unk3D898;
-            CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &args, unit, owner->position.x);
+            BattleActor* owner = g_CombatGlobal->player;
+            CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &args, &unit->actor, owner->position.x);
             unit = CombatList_GetNext(&unit->node);
         } while (unit);
     }
@@ -154,8 +154,8 @@ static void func_ov003_020c1238(u16 character, u16 level) {
     s32 rounded = heal + ((u32)heal >> 31);
     BtlMgr_AddTeamHp(0, (heal & 1) + (rounded >> 1));
     BtlMgr_AddTeamHp(1, (s16)((rounded << 15) >> 16));
-    CombatActor_ClearPeriodicEffect(g_CombatGlobal->unk3D89C);
-    CombatActor_ClearPeriodicEffect(g_CombatGlobal->unk3D898);
+    BtlActor_ClearPeriodicEffect(g_CombatGlobal->partner);
+    BtlActor_ClearPeriodicEffect(g_CombatGlobal->player);
 }
 
 // Nonmatching: display-setting store scheduling.
@@ -340,10 +340,10 @@ static void func_ov003_020c1918(BtlActSp* self) {
             if (self->character == 3) {
                 if (!self->timer) {
                     Ov003EnemyActor* unit  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
-                    CombatActor*     owner = g_CombatGlobal->unk3D89C;
+                    BattleActor*     owner = g_CombatGlobal->partner;
                     CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0x12D), &unit->actor.baseArgs, owner->position.x);
                     unit  = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-                    owner = g_CombatGlobal->unk3D898;
+                    owner = g_CombatGlobal->player;
                     CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0x12E), &unit->actor.baseArgs, owner->position.x);
                 }
                 g_CombatGlobal->unk3D878 &= ~0x10000;
@@ -461,7 +461,7 @@ s32 func_ov003_020c2008(TaskPool* pool) {
     args.character     = 3;
     args.level         = 0;
     args.skipFeature   = 0;
-    CombatActor* owner = g_CombatGlobal->unk3D89C;
-    owner->flags &= ~8;
+    BattleActor* owner = g_CombatGlobal->partner;
+    owner->flags &= ~ACTOR_FLAG_GUARDING;
     return EasyTask_CreateTask(pool, &Tsk_BtlActSp00, NULL, 0, NULL, &args);
 }

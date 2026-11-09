@@ -90,20 +90,20 @@ static void func_ov003_02097158(BtlAuraSub* aura) {
 
 /// Draws every still-running flame, depth-sorted against the shared aura palette.
 static void func_ov003_020971c0(BtlAuraSub* aura) {
-    s32              sortKey;
-    s32              i;
-    Ov003CutinActor* owner;
-    BtlAuraFlame*    flame;
+    s32           sortKey;
+    s32           i;
+    BattleActor*  owner;
+    BtlAuraFlame* flame;
 
     i     = 0;
     flame = aura->flames;
     do {
         if (flame->sprite.sprite.bits_0_1 == 0) {
-            owner = g_CombatGlobal->unk3D898;
+            owner = g_CombatGlobal->player;
         } else {
-            owner = g_CombatGlobal->unk3D89C;
+            owner = g_CombatGlobal->partner;
         }
-        sortKey = 0x80000000 - owner->base.actor.position.y;
+        sortKey = 0x80000000 - owner->position.y;
         if (SpriteMgr_IsAnimationFinished(&flame->sprite.sprite) == 0) {
             CombatSprite_SetPosition(&flame->sprite, (s32)(flame->x * 0x10) >> 16, (s32)(flame->y * 0x10) >> 16);
             func_ov003_02082730((CombatSprite*)flame, sortKey);
@@ -176,17 +176,17 @@ static s32 BtlAuraSub_Update(TaskPool* pool, Task* task, void* args) {
 
 /// Draws the burst that follows the aura down while its timer runs, then the flames.
 static s32 BtlAuraSub_Render(TaskPool* pool, Task* task, void* args) {
-    BtlAuraSub*      aura = task->data;
-    Ov003CutinActor* owner;
+    BtlAuraSub*  aura = task->data;
+    BattleActor* owner;
 
     if (aura->sortKey > 0) {
         if (aura->sprite.sprite.bits_0_1 == 0) {
-            owner = g_CombatGlobal->unk3D898;
+            owner = g_CombatGlobal->player;
         } else {
-            owner = g_CombatGlobal->unk3D89C;
+            owner = g_CombatGlobal->partner;
         }
         CombatSprite_SetAffineTransform(&aura->sprite, 0, aura->sortKey, aura->sortKey, 1);
-        func_ov003_02082730(&aura->sprite, 0x80000000 - owner->base.actor.position.y);
+        func_ov003_02082730(&aura->sprite, 0x80000000 - owner->position.y);
         CombatSprite_Render(&aura->sprite);
     }
     func_ov003_020971c0(aura);

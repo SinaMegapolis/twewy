@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlBar.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
@@ -136,14 +136,14 @@ static s32 func_ov003_02099d98(s16 value) {
 }
 
 /// Seeds the sync gauge from the partner actor and snaps the bar to it.
-static void func_ov003_02099dec(BtlBarBS* bs, CombatActor* actor) {
+static void func_ov003_02099dec(BtlBarBS* bs, BattleActor* actor) {
     BtlBar* bar = &bs->bar;
 
     g_CombatGlobal->unk3D8D8 = actor->currentHp;
     g_CombatGlobal->unk3D8DA = actor->maxHp;
-    actor->flags |= 0x8000000;
-    if (actor->unk_78 != NULL) {
-        ((CombatActor*)actor->unk_78)->flags |= 0x8000000;
+    actor->flags |= ACTOR_FLAG_BOSS_GAUGE_HP;
+    if (actor->linkedActor != NULL) {
+        actor->linkedActor->flags |= ACTOR_FLAG_BOSS_GAUGE_HP;
     }
 
     bar->flags   = 0;
@@ -474,6 +474,6 @@ static s32 BtlBarBS_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
     }
 }
 
-void func_ov003_0209ab9c(CombatActor* actor) {
+void func_ov003_0209ab9c(BattleActor* actor) {
     EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlBarBS, NULL, 0, NULL, actor);
 }

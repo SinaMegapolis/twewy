@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffects.h"
 #include "Combat/Core/CombatSprite.h"
@@ -59,7 +59,7 @@ static s32 BtlEff_Sword_Update(TaskPool* pool, Task* task, void* args) {
 /// Pins the slash to the main display's target actor and sorts it in front of it.
 static s32 BtlEff_Sword_Render(TaskPool* pool, Task* task, void* args) {
     CombatSprite* sprite = task->data;
-    CombatActor*  actor  = g_CombatGlobal->unk3D898;
+    BattleActor*  actor  = g_CombatGlobal->player;
     s32           posX;
     s32           posY;
 

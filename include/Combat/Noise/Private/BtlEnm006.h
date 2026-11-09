@@ -1,7 +1,7 @@
 #ifndef COMBAT_NOISE_PRIVATE_BTLENM006_H
 #define COMBAT_NOISE_PRIVATE_BTLENM006_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"

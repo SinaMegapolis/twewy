@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatTouch.h"
@@ -43,7 +43,7 @@ static void func_ov003_0209519c(BtlPsySlash* self) {
         func_ov003_02087250(self->effect, self->target, func_ov003_02095120());
         return;
     }
-    target = CombatTouch_GetSlashed(1);
+    target = CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (!target)
         return;
     func_ov003_02087250(self->effect, self->target, func_ov003_02095120());
@@ -96,7 +96,7 @@ static s32 func_ov003_02095308(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_02095350(Ov003EffectContext* context, Ov003EffectState* effect) {
-    void* target = CombatTouch_GetSlashed(1);
+    void* target = CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (!target)
         return 0;
     BtlPsySlashArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7df4.taskName);

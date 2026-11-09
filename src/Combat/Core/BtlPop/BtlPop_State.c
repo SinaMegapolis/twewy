@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 
@@ -12,12 +12,12 @@
 
 typedef struct BtlPop_StateArgs {
     /* 0x00 */ s32          engine; // display engine index, also the sprite's `bits_0_1`
-    /* 0x04 */ CombatActor* actor;
+    /* 0x04 */ BattleActor* actor;
 } BtlPop_StateArgs;                 // Size: 0x8
 
 typedef struct BtlPop_State {
     /* 0x00 */ CombatSprite sprite;
-    /* 0x60 */ CombatActor* actor;
+    /* 0x60 */ BattleActor* actor;
     /* 0x64 */ u16          effectMode; // actor->periodicEffectMode the sprite currently shows
     /* 0x66 */ u16          pad_66;
     /* 0x68 */ BOOL         isActive;
@@ -83,7 +83,7 @@ static s32 BtlPop_State_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPop_State_Update(TaskPool* pool, Task* task, void* args) {
     BtlPop_State* state = task->data;
 
-    if (state->actor->flags & 4) {
+    if (state->actor->flags & ACTOR_FLAG_DEFEATED) {
         state->isActive = FALSE;
     }
     if (state->effectMode != state->actor->periodicEffectMode) {
@@ -96,22 +96,22 @@ static s32 BtlPop_State_Update(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlPop_State_Render(TaskPool* pool, Task* task, void* args) {
     BtlPop_State* state = task->data;
-    CombatActor*  actor = state->actor;
+    BattleActor*  actor = state->actor;
     s32           posX;
     s32           posY;
 
     if (state->sprite.sprite.bits_0_1 == 0) {
-        posX = CombatStage_ToScreenX(0, actor->position.x + (actor->unk_74 << 12));
+        posX = CombatStage_ToScreenX(0, actor->position.x + (actor->centerOffsetX << 12));
         posY = CombatStage_ToScreenY(0, actor->position.y, actor->position.z);
-        if (state->actor->unk_00 == 0) {
+        if (state->actor->kind == ACTOR_KIND_PLAYER) {
             posY = (s16)(posY - 48);
         } else {
-            posY = (s16)(posY - state->actor->unk_72);
+            posY = (s16)(posY - state->actor->height);
         }
     } else {
-        posX = CombatStage_ToScreenX(1, actor->position.x + (actor->unk_74 << 12));
+        posX = CombatStage_ToScreenX(1, actor->position.x + (actor->centerOffsetX << 12));
         posY = CombatStage_ToScreenY(1, actor->position.y, actor->position.z);
-        posY = (s16)(posY - state->actor->unk_72);
+        posY = (s16)(posY - state->actor->height);
     }
     CombatSprite_SetPosition(&state->sprite, posX, posY);
     func_ov003_02082730(&state->sprite, 10);
@@ -138,7 +138,7 @@ static s32 BtlPop_State_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
     }
 }
 
-s32 func_ov003_0209ccc0(s32 engine, CombatActor* actor) {
+s32 func_ov003_0209ccc0(s32 engine, BattleActor* actor) {
     BtlPop_StateArgs params;
 
     params.engine = engine;

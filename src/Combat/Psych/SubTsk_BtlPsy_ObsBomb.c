@@ -42,7 +42,8 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
                     self->timer++;
                     if (self->timer == limit)
                         return 0;
-                    if ((self->args.unit->actor.flags & 0x10) || (self->args.unit->actor.flags & 4))
+                    if ((self->args.unit->actor.flags & ACTOR_FLAG_INTANGIBLE) ||
+                        (self->args.unit->actor.flags & ACTOR_FLAG_DEFEATED))
                         return 0;
                     if (func_ov003_020abdb8(self)) {
                         Ov003PsychEffectArgs effect;
@@ -67,7 +68,8 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
         case 2: {
             Ov003ObsBomb*    self = task->data;
             Ov003EnemyActor* unit = self->args.unit;
-            CombatSprite_SetPosition(&self->sprite, unit->actor.screenX, (s16)(unit->actor.screenY - unit->actor.unk_76));
+            CombatSprite_SetPosition(&self->sprite, unit->actor.screenX,
+                                     (s16)(unit->actor.screenY - unit->actor.centerHeight));
             func_ov003_02082730(&self->sprite, unit->actor.position.y + 0x1F4000);
             CombatSprite_Render(&self->sprite);
             return 1;
@@ -82,8 +84,8 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
 /// Adjusts the contact attack's dimensions to the selected object's dimensions.
 static s32 func_ov003_020abdb8(Ov003ObsBomb* self) {
     Ov003AttackInfo info  = *CombatHit_GetAttackInfo(0x190);
-    s16             depth = self->args.unit->actor.unk_72;
-    s16             width = self->args.unit->actor.unk_70;
+    s16             depth = self->args.unit->actor.height;
+    s16             width = self->args.unit->actor.radius;
     info.unk_05           = width;
     info.unk_06           = width / 2;
     info.unk_07           = depth;

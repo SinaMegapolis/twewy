@@ -22,7 +22,7 @@ typedef struct BtlEnm010LserEmit {
 
 typedef struct BtlEnm010Lser {
     /* 0x000 */ Ov003EnemyActor*  unk_00;
-    /* 0x004 */ CombatActor       copy; // the owner's actor, refreshed every frame
+    /* 0x004 */ BattleActor       copy; // the owner's actor, refreshed every frame
     /* 0x080 */ CombatSprite      sprite[4];
     /* 0x200 */ BtlEnm010LserEmit emit;
     /* 0x22C */ s32               unk_22C;
@@ -78,13 +78,13 @@ s32 func_ov011_02125b98(Ov003EnemyActor* owner, s32 arg1) {
     return EasyTask_CreateTask(pool, &data_ov011_0212c118, 0, 0, 0, &args);
 }
 
-static void func_ov011_02125c00(s32* outX, s32* outY, s32* outZ, CombatActor* owner, s32 index) {
+static void func_ov011_02125c00(s32* outX, s32* outY, s32* outZ, BattleActor* owner, s32 index) {
     *outX = (owner->isFlipped == 0) ? owner->position.x - 0x40000 : owner->position.x + 0x40000;
     *outY = owner->position.y;
     *outZ = owner->position.z + data_ov011_0212c124[index];
 }
 
-static void func_ov011_02125c44(CombatActor* owner, BtlEnm010LserRec* rec, CombatSprite* sprite, s32 enabled) {
+static void func_ov011_02125c44(BattleActor* owner, BtlEnm010LserRec* rec, CombatSprite* sprite, s32 enabled) {
     s32 v = rec->unk_04 + rec->unk_08;
 
     rec->unk_04 = v;
@@ -167,12 +167,14 @@ static s32 func_ov011_02125e14(BtlEnm010Lser* data) {
         return 0;
     }
     if (data->unk_00 != NULL) {
-        if (data->unk_00->actor.flags & 4) {
+        if (data->unk_00->actor.flags & ACTOR_FLAG_DEFEATED) {
             return 0;
         }
     }
     if (data->unk_00 != NULL) {
-        if (func_ov003_020cc354(&data->copy) != 0 || (data->copy.flags & 0x4000) != 0 || (data->copy.flags & 0x200) != 0) {
+        if (func_ov003_020cc354(&data->copy) != 0 || (data->copy.flags & ACTOR_FLAG_LAUNCHED) != 0 ||
+            (data->copy.flags & ACTOR_FLAG_HELD) != 0)
+        {
             data->unk_00 = NULL;
         }
     }

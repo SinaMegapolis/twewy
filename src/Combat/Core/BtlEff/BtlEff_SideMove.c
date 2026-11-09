@@ -70,7 +70,7 @@ void func_ov003_020c9118(Ov003EnemyActor* actor) {
 
     func_ov003_020c439c(actor, &anim);
     anim.anim.posX                     = 0x80;
-    anim.anim.posY                     = actor->actor.unk_72 / 2 + 0x60;
+    anim.anim.posY                     = actor->actor.height / 2 + 0x60;
     copy                               = anim;
     data_ov003_020e7254.anims.slots[0] = copy;
     data_ov003_020e7254.anims.slots[1] = copy;
@@ -79,7 +79,7 @@ void func_ov003_020c9118(Ov003EnemyActor* actor) {
     if (partner != NULL) {
         func_ov003_020c439c(partner, &anim);
         anim.anim.posX = 0x80;
-        anim.anim.posY = actor->actor.unk_72 / 2 + 0x60;
+        anim.anim.posY = actor->actor.height / 2 + 0x60;
         if (func_ov003_020c37f8(&partner->sprite)) {
             copy                               = anim;
             data_ov003_020e7254.anims.slots[2] = copy;
@@ -109,7 +109,7 @@ s32 func_ov003_020c9338(Ov003EnemyActor* actor) {
                     g_CombatGlobal->unk3D878 |= 0x10000;
                     data_ov003_020e7254.timer = 0;
                     data_ov003_020e7254.phase++;
-                    if (actor->actor.flags & 0x2000) {
+                    if (actor->actor.flags & ACTOR_FLAG_KILLED) {
                         func_ov003_020c5130(actor);
                     }
                 }
@@ -148,7 +148,7 @@ static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 s
                 self->frame      = 0;
                 CombatSprite_LoadFromTable(1, &self->sprite, &data_ov003_020d7800, data_ov003_020e0b80, 0, 0x3F, 0);
                 CombatSprite_SetAnimFromTable(&self->sprite, 0, 1);
-                if (self->actor->base.actor.position.x > ((Ov003CutinActor*)g_CombatGlobal->unk3D89C)->base.actor.position.x) {
+                if (self->actor->base.actor.position.x > g_CombatGlobal->partner->position.x) {
                     CombatSprite_SetFlip(&self->sprite, 1);
                     self->position.x -= 0x18000;
                 } else {

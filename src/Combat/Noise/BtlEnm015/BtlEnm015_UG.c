@@ -25,7 +25,7 @@ static void func_ov013_021270a0(BtlEnm015* arg0) {
 }
 
 static void func_ov013_0212710c(BtlEnm015* arg0) {
-    BtlEnm015* boss = (BtlEnm015*)g_CombatGlobal->unk3D898;
+    BattleActor* player = g_CombatGlobal->player;
 
     switch (arg0->unk_1C2) {
         case 0:
@@ -43,7 +43,7 @@ static void func_ov013_0212710c(BtlEnm015* arg0) {
             func_ov003_020c4cc4(&arg0->base, 0x226);
             func_ov013_021257a4(arg0, arg0->unk_1E8 & 1);
             arg0->unk_1E8 = arg0->unk_1E8 + 1;
-            CombatHit_Stagger(0, &boss->base, 0);
+            CombatHit_Stagger(0, player, 0);
             func_ov013_02125838(arg0);
             arg0->unk_1C2 = arg0->unk_1C2 + 1;
             arg0->unk_1C0 = 0;
@@ -59,13 +59,13 @@ static void func_ov013_0212710c(BtlEnm015* arg0) {
 }
 
 static void func_ov013_02127230(BtlEnm015* arg0) {
-    BtlEnm015* boss = (BtlEnm015*)g_CombatGlobal->unk3D898;
+    BattleActor* player = g_CombatGlobal->player;
 
     switch (arg0->unk_1C2) {
         case 0:
             CombatSprite_SetAnimFromTable(&arg0->base.sprite, 9, 1);
-            arg0->unk_1DC = boss->base.actor.position.x;
-            arg0->unk_1E0 = boss->base.actor.position.y;
+            arg0->unk_1DC = player->position.x;
+            arg0->unk_1E0 = player->position.y;
             arg0->unk_1E4 = 0;
             arg0->unk_1C2 = arg0->unk_1C2 + 1;
             arg0->unk_1C0 = 0;

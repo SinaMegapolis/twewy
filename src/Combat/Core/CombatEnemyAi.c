@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatEnemyGroup.h"
@@ -80,8 +80,8 @@ u32 data_ov003_020e722c[0xA];
 /// Resets a noise to its idle defaults (a fresh 0x1C0-byte actor block).
 void func_ov003_020c41e8(Ov003CutinActor* actor) {
     MI_CpuSet(actor, 0U, 0x1C0U);
-    CombatActor_Init(&actor->base.actor, 1);
-    actor->base.actor.flags |= 0x20000000;
+    BtlActor_Init(&actor->base.actor, ACTOR_KIND_ENEMY);
+    actor->base.actor.flags |= ACTOR_FLAG_NO_HIT_EFFECT;
     actor->base.actor.maxHp     = 1;
     actor->base.actor.currentHp = 1;
     actor->base.group           = 0x3C;
@@ -105,7 +105,7 @@ void func_ov003_020c427c(Ov003EnemyActor* actor) {
 }
 
 static void func_ov003_020c4288(Ov003EnemyActor* actor) {
-    actor->actor.flags &= ~0x80000000;
+    actor->actor.flags &= ~ACTOR_FLAG_HIDDEN;
     if (actor->sprite.paletteMode == 1) {
         CombatSprite_SetPaletteMode(&actor->sprite, 0);
     }
@@ -115,7 +115,7 @@ static void func_ov003_020c4288(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c42d4(Ov003CutinActor* actor) {
-    MI_CpuSet(&actor->base.actor.unk_0C, 0U, 8U);
+    MI_CpuSet(&actor->base.actor.hit.sourceX, 0U, 8U);
 }
 
 /// Random rise speed for the sub (0x19E) or main (0x198) partner.
@@ -188,7 +188,7 @@ s32 func_ov003_020c44ac(Ov003EnemyActor* actor) {
         return 0;
     }
     func_ov003_020c4264(actor);
-    CombatHit_LoadSparkForUnit(1, &actor->subSprite, actor);
+    CombatHit_LoadSparkForUnit(1, &actor->subSprite, &actor->actor);
     func_ov003_020c4988(actor);
     func_ov003_020c44a4(actor);
     return result;
@@ -206,7 +206,7 @@ s32 func_ov003_020c4520(Ov003EnemyActor* actor) {
     if (result == 0) {
         return 0;
     }
-    CombatHit_LoadSparkForUnit(0, &actor->subSprite, actor);
+    CombatHit_LoadSparkForUnit(0, &actor->subSprite, &actor->actor);
     func_ov003_020c49c8(actor);
     BtlCollision_Add(&actor->collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(actor);
@@ -225,7 +225,7 @@ s32 func_ov003_020c45a4(Ov003CutinActor* actor) {
     if (result == 0) {
         return 0;
     }
-    CombatHit_LoadSparkForUnit(0, &actor->base.subSprite, &actor->base);
+    CombatHit_LoadSparkForUnit(0, &actor->base.subSprite, &actor->base.actor);
     func_ov003_020c49c8(&actor->base);
     BtlCollision_Add(&actor->base.collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(&actor->base);
@@ -233,11 +233,11 @@ s32 func_ov003_020c45a4(Ov003CutinActor* actor) {
 }
 
 void func_ov003_020c4628(Ov003EnemyActor* actor) {
-    CombatActor_UpdateEffects(1, &actor->actor);
+    BtlActor_UpdateEffects(1, &actor->actor);
     if (actor->actor.zGravity == 0) {
         actor->actor.zVelocity = 0;
     }
-    CombatActor_UpdatePhysics(&actor->actor);
+    BtlActor_UpdatePhysics(&actor->actor);
     CombatSprite_Update(&actor->sprite);
     CombatSprite_Update(&actor->subSprite);
 }
@@ -245,20 +245,20 @@ void func_ov003_020c4628(Ov003EnemyActor* actor) {
 void func_ov003_020c4668(Ov003EnemyActor* actor) {
     s16 half;
 
-    CombatActor_UpdateEffects(0, &actor->actor);
+    BtlActor_UpdateEffects(0, &actor->actor);
     if (actor->actor.zGravity == 0) {
         actor->actor.zVelocity = 0;
     }
-    CombatActor_UpdatePhysics(&actor->actor);
+    BtlActor_UpdatePhysics(&actor->actor);
     if (!(actor->flags18C & 4) && (actor->collider.flags != 0)) {
         BtlCollision_ApplyPush(&actor->collider, &actor->actor.position.x, &actor->actor.position.y, &actor->actor.position.z);
     }
     if (func_ov003_020c59f4(actor) == 0) {
-        if (actor->actor.flags & 0x10000000) {
-            s16 v = actor->actor.unk_70;
+        if (actor->actor.flags & ACTOR_FLAG_UNCLAMPED_X) {
+            s16 v = actor->actor.radius;
             CombatStage_ClampY(&actor->actor.position.y, (v / 2) << 0xC, actor->actor.position.x);
         } else {
-            s16 v = actor->actor.unk_70;
+            s16 v = actor->actor.radius;
             CombatStage_ClampXY(&actor->actor.position.x, &actor->actor.position.y, v << 0xC, (v / 2) << 0xC);
         }
     }
@@ -324,21 +324,21 @@ void func_ov003_020c4878(void* arg) {
         return;
     }
     func_ov003_020c4748(&actor->base);
-    CombatActor_Render(&actor->base.actor, &actor->base.sprite);
+    BtlActor_Render(&actor->base.actor, &actor->base.sprite);
     CombatHit_DrawSparkOnActor(&actor->base.subSprite, &actor->base.actor);
 }
 
 void func_ov003_020c48b0(Ov003EnemyActor* actor) {
     s32 flags = actor->actor.flags;
 
-    if (flags & 1) {
-        actor->actor.flags = flags & ~1;
+    if (flags & ACTOR_FLAG_TOUCHED) {
+        actor->actor.flags = flags & ~ACTOR_FLAG_TOUCHED;
     }
     if (func_ov003_020c4830(actor) != 0) {
         return;
     }
     func_ov003_020c4748(actor);
-    CombatActor_Render(&actor->actor, &actor->sprite);
+    BtlActor_Render(&actor->actor, &actor->sprite);
     CombatHit_DrawSparkOnActor(&actor->subSprite, &actor->actor);
 }
 
@@ -429,7 +429,7 @@ void func_ov003_020c4af0(Ov003EnemyActor* actor) {
 
 /// Declared `int`: noise callers treat it like an undeclared (implicitly `int`) function.
 s32 func_ov003_020c4b1c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) {
+    if (actor->actor.position.x < g_CombatGlobal->partner->position.x) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -437,7 +437,7 @@ s32 func_ov003_020c4b1c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4b5c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) {
+    if (actor->actor.position.x < g_CombatGlobal->player->position.x) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -445,7 +445,7 @@ void func_ov003_020c4b5c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4b9c(Ov003CutinActor* actor) {
-    if (actor->base.actor.position.x < ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) {
+    if (actor->base.actor.position.x < g_CombatGlobal->partner->position.x) {
         func_ov003_020c4ab4(&actor->base, 0);
         return;
     }
@@ -453,7 +453,7 @@ void func_ov003_020c4b9c(Ov003CutinActor* actor) {
 }
 
 void func_ov003_020c4bdc(Ov003CutinActor* actor) {
-    if (actor->base.actor.position.x < ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) {
+    if (actor->base.actor.position.x < g_CombatGlobal->player->position.x) {
         func_ov003_020c4ab4(&actor->base, 0);
         return;
     }
@@ -605,8 +605,8 @@ void func_ov003_020c4f80(s32 id) {
 /// Knocks the actor out: zero HP, defeat command, "defeated" flag.
 static void func_ov003_020c4fa0(Ov003EnemyActor* actor) {
     actor->actor.currentHp = 0;
-    CombatActor_SetPendingCommand(&actor->actor, ACTOR_CMD_DEFEAT);
-    actor->actor.flags |= 4;
+    BtlActor_SetPendingCommand(&actor->actor, ACTOR_CMD_DEFEAT);
+    actor->actor.flags |= ACTOR_FLAG_DEFEATED;
 }
 
 void func_ov003_020c4fc8(Ov003EnemyActor* actor) {
@@ -618,7 +618,7 @@ void func_ov003_020c4fc8(Ov003EnemyActor* actor) {
 }
 
 s32 func_ov003_020c4ff4(Ov003EnemyActor* actor) {
-    if (actor->actor.flags & 4) {
+    if (actor->actor.flags & ACTOR_FLAG_DEFEATED) {
         return 0;
     }
     func_ov003_020c4fa0(actor);
@@ -627,13 +627,13 @@ s32 func_ov003_020c4ff4(Ov003EnemyActor* actor) {
         func_ov003_020c4fa0(actor->partner);
         func_ov003_020c4f00(actor->partner);
     }
-    actor->actor.unk_5A      = 5;
-    g_CombatGlobal->unk3D90A = 5;
+    actor->actor.invincibleTimer = 5;
+    g_CombatGlobal->unk3D90A     = 5;
     return 1;
 }
 
 s32 func_ov003_020c5058(Ov003EnemyActor* actor) {
-    if (actor->actor.flags & 4) {
+    if (actor->actor.flags & ACTOR_FLAG_DEFEATED) {
         return 0;
     }
     func_ov003_020c4fa0(actor);
@@ -642,8 +642,8 @@ s32 func_ov003_020c5058(Ov003EnemyActor* actor) {
         func_ov003_020c4fa0(actor->partner);
         func_ov003_020c4ee0(actor->partner);
     }
-    actor->actor.unk_5A      = 5;
-    g_CombatGlobal->unk3D906 = 5;
+    actor->actor.invincibleTimer = 5;
+    g_CombatGlobal->unk3D906     = 5;
     return 1;
 }
 
@@ -719,7 +719,7 @@ static s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
     s16              width;
     s16              width2;
 
-    width     = actor->actor.unk_70;
+    width     = actor->actor.radius;
     hitbox[3] = FX32_CONVERT(width);
     hitbox[2] = FX32_CONVERT(width) * 2;
     hitbox[1] = y - FX32_CONVERT(width) / 2;
@@ -727,7 +727,7 @@ static s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
 
     entry = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (entry != NULL) {
-        width2   = entry->base.actor.unk_70;
+        width2   = entry->base.actor.radius;
         other[3] = FX32_CONVERT(width2);
         other[2] = FX32_CONVERT(width2) * 2;
         other[1] = entry->base.unk_1B0 - FX32_CONVERT(width2) / 2;
@@ -748,7 +748,7 @@ static void func_ov003_020c54e0(s32* over, s32* total) {
     *total = 0;
     entry  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
     while (entry != NULL) {
-        if (entry->base.actor.unk_72 > 0x40) {
+        if (entry->base.actor.height > 0x40) {
             (*over)++;
         }
         (*total)++;
@@ -791,7 +791,7 @@ static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u1
 
     func_ov003_020c54e0(&over, &total);
     size     = g_CombatGlobal->unk3D7C0[1].unk_10;
-    centre   = actor->actor.unk_70 / 2;
+    centre   = actor->actor.radius / 2;
     speed    = ((size * over) / total) >> 0xC;
     minSpeed = size >> 0xC;
     if (speed < centre) {
@@ -800,7 +800,7 @@ static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u1
     if (speed > minSpeed) {
         speed = minSpeed;
     }
-    if (actor->actor.unk_72 > 0x40) {
+    if (actor->actor.height > 0x40) {
         *outY = (centre + RNG_Next((speed - centre) + 1)) << 0xC;
         return;
     }
@@ -862,81 +862,83 @@ s32 func_ov003_020c59a0(Ov003EnemyActor* actor) {
 }
 
 static s32 func_ov003_020c59cc(Ov003EnemyActor* actor) {
-    return actor->actor.flags & 0x4006;
+    return actor->actor.flags & (ACTOR_FLAG_STAGGERED | ACTOR_FLAG_DEFEATED | ACTOR_FLAG_LAUNCHED);
 }
 
 static s32 func_ov003_020c59e0(Ov003EnemyActor* actor) {
-    return actor->actor.flags & 0x4606;
+    return actor->actor.flags &
+           (ACTOR_FLAG_STAGGERED | ACTOR_FLAG_DEFEATED | ACTOR_FLAG_HELD | ACTOR_FLAG_THROWN | ACTOR_FLAG_LAUNCHED);
 }
 
 s32 func_ov003_020c59f4(Ov003EnemyActor* actor) {
-    return actor->actor.flags & 0x200;
+    return actor->actor.flags & ACTOR_FLAG_HELD;
 }
 
-s32 func_ov003_020c5a00(Ov003CutinActor* actor) {
-    actor->base.actor.flags |= 0x200;
-    return actor->base.actor.flags;
+s32 func_ov003_020c5a00(BattleActor* target) {
+    target->flags |= ACTOR_FLAG_HELD;
+    return target->flags;
 }
 
-s32 func_ov003_020c5a14(Ov003CutinActor* actor) {
-    actor->base.actor.flags &= ~0x200;
-    return actor->base.actor.flags;
+s32 func_ov003_020c5a14(BattleActor* target) {
+    target->flags &= ~ACTOR_FLAG_HELD;
+    return target->flags;
 }
 
-s32 func_ov003_020c5a28(Ov003CutinActor* actor) {
-    if ((actor->base.actor.unk_5A > 0) || (actor->base.actor.flags & 0x200) || (actor->base.actor.flags & 4) ||
-        (actor->base.actor.flags & 0x10))
+s32 func_ov003_020c5a28(Ov003EnemyActor* self, BattleActor* target) {
+    if ((target->invincibleTimer > 0) || (target->flags & ACTOR_FLAG_HELD) || (target->flags & ACTOR_FLAG_DEFEATED) ||
+        (target->flags & ACTOR_FLAG_INTANGIBLE))
     {
         return 0;
     }
     return 1;
 }
 
-s32 func_ov003_020c5a60(Ov003CutinActor* actor) {
-    if ((actor->base.actor.unk_5A > 0) || (actor->base.actor.flags & 0x200) || (actor->base.actor.flags & 4) ||
-        (actor->base.actor.flags & 0x10))
+s32 func_ov003_020c5a60(Ov003EnemyActor* self, BattleActor* target) {
+    if ((target->invincibleTimer > 0) || (target->flags & ACTOR_FLAG_HELD) || (target->flags & ACTOR_FLAG_DEFEATED) ||
+        (target->flags & ACTOR_FLAG_INTANGIBLE))
     {
         return 0;
     }
     return 1;
 }
 
-void func_ov003_020c5a98(Ov003CutinActor* actor) {
-    actor->base.actor.unk_58 = 0;
-    CombatActor_SetPendingCommand(&actor->base.actor, ACTOR_CMD_RELEASE);
-    func_ov003_02082fe0(&actor->base.actor);
+void func_ov003_020c5a98(Ov003EnemyActor* self, BattleActor* target) {
+    target->holderId = 0;
+    BtlActor_SetPendingCommand(target, ACTOR_CMD_RELEASE);
+    BtlActor_ResetAttack(target);
 }
 
-void func_ov003_020c5ac0(s32 arg0, s32 arg1, Ov003CutinActor* actor, s32 arg3, s32 arg4, s32 arg5) {
-    actor->base.actor.xVelocity = arg3;
-    actor->base.actor.yVelocity = arg4;
-    actor->base.actor.zVelocity = arg5;
-    actor->base.actor.unk_58    = 0;
-    CombatActor_SetPendingCommand(&actor->base.actor, ACTOR_CMD_RELEASE);
-    CombatHit_ArmActor(arg1, arg0 + 4, &actor->base);
+void func_ov003_020c5ac0(Ov003EnemyActor* self, u16 attackId, BattleActor* target, s32 xVelocity, s32 yVelocity,
+                         s32 zVelocity) {
+    target->xVelocity = xVelocity;
+    target->yVelocity = yVelocity;
+    target->zVelocity = zVelocity;
+    target->holderId  = 0;
+    BtlActor_SetPendingCommand(target, ACTOR_CMD_RELEASE);
+    CombatHit_ArmActor(attackId, &self->actor.baseArgs, target);
 }
 
-s32 func_ov003_020c5b0c(u16 id, void* owner, s32 arg2) {
-    return CombatHit_AttackCharacter(CombatHit_GetAttackInfo(id), &((CombatActor*)owner)->baseArgs, arg2);
+s32 func_ov003_020c5b0c(u16 id, Ov003EnemyActor* owner, s32 arg2) {
+    return CombatHit_AttackCharacter(CombatHit_GetAttackInfo(id), &owner->actor.baseArgs, arg2);
 }
 
-s32 func_ov003_020c5b2c(u16 id, void* owner, s32 x, s32 y, s32 z) {
-    return CombatHit_AttackAt(CombatHit_GetAttackInfo(id), &((CombatActor*)owner)->baseArgs, x, y, z);
+s32 func_ov003_020c5b2c(u16 id, Ov003EnemyActor* owner, s32 x, s32 y, s32 z) {
+    return CombatHit_AttackAt(CombatHit_GetAttackInfo(id), &owner->actor.baseArgs, x, y, z);
 }
 
-s32 func_ov003_020c5b64(u16 id, void* owner, s32 x, s32 y) {
-    return CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(id), &((CombatActor*)owner)->baseArgs, x, y);
+s32 func_ov003_020c5b64(u16 id, Ov003EnemyActor* owner, s32 x, s32 y) {
+    return CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(id), &owner->actor.baseArgs, x, y);
 }
 
-s32 func_ov003_020c5b8c(const Ov003AttackInfo* info, void* owner, s32 x, s32 y, s32 z) {
-    return CombatHit_AttackAt(info, &((CombatActor*)owner)->baseArgs, x, y, z);
+s32 func_ov003_020c5b8c(const Ov003AttackInfo* info, Ov003EnemyActor* owner, s32 x, s32 y, s32 z) {
+    return CombatHit_AttackAt(info, &owner->actor.baseArgs, x, y, z);
 }
 
-s32 func_ov003_020c5ba4(u16 id, void* args, s32 arg2) {
+s32 func_ov003_020c5ba4(u16 id, BattleAttackArgs* args, s32 arg2) {
     return CombatHit_AttackCharacter(CombatHit_GetAttackInfo(id), args, arg2);
 }
 
-s32 func_ov003_020c5bc4(u16 id, Ov003AttackArgs* args, s32 x, s32 y, s32 z) {
+s32 func_ov003_020c5bc4(u16 id, BattleAttackArgs* args, s32 x, s32 y, s32 z) {
     return CombatHit_AttackAt(CombatHit_GetAttackInfo(id), args, x, y, z);
 }
 
@@ -949,7 +951,7 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
         case 0:
             if (actor->unk_1A4 == 0) {
                 actor->sprite.flags46 |= 2;
-                actor->actor.flags |= 0x80000000;
+                actor->actor.flags |= ACTOR_FLAG_HIDDEN;
                 if ((func_ov003_020c37f8(&actor->sprite) != 0) && (actor->partner != NULL)) {
                     actor->unk_1A6 = actor->partner->unk_1A6;
                 } else {
@@ -959,7 +961,7 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
                 actor->unk_1BC = 0x1000;
                 if (((actor->flags196.raw << 0x17) >> 0x1F) != 0) {
                     func_ov003_020c3ec0(&actor->actor);
-                    actor->actor.flags |= 0x08000000;
+                    actor->actor.flags |= ACTOR_FLAG_BOSS_GAUGE_HP;
                 }
             }
             if (actor->unk_1A4 < actor->unk_1A6) {
@@ -985,15 +987,15 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
 
         case 2:
             if (actor->unk_1A4 < 0xA) {
-                actor->actor.flags ^= 0x80000000;
+                actor->actor.flags ^= ACTOR_FLAG_HIDDEN;
                 actor->sprite.flags46 ^= 2;
             } else {
                 s32 flags = actor->actor.flags;
                 if (actor->unk_1A4 % 3 == 0) {
-                    actor->actor.flags = flags | 0x80000000;
+                    actor->actor.flags = flags | ACTOR_FLAG_HIDDEN;
                     actor->sprite.flags46 |= 2;
                 } else {
-                    actor->actor.flags = flags & ~0x80000000;
+                    actor->actor.flags = flags & ~ACTOR_FLAG_HIDDEN;
                     actor->sprite.flags46 &= ~2;
                 }
             }
@@ -1002,7 +1004,7 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
             } else {
                 actor->unk_1A4 = 0;
                 actor->unk_1A8++;
-                actor->actor.flags &= ~0x80000000;
+                actor->actor.flags &= ~ACTOR_FLAG_HIDDEN;
                 actor->sprite.flags46 &= ~2;
             }
             return 1;
@@ -1010,7 +1012,7 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
         case 3:
             if (g_CombatGlobal->unk3D874 == 2) {
                 if (CombatAbility_IsActive(0xF) != 0) {
-                    CombatHit_ApplyAttack(actor->sprite.sprite.bits_0_1, actor, (u16)CombatAbility_GetValue(0xF));
+                    CombatHit_ApplyAttack(actor->sprite.sprite.bits_0_1, &actor->actor, (u16)CombatAbility_GetValue(0xF));
                 }
                 return 0;
             }
@@ -1044,7 +1046,7 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
                 actor->unk_1A4 = 0;
                 actor->unk_1A6 = 0xA;
                 actor->unk_1A8++;
-                actor->actor.flags |= 0x80000010;
+                actor->actor.flags |= ACTOR_FLAG_INTANGIBLE | ACTOR_FLAG_HIDDEN;
             }
             return 1;
 
@@ -1100,8 +1102,9 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
                 actor->unk_1A6--;
             }
             if (actor->unk_1A6 <= 0) {
-                actor->actor.flags = actor->actor.flags & ~0x10 & ~0x80000000;
-                actor->unk_1A4     = 0;
+                actor->actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
+                actor->actor.flags &= ~ACTOR_FLAG_HIDDEN;
+                actor->unk_1A4 = 0;
                 actor->unk_1A8++;
             }
             return 1;
@@ -1159,7 +1162,7 @@ s32 func_ov003_020c62c4(Ov003EnemyActor* actor, u16 anim) {
                 func_ov003_020c4288(actor);
                 func_ov003_020c38b8(&actor->sprite, anim, 1);
                 CombatSprite_Restart(&actor->sprite);
-                actor->actor.flags |= 2;
+                actor->actor.flags |= ACTOR_FLAG_STAGGERED;
                 func_ov003_020c4ee0(actor);
                 if (func_ov003_020c5220(actor) != 0) {
                     func_ov003_020c5924(actor, target);
@@ -1195,7 +1198,7 @@ s32 func_ov003_020c62c4(Ov003EnemyActor* actor, u16 anim) {
             func_02026590(&actor->actor.position.y, actor->unk_1B0, (u16)scale);
             func_02026590(&actor->actor.position.z, actor->unk_1B4, (u16)scale);
             if ((actor->actor.position.x == actor->unk_1AC) && (actor->actor.position.y == actor->unk_1B0) &&
-                (actor->actor.position.z == actor->unk_1B4) && (actor->actor.unk_10 == 0))
+                (actor->actor.position.z == actor->unk_1B4) && (actor->actor.hit.stunTimer == 0))
             {
                 actor->unk_1A4 = 0;
                 if (actor->actor.periodicEffectMode == 4) {
@@ -1210,7 +1213,7 @@ s32 func_ov003_020c62c4(Ov003EnemyActor* actor, u16 anim) {
 
         case 2:
             if (actor->unk_1A4 == 0) {
-                actor->actor.flags &= ~2;
+                actor->actor.flags &= ~ACTOR_FLAG_STAGGERED;
             }
             if (actor->actor.periodicEffectMode != 4) {
                 actor->unk_1A4 = 0;
@@ -1225,7 +1228,7 @@ s32 func_ov003_020c62c4(Ov003EnemyActor* actor, u16 anim) {
                 func_ov003_020c38b8(&actor->sprite, (u16)(anim + 2), 1);
             }
             if (SpriteMgr_IsAnimationFinished(&actor->sprite.sprite) != 0) {
-                actor->actor.flags &= ~2;
+                actor->actor.flags &= ~ACTOR_FLAG_STAGGERED;
                 return 0;
             }
             actor->unk_1A4++;
@@ -1248,7 +1251,7 @@ s32 func_ov003_020c65cc(Ov003EnemyActor* actor, u16 anim) {
                 func_ov003_020c4cc4(actor, ((Ov003CutinCmdIds*)data_ov003_020e0720)[actor->group].main);
                 func_ov003_020c38b8(&actor->sprite, anim, 1);
                 CombatSprite_Restart(&actor->sprite);
-                actor->actor.flags |= 2;
+                actor->actor.flags |= ACTOR_FLAG_STAGGERED;
                 if (actor->actor.xVelocity < 0) {
                     func_ov003_020c4ab4(actor, 1);
                 }
@@ -1303,7 +1306,7 @@ s32 func_ov003_020c65cc(Ov003EnemyActor* actor, u16 anim) {
                 goto advancing;
             }
         grounded:
-            if (actor->actor.unk_10 == 0) {
+            if (actor->actor.hit.stunTimer == 0) {
                 actor->unk_1A4 = 0;
                 if (actor->actor.periodicEffectMode == 4) {
                     actor->unk_1A8++;
@@ -1332,7 +1335,7 @@ s32 func_ov003_020c65cc(Ov003EnemyActor* actor, u16 anim) {
 
         case 2:
             if (actor->unk_1A4 == 0) {
-                actor->actor.flags &= ~2;
+                actor->actor.flags &= ~ACTOR_FLAG_STAGGERED;
             }
             if (actor->actor.periodicEffectMode != 4) {
                 actor->unk_1A4 = 0;
@@ -1353,7 +1356,7 @@ s32 func_ov003_020c65cc(Ov003EnemyActor* actor, u16 anim) {
                 }
             }
             if (SpriteMgr_IsAnimationFinished(&actor->sprite.sprite) != 0) {
-                actor->actor.flags &= ~2;
+                actor->actor.flags &= ~ACTOR_FLAG_STAGGERED;
                 return 0;
             }
             actor->unk_1A4++;
@@ -1367,11 +1370,11 @@ s32 func_ov003_020c6920(Ov003EnemyActor* actor, u16 anim, s32 arg2) {
         case 0:
             if (actor->unk_1A4 == 0) {
                 func_ov003_020c4cc4(actor, ((Ov003CutinCmdIds*)data_ov003_020e0720)[actor->group].main);
-                actor->actor.flags |= 0x4002;
-                if (actor->actor.position.x > actor->actor.unk_0C) {
+                actor->actor.flags |= ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED;
+                if (actor->actor.position.x > actor->actor.hit.sourceX) {
                     actor->actor.isFlipped = 0;
                 }
-                if (actor->actor.position.x < actor->actor.unk_0C) {
+                if (actor->actor.position.x < actor->actor.hit.sourceX) {
                     actor->actor.isFlipped = 1;
                 }
                 if (actor->actor.xVelocity < 0) {
@@ -1405,7 +1408,7 @@ s32 func_ov003_020c6920(Ov003EnemyActor* actor, u16 anim, s32 arg2) {
 
         case 1:
             if (actor->unk_1A4 == 0) {
-                actor->actor.flags &= 0xFFFFBFFD;
+                actor->actor.flags &= ~(ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED);
             }
             if (actor->actor.periodicEffectMode != 4) {
                 actor->unk_1A4 = 0;
@@ -1418,7 +1421,7 @@ s32 func_ov003_020c6920(Ov003EnemyActor* actor, u16 anim, s32 arg2) {
         case 2:
             if (actor->unk_1A4 == 0) {
                 func_ov003_020c38b8(&actor->sprite, (u16)((anim + arg2) - 1), 1);
-                actor->actor.flags &= 0xFFFFBFFD;
+                actor->actor.flags &= ~(ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED);
             }
             if ((SpriteMgr_IsAnimationFinished(&actor->sprite.sprite) != 0) && (actor->actor.xVelocity == 0) &&
                 (actor->actor.yVelocity == 0))
@@ -1452,10 +1455,10 @@ void func_ov003_020c6bbc(Ov003CutinActor* actor, u16 anim) {
 s32 func_ov003_020c6bc8(Ov003EnemyActor* actor, u16 anim) {
     if (actor->unk_1A4 == 0) {
         func_ov003_020c38b8(&actor->sprite, anim, 0);
-        actor->actor.flags |= 0x200;
+        actor->actor.flags |= ACTOR_FLAG_HELD;
         func_ov003_020c4f00(actor);
         if (actor->actor.periodicEffectMode == 4) {
-            CombatActor_ClearPeriodicEffect(&actor->actor);
+            BtlActor_ClearPeriodicEffect(&actor->actor);
         }
         actor->unk_1A4++;
     }
@@ -1473,7 +1476,7 @@ s32 func_ov003_020c6c2c(Ov003EnemyActor* actor, u16 anim) {
         case 0:
             if (actor->unk_1A4 == 0) {
                 func_ov003_020c38b8(&actor->sprite, anim, 0);
-                actor->actor.flags |= 0x400;
+                actor->actor.flags |= ACTOR_FLAG_THROWN;
                 func_ov003_020c4f00(actor);
                 func_ov003_020c3700(actor);
             }
@@ -1494,7 +1497,7 @@ s32 func_ov003_020c6c2c(Ov003EnemyActor* actor, u16 anim) {
             }
             CombatHit_ActorImpact(&actor->actor);
             if ((actor->actor.xVelocity == 0) && (actor->actor.yVelocity == 0)) {
-                actor->actor.flags &= ~0x400;
+                actor->actor.flags &= ~ACTOR_FLAG_THROWN;
                 actor->unk_1A4 = 0;
                 if (actor->actor.periodicEffectMode == 4) {
                     actor->unk_1A8++;
@@ -1544,12 +1547,12 @@ static void func_ov003_020c6e58(Ov003EnemyActor* actor) {
 static s32 func_ov003_020c6e64(Ov003EnemyActor* actor) {
     if (actor->unk_1A4 == 0) {
         if (!(actor->flags18C & 0x1000)) {
-            s32 hasPartner = ((actor->actor.flags & 0x2000) && (actor->partner != NULL)) ? 1 : 0;
+            s32 hasPartner = ((actor->actor.flags & ACTOR_FLAG_KILLED) && (actor->partner != NULL)) ? 1 : 0;
             func_ov003_0209f444(actor->sprite.sprite.bits_0_1, actor->actor.position.x, actor->actor.position.y,
                                 actor->actor.position.z, hasPartner);
             actor->sprite.flags46 |= 2;
         }
-        if (actor->actor.flags & 0x2000) {
+        if (actor->actor.flags & ACTOR_FLAG_KILLED) {
             func_ov003_020c5130(actor);
         }
         func_ov003_020c4cc4(actor, ((Ov003CutinCmdIds*)data_ov003_020e0724)[actor->group].main);
@@ -1602,7 +1605,7 @@ s32 func_ov003_020c6f90(Ov003EnemyActor* actor) {
     return 1;
 }
 s32 func_ov003_020c703c(Ov003EnemyActor* actor) {
-    if (actor->flags196.bits.b8 && (actor->actor.flags & 0x2000)) {
+    if (actor->flags196.bits.b8 && (actor->actor.flags & ACTOR_FLAG_KILLED)) {
         return func_ov003_020c6f90(actor);
     } else {
         return func_ov003_020c6f40(actor);
@@ -1610,7 +1613,7 @@ s32 func_ov003_020c703c(Ov003EnemyActor* actor) {
 }
 
 s32 func_ov003_020c7070(Ov003EnemyActor* actor) {
-    if (actor->flags196.bits.b8 && (actor->actor.flags & 0x2000)) {
+    if (actor->flags196.bits.b8 && (actor->actor.flags & ACTOR_FLAG_KILLED)) {
         return func_ov003_020c6f90(actor);
     } else {
         return func_ov003_020c6f68(actor);
@@ -1624,17 +1627,17 @@ s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim) {
             if (actor->base.unk_1A4 == 0) {
                 CombatSprite_SetAnimFromTable(&actor->base.sprite, anim, 1);
                 CombatSprite_Restart(&actor->base.sprite);
-                if (actor->base.actor.unk_0C == 0) {
+                if (actor->base.actor.hit.sourceX == 0) {
                     func_ov003_020c4af0(&actor->base);
                 } else {
-                    if (actor->base.actor.position.x > actor->base.actor.unk_0C) {
+                    if (actor->base.actor.position.x > actor->base.actor.hit.sourceX) {
                         actor->base.actor.isFlipped = 0;
                     }
-                    if (actor->base.actor.position.x < actor->base.actor.unk_0C) {
+                    if (actor->base.actor.position.x < actor->base.actor.hit.sourceX) {
                         actor->base.actor.isFlipped = 1;
                     }
                 }
-                actor->base.actor.flags |= 8;
+                actor->base.actor.flags |= ACTOR_FLAG_GUARDING;
             }
             if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
                 actor->base.unk_1A4 = 0;
@@ -1657,7 +1660,7 @@ s32 func_ov003_020c70a4(Ov003CutinActor* actor, s32 anim) {
         case 2:
             if (actor->base.unk_1A4 == 0) {
                 CombatSprite_SetAnimFromTable(&actor->base.sprite, (u16)(anim + 2), 1);
-                actor->base.actor.flags &= ~8;
+                actor->base.actor.flags &= ~ACTOR_FLAG_GUARDING;
             }
             if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
                 return 0;
@@ -1678,8 +1681,8 @@ static void func_ov003_020c7224(Ov003EnemyActor* actor) {
     actor->unk_1BC = 0x1000;
     CombatSprite_SetPaletteMode(&actor->sprite, 0);
     actor->sprite.flags46 &= ~2;
-    actor->actor.flags &= ~0x10;
-    actor->actor.flags &= ~0x80000000;
+    actor->actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
+    actor->actor.flags &= ~ACTOR_FLAG_HIDDEN;
     actor->actor.zVelocity = 0;
     if (params->unk_19 > 0) {
         actor->actor.zGravity = 0;

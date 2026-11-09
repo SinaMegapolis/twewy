@@ -20,13 +20,13 @@ const TaskHandle Tsk_BtlEnm015_EffStampSub = {"Tsk_BtlEnm015_EffStampSub", func_
 
 static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
     s32          engine = func_ov003_020c37f8(&data->unk_00->base.sprite) != 0;
-    CombatActor* base;
+    BattleActor* base;
     s32          se;
 
     if (engine != 0) {
-        base = g_CombatGlobal->unk3D89C;
+        base = g_CombatGlobal->partner;
     } else {
-        base = g_CombatGlobal->unk3D898;
+        base = g_CombatGlobal->player;
     }
     se = (engine != 0) ? 0x8A : 0x88;
 
@@ -47,8 +47,8 @@ static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
                 if (r == 1) {
                     func_ov003_020c4cc4(&data->unk_00->base, 0x228);
                 } else if (r != 2) {
-                    if (CombatHit_Stagger(engine, (Ov003EnemyActor*)base, 0) != 0) {
-                        base->unk_10 = 1;
+                    if (CombatHit_Stagger(engine, base, 0) != 0) {
+                        base->hit.stunTimer = 1;
                     }
                 }
                 data->unk_64 = data->unk_64 + 1;
@@ -118,7 +118,7 @@ static s32 func_ov013_02126a30(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov013_02126960(data, (Enm015Spawn*)args);
             break;
         case 1:
-            if ((owner->base.actor.flags & 4) || func_ov003_020c3c28() != 0) {
+            if ((owner->base.actor.flags & ACTOR_FLAG_DEFEATED) || func_ov003_020c3c28() != 0) {
                 return 0;
             }
             return func_ov013_02126788(data);

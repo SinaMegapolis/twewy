@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffects.h"
 #include "Combat/Core/CombatSprite.h"
@@ -82,14 +82,14 @@ static void func_ov003_0209f5d4(CombatEffect* sprite, s32 x, s32 y, s32 z) {
 static s32 BtlEff_Warp_Init(TaskPool* pool, Task* task, void* args) {
     BtlEff_Warp*     eff = task->data;
     BtlEff_WarpArgs* p   = args;
-    CombatActor*     actor;
+    BattleActor*     actor;
     s32              flip;
 
     MI_CpuSet(eff, 0, sizeof(BtlEff_Warp));
     if (p->mode == 1) {
-        actor = g_CombatGlobal->unk3D89C;
+        actor = g_CombatGlobal->partner;
     } else {
-        actor = g_CombatGlobal->unk3D898;
+        actor = g_CombatGlobal->player;
     }
     flip = actor->isFlipped != 0;
     // Volatile mode preserves the retail reload before each load call.

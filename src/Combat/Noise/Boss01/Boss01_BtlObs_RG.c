@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatSprite.h"
@@ -9,11 +9,11 @@
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlObs_RG {
-    /* 0x000 */ Ov003EnemyActor base;
-    /* 0x1C0 */ u16             unk_1C0;
-    /* 0x1C2 */ u16             unk_1C2;
-    /* 0x1C4 */ char            unk_1C4[0x284 - 0x1C4];
-    /* 0x284 */ Quad            unk_284;
+    /* 0x000 */ Ov003EnemyActor  base;
+    /* 0x1C0 */ u16              unk_1C0;
+    /* 0x1C2 */ u16              unk_1C2;
+    /* 0x1C4 */ char             unk_1C4[0x284 - 0x1C4];
+    /* 0x284 */ BattleAttackArgs unk_284;
     /* 0x28C */ void (*unk_28C)(struct BtlObs_RG*);
     /* 0x290 */ u16 unk_290;
     /* 0x292 */ s16 unk_292;
@@ -21,11 +21,11 @@ typedef struct BtlObs_RG {
 } BtlObs_RG; // Size: 0x298
 
 typedef struct {
-    u16   unused;
-    u16   unk_2;
-    u32   unk_4;
-    u32   unk_8;
-    Quad* unk_C;
+    u16               unused;
+    u16               unk_2;
+    u32               unk_4;
+    u32               unk_8;
+    BattleAttackArgs* unk_C;
 } BtlObs_RG_Args;
 
 static s32  BtlObs_RG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
@@ -44,7 +44,7 @@ static void BtlObs_RG_StateIdle(BtlObs_RG* obs) {
 }
 
 static void BtlObs_RG_StateHit(BtlObs_RG* obs) {
-    obs->base.actor.flags |= 6;
+    obs->base.actor.flags |= ACTOR_FLAG_STAGGERED | ACTOR_FLAG_DEFEATED;
     func_ov003_020c4a34(&obs->base);
 
     if (g_CombatGlobal->unk3D8A0 == obs) {
@@ -66,14 +66,14 @@ static void BtlObs_RG_StateHit(BtlObs_RG* obs) {
 }
 
 static void BtlObs_RG_StateFall(BtlObs_RG* obs) {
-    BtlObs_RG* temp_r5 = g_CombatGlobal->unk3D89C;
+    BattleActor* temp_r5 = g_CombatGlobal->partner;
 
     if (obs->unk_292 == 0) {
         if (obs->unk_1C2 == 0) {
             CombatSprite_SetAnimFromTable(&obs->base.sprite, 1, 0);
         }
 
-        obs->base.actor.xVelocity = (obs->base.actor.position.x >= temp_r5->base.actor.position.x) ? 0x5000 : -0x5000;
+        obs->base.actor.xVelocity = (obs->base.actor.position.x >= temp_r5->position.x) ? 0x5000 : -0x5000;
         obs->base.actor.yVelocity = 0;
         obs->base.actor.zVelocity = 0;
     }
@@ -93,7 +93,7 @@ static s32 BtlObs_RG_Init(TaskPool* pool, Task* task, void* args) {
     obs->unk_284 = *spawnArgs->unk_C;
 
     CombatSys_LoadObsSprite(1, &obs->base.sprite, spawnArgs->unk_2);
-    CombatSys_InitObsActor((CombatActor*)obs, spawnArgs->unk_2);
+    CombatSys_InitObsActor(&obs->base.actor, spawnArgs->unk_2);
     obs->unk_1C2 = spawnArgs->unk_2;
 
     if (RNG_Next(2) != 0) {
@@ -113,7 +113,7 @@ static s32 BtlObs_RG_Update(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
 
-    s32 temp = CombatActor_PopPendingCommand(&obs->base.actor);
+    s32 temp = BtlActor_PopPendingCommand(&obs->base.actor);
     if ((temp == 1) || (temp == 3)) {
         BtlObs_RG_SetState(obs, BtlObs_RG_StateHit);
     }
@@ -122,7 +122,7 @@ static s32 BtlObs_RG_Update(TaskPool* pool, Task* task, void* args) {
         obs->unk_28C(obs);
     }
 
-    CombatActor_UpdatePhysics(&obs->base.actor);
+    BtlActor_UpdatePhysics(&obs->base.actor);
     CombatSprite_Update(&obs->base.sprite);
     return obs->unk_294;
 }
@@ -133,7 +133,7 @@ static s32 BtlObs_RG_Render(TaskPool* pool, Task* task, void* args) {
     if (func_ov003_0208656c() == 0) {
         return 1;
     }
-    CombatActor_Render(&obs->base.actor, &obs->base.sprite);
+    BtlActor_Render(&obs->base.actor, &obs->base.sprite);
     return 1;
 }
 

@@ -12,7 +12,8 @@ s32 func_ov003_020afdf0(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (CombatTouch_IsTargetKind(1))
         return 0;
     Ov003EnemyActor* unit = (Ov003EnemyActor*)touch->held;
-    if (unit == NULL || &unit->actor != touch->target || unit->actor.unk_00 != 1 || (unit->actor.flags & 0x10))
+    if (unit == NULL || &unit->actor != touch->target || unit->actor.kind != ACTOR_KIND_ENEMY ||
+        (unit->actor.flags & ACTOR_FLAG_INTANGIBLE))
         return 0;
     if (func_ov003_020a60a8(unit, 3))
         return 0;
@@ -42,7 +43,7 @@ static s32 func_ov003_020afeb4(TaskPool* pool, Task* task, void* args, s32 stage
         case 1: {
             Ov003IceBind* self  = task->data;
             BtlTouchWork* touch = func_ov003_020a62a0();
-            CombatActor*  held  = touch->held;
+            BattleActor*  held  = touch->held;
             if (!CombatTouch_IsGesture(6))
                 return 0;
             if (func_ov003_020a63a8(self->args.effect))

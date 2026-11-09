@@ -4,7 +4,7 @@
 
 static const TaskHandle data_ov003_020dc96c;
 
-static s32 func_ov003_020b2e30(CombatList* list, CombatActor* actor) {
+static s32 func_ov003_020b2e30(CombatList* list, BattleActor* actor) {
     Ov003TargetArgs args;
     args.list  = list;
     args.actor = actor;
@@ -32,7 +32,7 @@ static s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage
                 CombatList_Remove(self->list, &self->entry.node);
                 return 0;
             }
-            if ((self->entry.actor->flags & 4) || (self->entry.actor->flags & 0x10)) {
+            if ((self->entry.actor->flags & ACTOR_FLAG_DEFEATED) || (self->entry.actor->flags & ACTOR_FLAG_INTANGIBLE)) {
                 CombatList_Remove(self->list, &self->entry.node);
                 return 0;
             }
@@ -43,7 +43,7 @@ static s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage
         case 2:
             self = task->data;
             CombatSprite_SetPosition(&self->sprite, self->entry.actor->screenX,
-                                     (s16)(self->entry.actor->screenY - self->entry.actor->unk_76));
+                                     (s16)(self->entry.actor->screenY - self->entry.actor->centerHeight));
             CombatSprite_Render(&self->sprite);
             return 1;
         case 3:
@@ -65,15 +65,15 @@ void func_ov003_020b2fe4(CombatList* list) {
     } while (!func_ov003_020b30d8(list));
 }
 
-void func_ov003_020b3014(CombatList* list, CombatActor* actor) {
-    if (actor->flags & 4)
+void func_ov003_020b3014(CombatList* list, BattleActor* actor) {
+    if (actor->flags & ACTOR_FLAG_DEFEATED)
         return;
-    if (actor->flags & 0x10)
+    if (actor->flags & ACTOR_FLAG_INTANGIBLE)
         return;
     func_ov003_020b2e30(list, actor);
 }
 
-void func_ov003_020b3034(CombatList* list, CombatActor* actor) {
+void func_ov003_020b3034(CombatList* list, BattleActor* actor) {
     Ov003TargetEntry* entry = func_ov003_020b30a0(list, actor);
     func_ov003_020b3050(list, entry);
 }

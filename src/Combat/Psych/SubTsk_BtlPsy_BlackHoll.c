@@ -55,7 +55,7 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
                 if (func_ov003_020a60a8(unit, 2)) {
                     Vec origin = {self->position.x, self->position.y, self->position.z};
                     Vec target = {unit->actor.position.x, unit->actor.position.y,
-                                  unit->actor.position.z - FX32_CONVERT(unit->actor.unk_76)};
+                                  unit->actor.position.z - FX32_CONVERT(unit->actor.centerHeight)};
                     Vec direction;
                     unit->actor.zGravity  = 0;
                     unit->actor.zVelocity = 0;

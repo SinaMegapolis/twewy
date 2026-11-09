@@ -7,7 +7,7 @@
 static const TaskHandle data_ov003_020dd210;
 
 s32 func_ov003_020ba6c8(Ov003EffectContext* context, Ov003EffectState* effect) {
-    Ov003EnemyActor* unit = (Ov003EnemyActor*)CombatTouch_GetTapped(1);
+    Ov003EnemyActor* unit = (Ov003EnemyActor*)CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
     if (unit == NULL)
         return 0;
     func_ov003_020a6568(&effect->streak, 0x150, unit, 0, 0, 13);

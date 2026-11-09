@@ -135,30 +135,30 @@ void func_ov012_0212582c(BtlEnm014* data) {
 }
 
 void func_ov012_02125858(BtlEnm014* data) {
-    BtlEnm014* boss;
+    BattleActor* target;
 
     if (data->base.sprite.sprite.bits_0_1 == 0) {
-        boss = g_CombatGlobal->unk3D898;
+        target = g_CombatGlobal->player;
     } else {
-        boss = g_CombatGlobal->unk3D89C;
+        target = g_CombatGlobal->partner;
     }
-    data->base.actor.unk_62 = 100;
+    data->base.actor.damageTakenPercent = 100;
     if (data->base.sprite.flags46 & 1) {
-        if (data->base.actor.position.x < boss->base.actor.position.x) {
+        if (data->base.actor.position.x < target->position.x) {
             goto hit;
         }
     }
     if (!(data->base.sprite.flags46 & 1)) {
-        if (data->base.actor.position.x > boss->base.actor.position.x) {
+        if (data->base.actor.position.x > target->position.x) {
             goto hit;
         }
     }
     return;
 
 hit:
-    data->base.actor.unk_62 = 50;
+    data->base.actor.damageTakenPercent = 50;
     if (data->base.spriteIndex == 3) {
-        data->base.actor.unk_62 = 0;
+        data->base.actor.damageTakenPercent = 0;
     }
 }
 
@@ -175,9 +175,9 @@ void func_ov012_021258e8(void) {
 }
 
 void func_ov012_02125958(BtlEnm014* data) {
-    if (data->unk_1D4 == 0 && data->base.actor.unk_5A != 0 && data->base.actor.unk_62 != 0x64) {
+    if (data->unk_1D4 == 0 && data->base.actor.invincibleTimer != 0 && data->base.actor.damageTakenPercent != 0x64) {
         func_ov012_021256f0(data->base.sprite.sprite.bits_0_1, data, 0);
         func_ov003_020c4cc4(&data->base, 0x21E);
     }
-    data->unk_1D4 = data->base.actor.unk_5A;
+    data->unk_1D4 = data->base.actor.invincibleTimer;
 }

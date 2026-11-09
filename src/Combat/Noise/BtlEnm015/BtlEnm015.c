@@ -199,7 +199,7 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
     data->unk_1CC = 1;
     data->unk_1C8 = arg3;
     func_ov003_020c3efc(&data->base, (void*)arg2);
-    data->base.actor.flags |= 0x10000000;
+    data->base.actor.flags |= ACTOR_FLAG_UNCLAMPED_X;
 
     BtlSpriteDesc*    variant = data_ov013_02127540[data->base.spriteIndex];
     Ov003ActorParams* r4      = func_ov003_020c3c88(&data->base);
@@ -220,7 +220,7 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
     CombatSprite_Load(&data->base.sprite, &anim);
     CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
 
-    CombatHit_LoadSparkForUnit(arg0, &data->base.subSprite, &data->base);
+    CombatHit_LoadSparkForUnit(arg0, &data->base.subSprite, &data->base.actor);
     func_ov003_020c495c(&data->base);
     if (arg0 == 0) {
         BtlCollision_Add(&data->base.collider, 1, r4->unk_03, r4->unk_04);
@@ -242,7 +242,7 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
 }
 
 s32 func_ov013_02125d24(BtlEnm015* arg0) {
-    switch (CombatActor_PopPendingCommand(&arg0->base.actor)) {
+    switch (BtlActor_PopPendingCommand(&arg0->base.actor)) {
         case ACTOR_CMD_NONE:
             break;
         case ACTOR_CMD_HIT: {
@@ -322,16 +322,16 @@ void func_ov013_02125efc(BtlEnm015* arg0) {
     s32 y                       = arg0->base.actor.position.y;
     arg0->base.actor.position.x = x + 0xC000;
     arg0->base.actor.position.y += 0xA000;
-    if (arg0->base.actor.flags & 1) {
-        arg0->base.actor.flags &= ~1;
+    if (arg0->base.actor.flags & ACTOR_FLAG_TOUCHED) {
+        arg0->base.actor.flags &= ~ACTOR_FLAG_TOUCHED;
     }
 
     if (g_CombatGlobal->unk3D87C != 0 && arg0->base.sprite.paletteMode == 1) {
         CombatSprite_SetPaletteMode(&arg0->base.sprite, 0);
-        CombatActor_Render(&arg0->base.actor, &arg0->base.sprite);
+        BtlActor_Render(&arg0->base.actor, &arg0->base.sprite);
         CombatSprite_SetPaletteMode(&arg0->base.sprite, 1);
     } else {
-        CombatActor_Render(&arg0->base.actor, &arg0->base.sprite);
+        BtlActor_Render(&arg0->base.actor, &arg0->base.sprite);
     }
 
     arg0->base.actor.position.x = x;

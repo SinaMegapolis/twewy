@@ -1,7 +1,7 @@
 #ifndef COMBAT_CORE_COMBATEFFECTACTOR_H
 #define COMBAT_CORE_COMBATEFFECTACTOR_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatList.h"
 
@@ -22,7 +22,7 @@ typedef struct Ov003EffectSprite {
 typedef struct Ov003EffectActor {
     /* 0x000 */ u16               id;
     /* 0x002 */ u16               config;
-    /* 0x004 */ CombatActor       actor;
+    /* 0x004 */ BattleActor       actor;
     /* 0x080 */ Ov003EffectSprite sprite;
     /* 0x0B8 */ CombatListNode    node;
 } Ov003EffectActor; // Size: 0xC4

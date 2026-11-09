@@ -1,7 +1,7 @@
 #ifndef COMBAT_CORE_COMBAT_H
 #define COMBAT_CORE_COMBAT_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatList.h"
 #include "Combat/Core/CombatMic.h"
 #include "Combat/Core/CombatTouch.h"
@@ -77,7 +77,7 @@ typedef struct Ov003ActionEffect {
     /* 0x00 */ u16               unk_00;
     /* 0x02 */ u16               unk_02;
     /* 0x04 */ Ov003EffectState* state;
-    /* 0x08 */ CombatActor*      target;
+    /* 0x08 */ BattleActor*      target;
     /* 0x0C */ s32               angle;
     /* 0x10 */ CombatListNode    node;
 } Ov003ActionEffect; // Size: 0x1C
@@ -191,8 +191,8 @@ typedef struct {
     /* 0x3D892 */ s16                   unk3D892; // drop rate
     /* 0x3D894 */ s16                   unk3D894;
     /* 0x3D896 */ s16                   unk3D896; // partner sync rate
-    /* 0x3D898 */ void*                 unk3D898; // main display level-up gauge actor
-    /* 0x3D89C */ void*                 unk3D89C; // sub display level-up gauge actor
+    /* 0x3D898 */ BattleActor*          player;   // Neku (BtlPlayer00), on the main engine
+    /* 0x3D89C */ BattleActor*          partner;  // the partner, on the sub engine
     /* 0x3D8A0 */ void*                 unk3D8A0;
     /* 0x3D8A4 */ CombatList            unk3D8A4; // units the sub screen attacks
     /* 0x3D8AC */ CombatList            unk3D8AC; // units the main screen attacks

@@ -47,10 +47,10 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a6164(self->unit, 5);
             self->phase = 0;
             self->timer = data_ov003_020dca4c.rows[self->context->effect->index]
-                              .holdFrames[func_ov003_020b4e2c(self->unit->actor.unk_70)];
+                              .holdFrames[func_ov003_020b4e2c(self->unit->actor.radius)];
             func_ov003_020a40cc(func_ov003_020a5a34(self->context->effect),
                                 data_ov003_020dca4c.rows[self->context->effect->index]
-                                    .lifetimeCost[func_ov003_020b4e2c(self->unit->actor.unk_70)]);
+                                    .lifetimeCost[func_ov003_020b4e2c(self->unit->actor.radius)]);
             self->context->refCount++;
             CombatSe_PlayAtMainX(0x9C, self->unit->actor.position.x);
             return 1;
@@ -153,7 +153,7 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
             self = task->data;
             unit = self->unit;
             x    = unit->actor.screenX;
-            y    = unit->actor.screenY - unit->actor.unk_76;
+            y    = unit->actor.screenY - unit->actor.centerHeight;
             if (self->phase != 3 && self->phase != 4)
                 return 1;
             CombatSprite_SetPosition(&self->sprite, (s16)x, (s16)y);

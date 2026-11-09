@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Noise/Private/BtlEnm010.h"
 
 #include "Combat/Core/CombatApi.h"
@@ -675,11 +675,11 @@ static s32 func_ov011_021278d4(TaskPool* pool, Task* task, void* args, s32 stage
 
 static s32 func_ov011_0212791c(TaskPool* pool, Task* task, void* args) {
     BtlEnm010RG* data;
-    CombatActor* t;
+    BattleActor* t;
     s32          v;
 
     data = task->data;
-    t    = g_CombatGlobal->unk3D89C;
+    t    = g_CombatGlobal->partner;
     MI_CpuSet(data, 0, 0x208);
     t->position.x                      = (func_ov003_020cb744(1) >> 1) + 0x40000;
     t->position.y                      = func_ov003_020cb7a4(1) >> 1;
@@ -702,7 +702,7 @@ static s32 func_ov011_0212791c(TaskPool* pool, Task* task, void* args) {
     data->base.actor.position.z = 0;
     func_ov003_020c4b1c(&data->base);
     data->unk_1F4 = 0;
-    data->base.actor.flags |= 1 << 30;
+    data->base.actor.flags |= ACTOR_FLAG_NO_FLINCH;
     return 1;
 }
 
@@ -710,7 +710,7 @@ static s32 func_ov011_02127a64(TaskPool* pool, Task* task, void* args) {
     BtlEnm010RG* data;
 
     data = task->data;
-    switch (CombatActor_PopPendingCommand(&data->base.actor)) {
+    switch (BtlActor_PopPendingCommand(&data->base.actor)) {
         case ACTOR_CMD_KNOCKDOWN:
             func_ov011_021265d4(data, func_ov011_02127628);
             break;

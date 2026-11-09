@@ -1,7 +1,7 @@
 #ifndef COMBAT_CORE_BTLBAR_H
 #define COMBAT_CORE_BTLBAR_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 
@@ -41,6 +41,6 @@ typedef struct BtlBar {
 extern const TaskHandle Tsk_BtlBarHP;
 
 /// Spawns the BS bar task for the actor that just entered the battle.
-void func_ov003_0209ab9c(CombatActor* actor);
+void func_ov003_0209ab9c(BattleActor* actor);
 
 #endif // COMBAT_CORE_BTLBAR_H

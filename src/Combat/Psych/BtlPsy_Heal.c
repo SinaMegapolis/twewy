@@ -14,14 +14,14 @@ s32 func_ov003_020b6368(Ov003EffectContext* context, Ov003EffectState* effect) {
 
 static s32 func_ov003_020b6370(void* args) {
     Ov003HealArgs* arg    = args;
-    CombatActor*   player = func_ov003_020a6438();
+    BattleActor*   player = func_ov003_020a6438();
     s32            amount = g_CombatGlobal->unk3D8D2 * arg->effect->params[1] / 100;
     func_ov003_020a5a94(arg->effect);
     CombatSe_PlayAtMainX(0x14E, player->position.x);
     func_ov003_020b67dc(arg->effect, player);
     func_ov003_0209b564(0, amount, player, 1);
     if (arg->effect->state == 0x3F)
-        CombatActor_ClearPeriodicEffect(player);
+        BtlActor_ClearPeriodicEffect(player);
     BtlMgr_AddTeamHp(0, (s16)amount);
     return func_ov003_020a5aa4(arg->effect);
 }
@@ -38,7 +38,7 @@ s32 func_ov003_020b641c(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 s32 func_ov003_020b6498(Ov003EffectContext* context, Ov003EffectState* effect) {
-    CombatActor* player    = func_ov003_020a6438();
+    BattleActor* player    = func_ov003_020a6438();
     s32          threshold = g_CombatGlobal->unk3D8D2 * effect->params[0] / 100;
     if (player->periodicEffectMode == 0 && g_CombatGlobal->unk3D8D0 >= threshold)
         return 0;
@@ -70,8 +70,8 @@ static Ov003TouchActor* func_ov003_020b6520(void) {
 static s32 func_ov003_020b65d8(void* args) {
     Ov003HealArgs* arg = args;
     if (g_CombatGlobal->unk3D8D0 >= g_CombatGlobal->unk3D8D2) {
-        if (!func_ov003_020b68ec(arg->effect, g_CombatGlobal->unk3D898) &&
-            !func_ov003_020b68ec(arg->effect, g_CombatGlobal->unk3D89C))
+        if (!func_ov003_020b68ec(arg->effect, g_CombatGlobal->player) &&
+            !func_ov003_020b68ec(arg->effect, g_CombatGlobal->partner))
             return 0;
     }
     return 1;
@@ -114,7 +114,7 @@ static s32 func_ov003_020b6724(TaskPool* pool, Task* task, void* args, s32 stage
             self = task->data;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
-            func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, 0);
+            func_ov003_02087250(self->effect, g_CombatGlobal->player, 0);
             func_ov003_020a5a94(self->effect);
             if (arg->actor != NULL) {
                 func_ov003_020a40b0(arg->actor);
@@ -132,7 +132,7 @@ static s32 func_ov003_020b6724(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 // Nonmatching: animation-selection registers and paired field loads differ.
-void func_ov003_020b67dc(Ov003EffectState* effect, CombatActor* actor) {
+void func_ov003_020b67dc(Ov003EffectState* effect, BattleActor* actor) {
     s32 kind, index;
     switch (effect->state) {
         case 0x37:
@@ -167,7 +167,7 @@ void func_ov003_020b67dc(Ov003EffectState* effect, CombatActor* actor) {
     }
 }
 
-s32 func_ov003_020b68ec(Ov003EffectState* effect, CombatActor* actor) {
+s32 func_ov003_020b68ec(Ov003EffectState* effect, BattleActor* actor) {
     if (effect->state != 0x38)
         return 0;
     switch (effect->index) {

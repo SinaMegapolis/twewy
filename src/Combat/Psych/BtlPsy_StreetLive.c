@@ -26,7 +26,7 @@ static s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage
         default:
         case 0: {
             self                = task->data;
-            CombatActor* player = func_ov003_020a6438();
+            BattleActor* player = func_ov003_020a6438();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
             self->effect->unk_0A++;
@@ -118,7 +118,7 @@ static s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 static void func_ov003_020ba68c(Ov003StreetLive* self) {
-    CombatActor* player = func_ov003_020a6438();
+    BattleActor* player = func_ov003_020a6438();
     func_ov003_020ba08c(self->effect, player->position.x - 0x1E000, player->position.y - 0x52000);
     CombatSe_PlayAtMainX(0x5A, player->position.x - 0x1E000);
 }

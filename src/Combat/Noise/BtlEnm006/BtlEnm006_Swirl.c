@@ -136,7 +136,7 @@ static s32 func_ov010_02126e58(Enm006Swirl* data) {
         if (x - 0x10 < 0 || x + 0x10 >= w || y - 0x10 < 0 || y + 0x10 >= h) {
             data->unk_80[i] = 0;
         }
-        func_ov003_020c5b2c(0x50, data->unk_00, x, y, 0);
+        func_ov003_020c5b2c(0x50, &data->unk_00->base, x, y, 0);
         count++;
     }
     return count != 0;

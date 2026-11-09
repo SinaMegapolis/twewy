@@ -1,6 +1,6 @@
 #include "Combat/Core/CombatPsych.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatSprite.h"

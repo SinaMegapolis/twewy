@@ -92,9 +92,10 @@ static s32 func_ov003_020b3bdc(Ov003LockOnThunderP* self) {
     func_ov003_020a5a94(self->effect);
     Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
-        s32 distance  = func_ov003_020a632c(unit->actor.screenX, unit->actor.screenY - unit->actor.unk_76, self->x, self->y);
+        s32 distance =
+            func_ov003_020a632c(unit->actor.screenX, unit->actor.screenY - unit->actor.centerHeight, self->x, self->y);
         s32 radius    = FX_Mul(self->scaleX, 0x14000);
-        s32 halfWidth = unit->actor.unk_70 / 2;
+        s32 halfWidth = unit->actor.radius / 2;
         if (distance < radius + halfWidth * 0x1000) {
             if (!func_ov003_020b30f0(&self->targets, &unit->actor))
                 func_ov003_020b3014(&self->targets, &unit->actor);

@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"
@@ -81,12 +81,12 @@ static s32 BtlPop_Tech_Init(TaskPool* pool, Task* task, void* args) {
 
     tech->techId     = params->techId;
     tech->digitCount = func_ov003_0209d088(digits, params->techId);
-    tech->x          = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
-    tech->y          = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
-    tech->z = ((CombatActor*)g_CombatGlobal->unk3D898)->position.z - (((CombatActor*)g_CombatGlobal->unk3D898)->unk_76 << 12);
-    tech->targetZ = tech->z - 0x20000;
-    tech->state   = 0;
-    tech->timer   = 0;
+    tech->x          = g_CombatGlobal->player->position.x;
+    tech->y          = g_CombatGlobal->player->position.y;
+    tech->z          = g_CombatGlobal->player->position.z - (g_CombatGlobal->player->centerHeight << 12);
+    tech->targetZ    = tech->z - 0x20000;
+    tech->state      = 0;
+    tech->timer      = 0;
 
     func_ov003_0209d154(&tech->sprite, 0);
     for (s32 i = 0; i < 4; i++) {

@@ -22,10 +22,10 @@ typedef struct BtlEnm010SingleShot {
     /* 0x9C */ s32              unk_09C; // origin
     /* 0xA0 */ s32              unk_0A0;
     /* 0xA4 */ s32              unk_0A4;
-    /* 0xA8 */ s16              unk_0A8;    // launch delay
-    /* 0xAA */ u16              unk_0AA;    // heading
-    /* 0xAC */ u16              unk_0AC[4]; // copy of the owner's actor.unk_04..unk_0A
-} BtlEnm010SingleShot;                      // Size: 0xB4
+    /* 0xA8 */ s16              unk_0A8; // launch delay
+    /* 0xAA */ u16              unk_0AA; // heading
+    /* 0xAC */ BattleAttackArgs args;    // copy of the owner's baseArgs
+} BtlEnm010SingleShot;                   // Size: 0xB4
 
 typedef struct BtlEnm010SingleShotArgs {
     /* 0x00 */ Ov003EnemyActor* field_00;
@@ -108,18 +108,18 @@ static s32 func_ov011_021283a8(BtlEnm010SingleShot* data, BtlEnm010SingleShotArg
     for (i = 0; i < 3; i++) {
         data->shot[i].unk_08 = (s32)((((long long)data_ov011_0212c204[i] * (long long)(arg1->field_10)) + 0x800) >> 12);
     }
-    data->unk_000    = arg1->field_00;
-    data->unk_098    = arg1->field_00->actor.position.x;
-    data->unk_09C    = arg1->field_00->actor.position.x + arg1->field_04;
-    data->unk_0A0    = arg1->field_00->actor.position.y + arg1->field_08;
-    data->unk_0A4    = arg1->field_00->actor.position.z + arg1->field_0C;
-    data->unk_0A8    = arg1->field_16;
-    data->unk_0AA    = arg1->field_14;
-    o                = arg1->field_00;
-    data->unk_0AC[0] = o->actor.unk_04;
-    data->unk_0AC[1] = o->actor.unk_06;
-    data->unk_0AC[2] = o->actor.unk_08;
-    data->unk_0AC[3] = o->actor.unk_0A;
+    data->unk_000            = arg1->field_00;
+    data->unk_098            = arg1->field_00->actor.position.x;
+    data->unk_09C            = arg1->field_00->actor.position.x + arg1->field_04;
+    data->unk_0A0            = arg1->field_00->actor.position.y + arg1->field_08;
+    data->unk_0A4            = arg1->field_00->actor.position.z + arg1->field_0C;
+    data->unk_0A8            = arg1->field_16;
+    data->unk_0AA            = arg1->field_14;
+    o                        = arg1->field_00;
+    data->args.power         = o->actor.baseArgs.power;
+    data->args.comboFrames   = o->actor.baseArgs.comboFrames;
+    data->args.powerPercent  = o->actor.baseArgs.powerPercent;
+    data->args.effectPercent = o->actor.baseArgs.effectPercent;
 }
 
 static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
@@ -138,7 +138,7 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
     if (func_ov003_020c3c28() != 0) {
         return r;
     }
-    if (p->unk_000 != NULL && (p->unk_000->actor.flags & 4) != 0) {
+    if (p->unk_000 != NULL && (p->unk_000->actor.flags & ACTOR_FLAG_DEFEATED) != 0) {
         return r;
     }
     CombatSprite_Update(&p->sprite);
@@ -167,7 +167,7 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
         func_ov003_020cbc50(&oa, &ob, p->unk_0AA, rec->unk_00);
         rec->unk_0C = (oa + (va << 12)) >> 12;
         rec->unk_0E = (ob + (vb << 12)) >> 12;
-        if (CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(id), p->unk_0AC, rec->unk_0C, rec->unk_0E) == 1) {
+        if (CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(id), &p->args, rec->unk_0C, rec->unk_0E) == 1) {
             CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, rec->unk_0C);
         }
         {

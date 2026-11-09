@@ -11,7 +11,7 @@ static s32 func_ov003_020b8e60(Ov003ShockWaveArgs* args, s32 x, s32 y) {
     s32          left    = 0;
     s32          targetX = CombatStage_ToWorldX(0, x);
     s32          targetY = CombatStage_ToWorldY(0, y, -0x27000);
-    CombatActor* player  = g_CombatGlobal->unk3D898;
+    BattleActor* player  = g_CombatGlobal->player;
     s32          originX;
     s32          originY = player->position.y;
     if (targetX < player->position.x) {

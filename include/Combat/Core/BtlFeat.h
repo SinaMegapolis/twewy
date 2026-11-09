@@ -1,14 +1,14 @@
 #ifndef TWEWY_COMBAT_CORE_BTLFEAT_H
 #define TWEWY_COMBAT_CORE_BTLFEAT_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include <nitro/types.h>
 
 /// An enemy's actor state, saved before a Feat moves it and written back afterwards.
 typedef struct Ov003ActorSnapshot {
     /* 0x00 */ Ov003EnemyActor* unit;
-    /* 0x04 */ CombatActor      actor;
+    /* 0x04 */ BattleActor      actor;
     /* 0x80 */ u8               reserved[0x1C];
 } Ov003ActorSnapshot; // Size: 0x9C
 

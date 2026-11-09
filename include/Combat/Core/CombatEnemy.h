@@ -56,7 +56,7 @@ Ov003ActorParams*    func_ov003_020c3c88(Ov003EnemyActor*);
 void func_ov003_020c3cec(const TaskHandle* mainHandle, const TaskHandle* subHandle, void* mainData, void* subData);
 s32 func_ov003_020c3d28(const TaskHandle* subHandle, const TaskHandle* mainHandle, void* subData, void* mainData, s32* mainOut,
                         s32* subOut);
-s32 func_ov003_020c3ec0(CombatActor*);
+s32 func_ov003_020c3ec0(BattleActor*);
 s32 func_ov003_020c3efc(Ov003EnemyActor*, Ov003CutinCmdData*);
 
 #endif // TWEWY_COMBAT_CORE_COMBATENEMY_H

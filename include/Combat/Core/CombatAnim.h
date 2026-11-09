@@ -68,7 +68,7 @@ void CombatAnim_SlotUpdate(Ov003SpriteSlot* slot);
 void CombatAnim_SlotRelease(Ov003SpriteSlot* slot);
 void CombatAnim_ShakeStart(Ov003Shake* shake, const Ov003ShakeStep* steps);
 void CombatAnim_ShakeUpdate(Ov003Shake* shake);
-void CombatAnim_ShakeApply(Ov003Shake* shake, CombatActor* actor);
+void CombatAnim_ShakeApply(Ov003Shake* shake, BattleActor* actor);
 void CombatAnim_ShakeStop(Ov003Shake* shake);
 
 #endif // TWEWY_COMBAT_CORE_COMBATANIM_H

@@ -73,7 +73,7 @@ static s32 func_ov003_020b9898(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 static void func_ov003_020b9a14(Ov003Psychithunder* self) {
-    CombatActor*      player  = func_ov003_020a6438();
+    BattleActor*      player  = func_ov003_020a6438();
     s32               playerY = player->screenY;
     s32               x;
     s32               targetX = self->x;

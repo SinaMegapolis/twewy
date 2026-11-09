@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Boss01.h"
@@ -9,7 +9,7 @@
 typedef struct BtlObs_Bus {
     /* 0x000 */ char         unk_000[0x2];
     /* 0x002 */ s16          unk_002;
-    /* 0x004 */ CombatActor  actor;
+    /* 0x004 */ BattleActor  actor;
     /* 0x080 */ char         unk_080[0xC4 - 0x80];
     /* 0x0C4 */ CombatSprite unk_0C4;
     /* 0x124 */ CombatSprite unk_124;
@@ -40,14 +40,14 @@ static void BtlObs_Bus_SetState(BtlObs_Bus* arg0, void (*arg1)(BtlObs_Bus*)) {
 }
 
 static void BtlObs_Bus_OnPhaseStart(BtlObs_Bus* obs) {
-    if (obs->actor.flags & 0x200) {
+    if (obs->actor.flags & ACTOR_FLAG_HELD) {
         if ((*data_ov016_021292c0 == 2) && (obs->unk_124.sprite.resourceData == obs->unk_0C4.sprite.resourceData)) {
-            obs->actor.unk_70 = 60;
-            obs->actor.unk_72 = 100;
+            obs->actor.radius = 60;
+            obs->actor.height = 100;
             CombatSprite_SetAnimFromTable(&obs->unk_0C4, 2, 0);
             CombatSprite_SetPaletteSource(&obs->unk_0C4, 11);
             CombatSprite_Release(&obs->unk_124);
-            CombatHit_LoadSparkForUnit(0, &obs->unk_124, (Ov003EnemyActor*)&obs->actor);
+            CombatHit_LoadSparkForUnit(0, &obs->unk_124, &obs->actor);
         }
     }
 }
@@ -66,7 +66,7 @@ static void BtlObs_Bus_StateEnd(BtlObs_Bus* obs) {
 
 static void BtlObs_Bus_StateHitFlash(BtlObs_Bus* obs) {
     if (obs->unk_18E == 0) {
-        obs->actor.flags |= 0x10;
+        obs->actor.flags |= ACTOR_FLAG_INTANGIBLE;
     }
 
     if (obs->unk_18E < 20) {
@@ -93,13 +93,13 @@ static s32 BtlObs_Bus_Init(TaskPool* pool, Task* task, void* args) {
     obs->unk_184 = busArgs->unk_0;
     obs->unk_190 = 1;
     obs->unk_194 = 1;
-    CombatActor_Init(&obs->actor, 2);
+    BtlActor_Init(&obs->actor, ACTOR_KIND_OBJECT);
     obs->unk_002                 = 25;
     obs->actor.position.x        = 0x180000;
     obs->actor.position.y        = 0x9000;
     obs->actor.position.z        = 0;
-    obs->actor.unk_70            = 100;
-    obs->actor.unk_72            = 100;
+    obs->actor.radius            = 100;
+    obs->actor.height            = 100;
     obs->actor.zGravity          = 0xCD;
     obs->actor.linearDampingStep = 0xE66;
     CombatSprite_LoadFromTable(0, &obs->unk_0C4, &Iden_BtlObs_Bus, (SpriteAnimEntry*)data_ov016_02129120, 0, 10, 0x180);
@@ -116,7 +116,7 @@ static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
     if (g_CombatGlobal->unk3D878 & 0x1000) {
         return 1;
     }
-    switch (CombatActor_PopPendingCommand(&obs->actor)) {
+    switch (BtlActor_PopPendingCommand(&obs->actor)) {
         case ACTOR_CMD_HIT:
             BtlObs_Bus_SetState(obs, BtlObs_Bus_StateHitFlash);
             break;
@@ -130,7 +130,7 @@ static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
     if (obs->unk_188 != NULL) {
         obs->unk_188(obs);
     }
-    CombatActor_UpdatePhysics(&obs->actor);
+    BtlActor_UpdatePhysics(&obs->actor);
     BtlObs_Bus_OnPhaseStart(obs);
     CombatSprite_Update(&obs->unk_0C4);
     CombatSprite_Update(&obs->unk_124);

@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatTouch.h"
@@ -16,7 +16,7 @@ typedef struct BtlPsyPierce {
 static s32 func_ov003_020958e0(void) {
     s32          y, py, x, px, dx, dy;
     Ov003Global* global;
-    if (!CombatTouch_SlashCrosses(g_CombatGlobal->unk3D898))
+    if (!CombatTouch_SlashCrosses(g_CombatGlobal->player))
         return 0;
     global = g_CombatGlobal;
     y      = global->touchWork.startY;
@@ -42,7 +42,7 @@ static s32 func_ov003_02095954(TaskPool* pool, Task* task, void* args) {
     self->update             = NULL;
     self->state              = 0;
     self->timer              = 0;
-    func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, g_CombatGlobal->touchWork.angle);
+    func_ov003_02087250(self->effect, g_CombatGlobal->player, g_CombatGlobal->touchWork.angle);
     return 1;
 }
 static s32 func_ov003_020959f4(TaskPool* pool, Task* task, void* args) {

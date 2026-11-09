@@ -98,7 +98,7 @@ static s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage
                     attackFlag = self->effect->unk_08 >= 4 ? (u16)0x1D : (u16)0;
                     index      = ((s32)(RNG_Next(0x10) << 12) >> 4) * 2;
                     x          = self->unit->actor.screenX;
-                    y          = self->unit->actor.screenY - self->unit->actor.unk_76;
+                    y          = self->unit->actor.screenY - self->unit->actor.centerHeight;
                     func_ov003_020a8908(&args, x, y, 2, RNG_Next(4) + 0xFB);
                     func_ov003_020a89f4(&args, 0x1F000, -0x1000);
                     func_ov003_020a8a0c(&args, FX_Mul(FX_SinCosTable_[index + 1], 0x3000),
@@ -122,7 +122,7 @@ static s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003IceHold* self = task->data;
-            s32           y    = (s16)(self->unit->actor.screenY - self->unit->actor.unk_76);
+            s32           y    = (s16)(self->unit->actor.screenY - self->unit->actor.centerHeight);
             s32           x    = self->unit->actor.screenX;
             CombatSprite_SetPosition(&self->spriteA, x, y);
             CombatSprite_SetPosition(&self->spriteB, x, y);
@@ -149,7 +149,7 @@ static Ov003EnemyActor* func_ov003_020b15a0(void) {
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_020a62a0()->released;
     if (unit == NULL)
         return NULL;
-    if (unit->actor.unk_00 != 1)
+    if (unit->actor.kind != ACTOR_KIND_ENEMY)
         return NULL;
     return unit;
 }

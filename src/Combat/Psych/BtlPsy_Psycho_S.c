@@ -58,11 +58,11 @@ static s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage
 
 static Ov003EnemyActor* func_ov003_020b5f04(s32 index) {
     Ov003EnemyActor* secondary = NULL;
-    Ov003EnemyActor* primary   = (Ov003EnemyActor*)CombatTouch_GetSlashed(2);
+    Ov003EnemyActor* primary   = (Ov003EnemyActor*)CombatTouch_GetSlashed(ACTOR_KIND_OBJECT);
     if (primary != NULL && !func_ov003_020a60ec(primary, 5))
         primary = NULL;
     if (index == 2) {
-        secondary = (Ov003EnemyActor*)CombatTouch_GetSlashed(1);
+        secondary = (Ov003EnemyActor*)CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
         if (secondary != NULL && !func_ov003_020a60ec(secondary, 5))
             secondary = NULL;
     }

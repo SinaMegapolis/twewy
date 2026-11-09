@@ -18,14 +18,15 @@ s32 func_ov003_020b537c(Ov003EffectContext* context, Ov003EffectState* effect) {
     if (CombatTouch_IsTargetKind(1))
         return 0;
     Ov003EnemyActor* unit = (Ov003EnemyActor*)touch->held;
-    if (unit == NULL || &unit->actor != touch->target || (u32)(unit->actor.unk_00 - 1) > 1 || (unit->actor.flags & 0x10))
+    if (unit == NULL || &unit->actor != touch->target || (u32)(unit->actor.kind - 1) > 1 ||
+        (unit->actor.flags & ACTOR_FLAG_INTANGIBLE))
         return 0;
     if (!func_ov003_020a60ec(unit, 5))
         return 0;
     switch (effect->index) {
         case 0:
         case 1:
-            if (unit->actor.unk_00 != 2)
+            if (unit->actor.kind != ACTOR_KIND_OBJECT)
                 return 0;
             break;
         case 2:
@@ -108,7 +109,7 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
         case 2: {
             self  = task->data;
             s32 x = self->unit->actor.screenX;
-            s32 y = self->unit->actor.screenY - self->unit->actor.unk_76;
+            s32 y = self->unit->actor.screenY - self->unit->actor.centerHeight;
             switch (self->phase) {
                 case 1:
                 case 2:
@@ -200,7 +201,7 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
     BtlTouchWork*    touch = &g_CombatGlobal->touchWork;
     Ov003EnemyActor* unit  = self->unit;
     if (!CombatTouch_IsGesture(6) && !CombatTouch_IsGesture(7)) {
-        s16 half = unit->actor.unk_70;
+        s16 half = unit->actor.radius;
         if (CombatStage_IsOutOfBounds(unit->actor.position.x, unit->actor.position.y, half << 12, (half / 2) << 12)) {
             func_ov003_020b5d40(self, 3);
             return 1;
@@ -213,7 +214,7 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
             if (self->timer == 0)
                 self->timer = 0xA;
             s32 x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-            s32 y = CombatStage_ToWorldY(0, (s16)(g_CombatGlobal->touchWork.y - (0xC - unit->actor.unk_72) / 2), -0x10000);
+            s32 y = CombatStage_ToWorldY(0, (s16)(g_CombatGlobal->touchWork.y - (0xC - unit->actor.height) / 2), -0x10000);
             if (self->timer > 0) {
                 func_020265d4(&unit->actor.position.x, x, (u16)self->timer);
                 func_020265d4(&unit->actor.position.y, y, (u16)self->timer);
@@ -231,7 +232,7 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
         case 1:
             unit->actor.position.x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
             unit->actor.position.y =
-                CombatStage_ToWorldY(0, (s16)(g_CombatGlobal->touchWork.y - (0xC - unit->actor.unk_72) / 2), -0x10000);
+                CombatStage_ToWorldY(0, (s16)(g_CombatGlobal->touchWork.y - (0xC - unit->actor.height) / 2), -0x10000);
             unit->actor.position.z = -0x10000;
             unit->actor.zVelocity  = 0;
             break;
@@ -245,11 +246,11 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
     self->radius += FX_Sqrt(FX_Mul(vx, vx) + FX_Mul(vy, vy));
     if (self->radius > 0x5000)
         self->radius = 0x5000;
-    s16 half = unit->actor.unk_70;
+    s16 half = unit->actor.radius;
     if (CombatStage_ClampToFloorTop(&unit->actor.position.y, (half / 2) << 12, unit->actor.position.x)) {
         s32 above = 0;
         if (self->flags & 1)
-            above = ((self->unit->actor.screenY - self->unit->actor.unk_72) - 0x20) > g_CombatGlobal->touchWork.y;
+            above = ((self->unit->actor.screenY - self->unit->actor.height) - 0x20) > g_CombatGlobal->touchWork.y;
         if (above) {
             func_ov003_020a6198(self->unit, 5);
             return 0;
@@ -269,7 +270,7 @@ static s32 func_ov003_020b5c84(Ov003PsychoD* self) {
         unit->actor.yVelocity = 0;
         self->x               = unit->actor.position.x;
         self->y               = unit->actor.position.y;
-        s16 half              = unit->actor.unk_70;
+        s16 half              = unit->actor.radius;
         CombatStage_ClampXY(&self->x, &self->y, half << 12, (half / 2) << 12);
     }
     if (self->timer > 0) {

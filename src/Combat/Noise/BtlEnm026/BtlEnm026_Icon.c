@@ -113,7 +113,7 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
     if (data->unk_124 != 2) {
         CombatSprite_SetFlip(&data->unk_00, owner->base.sprite.flags46 & 1);
     }
-    if (owner->base.actor.flags & 4) {
+    if (owner->base.actor.flags & ACTOR_FLAG_DEFEATED) {
         return 0;
     }
     switch (data->unk_00.animTableIndex) {

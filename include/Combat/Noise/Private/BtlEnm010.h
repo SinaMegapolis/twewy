@@ -1,7 +1,7 @@
 #ifndef COMBAT_NOISE_PRIVATE_BTLENM010_H
 #define COMBAT_NOISE_PRIVATE_BTLENM010_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatSprite.h"
 
@@ -83,31 +83,23 @@ typedef struct BtlEnm010TattRec {
     /* 0x86 */ u16          unk_86;
 } BtlEnm010TattRec;                 // Size: 0x88
 
-/// A two-halfword pair, for the aggregate copies whose reference shape is two `ldrh`/two
-/// `strh` in address order (the scalar spelling reverses one side or the other).
-typedef struct BtlEnm010Pair16 {
-    u16 lo;
-    u16 hi;
-} BtlEnm010Pair16;
-
 typedef struct BtlEnm010Tatt {
     /* 0x000 */ Ov003EnemyActor* unk_000; // the RG or UG that spawned it
     /* 0x004 */ BtlEnm010TattRec rec[4];
     /* 0x224 */ void (*unk_224)(struct BtlEnm010Tatt*);
-    /* 0x228 */ s16             unk_228;
-    /* 0x22A */ s16             unk_22A;
-    /* 0x22C */ s16             unk_22C;
-    /* 0x22E */ u16             unk_22E;
-    /* 0x230 */ s32             unk_230; // owner position at spawn
-    /* 0x234 */ s32             unk_234;
-    /* 0x238 */ s32             unk_238;
-    /* 0x23C */ s32             unk_23C; // screen origin, 4.12
-    /* 0x240 */ s32             unk_240;
-    /* 0x244 */ BtlEnm010Pair16 unk_244; // copy of the owner's actor.unk_04/unk_06
-    /* 0x248 */ BtlEnm010Pair16 unk_248; // copy of the owner's actor.unk_08/unk_0A
-    /* 0x24C */ u8              unk_24C; // bit 0 mirrored, bit 1 sub engine
-    /* 0x24D */ u8              unk_24D[3];
-} BtlEnm010Tatt;                         // Size: 0x250
+    /* 0x228 */ s16              unk_228;
+    /* 0x22A */ s16              unk_22A;
+    /* 0x22C */ s16              unk_22C;
+    /* 0x22E */ u16              unk_22E;
+    /* 0x230 */ s32              unk_230; // owner position at spawn
+    /* 0x234 */ s32              unk_234;
+    /* 0x238 */ s32              unk_238;
+    /* 0x23C */ s32              unk_23C; // screen origin, 4.12
+    /* 0x240 */ s32              unk_240;
+    /* 0x244 */ BattleAttackArgs args;    // copy of the owner's baseArgs
+    /* 0x24C */ u8               unk_24C; // bit 0 mirrored, bit 1 sub engine
+    /* 0x24D */ u8               unk_24D[3];
+} BtlEnm010Tatt;                          // Size: 0x250
 
 void func_ov011_021256c0(u16 arg0);
 void func_ov011_02125714(void);

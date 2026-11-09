@@ -1,6 +1,6 @@
 #include "Combat/Core/CombatAnim.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatActorParams.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatBgTiles.h"
@@ -408,7 +408,7 @@ void CombatAnim_ShakeUpdate(Ov003Shake* shake) {
 }
 
 /// Applies the scripted translation to `actor`'s position.
-void CombatAnim_ShakeApply(Ov003Shake* shake, CombatActor* actor) {
+void CombatAnim_ShakeApply(Ov003Shake* shake, BattleActor* actor) {
     if (shake->steps == NULL) {
         return;
     }

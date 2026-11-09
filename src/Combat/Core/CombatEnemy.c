@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlBar.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatCutin.h"
@@ -355,7 +355,7 @@ void func_ov003_020c2b5c(Ov003CutinActor* actor) {
 void func_ov003_020c2b68(Ov003CutinActor* actor) {
     func_ov003_020c427c(&actor->base);
     actor->base.flags18C &= ~0x80;
-    actor->base.actor.flags &= ~0x10;
+    actor->base.actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
     actor->state               = 0;
     actor->timerLimit          = 0;
     actor->timer               = 0;
@@ -364,18 +364,18 @@ void func_ov003_020c2b68(Ov003CutinActor* actor) {
 
 /// True while the actor is safely inside the camera bounds.
 s32 func_ov003_020c2bbc(Ov003CutinActor* actor) {
-    Ov003Global*     p     = g_CombatGlobal;
-    Ov003Camera*     cam   = &p->unk3D7C0[0];
-    Ov003CutinActor* other = (Ov003CutinActor*)p->unk3D898;
+    Ov003Global* p     = g_CombatGlobal;
+    Ov003Camera* cam   = &p->unk3D7C0[0];
+    BattleActor* other = p->player;
 
     if (actor->base.actor.position.x < 0x50000) {
-        if (other->base.actor.position.x < 0x80000) {
+        if (other->position.x < 0x80000) {
             return 1;
         }
         return 0;
     }
     if (actor->base.actor.position.x > cam->unk_0C - 0x50000) {
-        if (other->base.actor.position.x > cam->unk_0C - 0x80000) {
+        if (other->position.x > cam->unk_0C - 0x80000) {
             return 1;
         }
         return 0;
@@ -481,22 +481,22 @@ s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 t
 
 /// Projectile-like noise attack state machine (fly toward the target, then leave).
 s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spread) {
-    s32              animFar;
-    u16              anim1;
-    u16              anim2;
-    u16              anim3;
-    u16              anim4;
-    Ov003CutinActor* other;
-    s32              limit;
-    s32              dir;
-    s32              jitter;
+    s32          animFar;
+    u16          anim1;
+    u16          anim2;
+    u16          anim3;
+    u16          anim4;
+    BattleActor* other;
+    s32          limit;
+    s32          dir;
+    s32          jitter;
 
     anim1   = animBase + 1;
     anim2   = animBase + 2;
     anim3   = animBase + 3;
     anim4   = animBase + 4;
     animFar = animBase + 5;
-    other   = (Ov003CutinActor*)g_CombatGlobal->unk3D898;
+    other   = g_CombatGlobal->player;
     limit   = g_CombatGlobal->unk3D7C0[0].unk_0C;
     switch (actor->state) {
         case 0:
@@ -506,7 +506,7 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
                     actor->velocityX = speed;
                 } else if (actor->base.actor.position.x > limit - 0x50000) {
                     actor->velocityX = -speed;
-                } else if (actor->base.actor.position.x < other->base.actor.position.x) {
+                } else if (actor->base.actor.position.x < other->position.x) {
                     actor->velocityX = -speed;
                 } else {
                     actor->velocityX = speed;
@@ -538,7 +538,7 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
             }
             actor->base.actor.position.x += actor->velocityX;
             actor->base.actor.position.y += actor->velocityY;
-            jitter = (0x50 - actor->base.actor.unk_70) / (speed >> 12);
+            jitter = (0x50 - actor->base.actor.radius) / (speed >> 12);
             if (actor->timer > actor->timerLimit ||
                 (((actor->velocityX < 0 && actor->base.actor.position.x <= 0x50000) ||
                   (actor->velocityX > 0 && actor->base.actor.position.x >= limit - 0x50000)) &&
@@ -569,38 +569,38 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
 }
 
 static void func_ov003_020c32a4(Ov003CutinActor* src, Ov003CutinActor* dst) {
-    dst->base.actor.baseArgs             = src->base.actor.baseArgs;
-    dst->base.actor.periodicEffectMode   = src->base.actor.periodicEffectMode;
-    dst->base.actor.periodicEffectTimer  = src->base.actor.periodicEffectTimer;
-    dst->base.actor.periodicEffectAmount = src->base.actor.periodicEffectAmount;
-    dst->base.actor.unk_62               = src->base.actor.unk_62;
-    dst->base.actor.unk_64               = src->base.actor.unk_64;
-    dst->base.actor.unk_66               = src->base.actor.unk_66;
-    dst->base.actor.unk_68               = src->base.actor.unk_68;
-    dst->base.actor.unk_6A               = src->base.actor.unk_6A;
-    dst->base.group                      = src->base.group;
-    dst->base.spriteIndex                = src->base.spriteIndex;
-    dst->base.unk_18E                    = src->base.unk_18E;
-    dst->base.unk_190                    = src->base.unk_190;
-    dst->base.unk_192                    = src->base.unk_192;
-    dst->base.unk_194                    = src->base.unk_194;
-    dst->base.flags196.bits.b0           = src->base.flags196.bits.b0;
-    dst->base.flags196.bits.b1           = src->base.flags196.bits.b1;
-    dst->base.flags196.bits.b3           = src->base.flags196.bits.b3;
-    dst->base.flags196.bits.b4           = src->base.flags196.bits.b4;
-    dst->base.flags196.bits.b5           = src->base.flags196.bits.b5;
-    dst->base.flags196.bits.b6           = src->base.flags196.bits.b6;
-    dst->base.flags196.bits.b7           = src->base.flags196.bits.b7;
-    dst->base.flags196.bits.b8           = src->base.flags196.bits.b8;
-    dst->base.flags196.bits.b9           = src->base.flags196.bits.b9;
-    dst->base.flags196.bits.b10          = src->base.flags196.bits.b10;
-    dst->base.flags196.bits.b11          = src->base.flags196.bits.b11;
-    dst->base.unk_198                    = src->base.unk_198;
-    dst->base.unk_19A                    = src->base.unk_19A;
-    dst->base.unk_19C                    = src->base.unk_19C;
-    dst->base.unk_19E                    = src->base.unk_19E;
-    dst->base.unk_1A0                    = src->base.unk_1A0;
-    dst->base.unk_1A2                    = src->base.unk_1A2;
+    dst->base.actor.baseArgs                 = src->base.actor.baseArgs;
+    dst->base.actor.periodicEffectMode       = src->base.actor.periodicEffectMode;
+    dst->base.actor.periodicEffectTimer      = src->base.actor.periodicEffectTimer;
+    dst->base.actor.periodicEffectAmount     = src->base.actor.periodicEffectAmount;
+    dst->base.actor.damageTakenPercent       = src->base.actor.damageTakenPercent;
+    dst->base.actor.effectDamageTakenPercent = src->base.actor.effectDamageTakenPercent;
+    dst->base.actor.attack                   = src->base.actor.attack;
+    dst->base.actor.defense                  = src->base.actor.defense;
+    dst->base.actor.impactPercent            = src->base.actor.impactPercent;
+    dst->base.group                          = src->base.group;
+    dst->base.spriteIndex                    = src->base.spriteIndex;
+    dst->base.unk_18E                        = src->base.unk_18E;
+    dst->base.unk_190                        = src->base.unk_190;
+    dst->base.unk_192                        = src->base.unk_192;
+    dst->base.unk_194                        = src->base.unk_194;
+    dst->base.flags196.bits.b0               = src->base.flags196.bits.b0;
+    dst->base.flags196.bits.b1               = src->base.flags196.bits.b1;
+    dst->base.flags196.bits.b3               = src->base.flags196.bits.b3;
+    dst->base.flags196.bits.b4               = src->base.flags196.bits.b4;
+    dst->base.flags196.bits.b5               = src->base.flags196.bits.b5;
+    dst->base.flags196.bits.b6               = src->base.flags196.bits.b6;
+    dst->base.flags196.bits.b7               = src->base.flags196.bits.b7;
+    dst->base.flags196.bits.b8               = src->base.flags196.bits.b8;
+    dst->base.flags196.bits.b9               = src->base.flags196.bits.b9;
+    dst->base.flags196.bits.b10              = src->base.flags196.bits.b10;
+    dst->base.flags196.bits.b11              = src->base.flags196.bits.b11;
+    dst->base.unk_198                        = src->base.unk_198;
+    dst->base.unk_19A                        = src->base.unk_19A;
+    dst->base.unk_19C                        = src->base.unk_19C;
+    dst->base.unk_19E                        = src->base.unk_19E;
+    dst->base.unk_1A0                        = src->base.unk_1A0;
+    dst->base.unk_1A2                        = src->base.unk_1A2;
 }
 
 /// Rotates the main/sub/third actor chain when the third actor is present.
@@ -638,8 +638,8 @@ s32 func_ov003_020c3570(Ov003CutinActor* actor, u16 animBase) {
             if (third->base.flags18C & 0x80) {
                 actor->base.flags18C &= ~0x80;
                 third->base.flags18C &= ~0x80;
-                actor->base.actor.flags |= 0x10;
-                third->base.actor.flags |= 0x10;
+                actor->base.actor.flags |= ACTOR_FLAG_INTANGIBLE;
+                third->base.actor.flags |= ACTOR_FLAG_INTANGIBLE;
                 actor->timer = 0;
                 actor->state++;
                 third->timer = 0;
@@ -660,7 +660,7 @@ s32 func_ov003_020c3570(Ov003CutinActor* actor, u16 animBase) {
         case 2:
             if (actor->timer == 0) {
                 CombatSprite_SetAnimFromTable(&actor->base.sprite, animBase + 1, 1);
-                actor->base.actor.flags &= ~0x10;
+                actor->base.actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
                 func_ov003_020c34dc(actor);
             }
             if (SpriteMgr_IsAnimationFinished(&actor->base.sprite.sprite)) {
@@ -682,7 +682,7 @@ static void func_ov003_020c36d4(s32 scale, Vec* src, Vec* dst) {
 
 void func_ov003_020c3700(Ov003EnemyActor* actor) {
     s32 x      = actor->actor.position.x;
-    s16 radius = actor->actor.unk_70;
+    s16 radius = actor->actor.radius;
     f32 scaled;
 
     if (radius > 0) {
@@ -693,11 +693,11 @@ void func_ov003_020c3700(Ov003EnemyActor* actor) {
     if (func_ov003_020c3960(&x, scaled) != 0) {
         return;
     }
-    if (!(actor->actor.flags & 0x10000000)) {
+    if (!(actor->actor.flags & ACTOR_FLAG_UNCLAMPED_X)) {
         return;
     }
     actor->flags18C |= 8;
-    actor->actor.flags &= ~0x10000000;
+    actor->actor.flags &= ~ACTOR_FLAG_UNCLAMPED_X;
 }
 
 static void func_ov003_020c3794(Ov003EnemyActor* actor) {
@@ -705,18 +705,18 @@ static void func_ov003_020c3794(Ov003EnemyActor* actor) {
         return;
     }
     actor->flags18C &= ~8;
-    actor->actor.flags |= 0x10000000;
+    actor->actor.flags |= ACTOR_FLAG_UNCLAMPED_X;
 }
 
 void func_ov003_020c37bc(Ov003EnemyActor* actor) {
     actor->unk_1A4 = 0;
     actor->unk_1A8 = 0;
     func_ov003_020c3794(actor);
-    actor->actor.flags &= ~2;
-    actor->actor.flags &= ~0x4000;
-    actor->actor.flags &= ~0x200;
-    actor->actor.flags &= ~0x400;
-    actor->actor.flags &= ~8;
+    actor->actor.flags &= ~ACTOR_FLAG_STAGGERED;
+    actor->actor.flags &= ~ACTOR_FLAG_LAUNCHED;
+    actor->actor.flags &= ~ACTOR_FLAG_HELD;
+    actor->actor.flags &= ~ACTOR_FLAG_THROWN;
+    actor->actor.flags &= ~ACTOR_FLAG_GUARDING;
 }
 
 s32 func_ov003_020c37f8(CombatSprite* sprite) {
@@ -825,10 +825,10 @@ static Ov003Camera* func_ov003_020c3a48(u32 index) {
 
 static s32 func_ov003_020c3a70(u32 index) {
     Ov003Global* p        = g_CombatGlobal;
-    void*        mainTask = p->unk3D898;
+    void*        mainTask = p->player;
 
     g_Cutin->taskMain = mainTask;
-    g_Cutin->taskSub  = p->unk3D89C;
+    g_Cutin->taskSub  = p->partner;
     g_Cutin->unk_10   = mainTask;
     return ((s32*)data_ov003_020e71ec)[index];
 }
@@ -886,15 +886,15 @@ static void func_ov003_020c3b6c(u16* tracks) {
 }
 
 void func_ov003_020c3ba8(s32 x, s32 y) {
-    Ov003Global*     p      = g_CombatGlobal;
-    Ov003CutinActor* sub    = p->unk3D89C;
-    Ov003Camera*     camera = &p->unk3D7C0[1];
+    Ov003Global* p      = g_CombatGlobal;
+    BattleActor* sub    = p->partner;
+    Ov003Camera* camera = &p->unk3D7C0[1];
 
-    camera->unk_20             = x;
-    sub->base.actor.position.x = x;
-    camera->unk_24             = y;
-    sub->base.actor.position.y = y;
-    CombatStage_SetCameraTarget(1, sub->base.actor.position.x, y, sub->base.actor.position.z);
+    camera->unk_20  = x;
+    sub->position.x = x;
+    camera->unk_24  = y;
+    sub->position.y = y;
+    CombatStage_SetCameraTarget(1, sub->position.x, y, sub->position.z);
 }
 
 s32 func_ov003_020c3bf0(void* actor) {
@@ -992,10 +992,10 @@ void func_ov003_020c3e64(Ov003EnemyActor* actor) {}
 
 static void func_ov003_020c3e68(Ov003EnemyActor* main, Ov003EnemyActor* sub) {
     if ((main != NULL) && (sub != NULL)) {
-        main->partner      = sub;
-        sub->partner       = main;
-        main->actor.unk_78 = (s32)sub;
-        sub->actor.unk_78  = (s32)main;
+        main->partner           = sub;
+        sub->partner            = main;
+        main->actor.linkedActor = &sub->actor;
+        sub->actor.linkedActor  = &main->actor;
     }
 }
 
@@ -1005,7 +1005,7 @@ void func_ov003_020c3e88(Ov003CutinActor* actor, s32 arg1) {
     func_ov003_020c3e68(&actor->base, func_ov003_020cb42c(flag, arg1, 0));
 }
 
-s32 func_ov003_020c3ec0(CombatActor* actor) {
+s32 func_ov003_020c3ec0(BattleActor* actor) {
     if (g_Cutin->flags.bits.b3) {
         return 0;
     }
@@ -1019,55 +1019,55 @@ s32 func_ov003_020c3ec0(CombatActor* actor) {
 s32 func_ov003_020c3efc(Ov003EnemyActor* actor, Ov003CutinCmdData* spawn) {
     Ov003ActorParams* params = (Ov003ActorParams*)CombatEnemyParam_Table[spawn->group][spawn->sprite];
 
-    CombatActor_Init(&actor->actor, 1);
-    actor->group              = spawn->group;
-    actor->spriteIndex        = spawn->sprite;
-    actor->id                 = g_Cutin->unk_00;
-    actor->flags196.bits.b8   = spawn->spawnFlags.bits.b0;
-    actor->actor.position.x   = spawn->x;
-    actor->actor.position.y   = spawn->y;
-    actor->actor.position.z   = spawn->z;
-    actor->actor.dampingScale = 0xF33 - params->unk_18;
-    actor->actor.unk_08       = params->unk_0C;
-    actor->actor.unk_62       = params->unk_0E;
-    actor->actor.unk_6A       = params->unk_14;
-    actor->actor.maxHp        = params->unk_0A;
-    actor->actor.currentHp    = actor->actor.maxHp;
-    actor->actor.unk_70       = params->unk_01;
-    actor->actor.unk_72       = params->unk_02;
-    actor->actor.unk_74       = params->unk_05;
-    actor->actor.unk_76       = params->unk_06;
-    actor->unk_18E            = params->unk_08;
-    actor->unk_190            = params->unk_07;
-    actor->unk_192            = params->unk_10;
-    actor->unk_194            = params->unk_12;
-    actor->flags196.bits.b0   = params->flags16.bits.b0;
-    actor->flags196.bits.b1   = params->flags16.bits.b1;
-    actor->flags196.bits.b2   = params->flags16.bits.b2;
-    actor->flags196.bits.b3   = params->flags16.bits.b3;
-    actor->flags196.bits.b4   = params->flags16.bits.b4;
-    actor->flags196.bits.b5   = params->flags16.bits.b5;
-    actor->flags196.bits.b6   = params->flags16.bits.b6;
-    actor->flags196.bits.b7   = params->flags16.bits.b7;
-    actor->flags196.bits.b9   = params->flags16.bits.b9;
-    actor->flags196.bits.b10  = params->flags16.bits.b10;
-    actor->flags196.bits.b11  = params->flags16.bits.b11;
-    actor->unk_198            = params->unk_1C;
-    actor->unk_19A            = params->unk_1E;
-    actor->unk_19C            = params->unk_20;
-    actor->unk_19E            = params->unk_22;
-    actor->unk_1A0            = params->unk_24;
-    actor->unk_1A2            = params->unk_26;
-    actor->partner            = NULL;
-    actor->flags18C           = 0;
-    actor->unk_1A4            = 0;
-    actor->unk_1A6            = 0;
-    actor->unk_1A8            = 0;
-    actor->unk_1AC            = actor->actor.position.x;
-    actor->unk_1B0            = actor->actor.position.y;
-    actor->unk_1B4            = actor->actor.position.z;
-    actor->unk_1B8            = 0x1000;
-    actor->unk_1BC            = 0x1000;
+    BtlActor_Init(&actor->actor, ACTOR_KIND_ENEMY);
+    actor->group                       = spawn->group;
+    actor->spriteIndex                 = spawn->sprite;
+    actor->id                          = g_Cutin->unk_00;
+    actor->flags196.bits.b8            = spawn->spawnFlags.bits.b0;
+    actor->actor.position.x            = spawn->x;
+    actor->actor.position.y            = spawn->y;
+    actor->actor.position.z            = spawn->z;
+    actor->actor.dampingScale          = 0xF33 - params->unk_18;
+    actor->actor.baseArgs.powerPercent = params->unk_0C;
+    actor->actor.damageTakenPercent    = params->unk_0E;
+    actor->actor.impactPercent         = params->unk_14;
+    actor->actor.maxHp                 = params->unk_0A;
+    actor->actor.currentHp             = actor->actor.maxHp;
+    actor->actor.radius                = params->unk_01;
+    actor->actor.height                = params->unk_02;
+    actor->actor.centerOffsetX         = params->unk_05;
+    actor->actor.centerHeight          = params->unk_06;
+    actor->unk_18E                     = params->unk_08;
+    actor->unk_190                     = params->unk_07;
+    actor->unk_192                     = params->unk_10;
+    actor->unk_194                     = params->unk_12;
+    actor->flags196.bits.b0            = params->flags16.bits.b0;
+    actor->flags196.bits.b1            = params->flags16.bits.b1;
+    actor->flags196.bits.b2            = params->flags16.bits.b2;
+    actor->flags196.bits.b3            = params->flags16.bits.b3;
+    actor->flags196.bits.b4            = params->flags16.bits.b4;
+    actor->flags196.bits.b5            = params->flags16.bits.b5;
+    actor->flags196.bits.b6            = params->flags16.bits.b6;
+    actor->flags196.bits.b7            = params->flags16.bits.b7;
+    actor->flags196.bits.b9            = params->flags16.bits.b9;
+    actor->flags196.bits.b10           = params->flags16.bits.b10;
+    actor->flags196.bits.b11           = params->flags16.bits.b11;
+    actor->unk_198                     = params->unk_1C;
+    actor->unk_19A                     = params->unk_1E;
+    actor->unk_19C                     = params->unk_20;
+    actor->unk_19E                     = params->unk_22;
+    actor->unk_1A0                     = params->unk_24;
+    actor->unk_1A2                     = params->unk_26;
+    actor->partner                     = NULL;
+    actor->flags18C                    = 0;
+    actor->unk_1A4                     = 0;
+    actor->unk_1A6                     = 0;
+    actor->unk_1A8                     = 0;
+    actor->unk_1AC                     = actor->actor.position.x;
+    actor->unk_1B0                     = actor->actor.position.y;
+    actor->unk_1B4                     = actor->actor.position.z;
+    actor->unk_1B8                     = 0x1000;
+    actor->unk_1BC                     = 0x1000;
     SndMgr_TrackSeqArc(CombatEnemyGroup_SoundArc[actor->group]);
 }
 

@@ -82,7 +82,7 @@ static s32 func_ov003_020b7ff4(TaskPool* pool, Task* task, void* args, s32 stage
 
 static s32 func_ov003_020b81cc(Ov003BoomerangShotT* self) {
     s32          originY;
-    CombatActor* player;
+    BattleActor* player;
     s32          angle;
     s32          targetY;
     s32          originX;
@@ -95,7 +95,7 @@ static s32 func_ov003_020b81cc(Ov003BoomerangShotT* self) {
     count   = self->effect->params[0];
     targetX = CombatStage_ToWorldX(0, self->x);
     targetY = CombatStage_ToWorldY(0, self->y, -0x27000);
-    player  = g_CombatGlobal->unk3D898;
+    player  = g_CombatGlobal->player;
     if (targetX < player->position.x) {
         originX = player->position.x - 0x18000;
         left    = 1;

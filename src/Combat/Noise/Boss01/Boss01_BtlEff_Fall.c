@@ -1,33 +1,33 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Noise/Private/Boss01.h"
 #include <nitro/mi/cpumem.h>
 
 typedef struct BtlEff_Fall {
-    /* 0x00 */ char         unk_00[0x20];
-    /* 0x20 */ s32          unk_20;
-    /* 0x24 */ char         unk_24[0x28 - 0x24];
-    /* 0x28 */ s32          unk_28;
-    /* 0x2C */ s32          unk_2C;
-    /* 0x30 */ s32          unk_30;
-    /* 0x34 */ char         unk_34[0x60 - 0x34];
-    /* 0x60 */ void*        unk_60;
-    /* 0x64 */ CombatActor* unk_64;
-    /* 0x68 */ s32          unk_68;
-    /* 0x6C */ Quad         unk_6C;
-    /* 0x74 */ u32          unk_74;
+    /* 0x00 */ char             unk_00[0x20];
+    /* 0x20 */ s32              unk_20;
+    /* 0x24 */ char             unk_24[0x28 - 0x24];
+    /* 0x28 */ s32              unk_28;
+    /* 0x2C */ s32              unk_2C;
+    /* 0x30 */ s32              unk_30;
+    /* 0x34 */ char             unk_34[0x60 - 0x34];
+    /* 0x60 */ void*            unk_60;
+    /* 0x64 */ BattleActor*     unk_64;
+    /* 0x68 */ s32              unk_68;
+    /* 0x6C */ BattleAttackArgs unk_6C;
+    /* 0x74 */ u32              unk_74;
 } BtlEff_Fall; // Size: 0x78;
 
 /* Spawn metadata for effects/obstacles (dimensions and timing). */
 typedef struct {
-    /* 0x00 */ u16  unk0;
-    /* 0x02 */ u16  unk2;
-    /* 0x04 */ Quad unk_4;
-    /* 0x06 */ u16  unk6;
-    /* 0x08 */ u16  unk8;
-    /* 0x0A */ u16  unkA;
+    /* 0x00 */ u16              unk0;
+    /* 0x02 */ u16              unk2;
+    /* 0x04 */ BattleAttackArgs unk_4;
+    /* 0x06 */ u16              unk6;
+    /* 0x08 */ u16              unk8;
+    /* 0x0A */ u16              unkA;
 } Ov016SpawnMeta;
 
 typedef struct {
@@ -110,9 +110,9 @@ static s32 BtlEff_Fall_Update(TaskPool* pool, Task* task, void* args) {
             }
 
             if (eff->unk_60 == NULL) {
-                CombatActor_SetPendingCommand(eff->unk_64, ACTOR_CMD_DEFEAT);
+                BtlActor_SetPendingCommand(eff->unk_64, ACTOR_CMD_DEFEAT);
             } else if (((Ov016SpriteParams*)eff->unk_60)->unk2 == 0x19) {
-                CombatActor_SetPendingCommand(eff->unk_60 + 4, ACTOR_CMD_HIT);
+                BtlActor_SetPendingCommand(eff->unk_60 + 4, ACTOR_CMD_HIT);
             } else {
                 CombatSys_DefeatObs(eff->unk_60);
             }

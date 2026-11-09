@@ -1,9 +1,9 @@
 #ifndef COMBAT_COMBATCUTIN_H
 #define COMBAT_COMBATCUTIN_H
 
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlFeat.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatActorParams.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatSprite.h"

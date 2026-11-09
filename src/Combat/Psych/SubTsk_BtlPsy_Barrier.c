@@ -26,7 +26,7 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            CombatActor* player;
+            BattleActor* player;
             barrier = task->data;
             player  = func_ov003_020a6438();
             MI_CpuSet(barrier, 0, sizeof(*barrier));
@@ -68,7 +68,7 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 1: {
             Ov003Barrier* barrier = task->data;
-            CombatActor*  player  = func_ov003_020a6438();
+            BattleActor*  player  = func_ov003_020a6438();
             BtlTouchWork* touch   = func_ov003_020a62a0();
             s32           active  = 1;
             func_ov003_020a5a94(barrier->spawn.effect);
@@ -119,7 +119,7 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             Ov003Barrier* barrier    = task->data;
-            CombatActor*  player     = func_ov003_020a6438();
+            BattleActor*  player     = func_ov003_020a6438();
             s32           flip       = player->isFlipped == 0;
             barrier->affine.rotation = 0;
             barrier->affine.scaleX   = flip ? -0x1000 : 0x1000;
@@ -156,7 +156,7 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 static void func_ov003_020aa860(Ov003Barrier* barrier) {
-    CombatActor* player = func_ov003_020a6438();
+    BattleActor* player = func_ov003_020a6438();
     if (barrier->phase == 0) {
         if (!SpriteMgr_IsAnimationFinished(&barrier->sprites[1].sprite))
             return;
@@ -201,7 +201,7 @@ static void func_ov003_020aa990(Ov003Barrier* barrier) {
 }
 
 static void func_ov003_020aa9f4(Ov003EffectState* effect, s32 percent) {
-    CombatActor* player = func_ov003_020a6438();
+    BattleActor* player = func_ov003_020a6438();
     s32          amount = g_CombatGlobal->unk3D8D2 * percent / 100;
     SndMgr_PlaySEWithPan(SEIDX_SE_BOY_RECOVER_DRINK, CombatStage_ToScreenX(0, player->position.x));
     func_ov003_020b67dc(effect, player);

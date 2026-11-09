@@ -48,17 +48,17 @@ static void func_ov003_020c96e4(void) {
     Ov003ActorParams* main = func_ov003_020c3c88(&data_ov003_020e7324.ownerMain->base);
 
     if (data_ov003_020e7324.activeMain) {
-        data_ov003_020e7324.ownerSub->base.actor.unk_08  = sub->unk_0C * 3 / 2;
-        data_ov003_020e7324.ownerMain->base.actor.unk_08 = main->unk_0C;
+        data_ov003_020e7324.ownerSub->base.actor.baseArgs.powerPercent  = sub->unk_0C * 3 / 2;
+        data_ov003_020e7324.ownerMain->base.actor.baseArgs.powerPercent = main->unk_0C;
         return;
     }
     if (data_ov003_020e7324.activeSub) {
-        data_ov003_020e7324.ownerSub->base.actor.unk_08  = sub->unk_0C;
-        data_ov003_020e7324.ownerMain->base.actor.unk_08 = main->unk_0C * 3 / 2;
+        data_ov003_020e7324.ownerSub->base.actor.baseArgs.powerPercent  = sub->unk_0C;
+        data_ov003_020e7324.ownerMain->base.actor.baseArgs.powerPercent = main->unk_0C * 3 / 2;
         return;
     }
-    data_ov003_020e7324.ownerSub->base.actor.unk_08  = sub->unk_0C;
-    data_ov003_020e7324.ownerMain->base.actor.unk_08 = main->unk_0C;
+    data_ov003_020e7324.ownerSub->base.actor.baseArgs.powerPercent  = sub->unk_0C;
+    data_ov003_020e7324.ownerMain->base.actor.baseArgs.powerPercent = main->unk_0C;
 }
 
 static void func_ov003_020c9788(BtlEnmAura* self, BtlEnmAuraUpdate update) {
@@ -297,8 +297,8 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
                 if (!(g_CombatGlobal->unk3D878 & 0x20000)) {
                     g_CombatGlobal->unk3D878 |= 0x20000;
                     g_CombatGlobal->unk3D878 |= 0x10000;
-                    CombatActor* owner = g_CombatGlobal->unk3D89C;
-                    owner->flags &= ~8;
+                    BattleActor* owner = g_CombatGlobal->partner;
+                    owner->flags &= ~ACTOR_FLAG_GUARDING;
                     func_ov003_020c2008(&g_CombatGlobal->unk_34230);
                 }
             }
@@ -333,8 +333,8 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
                 if (!(g_CombatGlobal->unk3D878 & 0x20000)) {
                     g_CombatGlobal->unk3D878 |= 0x20000;
                     g_CombatGlobal->unk3D878 |= 0x10000;
-                    CombatActor* owner = g_CombatGlobal->unk3D89C;
-                    owner->flags &= ~8;
+                    BattleActor* owner = g_CombatGlobal->partner;
+                    owner->flags &= ~ACTOR_FLAG_GUARDING;
                     func_ov003_020c2008(&g_CombatGlobal->unk_34230);
                 }
             }

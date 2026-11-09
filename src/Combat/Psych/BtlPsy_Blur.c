@@ -10,13 +10,13 @@ static s32 func_ov003_020acb74(Ov003ChargeLaser* self, Ov003EnemyActor* unit) {
     s32 x = CombatStage_ToScreenX(0, self->x);
     if (func_ov003_020a6568(&self->effect->streak, 0x16D, unit, x, 0, 0) == 1) {
         Ov003PsychEffectArgs effect;
-        if (unit->actor.flags & 0x20000000)
+        if (unit->actor.flags & ACTOR_FLAG_NO_HIT_EFFECT)
             return 1;
         s32 x = unit->actor.screenX;
         if (x < self->x)
-            x += unit->actor.unk_70 / 2;
+            x += unit->actor.radius / 2;
         else
-            x -= unit->actor.unk_70 / 2;
+            x -= unit->actor.radius / 2;
         func_ov003_020a8908(&effect, (s16)x, (s16)self->y, 2, self->animationKind + 0xEE);
         if (unit->actor.screenX < self->x)
             func_ov003_020a89e4(&effect);
@@ -30,10 +30,10 @@ static s32 func_ov003_020acb74(Ov003ChargeLaser* self, Ov003EnemyActor* unit) {
 void func_ov003_020acc60(Ov003ChargeLaser* self) {
     Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
-        s32 distance = unit->actor.screenY - unit->actor.unk_76 - self->y;
+        s32 distance = unit->actor.screenY - unit->actor.centerHeight - self->y;
         if (distance < 0)
             distance = -distance;
-        if (distance <= unit->actor.unk_70 + 16) {
+        if (distance <= unit->actor.radius + 16) {
             if ((!self->facingLeft && unit->actor.screenX > self->x) || (self->facingLeft && unit->actor.screenX < self->x))
                 func_ov003_020acb74(self, unit);
         }

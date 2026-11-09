@@ -1,6 +1,6 @@
 #include "Combat/Core/BtlAura.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAura.h"
 #include "Combat/Core/CombatList.h"
@@ -72,9 +72,9 @@ static void func_ov003_020960b4(s32* value, s32 target, u16 frames) {
 /// The sound that plays when the main screen's aura starts.
 static void func_ov003_020960f0(void) {
     if (g_CombatGlobal->unk3D8EE < 500) {
-        CombatSe_PlayAtMainX(0x365, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+        CombatSe_PlayAtMainX(0x365, g_CombatGlobal->player->position.x);
     } else {
-        CombatSe_PlayAtMainX(0x366, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+        CombatSe_PlayAtMainX(0x366, g_CombatGlobal->player->position.x);
     }
 }
 
@@ -83,25 +83,25 @@ static void func_ov003_02096140(void) {
     if (g_CombatGlobal->unk3D8EE < 500) {
         switch (g_CombatGlobal->unk3D88D) {
             case 0:
-                CombatSe_PlayAtSubX(0x38D, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x38D, g_CombatGlobal->partner->position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(0x3B5, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3B5, g_CombatGlobal->partner->position.x);
                 break;
             case 2:
-                CombatSe_PlayAtSubX(0x3DD, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3DD, g_CombatGlobal->partner->position.x);
                 break;
         }
     } else {
         switch (g_CombatGlobal->unk3D88D) {
             case 0:
-                CombatSe_PlayAtSubX(0x38E, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x38E, g_CombatGlobal->partner->position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(0x3B6, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3B6, g_CombatGlobal->partner->position.x);
                 break;
             case 2:
-                CombatSe_PlayAtSubX(0x3DE, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+                CombatSe_PlayAtSubX(0x3DE, g_CombatGlobal->partner->position.x);
                 break;
         }
     }
@@ -191,9 +191,9 @@ static void func_ov003_020963a0(BtlAura* self, s32 mode) {
                 break;
         }
         if (engine == 0) {
-            sortKey = 0x80000000 - ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
+            sortKey = 0x80000000 - g_CombatGlobal->player->position.y;
         } else {
-            sortKey = 0x80000000 - ((CombatActor*)g_CombatGlobal->unk3D89C)->position.y;
+            sortKey = 0x80000000 - g_CombatGlobal->partner->position.y;
         }
         CombatSprite_LoadDirectNoProto(engine, &flame->sprite, &data_ov003_020d7800, 0x13, 0x15, 0x14, palette, (u16)anim);
         CombatSprite_SetAnim(&flame->sprite, (u16)anim, 1);
@@ -255,9 +255,9 @@ static void func_ov003_020966d0(BtlAura* self) {
     if (flame != NULL) {
         do {
             if (flame->sprite.sprite.bits_0_1 == 1) {
-                func_ov003_02082730(&flame->sprite, 0x80000000 - ((CombatActor*)g_CombatGlobal->unk3D89C)->position.y);
+                func_ov003_02082730(&flame->sprite, 0x80000000 - g_CombatGlobal->partner->position.y);
             } else {
-                func_ov003_02082730(&flame->sprite, 0x80000000 - ((CombatActor*)g_CombatGlobal->unk3D898)->position.y);
+                func_ov003_02082730(&flame->sprite, 0x80000000 - g_CombatGlobal->player->position.y);
             }
             CombatSprite_Render(&flame->sprite);
             flame = CombatList_GetNext(&flame->node);
@@ -279,11 +279,11 @@ static void func_ov003_02096750(BtlAura* self) {
 /// Follows the gauge actor of `side`.
 static void func_ov003_02096788(BtlAura* self, s32 side) {
     if (side == 1) {
-        self->x = ((CombatActor*)g_CombatGlobal->unk3D89C)->screenX << 12;
-        self->y = (((CombatActor*)g_CombatGlobal->unk3D89C)->screenY - 0x20) << 12;
+        self->x = g_CombatGlobal->partner->screenX << 12;
+        self->y = (g_CombatGlobal->partner->screenY - 0x20) << 12;
     } else {
-        self->x = ((CombatActor*)g_CombatGlobal->unk3D898)->screenX << 12;
-        self->y = (((CombatActor*)g_CombatGlobal->unk3D898)->screenY + 0xA0) << 12;
+        self->x = g_CombatGlobal->player->screenX << 12;
+        self->y = (g_CombatGlobal->player->screenY + 0xA0) << 12;
     }
 }
 
@@ -372,12 +372,12 @@ static void func_ov003_02096afc(BtlAura* self) {
     s32 y;
 
     if (self->side == 1) {
-        CombatActor* actor = g_CombatGlobal->unk3D89C;
+        BattleActor* actor = g_CombatGlobal->partner;
 
         y = actor->screenY - 0x20;
         x = actor->screenX;
     } else {
-        CombatActor* actor = g_CombatGlobal->unk3D898;
+        BattleActor* actor = g_CombatGlobal->player;
 
         y = actor->screenY + 0xA0;
         x = actor->screenX;
@@ -473,7 +473,7 @@ static s32 BtlAura_Render(TaskPool* pool, Task* task, void* args) {
     if (self->intensity > 0x14) {
         if (self->rising != 0 || self->side == 1) {
             if (self->y < 0xD8000) {
-                CombatActor* actor = g_CombatGlobal->unk3D89C;
+                BattleActor* actor = g_CombatGlobal->partner;
 
                 CombatSprite_SetAffineTransform(&self->sprites[0], 0, self->intensity, self->intensity, 1);
                 CombatSprite_SetPosition(&self->sprites[0], (self->x * 0x10) >> 16, (self->y * 0x10) >> 16);
@@ -483,7 +483,7 @@ static s32 BtlAura_Render(TaskPool* pool, Task* task, void* args) {
         }
         if (self->rising != 0 || self->side == 0) {
             if (self->y > 0xA8000) {
-                CombatActor* actor = g_CombatGlobal->unk3D898;
+                BattleActor* actor = g_CombatGlobal->player;
 
                 CombatSprite_SetAffineTransform(&self->sprites[1], 0, self->intensity, self->intensity, 1);
                 CombatSprite_SetPosition(&self->sprites[1], (self->x * 0x10) >> 16, (s16)((self->y >> 12) - 0xC0));

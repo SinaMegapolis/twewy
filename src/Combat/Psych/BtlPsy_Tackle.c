@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatTouch.h"
@@ -28,12 +28,12 @@ static void func_ov003_02094ad0(BtlPsyTackle* self) {
     func_ov003_02094abc(self, func_ov003_02094b14);
 }
 static void func_ov003_02094b14(BtlPsyTackle* self) {
-    CombatActor* actor;
+    BattleActor* actor;
     s32          x, y, oldX;
     u16          angle;
     if (!g_CombatGlobal->unk3D8C8)
         self->active = 0;
-    actor = g_CombatGlobal->unk3D898;
+    actor = g_CombatGlobal->player;
     x     = actor->position.x;
     oldX  = self->x;
     if (oldX == x && self->y == actor->position.y)
@@ -42,16 +42,16 @@ static void func_ov003_02094b14(BtlPsyTackle* self) {
     angle = FX_Atan2Idx(y - self->y, actor->position.x - oldX);
     func_ov003_020acd04();
     func_ov003_020acf0c(self->handle, angle);
-    self->x = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
-    self->y = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
+    self->x = g_CombatGlobal->player->position.x;
+    self->y = g_CombatGlobal->player->position.y;
 }
 static s32 func_ov003_02094bc0(TaskPool* pool, Task* task, void* args) {
     BtlPsyTackle*      self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
     self->effect = *arg;
-    self->x      = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
-    self->y      = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
+    self->x      = g_CombatGlobal->player->position.x;
+    self->y      = g_CombatGlobal->player->position.y;
     func_ov003_02094abc(self, func_ov003_02094ad0);
     self->active = 1;
     self->handle = -1;

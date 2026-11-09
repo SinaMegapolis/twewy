@@ -5,7 +5,7 @@
 static const TaskHandle data_ov003_020dc8c4;
 
 s32 func_ov003_020b0058(Ov003EffectContext* context, Ov003EffectState* effect) {
-    Ov003EnemyActor* unit = (Ov003EnemyActor*)CombatTouch_GetTapped(1);
+    Ov003EnemyActor* unit = (Ov003EnemyActor*)CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
     if (unit == NULL)
         return 0;
     if (func_ov003_020a60a8(unit, 3))

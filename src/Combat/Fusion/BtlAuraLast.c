@@ -8,16 +8,6 @@
 #include "SpriteMgr.h"
 #include "main_02026528.h"
 
-/// Projection/screen context owned by overlay 3.
-typedef struct AuraTarget {
-    /* 0x00 */ u8  unk_00[0x28];
-    /* 0x28 */ s32 unk_28;
-    /* 0x2C */ s32 unk_2C;
-    /* 0x30 */ s32 unk_30;
-    /* 0x34 */ s16 unk_34;
-    /* 0x36 */ s16 unk_36;
-} AuraTarget;
-
 extern BinIdentifier data_ov003_020d7800;
 
 static s32  func_ov007_020e7c98(TaskPool* pool, Task* task, void* args);
@@ -54,9 +44,9 @@ static void func_ov007_020e75fc(s32 arg0, CombatSprite* cSprite, u16 arg2, u16 a
 
 static void func_ov007_020e764c(void) {
     if (g_CombatGlobal->unk3D8EE < 0x1F4) {
-        CombatSe_PlayAtMainX(0x365, ((AuraTarget*)g_CombatGlobal->unk3D898)->unk_28);
+        CombatSe_PlayAtMainX(0x365, g_CombatGlobal->player->position.x);
     } else {
-        CombatSe_PlayAtMainX(0x366, ((AuraTarget*)g_CombatGlobal->unk3D898)->unk_28);
+        CombatSe_PlayAtMainX(0x366, g_CombatGlobal->player->position.x);
     }
 }
 
@@ -109,14 +99,14 @@ static void func_ov007_020e76dc(BtlAuraLast* data, s32 arg) {
         animIndex     = (s16)(RNG_Next(2) + 5);
         flag          = 0;
         size          = 0x3E;
-        posX          = (s16)(((AuraTarget*)g_CombatGlobal->unk3D898)->unk_34 + (RNG_Next(0x19) - 0xC));
-        posY          = (s16)(((AuraTarget*)g_CombatGlobal->unk3D898)->unk_36 + (RNG_Next(0x31) - 0x30));
+        posX          = (s16)(g_CombatGlobal->player->screenX + (RNG_Next(0x19) - 0xC));
+        posY          = (s16)(g_CombatGlobal->player->screenY + (RNG_Next(0x31) - 0x30));
         data->unk_7F0 = 4;
     }
 
     s32 flip;
     if (flag == 0) {
-        flip = 0x80000000 - ((AuraTarget*)g_CombatGlobal->unk3D898)->unk_2C;
+        flip = 0x80000000 - g_CombatGlobal->player->position.y;
     } else {
         flip = 0;
     }
@@ -179,8 +169,8 @@ static void func_ov007_020e79d8(BtlAuraLast* data) {
         if ((sprite->sprite.sprite.bits_0_1) == 1) {
             func_ov003_02082730(&sprite->sprite, 0);
         } else {
-            AuraTarget* target = (AuraTarget*)g_CombatGlobal->unk3D898;
-            func_ov003_02082730(&sprite->sprite, 0x80000000 - target->unk_2C);
+            BattleActor* target = g_CombatGlobal->player;
+            func_ov003_02082730(&sprite->sprite, 0x80000000 - target->position.y);
         }
         CombatSprite_Render(&sprite->sprite);
         sprite = CombatList_GetNext(&sprite->node);
@@ -201,8 +191,8 @@ static void func_ov007_020e7a8c(BtlAuraLast* data) {
     }
     if (g_CombatGlobal->unk3D8EC == 2) {
         g_CombatGlobal->unk3D8EC = 0;
-        data->unk_804            = ((CombatActor*)g_CombatGlobal->unk3D89C)->screenX << 12;
-        data->unk_808            = (((CombatActor*)g_CombatGlobal->unk3D89C)->screenY - 0x20) << 12;
+        data->unk_804            = g_CombatGlobal->partner->screenX << 12;
+        data->unk_808            = (g_CombatGlobal->partner->screenY - 0x20) << 12;
         CombatSe_PlayAtSubX(0x21, data->unk_804);
         g_CombatGlobal->unk3D8F0 = 0;
         func_ov007_020e769c(&data->unk_80C);
@@ -216,9 +206,9 @@ static void func_ov007_020e7a8c(BtlAuraLast* data) {
 }
 
 static void func_ov007_020e7b54(BtlAuraLast* data) {
-    AuraTarget* target = (AuraTarget*)g_CombatGlobal->unk3D898;
-    s32         posX   = target->unk_34 << 12;
-    s32         posY   = (target->unk_36 + 0xA0) << 12;
+    BattleActor* target = g_CombatGlobal->player;
+    s32          posX   = target->screenX << 12;
+    s32          posY   = (target->screenY + 0xA0) << 12;
 
     switch (data->unk_7FA) {
         case 0:
@@ -296,16 +286,16 @@ static s32 func_ov007_020e7da4(TaskPool* pool, Task* task, void* args) {
             CombatSprite_Render(&data->unk_000);
         }
         if (data->unk_808 > 0xA8000) {
-            AuraTarget* target = (AuraTarget*)g_CombatGlobal->unk3D898;
+            BattleActor* target = g_CombatGlobal->player;
             CombatSprite_SetPosition(&data->unk_060, (s16)(data->unk_804 >> 12), (s16)((data->unk_808 >> 12) - 0xC0));
-            func_ov003_02082730(&data->unk_060, 0x80000001 - target->unk_2C);
+            func_ov003_02082730(&data->unk_060, 0x80000001 - target->position.y);
             CombatSprite_Render(&data->unk_060);
         }
     }
     if (data->unk_800 != 0) {
-        AuraTarget* target = (AuraTarget*)g_CombatGlobal->unk3D898;
-        CombatSprite_SetPosition(&data->unk_0C0, target->unk_34, (s16)(target->unk_36 - 0x20));
-        func_ov003_02082730(&data->unk_0C0, 0x80000001 - target->unk_2C);
+        BattleActor* target = g_CombatGlobal->player;
+        CombatSprite_SetPosition(&data->unk_0C0, target->screenX, (s16)(target->screenY - 0x20));
+        func_ov003_02082730(&data->unk_0C0, 0x80000001 - target->position.y);
         CombatSprite_Render(&data->unk_0C0);
     }
     func_ov007_020e79d8(data);

@@ -9,7 +9,7 @@ static const Ov003StraightShotSKind data_ov003_020dceb4[10];
 static s32 func_ov003_020b8ab8(Ov003StraightShotS* self);
 
 s32 func_ov003_020b87a0(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_GetSlashed(0))
+    if (!CombatTouch_GetSlashed(ACTOR_KIND_PLAYER))
         return 0;
     Ov003PsychArgs* arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dcea8.taskName);
     arg->effect         = effect;
@@ -67,7 +67,7 @@ static s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage
                     {
                         relaunch = 1;
                         state->burstCount++;
-                    } else if (CombatTouch_GetSlashed(0) != 0) {
+                    } else if (CombatTouch_GetSlashed(ACTOR_KIND_PLAYER) != 0) {
                         BtlTouchWork* touch = &g_CombatGlobal->touchWork;
                         func_ov003_020a6494(touch->endX);
                         state->angle = func_ov003_020a62d0(touch->startX, touch->startY, touch->endX, touch->endY);
@@ -106,14 +106,14 @@ static s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage
 static s32 func_ov003_020b8ab8(Ov003StraightShotS* self) {
     // Declaration order picks which callee-saved register each live value gets.
     s32                           left;
-    CombatActor*                  player;
+    BattleActor*                  player;
     const Ov003StraightShotSKind* kind;
     s32                           targetX;
     s32                           originY;
     s32                           originX;
     kind    = &data_ov003_020dceb4[self->effect->index];
     left    = 0;
-    player  = g_CombatGlobal->unk3D898;
+    player  = g_CombatGlobal->player;
     targetX = CombatStage_ToWorldX(0, self->x);
     originY = player->position.y;
     if (targetX < player->position.x) {

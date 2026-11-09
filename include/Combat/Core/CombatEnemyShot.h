@@ -30,7 +30,8 @@ typedef struct Ov003EnemyShotCore {
 
 typedef struct Ov003EnemyShotSource {
     /* 0x00 */ Ov003EnemyShotCore core;
-    /* 0x1C */ u16                kind;
+    /* 0x1C */ s8                 radius; // hit box of the shots it spawns
+    /* 0x1D */ s8                 height;
     /* 0x1E */ u16                animation;
     /* 0x20 */ u16                animationMode;
     /* 0x22 */ u16                reserved;

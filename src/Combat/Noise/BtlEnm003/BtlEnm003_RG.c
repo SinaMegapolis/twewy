@@ -1,4 +1,4 @@
-#include "Combat/Core//CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatSprite.h"
@@ -139,7 +139,7 @@ static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
             if (rg->frameCount == 0) {
                 CombatSprite_SetAnimFromTable(&rg->base.sprite, 8U, 1);
                 func_ov009_02120b5c(rg, 0);
-                if (func_ov003_020c5b2c(68, rg, rg->base.actor.position.x, rg->base.actor.position.y,
+                if (func_ov003_020c5b2c(68, &rg->base, rg->base.actor.position.x, rg->base.actor.position.y,
                                         rg->base.actor.position.z) == 1)
                 {
                     CombatSe_PlayAtSubX(414, rg->base.actor.position.x);
@@ -184,7 +184,7 @@ static void func_ov009_02120f64(BtlEnm003_RG* rg) {
             if (rg->frameCount == 0) {
                 CombatSprite_SetAnimFromTable(&rg->base.sprite, 10, 1);
                 func_ov009_02120b5c(rg, 1);
-                if (func_ov003_020c5b2c(69, rg, rg->base.actor.position.x, rg->base.actor.position.y,
+                if (func_ov003_020c5b2c(69, &rg->base, rg->base.actor.position.x, rg->base.actor.position.y,
                                         rg->base.actor.position.z) == 1)
                 {
                     CombatSe_PlayAtSubX(414, rg->base.actor.position.x);
@@ -236,7 +236,7 @@ static void func_ov009_021210f8(BtlEnm003_RG* rg) {
                 CombatSprite_SetAnimFromTable(&rg->base.sprite, 13, 1);
                 rg->base.flags18C &= ~0x80;
                 if (rg->unk_1D4 <= 0) {
-                    rg->base.actor.unk_08 *= 2;
+                    rg->base.actor.baseArgs.powerPercent *= 2;
                 }
                 rg->unk_1D4 = ((RNG_Next(6) + 15) * 60);
                 CombatSe_PlayAtSubX(420, rg->base.actor.position.x);
@@ -275,7 +275,7 @@ static s32 BtlEnm003_RG_Init(TaskPool* pool, Task* task, void* args) {
     func_ov003_020c3efc(&rg->base, args);
     func_ov003_020c44ac(&rg->base);
     func_ov003_020c4b1c(&rg->base);
-    rg->base.actor.flags |= 0x40000000;
+    rg->base.actor.flags |= ACTOR_FLAG_NO_FLINCH;
     rg->isAlive = TRUE;
     BtlEnm003_RG_SetState(rg, func_ov009_02120c48);
     return 1;
@@ -284,7 +284,7 @@ static s32 BtlEnm003_RG_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEnm003_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlEnm003_RG* rg = task->data;
 
-    switch (CombatActor_PopPendingCommand(&rg->base.actor)) {
+    switch (BtlActor_PopPendingCommand(&rg->base.actor)) {
         case ACTOR_CMD_HIT:
         case ACTOR_CMD_KNOCKDOWN:
             BtlEnm003_RG_SetState(rg, func_ov009_0212127c);
@@ -309,7 +309,7 @@ static s32 BtlEnm003_RG_Update(TaskPool* pool, Task* task, void* args) {
     if (rg->unk_1D4 > 0) {
         rg->unk_1D4--;
         if (rg->unk_1D4 == 0) {
-            rg->base.actor.unk_08 /= 2;
+            rg->base.actor.baseArgs.powerPercent /= 2;
         }
     }
     rg->lifetime++;

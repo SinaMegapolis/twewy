@@ -61,7 +61,7 @@ static s32 func_ov013_021260e8(TaskPool* pool, Task* task, void* args, s32 stage
             if (func_ov003_020c3c28() != 0) {
                 return 0;
             }
-            if (owner->base.actor.flags & 4) {
+            if (owner->base.actor.flags & ACTOR_FLAG_DEFEATED) {
                 return 0;
             }
             if (SpriteMgr_IsAnimationFinished(&data->sprite.sprite) != 0) {

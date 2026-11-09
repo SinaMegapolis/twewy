@@ -1,8 +1,8 @@
 #ifndef COMBAT_CORE_COMBATENEMYACTOR_H
 #define COMBAT_CORE_COMBATENEMYACTOR_H
 
+#include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlCollision.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatList.h"
 #include "Combat/Core/CombatSprite.h"
 
@@ -29,7 +29,7 @@ typedef union Ov003CutinFlags {
 /// Types built on it open with an `Ov003EnemyActor base;` member, and `&x->base` is what the shared actor functions
 /// take. Code that treats it as an attack target used to call it `Ov003Unit`.
 typedef struct Ov003EnemyActor {
-    /* 0x000 */ CombatActor             actor;
+    /* 0x000 */ BattleActor             actor;
     /* 0x07C */ s32                     group; // index into CombatEnemyParam_Table
     /* 0x080 */ u16                     spriteIndex;
     /* 0x082 */ u16                     id;    // running cut-in instance id

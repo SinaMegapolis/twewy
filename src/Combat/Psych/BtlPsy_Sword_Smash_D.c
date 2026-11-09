@@ -1,4 +1,4 @@
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Engine/Math/Random.h"
@@ -25,14 +25,14 @@ static void func_ov003_020953b4(BtlPsySmash* smash, void (*update)(BtlPsySmash*)
 static s32 func_ov003_020953c8(void) {
     if (CombatTouch_IsGesture(6)) {
         Ov003Global* global = g_CombatGlobal;
-        if (global->touchWork.held != NULL && global->touchWork.held->unk_00 == 0)
+        if (global->touchWork.held != NULL && global->touchWork.held->kind == ACTOR_KIND_PLAYER)
             return global->touchWork.stillFrames > 16;
     }
     return 0;
 }
 static void func_ov003_02095428(s32 tier) {
     Ov003PsychEffectArgs args;
-    CombatActor*         actor = g_CombatGlobal->unk3D898;
+    BattleActor*         actor = g_CombatGlobal->player;
     s32                  kind;
     switch (tier) {
         case 0:
@@ -48,7 +48,7 @@ static void func_ov003_02095428(s32 tier) {
             kind = 0xD2;
             break;
     }
-    func_ov003_020a88c0(&args, actor->position.x, actor->position.y, actor->position.z - (actor->unk_76 << 12), 2, kind);
+    func_ov003_020a88c0(&args, actor->position.x, actor->position.y, actor->position.z - (actor->centerHeight << 12), 2, kind);
     func_ov003_020a899c(&args, 0);
     func_ov003_020a89b0(&args, 30);
     func_ov003_020a89c8(&args, RNG_Next(16) << 12, 0x1000, 0x1000);
@@ -56,8 +56,8 @@ static void func_ov003_02095428(s32 tier) {
 }
 static void func_ov003_020954e4(void) {
     Ov003PsychEffectArgs args;
-    CombatActor*         actor = g_CombatGlobal->unk3D898;
-    func_ov003_020a88c0(&args, actor->position.x, actor->position.y, actor->position.z - (actor->unk_76 << 12), 2, 0xD3);
+    BattleActor*         actor = g_CombatGlobal->player;
+    func_ov003_020a88c0(&args, actor->position.x, actor->position.y, actor->position.z - (actor->centerHeight << 12), 2, 0xD3);
     func_ov003_020a899c(&args, 0);
     func_ov003_020a88a8(&args);
 }
@@ -71,13 +71,13 @@ static void func_ov003_02095548(BtlPsySmash* smash) {
 static void func_ov003_0209557c(Ov003EffectState* effect, s32 tier) {
     switch (tier) {
         case 0:
-            effect->unk_0C = effect->unk_0C * 10 / 100;
+            effect->args.power = effect->args.power * 10 / 100;
             break;
         case 1:
-            effect->unk_0C = effect->unk_0C * 20 / 100;
+            effect->args.power = effect->args.power * 20 / 100;
             break;
         case 2:
-            effect->unk_0C = effect->unk_0C * 50 / 100;
+            effect->args.power = effect->args.power * 50 / 100;
             break;
     }
 }
@@ -99,12 +99,12 @@ static void func_ov003_02095608(BtlPsySmash* smash) {
     SndMgr_StopPlayingSE(SEIDX_SE_PSY_HVSWORD_TAME01_01);
     func_ov003_0209557c(smash->effect, smash->tier);
     CombatTouch_Clear();
-    func_ov003_02087250(smash->effect, g_CombatGlobal->unk3D898, smash->tier);
+    func_ov003_02087250(smash->effect, g_CombatGlobal->player, smash->tier);
     smash->active = 0;
 }
 static void func_ov003_020956c4(BtlPsySmash* smash) {
     if (smash->timer == 0) {
-        CombatSe_PlayAtMainX(0xB6, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+        CombatSe_PlayAtMainX(0xB6, g_CombatGlobal->player->position.x);
         smash->timer = 21;
     }
     if (smash->timer > 0)
@@ -113,7 +113,7 @@ static void func_ov003_020956c4(BtlPsySmash* smash) {
         return;
     func_ov003_0209557c(smash->effect, smash->tier);
     CombatTouch_Clear();
-    func_ov003_02087250(smash->effect, g_CombatGlobal->unk3D898, smash->tier);
+    func_ov003_02087250(smash->effect, g_CombatGlobal->player, smash->tier);
     smash->active = 0;
 }
 static s32 func_ov003_02095764(TaskPool* pool, Task* task, void* args) {
@@ -126,7 +126,7 @@ static s32 func_ov003_02095764(TaskPool* pool, Task* task, void* args) {
     smash->particleTimer     = 0;
     smash->active            = 1;
     func_ov003_020953b4(smash, func_ov003_02095608);
-    CombatSe_PlayAtMainX(0xB5, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+    CombatSe_PlayAtMainX(0xB5, g_CombatGlobal->player->position.x);
     return 1;
 }
 static s32 func_ov003_020957e4(TaskPool* pool, Task* task, void* args) {

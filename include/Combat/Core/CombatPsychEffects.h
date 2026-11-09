@@ -10,11 +10,11 @@
 // List payload shared by target markers and psych target lookup helpers.
 typedef struct Ov003TargetArgs {
     CombatList*  list;
-    CombatActor* actor;
+    BattleActor* actor;
 } Ov003TargetArgs; // Size: 0x8
 
 typedef struct Ov003TargetEntry {
-    /* 0x00 */ CombatActor*   actor;
+    /* 0x00 */ BattleActor*   actor;
     /* 0x04 */ u32            taskId;
     /* 0x08 */ CombatListNode node;
 } Ov003TargetEntry; // Size: 0x14
@@ -27,7 +27,7 @@ typedef struct Ov003Target {
 
 void              func_ov003_020b3050(CombatList* list, Ov003TargetEntry* entry);
 void              func_ov003_020b3078(CombatList* list);
-Ov003TargetEntry* func_ov003_020b30a0(CombatList* list, CombatActor* actor);
+Ov003TargetEntry* func_ov003_020b30a0(CombatList* list, BattleActor* actor);
 s32               func_ov003_020b30d8(CombatList* list);
 
 typedef struct Ov003ThunderArgs {
@@ -39,7 +39,7 @@ typedef struct Ov003ThunderArgs {
 typedef struct Ov003Thunder {
     /* 0x00 */ s32              phase;
     /* 0x04 */ Ov003ThunderArgs args;
-    /* 0x10 */ CombatActor*     target;
+    /* 0x10 */ BattleActor*     target;
     /* 0x14 */ CombatSprite     sprite;
     /* 0x74 */ Vec2p            position;
     /* 0x7C */ s32              speed;
@@ -47,7 +47,7 @@ typedef struct Ov003Thunder {
 } Ov003Thunder; // Size: 0x84
 
 Ov003TargetEntry* func_ov003_020b3094(CombatList* list);
-s32               func_ov003_020b30f0(CombatList* list, CombatActor* actor);
+s32               func_ov003_020b30f0(CombatList* list, BattleActor* actor);
 s32               func_ov003_020b3108(Ov003EffectState* effect, CombatList* targets, s32* finished);
 
 typedef struct Ov003LockOnThunder {
@@ -59,7 +59,7 @@ typedef struct Ov003LockOnThunder {
 
 void func_ov003_020b2fd8(CombatList* list);
 void func_ov003_020b2fe4(CombatList* list);
-void func_ov003_020b3014(CombatList* list, CombatActor* actor);
+void func_ov003_020b3014(CombatList* list, BattleActor* actor);
 void func_ov003_020b33a4(Ov003Thunder* self);
 void func_ov003_020b3400(Ov003Thunder* self);
 void func_ov003_020b34c0(Ov003Thunder* self);
@@ -103,7 +103,7 @@ typedef struct Ov003LockOnThunderT {
     /* 0x1C */ s32               cancelled;
 } Ov003LockOnThunderT; // Size: 0x20
 
-void func_ov003_020b3034(CombatList* list, CombatActor* actor);
+void func_ov003_020b3034(CombatList* list, BattleActor* actor);
 s32  func_ov003_020b4048(Ov003EffectState* effect, s32 x, s32 y, s32 z, s32 vx, s32 vy, s32 vz, s32 animation, s32 trail);
 
 typedef struct Ov003LineThunder {
@@ -301,7 +301,7 @@ typedef struct Ov003PsychEffectArgs {
     /* 0x04 */ Vec position;
     /* 0x10 */ union {
         s32          unk_10;
-        CombatActor* actor;
+        BattleActor* actor;
     };
     /* 0x14 */ s32 engine;
     /* 0x18 */ s32 unk_18;
@@ -322,7 +322,7 @@ typedef struct Ov003PsychEffectArgs {
 typedef struct Ov003PsychAnimation {
     /* 0x00 */ u32            flags;
     /* 0x04 */ Vec            position;
-    /* 0x10 */ CombatActor*   actor;
+    /* 0x10 */ BattleActor*   actor;
     /* 0x14 */ CombatSprite   sprite;
     /* 0x74 */ OamAffineParam affine;
     /* 0x84 */ s32            sortKey;
@@ -688,7 +688,7 @@ typedef struct Ov003Element {
     /* 0x44 */ CombatSprite      sprite;
     /* 0xA4 */ s32               scale;
     /* 0xA8 */ OamAffineParam    affine;
-    /* 0xB8 */ CombatActor*      target;
+    /* 0xB8 */ BattleActor*      target;
     /* 0xBC */ s32               paused;
     /* 0xC0 */ s32               turnTimer;
 } Ov003Element; // Size: 0xC4
@@ -970,7 +970,7 @@ typedef struct Ov003PsychoHitContext {
     /* 0x00 */ Ov003EffectState* effect;
     /* 0x04 */ s32               activated; // the parent landed its attack
     /* 0x08 */ s32               finished;  // the parent task has ended
-    /* 0x0C */ CombatActor*      target;
+    /* 0x0C */ BattleActor*      target;
     /* 0x10 */ Vec               targetPosition;
     /* 0x1C */ u8                refCount;
 } Ov003PsychoHitContext; // Size: 0x20
@@ -1031,7 +1031,7 @@ void func_ov003_020a910c(u32 taskId, s32 x, s32 y);
 s32  func_ov003_020a88a8(Ov003PsychEffectArgs*);
 void func_ov003_020a88c0(Ov003PsychEffectArgs*, s32 x, s32 y, s32 z, s32 engine, s32 kind);
 void func_ov003_020a8908(Ov003PsychEffectArgs*, s32 x, s32 y, s32 engine, s32 kind);
-void func_ov003_020a8958(Ov003PsychEffectArgs*, CombatActor* actor, s32 engine, s32 kind);
+void func_ov003_020a8958(Ov003PsychEffectArgs*, BattleActor* actor, s32 engine, s32 kind);
 void func_ov003_020a899c(Ov003PsychEffectArgs*, s32 sortKey);
 void func_ov003_020a89b0(Ov003PsychEffectArgs*, s32 opacity);
 void func_ov003_020a89c8(Ov003PsychEffectArgs*, s32 angle, s32 scaleX, s32 scaleY);
@@ -1309,7 +1309,7 @@ s32 func_ov003_020baa58(Ov003EffectContext* context, Ov003EffectState* effect);
 /// The 8-byte payload an attack entry point allocates for its on-fire handler.
 typedef struct Ov003AttackData {
     /* 0x00 */ Ov003EffectState* effect;
-    /* 0x04 */ CombatActor*      target;
+    /* 0x04 */ BattleActor*      target;
 } Ov003AttackData; // Size: 0x8
 
 /// An attack entry point: the handler the battle calls when the attack lands, plus its payload.

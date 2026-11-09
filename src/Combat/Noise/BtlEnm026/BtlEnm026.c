@@ -228,7 +228,7 @@ static void func_ov015_021257f8(BtlEnm026* data) {
     }
     data_ov015_02128500.unk14 = data->base.actor.pendingCommand;
     if (data_ov015_02128500.flag08 != 0) {
-        data->base.actor.flags |= 0x10000000;
+        data->base.actor.flags |= ACTOR_FLAG_UNCLAMPED_X;
     }
     if (func_ov015_02125c94(data) != 0) {
         data->unk_1CC = 0;
@@ -277,7 +277,7 @@ static void func_ov015_021257f8(BtlEnm026* data) {
             data_ov015_02128500.variant != 3 && data_ov015_02128500.variant != 9 && data_ov015_02128500.variant != 8 &&
             data_ov015_02128500.variant != 5 && data_ov015_02128500.variant != 0x11)
         {
-            CombatHit_Stagger(0, data->base.partner, 0);
+            CombatHit_Stagger(0, &data->base.partner->actor, 0);
         }
     }
 }
@@ -320,7 +320,7 @@ void func_ov015_02125a8c(s32 engine, BtlEnm026* data, void* args, s32 stateFn) {
 s32 func_ov015_02125b08(BtlEnm026* data) {
     func_ov015_021257f8(data);
 
-    switch (CombatActor_PopPendingCommand(&data->base.actor)) {
+    switch (BtlActor_PopPendingCommand(&data->base.actor)) {
         case ACTOR_CMD_NONE:
             break;
         case ACTOR_CMD_HIT:
@@ -495,7 +495,7 @@ static void func_ov015_02126070(BtlEnm026* data) {
 static void func_ov015_021260c4(BtlEnm026* data) {
     s32 ret;
 
-    data->base.actor.flags |= 0x4;
+    data->base.actor.flags |= ACTOR_FLAG_DEFEATED;
     if (data_ov015_02128500.variant == 6) {
         if (data_ov015_02128500.result10 != -1 && data->unk_1D4 == 3) {
             ret = func_ov003_020ccfec(&data->base);

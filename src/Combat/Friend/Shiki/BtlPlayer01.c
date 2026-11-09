@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Combat/Friend/Private/Shiki.h"
@@ -16,7 +16,7 @@
 extern BinIdentifier data_ov003_020d77e0;
 
 typedef struct BtlPlayer01 {
-    /* 0x000 */ CombatActor  actor;
+    /* 0x000 */ BattleActor  actor;
     /* 0x07C */ CombatSprite unk_07C;
     /* 0x0DC */ CombatSprite unk_0DC;
     /* 0x13C */ s16          unk_13C;
@@ -155,7 +155,7 @@ static void func_ov004_020e7490(BtlPlayer01* player, s32 arg1) {
             var_r1 = 5;
             break;
     }
-    if (((u32)(player->actor.unk_12 << 0x19) >> 0x1F) == 1) {
+    if (player->actor.hit.fromBehind == TRUE) {
         var_r1 += 3;
     }
     CombatSprite_SetAnimFromTable(&player->unk_07C, var_r1, 1);
@@ -373,7 +373,7 @@ void func_ov004_020e7a84(BtlPlayer01* player) {
             if (player->unk_152 == 0) {
                 g_CombatGlobal->unk3D8E0 = 1;
                 player->unk_140          = 8;
-                player->actor.flags |= 2;
+                player->actor.flags |= ACTOR_FLAG_STAGGERED;
                 func_ov004_020e7490(player, 0);
                 func_ov004_020e750c(player, 0);
                 player->unk_152++;
@@ -387,7 +387,7 @@ void func_ov004_020e7a84(BtlPlayer01* player) {
         case 1: {
             if (player->unk_152 == 0) {
                 func_ov004_020e7490(player, 1);
-                player->unk_152 = player->actor.unk_10;
+                player->unk_152 = player->actor.hit.stunTimer;
             }
             if (player->unk_152 > 0) {
                 player->unk_152--;
@@ -404,7 +404,7 @@ void func_ov004_020e7a84(BtlPlayer01* player) {
                 player->unk_152++;
             }
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite)) {
-                player->actor.flags &= ~2;
+                player->actor.flags &= ~ACTOR_FLAG_STAGGERED;
                 player->actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20;
                 player->unk_14C          = func_ov004_020e8394;
                 player->unk_150          = 0;
@@ -420,9 +420,9 @@ void func_ov004_020e7c14(BtlPlayer01* player) {
             if (player->unk_152 == 0) {
                 g_CombatGlobal->unk3D8E0 = 1;
                 player->unk_140          = 8;
-                player->actor.flags |= 0x4002;
+                player->actor.flags |= ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED;
 
-                s32 val = player->actor.unk_0C;
+                s32 val = player->actor.hit.sourceX;
                 if (player->actor.position.x > val) {
                     player->actor.isFlipped = 0;
                 }
@@ -443,11 +443,11 @@ void func_ov004_020e7c14(BtlPlayer01* player) {
         } break;
 
         case 1: {
-            if ((InputStatus.buttonState.pressedButtons & 0xCF3) && !(player->actor.flags & 0x20000) &&
+            if ((InputStatus.buttonState.pressedButtons & 0xCF3) && !(player->actor.flags & ACTOR_FLAG_NO_RECOVERY) &&
                 (Inventory_GetOwnedCount(ITEM_STICKER_SAFE_LANDING_SHIKI) != 0))
             {
-                player->actor.flags |= 0x10;
-                player->actor.flags &= 0xFFFFBFFD;
+                player->actor.flags |= ACTOR_FLAG_INTANGIBLE;
+                player->actor.flags &= ~(ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED);
                 player->unk_14C = func_ov004_020e7f30;
                 player->unk_150 = 0;
                 player->unk_152 = 0;
@@ -468,7 +468,8 @@ void func_ov004_020e7c14(BtlPlayer01* player) {
         case 2: {
             if (player->unk_152 == 0) {
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 0xDU, 1);
-                player->actor.flags = (s32)((player->actor.flags | 0x10) & 0xFFFFBFFD);
+                player->actor.flags =
+                    (s32)((player->actor.flags | ACTOR_FLAG_INTANGIBLE) & ~(ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED));
                 player->unk_152++;
             }
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite) == 0) {
@@ -493,7 +494,7 @@ void func_ov004_020e7c14(BtlPlayer01* player) {
         case 4:
             if (player->unk_152 == 0) {
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 0xFU, 1);
-                CombatSe_PlayAtMainX(0x369, ((BtlPlayer01*)g_CombatGlobal->unk3D898)->actor.position.x);
+                CombatSe_PlayAtMainX(0x369, g_CombatGlobal->player->position.x);
                 player->unk_152++;
             }
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite) == 0) {
@@ -518,8 +519,8 @@ void func_ov004_020e7f30(BtlPlayer01* player) {
                     player->actor.isFlipped = 1;
                 }
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 0x10, 1);
-                player->actor.flags &= 0xFFFFBFFD;
-                func_ov003_02082f7c(&player->actor, 0x10);
+                player->actor.flags &= ~(ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED);
+                BtlActor_SetJumpDuration(&player->actor, 0x10);
                 player->unk_152 = 0x10;
             }
             if (player->unk_152 > 0) {
@@ -535,7 +536,7 @@ void func_ov004_020e7f30(BtlPlayer01* player) {
 
         case 1: {
             if (player->actor.position.z >= 0) {
-                player->actor.flags &= ~0x10;
+                player->actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
                 player->unk_14C = func_ov004_020e8394;
                 player->unk_150 = 0;
                 player->unk_152 = 0;
@@ -576,7 +577,7 @@ void func_ov004_020e808c(BtlPlayer01* player) {
         case 3: {
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite)) {
                 player->actor.position.x = (s32)g_CombatGlobal->unk3D7C0[1].unk_20;
-                player->actor.flags &= ~8;
+                player->actor.flags &= ~ACTOR_FLAG_GUARDING;
                 player->unk_14C = func_ov004_020e8394;
                 player->unk_150 = 0;
                 player->unk_152 = 0;
@@ -615,7 +616,7 @@ void func_ov004_020e8270(BtlPlayer01* player) {
         case 0: {
             g_CombatGlobal->unk3D8E0 = 1;
             player->unk_140          = 8;
-            player->actor.flags |= 0x10;
+            player->actor.flags |= ACTOR_FLAG_INTANGIBLE;
             CombatSprite_SetPaletteMode(&player->unk_07C, 2);
             CombatSprite_SetAnimFromTable(&player->unk_07C, 0x24, 1);
             player->actor.zVelocity = -0x2000;
@@ -635,7 +636,7 @@ void func_ov004_020e8270(BtlPlayer01* player) {
 
         case 2: {
             if ((g_CombatGlobal->unk3D878 & 8) == 0) {
-                player->actor.flags &= ~0x10;
+                player->actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
                 player->unk_14C = func_ov004_020e8394;
                 player->unk_150 = 0;
                 player->unk_152 = 0;
@@ -655,7 +656,7 @@ void func_ov004_020e8394(BtlPlayer01* player) {
     func_ov003_02086ac4(0);
     if (player->unk_150 == 0) {
         player->unk_150++;
-    } else if ((player->actor.flags & 0x40000) == 0) {
+    } else if ((player->actor.flags & ACTOR_FLAG_UNK_18) == 0) {
         func_ov003_02086aa8(1);
     }
 
@@ -720,8 +721,8 @@ void func_ov004_020e85d8(BtlPlayer01* player) {
         case 0: {
             if (player->unk_152 == 0) {
                 player->unk_140 = 2;
-                player->actor.flags |= 0x10;
-                player->actor.flags |= 0x40000;
+                player->actor.flags |= ACTOR_FLAG_INTANGIBLE;
+                player->actor.flags |= ACTOR_FLAG_UNK_18;
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 20, 1);
                 player->unk_152++;
             }
@@ -745,7 +746,7 @@ void func_ov004_020e85d8(BtlPlayer01* player) {
         case 2: {
             if (player->unk_152 == 0) {
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 21, 0);
-                func_ov003_02082f7c(&player->actor, 46);
+                BtlActor_SetJumpDuration(&player->actor, 46);
                 func_ov004_020e75d8(player, 1);
                 player->unk_152 = 46;
             }
@@ -762,7 +763,7 @@ void func_ov004_020e85d8(BtlPlayer01* player) {
                 player->unk_152++;
             }
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite)) {
-                player->actor.flags &= ~0x10;
+                player->actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
                 player->unk_14C = func_ov004_020e8394;
                 player->unk_150 = 0;
                 player->unk_152 = 0;
@@ -804,7 +805,7 @@ void func_ov004_020e8878(BtlPlayer01* player) {
         case 0: {
             if (player->unk_152 == 0) {
                 player->unk_140 = 2;
-                player->actor.flags |= 0x10;
+                player->actor.flags |= ACTOR_FLAG_INTANGIBLE;
                 player->unk_152++;
             }
             if (player->unk_140 == 0) {
@@ -836,7 +837,7 @@ void func_ov004_020e8878(BtlPlayer01* player) {
             }
             player->unk_152--;
             if (player->unk_152 <= 0) {
-                player->actor.flags &= ~0x10;
+                player->actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
                 player->unk_14C = func_ov004_020e8d00;
                 player->unk_150 = 0;
                 player->unk_152 = 0;
@@ -879,14 +880,14 @@ void func_ov004_020e8a00(BtlPlayer01* player) {
 
 void func_ov004_020e8b00(BtlPlayer01* player) {
     if (player->unk_152 == 0) {
-        player->actor.flags |= 8;
+        player->actor.flags |= ACTOR_FLAG_GUARDING;
         CombatSprite_SetAnimFromTable(&player->unk_07C, 30, 1);
         CombatSprite_Restart(&player->unk_07C);
         player->unk_152 = 30;
     }
     player->unk_152--;
     if (player->unk_152 <= 0) {
-        player->actor.flags &= ~8;
+        player->actor.flags &= ~ACTOR_FLAG_GUARDING;
         player->unk_146 = 5;
         player->unk_14C = func_ov004_020e8394;
         player->unk_150 = 0;
@@ -912,7 +913,7 @@ void func_ov004_020e8b94(BtlPlayer01* player) {
         case 1: {
             if (player->unk_152 == 0) {
                 CombatSprite_SetAnimFromTable(&player->unk_07C, 32, 0);
-                func_ov003_02082f7c(&player->actor, 0x2C);
+                BtlActor_SetJumpDuration(&player->actor, 0x2C);
                 player->unk_152++;
             }
             if (player->actor.zVelocity >= 0) {
@@ -973,31 +974,31 @@ s32 BtlPlayer01_Init(TaskPool* pool, Task* task, void* args) {
     BtlPlayer01* player = task->data;
 
     MI_CpuSet(player, 0, sizeof(BtlPlayer01));
-    CombatActor_Init(&player->actor, 0);
-    g_CombatGlobal->unk3D89C = player;
-    player->unk_13C          = 0;
-    player->unk_13E          = 0;
-    player->unk_146          = 0;
-    player->unk_148          = 0;
-    player->unk_142          = 0;
-    player->unk_144          = 0;
-    player->actor.isFlipped  = 0;
-    player->actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20;
-    player->actor.position.y = g_CombatGlobal->unk3D7C0[1].unk_24;
-    player->actor.position.z = 0;
-    player->actor.unk_70     = 0xC;
-    player->actor.unk_72     = 0x30;
-    player->actor.unk_76     = 0x18;
-    player->actor.unk_66     = func_ov003_0208ca54(1);
-    player->actor.unk_68     = func_ov003_0208cae0(1);
+    BtlActor_Init(&player->actor, ACTOR_KIND_PLAYER);
+    g_CombatGlobal->partner    = &player->actor;
+    player->unk_13C            = 0;
+    player->unk_13E            = 0;
+    player->unk_146            = 0;
+    player->unk_148            = 0;
+    player->unk_142            = 0;
+    player->unk_144            = 0;
+    player->actor.isFlipped    = 0;
+    player->actor.position.x   = g_CombatGlobal->unk3D7C0[1].unk_20;
+    player->actor.position.y   = g_CombatGlobal->unk3D7C0[1].unk_24;
+    player->actor.position.z   = 0;
+    player->actor.radius       = 0xC;
+    player->actor.height       = 0x30;
+    player->actor.centerHeight = 0x18;
+    player->actor.attack       = func_ov003_0208ca54(1);
+    player->actor.defense      = func_ov003_0208cae0(1);
     if (CombatAbility_IsActiveForPartner(1) != 0) {
-        player->actor.unk_66 += (s16)CombatAbility_GetPartnerValue(1);
+        player->actor.attack += (s16)CombatAbility_GetPartnerValue(1);
     }
     if (CombatAbility_IsActiveForPartner(2) != 0) {
-        player->actor.unk_68 += (s16)CombatAbility_GetPartnerValue(2);
+        player->actor.defense += (s16)CombatAbility_GetPartnerValue(2);
     }
-    player->actor.unk_04 = player->actor.unk_66;
-    player->unk_140      = 0;
+    player->actor.baseArgs.power = player->actor.attack;
+    player->unk_140              = 0;
     CombatStage_SetCameraTarget(1, player->actor.position.x, player->actor.position.y, player->actor.position.z);
     player->unk_14C = func_ov004_020e7a24;
     player->unk_150 = 0;
@@ -1007,7 +1008,7 @@ s32 BtlPlayer01_Init(TaskPool* pool, Task* task, void* args) {
     } else {
         CombatSprite_LoadFromTable(1, &player->unk_07C, &data_ov003_020d77e0, data_ov004_020f008c, 3, 34, 100);
     }
-    CombatHit_LoadSparkForUnit(1, &player->unk_0DC, (Ov003EnemyActor*)player);
+    CombatHit_LoadSparkForUnit(1, &player->unk_0DC, &player->actor);
     EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlArm_Doll, NULL, 0, NULL, &player->unk_140);
     return 1;
 }
@@ -1015,7 +1016,7 @@ s32 BtlPlayer01_Init(TaskPool* pool, Task* task, void* args) {
 s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
     BtlPlayer01* player = task->data;
 
-    switch (CombatActor_PopPendingCommand(&player->actor)) {
+    switch (BtlActor_PopPendingCommand(&player->actor)) {
         case ACTOR_CMD_HIT:
             if (CombatAbility_IsActiveForPartner(55) != 0) {
                 player->actor.zVelocity = -0x3800;
@@ -1030,7 +1031,7 @@ s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
             break;
 
         case ACTOR_CMD_KNOCKDOWN:
-            if (!(player->actor.flags & 0x20000) && !(player->actor.flags & 0x4000) &&
+            if (!(player->actor.flags & ACTOR_FLAG_NO_RECOVERY) && !(player->actor.flags & ACTOR_FLAG_LAUNCHED) &&
                 (CombatAbility_IsActiveForPartner(54) != 0))
             {
                 player->actor.zVelocity = 0;
@@ -1071,8 +1072,8 @@ s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
         player->unk_14C(player);
     }
 
-    CombatActor_UpdateEffects(1, &player->actor);
-    CombatActor_UpdatePhysics(&player->actor);
+    BtlActor_UpdateEffects(1, &player->actor);
+    BtlActor_UpdatePhysics(&player->actor);
     func_ov003_02087458(1, &player->unk_148);
     func_ov003_02087540(1);
     CombatSprite_Update(&player->unk_07C);
@@ -1084,8 +1085,8 @@ s32 BtlPlayer01_Update(TaskPool* pool, Task* task, void* args) {
 s32 BtlPlayer01_Render(TaskPool* pool, Task* task, void* args) {
     BtlPlayer01* player = task->data;
 
-    CombatActor_Render(&player->actor, &player->unk_07C);
-    CombatHit_DrawSparkOnActor((CombatSprite*)&player->unk_0DC, (CombatActor*)player);
+    BtlActor_Render(&player->actor, &player->unk_07C);
+    CombatHit_DrawSparkOnActor((CombatSprite*)&player->unk_0DC, &player->actor);
     return 1;
 }
 

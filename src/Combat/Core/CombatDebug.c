@@ -1,8 +1,8 @@
 #include "Combat/Core/CombatDebug.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlDbg.h"
 #include "Combat/Core/BtlInf.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Save.h"
 #include <nitro/mi/cpumem.h>
@@ -112,67 +112,67 @@ s32 CombatDebug_GetCurrent(void) {
 
 /// Draws the hit circles of the player and of every enemy.
 static void CombatDebug_DrawFootprints(void) {
-    CombatActor* player = g_CombatGlobal->unk3D898;
-    s16          radius = player->unk_70;
+    BattleActor* player = g_CombatGlobal->player;
+    s16          radius = player->radius;
 
     BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, player->position.x - I2F(radius), player->position.y - I2F(radius / 2),
                     radius * 2, radius);
 
-    CombatActor* actor = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-    if (actor != NULL) {
+    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    if (unit != NULL) {
         do {
-            radius = actor->unk_70;
-            BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, actor->position.x - (radius << 12),
-                            actor->position.y - ((radius / 2) << 12), radius * 2, radius);
+            radius = unit->actor.radius;
+            BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, unit->actor.position.x - (radius << 12),
+                            unit->actor.position.y - ((radius / 2) << 12), radius * 2, radius);
 
-            actor = CombatList_GetNext(&((Ov003EnemyActor*)actor)->node);
-        } while (actor != NULL);
+            unit = CombatList_GetNext(&unit->node);
+        } while (unit != NULL);
     }
 
-    u8* item = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
-    if (item != NULL) {
+    Ov003EffectActor* obs = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
+    if (obs != NULL) {
         do {
-            radius = ((CombatActor*)(item + 4))->unk_70;
-            BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, ((CombatActor*)(item + 4))->position.x - (radius << 12),
-                            ((CombatActor*)(item + 4))->position.y - ((radius / 2) << 12), radius * 2, radius);
-            item = CombatList_GetNext((CombatListNode*)(item + 0xB8));
-        } while (item != NULL);
+            radius = obs->actor.radius;
+            BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, obs->actor.position.x - (radius << 12),
+                            obs->actor.position.y - ((radius / 2) << 12), radius * 2, radius);
+            obs = CombatList_GetNext(&obs->node);
+        } while (obs != NULL);
     }
 }
 
 /// Draws the hit boxes of the player and of every enemy.
 static void CombatDebug_DrawHitboxes(void) {
-    CombatActor* player = g_CombatGlobal->unk3D898;
-    CombatActor* actor;
-    u8*          item;
-    s32          radius = player->unk_70;
-    s32          height = player->unk_72;
+    BattleActor*      player = g_CombatGlobal->player;
+    Ov003EnemyActor*  unit;
+    Ov003EffectActor* obs;
+    s32               radius = player->radius;
+    s32               height = player->height;
 
     BtlDbg_PostRect(BTLDBG_KIND_HITBOX, 0, player->position.x - ((radius + 0x18) << 12),
                     player->position.z + (player->position.y - ((height + 0x12) << 12)), (radius + 0x18) * 2, height + 0x30);
-    actor = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-    if (actor != NULL) {
+    unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+    if (unit != NULL) {
         do {
-            radius = actor->unk_70;
-            height = actor->unk_72;
-            BtlDbg_PostRect(BTLDBG_KIND_HITBOX, 0, actor->position.x - (radius << 12),
-                            actor->position.z + (actor->position.y - (height << 12)), radius * 2, height + 0xC);
-            actor = CombatList_GetNext(&((Ov003EnemyActor*)actor)->node);
-        } while (actor != NULL);
+            radius = unit->actor.radius;
+            height = unit->actor.height;
+            BtlDbg_PostRect(BTLDBG_KIND_HITBOX, 0, unit->actor.position.x - (radius << 12),
+                            unit->actor.position.z + (unit->actor.position.y - (height << 12)), radius * 2, height + 0xC);
+            unit = CombatList_GetNext(&unit->node);
+        } while (unit != NULL);
     }
-    item = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
-    if (item == NULL) {
+    obs = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
+    if (obs == NULL) {
         return;
     }
     do {
-        CombatActor* sub = (CombatActor*)(item + 4);
+        BattleActor* sub = &obs->actor;
 
-        radius = sub->unk_70;
-        height = sub->unk_72;
+        radius = sub->radius;
+        height = sub->height;
         BtlDbg_PostRect(BTLDBG_KIND_HITBOX, 0, sub->position.x - (radius << 12),
                         sub->position.z + (sub->position.y - (height << 12)), radius * 2, height + 0xC);
-        item = CombatList_GetNext((CombatListNode*)(item + 0xB8));
-    } while (item != NULL);
+        obs = CombatList_GetNext(&obs->node);
+    } while (obs != NULL);
 }
 
 void CombatDebug_DrawCollision(void) {
@@ -190,15 +190,15 @@ void CombatDebug_DrawCollision(void) {
 
 void CombatDebug_ShowSyncValues(void) {
     Ov003Global* global;
-    CombatActor* player;
-    CombatActor* partner;
+    BattleActor* player;
+    BattleActor* partner;
 
     if (CombatDebug_GetSetting(2) == 0) {
         return;
     }
     global  = g_CombatGlobal;
-    player  = global->unk3D898;
-    partner = global->unk3D89C;
-    func_ov003_020a2f7c(&global->unk_10118, &partner->unk_68, &player->unk_68, &partner->unk_66, &player->unk_66, 0,
+    player  = global->player;
+    partner = global->partner;
+    func_ov003_020a2f7c(&global->unk_10118, &partner->defense, &player->defense, &partner->attack, &player->attack, 0,
                         &global->unk3D8D2, 0, 0);
 }

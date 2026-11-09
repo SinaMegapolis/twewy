@@ -1,9 +1,9 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlField.h"
 #include "Combat/Core/BtlFieldData.h"
 #include "Combat/Core/BtlPop.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatObsSpawn.h"
@@ -412,19 +412,19 @@ void CombatSys_LoadObsHitEffect(s32 arg0, CombatSprite* arg1, s32 arg2) {
     CombatHit_LoadSpark(arg0, arg1, CombatSys_ObsConfigs[arg2].unk_02);
 }
 
-/// Initialises a battle effect actor's `CombatActor` from the per-actor record `id`.
-void CombatSys_InitObsActor(CombatActor* actor, u16 id) {
+/// Initialises a battle effect actor's `BattleActor` from the per-actor record `id`.
+void CombatSys_InitObsActor(BattleActor* actor, u16 id) {
     const Ov003ActorConfig* cfg = &CombatSys_ObsConfigs[id];
     s16                     maxHp;
 
-    CombatActor_Init(actor, 2);
-    actor->unk_70            = cfg->unk_08;
-    actor->unk_72            = cfg->unk_0A;
+    BtlActor_Init(actor, ACTOR_KIND_OBJECT);
+    actor->radius            = cfg->unk_08;
+    actor->height            = cfg->unk_0A;
     actor->zGravity          = cfg->zVelocity;
     actor->linearDampingStep = cfg->linearDampingStep;
     actor->dampingScale      = cfg->dampingScale;
-    actor->unk_50            = cfg->unk_18;
-    actor->unk_6A            = cfg->unk_1E;
+    actor->bounceScale       = cfg->unk_18;
+    actor->impactPercent     = cfg->unk_1E;
     maxHp                    = cfg->maxHp;
     actor->maxHp             = maxHp;
     actor->currentHp         = maxHp;
@@ -487,8 +487,8 @@ s32 CombatSys_SpawnObsTask(u16 id, s32 arg1, s32 arg2, s32* out) {
 
 void CombatSys_DefeatObs(Ov003EffectActor* effect) {
     effect->actor.currentHp = 0;
-    CombatActor_SetPendingCommand(&effect->actor, ACTOR_CMD_DEFEAT);
-    effect->actor.flags |= 4;
+    BtlActor_SetPendingCommand(&effect->actor, ACTOR_CMD_DEFEAT);
+    effect->actor.flags |= ACTOR_FLAG_DEFEATED;
 }
 
 /// Fills in a freshly created effect actor from the spawn parameters `CombatSys_SpawnObsTask` passed
@@ -500,7 +500,7 @@ void CombatSys_SetupObs(Ov003EffectActor* effect, Ov003EffectSpawn* spawn) {
     effect->actor.position.x = spawn->arg1;
     effect->actor.position.y = spawn->arg2;
     effect->actor.position.z = 0;
-    BtlCollision_Add(&effect->sprite.collider, 3, effect->actor.unk_70, effect->actor.unk_72);
+    BtlCollision_Add(&effect->sprite.collider, 3, effect->actor.radius, effect->actor.height);
     CombatList_Append(&g_CombatGlobal->unk3D8B4, &effect->node, effect);
 }
 
@@ -508,9 +508,9 @@ void CombatSys_UpdateObs(Ov003EffectActor* effect) {
     s16 range;
     s32 half;
 
-    CombatActor_UpdatePhysics(&effect->actor);
-    if (!(effect->actor.flags & 0x200)) {
-        range = effect->actor.unk_70;
+    BtlActor_UpdatePhysics(&effect->actor);
+    if (!(effect->actor.flags & ACTOR_FLAG_HELD)) {
+        range = effect->actor.radius;
         half  = (range / 2) << 12;
         if (CombatStage_ClampX(&effect->actor.position.x, range << 12) != 0) {
             effect->actor.xVelocity = 0;
@@ -954,7 +954,7 @@ void func_ov003_0208722c(void) {
 }
 
 /// Pushes a battle actor towards `x`/`y`/`z` through the shared action-effect pool.
-void func_ov003_02087250(Ov003EffectState* state, CombatActor* target, s32 angle) {
+void func_ov003_02087250(Ov003EffectState* state, BattleActor* target, s32 angle) {
     Ov003ActionEffectPool* pool = &g_CombatGlobal->actionEffects;
     Ov003ActionEffect*     effect;
 
@@ -1031,7 +1031,7 @@ void func_ov003_020873e0(void) {
     do {
         s32 flags = effect->target->flags;
 
-        if ((flags & 4) || (flags & 0x10) || (flags & 0x4000)) {
+        if ((flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_INTANGIBLE) || (flags & ACTOR_FLAG_LAUNCHED)) {
             Ov003ActionEffect* next = CombatList_GetNext(&effect->node);
             func_ov003_020872b4(effect);
             effect = next;
@@ -1043,7 +1043,7 @@ void func_ov003_020873e0(void) {
 
 /// Ticks the level-up gauge: every 300 frames it banks a percentage of the gauge maximum.
 void func_ov003_02087458(s32 mode, s16* timer) {
-    CombatActor* actor;
+    BattleActor* actor;
     s16          amount;
 
     if (g_CombatGlobal->unk3D874 != 2) {
@@ -1063,22 +1063,22 @@ void func_ov003_02087458(s32 mode, s16* timer) {
     }
     BtlMgr_AddTeamHp(mode, amount);
     if (mode != 1) {
-        actor = g_CombatGlobal->unk3D898;
+        actor = g_CombatGlobal->player;
     } else {
-        actor = g_CombatGlobal->unk3D89C;
+        actor = g_CombatGlobal->partner;
     }
     func_ov003_0209b564(mode, amount, actor, 1);
 }
 
 /// Advances the on-screen level-up gauge timer when every attack pin of the engine has been used.
 void func_ov003_02087540(s32 mode) {
-    CombatActor* actor;
+    BattleActor* actor;
     s32          ready;
 
     if (mode != 1) {
-        actor = g_CombatGlobal->unk3D898;
+        actor = g_CombatGlobal->player;
     } else {
-        actor = g_CombatGlobal->unk3D89C;
+        actor = g_CombatGlobal->partner;
     }
     ready = 0;
     if (mode != 1) {
@@ -1099,8 +1099,8 @@ void func_ov003_02087540(s32 mode) {
     if (ready == 0) {
         return;
     }
-    if (actor->unk_5A <= 0) {
-        actor->unk_5A++;
+    if (actor->invincibleTimer <= 0) {
+        actor->invincibleTimer++;
     }
 }
 
@@ -1122,9 +1122,9 @@ u16 func_ov003_0208765c(u16* state, s32 value, s32 arg2) {
 }
 
 s32 func_ov003_020876c0(void) {
-    s32 flags = ((CombatActor*)g_CombatGlobal->unk3D898)->flags;
+    s32 flags = g_CombatGlobal->player->flags;
 
-    if ((flags & 4) || (flags & 2) || (g_CombatGlobal->unk3D878 & 8)) {
+    if ((flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_STAGGERED) || (g_CombatGlobal->unk3D878 & 8)) {
         return 1;
     }
     return 0;
@@ -1132,7 +1132,7 @@ s32 func_ov003_020876c0(void) {
 
 /// TRUE when the main display actor is far enough from the projected sub-screen position.
 s32 func_ov003_02087704(void) {
-    CombatActor* actor;
+    BattleActor* actor;
     s32          x;
     s32          y;
     s32          dx;
@@ -1144,7 +1144,7 @@ s32 func_ov003_02087704(void) {
     x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
     y = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
     CombatStage_ClampXY(&x, &y, 0x8000, 0x8000);
-    actor = g_CombatGlobal->unk3D898;
+    actor = g_CombatGlobal->player;
     dx    = x - actor->position.x;
     dy    = y - actor->position.y;
     if ((FX_Sqrt(FX_Mul(dx, dx) + FX_Mul(dy, dy)) >> 12) > 0x50) {
@@ -1161,74 +1161,74 @@ void func_ov003_02087804(s32 sub) {
         roll = RNG_Next(0xFFFF) % 9;
         switch (roll) {
             case 0:
-                CombatSe_PlayAtMainX(0x35A, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x35A, g_CombatGlobal->player->position.x);
                 return;
             case 1:
-                CombatSe_PlayAtMainX(0x35B, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x35B, g_CombatGlobal->player->position.x);
                 return;
             case 2:
-                CombatSe_PlayAtMainX(0x35C, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x35C, g_CombatGlobal->player->position.x);
                 return;
             case 3:
-                CombatSe_PlayAtMainX(0x35D, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x35D, g_CombatGlobal->player->position.x);
                 return;
             case 4:
-                CombatSe_PlayAtMainX(0x35E, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x35E, g_CombatGlobal->player->position.x);
                 return;
             case 5:
-                CombatSe_PlayAtMainX(0x35F, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x35F, g_CombatGlobal->player->position.x);
                 return;
             case 6:
-                CombatSe_PlayAtMainX(0x360, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x360, g_CombatGlobal->player->position.x);
                 return;
             case 7:
-                CombatSe_PlayAtMainX(0x361, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x361, g_CombatGlobal->player->position.x);
                 return;
             case 8:
-                CombatSe_PlayAtMainX(0x362, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+                CombatSe_PlayAtMainX(0x362, g_CombatGlobal->player->position.x);
                 return;
         }
     }
     roll = RNG_Next(0xFFFF) % 8;
     switch (roll) {
         case 0:
-            CombatSe_PlayAtMainX(0x352, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+            CombatSe_PlayAtMainX(0x352, g_CombatGlobal->player->position.x);
             return;
         case 1:
-            CombatSe_PlayAtMainX(0x353, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+            CombatSe_PlayAtMainX(0x353, g_CombatGlobal->player->position.x);
             return;
         case 2:
-            CombatSe_PlayAtMainX(0x354, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+            CombatSe_PlayAtMainX(0x354, g_CombatGlobal->player->position.x);
             return;
         case 3:
-            CombatSe_PlayAtMainX(0x355, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+            CombatSe_PlayAtMainX(0x355, g_CombatGlobal->player->position.x);
             return;
         case 4:
-            CombatSe_PlayAtMainX(0x356, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+            CombatSe_PlayAtMainX(0x356, g_CombatGlobal->player->position.x);
             return;
         case 5:
-            CombatSe_PlayAtMainX(0x357, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+            CombatSe_PlayAtMainX(0x357, g_CombatGlobal->player->position.x);
             return;
         case 6:
-            CombatSe_PlayAtMainX(0x358, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+            CombatSe_PlayAtMainX(0x358, g_CombatGlobal->player->position.x);
             return;
         case 7:
-            CombatSe_PlayAtMainX(0x359, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+            CombatSe_PlayAtMainX(0x359, g_CombatGlobal->player->position.x);
             return;
     }
 }
 
 /// Moves the display actor of one engine to a new position and tells the HUD about it.
 void CombatSys_WarpCharacter(s32 mode, s32 x, s32 y, s32 z) {
-    CombatActor* actor;
+    BattleActor* actor;
     s32          oldY;
     s32          oldZ;
     s32          oldX;
 
     if (mode != 1) {
-        actor = g_CombatGlobal->unk3D898;
+        actor = g_CombatGlobal->player;
     } else {
-        actor = g_CombatGlobal->unk3D89C;
+        actor = g_CombatGlobal->partner;
     }
     oldX = actor->position.x;
     oldY = actor->position.y;

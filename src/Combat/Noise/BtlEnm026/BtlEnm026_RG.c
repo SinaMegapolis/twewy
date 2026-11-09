@@ -19,7 +19,7 @@ static void func_ov015_021268b0(BtlEnm026* data) {
     switch (data->unk_1C2) {
         case 0:
             CombatSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
-            data->base.actor.flags &= ~0x10000000;
+            data->base.actor.flags &= ~ACTOR_FLAG_UNCLAMPED_X;
             func_ov003_020c4b1c(&data->base);
             data->base.flags196.raw &= ~0x2;
             data->unk_1C2 = data->unk_1C2 + 1;
@@ -44,7 +44,7 @@ static void func_ov015_021268b0(BtlEnm026* data) {
 }
 
 static void func_ov015_0212699c(BtlEnm026* data) {
-    BtlEnm026* boss = (BtlEnm026*)g_CombatGlobal->unk3D89C;
+    BattleActor* partner = g_CombatGlobal->partner;
 
     switch (data->unk_1C2) {
         case 0:
@@ -67,10 +67,10 @@ static void func_ov015_0212699c(BtlEnm026* data) {
             }
             CombatSprite_SetAnimFromTable(&data->base.sprite, 0xB, 0);
             data->unk_1C2 = data->unk_1C2 + 1;
-            dx            = boss->base.actor.position.x - data->base.actor.position.x;
+            dx            = partner->position.x - data->base.actor.position.x;
             data->unk_1C0 = ABS(dx) / 0x8000 + 5;
             func_ov003_020c4cc4(&data->base, 0x280);
-            if (boss->base.actor.position.z < -0x1E000) {
+            if (partner->position.z < -0x1E000) {
                 data->base.actor.zVelocity = -0x1E000 + 0x19000;
             }
             return;
@@ -81,7 +81,7 @@ static void func_ov015_0212699c(BtlEnm026* data) {
             s32 h;
 
             data->base.actor.position.x += (data->base.sprite.flags46 & 1) ? 0x8000 : -0x8000;
-            dy = boss->base.actor.position.y - data->base.actor.position.y;
+            dy = partner->position.y - data->base.actor.position.y;
             if (dy > 0x800) {
                 dy = 0x800;
             } else if (dy < -0x800) {

@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatTouch.h"
@@ -43,8 +43,8 @@ static void func_ov003_02094da0(BtlPsyInvisible* self, void (*update)(BtlPsyInvi
 }
 static void func_ov003_02094db4(BtlPsyInvisible* self) {
     if (self->state == 0) {
-        self->x = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
-        self->y = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
+        self->x = g_CombatGlobal->player->position.x;
+        self->y = g_CombatGlobal->player->position.y;
         CombatSprite_SetAnim(&self->sprite, 0, 1);
         self->state++;
     }
@@ -59,8 +59,8 @@ static void func_ov003_02094e40(BtlPsyInvisible* self) {
         return;
     g_CombatGlobal->unk3D8C8 = 0;
     self->visible            = 1;
-    self->x                  = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
-    self->y                  = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
+    self->x                  = g_CombatGlobal->player->position.x;
+    self->y                  = g_CombatGlobal->player->position.y;
     func_ov003_02094da0(self, func_ov003_02094edc);
 }
 static void func_ov003_02094edc(BtlPsyInvisible* self) {

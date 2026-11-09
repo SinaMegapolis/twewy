@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/File/BinMgr.h"
@@ -239,7 +239,7 @@ static s32 BtlPop_Num_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
     }
 }
 
-void func_ov003_0209b564(s32 engine, s32 value, CombatActor* actor, s32 element) {
+void func_ov003_0209b564(s32 engine, s32 value, BattleActor* actor, s32 element) {
     BtlPop_NumArgs params;
     s32            popupCount;
 
@@ -254,9 +254,9 @@ void func_ov003_0209b564(s32 engine, s32 value, CombatActor* actor, s32 element)
         } break;
     }
 
-    params.x          = actor->position.x + (actor->unk_74 << 12);
+    params.x          = actor->position.x + (actor->centerOffsetX << 12);
     params.y          = actor->position.y;
-    params.z          = actor->position.z - (actor->unk_76 << 12);
+    params.z          = actor->position.z - (actor->centerHeight << 12);
     params.value      = value;
     params.engine     = engine;
     params.element    = element;
@@ -265,8 +265,7 @@ void func_ov003_0209b564(s32 engine, s32 value, CombatActor* actor, s32 element)
     EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
 }
 
-// Nonmatching: regalloc
-void func_ov003_0209b61c(s32 engine, s32 value, CombatActor* actor) {
+void func_ov003_0209b61c(s32 engine, s32 value, BattleActor* actor) {
     BtlPop_NumArgs params;
     s32            popupCount;
 
@@ -281,26 +280,26 @@ void func_ov003_0209b61c(s32 engine, s32 value, CombatActor* actor) {
             return;
     }
 
-    params.x = actor->position.x + (actor->unk_74 << 12);
+    params.x = actor->position.x + (actor->centerOffsetX << 12);
     if (value < 0) {
         value = -value;
     }
     params.y      = actor->position.y;
-    params.z      = actor->position.z - (actor->unk_76 << 12);
+    params.z      = actor->position.z - (actor->centerHeight << 12);
     params.value  = value;
     params.engine = engine;
 
-    // bits 2..3: element, bits 4..5: element variant, bit 1: critical hit
-    params.subType    = ((u32)(actor->unk_12 << 28) >> 30) == 0 ? 0 : (u8)((u32)(actor->unk_12 << 26) >> 30);
-    params.isCritical = ((u32)(actor->unk_12 << 30) >> 31) == 1 ? TRUE : FALSE;
-    switch ((u32)(actor->unk_12 << 28) >> 30) {
-        case 1:
+    // the popup is coloured by the hit's affinity
+    params.subType    = actor->hit.affinity == HIT_AFFINITY_NORMAL ? 0 : (u8)actor->hit.variant;
+    params.isCritical = actor->hit.critical == TRUE ? TRUE : FALSE;
+    switch (actor->hit.affinity) {
+        case HIT_AFFINITY_ABSORB:
             params.element = 1;
             break;
-        case 2:
+        case HIT_AFFINITY_RESIST:
             params.element = 0;
             break;
-        case 3:
+        case HIT_AFFINITY_WEAK:
             params.element = 2;
             break;
         default:

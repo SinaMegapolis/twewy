@@ -6,13 +6,6 @@
 #include "Engine/File/BinMgr.h"
 
 typedef struct {
-    /* 0x0 */ u16 unk_0;
-    /* 0x2 */ u16 unk_2;
-    /* 0x4 */ u16 unk_4;
-    /* 0x6 */ u16 unk_6;
-} Quad;
-
-typedef struct {
     /* 0x00 */ char unk_00[0x2C];
     /* 0x2C */ s32  unk_2C;
     /* 0x30 */ s32  unk_30;

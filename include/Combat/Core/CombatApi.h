@@ -4,12 +4,12 @@
 /// Functions of overlay 3 that are called from other translation units.
 /// Grouped by the unit that owns them.
 
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Badge/BtlBadgeActor.h"
 #include "Combat/Badge/BtlBadgeMgr.h"
 #include "Combat/Core/BtlMgr.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatAbility.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatAnim.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatBgRes.h"
@@ -81,8 +81,8 @@ s32  func_ov003_020b641c(Ov003EffectContext* context, Ov003EffectState* effect);
 s32  func_ov003_020b6498(Ov003EffectContext* context, Ov003EffectState* effect);
 s32  func_ov003_020b6644(Ov003EffectContext* context, Ov003EffectState* effect);
 s32  func_ov003_020b66b4(Ov003EffectContext* context, Ov003EffectState* effect);
-void func_ov003_020b67dc(Ov003EffectState* effect, CombatActor* actor);
-s32  func_ov003_020b68ec(Ov003EffectState* effect, CombatActor* actor);
+void func_ov003_020b67dc(Ov003EffectState* effect, BattleActor* actor);
+s32  func_ov003_020b68ec(Ov003EffectState* effect, BattleActor* actor);
 
 // BtlPsy_ShockWave_Body.c
 s32  func_ov003_020b6b20(Ov003ShockWaveArgs* args);
@@ -129,10 +129,10 @@ void             func_ov003_020cbd30(BtlVec2*, BtlVec2, BtlVec2, BtlVec2, s32);
 void             func_ov003_020cbdd8(Vec* out, Vec p0, Vec p1, Vec p2, s32 t);
 void             func_ov003_020cbf54(BtlVec2* out, BtlVec2 p0, BtlVec2 p1, BtlVec2 p2, BtlVec2 p3, s32 t);
 void             func_ov003_020cc020(Vec* out, Vec p0, Vec p1, Vec p2, Vec p3, s32 t);
-s32              func_ov003_020cc2d0(CombatActor* actor, s32 index);
+s32              func_ov003_020cc2d0(BattleActor* actor, s32 index);
 void*            func_ov003_020cc644(s32 side, s32 id, s32 n);
 s32              func_ov003_020cc6a4(s32 unused, s32 id, BtlItemFilter filter, s32 arg);
-void             func_ov003_020cc71c(CombatActor* actor, s32 flag);
+void             func_ov003_020cc71c(BattleActor* actor, s32 flag);
 void             func_ov003_020cc834(Ov003EnemyShotSource* source, Ov003CutinActor* owner, const void* visual, u16 attackId);
 s32              func_ov003_020ccc60(s32 side, s32 id);
 s32              func_ov003_020cd134(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 curveSpeed, s32 yScale);
@@ -143,9 +143,9 @@ void  func_ov003_020cb304(BtlBinSet*, u16);
 s32   func_ov003_020cb32c(BtlBinSet*, BinIdentifier*);
 s32   func_ov003_020cb348(BtlBinSet*, u16);
 s32   func_ov003_020cb368(BinIdentifier*);
-void  func_ov003_020cb520(CombatActor*, s32);
+void  func_ov003_020cb520(BattleActor*, s32);
 s32   func_ov003_020cb55c(Ov003EnemyActor*);
-void  func_ov003_020cb578(CombatActor*, s32);
+void  func_ov003_020cb578(BattleActor*, s32);
 void  func_ov003_020cb5b0(Ov003EnemyActor*, s16, s32);
 s32   func_ov003_020cb648(Ov003EnemyActor*, s32);
 s32   func_ov003_020cb744(s32);
@@ -155,17 +155,17 @@ s32   func_ov003_020cbafc(s32*, s32*, s32*, s32, s32, s32, s32, s32, s32, s32);
 void  func_ov003_020cbc50(s32*, s32*, u16, s32);
 void  func_ov003_020cbcb4(s32*, s32*, u16, s32, s32);
 s32   func_ov003_020cc300(Ov003EnemyActor*, s32);
-s32   func_ov003_020cc354(CombatActor*);
-s32   func_ov003_020cc38c(Ov003CutinActor*, s32, s32, s32, s32, s32, s32);
+s32   func_ov003_020cc354(BattleActor*);
+s32   func_ov003_020cc38c(BattleActor*, s32, s32, s32, s32, s32, s32);
 u32   func_ov003_020cc430(Ov003CutinActor*, s32, s32, s32);
-s32   func_ov003_020cc5d0(CombatActor*);
+s32   func_ov003_020cc5d0(BattleActor*);
 s32   func_ov003_020cc5fc(s32, s32);
 void* func_ov003_020cc750(s32);
-void  func_ov003_020cc784(CombatActor*, s32);
+void  func_ov003_020cc784(BattleActor*, s32);
 s32   func_ov003_020cc7c0(s32, s32, s32);
 s32   func_ov003_020cc7f4(s32, s32, s32, s32);
-void  func_ov003_020ccea8(CombatActor*, CombatSprite*);
-void  func_ov003_020ccec0(CombatActor*, s32);
+void  func_ov003_020ccea8(BattleActor*, CombatSprite*);
+void  func_ov003_020ccec0(BattleActor*, s32);
 s32   func_ov003_020ccedc(s32);
 s32   func_ov003_020ccefc(s32);
 void  func_ov003_020ccf1c(s32*, s32);

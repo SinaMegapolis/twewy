@@ -1,4 +1,4 @@
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatEnemyShot.h"
@@ -40,21 +40,21 @@ void func_ov003_020d1538(Ov003EnemyShotRootLaserArgs* args) {
 /// Lays the roots of the beam across the screen from the shot's position, alternating a vertical and a horizontal
 /// root, and stops once the next root would fall outside the camera.
 static s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
-    Ov003CutinActor* target = g_CombatGlobal->unk3D898;
-    Ov003Camera*     camera = &g_CombatGlobal->unk3D7C0[0];
-    u16              parity = 0;
-    s32              scale;
-    s32              x, y, z;
-    s32              limit;
-    s32              half;
-    u16              angle;
-    s32              result;
+    BattleActor* target = g_CombatGlobal->player;
+    Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[0];
+    u16          parity = 0;
+    s32          scale;
+    s32          x, y, z;
+    s32          limit;
+    s32          half;
+    u16          angle;
+    s32          result;
 
-    half  = FX32_CONVERT(target->base.actor.unk_72);
+    half  = FX32_CONVERT(target->height);
     z     = self->owner.core.position.z;
     x     = self->owner.core.position.x;
     y     = self->owner.core.position.y;
-    limit = target->base.actor.position.y - (half >> 1) - z;
+    limit = target->position.y - (half >> 1) - z;
     while (x <= camera->unk_0C && x >= 0) {
         parity = (u16)((parity + 1) % 2);
         if (parity == 0) {
@@ -129,7 +129,8 @@ static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
     switch (self->state) {
         case 0: {
             s32 flags = self->owner.core.owner->base.actor.flags;
-            if ((flags & 2) || (flags & 4) || (flags & 0x4000) || (flags & 0x200))
+            if ((flags & ACTOR_FLAG_STAGGERED) || (flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_LAUNCHED) ||
+                (flags & ACTOR_FLAG_HELD))
                 return 0;
             self->timer--;
             if (self->timer >= 0)

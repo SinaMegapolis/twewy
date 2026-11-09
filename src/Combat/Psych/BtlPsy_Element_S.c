@@ -7,7 +7,7 @@ static const TaskHandle data_ov003_020dc858;
 
 // Nonmatching: Compiler pools the task-handle literal.
 s32 func_ov003_020af280(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!CombatTouch_GetSlashed(0))
+    if (!CombatTouch_GetSlashed(ACTOR_KIND_PLAYER))
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020dc858.taskName);
     *arg                   = effect;
@@ -26,7 +26,7 @@ static s32 func_ov003_020af2d8(TaskPool* pool, Task* task, void* args, s32 stage
         case 0: {
             self                 = task->data;
             BtlTouchWork* touch  = func_ov003_020a62a0();
-            CombatActor*  player = func_ov003_020a6438();
+            BattleActor*  player = func_ov003_020a6438();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = *arg;
             self->timer  = 8;
@@ -34,7 +34,7 @@ static s32 func_ov003_020af2d8(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003EffectState* effect = self->effect;
             s32               kind   = effect->index == 3 ? 1 : 0;
             s32               angle  = func_ov003_020a62d0(touch->startX, touch->startY, touch->endX, touch->endY);
-            func_ov003_020ae414(self->effect, 1, kind, player->screenX, (s16)(player->screenY - player->unk_76), angle,
+            func_ov003_020ae414(self->effect, 1, kind, player->screenX, (s16)(player->screenY - player->centerHeight), angle,
                                 effect->params[1], effect->params[2], effect->params[3]);
             func_ov003_020a6494(touch->endX);
             return 1;

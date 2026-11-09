@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 
@@ -59,7 +59,7 @@ static void BtlPsy_Pierce_Fire(Ov003AttackData* data) {
 /// Registers the "pierce" attack: the handler is `BtlPsy_Pierce_Fire`.
 s32 BtlPsy_Pierce_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
     Ov003AttackData* data;
-    CombatActor*     state = CombatTouch_GetTapped(1);
+    BattleActor*     state = CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
 
     if (state == 0) {
         return 0;
@@ -80,12 +80,12 @@ static void BtlPsy_Syoryu_Fire(Ov003AttackData* data) {
 /// Registers the "slash" attack: the handler is `BtlPsy_Syoryu_Fire`.
 s32 BtlPsy_Syoryu_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
     Ov003AttackData* data;
-    CombatActor*     state;
+    BattleActor*     state;
 
     if (BtlPsy_Instant_IsVerticalStroke(0) == 0) {
         return 0;
     }
-    state = CombatTouch_GetSlashed(1);
+    state = CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (state == 0) {
         return 0;
     }
@@ -105,7 +105,7 @@ static void BtlPsy_Kabuto_Fire(Ov003AttackData* data) {
 /// Registers the "kabuto" attack: the handler is `BtlPsy_Kabuto_Fire`.
 s32 BtlPsy_Kabuto_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
     Ov003AttackData* data;
-    CombatActor*     state;
+    BattleActor*     state;
 
     if (g_CombatGlobal->unk3D894 < 0x64) {
         return 0;
@@ -113,7 +113,7 @@ s32 BtlPsy_Kabuto_Start(Ov003AttackCmd* cmd, Ov003EffectState* effect) {
     if (BtlPsy_Instant_IsVerticalStroke(1) == 0) {
         return 0;
     }
-    state = CombatTouch_GetSlashed(1);
+    state = CombatTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (state == 0) {
         return 0;
     }
@@ -129,7 +129,7 @@ static void BtlPsy_Teleport_Fire(Ov003AttackData* data) {
     s32 x;
     s32 y;
 
-    CombatSe_PlayAtMainX(0x3B, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+    CombatSe_PlayAtMainX(0x3B, g_CombatGlobal->player->position.x);
     x = CombatStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
     y = CombatStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
     CombatStage_ClampXY(&x, &y, 0x8000, 0x8000);

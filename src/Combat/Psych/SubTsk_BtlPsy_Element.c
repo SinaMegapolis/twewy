@@ -10,7 +10,7 @@ static void         func_ov003_020ae8b4(Ov003Element* self);
 static void         func_ov003_020aedf0(Ov003Element* self);
 static void         func_ov003_020aee9c(Ov003Element* self);
 static void         func_ov003_020aefc0(Ov003Element* self);
-static CombatActor* func_ov003_020af1e0(Ov003Element* self);
+static BattleActor* func_ov003_020af1e0(Ov003Element* self);
 
 static char             data_ov003_020e4c04[24] = "SubTsk_BtlPsy_Element";
 static const TaskHandle data_ov003_020dc7ac     = {data_ov003_020e4c04, func_ov003_020ae46c, sizeof(Ov003Element)};
@@ -226,8 +226,8 @@ static void func_ov003_020aecbc(Ov003Element* self) {
     }
     self->turnTimer             = 3;
     Vec          current        = {self->position.x, self->position.y, self->position.z};
-    CombatActor* target         = self->target;
-    Vec          targetPosition = {target->position.x, target->position.y, target->position.z - target->unk_76 * 4096};
+    BattleActor* target         = self->target;
+    Vec          targetPosition = {target->position.x, target->position.y, target->position.z - target->centerHeight * 4096};
     Vec          toward;
     Vec_Sub(&targetPosition, &current, &toward);
     Vec_Normalize(&toward, &toward);
@@ -244,7 +244,7 @@ static void func_ov003_020aecbc(Ov003Element* self) {
 static void func_ov003_020aedf0(Ov003Element* self) {
     switch (self->mode) {
         case 2:
-            if (self->target != NULL && !(self->target->flags & 4))
+            if (self->target != NULL && !(self->target->flags & ACTOR_FLAG_DEFEATED))
                 func_ov003_020aecbc(self);
             else
                 self->remainingUses = 0;
@@ -256,7 +256,7 @@ static void func_ov003_020aedf0(Ov003Element* self) {
             func_ov003_020aeb0c(self);
             break;
         case 5:
-            if (self->target != NULL && !(self->target->flags & 4)) {
+            if (self->target != NULL && !(self->target->flags & ACTOR_FLAG_DEFEATED)) {
                 func_ov003_020aecbc(self);
             } else {
                 self->target = func_ov003_020af1e0(self);
@@ -307,8 +307,8 @@ static void func_ov003_020aefc0(Ov003Element* self) {
         s32 x       = CombatStage_ToScreenX(0, self->position.x) * 4096;
         s32 y       = CombatStage_ToScreenY(0, self->position.y, self->position.z) * 4096;
         s32 targetX = unit->actor.screenX * 4096;
-        s32 targetY = (unit->actor.screenY - unit->actor.unk_76) * 4096;
-        if (func_ov003_020a62ec(x, y, targetX, targetY) <= self->radius + (unit->actor.unk_70 / 2) * 4096 &&
+        s32 targetY = (unit->actor.screenY - unit->actor.centerHeight) * 4096;
+        if (func_ov003_020a62ec(x, y, targetX, targetY) <= self->radius + (unit->actor.radius / 2) * 4096 &&
             func_ov003_020a6568(&self->effect->streak, (u16)attackId, unit, self->position.x, 0, 0) == 1)
         {
             u32 angle = func_ov003_020a62b8(x, y, targetX, targetY);
@@ -339,15 +339,15 @@ static void func_ov003_020aefc0(Ov003Element* self) {
 }
 
 // Nonmatching: Projection and list setup scheduling differ.
-static CombatActor* func_ov003_020af1e0(Ov003Element* self) {
-    CombatActor*     best    = NULL;
+static BattleActor* func_ov003_020af1e0(Ov003Element* self) {
+    BattleActor*     best    = NULL;
     s32              nearest = 0x7FFFFFFF;
     s32              x       = CombatStage_ToScreenX(0, self->position.x);
     s32              y       = CombatStage_ToScreenY(0, self->position.y, self->position.z);
     Ov003EnemyActor* unit    = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
     while (unit != NULL) {
-        if (!(unit->actor.flags & 4)) {
-            s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.unk_76);
+        if (!(unit->actor.flags & ACTOR_FLAG_DEFEATED)) {
+            s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.centerHeight);
             if (distance < nearest) {
                 best    = &unit->actor;
                 nearest = distance;

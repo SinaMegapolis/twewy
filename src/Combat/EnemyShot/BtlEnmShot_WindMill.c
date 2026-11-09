@@ -43,9 +43,9 @@ static s32 func_ov003_020d350c(Ov003EnemyShotWindMill* self) {
         return 1;
     if (!func_ov003_020cce34(self->source.core.owner->base.sprite.sprite.bits_0_1))
         return 0;
-    if (self->source.core.owner->base.actor.flags & 2)
+    if (self->source.core.owner->base.actor.flags & ACTOR_FLAG_STAGGERED)
         return 0;
-    if (self->source.core.owner->base.actor.flags & 4)
+    if (self->source.core.owner->base.actor.flags & ACTOR_FLAG_DEFEATED)
         return 0;
     if (self->bursts <= 0)
         return 0;

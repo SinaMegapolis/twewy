@@ -197,13 +197,13 @@ static BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
     best = NULL;
     v    = 0x7FFFFFFF;
     if (((u32)(data->unk_24C << 30) >> 31) != 0) {
-        d = (s32)(CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) > 0
-                      ? 0.5f + (f32)(CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) << 12)
-                      : (f32)(CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x) << 12) - 0.5f);
+        d = (s32)(CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x) > 0
+                      ? 0.5f + (f32)(CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x) << 12)
+                      : (f32)(CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x) << 12) - 0.5f);
     } else {
-        d = (s32)(CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) > 0
-                      ? 0.5f + (f32)(CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) << 12)
-                      : (f32)(CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x) << 12) - 0.5f);
+        d = (s32)(CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x) > 0
+                      ? 0.5f + (f32)(CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x) << 12)
+                      : (f32)(CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x) << 12) - 0.5f);
     }
     p = data->rec;
     for (i = 0; i < 4; i++) {
@@ -340,13 +340,11 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
     s32 off;
 
     if (((u32)(p->unk_24C << 30) >> 31) != 0) {
-        vx = FX32_CONVERT(CombatStage_ToScreenX(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x));
-        vy = FX32_CONVERT(CombatStage_ToScreenY(1, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.y,
-                                                ((CombatActor*)g_CombatGlobal->unk3D89C)->position.z));
+        vx = FX32_CONVERT(CombatStage_ToScreenX(1, g_CombatGlobal->partner->position.x));
+        vy = FX32_CONVERT(CombatStage_ToScreenY(1, g_CombatGlobal->partner->position.y, g_CombatGlobal->partner->position.z));
     } else {
-        vx = FX32_CONVERT(CombatStage_ToScreenX(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x));
-        vy = FX32_CONVERT(CombatStage_ToScreenY(0, ((CombatActor*)g_CombatGlobal->unk3D898)->position.y,
-                                                ((CombatActor*)g_CombatGlobal->unk3D898)->position.z));
+        vx = FX32_CONVERT(CombatStage_ToScreenX(0, g_CombatGlobal->player->position.x));
+        vy = FX32_CONVERT(CombatStage_ToScreenY(0, g_CombatGlobal->player->position.y, g_CombatGlobal->player->position.z));
     }
     switch (rec->unk_64) {
         case 0:
@@ -406,7 +404,7 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
             off = i - 0xF;
             do {
                 func_ov003_020cbc50(&ox, &oy, rec->unk_72, off * 0x1000);
-                CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(idx), &p->unk_244, (s16)((ox + bx) >> 12),
+                CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(idx), &p->args, (s16)((ox + bx) >> 12),
                                          (s16)((oy + by) >> 12));
                 off = off + 0x10;
                 i   = i + 1;
@@ -490,8 +488,7 @@ static s32 func_ov011_02129994(BtlEnm010Tatt* data, Ov003EnemyActor** arg1) {
     {
         Ov003EnemyActor* owner = *arg1;
 
-        data->unk_244 = *(const BtlEnm010Pair16*)&owner->actor.unk_04;
-        data->unk_248 = *(const BtlEnm010Pair16*)&owner->actor.unk_08;
+        data->args = owner->actor.baseArgs;
     }
     return 1;
 }
@@ -510,7 +507,7 @@ static s32 func_ov011_02129b84(BtlEnm010Tatt* data) {
     {
         Ov003EnemyActor* owner = data->unk_000;
 
-        if (owner != NULL && (owner->actor.flags & 4) != 0) {
+        if (owner != NULL && (owner->actor.flags & ACTOR_FLAG_DEFEATED) != 0) {
             return r;
         }
     }

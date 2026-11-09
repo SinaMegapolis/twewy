@@ -67,7 +67,7 @@ static s32 func_ov012_02125ab4(TaskPool* pool, Task* task, void* args, s32 stage
                 }
                 data->unk_6C = 0;
             } else {
-                if (data->unk_70->base.actor.flags & 4) {
+                if (data->unk_70->base.actor.flags & ACTOR_FLAG_DEFEATED) {
                     return 0;
                 }
                 CombatSprite_SetFlip(&data->sprite, data->unk_70->base.sprite.flags46 & 1);

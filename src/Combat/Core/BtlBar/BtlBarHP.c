@@ -1,6 +1,6 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlBar.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/Core/Memory.h"
@@ -38,7 +38,7 @@ static void func_ov003_02098c28(s32 arg0, s32 arg1) {
         if (arg1 >= -0x50) {
             return;
         }
-        CombatSe_PlayAtMainX(0x36F, ((CombatActor*)g_CombatGlobal->unk3D898)->position.x);
+        CombatSe_PlayAtMainX(0x36F, g_CombatGlobal->player->position.x);
         return;
     }
     if (arg1 <= 0x50) {
@@ -46,13 +46,13 @@ static void func_ov003_02098c28(s32 arg0, s32 arg1) {
     }
     switch (g_CombatGlobal->unk3D88D) {
         case 0:
-            CombatSe_PlayAtSubX(0x397, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+            CombatSe_PlayAtSubX(0x397, g_CombatGlobal->partner->position.x);
             return;
         case 1:
-            CombatSe_PlayAtSubX(0x3BF, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+            CombatSe_PlayAtSubX(0x3BF, g_CombatGlobal->partner->position.x);
             return;
         case 2:
-            CombatSe_PlayAtSubX(0x3E7, ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x);
+            CombatSe_PlayAtSubX(0x3E7, g_CombatGlobal->partner->position.x);
             return;
     }
 }

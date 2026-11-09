@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatSprite.h"
 
 #include "Combat/Core/CombatApi.h"
@@ -8,7 +8,7 @@
 
 typedef struct BtlTarget {
     /* 0x00 */ CombatSprite sprites[2];
-    /* 0xC0 */ CombatActor* target;
+    /* 0xC0 */ BattleActor* target;
     /* 0xC4 */ void (*update)(struct BtlTarget*);
     /* 0xC8 */ s32 active;
 } BtlTarget; // Size: 0xCC
@@ -25,18 +25,18 @@ static void func_ov003_0209abdc(BtlTarget* target, void (*update)(BtlTarget*)) {
     target->update = update;
 }
 
-static void func_ov003_0209abe4(CombatSprite* sprite, CombatActor* actor) {
+static void func_ov003_0209abe4(CombatSprite* sprite, BattleActor* actor) {
     s32 x;
     s32 y;
 
-    if (!(actor->flags & 0x20)) {
-        s32 positionX = actor->position.x + (actor->unk_74 << 12);
+    if (!(actor->flags & ACTOR_FLAG_NO_TARGET_MARKER)) {
+        s32 positionX = actor->position.x + (actor->centerOffsetX << 12);
         if (sprite->sprite.bits_0_1 == 0) {
             x = CombatStage_ToScreenX(0, positionX);
-            y = CombatStage_ToScreenY(0, actor->position.y, actor->position.z - (actor->unk_76 << 12));
+            y = CombatStage_ToScreenY(0, actor->position.y, actor->position.z - (actor->centerHeight << 12));
         } else {
             x = CombatStage_ToScreenX(1, positionX);
-            y = CombatStage_ToScreenY(1, actor->position.y, actor->position.z - (actor->unk_76 << 12));
+            y = CombatStage_ToScreenY(1, actor->position.y, actor->position.z - (actor->centerHeight << 12));
         }
         CombatSprite_SetPosition(sprite, x, y);
         func_ov003_02082730(sprite, 10);
@@ -67,9 +67,9 @@ static s32 BtlTarget_Init(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlTarget_Update(TaskPool* pool, Task* task, void* args) {
     BtlTarget*   target = task->data;
-    CombatActor* actor  = g_CombatGlobal->unk3D8A0;
+    BattleActor* actor  = g_CombatGlobal->unk3D8A0;
 
-    if (actor != NULL && ((actor->flags & 4) || (actor->flags & 0x10))) {
+    if (actor != NULL && ((actor->flags & ACTOR_FLAG_DEFEATED) || (actor->flags & ACTOR_FLAG_INTANGIBLE))) {
         g_CombatGlobal->unk3D8A0 = NULL;
     }
     if (target->target != g_CombatGlobal->unk3D8A0) {
@@ -96,8 +96,8 @@ static s32 BtlTarget_Render(TaskPool* pool, Task* task, void* args) {
     }
     if (target->target != NULL) {
         func_ov003_0209abe4(&target->sprites[0], target->target);
-        if (target->target->unk_78 != 0) {
-            func_ov003_0209abe4(&target->sprites[1], (CombatActor*)target->target->unk_78);
+        if (target->target->linkedActor != NULL) {
+            func_ov003_0209abe4(&target->sprites[1], target->target->linkedActor);
         }
     }
     return 1;

@@ -110,7 +110,7 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
             s32 x, y;
             if (self->hit.target != NULL) {
                 x = self->hit.target->screenX;
-                y = self->hit.target->screenY - self->hit.target->unk_76;
+                y = self->hit.target->screenY - self->hit.target->centerHeight;
             } else {
                 x = CombatStage_ToScreenX(0, self->hit.targetPosition.x);
                 y = CombatStage_ToScreenY(0, self->hit.targetPosition.y, self->hit.targetPosition.z);
@@ -128,8 +128,8 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 static Ov003EnemyActor* func_ov003_020b6308(Ov003EffectState* effect) {
-    Ov003EnemyActor* primary   = (Ov003EnemyActor*)CombatTouch_GetTapped(2);
-    Ov003EnemyActor* secondary = (Ov003EnemyActor*)CombatTouch_GetTapped(1);
+    Ov003EnemyActor* primary   = (Ov003EnemyActor*)CombatTouch_GetTapped(ACTOR_KIND_OBJECT);
+    Ov003EnemyActor* secondary = (Ov003EnemyActor*)CombatTouch_GetTapped(ACTOR_KIND_ENEMY);
     switch (effect->index) {
         case 0:
         case 1:

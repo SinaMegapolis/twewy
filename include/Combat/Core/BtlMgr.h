@@ -26,7 +26,7 @@ void func_ov003_0208cbc8(void);
 
 void             BtlMgr_AddExp(s32);
 void             BtlMgr_AddTeamHp(s32, s16);
-void             BtlMgr_AddUnitHp(s32, Ov003EnemyActor*, s16);
+void             BtlMgr_AddUnitHp(s32, BattleActor*, s16);
 BOOL             BtlMgr_IsTargetOnSide(Ov003EnemyActor*, s32);
 Ov003EnemyActor* BtlMgr_FindNearestTarget(s32, s32, s32);
 void             ProcessOverlay_Battle(BtlMgrWork*);

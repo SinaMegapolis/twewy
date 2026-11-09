@@ -46,11 +46,11 @@ static s32 func_ov003_020cf400(Ov003EnemyShotHoming* self, Ov003EnemyShotHomingA
 }
 
 static s32 func_ov003_020cf554(Ov003EnemyShotHoming* self) {
-    CombatActor* target;
+    BattleActor* target;
     if (func_ov003_020c37f8(&self->sprite))
-        target = g_CombatGlobal->unk3D89C;
+        target = g_CombatGlobal->partner;
     else
-        target = g_CombatGlobal->unk3D898;
+        target = g_CombatGlobal->player;
     s32 engine = func_ov003_020c37f8(&self->sprite) ? 1 : 0;
     if (func_ov003_020ccb9c(&self->source, &self->sprite))
         return 0;

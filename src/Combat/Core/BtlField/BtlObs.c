@@ -22,11 +22,11 @@ static void func_ov003_020941ac(BtlObs* obs, void (*update)(BtlObs*)) {
     obs->update = update;
     obs->state  = 0;
     obs->timer  = 0;
-    obs->effect.actor.flags &= ~0x200;
-    obs->effect.actor.flags &= ~0x400;
+    obs->effect.actor.flags &= ~ACTOR_FLAG_HELD;
+    obs->effect.actor.flags &= ~ACTOR_FLAG_THROWN;
 }
 
-static s32 func_ov003_020941d4(CombatActor* actor) {
+static s32 func_ov003_020941d4(BattleActor* actor) {
     if (actor->xVelocity != 0 || actor->yVelocity != 0) {
         return 0;
     }
@@ -54,7 +54,7 @@ static void func_ov003_02094288(BtlObs* obs) {
 
 static void func_ov003_02094294(BtlObs* obs) {
     if (!(obs->state != 0)) {
-        obs->effect.actor.flags |= 0x200;
+        obs->effect.actor.flags |= ACTOR_FLAG_HELD;
         BtlCollision_SetDisabled(&obs->effect.sprite.collider, 1);
         CombatSprite_SetAnimFromTable(&obs->sprites[0], 1, 0);
         obs->state++;
@@ -63,7 +63,7 @@ static void func_ov003_02094294(BtlObs* obs) {
 
 static void func_ov003_020942e8(BtlObs* obs) {
     if (obs->state == 0) {
-        obs->effect.actor.flags |= 0x400;
+        obs->effect.actor.flags |= ACTOR_FLAG_THROWN;
         if (obs->effect.id == 0) {
             CombatSprite_SetAnimFromTable(&obs->sprites[0], 2, 0);
         } else {
@@ -73,7 +73,7 @@ static void func_ov003_020942e8(BtlObs* obs) {
     }
     if (func_ov003_020941d4(&obs->effect.actor)) {
         CombatSys_PlayObsSe(0, obs->effect.config, obs->effect.actor.position.x);
-        obs->effect.actor.flags &= ~0x400;
+        obs->effect.actor.flags &= ~ACTOR_FLAG_THROWN;
         BtlCollision_SetDisabled(&obs->effect.sprite.collider, 0);
         if (obs->effect.id == 2) {
             obs->effect.sprite.flags |= 1;
@@ -85,7 +85,7 @@ static void func_ov003_020942e8(BtlObs* obs) {
 
 static void func_ov003_020943ac(BtlObs* obs) {
     if (obs->timer == 0) {
-        obs->effect.actor.flags |= 0x10;
+        obs->effect.actor.flags |= ACTOR_FLAG_INTANGIBLE;
     }
     if (obs->timer < 20) {
         obs->visible = obs->visible == 0;
@@ -127,7 +127,7 @@ static s32 BtlObs_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_Update(TaskPool* pool, Task* task, void* args) {
     BtlObs* obs = task->data;
 
-    switch (CombatActor_PopPendingCommand(&obs->effect.actor)) {
+    switch (BtlActor_PopPendingCommand(&obs->effect.actor)) {
         case ACTOR_CMD_HIT:
             func_ov003_020941ac(obs, func_ov003_020943ac);
             break;
@@ -154,7 +154,7 @@ static s32 BtlObs_Render(TaskPool* pool, Task* task, void* args) {
     BtlObs* obs = task->data;
 
     if (obs->visible) {
-        CombatActor_Render(&obs->effect.actor, &obs->sprites[0]);
+        BtlActor_Render(&obs->effect.actor, &obs->sprites[0]);
         CombatHit_DrawSparkOnActor(&obs->sprites[1], &obs->effect.actor);
     }
     return 1;

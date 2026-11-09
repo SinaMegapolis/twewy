@@ -1,7 +1,7 @@
 #include "Combat/Core/CombatPsyUtil.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatSprite.h"
@@ -37,7 +37,7 @@
 
 /// The 16-bit status word at 0x196 of a battle unit.
 
-/// A battle unit: the shared `CombatActor` prefix, its list node at 0x178 and the status word.
+/// A battle unit: the shared `BattleActor` prefix, its list node at 0x178 and the status word.
 
 /// One of the 0x70-byte sprite slots an effect owns: a `CombatSprite` plus its spin/fade timers.
 
@@ -57,7 +57,7 @@ typedef struct Ov003EncounterEntry {
 // Data
 // ---------------------------------------------------------------------------------------------
 
-static void func_ov003_020a6bb8(s16* out, Ov003EnemyActor* unit);
+static void func_ov003_020a6bb8(BattleAttackArgs* args, Ov003TouchActor* actor);
 
 /// Animation ids handed to `CombatPsyAnim_Load`, indexed by the caller's set number.
 static const u32 data_ov003_020dc560[2] = {0xCF, 0xA3};
@@ -180,13 +180,13 @@ void* func_ov003_020a6084(u32 id) {
 s32 func_ov003_020a60a8(Ov003EnemyActor* unit, s32 arg1) {
     s32 flags = unit->actor.flags;
 
-    if ((flags & 2) || (flags & 0x10) || (flags & 4)) {
+    if ((flags & ACTOR_FLAG_STAGGERED) || (flags & ACTOR_FLAG_INTANGIBLE) || (flags & ACTOR_FLAG_DEFEATED)) {
         return 0;
     }
-    if (!(flags & 0x200)) {
+    if (!(flags & ACTOR_FLAG_HELD)) {
         return 0;
     }
-    if ((u16)unit->actor.unk_58 == arg1) {
+    if ((u16)unit->actor.holderId == arg1) {
         return 1;
     }
     return 0;
@@ -196,16 +196,16 @@ s32 func_ov003_020a60a8(Ov003EnemyActor* unit, s32 arg1) {
 s32 func_ov003_020a60ec(Ov003EnemyActor* unit, s32 arg1) {
     s32 flags = unit->actor.flags;
 
-    if ((flags & 2) || (flags & 0x10) || (flags & 4)) {
+    if ((flags & ACTOR_FLAG_STAGGERED) || (flags & ACTOR_FLAG_INTANGIBLE) || (flags & ACTOR_FLAG_DEFEATED)) {
         return 0;
     }
-    if (unit->actor.unk_00 == 1 && (unit->flags196.bits.b0 || unit->flags196.bits.b8)) {
+    if (unit->actor.kind == ACTOR_KIND_ENEMY && (unit->flags196.bits.b0 || unit->flags196.bits.b8)) {
         return 0;
     }
-    if (!(flags & 0x200)) {
+    if (!(flags & ACTOR_FLAG_HELD)) {
         return 1;
     }
-    if ((u16)unit->actor.unk_58 < arg1) {
+    if ((u16)unit->actor.holderId < arg1) {
         return 1;
     }
     return 0;
@@ -216,8 +216,8 @@ s32 func_ov003_020a6164(Ov003EnemyActor* unit, u16 arg1) {
     if (func_ov003_020a60ec(unit, arg1) == 0) {
         return 0;
     }
-    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_HOLD);
-    unit->actor.unk_58 = arg1;
+    BtlActor_SetPendingCommand(&unit->actor, ACTOR_CMD_HOLD);
+    unit->actor.holderId = arg1;
     return 1;
 }
 
@@ -226,9 +226,9 @@ void func_ov003_020a6198(Ov003EnemyActor* unit, s32 arg1) {
     if (func_ov003_020a60a8(unit, arg1) == 0) {
         return;
     }
-    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_RELEASE);
-    unit->actor.unk_58 = 0;
-    func_ov003_02082fe0(&unit->actor);
+    BtlActor_SetPendingCommand(&unit->actor, ACTOR_CMD_RELEASE);
+    unit->actor.holderId = 0;
+    BtlActor_ResetAttack(&unit->actor);
     unit->actor.xVelocity = 0;
     unit->actor.yVelocity = 0;
     unit->actor.zVelocity = 0;
@@ -236,16 +236,16 @@ void func_ov003_020a6198(Ov003EnemyActor* unit, s32 arg1) {
 }
 
 /// Applies pending command 5 and launches `unit` at `speed` in direction `angle`.
-void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, Ov003AttackArgs* args, s32 angle, s32 speed,
+void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, BattleAttackArgs* args, s32 angle, s32 speed,
                          s32 zVelocity) {
     s32 idx;
 
     if (func_ov003_020a60ec(unit, arg1) == 0) {
         return;
     }
-    CombatActor_SetPendingCommand(&unit->actor, ACTOR_CMD_RELEASE);
-    unit->actor.unk_58 = 0;
-    CombatHit_ArmActor((u16)attackId, args, unit);
+    BtlActor_SetPendingCommand(&unit->actor, ACTOR_CMD_RELEASE);
+    unit->actor.holderId = 0;
+    CombatHit_ArmActor(attackId, args, &unit->actor);
     idx                   = (angle >> 4) * 2;
     unit->actor.xVelocity = FX_Mul(FX_SinCosTable_[idx + 1], speed);
     unit->actor.yVelocity = FX_Mul(FX_SinCosTable_[idx], speed);
@@ -322,12 +322,12 @@ s32 func_ov003_020a63e4(void) {
 }
 
 /// The player's battle actor.
-CombatActor* func_ov003_020a6438(void) {
-    return (CombatActor*)g_CombatGlobal->unk3D898;
+BattleActor* func_ov003_020a6438(void) {
+    return g_CombatGlobal->player;
 }
 
 void func_ov003_020a6450(void) {
-    func_ov003_020a6438()->unk_5A = 0xA;
+    func_ov003_020a6438()->invincibleTimer = 0xA;
 }
 
 void func_ov003_020a6464(s32 arg0) {
@@ -348,14 +348,14 @@ void func_ov003_020a64ac(void) {
 
 /// Initialises the effect's sprite anchor from the owning badge.
 void func_ov003_020a64d0(Ov003EffectState* effect, s16 arg1) {
-    CombatActor*     player = func_ov003_020a6438();
+    BattleActor*     player = func_ov003_020a6438();
     Ov003TouchActor* actor  = func_ov003_020a5a34(effect);
 
-    effect->unk_0C = (s16)(player->unk_66 + func_ov003_020a4778(&actor->params, actor->unk_00C));
-    effect->unk_10 = arg1;
-    effect->unk_12 = player->unk_0A;
-    effect->unk_0E = (s16)actor->params.unk_2F;
-    func_ov003_020a6bb8(&effect->unk_0C, (Ov003EnemyActor*)actor);
+    effect->args.power         = (s16)(player->attack + func_ov003_020a4778(&actor->params, actor->unk_00C));
+    effect->args.powerPercent  = arg1;
+    effect->args.effectPercent = player->baseArgs.effectPercent;
+    effect->args.comboFrames   = (s16)actor->params.unk_2F;
+    func_ov003_020a6bb8(&effect->args, actor);
 }
 
 /// Overrides the info record's side bit and amount field.
@@ -377,7 +377,7 @@ s32 func_ov003_020a6568(Ov003AttackStreak* streak, u16 attackId, Ov003EnemyActor
         force = 1;
     }
     func_ov003_020a652c(&info, force, amount);
-    result = CombatHit_AttackUnit(&info, &streak->args, unit, x);
+    result = CombatHit_AttackUnit(&info, &streak->args, &unit->actor, x);
     if (result == 1) {
         streak->hits++;
         if (((u32)info.flags << 19) >> 31) {
@@ -520,8 +520,8 @@ block_t2:
 
 /// Whether `unit`'s screen-space bounding box overlaps (x1, y1)-(x2, y2).
 static s32 func_ov003_020a6924(Ov003EnemyActor* unit, s32 x1, s32 y1, s32 x2, s32 y2) {
-    s16 halfW   = unit->actor.unk_70;
-    s16 halfH   = unit->actor.unk_72;
+    s16 halfW   = unit->actor.radius;
+    s16 halfH   = unit->actor.height;
     s16 centerX = unit->actor.screenX;
     s16 centerY = unit->actor.screenY;
     s32 left    = centerX - halfW;
@@ -582,21 +582,19 @@ s32 func_ov003_020a6b84(Ov003AttackStreak* streak, u16 arg1, Ov003EnemyActor* un
     s32 velocity = unit->actor.xVelocity;
 
     unit->actor.xVelocity = 0x1000;
-    CombatHit_ArmActor(arg1, &streak->args, unit);
+    CombatHit_ArmActor(arg1, &streak->args, &unit->actor);
     s32 result            = CombatHit_ActorImpact(&unit->actor);
     unit->actor.xVelocity = velocity;
     return result;
 }
 
-/// Clears `*out` when the current encounter uses the same hit kind as `unit`.
-static void func_ov003_020a6bb8(s16* out, Ov003EnemyActor* unit) {
+/// In the encounters only one pin can hurt, zeroes the power of every other pin.
+static void func_ov003_020a6bb8(BattleAttackArgs* args, Ov003TouchActor* actor) {
     u32 i;
 
     for (i = 0; i < 0xB; i++) {
-        if (g_CombatGlobal->unk3D88E == data_ov003_020dc568[i].encounterId &&
-            (u16)unit->actor.unk_0A != data_ov003_020dc568[i].unk_04)
-        {
-            *out = 0;
+        if (g_CombatGlobal->unk3D88E == data_ov003_020dc568[i].encounterId && actor->kind != data_ov003_020dc568[i].unk_04) {
+            args->power = 0;
             return;
         }
     }

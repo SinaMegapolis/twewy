@@ -30,16 +30,15 @@ static s32 func_ov012_02126a1c(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126a4c(BtlEnm014* data) {
-    BtlEnm014* boss = g_CombatGlobal->unk3D898;
-    s32        lo   = data->base.actor.position.x - 0x3C000;
+    BattleActor* player = g_CombatGlobal->player;
+    s32          lo     = data->base.actor.position.x - 0x3C000;
 
     if (data->base.sprite.flags46 & 1) {
         lo = data->base.actor.position.x;
     }
-    if (!(boss->base.actor.position.x - boss->base.actor.unk_70 >= lo + 0x3C000 ||
-          boss->base.actor.position.x + boss->base.actor.unk_70 <= lo ||
-          boss->base.actor.position.y >= data->base.actor.position.y + 0xF000 ||
-          boss->base.actor.position.y <= data->base.actor.position.y - 0xF000))
+    if (!(player->position.x - player->radius >= lo + 0x3C000 || player->position.x + player->radius <= lo ||
+          player->position.y >= data->base.actor.position.y + 0xF000 ||
+          player->position.y <= data->base.actor.position.y - 0xF000))
     {
         func_ov012_02125768(data, func_ov012_02127134);
         return 1;
@@ -48,8 +47,8 @@ static s32 func_ov012_02126a4c(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126ad8(BtlEnm014* data) {
-    BtlEnm014* boss = g_CombatGlobal->unk3D898;
-    s32        lo;
+    BattleActor* player = g_CombatGlobal->player;
+    s32          lo;
 
     if (data->base.spriteIndex == 0) {
         return 0;
@@ -58,10 +57,9 @@ static s32 func_ov012_02126ad8(BtlEnm014* data) {
     if (data->base.sprite.flags46 & 1) {
         lo = data->base.actor.position.x;
     }
-    if (!(boss->base.actor.position.x - boss->base.actor.unk_70 >= lo + 0x50000 ||
-          boss->base.actor.position.x + boss->base.actor.unk_70 <= lo ||
-          boss->base.actor.position.y >= data->base.actor.position.y + 0xA000 ||
-          boss->base.actor.position.y <= data->base.actor.position.y - 0xA000))
+    if (!(player->position.x - player->radius >= lo + 0x50000 || player->position.x + player->radius <= lo ||
+          player->position.y >= data->base.actor.position.y + 0xA000 ||
+          player->position.y <= data->base.actor.position.y - 0xA000))
     {
         func_ov012_02125768(data, func_ov012_02127378);
         return 1;
@@ -70,8 +68,8 @@ static s32 func_ov012_02126ad8(BtlEnm014* data) {
 }
 
 static void func_ov012_02126b74(BtlEnm014* data) {
-    BtlEnm014* boss = g_CombatGlobal->unk3D898;
-    s32        d    = boss->base.actor.position.x - data->unk_1E4;
+    BattleActor* player = g_CombatGlobal->player;
+    s32          d      = player->position.x - data->unk_1E4;
 
     if (d < 0) {
         d = -d;
@@ -79,14 +77,14 @@ static void func_ov012_02126b74(BtlEnm014* data) {
     if (d > data->unk_1E0.word) {
         data->unk_1E0.word = d;
     }
-    data->unk_1E4 = boss->base.actor.position.x;
+    data->unk_1E4 = player->position.x;
 }
 
 static void func_ov012_02126bb0(BtlEnm014* data) {
-    BtlEnm014* boss = g_CombatGlobal->unk3D898;
+    BattleActor* player = g_CombatGlobal->player;
 
     data->unk_1E0.word = 0;
-    data->unk_1E4      = boss->base.actor.position.x;
+    data->unk_1E4      = player->position.x;
 }
 
 static void func_ov012_02126bd8(BtlEnm014* data) {
@@ -98,15 +96,15 @@ static void func_ov012_02126bd8(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126c1c(BtlEnm014* data) {
-    BtlEnm014* boss = g_CombatGlobal->unk3D898;
+    BattleActor* player = g_CombatGlobal->player;
 
     if (!(data->base.sprite.flags46 & 1)) {
-        if (data->base.actor.position.x < boss->base.actor.position.x) {
+        if (data->base.actor.position.x < player->position.x) {
             goto hit;
         }
     }
     if (data->base.sprite.flags46 & 1) {
-        if (data->base.actor.position.x > boss->base.actor.position.x) {
+        if (data->base.actor.position.x > player->position.x) {
             goto hit;
         }
     }
@@ -120,15 +118,15 @@ miss:
 }
 
 static void func_ov012_02126c74(BtlEnm014* data) {
-    BtlEnm014* boss = g_CombatGlobal->unk3D898;
-    s32        dx   = boss->base.actor.position.x - data->base.actor.position.x;
-    s32        aim;
-    s32        idx;
-    s32        sin;
-    s32        mag;
-    s32        cos;
+    BattleActor* player = g_CombatGlobal->player;
+    s32          dx     = player->position.x - data->base.actor.position.x;
+    s32          aim;
+    s32          idx;
+    s32          sin;
+    s32          mag;
+    s32          cos;
 
-    if (boss->base.actor.position.x > data->base.actor.position.x) {
+    if (player->position.x > data->base.actor.position.x) {
         if (dx > 0x28000) {
             aim = dx - 0x28000;
         } else {
@@ -142,7 +140,7 @@ static void func_ov012_02126c74(BtlEnm014* data) {
         }
     }
 
-    idx           = FX_Atan2Idx(boss->base.actor.position.y - data->base.actor.position.y, aim) >> 4;
+    idx           = FX_Atan2Idx(player->position.y - data->base.actor.position.y, aim) >> 4;
     sin           = FX_SinCosTable_[idx * 2 + 1];
     cos           = FX_SinCosTable_[idx * 2];
     mag           = FX_Mul(ABS(sin) + 0x1000, 0x800);
@@ -261,7 +259,7 @@ static void func_ov012_02126ea0(BtlEnm014* data) {
 }
 
 static void func_ov012_02127134(BtlEnm014* data) {
-    BtlEnm014* boss = g_CombatGlobal->unk3D898;
+    BattleActor* player = g_CombatGlobal->player;
 
     switch (data->unk_1C2) {
         case 0:
@@ -288,8 +286,8 @@ static void func_ov012_02127134(BtlEnm014* data) {
                                                        data->base.actor.position.y, data->base.actor.position.z);
                     if (data->unk_1D0 == 1) {
                         func_ov003_020c4cc4(&data->base, 0x21A);
-                        boss->base.actor.zVelocity = FX_Mul(boss->base.actor.zVelocity, 0x2000);
-                        boss->base.actor.yVelocity = FX_Mul(boss->base.actor.yVelocity, 0x1800);
+                        player->zVelocity = FX_Mul(player->zVelocity, 0x2000);
+                        player->yVelocity = FX_Mul(player->yVelocity, 0x1800);
                     }
                 }
             }
@@ -409,7 +407,7 @@ static void func_ov012_02127660(BtlEnm014* data) {
 }
 
 static s32 func_ov012_0212768c(BtlEnm014* data) {
-    switch (CombatActor_PopPendingCommand(&data->base.actor)) {
+    switch (BtlActor_PopPendingCommand(&data->base.actor)) {
         case ACTOR_CMD_NONE:
             break;
         case ACTOR_CMD_HIT:

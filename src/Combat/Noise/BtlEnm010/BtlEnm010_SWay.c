@@ -110,7 +110,7 @@ static s32 func_ov011_02128150(BtlEnm010SWay* p) {
     if (func_ov003_020c3c28() != 0) {
         return r;
     }
-    if (p->unk_00 != NULL && (p->unk_00->actor.flags & 4) != 0) {
+    if (p->unk_00 != NULL && (p->unk_00->actor.flags & ACTOR_FLAG_DEFEATED) != 0) {
         return r;
     }
     if (p->unk_08 == 0) {

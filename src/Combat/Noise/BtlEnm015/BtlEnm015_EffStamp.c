@@ -89,15 +89,15 @@ static s32 func_ov013_02126254(BtlEnm015Stamp* data) {
 }
 
 static s32 func_ov013_021265b0(BtlEnm015Stamp* data) {
-    s32        t     = data->unk_04;
-    BtlEnm015* boss  = (BtlEnm015*)g_CombatGlobal->unk3D89C;
-    BtlEnm015* owner = data->unk_00;
+    s32          t       = data->unk_04;
+    BattleActor* partner = g_CombatGlobal->partner;
+    BtlEnm015*   owner   = data->unk_00;
 
     if (t % 60 == 0) {
         s32 sec = t / 60;
         s32 dx;
 
-        if (owner->base.actor.position.x < boss->base.actor.position.x) {
+        if (owner->base.actor.position.x < partner->position.x) {
             dx = FX32_CONVERT(0x28 * sec);
         } else {
             dx = FX32_CONVERT(-(0x28 * sec));
@@ -131,7 +131,7 @@ static s32 func_ov013_02126700(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov013_021266c8(data, (Enm015Spawn*)args);
             break;
         case 1:
-            if ((owner->base.actor.flags & 4) || func_ov003_020c3c28() != 0) {
+            if ((owner->base.actor.flags & ACTOR_FLAG_DEFEATED) || func_ov003_020c3c28() != 0) {
                 return 0;
             }
             if (func_ov003_020c37f8(&data->unk_00->base.sprite) != 0) {

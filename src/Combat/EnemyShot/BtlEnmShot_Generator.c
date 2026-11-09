@@ -1,4 +1,4 @@
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatCutin.h"
@@ -80,8 +80,8 @@ static s32 func_ov003_020ced48(Ov003EnemyShotGenerator* self, Ov003EnemyShotGene
     self->delayFrames = args->delayFrames;
     self->speedScale  = args->speedScale;
     func_ov003_020c41e8((Ov003CutinActor*)self);
-    self->actor.actor.unk_70    = *(s8*)&args->source->core.owner->base.actor.unk_1C;
-    self->actor.actor.unk_72    = *((s8*)&args->source->core.owner->base.actor.unk_1C + 1);
+    self->actor.actor.radius    = args->source->radius;
+    self->actor.actor.height    = args->source->height;
     self->actor.actor.maxHp     = 1;
     self->actor.actor.currentHp = 1;
     if (engine == 0)
@@ -105,7 +105,7 @@ static s32 func_ov003_020ced48(Ov003EnemyShotGenerator* self, Ov003EnemyShotGene
 static s32 func_ov003_020cef74(Ov003EnemyShotGenerator* self) {
     if (g_CombatGlobal->unk3D878 & 0x40)
         return 1;
-    switch (((u32(*)())CombatActor_PopPendingCommand)()) {
+    switch (((u32(*)())BtlActor_PopPendingCommand)()) {
         default:
             break;
         case 1:
@@ -178,7 +178,7 @@ static s32 func_ov003_020cf228(Ov003EnemyShotGenerator* self) {
 
 static s32 func_ov003_020cf2a0(Ov003EnemyShotGenerator* self) {
     self->actor.flags18C = (self->actor.flags18C | 0x40) & ~0x20;
-    self->actor.actor.flags |= 4;
+    self->actor.actor.flags |= ACTOR_FLAG_DEFEATED;
     func_ov003_020c4a08((Ov003CutinActor*)self);
     if (g_CombatGlobal->unk3D8A0 == self)
         g_CombatGlobal->unk3D8A0 = NULL;

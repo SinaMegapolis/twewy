@@ -26,7 +26,7 @@ static void func_ov013_02126ab0(BtlEnm015* arg0) {
 }
 
 static void func_ov013_02126b30(BtlEnm015* arg0) {
-    BtlEnm015* boss = (BtlEnm015*)g_CombatGlobal->unk3D89C;
+    BattleActor* partner = g_CombatGlobal->partner;
 
     switch (arg0->unk_1C2) {
         case 0:
@@ -51,7 +51,7 @@ static void func_ov013_02126b30(BtlEnm015* arg0) {
             CombatSprite_SetAnimFromTable(&arg0->base.sprite, 8, 1);
             func_ov003_020c4cc4(&arg0->base, 0x226);
             func_ov013_021257a4(arg0, 0);
-            CombatHit_Stagger(1, &boss->base, 0);
+            CombatHit_Stagger(1, partner, 0);
             func_ov013_02125838(arg0);
             arg0->unk_1C2 = arg0->unk_1C2 + 1;
             arg0->unk_1C0 = 0;
@@ -67,7 +67,7 @@ static void func_ov013_02126b30(BtlEnm015* arg0) {
 }
 
 static void func_ov013_02126c64(BtlEnm015* arg0) {
-    BtlEnm015* boss = (BtlEnm015*)g_CombatGlobal->unk3D89C;
+    BattleActor* partner = g_CombatGlobal->partner;
 
     switch (arg0->unk_1C2) {
         case 0:
@@ -80,9 +80,9 @@ static void func_ov013_02126c64(BtlEnm015* arg0) {
 
         case 1:
             CombatSprite_SetAnimFromTable(&arg0->base.sprite, 9, 1);
-            arg0->unk_1DC = boss->base.actor.position.x;
-            arg0->unk_1E0 = boss->base.actor.position.y;
-            arg0->unk_1E4 = boss->base.actor.position.z;
+            arg0->unk_1DC = partner->position.x;
+            arg0->unk_1E0 = partner->position.y;
+            arg0->unk_1E4 = partner->position.z;
             arg0->unk_1C2 = arg0->unk_1C2 + 1;
             arg0->unk_1C0 = 0;
             break;
@@ -119,8 +119,8 @@ static s32 func_ov013_02126dd8(TaskPool* pool, Task* task, void* args, s32 stage
 
     switch (stage) {
         case 0: {
-            BtlEnm015* boss;
-            s32        x;
+            BattleActor* partner;
+            s32          x;
 
             MI_CpuSet(data, 0, 0x1E8);
             func_ov013_02125b8c(1, data, (s32)args, (s32)func_ov013_02126ab0);
@@ -131,9 +131,9 @@ static s32 func_ov013_02126dd8(TaskPool* pool, Task* task, void* args, s32 stage
             data->base.actor.position.y        = data->base.unk_1B0;
             data->base.unk_1B4                 = 0;
             data->base.actor.position.z        = 0;
-            boss                               = (BtlEnm015*)g_CombatGlobal->unk3D89C;
+            partner                            = g_CombatGlobal->partner;
             x                                  = (func_ov003_020ccedc(1) >> 1) + 0x40000;
-            boss->base.actor.position.x        = x;
+            partner->position.x                = x;
             g_CombatGlobal->unk3D7C0[1].unk_20 = x;
             g_CombatGlobal->unk3D878 |= 0x40000000;
             break;

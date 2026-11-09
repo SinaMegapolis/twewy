@@ -60,8 +60,8 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
             if (func_ov003_020c3c28() != 0) {
                 return 0;
             }
-            if (func_ov003_020cc354(&data->unk_060->actor) != 0 || (data->unk_060->actor.flags & 0x200) != 0 ||
-                (data->unk_060->actor.flags & 0x4000) != 0)
+            if (func_ov003_020cc354(&data->unk_060->actor) != 0 || (data->unk_060->actor.flags & ACTOR_FLAG_HELD) != 0 ||
+                (data->unk_060->actor.flags & ACTOR_FLAG_LAUNCHED) != 0)
             {
                 return 0;
             }

@@ -1,7 +1,7 @@
 #ifndef COMBAT_COMBATTOUCH_H
 #define COMBAT_COMBATTOUCH_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Combat/Core/CombatList.h"
 #include "Combat/Core/CombatSprite.h"
@@ -57,16 +57,13 @@ typedef struct Ov003EffectContext {
 typedef struct Ov003EffectState {
     union {
         struct {
-            /* 0x00 */ s32 state; // table index; 0x3C while starting
-            /* 0x04 */ s32 index; // per-actor velocity ramp slot
-            /* 0x08 */ s16 unk_08;
-            /* 0x0A */ s16 unk_0A;
-            /* 0x0C */ s16 unk_0C;
-            /* 0x0E */ s16 unk_0E;
-            /* 0x10 */ s16 unk_10;
-            /* 0x12 */ s16 unk_12;
-            /* 0x14 */ u8  flag;
-            /* 0x15 */ u8  unk_15[3];
+            /* 0x00 */ s32              state; // table index; 0x3C while starting
+            /* 0x04 */ s32              index; // per-actor velocity ramp slot
+            /* 0x08 */ s16              unk_08;
+            /* 0x0A */ s16              unk_0A;
+            /* 0x0C */ BattleAttackArgs args; // what the psych's hits deal
+            /* 0x14 */ u8               flag;
+            /* 0x15 */ u8               unk_15[3];
         };
         Ov003AttackStreak streak;
     };
@@ -182,9 +179,9 @@ typedef struct BtlTouchWork {
     /* 0x40 */ s16          velocityY;
     /* 0x42 */ u8           reserved42[2];
     /* 0x44 */ s32          targetKind;
-    /* 0x48 */ CombatActor* target;
-    /* 0x4C */ CombatActor* held;
-    /* 0x50 */ CombatActor* released;
+    /* 0x48 */ BattleActor* target;
+    /* 0x4C */ BattleActor* held;
+    /* 0x50 */ BattleActor* released;
     /* 0x54 */ s16          stillFrames;
     /* 0x56 */ s16          anchorX;
     /* 0x58 */ s16          anchorY;
@@ -213,11 +210,11 @@ s32           func_ov003_020a5ac4(Ov003TouchActor**, s32 count, Ov003EffectState
 void         CombatTouch_Clear(void);
 BOOL         CombatTouch_IsGesture(u16);
 BOOL         CombatTouch_IsTargetKind(s32);
-BOOL         CombatTouch_SlashCrosses(CombatActor*);
-CombatActor* CombatTouch_GetTapped(s32);
-CombatActor* CombatTouch_GetDragged(s32);
-CombatActor* CombatTouch_GetSlashed(s32);
-CombatActor* CombatTouch_GetRapidTapped(s32);
+BOOL         CombatTouch_SlashCrosses(BattleActor*);
+BattleActor* CombatTouch_GetTapped(BattleActorKind kind);
+BattleActor* CombatTouch_GetDragged(BattleActorKind kind);
+BattleActor* CombatTouch_GetSlashed(BattleActorKind kind);
+BattleActor* CombatTouch_GetRapidTapped(BattleActorKind kind);
 void         CombatTouch_Init(void);
 void         CombatTouch_Update(void);
 

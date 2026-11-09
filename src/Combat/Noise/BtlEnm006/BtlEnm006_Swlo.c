@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Noise/Private/BtlEnm006.h"
 #include "Engine/Math/Random.h"
@@ -80,7 +80,7 @@ static s32 func_ov010_021271c0(Enm006Swlo* data, Enm006Spawn* args) {
     if (data->unk_00 == NULL) {
         target       = args->unk_08;
         data->unk_08 = target;
-        if (func_ov003_020c5b0c(func_ov003_020c37f8(&data->unk_04->base.sprite) != 0 ? 0x52 : 0x4D, data->unk_04,
+        if (func_ov003_020c5b0c(func_ov003_020c37f8(&data->unk_04->base.sprite) != 0 ? 0x52 : 0x4D, &data->unk_04->base,
                                 data->unk_08->base.actor.position.x) != 1)
         {
             return 0;
@@ -89,18 +89,18 @@ static s32 func_ov010_021271c0(Enm006Swlo* data, Enm006Spawn* args) {
         target       = args->unk_0C;
         data->unk_0C = target;
         BtlCollision_SetDisabled(&target->base.collider, 1);
-        CombatActor_SetPendingCommand(&target->base.actor, ACTOR_CMD_HIT);
+        BtlActor_SetPendingCommand(&target->base.actor, ACTOR_CMD_HIT);
         func_ov010_021256d0(data->unk_04, data->unk_0C);
     }
     data->unk_30 = (data->unk_30 & ~1) | 1;
-    target->base.actor.flags |= 0x10000000;
-    target->base.actor.unk_10 = 600;
-    data->unk_10              = args->unk_04->base.actor.position.x;
-    data->unk_14              = args->unk_04->base.actor.position.y;
-    data->unk_2C              = 0x4000;
-    data->unk_2E              = 0;
-    data->unk_18              = (RNG_Next(9) - 4) << 12;
-    data->unk_1C              = (RNG_Next(9) - 4) << 12;
+    target->base.actor.flags |= ACTOR_FLAG_UNCLAMPED_X;
+    target->base.actor.hit.stunTimer = 600;
+    data->unk_10                     = args->unk_04->base.actor.position.x;
+    data->unk_14                     = args->unk_04->base.actor.position.y;
+    data->unk_2C                     = 0x4000;
+    data->unk_2E                     = 0;
+    data->unk_18                     = (RNG_Next(9) - 4) << 12;
+    data->unk_1C                     = (RNG_Next(9) - 4) << 12;
     return 1;
 }
 
@@ -129,21 +129,21 @@ static s32 func_ov010_021272e0(Enm006Swlo* data) {
     if (result == 0) {
         BtlEnm006* self;
         if (data->unk_00 == NULL) {
-            self                    = data->unk_08;
-            self->base.actor.unk_10 = 0;
+            self                           = data->unk_08;
+            self->base.actor.hit.stunTimer = 0;
             if (data->unk_08->base.actor.isFlipped == 0) {
                 data->unk_08->base.actor.xVelocity = 0x1800;
             } else {
                 data->unk_08->base.actor.xVelocity = -0x1800;
             }
             data->unk_08->base.actor.zVelocity = -0x5000;
-            CombatActor_SetPendingCommand(&data->unk_08->base.actor, ACTOR_CMD_KNOCKDOWN);
+            BtlActor_SetPendingCommand(&data->unk_08->base.actor, ACTOR_CMD_KNOCKDOWN);
         } else {
             self = data->unk_0C;
             self->base.flags18C |= 0x1000;
             func_ov003_020c4fc8(&data->unk_0C->base);
         }
-        self->base.actor.flags &= ~0x10000000;
+        self->base.actor.flags &= ~ACTOR_FLAG_UNCLAMPED_X;
     }
     return result;
 }

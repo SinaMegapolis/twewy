@@ -108,7 +108,7 @@ static Ov003EnemyActor* func_ov003_020b0fa0(void) {
     Ov003EnemyActor* unit = (Ov003EnemyActor*)func_ov003_020a62a0()->held;
     if (unit == NULL)
         return NULL;
-    if (unit->actor.unk_00 != 1)
+    if (unit->actor.kind != ACTOR_KIND_ENEMY)
         return NULL;
     return unit;
 }

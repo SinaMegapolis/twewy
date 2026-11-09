@@ -274,14 +274,14 @@ s32 func_ov003_020cb498(s32 side, s32 group, BtlActorFilter filter, void* arg) {
 }
 
 /// Reads the gravity of a fresh actor (what the actor falls with when it is thrown).
-void func_ov003_020cb520(CombatActor* actor, s32 flag) {
-    CombatActor fresh;
+void func_ov003_020cb520(BattleActor* actor, s32 flag) {
+    BattleActor fresh;
 
     if (flag == 0) {
         actor->zGravity = 0;
         return;
     }
-    CombatActor_Init(&fresh, 1);
+    BtlActor_Init(&fresh, ACTOR_KIND_ENEMY);
     actor->zGravity = fresh.zGravity;
 }
 
@@ -289,12 +289,12 @@ s32 func_ov003_020cb55c(Ov003EnemyActor* actor) {
     return actor->sprite.sprite.bits_0_1 == 1;
 }
 
-void func_ov003_020cb578(CombatActor* actor, s32 flag) {
+void func_ov003_020cb578(BattleActor* actor, s32 flag) {
     if (flag != 0) {
-        actor->flags &= ~0x20;
-        actor->flags &= ~0x10;
+        actor->flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
+        actor->flags &= ~ACTOR_FLAG_INTANGIBLE;
     } else {
-        actor->flags |= 0x30;
+        actor->flags |= ACTOR_FLAG_INTANGIBLE | ACTOR_FLAG_NO_TARGET_MARKER;
     }
 }
 
@@ -308,7 +308,7 @@ void func_ov003_020cb5b0(Ov003EnemyActor* actor, s16 amount, s32 flag) {
 
     func_ov003_0209b564(engine, amount, &actor->actor, 1);
     if (flag != 0) {
-        BtlMgr_AddUnitHp(engine, actor, amount);
+        BtlMgr_AddUnitHp(engine, &actor->actor, amount);
         return;
     }
     actor->actor.currentHp = actor->actor.currentHp + amount;
@@ -608,7 +608,7 @@ void func_ov003_020cbf54(BtlVec2* out, BtlVec2 p0, BtlVec2 p1, BtlVec2 p2, BtlVe
 // ---------------------------------------------------------------------------------------------
 
 /// Whether the actor is on the left half of the camera.
-s32 func_ov003_020cc2d0(CombatActor* actor, s32 index) {
+s32 func_ov003_020cc2d0(BattleActor* actor, s32 index) {
     return actor->position.x < (g_CombatGlobal->unk3D7C0[index].unk_0C >> 1);
 }
 
@@ -616,47 +616,49 @@ s32 func_ov003_020cc2d0(CombatActor* actor, s32 index) {
 s32 func_ov003_020cc300(Ov003EnemyActor* actor, s32 index) {
     s32 x      = actor->actor.position.x;
     s32 y      = actor->actor.position.y;
-    s16 radius = actor->actor.unk_70;
+    s16 radius = actor->actor.radius;
 
     return func_ov003_020cb814(index, &x, &y, radius << 12, (radius / 2) << 12) == 0;
 }
 
 /// Whether the actor is busy (hit, down or flagged).
-s32 func_ov003_020cc354(CombatActor* actor) {
-    if (actor->unk_5A > 0 || (actor->flags & 0x100) || (actor->flags & 4) || (actor->flags & 0x10)) {
+s32 func_ov003_020cc354(BattleActor* actor) {
+    if (actor->invincibleTimer > 0 || (actor->flags & ACTOR_FLAG_UNK_8) || (actor->flags & ACTOR_FLAG_DEFEATED) ||
+        (actor->flags & ACTOR_FLAG_INTANGIBLE))
+    {
         return 1;
     }
     return 0;
 }
 
 /// Whether the actor's box overlaps the box around (`x`,`y`,`z`).
-s32 func_ov003_020cc38c(Ov003CutinActor* actor, s32 x, s32 y, s32 z, s32 marginX, s32 marginY, s32 marginZ) {
-    s16 width  = actor->base.actor.unk_70;
+s32 func_ov003_020cc38c(BattleActor* actor, s32 x, s32 y, s32 z, s32 marginX, s32 marginY, s32 marginZ) {
+    s16 width  = actor->radius;
     s32 half   = width / 2;
-    s16 height = actor->base.actor.unk_72;
+    s16 height = actor->height;
 
-    if (actor->base.actor.position.x - (width << 12) > x + marginX) {
+    if (actor->position.x - (width << 12) > x + marginX) {
         return 0;
     }
-    if (actor->base.actor.position.x + (width << 12) < x - marginX) {
+    if (actor->position.x + (width << 12) < x - marginX) {
         return 0;
     }
-    if (actor->base.actor.position.y - (half << 12) > y + marginY) {
+    if (actor->position.y - (half << 12) > y + marginY) {
         return 0;
     }
-    if (actor->base.actor.position.y + (half << 12) < y - marginY) {
+    if (actor->position.y + (half << 12) < y - marginY) {
         return 0;
     }
-    if (actor->base.actor.position.z < z - marginZ) {
+    if (actor->position.z < z - marginZ) {
         return 0;
     }
-    return actor->base.actor.position.z - (height << 12) <= z + marginZ;
+    return actor->position.z - (height << 12) <= z + marginZ;
 }
 
 /// A mask of the 32 points around the actor (at `radius`, `yScale` as tall) that are inside the camera's field.
 u32 func_ov003_020cc430(Ov003CutinActor* actor, s32 index, s32 radius, s32 yScale) {
     Ov003Camera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s16          size   = actor->base.actor.unk_70;
+    s16          size   = actor->base.actor.radius;
     s32          left   = FX32_CONVERT(size);
     s32          right  = camera->unk_0C - FX32_CONVERT(size);
     s32          top    = FX32_CONVERT(size) / 2;
@@ -678,7 +680,7 @@ u32 func_ov003_020cc430(Ov003CutinActor* actor, s32 index, s32 radius, s32 yScal
 }
 
 /// How many frames until `z` becomes non-negative, falling with the actor's gravity.
-s32 func_ov003_020cc5d0(CombatActor* actor) {
+s32 func_ov003_020cc5d0(BattleActor* actor) {
     s32 velocity = actor->zVelocity;
     s32 gravity  = actor->zGravity;
     s32 z        = actor->position.z;
@@ -768,8 +770,8 @@ s32 func_ov003_020cc6a4(s32 unused, s32 id, BtlItemFilter filter, s32 arg) {
     return count;
 }
 
-void func_ov003_020cc71c(CombatActor* actor, s32 flag) {
-    CombatActor fresh;
+void func_ov003_020cc71c(BattleActor* actor, s32 flag) {
+    BattleActor fresh;
     s32         value = 0;
 
     if (flag != 0) {
@@ -782,19 +784,19 @@ void func_ov003_020cc71c(CombatActor* actor, s32 flag) {
 /// The gauge actor of the screen `side`.
 void* func_ov003_020cc750(s32 side) {
     if (side == 1) {
-        return g_CombatGlobal->unk3D89C;
+        return g_CombatGlobal->partner;
     }
-    return g_CombatGlobal->unk3D898;
+    return g_CombatGlobal->player;
 }
 
-void func_ov003_020cc784(CombatActor* actor, s32 flag) {
-    CombatActor fresh;
+void func_ov003_020cc784(BattleActor* actor, s32 flag) {
+    BattleActor fresh;
 
     if (flag == 0) {
         actor->zGravity = 0;
         return;
     }
-    CombatActor_Init(&fresh, 0);
+    BtlActor_Init(&fresh, ACTOR_KIND_PLAYER);
     actor->zGravity = fresh.zGravity;
 }
 
@@ -828,8 +830,8 @@ void func_ov003_020cc834(Ov003EnemyShotSource* source, Ov003CutinActor* owner, c
     source->core.position.y = owner->base.actor.position.y;
     source->core.position.z = owner->base.actor.position.z;
     source->core.timer      = 0;
-    ((s8*)&source->kind)[0] = 0;
-    ((s8*)&source->kind)[1] = 0;
+    source->radius          = 0;
+    source->height          = 0;
     source->core.sprite     = NULL;
     source->sound           = 0x56C;
     source->core.flags |= 1;
@@ -891,12 +893,14 @@ static s32 func_ov003_020cc8fc(u16 flags, s32 engine, s32 x, s32 y, s32 z, s32 m
         return 1;
     }
     if (flags & 8) {
-        if ((owner->base.actor.flags & 2) || (owner->base.actor.flags & 0x4000) || (owner->base.actor.flags & 0x200)) {
+        if ((owner->base.actor.flags & ACTOR_FLAG_STAGGERED) || (owner->base.actor.flags & ACTOR_FLAG_LAUNCHED) ||
+            (owner->base.actor.flags & ACTOR_FLAG_HELD))
+        {
             return 1;
         }
     }
     if (flags & 0x10) {
-        if (owner->base.actor.flags & 4) {
+        if (owner->base.actor.flags & ACTOR_FLAG_DEFEATED) {
             return 1;
         }
     }
@@ -905,8 +909,8 @@ static s32 func_ov003_020cc8fc(u16 flags, s32 engine, s32 x, s32 y, s32 z, s32 m
 
 s32 func_ov003_020ccb9c(Ov003EnemyShotSource* source, CombatSprite* sprite) {
     return func_ov003_020cc8fc(source->core.flags, sprite->sprite.bits_0_1, source->core.position.x, source->core.position.y,
-                               source->core.position.z, ((s8*)&source->kind)[0], ((s8*)&source->kind)[1], source->core.owner,
-                               sprite, source->core.hitResult, &source->core.timer);
+                               source->core.position.z, source->radius, source->height, source->core.owner, sprite,
+                               source->core.hitResult, &source->core.timer);
 }
 
 s32 func_ov003_020ccc00(Ov003EnemyShotCore* core, CombatSprite* sprite) {
@@ -1011,16 +1015,16 @@ s32 func_ov003_020cce34(s32 side) {
     return 0;
 }
 
-void func_ov003_020ccea8(CombatActor* actor, CombatSprite* sprite) {
+void func_ov003_020ccea8(BattleActor* actor, CombatSprite* sprite) {
     actor->isFlipped = (sprite->flags46 & 1) ? 1 : 0;
 }
 
-void func_ov003_020ccec0(CombatActor* actor, s32 flag) {
+void func_ov003_020ccec0(BattleActor* actor, s32 flag) {
     if (flag != 0) {
-        actor->flags |= 0x30;
+        actor->flags |= ACTOR_FLAG_INTANGIBLE | ACTOR_FLAG_NO_TARGET_MARKER;
     } else {
-        actor->flags &= ~0x20;
-        actor->flags &= ~0x10;
+        actor->flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
+        actor->flags &= ~ACTOR_FLAG_INTANGIBLE;
     }
 }
 
@@ -1093,9 +1097,9 @@ s32 func_ov003_020cd010(Ov003EnemyActor* actor) {
                 g_CombatGlobal->unk3D8A0 = NULL;
             }
         }
-        actor->actor.flags |= 4;
+        actor->actor.flags |= ACTOR_FLAG_DEFEATED;
         if (!(actor->flags18C & 0x1000)) {
-            s32 hasPartner = (actor->actor.flags & 0x2000) && actor->partner != NULL ? 1 : 0;
+            s32 hasPartner = (actor->actor.flags & ACTOR_FLAG_KILLED) && actor->partner != NULL ? 1 : 0;
 
             func_ov003_0209f444(actor->sprite.sprite.bits_0_1, actor->actor.position.x, actor->actor.position.y,
                                 actor->actor.position.z, hasPartner);

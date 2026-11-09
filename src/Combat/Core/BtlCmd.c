@@ -1,6 +1,6 @@
 #include "Combat/Core/BtlCmd.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatCutin.h"
 #include "Combat/Core/CombatSprite.h"
@@ -261,14 +261,14 @@ static void func_ov003_020977e0(BtlCmd* self) {
 
 /// Which way the enemies mostly stand compared with the gauge actor: 0x800 for one side, 1 for the other.
 static u32 func_ov003_02097984(u32 wanted) {
-    CombatActor*     gauge  = g_CombatGlobal->unk3D89C;
+    BattleActor*     gauge  = g_CombatGlobal->partner;
     s32              ahead  = 0;
     s32              behind = 0;
     u32              result = 0;
     Ov003CutinActor* enemy  = CombatList_GetHead(&g_CombatGlobal->unk3D8AC);
 
     while (enemy != NULL) {
-        if (!(enemy->base.actor.flags & 4) && !(enemy->base.actor.flags & 0x10)) {
+        if (!(enemy->base.actor.flags & ACTOR_FLAG_DEFEATED) && !(enemy->base.actor.flags & ACTOR_FLAG_INTANGIBLE)) {
             if (gauge->position.x < enemy->base.actor.position.x) {
                 ahead++;
             } else {

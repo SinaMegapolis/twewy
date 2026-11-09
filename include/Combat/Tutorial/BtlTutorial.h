@@ -1,14 +1,14 @@
 #ifndef COMBAT_TUTORIAL_BTLTUTORIAL_H
 #define COMBAT_TUTORIAL_BTLTUTORIAL_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 
-/// Task data for `Tsk_BtlPlayerNone`. Layout is a `CombatActor` plus a few
+/// Task data for `Tsk_BtlPlayerNone`. Layout is a `BattleActor` plus a few
 /// trailing fields.
 typedef struct BtlPlayerNone {
-    /* 0x00 */ CombatActor actor;
+    /* 0x00 */ BattleActor actor;
     /* 0x7C */ void (*unk_7C)(struct BtlPlayerNone*);
     /* 0x80 */ s16 unk_80;
     /* 0x82 */ s16 unk_82;

@@ -616,12 +616,12 @@ static s32 func_ov003_020bb8bc(void) {
 }
 
 static void func_ov003_020bb90c(BtlPrizeItem* self) {
-    CombatActor* owner;
+    BattleActor* owner;
 
     if (func_ov003_020c37f8(&self->sprite)) {
-        owner = g_CombatGlobal->unk3D89C;
+        owner = g_CombatGlobal->partner;
     } else {
-        owner = g_CombatGlobal->unk3D898;
+        owner = g_CombatGlobal->player;
     }
     FX_Atan2Idx(self->position.x - owner->position.x, self->position.y - FX_Mul(owner->position.y, 0x3000));
     s32 dy       = self->position.y - FX_Mul(owner->position.y, 0x3000);
@@ -637,12 +637,12 @@ static void func_ov003_020bb90c(BtlPrizeItem* self) {
 
 // Nonmatching: sprite-loading and fixed-point register allocation.
 static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
-    CombatActor* owner;
+    BattleActor* owner;
 
     if (args->engine == 0) {
-        owner = g_CombatGlobal->unk3D898;
+        owner = g_CombatGlobal->player;
     } else {
-        owner = g_CombatGlobal->unk3D89C;
+        owner = g_CombatGlobal->partner;
     }
     MI_CpuSet(self, 0, sizeof(*self));
     self->position.x = args->position.x;
@@ -684,12 +684,12 @@ static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
 
 // Nonmatching: orbit/approach arithmetic and register allocation.
 static s32 func_ov003_020bbc14(BtlPrizeItem* self) {
-    CombatActor* owner;
+    BattleActor* owner;
 
     if (func_ov003_020c37f8(&self->sprite)) {
-        owner = g_CombatGlobal->unk3D89C;
+        owner = g_CombatGlobal->partner;
     } else {
-        owner = g_CombatGlobal->unk3D898;
+        owner = g_CombatGlobal->player;
     }
     s32 active = 1;
     if (func_ov003_020c3c28()) {
@@ -717,7 +717,7 @@ static s32 func_ov003_020bbc14(BtlPrizeItem* self) {
             self->angle -= 0x7FF;
             break;
     }
-    s32 height    = owner->unk_72 >> 1;
+    s32 height    = owner->height >> 1;
     s32 fixed     = height << 12;
     self->targetZ = owner->position.z - (s32)(height > 0 ? 0.5f + (f32)fixed : (f32)fixed - 0.5f);
     func_020265d4(&self->position.z, self->targetZ, self->timer);

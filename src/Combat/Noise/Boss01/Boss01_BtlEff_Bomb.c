@@ -5,21 +5,21 @@
 #include <nitro/fx.h>
 
 typedef struct {
-    /* 0x00 */ Vec   unk_00;
-    /* 0x0C */ Quad* unk_0C;
-    /* 0x10 */ s32   unk_10;
-    /* 0x14 */ s16   unk_14;
+    /* 0x00 */ Vec               unk_00;
+    /* 0x0C */ BattleAttackArgs* unk_0C;
+    /* 0x10 */ s32               unk_10;
+    /* 0x14 */ s16               unk_14;
 } BtlEff_Bomb_Args;
 
 typedef struct {
-    /* 0x00 */ CombatSprite sprite;
-    /* 0x60 */ Vec          unk_60;
-    /* 0x6C */ Quad         unk_6C;
-    /* 0x74 */ s32          unk_74;
-    /* 0x78 */ s32          unk_78;
-    /* 0x7C */ s16          unk_7C;
-    /* 0x7E */ s16          unk_7E;
-    /* 0x80 */ s16          unk_80;
+    /* 0x00 */ CombatSprite     sprite;
+    /* 0x60 */ Vec              unk_60;
+    /* 0x6C */ BattleAttackArgs unk_6C;
+    /* 0x74 */ s32              unk_74;
+    /* 0x78 */ s32              unk_78;
+    /* 0x7C */ s16              unk_7C;
+    /* 0x7E */ s16              unk_7E;
+    /* 0x80 */ s16              unk_80;
 } BtlEff_Bomb; // Size: 0x84
 
 s32 BtlEff_Bomb_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
@@ -64,8 +64,7 @@ s32 BtlEff_Bomb_Update(TaskPool* pool, Task* task, void* args) {
                 CombatSe_PlayAtMainX(501, eff->unk_60.x);
             }
             if (eff->unk_78 == 0) {
-                eff->unk_78 = func_ov003_020c5bc4(eff->unk_74, (Ov003AttackArgs*)&eff->unk_6C, eff->unk_60.x, eff->unk_60.y,
-                                                  eff->unk_60.z);
+                eff->unk_78 = func_ov003_020c5bc4(eff->unk_74, &eff->unk_6C, eff->unk_60.x, eff->unk_60.y, eff->unk_60.z);
             }
             if (SpriteMgr_IsAnimationFinished(&eff->sprite.sprite) != 0) {
                 var_r5 = 0;

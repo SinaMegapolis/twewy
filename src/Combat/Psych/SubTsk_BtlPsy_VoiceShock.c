@@ -38,9 +38,9 @@ static s32 func_ov003_020ba0b8(TaskPool* pool, Task* task, void* args, s32 stage
                 return 0;
             unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
             while (unit != NULL) {
-                s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.unk_76);
+                s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.centerHeight);
                 s32 radius   = FX_Mul(shock->scale, 0x10000);
-                if (radius + (unit->actor.unk_70 / 2) * 0x1000 >= distance)
+                if (radius + (unit->actor.radius / 2) * 0x1000 >= distance)
                     func_ov003_020a6568(&shock->effect->streak, (u16)(shock->effect->index + 0x171), unit, shock->position.x,
                                         0, 0);
                 unit = CombatList_GetNext(&unit->node);

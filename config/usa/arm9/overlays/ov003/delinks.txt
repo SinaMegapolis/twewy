@@ -9,7 +9,7 @@ src/Combat/Core/CombatSprite.c:
     complete
     .text       start:0x020824a0 end:0x02082d10
 
-src/Combat/Core/CombatActor.c:
+src/Battle/Core/BtlActor.c:
     complete
     .text       start:0x02082d10 end:0x02083300
 

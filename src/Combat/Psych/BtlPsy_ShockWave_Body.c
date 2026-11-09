@@ -480,7 +480,7 @@ static s32 func_ov003_020b77a8(Ov003ShockWaveBody* self) {
 }
 
 static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
-    CombatActor* actor = g_CombatGlobal->unk3D898;
+    BattleActor* actor = g_CombatGlobal->player;
     s32          x;
     s32          y;
     s16          targetX;
@@ -520,7 +520,7 @@ static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
             x = CombatStage_ToScreenX(0, self->x);
             y = CombatStage_ToScreenY(0, self->y, self->z);
             BtlMgr_WorldToScreen(&targetX, &targetY, actor->position.x, actor->position.y,
-                                 actor->position.z - ((actor->unk_72 / 2) << 12));
+                                 actor->position.z - ((actor->height / 2) << 12));
             self->angle = func_ov003_020a62d0(x, y, targetX, targetY);
             if (self->distance >= self->distanceLimit) {
                 self->phase = 4;

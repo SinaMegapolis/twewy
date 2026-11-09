@@ -23,7 +23,7 @@ s32 func_ov003_020a6164(Ov003EnemyActor* unit, u16 arg1);
 /// Applies pending command 5 to `unit` and clears its velocity.
 void func_ov003_020a6198(Ov003EnemyActor* unit, s32 arg1);
 /// Applies pending command 5 and launches `unit` at `speed` in direction `angle`.
-void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, Ov003AttackArgs* args, s32 angle, s32 speed,
+void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, BattleAttackArgs* args, s32 angle, s32 speed,
                          s32 zVelocity);
 s32  func_ov003_020a62b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 s32  func_ov003_020a62d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -36,7 +36,7 @@ s32 func_ov003_020a63a8(Ov003EffectState* effect);
 /// Whether the battle is in the post-boss state that unlocks the extra effects.
 s32 func_ov003_020a63e4(void);
 /// The player's battle actor.
-CombatActor* func_ov003_020a6438(void);
+BattleActor* func_ov003_020a6438(void);
 void         func_ov003_020a6450(void);
 void         func_ov003_020a6464(s32 arg0);
 void         func_ov003_020a647c(s32 arg0);

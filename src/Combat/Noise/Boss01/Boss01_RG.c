@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatEnemyShot.h"
@@ -80,29 +80,29 @@ static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
         switch (var_r4->base.group) {
             case 7:
                 if (arg1 != 0) {
-                    var_r4->base.actor.flags |= 0x30;
+                    var_r4->base.actor.flags |= ACTOR_FLAG_INTANGIBLE | ACTOR_FLAG_NO_TARGET_MARKER;
                 } else {
-                    var_r4->base.actor.flags &= ~0x10;
-                    var_r4->base.actor.flags &= ~0x20;
+                    var_r4->base.actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
+                    var_r4->base.actor.flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
                 }
                 break;
 
             case 34:
                 if (arg1 == 0) {
-                    var_r4->base.actor.flags |= 0x30;
+                    var_r4->base.actor.flags |= ACTOR_FLAG_INTANGIBLE | ACTOR_FLAG_NO_TARGET_MARKER;
                 } else {
-                    var_r4->base.actor.flags &= ~0x10;
-                    var_r4->base.actor.flags &= ~0x20;
+                    var_r4->base.actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
+                    var_r4->base.actor.flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
                 }
                 break;
 
             default:
                 if (arg1 != 0) {
                     g_CombatGlobal->unk3D8A0 = EasyTask_GetTaskData(&g_CombatGlobal->taskPool, rg->unk_1DC);
-                    var_r4->base.actor.flags &= ~0x10;
-                    var_r4->base.actor.flags &= ~0x20;
+                    var_r4->base.actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
+                    var_r4->base.actor.flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
                 } else {
-                    var_r4->base.actor.flags |= 0x30;
+                    var_r4->base.actor.flags |= ACTOR_FLAG_INTANGIBLE | ACTOR_FLAG_NO_TARGET_MARKER;
                 }
                 break;
         }
@@ -111,9 +111,9 @@ static void func_ov016_02125c20(Boss01_RG* rg, s32 arg1) {
 }
 
 static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
-    Boss01*    temp_r6 = (Boss01*)rg->base.partner;
-    Boss01_RG* temp_r4 = g_CombatGlobal->unk3D89C;
-    Boss01*    temp_r5 = temp_r6->unk_188;
+    Boss01*      temp_r6 = (Boss01*)rg->base.partner;
+    BattleActor* temp_r4 = g_CombatGlobal->partner;
+    Boss01*      temp_r5 = temp_r6->unk_188;
 
     if (rg->unk_1C0 == 0) {
         if (temp_r6->unk_28 < 0) {
@@ -124,12 +124,12 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
             rg->unk_1D4               = -0x4000;
         }
 
-        rg->base.actor.position.y = temp_r4->base.actor.position.y;
+        rg->base.actor.position.y = temp_r4->position.y;
         rg->base.actor.position.z = -0x40000;
         func_ov003_020c4c1c(&rg->base);
         func_ov003_020c4988(&rg->base);
         if (temp_r5 != NULL) {
-            rg->unk_1DC  = BtlObs_RG_CreateTask(temp_r5->unk_002, &((CombatActor*)g_CombatGlobal->unk3D89C)->baseArgs);
+            rg->unk_1DC  = BtlObs_RG_CreateTask(temp_r5->unk_002, &g_CombatGlobal->partner->baseArgs);
             s32 var_r0_2 = FX32_CONVERT(temp_r5->unk_76);
             if (var_r0_2 > 0x80000) {
                 f32 var_r0_3              = I2F_RND(temp_r5->unk_76);
@@ -150,7 +150,7 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
         }
     }
     rg->base.actor.position.x += rg->unk_1D4;
-    s32 var_r0_4 = temp_r4->base.actor.position.x - rg->base.actor.position.x;
+    s32 var_r0_4 = temp_r4->position.x - rg->base.actor.position.x;
     if (var_r0_4 < 0) {
         var_r0_4 = -var_r0_4;
     }
@@ -175,7 +175,7 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
     }
 
     s32 var_r1_2 = rg->unk_1D4;
-    s32 var_r0_6 = temp_r4->base.actor.position.x - rg->base.actor.position.x;
+    s32 var_r0_6 = temp_r4->position.x - rg->base.actor.position.x;
     if (var_r0_6 < 0) {
         var_r0_6 = -var_r0_6;
     }
@@ -225,7 +225,7 @@ static s32 Boss01_RG_Init(TaskPool* pool, Task* task, void* args) {
     func_ov016_021256c0(&anim, 1, 0);
     CombatSprite_Load(&bossRG->base.sprite, &anim);
     func_ov003_020c4c1c(&bossRG->base);
-    bossRG->base.actor.flags |= 0x10000000;
+    bossRG->base.actor.flags |= ACTOR_FLAG_UNCLAMPED_X;
     bossRG->base.actor.zGravity   = 0;
     bossRG->base.actor.position.x = -0x80000;
     bossRG->base.actor.position.y = 0;
@@ -243,14 +243,14 @@ static s32 Boss01_RG_Update(TaskPool* pool, Task* task, void* args) {
         return 1;
     }
 
-    s32 temp_r0 = CombatActor_PopPendingCommand(&bossRG->base.actor);
+    s32 temp_r0 = BtlActor_PopPendingCommand(&bossRG->base.actor);
     if ((temp_r0 != 1) && (temp_r0 == 3)) {
         Boss01_RG_SetState(bossRG, func_ov016_021260b4);
     }
     if (bossRG->unk_1CC != NULL) {
         bossRG->unk_1CC(bossRG);
     }
-    CombatActor_UpdateEffects(1, &bossRG->base.actor);
+    BtlActor_UpdateEffects(1, &bossRG->base.actor);
     CombatSprite_Update(&bossRG->base.sprite);
     return bossRG->unk_1D0;
 }

@@ -1,15 +1,15 @@
 #include "Combat/Core/CombatTouch.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlTch.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Engine/EasyTask.h"
 #include "Engine/IO/TouchInput.h"
 #include <nitro/fx.h>
 
 /// Distance between the middle of an actor's box and a screen point.
-static s32 CombatTouch_DistanceToActor(CombatActor* actor, s32 x, s32 y) {
-    s32 centerY = actor->screenY + (12 - actor->unk_72) / 2;
+static s32 CombatTouch_DistanceToActor(BattleActor* actor, s32 x, s32 y) {
+    s32 centerY = actor->screenY + (12 - actor->height) / 2;
     s32 dx      = (x << 12) - (actor->screenX << 12);
     s32 dy      = (y << 12) - (centerY << 12);
 
@@ -158,23 +158,23 @@ static BOOL CombatTouch_IsScribble(BtlTouchWork* touch) {
 }
 
 /// Whether the current touch point is on `actor`.
-static BOOL CombatTouch_IsOnActor(CombatActor* actor) {
+static BOOL CombatTouch_IsOnActor(BattleActor* actor) {
     s32 x     = g_CombatGlobal->touchWork.x;
     s32 y     = g_CombatGlobal->touchWork.y;
     s32 flags = actor->flags;
 
-    if ((flags & 4) || (flags & 0x10)) {
+    if ((flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_INTANGIBLE)) {
         return FALSE;
     }
-    if (actor->unk_00 == 0) {
+    if (actor->kind == ACTOR_KIND_PLAYER) {
         s32 dx = actor->screenX - x;
 
         if (dx < 0) {
             dx = -dx;
         }
-        if (dx < actor->unk_70 + 0x18) {
+        if (dx < actor->radius + 0x18) {
             if (actor->screenY + 0x1E >= y) {
-                if (actor->screenY - actor->unk_72 - 0x12 <= y) {
+                if (actor->screenY - actor->height - 0x12 <= y) {
                     return TRUE;
                 }
             }
@@ -185,9 +185,9 @@ static BOOL CombatTouch_IsOnActor(CombatActor* actor) {
         if (dx < 0) {
             dx = -dx;
         }
-        if (dx <= actor->unk_70) {
+        if (dx <= actor->radius) {
             if (actor->screenY + 0xC >= y) {
-                if (actor->screenY - actor->unk_72 <= y) {
+                if (actor->screenY - actor->height <= y) {
                     return TRUE;
                 }
             }
@@ -197,11 +197,11 @@ static BOOL CombatTouch_IsOnActor(CombatActor* actor) {
 }
 
 /// Whether segment (x0,y0)-(x1,y1) touches the box of `actor`.
-static BOOL CombatTouch_StrokeHitsActor(CombatActor* actor, s32 x0, s32 y0, s32 x1, s32 y1) {
-    s32 left   = actor->screenX - actor->unk_70;
-    s32 right  = actor->screenX + actor->unk_70;
+static BOOL CombatTouch_StrokeHitsActor(BattleActor* actor, s32 x0, s32 y0, s32 x1, s32 y1) {
+    s32 left   = actor->screenX - actor->radius;
+    s32 right  = actor->screenX + actor->radius;
     s32 bottom = actor->screenY;
-    s32 top    = actor->screenY - actor->unk_72;
+    s32 top    = actor->screenY - actor->height;
     s32 min;
     s32 max;
 
@@ -243,7 +243,7 @@ static BOOL CombatTouch_StrokeHitsActor(CombatActor* actor, s32 x0, s32 y0, s32 
 }
 
 /// Keeps `actor` as the best candidate when the stroke crosses it near its middle.
-static void CombatTouch_PickStrokeTarget(CombatActor** best, s32* bestDistance, CombatActor* actor) {
+static void CombatTouch_PickStrokeTarget(BattleActor** best, s32* bestDistance, BattleActor* actor) {
     Ov003Global* global = g_CombatGlobal;
     s16          x1     = global->touchWork.endX;
     s16          x0     = global->touchWork.startX;
@@ -262,7 +262,7 @@ static void CombatTouch_PickStrokeTarget(CombatActor** best, s32* bestDistance, 
 }
 
 /// Keeps `actor` as the best candidate when the touch point is on it and closer than the current best.
-static void CombatTouch_PickPointTarget(CombatActor** best, s32* bestDistance, CombatActor* actor) {
+static void CombatTouch_PickPointTarget(BattleActor** best, s32* bestDistance, BattleActor* actor) {
     s32 distance;
 
     if (!CombatTouch_IsOnActor(actor)) {
@@ -275,37 +275,37 @@ static void CombatTouch_PickPointTarget(CombatActor** best, s32* bestDistance, C
     }
 }
 
-static void CombatTouch_PickEnemyAtPoint(CombatActor** best, s32* bestDistance) {
-    CombatActor* actor = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+static void CombatTouch_PickEnemyAtPoint(BattleActor** best, s32* bestDistance) {
+    Ov003EnemyActor* unit = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
 
-    if (actor == NULL) {
+    if (unit == NULL) {
         return;
     }
     do {
-        CombatTouch_PickPointTarget(best, bestDistance, actor);
-        actor = CombatList_GetNext(&((Ov003EnemyActor*)actor)->node);
-    } while (actor != NULL);
+        CombatTouch_PickPointTarget(best, bestDistance, &unit->actor);
+        unit = CombatList_GetNext(&unit->node);
+    } while (unit != NULL);
 }
 
-static void CombatTouch_PickObjectAtPoint(CombatActor** best, s32* bestDistance) {
-    u8* item = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
+static void CombatTouch_PickObjectAtPoint(BattleActor** best, s32* bestDistance) {
+    Ov003EffectActor* obs = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
 
-    if (item == NULL) {
+    if (obs == NULL) {
         return;
     }
     do {
-        CombatTouch_PickPointTarget(best, bestDistance, (CombatActor*)(item + 4));
-        item = CombatList_GetNext((CombatListNode*)(item + 0xB8));
-    } while (item != NULL);
+        CombatTouch_PickPointTarget(best, bestDistance, &obs->actor);
+        obs = CombatList_GetNext(&obs->node);
+    } while (obs != NULL);
 }
 
 /// The actor under the touch point, the player first and then the closest enemy.
-static CombatActor* CombatTouch_FindActorAtPoint(void) {
-    CombatActor* best     = NULL;
+static BattleActor* CombatTouch_FindActorAtPoint(void) {
+    BattleActor* best     = NULL;
     s32          distance = 0x7FFFFFFF;
 
-    if (CombatTouch_IsOnActor(g_CombatGlobal->unk3D898)) {
-        return g_CombatGlobal->unk3D898;
+    if (CombatTouch_IsOnActor(g_CombatGlobal->player)) {
+        return g_CombatGlobal->player;
     }
     CombatTouch_PickEnemyAtPoint(&best, &distance);
     CombatTouch_PickObjectAtPoint(&best, &distance);
@@ -314,21 +314,21 @@ static CombatActor* CombatTouch_FindActorAtPoint(void) {
 
 /// The stylus came down.
 static void CombatTouch_OnPress(BtlTouchWork* touch) {
-    CombatActor* actor = CombatTouch_FindActorAtPoint();
+    BattleActor* actor = CombatTouch_FindActorAtPoint();
 
     if (actor != NULL) {
-        switch (actor->unk_00) {
-            case 0:
+        switch (actor->kind) {
+            case ACTOR_KIND_PLAYER:
                 touch->targetKind = 1;
                 break;
-            case 1:
+            case ACTOR_KIND_ENEMY:
                 touch->targetKind = 2;
                 break;
-            case 2:
+            case ACTOR_KIND_OBJECT:
                 touch->targetKind = 3;
                 break;
         }
-        actor->flags |= 1;
+        actor->flags |= ACTOR_FLAG_TOUCHED;
         touch->target = actor;
     } else {
         touch->targetKind = 0;
@@ -423,7 +423,7 @@ BOOL CombatTouch_IsTargetKind(s32 kind) {
 }
 
 /// Whether the current drag crosses `actor`.
-BOOL CombatTouch_SlashCrosses(CombatActor* actor) {
+BOOL CombatTouch_SlashCrosses(BattleActor* actor) {
     Ov003Global* global;
 
     if (!CombatTouch_IsGesture(4)) {
@@ -435,106 +435,106 @@ BOOL CombatTouch_SlashCrosses(CombatActor* actor) {
 }
 
 /// The actor of `kind` under the stylus on a tap.
-CombatActor* CombatTouch_GetTapped(s32 kind) {
-    CombatActor* best     = NULL;
+BattleActor* CombatTouch_GetTapped(BattleActorKind kind) {
+    BattleActor* best     = NULL;
     s32          distance = 0x7FFFFFFF;
 
     if (!CombatTouch_IsGesture(2)) {
         return NULL;
     }
     switch (kind) {
-        case 0:
-            if (CombatTouch_IsOnActor(g_CombatGlobal->unk3D898)) {
-                best = g_CombatGlobal->unk3D898;
+        case ACTOR_KIND_PLAYER:
+            if (CombatTouch_IsOnActor(g_CombatGlobal->player)) {
+                best = g_CombatGlobal->player;
             }
             break;
-        case 1:
+        case ACTOR_KIND_ENEMY:
             CombatTouch_PickEnemyAtPoint(&best, &distance);
             break;
-        case 2:
+        case ACTOR_KIND_OBJECT:
             CombatTouch_PickObjectAtPoint(&best, &distance);
             break;
     }
     return best;
 }
 
-/// The held actor, when it is of side `side`.
-CombatActor* CombatTouch_GetDragged(s32 side) {
-    CombatActor* held = g_CombatGlobal->touchWork.held;
+/// The held actor, when it is of `kind`.
+BattleActor* CombatTouch_GetDragged(BattleActorKind kind) {
+    BattleActor* held = g_CombatGlobal->touchWork.held;
 
     if (!CombatTouch_IsGesture(6)) {
         return NULL;
     }
-    if (held != NULL && held->unk_00 != side) {
+    if (held != NULL && held->kind != kind) {
         held = NULL;
     }
     return held;
 }
 
 /// The actor of `kind` the drag crosses closest to its middle.
-CombatActor* CombatTouch_GetSlashed(s32 kind) {
+BattleActor* CombatTouch_GetSlashed(BattleActorKind kind) {
     s32          distance;
-    CombatActor* best = NULL;
+    BattleActor* best = NULL;
 
     if (!CombatTouch_IsGesture(4)) {
         return NULL;
     }
-    if (kind == 0) {
+    if (kind == ACTOR_KIND_PLAYER) {
         Ov003Global* global = g_CombatGlobal;
 
-        if (CombatTouch_StrokeHitsActor(global->unk3D898, global->touchWork.startX, global->touchWork.startY,
+        if (CombatTouch_StrokeHitsActor(global->player, global->touchWork.startX, global->touchWork.startY,
                                         global->touchWork.endX, global->touchWork.endY))
         {
-            best = g_CombatGlobal->unk3D898;
+            best = g_CombatGlobal->player;
         }
     }
-    if (kind == 1) {
-        CombatActor* actor;
+    if (kind == ACTOR_KIND_ENEMY) {
+        Ov003EnemyActor* unit;
 
         best     = NULL;
         distance = 0x7FFFFFFF;
-        actor    = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
-        if (actor != NULL) {
+        unit     = CombatList_GetHead(&g_CombatGlobal->unk3D8A4);
+        if (unit != NULL) {
             do {
-                CombatTouch_PickStrokeTarget(&best, &distance, actor);
-                actor = CombatList_GetNext(&((Ov003EnemyActor*)actor)->node);
-            } while (actor != NULL);
+                CombatTouch_PickStrokeTarget(&best, &distance, &unit->actor);
+                unit = CombatList_GetNext(&unit->node);
+            } while (unit != NULL);
         }
     }
-    if (kind == 2) {
-        u8* item;
+    if (kind == ACTOR_KIND_OBJECT) {
+        Ov003EffectActor* obs;
 
         best     = NULL;
         distance = 0x7FFFFFFF;
-        item     = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
-        if (item != NULL) {
+        obs      = CombatList_GetHead(&g_CombatGlobal->unk3D8B4);
+        if (obs != NULL) {
             do {
-                CombatTouch_PickStrokeTarget(&best, &distance, (CombatActor*)(item + 4));
-                item = CombatList_GetNext((CombatListNode*)(item + 0xB8));
-            } while (item != NULL);
+                CombatTouch_PickStrokeTarget(&best, &distance, &obs->actor);
+                obs = CombatList_GetNext(&obs->node);
+            } while (obs != NULL);
         }
     }
     return best;
 }
 
 /// The actor of `kind` under the stylus on a flick.
-CombatActor* CombatTouch_GetRapidTapped(s32 kind) {
-    CombatActor* best     = NULL;
+BattleActor* CombatTouch_GetRapidTapped(BattleActorKind kind) {
+    BattleActor* best     = NULL;
     s32          distance = 0x7FFFFFFF;
 
     if (!CombatTouch_IsGesture(3)) {
         return NULL;
     }
     switch (kind) {
-        case 0:
-            if (CombatTouch_IsOnActor(g_CombatGlobal->unk3D898)) {
-                best = g_CombatGlobal->unk3D898;
+        case ACTOR_KIND_PLAYER:
+            if (CombatTouch_IsOnActor(g_CombatGlobal->player)) {
+                best = g_CombatGlobal->player;
             }
             break;
-        case 1:
+        case ACTOR_KIND_ENEMY:
             CombatTouch_PickEnemyAtPoint(&best, &distance);
             break;
-        case 2:
+        case ACTOR_KIND_OBJECT:
             CombatTouch_PickObjectAtPoint(&best, &distance);
             break;
     }

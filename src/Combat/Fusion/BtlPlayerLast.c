@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Fusion/BtlFusion.h"
 #include "Engine/EasyTask.h"
@@ -53,17 +53,17 @@ static s32 func_ov007_020e7478(TaskPool* pool, Task* task, void* args) {
     BtlPlayerLast* data = task->data;
 
     MI_CpuSet(data, 0, sizeof(BtlPlayerLast));
-    CombatActor_Init(&data->actor, 0);
-    g_CombatGlobal->unk3D89C = data;
+    BtlActor_Init(&data->actor, ACTOR_KIND_PLAYER);
+    g_CombatGlobal->partner  = &data->actor;
     data->actor.isFlipped    = FALSE;
     data->actor.position.x   = g_CombatGlobal->unk3D7C0[1].unk_20;
     data->actor.position.y   = g_CombatGlobal->unk3D7C0[1].unk_24;
     data->actor.position.z   = 0;
     data->actor.zGravity     = 0x800;
-    data->actor.unk_70       = 0xC;
-    data->actor.unk_72       = 0x30;
-    data->actor.unk_76       = 0x18;
-    data->actor.flags |= 0x10;
+    data->actor.radius       = 0xC;
+    data->actor.height       = 0x30;
+    data->actor.centerHeight = 0x18;
+    data->actor.flags |= ACTOR_FLAG_INTANGIBLE;
     CombatStage_SetCameraTarget(1, data->actor.position.x, data->actor.position.y, data->actor.position.z);
     func_ov007_020e7360(data, func_ov007_020e73d8);
     return 1;
@@ -75,8 +75,8 @@ static s32 func_ov007_020e7534(TaskPool* pool, Task* task, void* args) {
     if (data->unk_7C != NULL) {
         data->unk_7C(data);
     }
-    CombatActor_UpdateEffects(1, &data->actor);
-    CombatActor_UpdatePhysics(&data->actor);
+    BtlActor_UpdateEffects(1, &data->actor);
+    BtlActor_UpdatePhysics(&data->actor);
     return 1;
 }
 

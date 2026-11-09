@@ -1,14 +1,14 @@
 #ifndef COMBAT_FUSION_BTLFUSION_H
 #define COMBAT_FUSION_BTLFUSION_H
 
-#include "Combat/Core/CombatActor.h"
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/CombatList.h"
 #include "Combat/Core/CombatSprite.h"
 #include "Engine/EasyTask.h"
 
 /// Task data for `Tsk_BtlPlayerLast`.
 typedef struct BtlPlayerLast {
-    /* 0x00 */ CombatActor actor;
+    /* 0x00 */ BattleActor actor;
     /* 0x7C */ void (*unk_7C)(struct BtlPlayerLast*);
     /* 0x80 */ s16 unk_80;
     /* 0x82 */ s16 unk_82;

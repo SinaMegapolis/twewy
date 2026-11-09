@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/BtlFeat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatList.h"
 #include "Engine/Core/Memory.h"
@@ -19,7 +19,7 @@ static u16 BtlFeat_CountActiveEnm(CombatList* list) {
     u16              count = 0;
     Ov003EnemyActor* unit  = CombatList_GetHead(list);
     while (unit != NULL) {
-        if ((unit->actor.flags & 4) == 0)
+        if ((unit->actor.flags & ACTOR_FLAG_DEFEATED) == 0)
             count++;
         unit = CombatList_GetNext(&unit->node);
     }
@@ -35,7 +35,7 @@ static u16 BtlFeat_SaveEnmList(CombatList* list, Ov003ActorSnapshot** snapshots)
     *snapshots            = entries;
     Ov003EnemyActor* unit = CombatList_GetHead(list);
     while (unit != NULL) {
-        if (!(unit->actor.flags & 4)) {
+        if (!(unit->actor.flags & ACTOR_FLAG_DEFEATED)) {
             entries[index].actor = unit->actor;
             entries[index].unit  = unit;
             index++;
@@ -46,10 +46,10 @@ static u16 BtlFeat_SaveEnmList(CombatList* list, Ov003ActorSnapshot** snapshots)
 }
 
 /// Set a pending command for all active enemy units in the list.
-static void BtlFeat_SetEnmListCommand(CombatList* list, CombatActorCommand command) {
+static void BtlFeat_SetEnmListCommand(CombatList* list, BattleActorCommand command) {
     Ov003EnemyActor* unit = CombatList_GetHead(list);
     while (unit != NULL) {
-        CombatActor_SetPendingCommand(&unit->actor, command);
+        BtlActor_SetPendingCommand(&unit->actor, command);
         unit = CombatList_GetNext(&unit->node);
     }
 }

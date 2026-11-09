@@ -47,9 +47,9 @@ static s32 func_ov003_020d05dc(Ov003EnemyShotRapidSlow* self, Ov003EnemyShotRapi
 static s32 func_ov003_020d0664(Ov003EnemyShotRapidSlow* self) {
     if (!func_ov003_020cce34(self->finalShot.source.core.owner->base.sprite.sprite.bits_0_1))
         return 0;
-    if (self->finalShot.source.core.owner->base.actor.flags & 2)
+    if (self->finalShot.source.core.owner->base.actor.flags & ACTOR_FLAG_STAGGERED)
         return 0;
-    if (self->finalShot.source.core.owner->base.actor.flags & 4)
+    if (self->finalShot.source.core.owner->base.actor.flags & ACTOR_FLAG_DEFEATED)
         return 0;
     if (func_ov003_020c3c28())
         return 0;

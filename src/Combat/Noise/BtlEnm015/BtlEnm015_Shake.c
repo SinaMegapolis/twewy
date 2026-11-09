@@ -63,7 +63,7 @@ static s32 func_ov013_02126ff4(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov013_02126f8c(data, (BtlEnm015*)args);
             break;
         case 1:
-            if ((owner->base.actor.flags & 4) || func_ov003_020c3c28() != 0) {
+            if ((owner->base.actor.flags & ACTOR_FLAG_DEFEATED) || func_ov003_020c3c28() != 0) {
                 return 0;
             }
             return func_ov013_02126ef0(data);

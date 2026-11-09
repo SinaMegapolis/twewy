@@ -38,7 +38,7 @@ static void func_ov003_020b3358(Ov003Thunder* self) {
         func_ov003_020b3698(self);
         return;
     }
-    CombatActor* previous = self->target;
+    BattleActor* previous = self->target;
     func_ov003_020b3308(self);
     if (self->target == previous) {
         func_ov003_020b35c0(self);
@@ -65,7 +65,7 @@ void func_ov003_020b3400(Ov003Thunder* self) {
         func_ov003_020b3358(self);
         return;
     }
-    CombatActor* target = self->target;
+    BattleActor* target = self->target;
     self->position.x    = target->screenX * 0x1000;
     self->position.y    = target->screenY * 0x1000;
 }
@@ -83,7 +83,7 @@ void func_ov003_020b34c0(Ov003Thunder* self) {
         return;
     }
     s32 x = self->target->screenX * 0x1000;
-    s32 y = (self->target->screenY - self->target->unk_76) * 0x1000;
+    s32 y = (self->target->screenY - self->target->centerHeight) * 0x1000;
     if (func_ov003_020a62ec(self->position.x, self->position.y, x, y) < self->speed) {
         func_ov003_020b3284(self);
         func_ov003_020b3358(self);
@@ -112,9 +112,9 @@ void func_ov003_020b362c(Ov003Thunder* self) {
         func_ov003_020b3358(self);
         return;
     }
-    CombatActor* target = self->target;
+    BattleActor* target = self->target;
     self->position.x    = target->screenX * 0x1000;
-    self->position.y    = (target->screenY - target->unk_76) * 0x1000;
+    self->position.y    = (target->screenY - target->centerHeight) * 0x1000;
 }
 
 static void func_ov003_020b3698(Ov003Thunder* self) {
@@ -192,7 +192,7 @@ static s32 func_ov003_020b38d4(Ov003LockOnThunder* self) {
     }
     func_ov003_020a5a94(self->effect);
     func_ov003_020a6494(touch->x);
-    CombatActor* actor = CombatTouch_GetDragged(1);
+    BattleActor* actor = CombatTouch_GetDragged(ACTOR_KIND_ENEMY);
     if (actor != NULL && !func_ov003_020b30f0(&self->targets, actor))
         func_ov003_020b3014(&self->targets, actor);
     return 1;

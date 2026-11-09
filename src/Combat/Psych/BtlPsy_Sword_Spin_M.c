@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatPsychEffects.h"
 #include "Combat/Core/CombatTouch.h"
@@ -14,7 +14,7 @@ typedef struct BtlPsySpinM {
 static void func_ov003_02095ed0(BtlPsySpinM* self) {
     if (func_ov003_020a50cc()) {
         func_ov003_02087310();
-        func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, 0);
+        func_ov003_02087250(self->effect, g_CombatGlobal->player, 0);
         self->timer = 8;
     }
     if (self->timer > 0)
@@ -32,7 +32,7 @@ static s32 func_ov003_02095f3c(TaskPool* pool, Task* task, void* args) {
     self->effect             = *arg;
     self->timer              = 0;
     self->active             = 1;
-    func_ov003_02087250(self->effect, g_CombatGlobal->unk3D898, 0);
+    func_ov003_02087250(self->effect, g_CombatGlobal->player, 0);
     return 1;
 }
 static s32 func_ov003_02095fa0(TaskPool* pool, Task* task, void* args) {

@@ -29,7 +29,7 @@ void func_ov003_020a8908(Ov003PsychEffectArgs* args, s32 x, s32 y, s32 engine, s
     args->kind       = kind;
 }
 
-void func_ov003_020a8958(Ov003PsychEffectArgs* args, CombatActor* actor, s32 engine, s32 kind) {
+void func_ov003_020a8958(Ov003PsychEffectArgs* args, BattleActor* actor, s32 engine, s32 kind) {
     MI_CpuSet(args, 0, sizeof(*args));
     args->flags |= 0x10;
     args->actor  = actor;
@@ -138,7 +138,7 @@ static s32 func_ov003_020a8a3c(TaskPool* pool, Task* task, void* args, s32 stage
                         anim->opacity = 0x1000;
                 }
             }
-            if ((anim->flags & 0x10) && (anim->actor->flags & 4)) {
+            if ((anim->flags & 0x10) && (anim->actor->flags & ACTOR_FLAG_DEFEATED)) {
                 anim->position.x = anim->actor->position.x;
                 anim->position.y = anim->actor->position.y;
                 anim->position.z = anim->actor->position.z;

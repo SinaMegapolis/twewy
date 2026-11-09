@@ -28,7 +28,7 @@ const TaskHandle Tsk_BtlEnm026_UG = {data_ov015_021284d4, func_ov015_021275fc, 0
 static char data_ov015_021284d4[44] = "Tsk_BtlEnm026_UG";
 
 static void func_ov015_02126fd8(BtlEnm026* data) {
-    BtlEnm026* boss = (BtlEnm026*)g_CombatGlobal->unk3D898;
+    BattleActor* player = g_CombatGlobal->player;
 
     switch (data->unk_1C2) {
         case 0:
@@ -44,23 +44,21 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
             s32 mag;
             s32 tx;
 
-            tx = boss->base.actor.position.x +
-                 ((boss->base.actor.position.x > data->base.actor.position.x) ? -0x50000 : 0x50000);
-            angle =
-                FX_Atan2Idx(boss->base.actor.position.y - data->base.actor.position.y, tx - data->base.actor.position.x) >> 4;
-            sin = FX_SinCosTable_[angle * 2 + 1];
-            cos = FX_SinCosTable_[angle * 2];
-            mag = FX_Mul(ABS(sin), 0x2000);
+            tx    = player->position.x + ((player->position.x > data->base.actor.position.x) ? -0x50000 : 0x50000);
+            angle = FX_Atan2Idx(player->position.y - data->base.actor.position.y, tx - data->base.actor.position.x) >> 4;
+            sin   = FX_SinCosTable_[angle * 2 + 1];
+            cos   = FX_SinCosTable_[angle * 2];
+            mag   = FX_Mul(ABS(sin), 0x2000);
             mag += 0x1000;
             data->unk_1E8               = FX_Mul(sin, mag);
             data->unk_1EC               = FX_Mul(cos, mag);
             data->base.actor.position.x = data->base.actor.position.x + data->unk_1E8;
             data->base.actor.position.y = data->base.actor.position.y + data->unk_1EC;
             func_ov003_020c4ab4(&data->base, (data->unk_1E8 > 0) ? 1 : 0);
-            if (data->base.actor.position.x < boss->base.actor.position.x - 0x5A000 ||
-                data->base.actor.position.x > boss->base.actor.position.x + 0x5A000 ||
-                data->base.actor.position.y < boss->base.actor.position.y - 0xA000 ||
-                data->base.actor.position.y > boss->base.actor.position.y + 0xA000)
+            if (data->base.actor.position.x < player->position.x - 0x5A000 ||
+                data->base.actor.position.x > player->position.x + 0x5A000 ||
+                data->base.actor.position.y < player->position.y - 0xA000 ||
+                data->base.actor.position.y > player->position.y + 0xA000)
             {
                 return;
             }
@@ -84,7 +82,7 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
             }
             CombatSprite_SetAnimFromTable(&data->base.sprite, 0xB, 0);
             data->unk_1C2 = data->unk_1C2 + 1;
-            dx            = boss->base.actor.position.x - data->base.actor.position.x;
+            dx            = player->position.x - data->base.actor.position.x;
             data->unk_1C0 = ABS(dx) / 0x8000 + 5;
             func_ov003_020c4cc4(&data->base, 0x280);
             return;
@@ -95,7 +93,7 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
             s32 h;
 
             data->base.actor.position.x += (data->base.sprite.flags46 & 1) ? 0x8000 : -0x8000;
-            dy = boss->base.actor.position.y - data->base.actor.position.y;
+            dy = player->position.y - data->base.actor.position.y;
             if (dy > 0x800) {
                 dy = 0x800;
             } else if (dy < -0x800) {
@@ -268,7 +266,7 @@ void func_ov015_02127758(BtlEnm026* data) {
         return;
     }
     func_ov003_020ccec0(&data->base.actor, 1);
-    data->base.actor.unk_62 = 0;
+    data->base.actor.damageTakenPercent = 0;
 }
 
 void func_ov015_021277a4(BtlEnm026* data) {
@@ -295,7 +293,7 @@ void func_ov015_021277a4(BtlEnm026* data) {
         return;
     }
     func_ov003_020ccec0(&data->base.actor, 1);
-    data->base.actor.unk_62 = 0;
+    data->base.actor.damageTakenPercent = 0;
 }
 
 void func_ov015_0212786c(BtlEnm026* data) {
@@ -321,7 +319,7 @@ void func_ov015_021278b0(BtlEnm026* data) {
 }
 
 void func_ov015_021278f8(BtlEnm026* data) {
-    if (data->base.actor.pendingCommand == ACTOR_CMD_DEFEAT && (data->base.actor.flags & 0x2000)) {
+    if (data->base.actor.pendingCommand == ACTOR_CMD_DEFEAT && (data->base.actor.flags & ACTOR_FLAG_KILLED)) {
         data_ov015_02128500.counter1C = data_ov015_02128500.counter1C + 1;
         data->unk_1D4                 = (data_ov015_02128500.counter1C > 2) ? 1 : 3;
         return;
@@ -346,7 +344,7 @@ void func_ov015_02127974(BtlEnm026* data) {
 
 void func_ov015_021279c0(BtlEnm026* data) {
     if (func_ov003_020c37f8(&data->base.sprite) == 0 && data->unk_1D4 == 1) {
-        data->base.actor.flags |= 0x80000020;
+        data->base.actor.flags |= ACTOR_FLAG_NO_TARGET_MARKER | ACTOR_FLAG_HIDDEN;
         data->base.flags18C |= 0x1;
         return;
     }
@@ -464,9 +462,9 @@ void func_ov015_02127ca0(BtlEnm026* data) {
     if (data_ov015_02128500.result10 == -1) {
         return;
     }
-    CombatActor_SetPendingCommand(&data->base.actor, ACTOR_CMD_DEFEAT);
+    BtlActor_SetPendingCommand(&data->base.actor, ACTOR_CMD_DEFEAT);
     if (func_ov003_020c37f8(&data->base.sprite) == 0) {
-        data->base.actor.flags |= 0x2000;
+        data->base.actor.flags |= ACTOR_FLAG_KILLED;
     }
     if (SndMgr_IsSEPlaying(SEIDX_SE_026_VOC_IBIKI) == 0) {
         return;
@@ -489,7 +487,7 @@ void func_ov015_02127da4(BtlEnm026* data) {
     if (g_CombatGlobal->unk3D874 != 2) {
         return;
     }
-    if (data->base.actor.flags & 4) {
+    if (data->base.actor.flags & ACTOR_FLAG_DEFEATED) {
         return;
     }
     data_ov015_02128500.timer18 = data_ov015_02128500.timer18 - 1;
@@ -511,7 +509,7 @@ void func_ov015_02127da4(BtlEnm026* data) {
 }
 
 void func_ov015_02127e5c(BtlEnm026* data) {
-    data->base.actor.flags |= 0x40;
+    data->base.actor.flags |= ACTOR_FLAG_IGNORES_HITS;
     data->base.flags196.raw &= ~0x2;
 }
 
@@ -522,15 +520,15 @@ void func_ov015_02127e7c(BtlEnm026* data) {
     if (data->unk_1DC == 0) {
         func_ov003_020ccf1c(&data->unk_1D0, 0x100);
         func_ov003_020ccf1c(&twin->unk_1D0, 0x100);
-        data->base.actor.flags |= 0x40;
-        twin->base.actor.flags |= 0x40;
+        data->base.actor.flags |= ACTOR_FLAG_IGNORES_HITS;
+        twin->base.actor.flags |= ACTOR_FLAG_IGNORES_HITS;
     } else if (data->unk_1DC < 0) {
         data->unk_1DC = 0;
     }
 
     if (data_ov015_02128500.unk14 == 7) {
-        if (twin->base.actor.flags & 0x40) {
-            twin->base.actor.flags &= ~0x40;
+        if (twin->base.actor.flags & ACTOR_FLAG_IGNORES_HITS) {
+            twin->base.actor.flags &= ~ACTOR_FLAG_IGNORES_HITS;
             data->unk_1DC = 0xF;
             return;
         }
@@ -545,8 +543,8 @@ void func_ov015_02127e7c(BtlEnm026* data) {
         data->unk_1D8 = 0;
         twin->unk_1DC = 0;
         data->unk_1DC = 0;
-        data->base.actor.flags |= 0x40;
-        twin->base.actor.flags |= 0x40;
+        data->base.actor.flags |= ACTOR_FLAG_IGNORES_HITS;
+        twin->base.actor.flags |= ACTOR_FLAG_IGNORES_HITS;
     }
 }
 

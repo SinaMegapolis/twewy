@@ -50,16 +50,16 @@ static void func_ov003_020cf8d4(Ov003EnemyShotMachineGun* self) {
 static s32 func_ov003_020cf990(Ov003EnemyShotMachineGun* self) {
     if (!func_ov003_020cce34(self->source.core.owner->base.sprite.sprite.bits_0_1))
         return 1;
-    if (self->source.core.owner->base.actor.flags & 2)
+    if (self->source.core.owner->base.actor.flags & ACTOR_FLAG_STAGGERED)
         return 1;
-    if (self->source.core.owner->base.actor.flags & 4)
+    if (self->source.core.owner->base.actor.flags & ACTOR_FLAG_DEFEATED)
         return 1;
     if (self->crossing != 0) {
-        CombatActor* target;
+        BattleActor* target;
         if (func_ov003_020c37f8(&self->source.core.owner->base.sprite))
-            target = g_CombatGlobal->unk3D89C;
+            target = g_CombatGlobal->partner;
         else
-            target = g_CombatGlobal->unk3D898;
+            target = g_CombatGlobal->player;
         if (self->crossing == 2) {
             if (target->position.x <= self->source.core.position.x)
                 return 1;
@@ -103,12 +103,12 @@ static s32 func_ov003_020cfad8(Ov003EnemyShotMachineGun* self, Ov003EnemyShotMac
     s32 i;
     for (i = 0; i < 10; i++)
         self->taskIds[i] = -1;
-    CombatActor* target;
+    BattleActor* target;
     if (func_ov003_020c37f8(&self->source.core.owner->base.sprite))
-        target = g_CombatGlobal->unk3D89C;
+        target = g_CombatGlobal->partner;
     else
-        target = g_CombatGlobal->unk3D898;
-    s32 height       = FX32_CONVERT(target->unk_72);
+        target = g_CombatGlobal->player;
+    s32 height       = FX32_CONVERT(target->height);
     s32 targetZ      = target->position.z - (height >> 1);
     s32 dx           = target->position.x - self->source.core.position.x;
     s32 dz           = targetZ - self->source.core.position.z;
@@ -135,12 +135,12 @@ static s32 func_ov003_020cfc9c(Ov003EnemyShotMachineGun* self) {
     if (self->timer < 0 && self->remaining >= 0) {
         s8 result = self->source.core.hitResult;
         if (self->fixedAim == 0) {
-            CombatActor* target;
+            BattleActor* target;
             if (func_ov003_020c37f8(&self->source.core.owner->base.sprite))
-                target = g_CombatGlobal->unk3D89C;
+                target = g_CombatGlobal->partner;
             else
-                target = g_CombatGlobal->unk3D898;
-            s32 height       = FX32_CONVERT(target->unk_72);
+                target = g_CombatGlobal->player;
+            s32 height       = FX32_CONVERT(target->height);
             s32 targetZ      = target->position.z - (height >> 1);
             s32 dx           = target->position.x - self->source.core.position.x;
             s32 dz           = targetZ - self->source.core.position.z;

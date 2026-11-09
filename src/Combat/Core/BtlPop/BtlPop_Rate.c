@@ -1,5 +1,5 @@
+#include "Battle/Core/BtlActor.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatActor.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatSprite.h"
 #include "SpriteMgr.h"
@@ -197,16 +197,16 @@ void func_ov003_0209c568(s32 engine) {
         if (engine == 0) {
             if ((s16)g_CombatGlobal->unk3D900 != rate) {
                 isRateChanged            = TRUE;
-                params.x                 = ((CombatActor*)g_CombatGlobal->unk3D898)->position.x;
-                params.y                 = ((CombatActor*)g_CombatGlobal->unk3D898)->position.y;
-                params.z                 = ((CombatActor*)g_CombatGlobal->unk3D898)->position.z - 0x20000;
+                params.x                 = g_CombatGlobal->player->position.x;
+                params.y                 = g_CombatGlobal->player->position.y;
+                params.z                 = g_CombatGlobal->player->position.z - 0x20000;
                 g_CombatGlobal->unk3D900 = g_CombatGlobal->unk3D8EE;
             }
         } else if ((s16)g_CombatGlobal->unk3D902 != rate) {
             isRateChanged            = TRUE;
-            params.x                 = ((CombatActor*)g_CombatGlobal->unk3D89C)->position.x;
-            params.y                 = ((CombatActor*)g_CombatGlobal->unk3D89C)->position.y;
-            params.z                 = ((CombatActor*)g_CombatGlobal->unk3D89C)->position.z - 0x20000;
+            params.x                 = g_CombatGlobal->partner->position.x;
+            params.y                 = g_CombatGlobal->partner->position.y;
+            params.z                 = g_CombatGlobal->partner->position.z - 0x20000;
             g_CombatGlobal->unk3D902 = g_CombatGlobal->unk3D8EE;
         }
 

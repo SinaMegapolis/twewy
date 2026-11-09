@@ -27,7 +27,7 @@ static s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage
         default:
         case 0: {
             self                 = task->data;
-            CombatActor*  player = func_ov003_020a6438();
+            BattleActor*  player = func_ov003_020a6438();
             BtlTouchWork* touch  = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect      = arg->effect;
@@ -99,7 +99,7 @@ static s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage
 static void func_ov003_020b8654(Ov003BurstShot* self) {
     // Declaration order picks which callee-saved register each live value gets.
     s32                       left = 0;
-    CombatActor*              player;
+    BattleActor*              player;
     s32                       originX;
     s32                       originY;
     const Ov003BurstShotKind* kind;
@@ -108,7 +108,7 @@ static void func_ov003_020b8654(Ov003BurstShot* self) {
     kind    = &data_ov003_020dce58[self->effect->index];
     targetX = CombatStage_ToWorldX(0, self->x);
     targetY = CombatStage_ToWorldY(0, self->y, -0x27000);
-    player  = g_CombatGlobal->unk3D898;
+    player  = g_CombatGlobal->player;
     originY = player->position.y;
     if (targetX < player->position.x) {
         originX = player->position.x - 0x18000;
