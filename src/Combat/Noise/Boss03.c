@@ -54,7 +54,7 @@
 // void  func_ov003_020cb264(void*, void*);                                              /* extern */
 // s32   func_ov003_020cb348(void*, s32);                                                /* extern */
 // s32   func_ov003_020cb3c4(s32, s32);                                                  /* extern */
-// s32   BtlStage_ClampXY(void*, void*, s32, s32);                                    /* extern */
+// s32   BtlStage_ClampToFloor(void*, void*, s32, s32);                                    /* extern */
 // s32   func_ov003_020c3d28(s32, s32, s32*, s32*, s32*, s32*);                          /* extern */
 // void  func_ov003_020c495c(void*);                                                     /* extern */
 // void  func_ov003_020c4a08(void*);                                                     /* extern */
@@ -63,7 +63,7 @@
 // s32   func_ov003_020cb7a4(s32);                                                       /* extern */
 // void  func_ov003_020cbafc(void*, void*, void*, s32, s32, s32, s32, s32, s32, s32);    /* extern */
 // s32   func_ov003_020cc5d0(void**);                                                    /* extern */
-// void  BtlStage_SetCamera(s32, s32, s32, s32, s32, s32);                              /* extern */
+// void  BtlStage_SetFieldRect(s32, s32, s32, s32, s32, s32);                              /* extern */
 // void  BtlStage_SetCameraTarget(s32, s32, s32, s32);                                        /* extern */
 // s16   BtlStage_ToScreenY(s32, s32, s32);                                             /* extern */
 // void  BtlCollision_Add(void*, s32, s32, s32);                                      /* extern */
@@ -9696,8 +9696,8 @@ static s32 BtlBoss03_NoisAttk_Update(TaskPool* pool, Task* task, void* args) {
     }
     BtlActor_SetPendingCommand(((Boss03*)temp_r4)->unkDC, ACTOR_CMD_FEAT);
     temp_ip = ((Boss03*)temp_r4)->unkD0;
-    if (BtlStage_ClampXY(temp_r4 + 0x88, temp_r4 + 0x8C, temp_ip << 0xC,
-                         ((s32)(temp_ip + ((u32)temp_ip >> 0x1F)) >> 1) << 0xC) != 0)
+    if (BtlStage_ClampToFloor(temp_r4 + 0x88, temp_r4 + 0x8C, temp_ip << 0xC,
+                              ((s32)(temp_ip + ((u32)temp_ip >> 0x1F)) >> 1) << 0xC) != 0)
     {
         ((Boss03*)temp_r4)->unkF8  = 0;
         ((Boss03*)temp_r4)->unkFC  = 0;

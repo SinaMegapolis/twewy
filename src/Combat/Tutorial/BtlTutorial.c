@@ -96,7 +96,7 @@ static s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(data, 0, sizeof(BtlTutorial));
     func_ov008_020e74dc();
-    g_CombatGlobal->unk3D7C0[1].unk_02 |= 1;
+    g_CombatGlobal->stages[1].flags |= BATTLE_STAGE_FLAG_BG_IN_USE;
 
     s32                       variant = func_ov008_020e7580();
     Data*                     pack1;
@@ -157,7 +157,7 @@ static s32 func_ov008_020e7910(TaskPool* pool, Task* task, void* args) {
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], data->unk_08);
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], data->unk_0C);
     PaletteMgr_ReleaseResource(g_PaletteManagers[DISPLAY_SUB], data->unk_10);
-    g_CombatGlobal->unk3D7C0[1].unk_02 &= ~1;
+    g_CombatGlobal->stages[1].flags &= ~BATTLE_STAGE_FLAG_BG_IN_USE;
     return 1;
 }
 

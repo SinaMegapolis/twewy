@@ -27,7 +27,7 @@
 /// The task data of the field background: the camera it follows, its resources, the two floor strips and the
 /// background script state (`bgScript`) holding the palettes, tiles and animated tiles its script loaded.
 typedef struct BtlFieldUG {
-    /* 0x00 */ BattleCamera*    camera;
+    /* 0x00 */ BattleStage*     camera;
     /* 0x04 */ Data*            data;
     /* 0x08 */ BgResource*      charResA;
     /* 0x0C */ BgResource*      charResB;
@@ -92,16 +92,16 @@ static void BtlField_UG_RunBgScript(BtlFieldUG* state, const BattleBgScriptWord*
 
 /// Eases the camera's view point toward its target (ignoring drifts that are too small to see), keeping it inside the
 /// floor's bounds.
-static void func_ov003_020934c8(BattleCamera* camera) {
+static void func_ov003_020934c8(BattleStage* camera) {
     s32 dx;
     s32 dy;
     s32 dz;
     s32 mag;
     s32 xMin, xMax, yMin, yMax;
 
-    dx = (camera->unk_34 - camera->unk_28) >> 5;
-    dy = (camera->unk_38 - camera->unk_2C) >> 5;
-    dz = (camera->unk_3C - camera->unk_30) >> 2;
+    dx = (camera->targetX - camera->viewX) >> 5;
+    dy = (camera->targetY - camera->focusY) >> 5;
+    dz = (camera->targetZ - camera->focusZ) >> 2;
 
     mag = ABS(dx);
     if (mag < 0x666) {
@@ -116,27 +116,27 @@ static void func_ov003_020934c8(BattleCamera* camera) {
         dz = 0;
     }
 
-    camera->unk_28 += dx;
-    camera->unk_2C += dy;
-    camera->unk_30 += dz;
-    camera->unk_40 = camera->shakeX + camera->unk_2C + camera->unk_30;
+    camera->viewX += dx;
+    camera->focusY += dy;
+    camera->focusZ += dz;
+    camera->viewY = camera->panOffsetY + camera->focusY + camera->focusZ;
 
-    xMin = camera->unk_04 + 0x80000;
-    xMax = camera->unk_04 - 0x80000 + camera->unk_0C;
-    yMin = camera->unk_08 + 0x60000 + camera->posY;
-    yMax = camera->unk_10 + (camera->unk_08 - 0x50000);
-    if (camera->unk_28 < xMin) {
-        camera->unk_28 = xMin;
-    } else if (camera->unk_28 > xMax) {
-        camera->unk_28 = xMax;
+    xMin = camera->left + 0x80000;
+    xMax = camera->left - 0x80000 + camera->width;
+    yMin = camera->top + 0x60000 + camera->viewTop;
+    yMax = camera->height + (camera->top - 0x50000);
+    if (camera->viewX < xMin) {
+        camera->viewX = xMin;
+    } else if (camera->viewX > xMax) {
+        camera->viewX = xMax;
     }
-    if (camera->unk_40 < yMin) {
-        camera->unk_40 = yMin;
-    } else if (camera->unk_40 > yMax) {
-        camera->unk_40 = yMax;
+    if (camera->viewY < yMin) {
+        camera->viewY = yMin;
+    } else if (camera->viewY > yMax) {
+        camera->viewY = yMax;
     }
-    camera->unk_28 = camera->unk_28 + camera->unk_44;
-    camera->unk_40 += camera->unk_48 + camera->unk_4C;
+    camera->viewX = camera->viewX + camera->shakeX;
+    camera->viewY += camera->shakeY + camera->shakeZ;
 }
 
 /// Parks the two floor strips behind the camera: the near one first, then the far one.
@@ -148,13 +148,13 @@ static void func_ov003_02093608(BtlFieldUG* state) {
 /// Fades the background in with the battle's transition, then hands the task to the live update.
 static void func_ov003_020936fc(BtlFieldUG* state) {
     if (state->timer == 0) {
-        if (state->camera->pathId == 2 || state->camera->pathId == 30) {
-            state->camera->shakeX /= 4;
+        if (state->camera->fieldId == 2 || state->camera->fieldId == 30) {
+            state->camera->panOffsetY /= 4;
         }
         state->timer = 100;
     }
     if (state->timer > 0) {
-        func_02026590(&state->camera->shakeX, 0, (u16)state->timer);
+        func_02026590(&state->camera->panOffsetY, 0, (u16)state->timer);
         state->timer--;
     }
     if (state->timer <= 0) {
@@ -172,10 +172,10 @@ static s32 BtlField_UG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(state, NULL, sizeof(*state));
     func_ov003_020933f0();
-    state->camera = &g_CombatGlobal->unk3D7C0[0];
-    state->camera->unk_02 |= 1;
+    state->camera = &g_CombatGlobal->stages[0];
+    state->camera->flags |= BATTLE_STAGE_FLAG_BG_IN_USE;
 
-    def = &BtlField_UG_Defs[state->camera->pathId];
+    def = &BtlField_UG_Defs[state->camera->fieldId];
     BtlBgScript_Init(&state->bgScript, 0, def->iden);
 
     state->data = DatMgr_LoadPackEntry(1, NULL, 0, def->iden, def->charPack, 0);
@@ -207,13 +207,13 @@ static s32 BtlField_UG_Init(TaskPool* pool, Task* task, void* args) {
     func_0200d858(&state->rowMaps[1], 0, 0, NULL);
 
     if (*(u16*)args == 0) {
-        func_ov003_0209409c(state->camera->pathId);
-        state->camera->unk_28 = state->camera->unk_44;
-        state->camera->unk_2C = state->camera->unk_48;
-        state->camera->unk_30 = state->camera->unk_4C;
+        func_ov003_0209409c(state->camera->fieldId);
+        state->camera->viewX  = state->camera->shakeX;
+        state->camera->focusY = state->camera->shakeY;
+        state->camera->focusZ = state->camera->shakeZ;
         func_ov003_020933dc(state, func_ov003_020936fc);
     } else {
-        state->camera->shakeX = 0;
+        state->camera->panOffsetY = 0;
         func_ov003_020933dc(state, NULL);
     }
     func_ov003_02093608(state);
@@ -252,7 +252,7 @@ static s32 BtlField_UG_Release(TaskPool* pool, Task* task, void* args) {
     func_0200d954(0, 2);
     BtlBgScript_Release(&state->bgScript);
     DatMgr_ReleaseData(state->data);
-    state->camera->unk_02 &= ~1;
+    state->camera->flags &= ~BATTLE_STAGE_FLAG_BG_IN_USE;
     return 1;
 }
 

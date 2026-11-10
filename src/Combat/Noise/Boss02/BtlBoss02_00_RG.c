@@ -69,16 +69,16 @@ static s16 func_ov017_021256e4(BtlBoss02_00_RG* rg) {
 }
 
 static void func_ov017_02125708(BtlBoss02_00_RG* rg) {
-    rg->base.unk_1AC = rg->base.actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20 + data_ov017_02141538[rg->unk_260].x;
-    rg->base.unk_1B0 = rg->base.actor.position.y = g_CombatGlobal->unk3D7C0[1].unk_24 + data_ov017_02141538[rg->unk_260].y;
+    rg->base.unk_1AC = rg->base.actor.position.x = g_CombatGlobal->stages[1].centerX + data_ov017_02141538[rg->unk_260].x;
+    rg->base.unk_1B0 = rg->base.actor.position.y = g_CombatGlobal->stages[1].centerY + data_ov017_02141538[rg->unk_260].y;
     rg->base.unk_1B4 = rg->base.actor.position.z = data_ov017_02141538[rg->unk_260].z;
 }
 
 static void func_ov017_02125794(BtlBoss02_00_RG* rg) {
     BtlSprite_LoadFromTable(1, &rg->unk_1D8, &data_ov017_02141520, &data_ov017_021415a8, 0x10, 7, 0x80);
     rg->unk_238 = &rg->unk_1D8;
-    rg->unk_23C = g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
-    rg->unk_240 = g_CombatGlobal->unk3D7C0[1].unk_10 / 2;
+    rg->unk_23C = g_CombatGlobal->stages[1].width / 2;
+    rg->unk_240 = g_CombatGlobal->stages[1].height / 2;
     rg->unk_244 = 0x40000;
     func_ov003_020c3acc(1, 762, rg->unk_23C);
     rg->unk_248 = 1;
@@ -185,8 +185,8 @@ static void func_ov017_02125b58(BtlBoss02_00_RG* rg) {
         BtlSprite_SetAnimFromTable(&rg->base.sprite, 6, 1);
     }
     if (rg->unk_1C0 == 48) {
-        vec.x = g_CombatGlobal->unk3D7C0[1].unk_20 + data_ov017_02141538[rg->unk_260].x;
-        vec.y = g_CombatGlobal->unk3D7C0[1].unk_24 + data_ov017_02141538[rg->unk_260].y;
+        vec.x = g_CombatGlobal->stages[1].centerX + data_ov017_02141538[rg->unk_260].x;
+        vec.y = g_CombatGlobal->stages[1].centerY + data_ov017_02141538[rg->unk_260].y;
         vec.z = data_ov017_02141538[rg->unk_260].z;
         sp14  = (rg->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED);
         EasyTask_CreateTask(&g_CombatGlobal->taskPool, &data_ov017_02141f30, 0, 0, 0, &vec);
@@ -342,8 +342,8 @@ static s32 BtlBoss02_00_RG_Init(TaskPool* pool, Task* task, void* args) {
     rg->attackArgs.powerPercent  = 100;
     rg->attackArgs.effectPercent = 100;
 
-    rg->base.unk_1AC = rg->base.actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20 + data_ov017_02141538[0].x;
-    rg->base.unk_1B0 = rg->base.actor.position.y = g_CombatGlobal->unk3D7C0[1].unk_24 + data_ov017_02141538[0].y;
+    rg->base.unk_1AC = rg->base.actor.position.x = g_CombatGlobal->stages[1].centerX + data_ov017_02141538[0].x;
+    rg->base.unk_1B0 = rg->base.actor.position.y = g_CombatGlobal->stages[1].centerY + data_ov017_02141538[0].y;
     rg->base.unk_1B4 = rg->base.actor.position.z = data_ov017_02141538[0].z;
 
     rg->base.actor.zVelocity = 0;

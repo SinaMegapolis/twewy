@@ -256,7 +256,7 @@ s32 func_ov017_0212665c(void* arg0, void* arg1, u16* arg2) {
     temp_r4 = ((Boss03*)arg1)->unk18;
     MI_CpuSet(temp_r4, 0, 0xE0);
     func_ov017_0212fbc4();
-    temp_ip                   = &g_CombatGlobal->unk3D7C0[1];
+    temp_ip                   = &g_CombatGlobal->stages[1];
     ((Boss03*)temp_r4)->unk0  = temp_ip;
     ((Boss03*)temp_ip)->unk2  = (u16)(((Boss03*)temp_ip)->unk2 | 1);
     ((Boss03*)temp_r4)->unkD4 = 0;
@@ -591,7 +591,7 @@ static void func_ov017_0212707c(s32* arg0, s32* arg1) {
     u32   temp_r0;
     void* temp_r2;
 
-    temp_r2 = g_CombatGlobal->unk3D7C0;
+    temp_r2 = g_CombatGlobal->stages;
     *arg0   = ((Boss03*)temp_r2)->unkC;
     temp_r0 = ((Boss03*)temp_r2)->unk10;
     *arg1   = RNG_Next((s32)(temp_r0 + (temp_r0 >> 0x1F)) >> 0xD) << 0xC;
@@ -694,7 +694,7 @@ static void func_ov017_021272f4(void* arg0) {
 static void func_ov017_02127314(void* arg0) {
     void* temp_r4;
 
-    temp_r4 = g_CombatGlobal->unk3D7C0;
+    temp_r4 = g_CombatGlobal->stages;
     BtlCollision_Add(arg0, 4, 0xC0, 0x40);
     BtlCollision_SetPosition(arg0, ((Boss03*)temp_r4)->unk4, ((Boss03*)temp_r4)->unk10, 0);
 }
@@ -934,7 +934,7 @@ static void func_ov017_021277cc(void* arg0) {
     u32   temp_r4_2;
     void* temp_r0;
 
-    temp_r0 = g_CombatGlobal->unk3D7C0;
+    temp_r0 = g_CombatGlobal->stages;
     if (((Boss03*)arg0)->unk54 & 0x4200) {
         return;
     }
@@ -1000,19 +1000,19 @@ static void func_ov017_0212794c(void* arg0) {
             ((Boss03*)arg0)->unkF8 = 0U;
             ((Boss03*)arg0)->unkFA = (u16)(RNG_Next(0x12C) + 0x12C);
             ((Boss03*)arg0)->unkFC = 0U;
-            temp_r2                = g_CombatGlobal->unk3D7C0[0].unk_0C;
+            temp_r2                = g_CombatGlobal->stages[0].width;
             func_ov003_020c3acc(0, 0x2FB, (s32)(temp_r2 + (temp_r2 >> 0x1F)) >> 1);
         }
     } else if (temp_r0 == 0) {
         ((Boss03*)arg0)->unk1D0 = (s16)(((Boss03*)arg0)->unk1D0 - 1);
         if (((Boss03*)arg0)->unk1D0 == 0) {
-            func_ov003_020c3acc(0, 0x301, g_CombatGlobal->unk3D7C0[0].unk_04);
+            func_ov003_020c3acc(0, 0x301, g_CombatGlobal->stages[0].left);
             ((Boss03*)arg0)->unk1D0 = 0x48;
         }
     } else if (temp_r0 == 1) {
         ((Boss03*)arg0)->unk1D0 = (s16)(((Boss03*)arg0)->unk1D0 - 1);
         if (((Boss03*)arg0)->unk1D0 == 0) {
-            func_ov003_020c3acc(0, 0x302, g_CombatGlobal->unk3D7C0[0].unk_04);
+            func_ov003_020c3acc(0, 0x302, g_CombatGlobal->stages[0].left);
             ((Boss03*)arg0)->unk1D0 = 0x24;
         }
     }
@@ -1024,7 +1024,7 @@ static void func_ov017_0212794c(void* arg0) {
             CombatAnim_LayerSetFrames(arg0 + 0xA0, (const Ov003AnimFrame*)&data_ov017_02141764);
             CombatAnim_LayerChain(arg0 + 0x7C, arg0 + 0xA0);
             ((Boss03*)arg0)->unkF8 = 1U;
-            temp_r2_2              = g_CombatGlobal->unk3D7C0[0].unk_0C;
+            temp_r2_2              = g_CombatGlobal->stages[0].width;
             func_ov003_020c3acc(0, 0x2FC, (s32)(temp_r2_2 + (temp_r2_2 >> 0x1F)) >> 1);
             ((Boss03*)arg0)->unk1D0 = 0x24;
             return;
@@ -1096,10 +1096,10 @@ s32 func_ov017_02127c40(void* arg0, void* arg1, u16* arg2) {
     void* var_r6;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
-    temp_r5 = g_CombatGlobal->unk3D7C0;
+    temp_r5 = g_CombatGlobal->stages;
     MI_CpuSet(temp_r4, 0, 0x1DC);
     func_ov017_0212fc70();
-    temp_ip                  = g_CombatGlobal->unk3D7C0;
+    temp_ip                  = g_CombatGlobal->stages;
     ((Boss03*)temp_r4)->unk0 = temp_ip;
     ((Boss03*)temp_ip)->unk2 = (u16)(((Boss03*)temp_ip)->unk2 | 1);
     temp_r0                  = DatMgr_LoadPackEntry(1, 0, 0, (BinIdentifier*)&data_ov017_0214171c, 1, 0);
@@ -1180,20 +1180,20 @@ s32 func_ov017_02127c40(void* arg0, void* arg1, u16* arg2) {
     BtlSprite_SetSortKey(temp_r4 + 0x100, -0x1000);
     BtlSprite_LoadDirect(2, (BattleSprite*)(temp_r4 + 0x160), &data_ov017_02141724, 3, 2, 4, 1, 0);
     BtlSprite_SetSortKey(temp_r4 + 0x160, -0x1000);
-    g_CombatGlobal->unk3D7C0[0].unk_02 = 0;
-    g_CombatGlobal->unk3D7C0[1].unk_02 = 0;
-    ((Boss03*)temp_r4)->unkFA          = (s16)(RNG_Next(0x12C) + 0x12C);
-    ((void (*)())BtlStage_SetCamera)(0, 0, 0x140, 0x200, 0x1F0, 0);
-    ((void (*)())BtlStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    g_CombatGlobal->stages[0].flags = 0;
+    g_CombatGlobal->stages[1].flags = 0;
+    ((Boss03*)temp_r4)->unkFA       = (s16)(RNG_Next(0x12C) + 0x12C);
+    ((void (*)())BtlStage_SetFieldRect)(0, 0, 0x140, 0x200, 0x1F0, 0);
+    ((void (*)())BtlStage_SetFieldRect)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
     ((Boss03*)temp_r5)->unk18 = (s32)(0x130000 - ((Boss03*)temp_r5)->unk8);
     ((Boss03*)temp_r5)->unk1C = FX_Atan2Idx(0, 0x140);
     if ((arg2 != NULL) && (*arg2 != 0)) {
         func_ov017_02126be4(temp_r4, NULL);
     } else {
-        temp_r2_3                   = g_CombatGlobal->unk3D7C0[0].unk_0C;
+        temp_r2_3                   = g_CombatGlobal->stages[0].width;
         temp_r1_6                   = g_CombatGlobal->player;
         ((Boss03*)temp_r1_6)->unk28 = (s32)((s32)(temp_r2_3 + (temp_r2_3 >> 0x1F)) >> 1);
-        temp_r2_4                   = g_CombatGlobal->unk3D7C0[0].unk_10;
+        temp_r2_4                   = g_CombatGlobal->stages[0].height;
         temp_r2_5                   = (s32)(temp_r2_4 + (temp_r2_4 >> 0x1F)) >> 1;
         ((Boss03*)temp_r1_6)->unk2C = temp_r2_5;
         BtlStage_SetCameraTarget(0, ((Boss03*)temp_r1_6)->unk28, temp_r2_5, 0);
@@ -1296,10 +1296,10 @@ static void func_ov017_02128388(void* arg0) {
     s32 temp_r1_2;
     s32 temp_r1_3;
 
-    temp_r1 = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk290 * 0xC));
+    temp_r1 = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk290 * 0xC));
     ((Boss03*)arg0)->unk28  = temp_r1;
     ((Boss03*)arg0)->unk1AC = temp_r1;
-    temp_r1_2 = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk290 * 0xC));
+    temp_r1_2 = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk290 * 0xC));
     ((Boss03*)arg0)->unk2C  = temp_r1_2;
     ((Boss03*)arg0)->unk1B0 = temp_r1_2;
     temp_r1_3               = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)arg0)->unk290 * 0xC));
@@ -1325,8 +1325,8 @@ static void func_ov017_0212843c(void* arg0) {
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 6, 1);
     }
     if (((Boss03*)arg0)->unk280 == 0x32) {
-        sp8  = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk290 * 0xC));
-        spC  = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk290 * 0xC));
+        sp8  = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk290 * 0xC));
+        spC  = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk290 * 0xC));
         sp10 = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)arg0)->unk290 * 0xC));
         if (((Boss03*)arg0)->unkCA & 1) {
             var_r1 = 1;
@@ -1441,10 +1441,10 @@ s32 func_ov017_021287b8(void* arg0, void* arg1, s32 arg2) {
     ((Boss03*)temp_r4)->unk29C = 1;
     ((Boss03*)temp_r4)->unk298 = 0;
     ((Boss03*)temp_r4)->unk290 = (u16)RNG_Next(4);
-    temp_r0 = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)temp_r4)->unk290 * 0xC));
+    temp_r0 = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)temp_r4)->unk290 * 0xC));
     ((Boss03*)temp_r4)->unk28  = temp_r0;
     ((Boss03*)temp_r4)->unk1AC = temp_r0;
-    temp_r0_2 = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)temp_r4)->unk290 * 0xC));
+    temp_r0_2 = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)temp_r4)->unk290 * 0xC));
     ((Boss03*)temp_r4)->unk2C  = temp_r0_2;
     ((Boss03*)temp_r4)->unk1B0 = temp_r0_2;
     temp_r1                    = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)temp_r4)->unk290 * 0xC));
@@ -2059,10 +2059,10 @@ s32 func_ov017_021299d0(void* arg0, void* arg1, u16* arg2) {
     void** temp_r4;
 
     temp_r4 = ((Boss03*)arg1)->unk18;
-    temp_r5 = g_CombatGlobal->unk3D7C0;
+    temp_r5 = g_CombatGlobal->stages;
     MI_CpuSet(temp_r4, 0, 0x9C);
     func_ov017_0212fc70();
-    temp_lr                  = g_CombatGlobal->unk3D7C0;
+    temp_lr                  = g_CombatGlobal->stages;
     ((Boss03*)temp_r4)->unk0 = temp_lr;
     ((Boss03*)temp_lr)->unk2 = (u16)(((Boss03*)temp_lr)->unk2 | 1);
     temp_r0                  = DatMgr_LoadPackEntry(1, 0, 0, (BinIdentifier*)&data_ov017_02141c68, 1, 0);
@@ -2126,19 +2126,19 @@ s32 func_ov017_021299d0(void* arg0, void* arg1, u16* arg2) {
     CombatAnim_LayerInitLoaded((Ov003AnimLayer*)(temp_r4 + 0x6C), 0, 0, 1, 0, 0);
     CombatAnim_LayerInit((Ov003AnimLayer*)(temp_r4 + 0x6C), (BinIdentifier*)&data_ov017_02141c68, temp_r4 + 0x10,
                          temp_r4 + 0x3C, (const Ov003AnimFrame*)&data_ov017_02141cb0);
-    g_CombatGlobal->unk3D7C0[0].unk_02 = 0;
-    g_CombatGlobal->unk3D7C0[1].unk_02 = 0;
-    ((void (*)())BtlStage_SetCamera)(0, 0x40, 0x140, 0x1C0, 0x1E0, 0);
-    ((void (*)())BtlStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    g_CombatGlobal->stages[0].flags = 0;
+    g_CombatGlobal->stages[1].flags = 0;
+    ((void (*)())BtlStage_SetFieldRect)(0, 0x40, 0x140, 0x1C0, 0x1E0, 0);
+    ((void (*)())BtlStage_SetFieldRect)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
     ((Boss03*)temp_r5)->unk18 = (s32)(0x160000 - ((Boss03*)temp_r5)->unk8);
     ((Boss03*)temp_r5)->unk1C = FX_Atan2Idx(0, 0x140);
     if ((arg2 != NULL) && (*arg2 != 0)) {
         func_ov017_02129764(temp_r4, func_ov017_021298e0);
     } else {
-        temp_ip                     = g_CombatGlobal->unk3D7C0[0].unk_0C;
+        temp_ip                     = g_CombatGlobal->stages[0].width;
         temp_r2                     = g_CombatGlobal->player;
         ((Boss03*)temp_r2)->unk28   = (s32)((s32)(temp_ip + (temp_ip >> 0x1F)) >> 1);
-        temp_r3                     = g_CombatGlobal->unk3D7C0[0].unk_10;
+        temp_r3                     = g_CombatGlobal->stages[0].height;
         ((Boss03*)temp_r2)->unk2C   = (s32)((s32)(temp_r3 + (temp_r3 >> 0x1F)) >> 1);
         temp_r3_2                   = ((Boss03*)temp_r4)->unk0;
         ((Boss03*)temp_r3_2)->unk28 = (s32)((Boss03*)temp_r3_2)->unk34;
@@ -2221,10 +2221,10 @@ static void func_ov017_02129ef8(void* arg0) {
     s32 temp_r1_2;
     s32 temp_r1_3;
 
-    temp_r1 = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk290 * 0xC));
+    temp_r1 = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk290 * 0xC));
     ((Boss03*)arg0)->unk28  = temp_r1;
     ((Boss03*)arg0)->unk1AC = temp_r1;
-    temp_r1_2 = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk290 * 0xC));
+    temp_r1_2 = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk290 * 0xC));
     ((Boss03*)arg0)->unk2C  = temp_r1_2;
     ((Boss03*)arg0)->unk1B0 = temp_r1_2;
     temp_r1_3               = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)arg0)->unk290 * 0xC));
@@ -2399,8 +2399,8 @@ static void func_ov017_0212a37c(void* arg0) {
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 6, 1);
     }
     if (((Boss03*)arg0)->unk280 == 0x32) {
-        sp8  = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk290 * 0xC));
-        spC  = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk290 * 0xC));
+        sp8  = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk290 * 0xC));
+        spC  = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk290 * 0xC));
         sp10 = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)arg0)->unk290 * 0xC));
         if (((Boss03*)arg0)->unkCA & 1) {
             var_r1 = 1;
@@ -2670,7 +2670,7 @@ static void func_ov017_0212aaa0(void* arg0) {
     }
     if ((data_ov017_021439d8 != 0) && (((Boss03*)arg0)->unk1A8 == 3)) {
         func_ov017_02130178(0, 0x4EB, 0x56C, ((Boss03*)arg0)->unk28);
-        temp_r2 = g_CombatGlobal->unk3D7C0[0].unk_0C;
+        temp_r2 = g_CombatGlobal->stages[0].width;
         func_ov003_020c3acc(0, 0x303, (s32)(temp_r2 + (temp_r2 >> 0x1F)) >> 1);
         var_r8 = &gSaveState + 0x20;
         var_r7 = 0;
@@ -3318,10 +3318,10 @@ static void func_ov017_0212bd10(void* arg0) {
 
     data_ov017_021439ec     = 0;
     ((Boss03*)arg0)->unk1D4 = (u16)RNG_Next(4);
-    temp_r0 = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk1D4 * 0xC));
+    temp_r0 = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk1D4 * 0xC));
     ((Boss03*)arg0)->unk28  = temp_r0;
     ((Boss03*)arg0)->unk1AC = temp_r0;
-    temp_r0_2 = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk1D4 * 0xC));
+    temp_r0_2 = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk1D4 * 0xC));
     ((Boss03*)arg0)->unk2C  = temp_r0_2;
     ((Boss03*)arg0)->unk1B0 = temp_r0_2;
     temp_r2                 = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)arg0)->unk1D4 * 0xC));
@@ -3340,10 +3340,10 @@ static void func_ov017_0212bdcc(void* arg0) {
         return;
     }
     ((Boss03*)arg0)->unk1D4 = (u16)RNG_Next(4);
-    temp_r0 = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk1D4 * 0xC));
+    temp_r0 = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk1D4 * 0xC));
     ((Boss03*)arg0)->unk28  = temp_r0;
     ((Boss03*)arg0)->unk1AC = temp_r0;
-    temp_r0_2 = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk1D4 * 0xC));
+    temp_r0_2 = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk1D4 * 0xC));
     ((Boss03*)arg0)->unk2C  = temp_r0_2;
     ((Boss03*)arg0)->unk1B0 = temp_r0_2;
     temp_r0_3               = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)arg0)->unk1D4 * 0xC));
@@ -3440,10 +3440,10 @@ s32 func_ov017_0212c078(void* arg0, void* arg1, s32 arg2) {
     ((Boss03*)temp_r4)->unk1D4 = (u16)RNG_Next(4);
     ((Boss03*)temp_r4)->unk38  = 0;
     ((Boss03*)temp_r4)->unk3C  = 0;
-    temp_r0 = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)temp_r4)->unk1D4 * 0xC));
+    temp_r0 = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)temp_r4)->unk1D4 * 0xC));
     ((Boss03*)temp_r4)->unk28  = temp_r0;
     ((Boss03*)temp_r4)->unk1AC = temp_r0;
-    temp_r3 = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)temp_r4)->unk1D4 * 0xC));
+    temp_r3 = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)temp_r4)->unk1D4 * 0xC));
     ((Boss03*)temp_r4)->unk2C  = temp_r3;
     ((Boss03*)temp_r4)->unk1B0 = temp_r3;
     temp_r1                    = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)temp_r4)->unk1D4 * 0xC));
@@ -3552,7 +3552,7 @@ static void func_ov017_0212c3cc(void* arg0) {
     s32   temp_r6;
     void* temp_r4;
 
-    temp_r4 = g_CombatGlobal->unk3D7C0;
+    temp_r4 = g_CombatGlobal->stages;
     temp_r6 = (s32)((Boss03*)temp_r4)->unk10 >> 0xC;
     ((Boss03*)arg0)->unk28 =
         (s32)(((Boss03*)temp_r4)->unk4 + (RNG_Next(((s32)((Boss03*)temp_r4)->unkC >> 0xC) - 0x40) << 0xC) + 0x20000);
@@ -4047,7 +4047,7 @@ s32 func_ov017_0212cf88(void* arg0, void* arg1, u16* arg2) {
     MI_CpuSet(temp_r4, 0, 0x48);
     func_ov017_0212fbc4();
     g_DisplaySettings.controls[1].layers = (s32)(g_DisplaySettings.controls[1].layers & ~4);
-    temp_ip                              = &g_CombatGlobal->unk3D7C0[1];
+    temp_ip                              = &g_CombatGlobal->stages[1];
     ((Boss03*)temp_r4)->unk0             = temp_ip;
     ((Boss03*)temp_ip)->unk2             = (u16)(((Boss03*)temp_ip)->unk2 | 1);
     ((Boss03*)temp_r4)->unk3C            = 0;
@@ -4193,7 +4193,7 @@ s32 func_ov017_0212d374(void* arg0, void* arg1, u16* arg2) {
     MI_CpuSet(temp_r4, 0, 0x44);
     func_ov017_0212fc70();
     g_DisplaySettings.controls[0].layers = (s32)(g_DisplaySettings.controls[0].layers & ~4);
-    temp_ip                              = g_CombatGlobal->unk3D7C0;
+    temp_ip                              = g_CombatGlobal->stages;
     ((Boss03*)temp_r4)->unk0             = temp_ip;
     ((Boss03*)temp_ip)->unk2             = (u16)(((Boss03*)temp_ip)->unk2 | 1);
     temp_r0                              = DatMgr_LoadPackEntry(1, 0, 0, (BinIdentifier*)&data_ov017_02141ee0, 1, 0);
@@ -4227,21 +4227,21 @@ s32 func_ov017_0212d374(void* arg0, void* arg1, u16* arg2) {
     ((Boss03*)temp_r4)->unk38 = (void*)(var_r0 + 4);
     func_0200d1d8((ScreenMapEntry*)(temp_r4 + 0x10), 0, 1, 0, temp_r4 + 0x38, 1, 1);
     func_0200d858((ScreenMapEntry*)(temp_r4 + 0x10), 1, 1, 0);
-    g_CombatGlobal->unk3D7C0[0].unk_02 = 0;
-    g_CombatGlobal->unk3D7C0[1].unk_02 = 0;
-    ((void (*)())BtlStage_SetCamera)(0, 0x20, 0x140, 0x1E0, 0, 0);
-    ((void (*)())BtlStage_SetCamera)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
-    temp_r6                   = g_CombatGlobal->unk3D7C0;
+    g_CombatGlobal->stages[0].flags = 0;
+    g_CombatGlobal->stages[1].flags = 0;
+    ((void (*)())BtlStage_SetFieldRect)(0, 0x20, 0x140, 0x1E0, 0, 0);
+    ((void (*)())BtlStage_SetFieldRect)(1, 0x70, 0x1C8, 0x190, 0x200, 0);
+    temp_r6                   = g_CombatGlobal->stages;
     ((Boss03*)temp_r6)->unk18 = (s32)(0x100000 - ((Boss03*)temp_r6)->unk8);
     ((Boss03*)temp_r6)->unk1C = FX_Atan2Idx(0, 0x140);
     ((Boss03*)temp_r6)->unk54 = -0x30000;
     if ((arg2 != NULL) && (*arg2 != 0)) {
         func_ov017_0212d27c(temp_r4, NULL);
     } else {
-        temp_r5                     = g_CombatGlobal->unk3D7C0[0].unk_0C;
+        temp_r5                     = g_CombatGlobal->stages[0].width;
         temp_ip_2                   = g_CombatGlobal->player;
         ((Boss03*)temp_ip_2)->unk28 = (s32)((s32)(temp_r5 + (temp_r5 >> 0x1F)) >> 1);
-        temp_r2                     = g_CombatGlobal->unk3D7C0[0].unk_10;
+        temp_r2                     = g_CombatGlobal->stages[0].height;
         ((Boss03*)temp_ip_2)->unk2C = (s32)((s32)(temp_r2 + (temp_r2 >> 0x1F)) >> 1);
         temp_r3                     = ((Boss03*)temp_r4)->unk0;
         ((Boss03*)temp_r3)->unk28   = (s32)((Boss03*)temp_r3)->unk34;
@@ -5194,10 +5194,10 @@ static void func_ov017_0212ee70(void* arg0) {
     s32 temp_r1_2;
     s32 temp_r1_3;
 
-    temp_r1 = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk1D0 * 0xC));
+    temp_r1 = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk1D0 * 0xC));
     ((Boss03*)arg0)->unk28  = temp_r1;
     ((Boss03*)arg0)->unk1AC = temp_r1;
-    temp_r1_2 = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk1D0 * 0xC));
+    temp_r1_2 = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk1D0 * 0xC));
     ((Boss03*)arg0)->unk2C  = temp_r1_2;
     ((Boss03*)arg0)->unk1B0 = temp_r1_2;
     temp_r1_3               = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)arg0)->unk1D0 * 0xC));
@@ -5346,8 +5346,8 @@ static void func_ov017_0212f280(void* arg0) {
         BtlSprite_SetAnimFromTable(arg0 + 0x84, 6, 1);
     }
     if (((Boss03*)arg0)->unk1C0 == 0x32) {
-        sp8  = g_CombatGlobal->unk3D7C0[1].unk_20 + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk1D0 * 0xC));
-        spC  = g_CombatGlobal->unk3D7C0[1].unk_24 + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk1D0 * 0xC));
+        sp8  = g_CombatGlobal->stages[1].centerX + *(s32*)((u8*)&data_ov017_02141538 + (((Boss03*)arg0)->unk1D0 * 0xC));
+        spC  = g_CombatGlobal->stages[1].centerY + *(s32*)((u8*)&data_ov017_0214153c + (((Boss03*)arg0)->unk1D0 * 0xC));
         sp10 = *(s32*)((u8*)&data_ov017_02141540 + (((Boss03*)arg0)->unk1D0 * 0xC));
         if (((Boss03*)arg0)->unkCA & 1) {
             var_r1 = 1;
@@ -5847,9 +5847,9 @@ static void func_ov017_0212ffe4(s32 arg0, s32 arg1, s32 arg2) {
     if (g_CombatGlobal->unk3D878 & 2) {
         return;
     }
-    temp_r1_2 = g_CombatGlobal->unk3D7C0[0].unk_0C;
+    temp_r1_2 = g_CombatGlobal->stages[0].width;
     temp_r4   = BtlStage_ToScreenX(0, ((s32)(temp_r1_2 + (temp_r1_2 >> 0x1F)) >> 1) + 0x8000);
-    temp_r1_3 = g_CombatGlobal->unk3D7C0[0].unk_10;
+    temp_r1_3 = g_CombatGlobal->stages[0].height;
     temp_r0_2 = BtlStage_ToScreenY(0, ((s32)(temp_r1_3 + (temp_r1_3 >> 0x1F)) >> 1) - 0x6C000, 0);
     BtlSprite_SetPosition(arg0, temp_r4, temp_r0_2);
     BtlSprite_SetSortKey(arg0, 0x7FFFFFFF);

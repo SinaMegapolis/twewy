@@ -26,7 +26,7 @@
 struct BtlFieldRG;
 
 typedef struct BtlFieldRG {
-    /* 0x00 */ BattleCamera*    camera;
+    /* 0x00 */ BattleStage*     camera;
     /* 0x04 */ Data*            data;
     /* 0x08 */ PaletteResource* palette;
     /* 0x0C */ BgResource*      charResA;
@@ -127,11 +127,11 @@ static s32 func_ov003_02092b14(BtlFieldRG* state, u8 index) {
 /// Fades the background in with the battle's transition, then hands the task to the live update.
 static void func_ov003_02092c10(BtlFieldRG* state) {
     if (state->timer == 0) {
-        state->camera->shakeX = -0x48000;
-        state->timer          = 100;
+        state->camera->panOffsetY = -0x48000;
+        state->timer              = 100;
     }
     if (state->timer > 0) {
-        func_02026590(&state->camera->shakeX, 0, (u16)state->timer);
+        func_02026590(&state->camera->panOffsetY, 0, (u16)state->timer);
         state->timer--;
     }
     if (state->timer <= 0) {
@@ -140,15 +140,15 @@ static void func_ov003_02092c10(BtlFieldRG* state) {
 }
 
 /// Eases the camera's view point toward its target, keeping it inside the floor's bounds.
-static void func_ov003_02092c88(BattleCamera* camera) {
+static void func_ov003_02092c88(BattleStage* camera) {
     s32 dx;
     s32 dy;
     s32 dz;
     s32 xMin, xMax;
 
-    dx = (camera->unk_34 - camera->unk_28) >> 2;
-    dy = (camera->unk_38 - camera->unk_2C) >> 2;
-    dz = (camera->unk_3C - camera->unk_30) >> 2;
+    dx = (camera->targetX - camera->viewX) >> 2;
+    dy = (camera->targetY - camera->focusY) >> 2;
+    dz = (camera->targetZ - camera->focusZ) >> 2;
 
     if (dx > 0x2000) {
         dx = 0x2000;
@@ -166,25 +166,25 @@ static void func_ov003_02092c88(BattleCamera* camera) {
         dz = -0x2000;
     }
 
-    camera->unk_28 += dx;
-    camera->unk_2C += dy;
-    camera->unk_30 += dz;
-    camera->unk_40 = camera->shakeX + camera->unk_2C + camera->unk_30;
+    camera->viewX += dx;
+    camera->focusY += dy;
+    camera->focusZ += dz;
+    camera->viewY = camera->panOffsetY + camera->focusY + camera->focusZ;
 
-    xMin = camera->unk_04 + 0x80000;
-    xMax = camera->unk_04 - 0x80000 + camera->unk_0C;
-    if (camera->unk_28 < xMin) {
-        camera->unk_28 = xMin;
-    } else if (camera->unk_28 > xMax) {
-        camera->unk_28 = xMax;
+    xMin = camera->left + 0x80000;
+    xMax = camera->left - 0x80000 + camera->width;
+    if (camera->viewX < xMin) {
+        camera->viewX = xMin;
+    } else if (camera->viewX > xMax) {
+        camera->viewX = xMax;
     }
-    if (camera->unk_40 < 0x178000) {
-        camera->unk_40 = 0x178000;
-    } else if (camera->unk_40 > 0x198000) {
-        camera->unk_40 = 0x198000;
+    if (camera->viewY < 0x178000) {
+        camera->viewY = 0x178000;
+    } else if (camera->viewY > 0x198000) {
+        camera->viewY = 0x198000;
     }
-    camera->unk_28 = camera->unk_28 + camera->unk_44;
-    camera->unk_40 += camera->unk_48 + camera->unk_4C;
+    camera->viewX = camera->viewX + camera->shakeX;
+    camera->viewY += camera->shakeY + camera->shakeZ;
 }
 
 /// Parks the strips behind the camera.
@@ -206,10 +206,10 @@ static s32 BtlField_RG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(state, NULL, sizeof(*state));
     func_ov003_020929b8();
-    state->camera = &g_CombatGlobal->unk3D7C0[1];
-    state->camera->unk_02 |= 1;
+    state->camera = &g_CombatGlobal->stages[1];
+    state->camera->flags |= BATTLE_STAGE_FLAG_BG_IN_USE;
 
-    def = &BtlField_RG_Defs[state->camera->pathId];
+    def = &BtlField_RG_Defs[state->camera->fieldId];
     BtlBgScript_Init(&state->bgScript, 1, def->iden);
 
     state->data = DatMgr_LoadPackEntry(1, NULL, 0, def->iden, def->charPack, 0);
@@ -241,12 +241,12 @@ static s32 BtlField_RG_Init(TaskPool* pool, Task* task, void* args) {
     state->hasExtra = func_ov003_02092b14(state, def->extraIndex);
 
     if (*(u16*)args == 0) {
-        state->camera->unk_28 = state->camera->unk_34;
-        state->camera->unk_2C = state->camera->unk_38;
-        state->camera->unk_30 = state->camera->unk_3C;
+        state->camera->viewX  = state->camera->targetX;
+        state->camera->focusY = state->camera->targetY;
+        state->camera->focusZ = state->camera->targetZ;
         func_ov003_020929a4(state, func_ov003_02092c10);
     } else {
-        state->camera->shakeX = 0;
+        state->camera->panOffsetY = 0;
         func_ov003_020929a4(state, NULL);
     }
     func_ov003_02092dbc(state);
@@ -291,7 +291,7 @@ static s32 BtlField_RG_Release(TaskPool* pool, Task* task, void* args) {
         func_0200d954(1, 0);
     }
     DatMgr_ReleaseData(state->data);
-    state->camera->unk_02 &= ~1;
+    state->camera->flags &= ~BATTLE_STAGE_FLAG_BG_IN_USE;
     return 1;
 }
 

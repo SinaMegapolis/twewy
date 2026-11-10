@@ -681,12 +681,12 @@ static s32 func_ov011_0212791c(TaskPool* pool, Task* task, void* args) {
     data = task->data;
     t    = g_CombatGlobal->partner;
     MI_CpuSet(data, 0, 0x208);
-    t->position.x                      = (func_ov003_020cb744(1) >> 1) + 0x40000;
-    t->position.y                      = func_ov003_020cb7a4(1) >> 1;
-    t->position.z                      = 0;
-    g_CombatGlobal->unk3D878           = g_CombatGlobal->unk3D878 | 0x40000000;
-    g_CombatGlobal->unk3D7C0[1].unk_20 = (func_ov003_020cb744(1) >> 1) + 0x40000;
-    g_CombatGlobal->unk3D7C0[1].unk_24 = func_ov003_020cb7a4(1) >> 1;
+    t->position.x                     = (func_ov003_020cb744(1) >> 1) + 0x40000;
+    t->position.y                     = func_ov003_020cb7a4(1) >> 1;
+    t->position.z                     = 0;
+    g_CombatGlobal->unk3D878          = g_CombatGlobal->unk3D878 | 0x40000000;
+    g_CombatGlobal->stages[1].centerX = (func_ov003_020cb744(1) >> 1) + 0x40000;
+    g_CombatGlobal->stages[1].centerY = func_ov003_020cb7a4(1) >> 1;
     func_ov003_020c3efc(&data->base, args);
     func_ov003_020c44ac(&data->base);
     data->unk_1CC = 1;

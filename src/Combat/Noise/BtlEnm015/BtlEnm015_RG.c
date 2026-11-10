@@ -125,16 +125,16 @@ static s32 func_ov013_02126dd8(TaskPool* pool, Task* task, void* args, s32 stage
             MI_CpuSet(data, 0, 0x1E8);
             func_ov013_02125b8c(1, data, (s32)args, (s32)func_ov013_02126ab0);
             func_ov013_02125b64(data, (s32)func_ov013_02125e90);
-            data->base.unk_1AC                 = func_ov003_020ccedc(1) >> 2;
-            data->base.actor.position.x        = data->base.unk_1AC;
-            data->base.unk_1B0                 = (func_ov003_020ccefc(1) >> 1) + 1;
-            data->base.actor.position.y        = data->base.unk_1B0;
-            data->base.unk_1B4                 = 0;
-            data->base.actor.position.z        = 0;
-            partner                            = g_CombatGlobal->partner;
-            x                                  = (func_ov003_020ccedc(1) >> 1) + 0x40000;
-            partner->position.x                = x;
-            g_CombatGlobal->unk3D7C0[1].unk_20 = x;
+            data->base.unk_1AC                = func_ov003_020ccedc(1) >> 2;
+            data->base.actor.position.x       = data->base.unk_1AC;
+            data->base.unk_1B0                = (func_ov003_020ccefc(1) >> 1) + 1;
+            data->base.actor.position.y       = data->base.unk_1B0;
+            data->base.unk_1B4                = 0;
+            data->base.actor.position.z       = 0;
+            partner                           = g_CombatGlobal->partner;
+            x                                 = (func_ov003_020ccedc(1) >> 1) + 0x40000;
+            partner->position.x               = x;
+            g_CombatGlobal->stages[1].centerX = x;
             g_CombatGlobal->unk3D878 |= 0x40000000;
             break;
         }

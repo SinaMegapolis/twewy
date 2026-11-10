@@ -78,7 +78,7 @@ static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage
                 s32 y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
                 wave->position.x += (x - wave->position.x) >> 3;
                 wave->position.y += (y - wave->position.y) >> 3;
-                BtlStage_ClampXY(&wave->position.x, &wave->position.y, 0, 0);
+                BtlStage_ClampToFloor(&wave->position.x, &wave->position.y, 0, 0);
                 wave->emitTimer--;
                 if (wave->emitTimer < 0) {
                     s32 attackId = data_ov003_020dc674[wave->effect->index].attackId;

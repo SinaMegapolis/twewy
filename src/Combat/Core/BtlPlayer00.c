@@ -409,7 +409,7 @@ static void func_ov003_0208f998(BtlPlayer00* self, BattleActor* target, s32 near
 
         if (x < 0x6C000) {
             goal = target->position.x - 0x21000;
-        } else if (x > g_CombatGlobal->unk3D7C0[0].unk_0C - 0x6C000) {
+        } else if (x > g_CombatGlobal->stages[0].width - 0x6C000) {
             goal = target->position.x + 0x21000;
         } else {
             near = 0;
@@ -443,7 +443,7 @@ static void func_ov003_0208fa78(BtlPlayer00* self, s32 mode) {
         } else {
             self->targetX = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
             self->targetY = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-            BtlStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
+            BtlStage_ClampToFloor(&self->targetX, &self->targetY, 0x8000, 0x8000);
             moved = TRUE;
         }
         if (!moved) {
@@ -803,7 +803,7 @@ static void func_ov003_02090688(BtlPlayer00* self) {
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG)) {
         self->targetX = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
         self->targetY = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-        BtlStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
+        BtlStage_ClampToFloor(&self->targetX, &self->targetY, 0x8000, 0x8000);
     }
     dx       = self->targetX - self->actor.position.x;
     dy       = self->targetY - self->actor.position.y;
@@ -1099,7 +1099,7 @@ static void func_ov003_02091214(BtlPlayer00* self) {
     wasFlipped = self->actor.isFlipped;
     if (x < 0x10000) {
         self->actor.isFlipped = TRUE;
-    } else if (x > g_CombatGlobal->unk3D7C0[0].unk_0C - 0x10000) {
+    } else if (x > g_CombatGlobal->stages[0].width - 0x10000) {
         self->actor.isFlipped = FALSE;
     }
     if (wasFlipped != self->actor.isFlipped) {
@@ -1450,7 +1450,7 @@ static void func_ov003_020920c8(BtlPlayer00* self) {
         if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG)) {
             self->targetX = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
             self->targetY = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-            BtlStage_ClampXY(&self->targetX, &self->targetY, 0x8000, 0x8000);
+            BtlStage_ClampToFloor(&self->targetX, &self->targetY, 0x8000, 0x8000);
         }
         BtlStage_SetCameraTarget(0, self->targetX, self->targetY, 0);
         BtlPlayer00_FaceX(&self->actor, self->targetX);
@@ -1537,8 +1537,8 @@ static s32 BtlPlayer00_Init(TaskPool* pool, Task* task, void* args) {
     BtlActor_Init(&self->actor, ACTOR_KIND_PLAYER);
     g_CombatGlobal->player   = &self->actor;
     g_CombatGlobal->unk3D8C8 = 0;
-    self->actor.position.x   = g_CombatGlobal->unk3D7C0[0].unk_0C / 2;
-    self->actor.position.y   = g_CombatGlobal->unk3D7C0[0].unk_10 / 2;
+    self->actor.position.x   = g_CombatGlobal->stages[0].width / 2;
+    self->actor.position.y   = g_CombatGlobal->stages[0].height / 2;
     self->actor.position.z   = 0;
     self->actor.radius       = 5;
     self->actor.height       = 0x28;
@@ -1606,7 +1606,7 @@ static s32 BtlPlayer00_Update(TaskPool* pool, Task* task, void* args) {
     if (self->collider.hitLayers != 0) {
         BtlCollision_ApplyPush(&self->collider, &self->actor.position.x, &self->actor.position.y, &self->actor.position.z);
     }
-    BtlStage_ClampXY(&self->actor.position.x, &self->actor.position.y, 0x8000, 0x8000);
+    BtlStage_ClampToFloor(&self->actor.position.x, &self->actor.position.y, 0x8000, 0x8000);
     BtlCollision_SetPosition(&self->collider, self->actor.position.x, self->actor.position.y, self->actor.position.z);
     BtlSprite_Update(&self->sprite);
     BtlSprite_Update(&self->shadow);

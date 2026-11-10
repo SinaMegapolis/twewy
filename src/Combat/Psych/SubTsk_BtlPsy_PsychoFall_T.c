@@ -46,7 +46,7 @@ static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage
             self->y      = arg->y;
             self->z = self->baseZ = arg->z;
             self->variant         = 0;
-            BtlStage_ClampXY(&self->x, &self->y, 0, 0);
+            BtlStage_ClampToFloor(&self->x, &self->y, 0, 0);
             CombatPsyAnim_Load(&self->sprite, 2, 1, data_ov003_020dc9f0[self->index].animation, 0);
             CombatHit_LoadSpark(0, &self->icon, self->variant);
             CombatSe_PlayAtMainX(0x35, self->x);

@@ -4,10 +4,10 @@
 
 /// Binds camera `index` to the animation driven by `obj`.
 void CombatCameraShake_Bind(Ov003CameraAnim* obj, s32 index, s32 arg2) {
-    obj->camera         = &g_CombatGlobal->unk3D7C0[index];
-    obj->camera->unk_44 = 0;
-    obj->camera->unk_48 = 0;
-    obj->camera->unk_4C = 0;
+    obj->camera         = &g_CombatGlobal->stages[index];
+    obj->camera->shakeX = 0;
+    obj->camera->shakeY = 0;
+    obj->camera->shakeZ = 0;
     obj->timer          = -1;
     obj->index          = arg2;
 }
@@ -31,9 +31,9 @@ s32 CombatCameraShake_Update(Ov003CameraAnim* obj, s32 delta, s32 min, s32 max) 
         obj->timer = obj->period;
         obj->dir   = obj->dir == 0 ? 1 : 0;
         if (obj->index == 0) {
-            obj->camera->unk_44 = (RNG_Next(3) - 1) << 12;
+            obj->camera->shakeX = (RNG_Next(3) - 1) << 12;
         } else {
-            obj->camera->unk_48 = (RNG_Next(3) - 1) << 12;
+            obj->camera->shakeY = (RNG_Next(3) - 1) << 12;
         }
     }
     obj->offset += delta;
@@ -50,15 +50,15 @@ s32 CombatCameraShake_Update(Ov003CameraAnim* obj, s32 delta, s32 min, s32 max) 
         value = obj->offset;
     }
     if (obj->index == 0) {
-        obj->camera->unk_48 = value;
+        obj->camera->shakeY = value;
     } else {
-        obj->camera->unk_44 = value;
+        obj->camera->shakeX = value;
     }
     return hit;
 }
 
 void CombatCameraShake_Reset(Ov003CameraAnim* obj) {
-    obj->camera->unk_44 = 0;
-    obj->camera->unk_48 = 0;
-    obj->camera->unk_4C = 0;
+    obj->camera->shakeX = 0;
+    obj->camera->shakeY = 0;
+    obj->camera->shakeZ = 0;
 }

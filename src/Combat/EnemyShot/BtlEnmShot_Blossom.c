@@ -332,8 +332,8 @@ s32 func_ov003_020cb648(Ov003EnemyActor* actor, s32 percent) {
 
 /// Pushes `*value` past the camera's left edge shifted by the view angle.
 static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s32           limit  = camera->posX + FX_Mul(FX_SinIdx(camera->rotation), scale);
+    BattleStage* camera = &g_CombatGlobal->stages[index];
+    s32          limit  = camera->floorTop + FX_Mul(FX_SinIdx(camera->floorSlope), scale);
 
     if (*value - margin < limit) {
         *value = limit + margin;
@@ -343,38 +343,38 @@ static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
 }
 
 static s32 func_ov003_020cb6e8(s32 index, s32* value, s32 margin, s32 scale) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s32           moved  = 0;
+    BattleStage* camera = &g_CombatGlobal->stages[index];
+    s32          moved  = 0;
 
     if (func_ov003_020cb674(index, value, margin, scale) != 0) {
         moved = 1;
     }
-    if (*value + margin > camera->unk_10) {
-        *value = camera->unk_10 - margin;
+    if (*value + margin > camera->height) {
+        *value = camera->height - margin;
         moved  = 1;
     }
     return moved;
 }
 
 s32 func_ov003_020cb744(s32 index) {
-    return g_CombatGlobal->unk3D7C0[index].unk_0C;
+    return g_CombatGlobal->stages[index].width;
 }
 
 s32 func_ov003_020cb764(s32 index) {
-    return g_CombatGlobal->unk3D7C0[index].unk_20;
+    return g_CombatGlobal->stages[index].centerX;
 }
 
 s32 func_ov003_020cb784(s32 index) {
-    return g_CombatGlobal->unk3D7C0[index].unk_24;
+    return g_CombatGlobal->stages[index].centerY;
 }
 
 s32 func_ov003_020cb7a4(s32 index) {
-    return g_CombatGlobal->unk3D7C0[index].unk_10;
+    return g_CombatGlobal->stages[index].height;
 }
 
 /// Whether (`x`, `y`) lies inside the camera's field.
 s32 func_ov003_020cb7c4(s32 index, s32 x, s32 y) {
-    if (x < 0 || x > g_CombatGlobal->unk3D7C0[index].unk_0C || y < 0 || y > g_CombatGlobal->unk3D7C0[index].unk_10) {
+    if (x < 0 || x > g_CombatGlobal->stages[index].width || y < 0 || y > g_CombatGlobal->stages[index].height) {
         return 0;
     }
     return 1;
@@ -382,14 +382,14 @@ s32 func_ov003_020cb7c4(s32 index, s32 x, s32 y) {
 
 /// Keeps (`*x`, `*y`) at least a margin inside the camera's field. Returns whether it had to move them.
 static s32 func_ov003_020cb814(s32 index, s32* x, s32* y, s32 marginX, s32 marginY) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s32           moved  = 0;
+    BattleStage* camera = &g_CombatGlobal->stages[index];
+    s32          moved  = 0;
 
     if (*x - marginX < 0) {
         *x    = marginX;
         moved = 1;
-    } else if (*x + marginX > camera->unk_0C) {
-        *x    = camera->unk_0C - marginX;
+    } else if (*x + marginX > camera->width) {
+        *x    = camera->width - marginX;
         moved = 1;
     }
     if (func_ov003_020cb6e8(index, y, marginY, *x) != 0) {
@@ -609,7 +609,7 @@ void func_ov003_020cbf54(BtlVec2* out, BtlVec2 p0, BtlVec2 p1, BtlVec2 p2, BtlVe
 
 /// Whether the actor is on the left half of the camera.
 s32 func_ov003_020cc2d0(BattleActor* actor, s32 index) {
-    return actor->position.x < (g_CombatGlobal->unk3D7C0[index].unk_0C >> 1);
+    return actor->position.x < (g_CombatGlobal->stages[index].width >> 1);
 }
 
 /// Whether the actor sits fully inside the camera's field.
@@ -657,16 +657,16 @@ s32 func_ov003_020cc38c(BattleActor* actor, s32 x, s32 y, s32 z, s32 marginX, s3
 
 /// A mask of the 32 points around the actor (at `radius`, `yScale` as tall) that are inside the camera's field.
 u32 func_ov003_020cc430(Ov003CutinActor* actor, s32 index, s32 radius, s32 yScale) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s16           size   = actor->base.actor.radius;
-    s32           left   = FX32_CONVERT(size);
-    s32           right  = camera->unk_0C - FX32_CONVERT(size);
-    s32           top    = FX32_CONVERT(size) / 2;
-    s32           bottom = camera->unk_10 - FX32_CONVERT(size) / 2;
-    u32           mask   = 0;
-    s32           i;
-    s32           px;
-    s32           py;
+    BattleStage* camera = &g_CombatGlobal->stages[index];
+    s16          size   = actor->base.actor.radius;
+    s32          left   = FX32_CONVERT(size);
+    s32          right  = camera->width - FX32_CONVERT(size);
+    s32          top    = FX32_CONVERT(size) / 2;
+    s32          bottom = camera->height - FX32_CONVERT(size) / 2;
+    u32          mask   = 0;
+    s32          i;
+    s32          px;
+    s32          py;
 
     for (i = 0; i < 0x20; i++) {
         func_ov003_020cbcb4(&px, &py, (u16)(i * 0x800), radius, yScale);
@@ -963,18 +963,18 @@ void func_ov003_020cccf0(s32 engine, Ov003EnemyShotSource* source) {
 
 /// Whether a box of `marginX` by `marginY` around (`x`,`y`) lies outside the camera's field.
 static s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+    BattleStage* camera = &g_CombatGlobal->stages[index];
 
     if (x + marginX < 0) {
         return 1;
     }
-    if (x - marginX > camera->unk_0C) {
+    if (x - marginX > camera->width) {
         return 1;
     }
     if (y + marginY < 0) {
         return 1;
     }
-    return y - marginY > camera->unk_10;
+    return y - marginY > camera->height;
 }
 
 /// Whether a box around the world point lies outside the screen.
@@ -1029,11 +1029,11 @@ void func_ov003_020ccec0(BattleActor* actor, s32 flag) {
 }
 
 s32 func_ov003_020ccedc(s32 index) {
-    return g_CombatGlobal->unk3D7C0[index].unk_0C;
+    return g_CombatGlobal->stages[index].width;
 }
 
 s32 func_ov003_020ccefc(s32 index) {
-    return g_CombatGlobal->unk3D7C0[index].unk_10;
+    return g_CombatGlobal->stages[index].height;
 }
 
 /// Brings `*value` toward 0 by `step` and stops at 0.

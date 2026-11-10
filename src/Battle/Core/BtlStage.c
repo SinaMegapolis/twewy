@@ -2,7 +2,6 @@
 #include "Combat/Core/BtlField.h"
 #include "Combat/Core/BtlFieldData.h"
 #include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatApi.h"
 #include "Engine/EasyTask.h"
 #include "FixedPoint.h"
 #include "Player/Inventory.h"
@@ -10,8 +9,6 @@
 #include <nitro/fx.h>
 
 extern const TaskHandle Tsk_BtlSandstorm;
-
-// Boss background task handles of other overlays.
 extern const TaskHandle data_ov018_020feb70;
 extern const TaskHandle data_ov018_020fec54;
 extern const TaskHandle data_ov017_021416f4;
@@ -29,49 +26,46 @@ extern const TaskHandle data_ov021_020f78b4;
 extern const TaskHandle data_ov021_020f798c;
 extern const TaskHandle data_ov008_020e7a68;
 
-/// Places the main engine's camera on its path entry and aims it at the battle centre.
-// Nonmatching: the half-width is computed as `(512 - x) << 15 >> 16`, not a plain `/ 2`.
-void BtlStage_PlaceMainCamera(void) {
-    const BtlFieldRect* pos = BtlField_UG_Defs[g_CombatGlobal->unk3D7C0[0].pathId].rect;
-    BattleCamera*       cam = &g_CombatGlobal->unk3D7C0[0];
-    s16                 bottom;
-    s16                 top;
-    s16                 halfX;
+void BtlStage_InitMain(void) {
+    const BtlFieldRect* rect  = BtlField_UG_Defs[g_CombatGlobal->stages[0].fieldId].rect;
+    BattleStage*        stage = &g_CombatGlobal->stages[0];
+    s16                 rightHeight;
+    s16                 topHeight;
+    s16                 margin;
 
-    halfX  = (512 - pos->unk_00) / 2;
-    bottom = pos->unk_04;
-    top    = pos->unk_02;
-    if (top <= bottom) {
-        top = bottom;
+    margin      = (512 - rect->width) / 2;
+    rightHeight = rect->floorTopRight;
+    topHeight   = rect->floorTopLeft;
+    if (topHeight <= rightHeight) {
+        topHeight = rightHeight;
     }
-    BtlStage_SetCamera(0, halfX, 512 - top, 512 - halfX, 488);
+    BtlStage_SetFieldRect(DISPLAY_MAIN, margin, 512 - topHeight, 512 - margin, 488);
 
-    cam->rotation = FX_Atan2Idx(I2F(pos->unk_02 - pos->unk_04), cam->unk_0C);
-    cam->posX     = I2F(512 - pos->unk_02) - cam->unk_08;
-    cam->shakeY   = -I2F(40);
-    cam->posY     = I2F(512 - pos->unk_06) - cam->unk_08;
-    cam->shakeX   = cam->posY;
+    stage->floorSlope    = FX_Atan2Idx(I2F(rect->floorTopLeft - rect->floorTopRight), stage->width);
+    stage->floorTop      = I2F(512 - rect->floorTopLeft) - stage->top;
+    stage->targetOffsetZ = -I2F(40);
+    stage->viewTop       = I2F(512 - rect->viewTop) - stage->top;
+    stage->panOffsetY    = stage->viewTop;
 }
 
-/// Places the sub engine's camera on its path entry.
-void BtlStage_PlaceSubCamera(void) {
-    const BtlFieldRectRG* pos  = BtlField_RG_Defs[g_CombatGlobal->unk3D7C0[1].pathId].rect;
-    BattleCamera*         cam  = &g_CombatGlobal->unk3D7C0[1];
-    s16                   left = 512 - pos->unk_00;
+void BtlStage_InitSub(void) {
+    const BtlFieldRectRG* rect   = BtlField_RG_Defs[g_CombatGlobal->stages[1].fieldId].rect;
+    BattleStage*          stage  = &g_CombatGlobal->stages[1];
+    s16                   bottom = 512 - rect->floorBottom;
 
-    BtlStage_SetCamera(1, 112, (s16)(left - pos->unk_02), 400, left);
-    cam->shakeY = I2F(pos->unk_04);
+    BtlStage_SetFieldRect(DISPLAY_SUB, 112, (s16)(bottom - rect->floorHeight), 400, bottom);
+    stage->targetOffsetZ = I2F(rect->targetOffsetZ);
 }
 
-/// The brand trend byte of save slot `index`.
-static u8 BtlStage_GetLeadingBrand(s32 index) {
-    BrandTrend* trend = &gSaveData.brandTrends[index];
+/// The brand leading the trend in area `area`.
+static u8 BtlStage_GetLeadingBrand(s32 area) {
+    BrandTrend* trend = &gSaveData.brandTrends[area];
 
     return trend->ranking[0];
 }
 
-/// Picks the battle index (the chapter's battle table row) from the mode and the save.
-static void BtlStage_UpdateAreaBrand(void) {
+/// Picks which background script the battle's field runs; the first fields show the brand leading their area's trend.
+static void BtlStage_PickBgScript(void) {
     gSaveData.unk_3232 = 0;
     switch (gSaveData.unk_3138) {
         case 0:
@@ -96,56 +90,44 @@ static void BtlStage_UpdateAreaBrand(void) {
     }
 }
 
-/// Places the camera of `index` over the field (`x0`,`y0`)-(`x1`,`y1`).
-void BtlStage_SetCamera(s32 index, s32 x0, s32 y0, s32 x1, s32 y1) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
-    s32           width  = x1 - x0;
+void BtlStage_SetFieldRect(DisplayEngine engine, s32 x0, s32 y0, s32 x1, s32 y1) {
+    BattleStage* stage = &g_CombatGlobal->stages[engine];
+    s32          width = x1 - x0;
 
-    camera->shakeX = 0;
-    camera->unk_44 = 0;
-    camera->unk_48 = 0;
-    camera->unk_4C = 0;
-    camera->unk_04 = I2F(x0);
-    camera->unk_08 = I2F(y0);
-    camera->unk_0C = I2F(width);
-    camera->unk_10 = I2F(y1 - y0);
-    camera->unk_20 = camera->unk_0C / 2;
-    camera->unk_24 = camera->unk_10 / 2;
+    stage->panOffsetY = 0;
+    stage->shakeX     = 0;
+    stage->shakeY     = 0;
+    stage->shakeZ     = 0;
+    stage->left       = I2F(x0);
+    stage->top        = I2F(y0);
+    stage->width      = I2F(width);
+    stage->height     = I2F(y1 - y0);
+    stage->centerX    = stage->width / 2;
+    stage->centerY    = stage->height / 2;
 }
 
-/// Sets the point the camera of `index` moves towards.
-void BtlStage_SetCameraTarget(s32 index, s32 x, s32 y, s32 z) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+void BtlStage_SetCameraTarget(DisplayEngine engine, s32 x, s32 y, s32 z) {
+    BattleStage* stage = &g_CombatGlobal->stages[engine];
 
-    camera->unk_34 = x + camera->unk_04;
-    camera->unk_38 = y + camera->unk_08;
-    camera->unk_3C = z + camera->shakeY;
+    stage->targetX = x + stage->left;
+    stage->targetY = y + stage->top;
+    stage->targetZ = z + stage->targetOffsetZ;
 }
 
-/// Whether a box around (`x`,`y`) is outside the camera's field.
-BOOL BtlStage_IsOutOfBounds(s32 x, s32 y, s32 marginX, s32 marginY) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
-    s32           limit  = camera->posX + FX_Mul(FX_SinIdx(camera->rotation), x);
+BOOL BtlStage_IsOutsideFloor(s32 x, s32 y, s32 marginX, s32 marginY) {
+    BattleStage* stage = &g_CombatGlobal->stages[0];
+    s32          limit = stage->floorTop + FX_Mul(FX_SinIdx(stage->floorSlope), x);
 
-    if (y - marginY < limit) {
-        return TRUE;
-    }
-    if (y + marginY > camera->unk_10) {
-        return TRUE;
-    }
-    if (x - marginX < 0) {
-        return TRUE;
-    }
-    if (x + marginX > camera->unk_0C) {
+    if (y - marginY < limit || y + marginY > stage->height || x - marginX < 0 || x + marginX > stage->width) {
         return TRUE;
     }
     return FALSE;
 }
 
 BOOL BtlStage_ClampToFloorTop(s32* value, s32 margin, s32 x) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
-    BOOL          moved  = FALSE;
-    s32           limit  = camera->posX + FX_Mul(FX_SinIdx(camera->rotation), x);
+    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BOOL         moved = FALSE;
+    s32          limit = stage->floorTop + FX_Mul(FX_SinIdx(stage->floorSlope), x);
 
     if (*value - margin < limit) {
         *value = limit + margin;
@@ -154,112 +136,106 @@ BOOL BtlStage_ClampToFloorTop(s32* value, s32 margin, s32 x) {
     return moved;
 }
 
-BOOL BtlStage_ClampY(s32* value, s32 margin, s32 x) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
-    BOOL          moved  = FALSE;
+BOOL BtlStage_ClampYToFloor(s32* value, s32 margin, s32 x) {
+    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BOOL         moved = FALSE;
 
     if (BtlStage_ClampToFloorTop(value, margin, x)) {
         moved = TRUE;
     }
-    if (*value + margin > camera->unk_10) {
-        *value = camera->unk_10 - margin;
+    if (*value + margin > stage->height) {
+        *value = stage->height - margin;
         moved  = TRUE;
     }
     return moved;
 }
 
-BOOL BtlStage_ClampX(s32* value, s32 margin) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
-    BOOL          moved  = FALSE;
+BOOL BtlStage_ClampXToField(s32* value, s32 margin) {
+    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BOOL         moved = FALSE;
 
     if (*value - margin < 0) {
         *value = margin;
         moved  = TRUE;
-    } else if (*value + margin > camera->unk_0C) {
-        *value = camera->unk_0C - margin;
+    } else if (*value + margin > stage->width) {
+        *value = stage->width - margin;
         moved  = TRUE;
     }
     return moved;
 }
 
-BOOL BtlStage_ClampXY(s32* x, s32* y, s32 marginX, s32 marginY) {
+BOOL BtlStage_ClampToFloor(s32* x, s32* y, s32 marginX, s32 marginY) {
     BOOL moved = FALSE;
 
-    if (BtlStage_ClampX(x, marginX)) {
+    if (BtlStage_ClampXToField(x, marginX)) {
         moved = TRUE;
     }
-    if (BtlStage_ClampY(y, marginY, *x)) {
+    if (BtlStage_ClampYToFloor(y, marginY, *x)) {
         moved = TRUE;
     }
     return moved;
 }
 
-BOOL BtlStage_ClampYToBox(s32* value, s32 margin) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
-    BOOL          moved  = FALSE;
+BOOL BtlStage_ClampYToField(s32* value, s32 margin) {
+    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BOOL         moved = FALSE;
 
     if (*value - margin < 0) {
         *value = margin;
         moved  = TRUE;
-    } else if (*value + margin > camera->unk_10) {
-        *value = camera->unk_10 - margin;
+    } else if (*value + margin > stage->height) {
+        *value = stage->height - margin;
         moved  = TRUE;
     }
     return moved;
 }
 
-/// Picks the battle background for the encounter and tells the battle manager about it.
-void BtlStage_SetupCameras(void) {
-    u16          id        = gSaveData.unk_3138;
-    Ov003Global* global    = g_CombatGlobal;
-    s32          encounter = global->unk3D88E;
+void BtlStage_Init(void) {
+    u16 id = gSaveData.unk_3138;
 
-    if (encounter <= 15) {
-        if (encounter < 9) {
-        } else if (encounter == 9) {
+    switch (g_CombatGlobal->unk3D88E) {
+        case 9:
             id = 26;
-        } else if (encounter == 14) {
+            break;
+        case 14:
             id = 24;
-        } else if (encounter == 15) {
+            break;
+        case 15:
             id = 40;
-        }
-    } else {
-        switch (encounter - 20) {
-            case 0:
-                id = 42;
-                break;
-            case 1:
-                id = 42;
-                break;
-            case 6:
-                id = 16;
-                break;
-            case 8:
-                id = 14;
-                break;
-            case 9:
-                id = 6;
-                break;
-            case 11:
-                id = 10;
-                break;
-        }
+            break;
+        case 26:
+            id = 16;
+            break;
+        case 29:
+            id = 6;
+            break;
+        case 28:
+            id = 14;
+            break;
+        case 31:
+            id = 10;
+            break;
+        case 20:
+            id = 42;
+            break;
+        case 21:
+            id = 42;
+            break;
     }
     if (id >= 41) {
         id = 0;
     }
-    global->unk3D7C0[0].pathId = id;
-    global->unk3D7C0[0].unk_02 = 0;
-    global->unk3D7C0[1].pathId = id;
-    global->unk3D7C0[1].unk_02 = 0;
-    BtlStage_PlaceMainCamera();
-    BtlStage_PlaceSubCamera();
+    g_CombatGlobal->stages[0].fieldId = id;
+    g_CombatGlobal->stages[0].flags   = 0;
+    g_CombatGlobal->stages[1].fieldId = id;
+    g_CombatGlobal->stages[1].flags   = 0;
+    BtlStage_InitMain();
+    BtlStage_InitSub();
 }
 
-/// Starts the two background tasks (main and sub screen) of the current battle.
 void BtlStage_StartFieldTasks(s32 flag) {
     if (flag == 0) {
-        BtlStage_UpdateAreaBrand();
+        BtlStage_PickBgScript();
     }
 
     u16 args = flag;
@@ -268,40 +244,40 @@ void BtlStage_StartFieldTasks(s32 flag) {
         case 8:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov018_020feb70, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov018_020fec54, NULL, 0, NULL, &args);
-            return;
+            break;
         case 10:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_021416f4, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141700, NULL, 0, NULL, &args);
-            return;
+            break;
         case 11:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_021416f4, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141da8, NULL, 0, NULL, &args);
-            return;
+            break;
         case 12:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_021416f4, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141da8, NULL, 0, NULL, &args);
-            return;
+            break;
         case 13:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141ed4, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141ef8, NULL, 0, NULL, &args);
-            return;
+            break;
         case 19:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov019_020fa764, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov019_020fa780, NULL, 0, NULL, &args);
-            return;
+            break;
         case 20:
         case 21:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov020_020f6fc0, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov020_020f701c, NULL, 0, NULL, &args);
-            return;
+            break;
         case 22:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov021_020f7824, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov021_020f7880, NULL, 0, NULL, &args);
-            return;
+            break;
         case 27:
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov021_020f78b4, NULL, 0, NULL, &args);
             EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov021_020f798c, NULL, 0, NULL, &args);
-            return;
+            break;
         default:
             if (g_CombatGlobal->unk3D88D != 3) {
                 EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlField_UG, NULL, 0, NULL, &args);
@@ -310,11 +286,10 @@ void BtlStage_StartFieldTasks(s32 flag) {
                 EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlField_UG, NULL, 0, NULL, &args);
                 EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlField_RG, NULL, 0, NULL, &args);
             }
-            return;
+            break;
     }
 }
 
-/// Starts the transition task, except in the last four battles.
 void BtlStage_StartSandstorm(void) {
     switch (g_CombatGlobal->unk3D88E) {
         case 19:
@@ -328,34 +303,33 @@ void BtlStage_StartSandstorm(void) {
     }
 }
 
-/// Projects the world point onto the screen of engine `index`.
-void BtlStage_WorldToScreen(s32 index, s16* screenX, s16* screenY, s32 x, s32 y, s32 z) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+void BtlStage_WorldToScreen(DisplayEngine engine, s16* screenX, s16* screenY, s32 x, s32 y, s32 z) {
+    BattleStage* stage = &g_CombatGlobal->stages[engine];
 
-    *screenX = F2I(x - camera->unk_28 + I2F(128) + camera->unk_04);
-    *screenY = F2I(y + z - camera->unk_40 + I2F(96) + camera->unk_08);
+    *screenX = F2I(x - stage->viewX + I2F(128) + stage->left);
+    *screenY = F2I(y + z - stage->viewY + I2F(96) + stage->top);
 }
 
-s16 BtlStage_ToScreenX(s32 index, s32 x) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+s16 BtlStage_ToScreenX(DisplayEngine engine, s32 x) {
+    BattleStage* stage = &g_CombatGlobal->stages[engine];
 
-    return F2Ix(x - camera->unk_28 + I2F(128) + camera->unk_04);
+    return F2I(x - stage->viewX + I2F(128) + stage->left);
 }
 
-s16 BtlStage_ToScreenY(s32 index, s32 y, s32 z) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+s16 BtlStage_ToScreenY(DisplayEngine engine, s32 y, s32 z) {
+    BattleStage* stage = &g_CombatGlobal->stages[engine];
 
-    return F2Ix(y + z - camera->unk_40 + I2F(96) + camera->unk_08);
+    return F2I(y + z - stage->viewY + I2F(96) + stage->top);
 }
 
-s32 BtlStage_ToWorldX(s32 index, s32 screenX) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[index];
+s32 BtlStage_ToWorldX(DisplayEngine engine, s32 screenX) {
+    BattleStage* stage = &g_CombatGlobal->stages[engine];
 
-    return camera->unk_28 + I2F(screenX) - I2F(128) - camera->unk_04;
+    return stage->viewX + I2F(screenX) - I2F(128) - stage->left;
 }
 
-s32 BtlStage_ToWorldY(s32 cameraIndex, s32 screenY, s32 height) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[cameraIndex];
+s32 BtlStage_ToWorldY(DisplayEngine engine, s32 screenY, s32 height) {
+    BattleStage* stage = &g_CombatGlobal->stages[engine];
 
-    return camera->unk_40 + I2F(screenY) - I2F(96) - camera->unk_08 - height;
+    return stage->viewY + I2F(screenY) - I2F(96) - stage->top - height;
 }

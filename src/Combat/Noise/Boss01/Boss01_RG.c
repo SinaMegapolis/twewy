@@ -40,7 +40,7 @@ static s32 Boss01_RG_IsInBounds(Boss01_RG* rg) {
 
     if (var_ip == FALSE) {
         var_ip = FALSE;
-        if ((rg->base.actor.isFlipped != 0) && (rg->base.actor.position.x > (g_CombatGlobal->unk3D7C0[1].unk_0C + 0x80000))) {
+        if ((rg->base.actor.isFlipped != 0) && (rg->base.actor.position.x > (g_CombatGlobal->stages[1].width + 0x80000))) {
             var_ip = TRUE;
         }
     }
@@ -120,7 +120,7 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
             rg->base.actor.position.x = -0x80000;
             rg->unk_1D4               = 0x4000;
         } else {
-            rg->base.actor.position.x = (g_CombatGlobal->unk3D7C0[1].unk_0C + 0x80000);
+            rg->base.actor.position.x = (g_CombatGlobal->stages[1].width + 0x80000);
             rg->unk_1D4               = -0x4000;
         }
 
@@ -200,8 +200,7 @@ static void Boss01_MoveState_FlyAcross(Boss01_RG* rg) {
             rg->base.unk_188 = NULL;
         }
 
-        rg->base.actor.position.x =
-            (rg->base.actor.position.x < 0) ? -0x80000 : (g_CombatGlobal->unk3D7C0[0].unk_0C + 0x80000);
+        rg->base.actor.position.x = (rg->base.actor.position.x < 0) ? -0x80000 : (g_CombatGlobal->stages[0].width + 0x80000);
 
         *data_ov016_021292c0 = 2;
         Boss01_RG_SetState(rg, Boss01_MoveState_WaitToFly);

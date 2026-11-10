@@ -110,7 +110,7 @@ static s32 func_ov016_02126468(Boss01_UG* bossUG) {
     }
     if (var_ip == 0) {
         var_ip_2 = 0;
-        if ((temp_lr != 0) && ((s32)bossUG->base.actor.position.x > (s32)(g_CombatGlobal->unk3D7C0[0].unk_0C + 0x80000))) {
+        if ((temp_lr != 0) && ((s32)bossUG->base.actor.position.x > (s32)(g_CombatGlobal->stages[0].width + 0x80000))) {
             var_ip_2 = 1;
         }
         if (var_ip_2 == 0) {
@@ -288,8 +288,8 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
     if (bossUG->unk_1E8 != 0) {
         sp8       = bossUG->base.actor.position.x;
         temp_r1_2 = bossUG->unk_1E0->actor.radius;
-        BtlStage_ClampY(&bossUG->base.actor.position.y, ((s32)(temp_r1_2 + ((u32)temp_r1_2 >> 0x1F)) >> 1) << 0xC,
-                        bossUG->base.actor.position.x);
+        BtlStage_ClampYToFloor(&bossUG->base.actor.position.y, ((s32)(temp_r1_2 + ((u32)temp_r1_2 >> 0x1F)) >> 1) << 0xC,
+                               bossUG->base.actor.position.x);
         bossUG->unk_1E0->actor.position.x = bossUG->base.actor.position.x;
         bossUG->unk_1E0->actor.position.y = bossUG->base.actor.position.y;
         bossUG->unk_1E0->actor.position.z = bossUG->base.actor.position.z;

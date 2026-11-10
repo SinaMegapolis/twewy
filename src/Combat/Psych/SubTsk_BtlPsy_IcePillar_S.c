@@ -27,7 +27,7 @@ static s32 func_ov003_020b1cd0(TaskPool* pool, Task* task, void* args, s32 stage
             self->args.effect     = arg->effect;
             self->args.position.x = arg->position.x;
             self->args.position.y = arg->position.y;
-            BtlStage_ClampXY(&self->args.position.x, &self->args.position.y, 0, 0);
+            BtlStage_ClampToFloor(&self->args.position.x, &self->args.position.y, 0, 0);
             self->args.attackId = arg->attackId;
             CombatPsyAnim_Load(&self->sprites[0], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);
             CombatPsyAnim_Load(&self->sprites[1], 2, 1, data_ov003_020dc924[self->args.effect->index], 1);

@@ -19,11 +19,11 @@ extern const TaskHandle Tsk_BtlObs;
 void func_ov003_0209409c(s32 bgIndex);
 
 /// Scrolls the BG of `map` to the camera's position, shifted by `offsetX`/`offsetY`.
-static inline void BtlField_ScrollRow(ScreenMapEntry* map, BattleCamera* camera, s32 offsetX, s32 offsetY) {
+static inline void BtlField_ScrollRow(ScreenMapEntry* map, BattleStage* camera, s32 offsetX, s32 offsetY) {
     s32                 layer  = map->bgLayer;
     DisplayEngineState* engine = &g_DisplaySettings.engineState[map->engineId];
-    s32                 posY   = camera->unk_40 - offsetY;
-    s32                 posX   = camera->unk_28 - offsetX;
+    s32                 posY   = camera->viewY - offsetY;
+    s32                 posX   = camera->viewX - offsetX;
 
     Display_SetEngineBGOffset(engine, layer, posX, posY);
 }

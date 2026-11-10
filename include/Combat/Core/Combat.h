@@ -15,13 +15,13 @@
 
 /// The camera shake animation driven through the battle camera views.
 typedef struct Ov003CameraAnim {
-    /* 0x00 */ s32           index; // which of the two cameras
-    /* 0x04 */ BattleCamera* camera;
-    /* 0x08 */ s32           timer; // -1 = idle
-    /* 0x0C */ s32           period;
-    /* 0x10 */ s32           dir;   // 1 = negative offset
-    /* 0x14 */ s32           offset;
-} Ov003CameraAnim;                  // Size: 0x18
+    /* 0x00 */ s32          index; // which of the two cameras
+    /* 0x04 */ BattleStage* camera;
+    /* 0x08 */ s32          timer; // -1 = idle
+    /* 0x0C */ s32          period;
+    /* 0x10 */ s32          dir;   // 1 = negative offset
+    /* 0x14 */ s32          offset;
+} Ov003CameraAnim;                 // Size: 0x18
 
 typedef struct Ov003EffectSlots {
     union {
@@ -145,10 +145,10 @@ typedef struct {
     /* 0x3D75C */ u8                    unk_3D75C[4];
     /* 0x3D760 */ BtlMicInput           microphone;
     /* 0x3D7A4 */ u8                    unk_3D7A4[0x3D7C0 - 0x3D7A4];
-    /* 0x3D7C0 */ BattleCamera          unk3D7C0[2]; // [0] main engine, [1] sub engine
+    /* 0x3D7C0 */ BattleStage           stages[2]; // [0] main engine, [1] sub engine
     /* 0x3D870 */ s32                   unk3D870;
-    /* 0x3D874 */ u8                    unk3D874;    // battle state
-    /* 0x3D875 */ u8                    unk3D875;    // battle sub state
+    /* 0x3D874 */ u8                    unk3D874;  // battle state
+    /* 0x3D875 */ u8                    unk3D875;  // battle sub state
     /* 0x3D876 */ char                  unk_3D876[0x2];
     /* 0x3D878 */ u32                   unk3D878;
     /* 0x3D87C */ s32                   unk3D87C;

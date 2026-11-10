@@ -202,7 +202,7 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
     Ov003EnemyActor* unit  = self->unit;
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) && !BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SCRIBBLE)) {
         s16 half = unit->actor.radius;
-        if (BtlStage_IsOutOfBounds(unit->actor.position.x, unit->actor.position.y, half << 12, (half / 2) << 12)) {
+        if (BtlStage_IsOutsideFloor(unit->actor.position.x, unit->actor.position.y, half << 12, (half / 2) << 12)) {
             func_ov003_020b5d40(self, 3);
             return 1;
         }
@@ -271,7 +271,7 @@ static s32 func_ov003_020b5c84(Ov003PsychoD* self) {
         self->x               = unit->actor.position.x;
         self->y               = unit->actor.position.y;
         s16 half              = unit->actor.radius;
-        BtlStage_ClampXY(&self->x, &self->y, half << 12, (half / 2) << 12);
+        BtlStage_ClampToFloor(&self->x, &self->y, half << 12, (half / 2) << 12);
     }
     if (self->timer > 0) {
         func_020265d4(&unit->actor.position.x, self->x, (u16)self->timer);

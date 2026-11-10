@@ -37,7 +37,7 @@ static s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage
             self->effect = *arg;
             self->x      = BtlStage_ToWorldX(0, touch->startX);
             self->y      = BtlStage_ToWorldY(0, touch->startY, 0);
-            BtlStage_ClampXY(&self->x, &self->y, 0, 0);
+            BtlStage_ClampToFloor(&self->x, &self->y, 0, 0);
             self->count = (u8)self->effect->params[0];
             self->timer = 0;
             func_ov003_020a6464(1);

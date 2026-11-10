@@ -71,7 +71,7 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
                         s32 worldY;
                         s32 worldX = BtlStage_ToWorldX(0, x);
                         worldY     = BtlStage_ToWorldY(0, y, 0);
-                        BtlStage_ClampXY(&worldX, &worldY, 0, 0);
+                        BtlStage_ClampToFloor(&worldX, &worldY, 0, 0);
                         BtlStage_ToScreenX(0, worldX);
                         BtlStage_ToScreenY(0, worldY, 0);
                         self->sampleTimer = 1;

@@ -40,22 +40,22 @@ void func_ov003_020d1538(Ov003EnemyShotRootLaserArgs* args) {
 /// Lays the roots of the beam across the screen from the shot's position, alternating a vertical and a horizontal
 /// root, and stops once the next root would fall outside the camera.
 static s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
-    BattleActor*  target = g_CombatGlobal->player;
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
-    u16           parity = 0;
-    s32           scale;
-    s32           x, y, z;
-    s32           limit;
-    s32           half;
-    u16           angle;
-    s32           result;
+    BattleActor* target = g_CombatGlobal->player;
+    BattleStage* camera = &g_CombatGlobal->stages[0];
+    u16          parity = 0;
+    s32          scale;
+    s32          x, y, z;
+    s32          limit;
+    s32          half;
+    u16          angle;
+    s32          result;
 
     half  = FX32_CONVERT(target->height);
     z     = self->owner.core.position.z;
     x     = self->owner.core.position.x;
     y     = self->owner.core.position.y;
     limit = target->position.y - (half >> 1) - z;
-    while (x <= camera->unk_0C && x >= 0) {
+    while (x <= camera->width && x >= 0) {
         parity = (u16)((parity + 1) % 2);
         if (parity == 0) {
             f32 jitter = RNG_Next(self->verticalMax - self->verticalMin + 1) > 0

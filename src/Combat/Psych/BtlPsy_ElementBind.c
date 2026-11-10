@@ -92,7 +92,7 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
             }
             if (func_ov003_020a60a8(unit, 3)) {
                 s32 width = unit->actor.radius;
-                BtlStage_ClampXY(&unit->actor.position.x, &unit->actor.position.y, width * 4096, (width / 2) * 4096);
+                BtlStage_ClampToFloor(&unit->actor.position.x, &unit->actor.position.y, width * 4096, (width / 2) * 4096);
             }
             BtlSprite_Update(&self->sprite);
             return 1;

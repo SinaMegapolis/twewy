@@ -5,20 +5,22 @@
 #include "Engine/File/BinMgr.h"
 #include "nitro/types.h"
 
-/// The camera rectangle of a sub-screen field, in 0x200-based screen units.
+/// The stage layout of a sub-screen field, in pixels; heights are measured up from the bottom of the 512-pixel
+/// background.
 typedef struct BtlFieldRectRG {
-    /* 0x0 */ s16 unk_00;
-    /* 0x2 */ s16 unk_02;
-    /* 0x4 */ s16 unk_04;
-} BtlFieldRectRG; // Size: 0x6
+    /* 0x0 */ s16 floorBottom;   // height of the field's bottom edge
+    /* 0x2 */ s16 floorHeight;   // height of the field from its bottom edge to its top edge
+    /* 0x4 */ s16 targetOffsetZ; // added to every camera target's height
+} BtlFieldRectRG;                // Size: 0x6
 
-/// The camera rectangle of a main-screen field, in 0x200-based screen units.
+/// The stage layout of a main-screen field, in pixels; heights are measured up from the bottom of the 512-pixel
+/// background.
 typedef struct BtlFieldRect {
-    /* 0x0 */ s16 unk_00;
-    /* 0x2 */ s16 unk_02;
-    /* 0x4 */ s16 unk_04;
-    /* 0x6 */ s16 unk_06;
-} BtlFieldRect; // Size: 0x8
+    /* 0x0 */ s16 width;         // field width, centred in the background
+    /* 0x2 */ s16 floorTopLeft;  // height of the floor's top edge at the field's left edge
+    /* 0x4 */ s16 floorTopRight; // height of the floor's top edge at the field's right edge
+    /* 0x6 */ s16 viewTop;       // height of the highest point the camera may show
+} BtlFieldRect;                  // Size: 0x8
 
 /// A bin identifier with two extra pairs of halfwords (the load parameters of a sprite slot).
 typedef struct Ov003BinIdenEx {

@@ -11,8 +11,9 @@
 
 /// Distance between the middle of an actor's box and a screen point.
 static s32 BtlTouch_DistanceToActor(BattleActor* actor, s32 x, s32 y) {
-    s32 centerY = actor->screenY + (12 - actor->height) / 2;
-    s32 dx      = I2F(x) - I2F(actor->screenX);
+    u32 centerY = actor->screenY + (12 - actor->height) / 2;
+    u32 centerX = actor->screenX;
+    s32 dx      = I2F(x) - I2F(centerX);
     s32 dy      = I2F(y) - I2F(centerY);
 
     return FX_Sqrt(FX_Mul(dx, dx) + FX_Mul(dy, dy));
@@ -52,13 +53,12 @@ static BOOL BtlTouch_SegmentsCross(s32 x0, s32 y0, s32 x1, s32 y1, s32 ax, s32 a
     }
     s = (y0 - ay) * (bx - ax) - (x0 - ax) * (by - ay);
     t = (y0 - ay) * (x1 - x0) - (x0 - ax) * (y1 - y0);
-    if (!((denominator > 0 && s >= 0 && s <= denominator) || (denominator < 0 && denominator <= s && s <= 0))) {
-        return FALSE;
+    if ((denominator > 0 && s >= 0 && s <= denominator) || (denominator < 0 && denominator <= s && s <= 0)) {
+        if ((denominator > 0 && t >= 0 && t <= denominator) || (denominator < 0 && denominator <= t && t <= 0)) {
+            return TRUE;
+        }
     }
-    if (!((denominator > 0 && t >= 0 && t <= denominator) || (denominator < 0 && denominator <= t && t <= 0))) {
-        return FALSE;
-    }
-    return TRUE;
+    return FALSE;
 }
 
 /// A quick short touch.
@@ -226,12 +226,11 @@ static BOOL BtlTouch_StrokeHitsActor(BattleActor* actor, s32 x0, s32 y0, s32 x1,
 
 /// Keeps `actor` as the best candidate when the stroke crosses it near its middle.
 static void BtlTouch_PickStrokeTarget(BattleActor** best, s32* bestDistance, BattleActor* actor) {
-    Ov003Global* global = g_CombatGlobal;
-    s16          x1     = global->touchWork.endX;
-    s16          x0     = global->touchWork.startX;
-    s16          y0     = global->touchWork.startY;
-    s16          y1     = global->touchWork.endY;
-    s32          distance;
+    s32 x0 = g_CombatGlobal->touchWork.startX;
+    s32 y0 = g_CombatGlobal->touchWork.startY;
+    s32 x1 = g_CombatGlobal->touchWork.endX;
+    s32 y1 = g_CombatGlobal->touchWork.endY;
+    s32 distance;
 
     if (BtlTouch_StrokeHitsActor(actor, x0, y0, x1, y1)) {
         distance = BtlTouch_DistanceToActor(actor, (s16)((x0 + x1) / 2), (s16)((y0 + y1) / 2));
@@ -499,6 +498,7 @@ BattleActor* BtlTouch_GetRapidTapped(BattleActorKind kind) {
     return best;
 }
 
+// Nonmatching: the touch-work pointer lands in ip instead of reusing r1.
 void BtlTouch_Init(void) {
     BattleTouchWork* touch = &g_CombatGlobal->touchWork;
 

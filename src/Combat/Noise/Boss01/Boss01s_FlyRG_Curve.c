@@ -32,10 +32,10 @@ void Boss01s_FlyRG_Curve_Randomize(Boss01s_FlyRG_Curve* arg0) {
     arg0->unk_80 = -(RNG_Next(25) + 25);
 
     f32 var_r0;
-    if (RNG_Next(F2I(g_CombatGlobal->unk3D7C0[1].unk_0C)) != 0) {
-        var_r0 = I2F(RNG_Next(F2I(g_CombatGlobal->unk3D7C0[1].unk_0C))) + 0.5f;
+    if (RNG_Next(F2I(g_CombatGlobal->stages[1].width)) != 0) {
+        var_r0 = I2F(RNG_Next(F2I(g_CombatGlobal->stages[1].width))) + 0.5f;
     } else {
-        var_r0 = I2F(RNG_Next(F2I(g_CombatGlobal->unk3D7C0[1].unk_0C))) - 0.5f;
+        var_r0 = I2F(RNG_Next(F2I(g_CombatGlobal->stages[1].width))) - 0.5f;
     }
     arg0->unk_60.x = var_r0;
     arg0->unk_60.y = 0;
@@ -61,10 +61,10 @@ s32 Boss01s_FlyRG_Curve_Init(TaskPool* pool, Task* task, void* args) {
     Boss01s_FlyRG_Curve_Randomize(curve);
 
     f32 var_r0;
-    if (RNG_Next(F2I(g_CombatGlobal->unk3D7C0[1].unk_0C)) != 0) {
-        var_r0 = I2F(RNG_Next(F2I(g_CombatGlobal->unk3D7C0[1].unk_0C))) + 0.5f;
+    if (RNG_Next(F2I(g_CombatGlobal->stages[1].width)) != 0) {
+        var_r0 = I2F(RNG_Next(F2I(g_CombatGlobal->stages[1].width))) + 0.5f;
     } else {
-        var_r0 = I2F(RNG_Next(F2I(g_CombatGlobal->unk3D7C0[1].unk_0C))) - 0.5f;
+        var_r0 = I2F(RNG_Next(F2I(g_CombatGlobal->stages[1].width))) - 0.5f;
     }
 
     curve->unk_60.x = var_r0;
@@ -86,7 +86,7 @@ s32 Boss01s_FlyRG_Curve_Update(TaskPool* pool, Task* task, void* args) {
             curve->unk_74 += curve->unk_80;
             curve->unk_60.z += curve->unk_74;
             if (((curve->unk_6C < 0) && (curve->unk_60.x < -0x10000)) ||
-                ((curve->unk_6C > 0) && (curve->unk_60.x > (g_CombatGlobal->unk3D7C0[1].unk_0C + 0x10000))))
+                ((curve->unk_6C > 0) && (curve->unk_60.x > (g_CombatGlobal->stages[1].width + 0x10000))))
             {
                 curve->unk_88++;
             }

@@ -56,8 +56,8 @@ static s32 func_ov007_020e7478(TaskPool* pool, Task* task, void* args) {
     BtlActor_Init(&data->actor, ACTOR_KIND_PLAYER);
     g_CombatGlobal->partner  = &data->actor;
     data->actor.isFlipped    = FALSE;
-    data->actor.position.x   = g_CombatGlobal->unk3D7C0[1].unk_20;
-    data->actor.position.y   = g_CombatGlobal->unk3D7C0[1].unk_24;
+    data->actor.position.x   = g_CombatGlobal->stages[1].centerX;
+    data->actor.position.y   = g_CombatGlobal->stages[1].centerY;
     data->actor.position.z   = 0;
     data->actor.zGravity     = 0x800;
     data->actor.radius       = 0xC;

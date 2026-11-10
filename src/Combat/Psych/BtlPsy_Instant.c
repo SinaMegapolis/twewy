@@ -132,7 +132,7 @@ static void BtlPsy_Teleport_Fire(Ov003AttackData* data) {
     CombatSe_PlayAtMainX(0x3B, g_CombatGlobal->player->position.x);
     x = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
     y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-    BtlStage_ClampXY(&x, &y, 0x8000, 0x8000);
+    BtlStage_ClampToFloor(&x, &y, 0x8000, 0x8000);
     CombatSe_PlayAtMainX(0x3C, x);
     CombatSys_WarpCharacter(0, x, y, 0);
     func_ov003_020a5aa4(data->effect);

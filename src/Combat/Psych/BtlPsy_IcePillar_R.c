@@ -40,15 +40,15 @@ static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage
             self->count  = (u8)self->effect->params[0];
             self->x[0]   = BtlStage_ToWorldX(0, touch->x);
             self->y[0]   = BtlStage_ToWorldY(0, touch->y, 0);
-            BtlStage_ClampXY(&self->x[0], &self->y[0], 0, 0);
+            BtlStage_ClampToFloor(&self->x[0], &self->y[0], 0, 0);
             self->z       = 0;
             self->xOffset = 0x2000;
             self->x[1]    = self->x[0] + 0x20000;
             self->y[1]    = self->y[0];
-            BtlStage_ClampXY(&self->x[1], &self->y[1], 0, 0);
+            BtlStage_ClampToFloor(&self->x[1], &self->y[1], 0, 0);
             self->x[2] = self->x[0] - 0x20000;
             self->y[2] = self->y[0];
-            BtlStage_ClampXY(&self->x[2], &self->y[2], 0, 0);
+            BtlStage_ClampToFloor(&self->x[2], &self->y[2], 0, 0);
             func_ov003_020a6464(1);
             func_ov003_020a6494(touch->x);
             func_ov003_020a5aa4(self->effect);

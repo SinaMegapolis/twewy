@@ -399,10 +399,10 @@ void func_ov015_02125d0c(BtlEnm026* data, s32 count, const TaskHandle* handleA, 
         return;
     }
     for (i = 0; i < count; i++) {
-        blockB.unk_08 = RNG_Next(g_CombatGlobal->unk3D7C0[0].unk_0C >> 12) << 12;
-        blockB.unk_0C = RNG_Next(g_CombatGlobal->unk3D7C0[0].unk_10 >> 12) << 12;
-        blockA.unk_08 = RNG_Next(g_CombatGlobal->unk3D7C0[1].unk_0C >> 12) << 12;
-        blockA.unk_0C = RNG_Next(g_CombatGlobal->unk3D7C0[1].unk_10 >> 12) << 12;
+        blockB.unk_08 = RNG_Next(g_CombatGlobal->stages[0].width >> 12) << 12;
+        blockB.unk_0C = RNG_Next(g_CombatGlobal->stages[0].height >> 12) << 12;
+        blockA.unk_08 = RNG_Next(g_CombatGlobal->stages[1].width >> 12) << 12;
+        blockA.unk_0C = RNG_Next(g_CombatGlobal->stages[1].height >> 12) << 12;
         func_ov003_020c3cec(handleA, handleB, (handleA != 0) ? &blockB : NULL, (handleB != 0) ? &blockA : NULL);
     }
 }

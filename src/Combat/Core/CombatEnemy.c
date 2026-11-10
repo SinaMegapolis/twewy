@@ -53,7 +53,7 @@ static const u8          data_ov003_020e0664[];
 static void              func_ov003_020c2b4c(s32 index, s32 value);
 static void              func_ov003_020c353c(Ov003CutinActor* actor);
 static s32               func_ov003_020c3950(u32 index);
-static BattleCamera*     func_ov003_020c3a48(u32 index);
+static BattleStage*      func_ov003_020c3a48(u32 index);
 static s32               func_ov003_020c3a70(u32 index);
 static void              func_ov003_020c3b6c(u16* tracks);
 static void              func_ov003_020c3e68(Ov003EnemyActor* main, Ov003EnemyActor* sub);
@@ -204,12 +204,12 @@ static void func_ov003_020c23bc(void) {
                     sumX += params->unk_28;
                     sumY += params->unk_2A;
                 }
-                subData.x  = RNG_Next((u32)(g_CombatGlobal->unk3D7C0[0].unk_0C >> 12)) << 12;
-                subData.y  = RNG_Next((u32)(g_CombatGlobal->unk3D7C0[0].unk_10 >> 12)) << 12;
+                subData.x  = RNG_Next((u32)(g_CombatGlobal->stages[0].width >> 12)) << 12;
+                subData.y  = RNG_Next((u32)(g_CombatGlobal->stages[0].height >> 12)) << 12;
                 subData.z  = 0;
-                mainData.x = RNG_Next((u32)(g_CombatGlobal->unk3D7C0[1].unk_0C >> 12)) << 12;
+                mainData.x = RNG_Next((u32)(g_CombatGlobal->stages[1].width >> 12)) << 12;
                 mainData.z = 0;
-                mainData.y = RNG_Next((u32)(g_CombatGlobal->unk3D7C0[1].unk_10 >> 12)) << 12;
+                mainData.y = RNG_Next((u32)(g_CombatGlobal->stages[1].height >> 12)) << 12;
                 func_ov003_020c3cec(data_ov003_020e68d0[subData.group], data_ov003_020e67e0[mainData.group], (u32*)&subData,
                                     (u32*)&mainData);
             }
@@ -272,27 +272,25 @@ static void func_ov003_020c2624(u16* script) {
             subData.sprite = (s16)((Ov003CutinCmd*)script)->bits.sprite;
             subData.flags  = (subData.flags & ~1) | ((Ov003CutinCmd*)script)->bits.flag;
             subData.x      = ((s32*)data_ov003_020e05d4)[point * 2] +
-                        ((s32)(g_CombatGlobal->unk3D7C0[0].unk_0C + ((u32)g_CombatGlobal->unk3D7C0[0].unk_0C >> 31)) >> 1);
+                        ((s32)(g_CombatGlobal->stages[0].width + ((u32)g_CombatGlobal->stages[0].width >> 31)) >> 1);
             subData.y = ((s32*)data_ov003_020e05d4)[point * 2 + 1] +
-                        ((s32)(g_CombatGlobal->unk3D7C0[0].unk_10 + ((u32)g_CombatGlobal->unk3D7C0[0].unk_10 >> 31)) >> 1);
+                        ((s32)(g_CombatGlobal->stages[0].height + ((u32)g_CombatGlobal->stages[0].height >> 31)) >> 1);
             subData.z =
                 -(s32)((params->unk_19 > 0) ? (0.5f + (f32)(params->unk_19 << 12)) : ((f32)(params->unk_19 << 12) - 0.5f));
             mainData.group  = ((Ov003CutinCmd*)script)->bits.group;
             mainData.sprite = (s16)((Ov003CutinCmd*)script)->bits.sprite;
             mainData.flags  = (mainData.flags & ~1) | ((Ov003CutinCmd*)script)->bits.flag;
             mainData.x      = ((s32*)data_ov003_020e0664)[point * 2] +
-                         ((s32)(g_CombatGlobal->unk3D7C0[1].unk_0C + ((u32)g_CombatGlobal->unk3D7C0[1].unk_0C >> 31)) >> 1);
+                         ((s32)(g_CombatGlobal->stages[1].width + ((u32)g_CombatGlobal->stages[1].width >> 31)) >> 1);
             mainData.y = ((s32*)data_ov003_020e0664)[point * 2 + 1] +
-                         ((s32)(g_CombatGlobal->unk3D7C0[1].unk_10 + ((u32)g_CombatGlobal->unk3D7C0[1].unk_10 >> 31)) >> 1);
+                         ((s32)(g_CombatGlobal->stages[1].height + ((u32)g_CombatGlobal->stages[1].height >> 31)) >> 1);
             mainData.z =
                 -(s32)((params->unk_19 > 0) ? (0.5f + (f32)(params->unk_19 << 12)) : ((f32)(params->unk_19 << 12) - 0.5f));
             if ((first == 1) && (RNG_Next(2) != 0)) {
-                subData.x =
-                    ((s32)(g_CombatGlobal->unk3D7C0[0].unk_0C + ((u32)g_CombatGlobal->unk3D7C0[0].unk_0C >> 31)) >> 1) -
-                    ((s32*)data_ov003_020e05d4)[point * 2];
-                mainData.x =
-                    ((s32)(g_CombatGlobal->unk3D7C0[1].unk_0C + ((u32)g_CombatGlobal->unk3D7C0[1].unk_0C >> 31)) >> 1) -
-                    ((s32*)data_ov003_020e0664)[point * 2];
+                subData.x = ((s32)(g_CombatGlobal->stages[0].width + ((u32)g_CombatGlobal->stages[0].width >> 31)) >> 1) -
+                            ((s32*)data_ov003_020e05d4)[point * 2];
+                mainData.x = ((s32)(g_CombatGlobal->stages[1].width + ((u32)g_CombatGlobal->stages[1].width >> 31)) >> 1) -
+                             ((s32*)data_ov003_020e0664)[point * 2];
             }
             func_ov003_020c3cec(data_ov003_020e68d0[subData.group], data_ov003_020e67e0[mainData.group], (u32*)&subData,
                                 (u32*)&mainData);
@@ -364,9 +362,9 @@ void func_ov003_020c2b68(Ov003CutinActor* actor) {
 
 /// True while the actor is safely inside the camera bounds.
 s32 func_ov003_020c2bbc(Ov003CutinActor* actor) {
-    Ov003Global*  p     = g_CombatGlobal;
-    BattleCamera* cam   = &p->unk3D7C0[0];
-    BattleActor*  other = p->player;
+    Ov003Global* p     = g_CombatGlobal;
+    BattleStage* cam   = &p->stages[0];
+    BattleActor* other = p->player;
 
     if (actor->base.actor.position.x < 0x50000) {
         if (other->position.x < 0x80000) {
@@ -374,8 +372,8 @@ s32 func_ov003_020c2bbc(Ov003CutinActor* actor) {
         }
         return 0;
     }
-    if (actor->base.actor.position.x > cam->unk_0C - 0x50000) {
-        if (other->position.x > cam->unk_0C - 0x80000) {
+    if (actor->base.actor.position.x > cam->width - 0x50000) {
+        if (other->position.x > cam->width - 0x80000) {
             return 1;
         }
         return 0;
@@ -444,8 +442,8 @@ s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 t
             actor->base.actor.position.x += actor->velocityX;
             actor->base.actor.position.y += actor->velocityY;
             actor->base.actor.position.z += actor->velocityZ;
-            if ((actor->base.actor.isFlipped == 1 && actor->base.actor.position.x > g_CombatGlobal->unk3D7C0[1].unk_0C / 2) ||
-                (actor->base.actor.isFlipped == 0 && actor->base.actor.position.x < g_CombatGlobal->unk3D7C0[1].unk_0C / 2))
+            if ((actor->base.actor.isFlipped == 1 && actor->base.actor.position.x > g_CombatGlobal->stages[1].width / 2) ||
+                (actor->base.actor.isFlipped == 0 && actor->base.actor.position.x < g_CombatGlobal->stages[1].width / 2))
             {
                 actor->base.unk_1AC = actor->targetX;
                 actor->base.unk_1B0 = actor->targetY;
@@ -497,7 +495,7 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
     anim4   = animBase + 4;
     animFar = animBase + 5;
     other   = g_CombatGlobal->player;
-    limit   = g_CombatGlobal->unk3D7C0[0].unk_0C;
+    limit   = g_CombatGlobal->stages[0].width;
     switch (actor->state) {
         case 0:
             if (actor->timer == 0) {
@@ -781,16 +779,16 @@ static s32 func_ov003_020c3950(u32 index) {
 
 /// Clamps `*value` to the camera's horizontal bounds.
 s32 func_ov003_020c3960(s32* value, s32 margin) {
-    Ov003Global*  p   = g_CombatGlobal;
-    BattleCamera* cam = &p->unk3D7C0[0];
-    s32           v   = *value;
-    s32           ret = 0;
+    Ov003Global* p   = g_CombatGlobal;
+    BattleStage* cam = &p->stages[0];
+    s32          v   = *value;
+    s32          ret = 0;
 
     if (v - margin < 0) {
         *value = margin;
         ret    = 1;
-    } else if (v + margin > cam->unk_0C) {
-        *value = cam->unk_0C - margin;
+    } else if (v + margin > cam->width) {
+        *value = cam->width - margin;
         ret    = 1;
     }
     return ret;
@@ -819,8 +817,8 @@ TaskPool* func_ov003_020c3a10(u32 index) {
     return ((TaskPool**)data_ov003_020e71f8)[index];
 }
 
-static BattleCamera* func_ov003_020c3a48(u32 index) {
-    return &g_CombatGlobal->unk3D7C0[func_ov003_020c3950(index)];
+static BattleStage* func_ov003_020c3a48(u32 index) {
+    return &g_CombatGlobal->stages[func_ov003_020c3950(index)];
 }
 
 static s32 func_ov003_020c3a70(u32 index) {
@@ -886,13 +884,13 @@ static void func_ov003_020c3b6c(u16* tracks) {
 }
 
 void func_ov003_020c3ba8(s32 x, s32 y) {
-    Ov003Global*  p      = g_CombatGlobal;
-    BattleActor*  sub    = p->partner;
-    BattleCamera* camera = &p->unk3D7C0[1];
+    Ov003Global* p      = g_CombatGlobal;
+    BattleActor* sub    = p->partner;
+    BattleStage* camera = &p->stages[1];
 
-    camera->unk_20  = x;
+    camera->centerX = x;
     sub->position.x = x;
-    camera->unk_24  = y;
+    camera->centerY = y;
     sub->position.y = y;
     BtlStage_SetCameraTarget(1, sub->position.x, y, sub->position.z);
 }

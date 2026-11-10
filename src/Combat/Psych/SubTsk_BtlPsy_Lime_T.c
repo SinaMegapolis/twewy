@@ -36,11 +36,11 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
             self->target.z = -0x8000;
             self->target.x = BtlStage_ToWorldX(0, touch->x);
             self->target.y = BtlStage_ToWorldY(0, touch->y, self->target.z);
-            BtlStage_ClampXY(&self->target.x, &self->target.y, 0, 0);
+            BtlStage_ClampToFloor(&self->target.x, &self->target.y, 0, 0);
             self->position.z = -0x20000;
             self->position.x = BtlStage_ToWorldX(0, 0);
             self->position.y = self->target.y;
-            BtlStage_ClampXY(&self->position.x, &self->position.y, 0, 0);
+            BtlStage_ClampToFloor(&self->position.x, &self->position.y, 0, 0);
             self->angle = func_ov003_020a62b8(self->position.x, self->position.z, self->target.x, self->target.z);
             self->speed = self->effect->params[0];
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0xAF, 0);

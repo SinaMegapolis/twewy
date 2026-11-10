@@ -311,8 +311,8 @@ static const s8 data_ov003_020d7614[4][3] = {
 /// Drops a spawn of `kind` at a random place of the field.
 void CombatSys_DropObsAtRandom(u16 kind) {
     Ov003Global* global = g_CombatGlobal;
-    s32          height = global->unk3D7C0[0].unk_10;
-    s32          width  = global->unk3D7C0[0].unk_0C;
+    s32          height = global->stages[0].height;
+    s32          width  = global->stages[0].width;
     s32          y      = RNG_Next((u32)(height << 4) >> 16);
     s32          x      = RNG_Next((u32)(width << 4) >> 16);
 
@@ -512,10 +512,10 @@ void CombatSys_UpdateObs(Ov003EffectActor* effect) {
     if (!(effect->actor.flags & ACTOR_FLAG_HELD)) {
         range = effect->actor.radius;
         half  = (range / 2) << 12;
-        if (BtlStage_ClampX(&effect->actor.position.x, range << 12) != 0) {
+        if (BtlStage_ClampXToField(&effect->actor.position.x, range << 12) != 0) {
             effect->actor.xVelocity = 0;
         }
-        if (BtlStage_ClampY(&effect->actor.position.y, half, effect->actor.position.x) != 0) {
+        if (BtlStage_ClampYToFloor(&effect->actor.position.y, half, effect->actor.position.x) != 0) {
             effect->actor.yVelocity = 0;
         }
     }
@@ -536,7 +536,7 @@ void CombatSys_ResetObsList(void) {
 void CombatSys_RollObsDrop(void) {
     s32                      index;
     const CombatObsSpawnCmd* commands = NULL;
-    BattleCamera*            camera   = &g_CombatGlobal->unk3D7C0[0];
+    BattleStage*             camera   = &g_CombatGlobal->stages[0];
     const u8*                weights;
     s16                      roll;
 
@@ -1143,7 +1143,7 @@ s32 func_ov003_02087704(void) {
     }
     x = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
     y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
-    BtlStage_ClampXY(&x, &y, 0x8000, 0x8000);
+    BtlStage_ClampToFloor(&x, &y, 0x8000, 0x8000);
     actor = g_CombatGlobal->player;
     dx    = x - actor->position.x;
     dy    = y - actor->position.y;

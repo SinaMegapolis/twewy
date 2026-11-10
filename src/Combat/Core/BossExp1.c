@@ -404,8 +404,8 @@ static void func_ov003_020c7f58(BossExp1* self) {
             self->phase++;
             return;
         case 1:
-            if (!(g_CombatGlobal->unk3D878 & 1) && !(g_CombatGlobal->unk3D7C0[0].unk_02 & 1) &&
-                !(g_CombatGlobal->unk3D7C0[1].unk_02 & 1))
+            if (!(g_CombatGlobal->unk3D878 & 1) && !(g_CombatGlobal->stages[0].flags & BATTLE_STAGE_FLAG_BG_IN_USE) &&
+                !(g_CombatGlobal->stages[1].flags & BATTLE_STAGE_FLAG_BG_IN_USE))
             {
                 func_ov003_020c73a0();
                 g_CombatGlobal->unk3D884 = 1;

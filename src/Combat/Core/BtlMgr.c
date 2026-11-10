@@ -719,10 +719,10 @@ void BtlMgr_MoveByAngle(s32* x, s32* y, s32 angle, s32 scale) {
 
 /// Projects a world position onto the screen.
 void BtlMgr_WorldToScreen(s16* screenX, s16* screenY, s32 x, s32 y, s32 z) {
-    BattleCamera* camera = &g_CombatGlobal->unk3D7C0[0];
+    BattleStage* camera = &g_CombatGlobal->stages[0];
 
-    *screenX = (s16)((camera->unk_04 + (x - camera->unk_28) + 0x80000) >> 12);
-    *screenY = (s16)((camera->unk_08 + ((y + z) - camera->unk_40) + 0x60000) >> 12);
+    *screenX = (s16)((camera->left + (x - camera->viewX) + 0x80000) >> 12);
+    *screenY = (s16)((camera->top + ((y + z) - camera->viewY) + 0x60000) >> 12);
 }
 
 /// Adds (or removes) HP on the shared player/partner gauge. `bank` selects which of the two banked gauges the
@@ -959,7 +959,7 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
 
     BtlTouch_Init();
     BtlMic_Init();
-    BtlStage_SetupCameras();
+    BtlStage_Init();
     BtlCollision_Init();
     func_ov003_02087378();
     CombatSys_ResetObsList();
@@ -1187,12 +1187,12 @@ BOOL BtlMgr_IsTargetOnSide(Ov003EnemyActor* unit, s32 side) {
         return FALSE;
     }
     if (side != 0) {
-        if (g_CombatGlobal->unk3D7C0[1].unk_20 <= unit->actor.position.x) {
+        if (g_CombatGlobal->stages[1].centerX <= unit->actor.position.x) {
             return FALSE;
         }
         return TRUE;
     }
-    return unit->actor.position.x > g_CombatGlobal->unk3D7C0[1].unk_20;
+    return unit->actor.position.x > g_CombatGlobal->stages[1].centerX;
 }
 
 /// Finds the closest valid target to `x` on the given side, preferring airborne or grounded units as

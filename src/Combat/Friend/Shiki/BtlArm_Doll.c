@@ -467,7 +467,7 @@ void func_ov004_020e9eac(BtlArm_Doll* doll) {
                 if (doll->actor.isFlipped == 0) {
                     doll->unk_160 = -0x20000;
                 } else {
-                    doll->unk_160 = g_CombatGlobal->unk3D7C0[1].unk_0C + 0x20000;
+                    doll->unk_160 = g_CombatGlobal->stages[1].width + 0x20000;
                 }
                 doll->unk_17E = 0x10;
             }

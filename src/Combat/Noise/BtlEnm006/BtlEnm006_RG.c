@@ -253,11 +253,11 @@ static void func_ov010_02125de4(BtlEnm006* data) {
                 BtlSprite_SetAnimFromTable(cs, 0xD, 1);
                 data->base.flags18C &= ~1;
                 if (data->base.actor.isFlipped == 0) {
-                    data->base.actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20 + 0x10000;
+                    data->base.actor.position.x = g_CombatGlobal->stages[1].centerX + 0x10000;
                 } else {
-                    data->base.actor.position.x = g_CombatGlobal->unk3D7C0[1].unk_20 - 0x10000;
+                    data->base.actor.position.x = g_CombatGlobal->stages[1].centerX - 0x10000;
                 }
-                data->base.actor.position.y = g_CombatGlobal->unk3D7C0[1].unk_24;
+                data->base.actor.position.y = g_CombatGlobal->stages[1].centerY;
                 data->base.actor.position.z = 0;
                 if (data->base.actor.isFlipped == 1) {
                     data->base.actor.position.x = data->base.actor.position.x - 0xB000;

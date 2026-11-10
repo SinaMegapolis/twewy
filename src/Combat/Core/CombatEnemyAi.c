@@ -256,10 +256,10 @@ void func_ov003_020c4668(Ov003EnemyActor* actor) {
     if (func_ov003_020c59f4(actor) == 0) {
         if (actor->actor.flags & ACTOR_FLAG_UNCLAMPED_X) {
             s16 v = actor->actor.radius;
-            BtlStage_ClampY(&actor->actor.position.y, (v / 2) << 0xC, actor->actor.position.x);
+            BtlStage_ClampYToFloor(&actor->actor.position.y, (v / 2) << 0xC, actor->actor.position.x);
         } else {
             s16 v = actor->actor.radius;
-            BtlStage_ClampXY(&actor->actor.position.x, &actor->actor.position.y, v << 0xC, (v / 2) << 0xC);
+            BtlStage_ClampToFloor(&actor->actor.position.x, &actor->actor.position.y, v << 0xC, (v / 2) << 0xC);
         }
     }
     half = 0;
@@ -461,7 +461,7 @@ void func_ov003_020c4bdc(Ov003CutinActor* actor) {
 }
 
 void func_ov003_020c4c1c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < g_CombatGlobal->unk3D7C0[1].unk_0C / 2) {
+    if (actor->actor.position.x < g_CombatGlobal->stages[1].width / 2) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -469,7 +469,7 @@ void func_ov003_020c4c1c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4c5c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < g_CombatGlobal->unk3D7C0[0].unk_0C / 2) {
+    if (actor->actor.position.x < g_CombatGlobal->stages[0].width / 2) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -697,7 +697,7 @@ void func_ov003_020c51a4(Ov003CutinActor* actor, s32 x, s32 y) {
 
 /// True if the actor and its partner swapped sides of the sub-screen centre.
 s32 func_ov003_020c5220(Ov003EnemyActor* actor) {
-    s32 centre = g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
+    s32 centre = g_CombatGlobal->stages[1].width / 2;
     s32 x      = actor->actor.position.x;
     s32 lower  = centre - 0x10000;
 
@@ -768,9 +768,9 @@ static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u1
     u16 flags196;
 
     if (arg3 != 0) {
-        maxSpeed = (g_CombatGlobal->unk3D7C0[1].unk_0C / 4) >> 12;
+        maxSpeed = (g_CombatGlobal->stages[1].width / 4) >> 12;
     } else {
-        maxSpeed = (g_CombatGlobal->unk3D7C0[1].unk_0C / 4 * 3) >> 12;
+        maxSpeed = (g_CombatGlobal->stages[1].width / 4 * 3) >> 12;
     }
     flags196 = actor->flags196.raw;
     if ((((u32)flags196 << 0x19) >> 0x1F) != 0 && (((u32)flags196 << 0x18) >> 0x1F) == 0) {
@@ -790,7 +790,7 @@ static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u1
     }
 
     func_ov003_020c54e0(&over, &total);
-    size     = g_CombatGlobal->unk3D7C0[1].unk_10;
+    size     = g_CombatGlobal->stages[1].height;
     centre   = actor->actor.radius / 2;
     speed    = ((size * over) / total) >> 0xC;
     minSpeed = size >> 0xC;
@@ -842,7 +842,7 @@ s32 func_ov003_020c5924(Ov003EnemyActor* actor, s32* out) {
     u16 dir;
 
     while (1) {
-        dir = actor->unk_1AC > g_CombatGlobal->unk3D7C0[1].unk_0C / 2;
+        dir = actor->unk_1AC > g_CombatGlobal->stages[1].width / 2;
         func_ov003_020c554c(actor, out, out + 1, dir);
         if (func_ov003_020c5288(actor, out[0], out[1]) != 0) {
             return 1;

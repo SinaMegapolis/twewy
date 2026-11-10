@@ -219,7 +219,7 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
             CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, pan);
         }
     }
-    if (p->unk_0A4 > g_CombatGlobal->unk3D7C0[0].unk_0C) {
+    if (p->unk_0A4 > g_CombatGlobal->stages[0].width) {
         return 0;
     }
     BtlSprite_Update(&p->sprite);
