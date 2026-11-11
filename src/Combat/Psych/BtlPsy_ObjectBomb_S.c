@@ -37,7 +37,7 @@ static s32 func_ov003_020ac3d8(TaskPool* pool, Task* task, void* args, s32 stage
             self->timer       = 0;
             func_ov003_020a6464(1);
             func_ov003_020a647c(self->args.unit->actor.position.x);
-            CombatSe_PlayAtMainX(0x40, self->args.unit->actor.position.x);
+            BtlSe_PlayAtMainX(0x40, self->args.unit->actor.position.x);
             return 1;
         case 1: {
             BtlObjectBombCharge* self = task->data;
@@ -52,13 +52,13 @@ static s32 func_ov003_020ac3d8(TaskPool* pool, Task* task, void* args, s32 stage
                 return 0;
             }
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_OBJBOMB01_01))
-                CombatSe_PlayAtMainX(0x40, self->args.unit->actor.position.x);
+                BtlSe_PlayAtMainX(0x40, self->args.unit->actor.position.x);
             return 1;
         }
         case 2:
             return 1;
         case 3:
-            CombatSe_Play(SEIDX_SE_PSY_OBJBOMB01_01_CANCEL);
+            BtlSe_Play(SEIDX_SE_PSY_OBJBOMB01_01_CANCEL);
             func_ov003_020a6464(0);
             return 1;
     }

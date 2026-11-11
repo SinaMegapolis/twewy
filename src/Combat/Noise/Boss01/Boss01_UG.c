@@ -49,7 +49,7 @@ static s32   data_ov016_021291d8 = 1;
 const TaskHandle Tsk_Boss01_UG = {"Tsk_Boss01_UG", Boss01_UG_RunTask, 0x1F4};
 
 static void func_ov016_021262d8(Boss01_UG* bossUG) {
-    if (CombatHit_CanDrawSpark() == 0) {
+    if (BtlHit_CanDrawSpark() == 0) {
         return;
     }
 
@@ -271,7 +271,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
         bossUG->unk_1D0               = (bossUG->base.actor.isFlipped != 0) ? 0x3000 : -0x3000;
 
         if ((bossUG->base.unk_188 == 0) && (bossUG->unk_1E0 != NULL)) {
-            ((void (*)())CombatSys_DefeatObs)();
+            ((void (*)())BtlObsMgr_Defeat)();
             bossUG->unk_1E8 = 0;
             bossUG->unk_1E0 = NULL;
         }

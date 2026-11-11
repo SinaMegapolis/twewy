@@ -1,3 +1,4 @@
+#include "Battle/Core/BtlMgr.h"
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Battle/Core/BtlTouch.h"
@@ -94,12 +95,12 @@ extern u32 OVERLAY_23_ID;
 extern u32 OVERLAY_24_ID;
 extern u32 OVERLAY_25_ID;
 
-static void BtlMgr_Init(BtlMgrWork*);
-static void BtlMgr_Main(BtlMgrWork*);
-static void BtlMgr_Exit(BtlMgrWork*);
-static void func_ov003_0208e5f8(BtlMgrWork*);
-static void func_ov003_0208e668(BtlMgrWork*);
-static void func_ov003_0208e7c0(BtlMgrWork*);
+static void BtlMgr_Init(BattleMgrWork*);
+static void BtlMgr_Main(BattleMgrWork*);
+static void BtlMgr_Exit(BattleMgrWork*);
+static void func_ov003_0208e5f8(BattleMgrWork*);
+static void func_ov003_0208e668(BattleMgrWork*);
+static void func_ov003_0208e7c0(BattleMgrWork*);
 
 // ---------------------------------------------------------------------------------------------
 // Data
@@ -144,7 +145,7 @@ static const u16 data_ov003_020d7834[2] = {0x14, 0x15};
 static const u16 data_ov003_020d7838[6] = {0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x00};
 
 /// Process stages of the battle overlay: init, main, exit.
-static void (*const BtlMgr_ProcessStages[3])(BtlMgrWork*) = {
+static void (*const BtlMgr_ProcessStages[3])(BattleMgrWork*) = {
     BtlMgr_Init,
     BtlMgr_Main,
     BtlMgr_Exit,
@@ -962,9 +963,9 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
     BtlStage_Init();
     BtlCollision_Init();
     func_ov003_02087378();
-    CombatSys_ResetObsList();
+    BtlObsMgr_ResetList();
 
-    g_CombatGlobal->chargeState = NULL;
+    g_CombatGlobal->cmdQueue = NULL;
 
     func_ov003_0208ae24(g_CombatGlobal->unk3D88D);
     func_ov003_0208ad34(g_CombatGlobal->unk3D88E);
@@ -1006,7 +1007,7 @@ static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
 
     func_ov003_020c2a34(g_CombatGlobal->unk3D88E);
     BtlStage_StartFieldTasks(0);
-    CombatSys_RollObsDrop();
+    BtlObsMgr_RollDrop();
     BtlMic_CreateTask();
 
     if (g_CombatGlobal->unk3D88D < 3) {
@@ -1046,7 +1047,7 @@ static void func_ov003_0208c2a8(void) {
     if (BtlBadgeMgr_AnyActive() != 0) {
         pressed = (InputStatus.buttonState.currButtons & (INPUT_BUTTON_L | INPUT_BUTTON_R)) != 0;
         if (g_CombatGlobal->unk3D880 != pressed) {
-            CombatSe_Play(SEIDX_SE_WEAPON_SWITCH);
+            BtlSe_Play(SEIDX_SE_WEAPON_SWITCH);
             g_CombatGlobal->unk3D880 = pressed;
         }
     }
@@ -1918,7 +1919,7 @@ static void func_ov003_0208d698(u32 selector) {
 }
 
 /// Chooses the encounter that the battle actually fights and how long it lasts.
-static void func_ov003_0208db18(BtlMgrWork* work) {
+static void func_ov003_0208db18(BattleMgrWork* work) {
     u16 encounter = gSaveData.battleEncounters[gSaveData.unk_3142 - 1];
 
     switch (encounter) {
@@ -1945,7 +1946,7 @@ static void func_ov003_0208db18(BtlMgrWork* work) {
 }
 
 /// Sets the battle track and remembers that it was played.
-static void func_ov003_0208dbf4(BtlMgrWork* work, u32 track) {
+static void func_ov003_0208dbf4(BattleMgrWork* work, u32 track) {
     gSaveData.unk_313C = data_ov003_020d7850[track];
 
     if (gSaveData.battleTimer == 0 || gSaveData.unk_3130 == 1) {
@@ -1958,7 +1959,7 @@ static void func_ov003_0208dbf4(BtlMgrWork* work, u32 track) {
 
 /// Selects the battle music. Note that the field at 0x11E14 is reused as the music index once the
 /// encounter id has been consumed.
-static void func_ov003_0208dc64(BtlMgrWork* work, s32 isContinuation) {
+static void func_ov003_0208dc64(BattleMgrWork* work, s32 isContinuation) {
     u16 music;
 
     if (isContinuation != 0) {
@@ -2086,7 +2087,7 @@ static void func_ov003_0208dc64(BtlMgrWork* work, s32 isContinuation) {
 }
 
 /// Advances the chained-battle timer. Returns TRUE once all battles of the chain are done.
-static BOOL func_ov003_0208e008(BtlMgrWork* work) {
+static BOOL func_ov003_0208e008(BattleMgrWork* work) {
     gSaveData.battleTimer++;
     if (gSaveData.battleTimer > work->battleDuration) {
         gSaveData.unk_3142++;
@@ -2103,7 +2104,7 @@ static void func_ov003_0208e064(void) {
 }
 
 /// Battle result/continue state machine.
-static void func_ov003_0208e098(BtlMgrWork* work) {
+static void func_ov003_0208e098(BattleMgrWork* work) {
     BOOL isTrueEnd = gSaveData.unk_3130 == 3;
 
     switch (work->step) {
@@ -2212,7 +2213,7 @@ static void func_ov003_0208e098(BtlMgrWork* work) {
 }
 
 /// State machine used by the "continue" battle overlay.
-static void func_ov003_0208e3f0(BtlMgrWork* work) {
+static void func_ov003_0208e3f0(BattleMgrWork* work) {
     switch (work->step) {
         case 0: {
             OverlayTag tag;
@@ -2256,7 +2257,7 @@ static void func_ov003_0208e3f0(BtlMgrWork* work) {
 }
 
 /// Fades the battle in, then switches to the battle update callback.
-static void func_ov003_0208e520(BtlMgrWork* work) {
+static void func_ov003_0208e520(BattleMgrWork* work) {
     if (work->fadeCounter == 0) {
         EasyFade_FadeBothDisplays(0, 0, 0x1000);
         work->active = 1;
@@ -2271,7 +2272,7 @@ static void func_ov003_0208e520(BtlMgrWork* work) {
 }
 
 /// Fades the battle out, then pops the battle callback.
-static void func_ov003_0208e59c(BtlMgrWork* work) {
+static void func_ov003_0208e59c(BattleMgrWork* work) {
     if (work->fadeCounter == 0) {
         EasyFade_FadeBothDisplays(0, 0x10, 0x1000);
         work->active = 1;
@@ -2284,7 +2285,7 @@ static void func_ov003_0208e59c(BtlMgrWork* work) {
 }
 
 /// Battle update callback: switches to the fade-out callback once the battle is over.
-static void func_ov003_0208e5f8(BtlMgrWork* work) {
+static void func_ov003_0208e5f8(BattleMgrWork* work) {
     work->active = g_CombatGlobal->unk3D87C == 0;
 
     if (g_CombatGlobal->unk3D874 == 1) {
@@ -2296,7 +2297,7 @@ static void func_ov003_0208e5f8(BtlMgrWork* work) {
 }
 
 /// Battle update callback for the "battle is over" path.
-static void func_ov003_0208e668(BtlMgrWork* work) {
+static void func_ov003_0208e668(BattleMgrWork* work) {
     work->active = g_CombatGlobal->unk3D87C == 0;
     func_ov003_0208b71c();
 
@@ -2334,7 +2335,7 @@ static void func_ov003_0208e668(BtlMgrWork* work) {
     }
 }
 
-static void func_ov003_0208e7c0(BtlMgrWork* work) {
+static void func_ov003_0208e7c0(BattleMgrWork* work) {
     work->active = g_CombatGlobal->unk3D87C == 0;
 
     if (g_CombatGlobal->unk3D874 != 7) {
@@ -2346,7 +2347,7 @@ static void func_ov003_0208e7c0(BtlMgrWork* work) {
 }
 
 /// Overlay init stage: allocate the work area and bring up the battle scene.
-static void BtlMgr_Init(BtlMgrWork* work) {
+static void BtlMgr_Init(BattleMgrWork* work) {
     if (work == NULL) {
         char* sequence = data_ov003_020e3ac0;
 
@@ -2432,7 +2433,7 @@ static void BtlMgr_Init(BtlMgrWork* work) {
 }
 
 /// Overlay main stage.
-static void BtlMgr_Main(BtlMgrWork* work) {
+static void BtlMgr_Main(BattleMgrWork* work) {
     TouchInput_Update();
     OamMgr_Reset3DState();
     OamMgr_Reset(&g_OamMgr[DISPLAY_MAIN], 0, 0);
@@ -2469,7 +2470,7 @@ static void BtlMgr_Main(BtlMgrWork* work) {
 }
 
 /// Overlay exit stage.
-static void BtlMgr_Exit(BtlMgrWork* work) {
+static void BtlMgr_Exit(BattleMgrWork* work) {
     if (work == NULL) {
         return;
     }
@@ -2483,7 +2484,7 @@ static void BtlMgr_Exit(BtlMgrWork* work) {
 }
 
 /// Overlay callback dispatcher.
-void ProcessOverlay_Battle(BtlMgrWork* work) {
+void ProcessOverlay_Battle(BattleMgrWork* work) {
     s32 stage = MainOvlDisp_GetProcessStage();
 
     if (stage == PROCESS_STAGE_EXIT) {

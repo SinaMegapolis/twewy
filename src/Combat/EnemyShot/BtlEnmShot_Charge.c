@@ -97,8 +97,8 @@ static s32 func_ov003_020cdc28(Ov003EnemyShotCharge* self) {
             break;
         case 1:
             self->source.core.hitResult =
-                CombatHit_AttackAt(CombatHit_GetAttackInfo(source->core.attackId), &source->core.owner->base.actor.baseArgs,
-                                   source->core.position.x, source->core.position.y, source->core.position.z);
+                BtlHit_AttackAt(BtlHit_GetAttackInfo(source->core.attackId), &source->core.owner->base.actor.baseArgs,
+                                source->core.position.x, source->core.position.y, source->core.position.z);
             if (SpriteMgr_IsAnimationFinished(&sprite->sprite))
                 return 0;
             break;

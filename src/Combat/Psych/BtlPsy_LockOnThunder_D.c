@@ -52,7 +52,7 @@ void func_ov003_020b33a4(Ov003Thunder* self) {
     CombatPsyAnim_Load(&self->sprite, 2, 1, self->args.effect->index, 1);
     self->angle = 0x4000;
     func_ov003_020b3308(self);
-    CombatSe_PlayAtMainX(0x14B, self->target->position.x);
+    BtlSe_PlayAtMainX(0x14B, self->target->position.x);
 }
 
 void func_ov003_020b3400(Ov003Thunder* self) {
@@ -74,7 +74,7 @@ static void func_ov003_020b3464(Ov003Thunder* self) {
     self->phase = 1;
     BtlSprite_Release(&self->sprite);
     CombatPsyAnim_Load(&self->sprite, 2, 1, self->args.effect->index + 4, 0);
-    CombatSe_PlayAtMainX(0x14B, self->target->position.x);
+    BtlSe_PlayAtMainX(0x14B, self->target->position.x);
 }
 
 void func_ov003_020b34c0(Ov003Thunder* self) {
@@ -99,7 +99,7 @@ static void func_ov003_020b35c0(Ov003Thunder* self) {
     BtlSprite_Release(&self->sprite);
     CombatPsyAnim_Load(&self->sprite, 2, 1, self->args.effect->index + 8, 1);
     self->angle = (u16)(self->angle + 0x4000);
-    CombatSe_PlayAtMainX(0x14B, self->target->position.x);
+    BtlSe_PlayAtMainX(0x14B, self->target->position.x);
 }
 
 void func_ov003_020b362c(Ov003Thunder* self) {
@@ -122,7 +122,7 @@ static void func_ov003_020b3698(Ov003Thunder* self) {
     BtlSprite_Release(&self->sprite);
     CombatPsyAnim_Load(&self->sprite, 2, 1, self->args.effect->index + 4, 0);
     self->angle = (u16)(self->angle + (RNG_Next(0x1001) + 0x1000));
-    CombatSe_PlayPanned(SEIDX_SE_BOY_THUNDER, (s16)(self->position.x >> 12));
+    BtlSe_PlayPanned(SEIDX_SE_BOY_THUNDER, (s16)(self->position.x >> 12));
 }
 
 void func_ov003_020b371c(Ov003Thunder* self) {

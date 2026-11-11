@@ -163,7 +163,7 @@ static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
         case 3:
             return 0;
     }
-    info      = *CombatHit_GetAttackInfo(self->source->core.attackId);
+    info      = *BtlHit_GetAttackInfo(self->source->core.attackId);
     halfWidth = FX_Mul(self->growX, FX32_CONVERT(self->inset)) >> 1;
     if (halfWidth < 0x1000)
         halfWidth = 0x1000;
@@ -190,7 +190,7 @@ static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
             break;
     }
     BtlStage_WorldToScreen(0, &x, &y, boxX, boxY, boxZ);
-    CombatHit_AttackAtScreen(&info, &self->source->core.owner->base.actor.baseArgs, x, y);
+    BtlHit_AttackAtScreen(&info, &self->source->core.owner->base.actor.baseArgs, x, y);
     BtlSprite_Update(&self->sprite);
     BtlSprite_Update(&self->sprite2);
     return 1;

@@ -63,7 +63,7 @@ static s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage
                 func_ov003_020b1ca0(self->effect, self->x, self->y, attackId);
                 func_ov003_020a647c(self->x);
                 func_ov003_020a5a94(self->effect);
-                CombatSe_PlayAtMainX(0x34, self->x);
+                BtlSe_PlayAtMainX(0x34, self->x);
                 self->count--;
                 self->timer = 0x10;
                 self->x += self->step;

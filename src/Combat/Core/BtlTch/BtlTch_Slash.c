@@ -44,11 +44,11 @@ static s32 BtlTch_Slash_Init(TaskPool* pool, Task* task, void* args) {
     BtlSprite_SetPriority(&effect->sprite, 0);
     BtlSprite_SetSortKey(&effect->sprite, 0x3F2000);
     if (effect->scaleY < 0x800) {
-        CombatSe_PlayPanned(SEIDX_SE_PENEFFECTS, effect->x);
+        BtlSe_PlayPanned(SEIDX_SE_PENEFFECTS, effect->x);
     } else if (effect->scaleY < 0x1000) {
-        CombatSe_PlayPanned(SEIDX_SE_PENEFFECTM, effect->x);
+        BtlSe_PlayPanned(SEIDX_SE_PENEFFECTM, effect->x);
     } else {
-        CombatSe_PlayPanned(SEIDX_SE_PENEFFECTL, effect->x);
+        BtlSe_PlayPanned(SEIDX_SE_PENEFFECTL, effect->x);
     }
     return 1;
 }

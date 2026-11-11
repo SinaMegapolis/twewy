@@ -70,12 +70,12 @@ static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
         s16 x, y;
         BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.position.x,
                                self->source.position.y, self->source.position.z);
-        self->source.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.attackId),
-                                                          &self->source.owner->base.actor.baseArgs, x, y);
+        self->source.hitResult =
+            BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(self->source.attackId), &self->source.owner->base.actor.baseArgs, x, y);
     } else {
         self->source.hitResult =
-            CombatHit_AttackAt(CombatHit_GetAttackInfo(self->source.attackId), &self->source.owner->base.actor.baseArgs,
-                               self->source.position.x, self->source.position.y, self->source.position.z);
+            BtlHit_AttackAt(BtlHit_GetAttackInfo(self->source.attackId), &self->source.owner->base.actor.baseArgs,
+                            self->source.position.x, self->source.position.y, self->source.position.z);
     }
     BtlSprite_Update(&self->sprite);
     return 1;

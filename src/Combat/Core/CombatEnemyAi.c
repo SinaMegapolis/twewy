@@ -188,7 +188,7 @@ s32 func_ov003_020c44ac(Ov003EnemyActor* actor) {
         return 0;
     }
     func_ov003_020c4264(actor);
-    CombatHit_LoadSparkForUnit(1, &actor->subSprite, &actor->actor);
+    BtlHit_LoadSparkForUnit(1, &actor->subSprite, &actor->actor);
     func_ov003_020c4988(actor);
     func_ov003_020c44a4(actor);
     return result;
@@ -206,7 +206,7 @@ s32 func_ov003_020c4520(Ov003EnemyActor* actor) {
     if (result == 0) {
         return 0;
     }
-    CombatHit_LoadSparkForUnit(0, &actor->subSprite, &actor->actor);
+    BtlHit_LoadSparkForUnit(0, &actor->subSprite, &actor->actor);
     func_ov003_020c49c8(actor);
     BtlCollision_Add(&actor->collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(actor);
@@ -225,7 +225,7 @@ s32 func_ov003_020c45a4(Ov003CutinActor* actor) {
     if (result == 0) {
         return 0;
     }
-    CombatHit_LoadSparkForUnit(0, &actor->base.subSprite, &actor->base.actor);
+    BtlHit_LoadSparkForUnit(0, &actor->base.subSprite, &actor->base.actor);
     func_ov003_020c49c8(&actor->base);
     BtlCollision_Add(&actor->base.collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(&actor->base);
@@ -325,7 +325,7 @@ void func_ov003_020c4878(void* arg) {
     }
     func_ov003_020c4748(&actor->base);
     BtlActor_Render(&actor->base.actor, &actor->base.sprite);
-    CombatHit_DrawSparkOnActor(&actor->base.subSprite, &actor->base.actor);
+    BtlHit_DrawSparkOnActor(&actor->base.subSprite, &actor->base.actor);
 }
 
 void func_ov003_020c48b0(Ov003EnemyActor* actor) {
@@ -339,7 +339,7 @@ void func_ov003_020c48b0(Ov003EnemyActor* actor) {
     }
     func_ov003_020c4748(actor);
     BtlActor_Render(&actor->actor, &actor->sprite);
-    CombatHit_DrawSparkOnActor(&actor->subSprite, &actor->actor);
+    BtlHit_DrawSparkOnActor(&actor->subSprite, &actor->actor);
 }
 
 void func_ov003_020c48fc(void* arg) {
@@ -915,31 +915,31 @@ void func_ov003_020c5ac0(Ov003EnemyActor* self, u16 attackId, BattleActor* targe
     target->zVelocity = zVelocity;
     target->holderId  = 0;
     BtlActor_SetPendingCommand(target, ACTOR_CMD_RELEASE);
-    CombatHit_ArmActor(attackId, &self->actor.baseArgs, target);
+    BtlHit_ArmActor(attackId, &self->actor.baseArgs, target);
 }
 
 s32 func_ov003_020c5b0c(u16 id, Ov003EnemyActor* owner, s32 arg2) {
-    return CombatHit_AttackCharacter(CombatHit_GetAttackInfo(id), &owner->actor.baseArgs, arg2);
+    return BtlHit_AttackCharacter(BtlHit_GetAttackInfo(id), &owner->actor.baseArgs, arg2);
 }
 
 s32 func_ov003_020c5b2c(u16 id, Ov003EnemyActor* owner, s32 x, s32 y, s32 z) {
-    return CombatHit_AttackAt(CombatHit_GetAttackInfo(id), &owner->actor.baseArgs, x, y, z);
+    return BtlHit_AttackAt(BtlHit_GetAttackInfo(id), &owner->actor.baseArgs, x, y, z);
 }
 
 s32 func_ov003_020c5b64(u16 id, Ov003EnemyActor* owner, s32 x, s32 y) {
-    return CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(id), &owner->actor.baseArgs, x, y);
+    return BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(id), &owner->actor.baseArgs, x, y);
 }
 
 s32 func_ov003_020c5b8c(const Ov003AttackInfo* info, Ov003EnemyActor* owner, s32 x, s32 y, s32 z) {
-    return CombatHit_AttackAt(info, &owner->actor.baseArgs, x, y, z);
+    return BtlHit_AttackAt(info, &owner->actor.baseArgs, x, y, z);
 }
 
 s32 func_ov003_020c5ba4(u16 id, BattleAttackArgs* args, s32 arg2) {
-    return CombatHit_AttackCharacter(CombatHit_GetAttackInfo(id), args, arg2);
+    return BtlHit_AttackCharacter(BtlHit_GetAttackInfo(id), args, arg2);
 }
 
 s32 func_ov003_020c5bc4(u16 id, BattleAttackArgs* args, s32 x, s32 y, s32 z) {
-    return CombatHit_AttackAt(CombatHit_GetAttackInfo(id), args, x, y, z);
+    return BtlHit_AttackAt(BtlHit_GetAttackInfo(id), args, x, y, z);
 }
 
 /// Noise state machine: the actor swoops in, alternates facing, then fires its command.
@@ -1012,7 +1012,7 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
         case 3:
             if (g_CombatGlobal->unk3D874 == 2) {
                 if (CombatAbility_IsActive(0xF) != 0) {
-                    CombatHit_ApplyAttack(actor->sprite.sprite.bits_0_1, &actor->actor, (u16)CombatAbility_GetValue(0xF));
+                    BtlHit_ApplyAttack(actor->sprite.sprite.bits_0_1, &actor->actor, (u16)CombatAbility_GetValue(0xF));
                 }
                 return 0;
             }
@@ -1480,7 +1480,7 @@ s32 func_ov003_020c6c2c(Ov003EnemyActor* actor, u16 anim) {
                 func_ov003_020c4f00(actor);
                 func_ov003_020c3700(actor);
             }
-            CombatHit_ActorImpact(&actor->actor);
+            BtlHit_ActorImpact(&actor->actor);
             if ((actor->unk_1A4 > 0) && (actor->actor.position.z >= 0)) {
                 actor->unk_1A4 = 0;
                 actor->unk_1A8++;
@@ -1495,7 +1495,7 @@ s32 func_ov003_020c6c2c(Ov003EnemyActor* actor, u16 anim) {
                 actor->actor.linearDampingStep = 0x19A;
                 actor->actor.zGravity          = 0x400;
             }
-            CombatHit_ActorImpact(&actor->actor);
+            BtlHit_ActorImpact(&actor->actor);
             if ((actor->actor.xVelocity == 0) && (actor->actor.yVelocity == 0)) {
                 actor->actor.flags &= ~ACTOR_FLAG_THROWN;
                 actor->unk_1A4 = 0;

@@ -436,9 +436,9 @@ static void func_ov003_020c80b8(BossExp1* self) {
             func_ov003_020c75ec(self, 1);
             func_ov003_020c7940(self, 0);
             if (self->anims.actor->group == 0x21) {
-                CombatSe_Play(SEIDX_SE_LBAT_DYINGFX01);
+                BtlSe_Play(SEIDX_SE_LBAT_DYINGFX01);
             } else {
-                CombatSe_Play(SEIDX_SE_BOSS_DYINGFX01);
+                BtlSe_Play(SEIDX_SE_BOSS_DYINGFX01);
             }
             self->phase++;
             return;
@@ -698,9 +698,9 @@ static void func_ov003_020c8be8(BossExp1* self) {
                 func_ov003_020c75ec(self, 2);
                 func_ov003_020c75ec(self, 3);
                 if (self->anims.actor->group == 0x21) {
-                    CombatSe_Play(SEIDX_SE_LBAT_DYINGFX02);
+                    BtlSe_Play(SEIDX_SE_LBAT_DYINGFX02);
                 } else {
-                    CombatSe_Play(SEIDX_SE_BOSS_DYINGFX02);
+                    BtlSe_Play(SEIDX_SE_BOSS_DYINGFX02);
                 }
             }
             if (self->timer <= 0) {

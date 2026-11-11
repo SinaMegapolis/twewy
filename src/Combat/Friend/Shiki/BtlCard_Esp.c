@@ -33,10 +33,10 @@ typedef struct {
 } CardUnk; // Size: 0x2C4
 
 typedef struct {
-    /* 0x000 */ BattleSprite   sprite;
-    /* 0x060 */ char           unk_060[0x8];
-    /* 0x068 */ Ov003EffectCmd effectCmd;
-    /* 0x098 */ CardUnk        unk_098;
+    /* 0x000 */ BattleSprite  sprite;
+    /* 0x060 */ char          unk_060[0x8];
+    /* 0x068 */ BattleCmdDeck effectCmd;
+    /* 0x098 */ CardUnk       unk_098;
 } BtlCard_Esp; // Size: 0x35C
 
 static s32 BtlCard_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
@@ -187,7 +187,7 @@ static void func_ov004_020eafb0(CardUnk* arg0) {
         func_ov004_020eaf34(var_r4);
         BtlSprite_Update(&var_r4->unk_04);
         BtlSprite_Update(&var_r4->unk_64);
-        CombatSys_EaseToSine(&var_r4->unk_D4, &var_r4->unk_D8);
+        BtlCmdDeck_EaseToSine(&var_r4->unk_D4, &var_r4->unk_D8);
         var_r4 = BtlList_GetNext(&var_r4->unk_DC);
     }
 }

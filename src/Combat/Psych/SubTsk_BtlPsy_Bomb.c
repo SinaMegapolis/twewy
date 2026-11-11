@@ -57,7 +57,7 @@ static s32 func_ov003_020ab56c(TaskPool* pool, Task* task, void* args, s32 stage
                 func_ov003_020a88c0(&effect, self->args.position.x, self->args.position.y, self->args.position.z, 2,
                                     data_ov003_020dc700[self->args.kind].burstAnimation);
                 func_ov003_020a88a8(&effect);
-                CombatSe_PlayAtMainX(0x56, self->args.position.x);
+                BtlSe_PlayAtMainX(0x56, self->args.position.x);
                 return 0;
             }
             self->args.position.x += FX_Mul(self->args.speed, COS2(FX_SinCosTable_, self->args.angle));

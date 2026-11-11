@@ -114,7 +114,7 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
                     BtlSprite_SetAnim(&self->bar, 3, 0);
                 }
                 if (self->actor->unk_048 < 0) {
-                    CombatSe_Play(SEIDX_SE_PSY_FULL);
+                    BtlSe_Play(SEIDX_SE_PSY_FULL);
                     BtlBadgeActor_Request(self->actor, 3);
                     return 0;
                 }

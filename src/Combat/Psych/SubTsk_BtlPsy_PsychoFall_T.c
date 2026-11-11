@@ -48,8 +48,8 @@ static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage
             self->variant         = 0;
             BtlStage_ClampToFloor(&self->x, &self->y, 0, 0);
             CombatPsyAnim_Load(&self->sprite, 2, 1, data_ov003_020dc9f0[self->index].animation, 0);
-            CombatHit_LoadSpark(0, &self->icon, self->variant);
-            CombatSe_PlayAtMainX(0x35, self->x);
+            BtlHit_LoadSpark(0, &self->icon, self->variant);
+            BtlSe_PlayAtMainX(0x35, self->x);
             return 1;
         }
         case 1: {
@@ -58,7 +58,7 @@ static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage
                 case 0:
                     self->z += self->zStep;
                     if (self->z >= 0) {
-                        CombatSe_PlayAtMainX(0x36, self->x);
+                        BtlSe_PlayAtMainX(0x36, self->x);
                         self->z     = 0;
                         self->phase = 1;
                         CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dc9f0[self->index].animation + 1, 0);
@@ -119,7 +119,7 @@ static s32 func_ov003_020b42f4(TaskPool* pool, Task* task, void* args, s32 stage
             BtlSprite_SetPosition(&self->sprite, BtlStage_ToScreenX(0, self->x), y);
             BtlSprite_SetSortKey(&self->sprite, self->y + 0x1F4000);
             BtlSprite_Render(&self->sprite);
-            CombatHit_DrawSpark(&self->icon, self->x, self->y);
+            BtlHit_DrawSpark(&self->icon, self->x, self->y);
             return 1;
         }
         case 3: {

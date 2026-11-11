@@ -34,7 +34,7 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
                         self->phase = 1;
                         self->timer = 0;
                         CombatPsyAnim_SetAnim(&self->sprite, 0xA0, 1);
-                        CombatSe_PlayAtMainX(0x43, self->args.unit->actor.position.x);
+                        BtlSe_PlayAtMainX(0x43, self->args.unit->actor.position.x);
                     }
                     break;
                 case 1:
@@ -53,11 +53,11 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
                         func_ov003_020a88a8(&effect);
                         func_ov003_020a61e4(self->args.unit, 0, 10, &self->args.effect->streak.args, RNG_Next(0xFFFF), 0x7000,
                                             -0x2000);
-                        CombatSe_PlayAtMainX(0x44, self->args.unit->actor.position.x);
+                        BtlSe_PlayAtMainX(0x44, self->args.unit->actor.position.x);
                         return 0;
                     }
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                        CombatSe_PlayAtMainX(0x43, self->args.unit->actor.position.x);
+                        BtlSe_PlayAtMainX(0x43, self->args.unit->actor.position.x);
                         BtlSprite_Restart(&self->sprite);
                     }
                     break;
@@ -82,14 +82,14 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
 
 /// Adjusts the contact attack's dimensions to the selected object's dimensions.
 static s32 func_ov003_020abdb8(Ov003ObsBomb* self) {
-    Ov003AttackInfo info  = *CombatHit_GetAttackInfo(0x190);
+    Ov003AttackInfo info  = *BtlHit_GetAttackInfo(0x190);
     s16             depth = self->args.unit->actor.height;
     s16             width = self->args.unit->actor.radius;
     info.unk_05           = width;
     info.unk_06           = width / 2;
     info.unk_07           = depth;
-    return CombatHit_AttackAt(&info, &self->args.effect->streak.args, self->args.unit->actor.position.x,
-                              self->args.unit->actor.position.y, self->args.unit->actor.position.z) == 1;
+    return BtlHit_AttackAt(&info, &self->args.effect->streak.args, self->args.unit->actor.position.x,
+                           self->args.unit->actor.position.y, self->args.unit->actor.position.z) == 1;
 }
 
 static char             data_ov003_020e4af8[24] = "SubTsk_BtlPsy_ObsBomb";

@@ -153,7 +153,7 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
     }
     if (p->unk_064 == 0) {
         p->unk_064 = p->unk_064 + 1;
-        CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK, pan);
+        BtlSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK, pan);
     }
     BtlStage_WorldToScreen(mode, &va, &vb, p->unk_09C, p->unk_0A0, p->unk_0A4);
     rec = p->shot;
@@ -167,8 +167,8 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
         func_ov003_020cbc50(&oa, &ob, p->unk_0AA, rec->unk_00);
         rec->unk_0C = (oa + (va << 12)) >> 12;
         rec->unk_0E = (ob + (vb << 12)) >> 12;
-        if (CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(id), &p->args, rec->unk_0C, rec->unk_0E) == 1) {
-            CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, rec->unk_0C);
+        if (BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(id), &p->args, rec->unk_0C, rec->unk_0E) == 1) {
+            BtlSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, rec->unk_0C);
         }
         {
             s32 v = BtlStage_ToWorldX(mode, rec->unk_0C);

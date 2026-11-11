@@ -72,8 +72,8 @@ static s32 func_ov003_020cf554(Ov003EnemyShotHoming* self) {
     self->source.core.position.y += self->velocityY;
     BtlStage_WorldToScreen(engine, &x, &y, self->source.core.position.x, self->source.core.position.y,
                            self->source.core.position.z);
-    self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
-                                                           &self->source.core.owner->base.actor.baseArgs, x, y);
+    self->source.core.hitResult = BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(self->source.core.attackId),
+                                                        &self->source.core.owner->base.actor.baseArgs, x, y);
     BtlSprite_Update(&self->sprite);
     return 1;
 }

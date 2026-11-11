@@ -1,6 +1,6 @@
 #include "Battle/Core/BtlCollision.h"
 
-#include "Combat/Core/BtlMgr.h"
+#include "Battle/Core/BtlMgr.h"
 #include "FixedPoint.h"
 
 #include <nitro/fx.h>

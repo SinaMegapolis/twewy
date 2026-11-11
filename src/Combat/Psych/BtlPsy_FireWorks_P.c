@@ -36,7 +36,7 @@ static s32 func_ov003_020ac240(TaskPool* pool, Task* task, void* args, s32 stage
             self->reserved = 0;
             func_ov003_020a6464(1);
             func_ov003_020a6494(touch->x);
-            CombatSe_PlayPanned(SEIDX_SE_PSY_FIREWORKS01_01, touch->x);
+            BtlSe_PlayPanned(SEIDX_SE_PSY_FIREWORKS01_01, touch->x);
             return 1;
         }
         case 1: {
@@ -59,7 +59,7 @@ static s32 func_ov003_020ac240(TaskPool* pool, Task* task, void* args, s32 stage
         case 2:
             return 1;
         case 3:
-            CombatSe_Play(SEIDX_SE_PSY_FIREWORKS01_01_CANCEL);
+            BtlSe_Play(SEIDX_SE_PSY_FIREWORKS01_01_CANCEL);
             func_ov003_020a6464(0);
             return 1;
     }

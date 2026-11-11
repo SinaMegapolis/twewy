@@ -43,7 +43,7 @@ static s32 func_ov003_020ba74c(TaskPool* pool, Task* task, void* args, s32 stage
             self->angle      = arg->angle;
             self->phase      = 0;
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0xE9, 1);
-            CombatSe_Play(SEIDX_SE_PSY_PSYCOTERRITORY01_01);
+            BtlSe_Play(SEIDX_SE_PSY_PSYCOTERRITORY01_01);
             return 1;
         case 1:
             self = task->data;
@@ -52,7 +52,7 @@ static s32 func_ov003_020ba74c(TaskPool* pool, Task* task, void* args, s32 stage
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         self->phase = 1;
                         CombatPsyAnim_SetAnim(&self->sprite, 0xEA, 1);
-                        CombatSe_Play(SEIDX_SE_PSY_PSYCOTERRITORY01_02);
+                        BtlSe_Play(SEIDX_SE_PSY_PSYCOTERRITORY01_02);
                     }
                     break;
                 case 1:
@@ -85,7 +85,7 @@ static s32 func_ov003_020ba74c(TaskPool* pool, Task* task, void* args, s32 stage
                     s32 endX   = (dx + x * 0x1000) >> 12;
                     s32 startX = (x * 0x1000 - dx) >> 12;
                     if (func_ov003_020a6acc(&self->effect->streak, 0x16C, startX, startY, endX, endY, self->position.x) == 1)
-                        CombatSe_Play(SEIDX_SE_PSY_PSYCOTERRITORY01_HIT);
+                        BtlSe_Play(SEIDX_SE_PSY_PSYCOTERRITORY01_HIT);
                     break;
                 }
             }

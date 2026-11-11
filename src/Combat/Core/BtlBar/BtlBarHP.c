@@ -38,7 +38,7 @@ static void func_ov003_02098c28(s32 arg0, s32 arg1) {
         if (arg1 >= -0x50) {
             return;
         }
-        CombatSe_PlayAtMainX(0x36F, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x36F, g_CombatGlobal->player->position.x);
         return;
     }
     if (arg1 <= 0x50) {
@@ -46,13 +46,13 @@ static void func_ov003_02098c28(s32 arg0, s32 arg1) {
     }
     switch (g_CombatGlobal->unk3D88D) {
         case 0:
-            CombatSe_PlayAtSubX(0x397, g_CombatGlobal->partner->position.x);
+            BtlSe_PlayAtSubX(0x397, g_CombatGlobal->partner->position.x);
             return;
         case 1:
-            CombatSe_PlayAtSubX(0x3BF, g_CombatGlobal->partner->position.x);
+            BtlSe_PlayAtSubX(0x3BF, g_CombatGlobal->partner->position.x);
             return;
         case 2:
-            CombatSe_PlayAtSubX(0x3E7, g_CombatGlobal->partner->position.x);
+            BtlSe_PlayAtSubX(0x3E7, g_CombatGlobal->partner->position.x);
             return;
     }
 }
@@ -94,12 +94,12 @@ static void func_ov003_02098da0(BtlBar* bar) {
         if (bar->unk_3F8 == 0) {
             BtlSprite_SetAnim(&bar->sprites[0], 5, 1);
             BtlSprite_SetAnim(&bar->sprites[5], 5, 1);
-            CombatSe_Play(SEIDX_SE_WARNING);
+            BtlSe_Play(SEIDX_SE_WARNING);
             bar->unk_3F8 = 1;
         } else if (SpriteMgr_IsAnimationFinished(&bar->sprites[0].sprite)) {
             BtlSprite_Restart(&bar->sprites[0]);
             BtlSprite_Restart(&bar->sprites[5]);
-            CombatSe_Play(SEIDX_SE_WARNING);
+            BtlSe_Play(SEIDX_SE_WARNING);
         }
     } else {
         BtlSprite_SetAnim(&bar->sprites[0], 0, 0);

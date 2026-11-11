@@ -277,7 +277,7 @@ static void func_ov015_021257f8(BtlEnm026* data) {
             data_ov015_02128500.variant != 3 && data_ov015_02128500.variant != 9 && data_ov015_02128500.variant != 8 &&
             data_ov015_02128500.variant != 5 && data_ov015_02128500.variant != 0x11)
         {
-            CombatHit_Stagger(0, &data->base.partner->actor, 0);
+            BtlHit_Stagger(0, &data->base.partner->actor, 0);
         }
     }
 }

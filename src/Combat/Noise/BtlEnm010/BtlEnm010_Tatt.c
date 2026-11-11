@@ -382,7 +382,7 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
         case 2:
             if (rec->unk_60 == 0) {
                 rec->unk_60 = rec->unk_60 + 1;
-                CombatSe_PlayPanned(SEIDX_SE_010_TATOO_TOBASHI02, (s16)((p->unk_23C + rec->unk_68) >> 12));
+                BtlSe_PlayPanned(SEIDX_SE_010_TATOO_TOBASHI02, (s16)((p->unk_23C + rec->unk_68) >> 12));
             }
             if (rec->unk_74 > 0) {
                 rec->unk_74 = rec->unk_74 - 0x8000;
@@ -404,8 +404,7 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
             off = i - 0xF;
             do {
                 func_ov003_020cbc50(&ox, &oy, rec->unk_72, off * 0x1000);
-                CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(idx), &p->args, (s16)((ox + bx) >> 12),
-                                         (s16)((oy + by) >> 12));
+                BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(idx), &p->args, (s16)((ox + bx) >> 12), (s16)((oy + by) >> 12));
                 off = off + 0x10;
                 i   = i + 1;
             } while (i < 4);

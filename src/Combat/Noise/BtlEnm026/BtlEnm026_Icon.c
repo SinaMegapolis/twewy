@@ -130,12 +130,12 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
                 if (g_CombatGlobal->unk3D874 == 2) {
                     if (hp == 0) {
                         if (SndMgr_IsSEPlaying(SEIDX_SE_026_TIMER0) == 0) {
-                            CombatSe_Play(SEIDX_SE_026_TIMER0);
+                            BtlSe_Play(SEIDX_SE_026_TIMER0);
                         }
                         data->unk_130 = 1;
                     } else if (data->unk_12C != hp) {
                         if (SndMgr_IsSEPlaying(SEIDX_SE_026_TIMER) == 0) {
-                            CombatSe_Play(SEIDX_SE_026_TIMER);
+                            BtlSe_Play(SEIDX_SE_026_TIMER);
                         }
                     }
                 }
@@ -166,7 +166,7 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
             if (SndMgr_IsSEPlaying(SEIDX_SE_026_VOC_IBIKI) == 0) {
                 if (data_ov015_02128500.flag08 == 0) {
                     if (g_CombatGlobal->unk3D874 == 2) {
-                        CombatSe_Play(SEIDX_SE_026_VOC_IBIKI);
+                        BtlSe_Play(SEIDX_SE_026_VOC_IBIKI);
                     }
                 }
             }

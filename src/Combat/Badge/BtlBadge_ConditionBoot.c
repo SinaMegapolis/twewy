@@ -93,7 +93,7 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
                     s32 triggered = self->unk_08 == 2 && func_ov003_020a5ac4(slots, 6, &self->actor->effect, 0) != 0;
 
                     if (triggered) {
-                        CombatSe_Play(SEIDX_SE_PSY_FULL);
+                        BtlSe_Play(SEIDX_SE_PSY_FULL);
                         BtlBadgeActor_Request(self->actor, 3);
                         return 0;
                     }

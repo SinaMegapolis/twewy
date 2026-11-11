@@ -39,7 +39,7 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
             s32 x     = self->unit->actor.position.x;
             s32 sound = data_ov003_020dc894[self->kind].start;
             if (sound < 0x56C)
-                CombatSe_PlayAtMainX(sound, x);
+                BtlSe_PlayAtMainX(sound, x);
             return 1;
         }
         case 1: {
@@ -52,7 +52,7 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
                         s32 sound = data_ov003_020dc894[self->kind].hold;
                         s32 x     = self->unit->actor.position.x;
                         if (sound < 0x56C)
-                            CombatSe_PlayAtMainX(sound, x);
+                            BtlSe_PlayAtMainX(sound, x);
                     }
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dc880[self->kind] + 1, 0);
@@ -70,7 +70,7 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
                         self->height     = unit->actor.centerHeight;
                         s32 sound        = data_ov003_020dc894[self->kind].release;
                         if (sound < 0x56C)
-                            CombatSe_PlayAtMainX(sound, self->position.x);
+                            BtlSe_PlayAtMainX(sound, self->position.x);
                         func_ov003_020a6198(unit, 3);
                     } else if ((unit->actor.flags & ACTOR_FLAG_HELD) && unit->actor.holderId == 5) {
                         func_ov003_020a6b84(&self->effect->streak, (u16)self->attackId, unit);
@@ -82,7 +82,7 @@ static s32 func_ov003_020af790(TaskPool* pool, Task* task, void* args, s32 stage
                         self->height     = unit->actor.centerHeight;
                         s32 sound        = data_ov003_020dc894[self->kind].release;
                         if (sound < 0x56C)
-                            CombatSe_PlayAtMainX(sound, self->position.x);
+                            BtlSe_PlayAtMainX(sound, self->position.x);
                     }
                     break;
                 case 2:

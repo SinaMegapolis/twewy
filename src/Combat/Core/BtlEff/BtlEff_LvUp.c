@@ -76,7 +76,7 @@ static s32 BtlEff_LvUp_Init(TaskPool* pool, Task* task, void* args) {
     g_CombatGlobal->unk3D878 |= 8;
     func_ov003_020a0290(0, &data[0]);
     func_ov003_020a0290(1, &data[1]);
-    CombatSe_Play(SEIDX_SE_BOY_LEVELUP);
+    BtlSe_Play(SEIDX_SE_BOY_LEVELUP);
     return 1;
 }
 
@@ -88,9 +88,9 @@ static s32 BtlEff_LvUp_Update(TaskPool* pool, Task* task, void* args) {
     func_ov003_020a033c(&data[1]);
     x = BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x);
     // Both effect attachment calls intentionally use the sub-screen actor +4 in retail.
-    CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(31), &g_CombatGlobal->partner->baseArgs, x, 0);
+    BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(31), &g_CombatGlobal->partner->baseArgs, x, 0);
     x = BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x);
-    CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(32), &g_CombatGlobal->partner->baseArgs, x, 0);
+    BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(32), &g_CombatGlobal->partner->baseArgs, x, 0);
     return active;
 }
 

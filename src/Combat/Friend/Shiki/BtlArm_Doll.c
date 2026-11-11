@@ -205,13 +205,13 @@ s32 func_ov004_020e95ec(BtlArm_Doll* doll, u16 arg1, s32 arg2, s32 arg3) {
         var_r5 = doll->actor.position.x + (arg2 << 0xC);
     }
     s32 temp_r4 = doll->actor.position.z + (arg3 << 0xC);
-    Vec vec     = *(const Vec*)CombatHit_GetAttackInfo(arg1);
+    Vec vec     = *(const Vec*)BtlHit_GetAttackInfo(arg1);
 
     if (CombatAbility_IsActive(0x21) != 0) {
         vec.z = (vec.z & ~0xF80000) | ((u32)(CombatAbility_GetValue(0x21) << 0x1B) >> 8);
     }
 
-    if (CombatHit_AttackAt((void*)&vec, &g_CombatGlobal->partner->baseArgs, var_r5, doll->actor.position.y, temp_r4) == 1) {
+    if (BtlHit_AttackAt((void*)&vec, &g_CombatGlobal->partner->baseArgs, var_r5, doll->actor.position.y, temp_r4) == 1) {
         return 1;
     }
     return 0;
@@ -369,10 +369,10 @@ void func_ov004_020e9b54(BtlArm_Doll* doll) {
             } else {
                 var_r0 = 14;
             }
-            var_r4 = CombatHit_AttackUnit(CombatHit_GetAttackInfo(var_r0), &g_CombatGlobal->partner->baseArgs,
-                                          &doll->unk_148->actor, doll->actor.position.x);
+            var_r4 = BtlHit_AttackUnit(BtlHit_GetAttackInfo(var_r0), &g_CombatGlobal->partner->baseArgs, &doll->unk_148->actor,
+                                       doll->actor.position.x);
             if (var_r4 == 1) {
-                CombatSe_PlayAtSubX(0x157, doll->unk_148->actor.position.x);
+                BtlSe_PlayAtSubX(0x157, doll->unk_148->actor.position.x);
                 BtlStage_SetCameraTarget(1, doll->unk_148->actor.position.x, doll->unk_148->actor.position.y,
                                          doll->unk_148->actor.position.z);
             }
@@ -393,7 +393,7 @@ void func_ov004_020e9ce0(BtlArm_Doll* doll) {
     switch (doll->unk_17C) {
         case 0:
             if (doll->unk_17E == 0) {
-                CombatSe_PlayAtSubX(0x158, doll->actor.position.x);
+                BtlSe_PlayAtSubX(0x158, doll->actor.position.x);
                 BtlSprite_SetAnimFromTable(&doll->unk_07C, 6, 1);
                 doll->unk_150 = 0;
                 doll->unk_17E++;
@@ -461,7 +461,7 @@ void func_ov004_020e9eac(BtlArm_Doll* doll) {
 
         case 1: {
             if (doll->unk_17E == 0) {
-                CombatSe_PlayAtSubX(0x161, doll->actor.position.x);
+                BtlSe_PlayAtSubX(0x161, doll->actor.position.x);
                 BtlSprite_SetAnimFromTable(&doll->unk_07C, 9, 1);
                 BtlEff_Doll_CreateTask(4, doll);
                 if (doll->actor.isFlipped == 0) {
@@ -476,7 +476,7 @@ void func_ov004_020e9eac(BtlArm_Doll* doll) {
                 doll->unk_17E--;
             }
             if (func_ov004_020e95ec(doll, 0x11U, 0, -0x18) != 0) {
-                CombatSe_PlayAtSubX(0x162, doll->actor.position.x);
+                BtlSe_PlayAtSubX(0x162, doll->actor.position.x);
                 if (doll->unk_150 == 0) {
                     func_ov004_020e9694(doll, 0x18, -8);
                 }
@@ -571,8 +571,8 @@ void func_ov004_020ea304(BtlArm_Doll* doll) {
         return;
     }
     if (doll->unk_148 != NULL) {
-        CombatHit_AttackUnit(CombatHit_GetAttackInfo(14), &g_CombatGlobal->partner->baseArgs, &doll->unk_148->actor,
-                             doll->actor.position.x);
+        BtlHit_AttackUnit(BtlHit_GetAttackInfo(14), &g_CombatGlobal->partner->baseArgs, &doll->unk_148->actor,
+                          doll->actor.position.x);
     }
     func_ov004_020e927c(doll, func_ov004_020ea1ac);
 }
@@ -590,7 +590,7 @@ s32 BtlArm_Doll_Init(TaskPool* pool, Task* task, void* args) {
     doll->actor.position.z = 0;
     doll->actor.zGravity   = 0x400;
     BtlSprite_LoadFromTable(1, &doll->unk_07C, &data_ov003_020d77e0, data_ov004_020f01d0, 0U, 63, 20);
-    CombatHit_LoadSparkForUnit(1, &doll->unk_0DC, (void*)doll);
+    BtlHit_LoadSparkForUnit(1, &doll->unk_0DC, (void*)doll);
     doll->unk_140 = doll->actor.position.x;
     doll->unk_144 = doll->actor.position.y;
     doll->unk_174 = 0;
@@ -624,7 +624,7 @@ s32 BtlArm_Doll_Render(TaskPool* pool, Task* task, void* args) {
     }
     doll->actor.position.z += doll->unk_174;
     BtlActor_Render(&doll->actor, &doll->unk_07C);
-    CombatHit_DrawSparkOnActor(&doll->unk_0DC, (void*)doll);
+    BtlHit_DrawSparkOnActor(&doll->unk_0DC, (void*)doll);
     doll->actor.position.z -= doll->unk_174;
     return 1;
 }

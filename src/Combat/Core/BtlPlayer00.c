@@ -32,25 +32,25 @@ typedef struct BtlPlayer00Step {
 } BtlPlayer00Step;       // Size: 0x6
 
 typedef struct BtlPlayer00 {
-    /* 0x000 */ BattleActor       actor;
-    /* 0x07C */ BattleSprite      sprite;
-    /* 0x0DC */ BtlCollider       collider;
-    /* 0x110 */ BattleSprite      shadow;
-    /* 0x170 */ BattleSprite      target; // the marker drawn at the stylus
-    /* 0x1D0 */ u16               flags;  // 1: hidden, 2: marker shown, 4: follows the stylus
-    /* 0x1D2 */ u8                unk_1D2[2];
-    /* 0x1D4 */ s32               targetX;
-    /* 0x1D8 */ s32               targetY;
-    /* 0x1DC */ BtlPlayer00State  update;
-    /* 0x1E0 */ s16               phase;
-    /* 0x1E2 */ s16               timer;
-    /* 0x1E4 */ u16               comboState;
-    /* 0x1E6 */ u8                unk_1E6[2];
-    /* 0x1E8 */ Ov003ActionEffect command; // the queued attack the current state plays
-    /* 0x204 */ s16               guardTimer;
-    /* 0x206 */ s16               hurtTimer;
-    /* 0x208 */ s16               gaugeTimer;
-    /* 0x20A */ u8                unk_20A[2];
+    /* 0x000 */ BattleActor        actor;
+    /* 0x07C */ BattleSprite       sprite;
+    /* 0x0DC */ BtlCollider        collider;
+    /* 0x110 */ BattleSprite       shadow;
+    /* 0x170 */ BattleSprite       target; // the marker drawn at the stylus
+    /* 0x1D0 */ u16                flags;  // 1: hidden, 2: marker shown, 4: follows the stylus
+    /* 0x1D2 */ u8                 unk_1D2[2];
+    /* 0x1D4 */ s32                targetX;
+    /* 0x1D8 */ s32                targetY;
+    /* 0x1DC */ BtlPlayer00State   update;
+    /* 0x1E0 */ s16                phase;
+    /* 0x1E2 */ s16                timer;
+    /* 0x1E4 */ u16                comboState;
+    /* 0x1E6 */ u8                 unk_1E6[2];
+    /* 0x1E8 */ BattleQueuedAttack command; // the queued attack the current state plays
+    /* 0x204 */ s16                guardTimer;
+    /* 0x206 */ s16                hurtTimer;
+    /* 0x208 */ s16                gaugeTimer;
+    /* 0x20A */ u8                 unk_20A[2];
 } BtlPlayer00; // Size: 0x20C
 
 extern const BinIdentifier data_ov003_020d77d8;
@@ -219,10 +219,10 @@ static void func_ov003_0208f418(BattleSprite* sprite, s32 x) {
         tick = BtlPlayer00_Tick(sprite);
         switch (tick) {
             case 1:
-                CombatSe_PlayAtMainX(3, x);
+                BtlSe_PlayAtMainX(3, x);
                 break;
             case 5:
-                CombatSe_PlayAtMainX(4, x);
+                BtlSe_PlayAtMainX(4, x);
                 break;
         }
     }
@@ -233,10 +233,10 @@ static void func_ov003_0208f498(BtlPlayer00* self, s32 flag) {
     if (flag != 0) {
         switch (RNG_Next(2)) {
             case 0:
-                CombatSe_PlayAtMainX(0x36D, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x36D, self->actor.position.x);
                 break;
             case 1:
-                CombatSe_PlayAtMainX(0x36E, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x36E, self->actor.position.x);
                 break;
         }
         return;
@@ -244,13 +244,13 @@ static void func_ov003_0208f498(BtlPlayer00* self, s32 flag) {
     if (self->hurtTimer <= 0) {
         switch (RNG_Next(3)) {
             case 0:
-                CombatSe_PlayAtMainX(0x36A, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x36A, self->actor.position.x);
                 break;
             case 1:
-                CombatSe_PlayAtMainX(0x36B, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x36B, self->actor.position.x);
                 break;
             case 2:
-                CombatSe_PlayAtMainX(0x36C, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x36C, self->actor.position.x);
                 break;
         }
         self->hurtTimer = 0x2D;
@@ -263,13 +263,13 @@ static void func_ov003_0208f564(BtlPlayer00* self) {
 
     switch (global->unk3D88D) {
         case 0:
-            CombatSe_PlayAtSubX(0x391, global->partner->position.x);
+            BtlSe_PlayAtSubX(0x391, global->partner->position.x);
             break;
         case 1:
-            CombatSe_PlayAtSubX(0x3B9, global->partner->position.x);
+            BtlSe_PlayAtSubX(0x3B9, global->partner->position.x);
             break;
         case 2:
-            CombatSe_PlayAtSubX(0x3E1, global->partner->position.x);
+            BtlSe_PlayAtSubX(0x3E1, global->partner->position.x);
             break;
     }
 }
@@ -287,7 +287,7 @@ static void func_ov003_0208f5e0(BtlPlayer00* self, s32 flag) {
 
 /// Takes the oldest queued attack as the one to play.
 static BOOL func_ov003_0208f624(BtlPlayer00* self) {
-    Ov003ActionEffect* effect = func_ov003_02087358();
+    BattleQueuedAttack* effect = func_ov003_02087358();
 
     if (effect == NULL) {
         return FALSE;
@@ -492,8 +492,8 @@ static BOOL func_ov003_0208fc24(BtlPlayer00* self, u16 id, s32 x, s32 z) {
     } else {
         hitX = self->actor.position.x + (x << 12);
     }
-    return CombatHit_AttackAt(CombatHit_GetAttackInfo(id), &effect->args, hitX, self->actor.position.y,
-                              self->actor.position.z + (z << 12)) == 1;
+    return BtlHit_AttackAt(BtlHit_GetAttackInfo(id), &effect->args, hitX, self->actor.position.y,
+                           self->actor.position.z + (z << 12)) == 1;
 }
 
 /// The same for a multi-hit attack: counts the hits and puts the finishing flag on the last one.
@@ -512,12 +512,12 @@ static BOOL func_ov003_0208fc7c(BtlPlayer00* self, u16 id, s32 x, s32 z) {
     }
     hitZ = self->actor.position.z + (z << 12);
     if (last == 0) {
-        result = CombatHit_AttackAt(CombatHit_GetAttackInfo(id), &effect->args, hitX, self->actor.position.y, hitZ);
+        result = BtlHit_AttackAt(BtlHit_GetAttackInfo(id), &effect->args, hitX, self->actor.position.y, hitZ);
     } else {
-        Ov003AttackInfo hit = *CombatHit_GetAttackInfo(id);
+        Ov003AttackInfo hit = *BtlHit_GetAttackInfo(id);
 
         hit.flags |= 0x1000;
-        result = CombatHit_AttackAt(&hit, &effect->args, hitX, self->actor.position.y, hitZ);
+        result = BtlHit_AttackAt(&hit, &effect->args, hitX, self->actor.position.y, hitZ);
     }
     if (result != 1) {
         return FALSE;
@@ -540,7 +540,7 @@ static void func_ov003_0208fd6c(BtlPlayer00* self, s32 x, s32 z, s32 flag) {
         hitX = self->actor.position.x + (x << 12);
     }
     hitZ = self->actor.position.z + (z << 12);
-    CombatSe_PlayAtMainX(0x145, hitX);
+    BtlSe_PlayAtMainX(0x145, hitX);
     if (flag != 0) {
         func_ov003_0209fc88(2, hitX, self->actor.position.y, hitZ, 0x10, 0);
     }
@@ -922,18 +922,18 @@ static void func_ov003_02090c18(BtlPlayer00* self) {
         func_ov003_0208f5e0(self, self->command.state->unk_08 >= self->command.state->flag);
         switch (self->command.angle) {
             case 0:
-                CombatSe_PlayAtMainX(0x147, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x147, self->actor.position.x);
                 BtlSprite_SetAnimFromTable(&self->sprite, 21, 1);
                 func_ov003_0209f000(0);
                 break;
             case 1:
             case 2:
-                CombatSe_PlayAtMainX(0x146, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x146, self->actor.position.x);
                 BtlSprite_SetAnimFromTable(&self->sprite, 22, 1);
                 func_ov003_0209f000(1);
                 break;
             case 3:
-                CombatSe_PlayAtMainX(0x147, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x147, self->actor.position.x);
                 BtlSprite_SetAnimFromTable(&self->sprite, 23, 1);
                 func_ov003_0209f000(2);
                 break;
@@ -1002,8 +1002,8 @@ static void func_ov003_02090f50(BtlPlayer00* self) {
     u16 tick;
 
     if (self->timer == 0) {
-        CombatSe_PlayAtMainX(0x363, self->actor.position.x);
-        CombatSe_PlayAtMainX(0x9A, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x363, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x9A, self->actor.position.x);
         func_ov003_0209f000(7);
         BtlSprite_SetAnimFromTable(&self->sprite, 28, 1);
         BtlSprite_Restart(&self->sprite);
@@ -1043,7 +1043,7 @@ static void func_ov003_020910ac(BtlPlayer00* self) {
         func_ov003_020a5a94(self->command.state);
     }
     if (self->timer == 0xE) {
-        CombatSe_PlayAtMainX(0x37, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x37, self->actor.position.x);
     }
     if (self->timer <= 0xE) {
         func_ov003_0208f998(self, self->command.target, 0);
@@ -1053,7 +1053,7 @@ static void func_ov003_020910ac(BtlPlayer00* self) {
     }
     if (self->timer == 0x11) {
         if (func_ov003_0208fc24(self, 3, 0x3C, -0x18)) {
-            CombatSe_PlayAtMainX(0x38, self->actor.position.x);
+            BtlSe_PlayAtMainX(0x38, self->actor.position.x);
         }
     }
     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
@@ -1074,7 +1074,7 @@ static void func_ov003_02091214(BtlPlayer00* self) {
     if (self->timer == 0) {
         BtlPlayer00_FaceX(&self->actor, g_CombatGlobal->unk3D8CC);
         func_ov003_0208f5e0(self, 0);
-        CombatSe_PlayAtMainX(0x8E, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x8E, self->actor.position.x);
         func_ov003_0209f000(4);
         BtlSprite_SetAnimFromTable(&self->sprite, 25, 1);
         BtlSprite_Restart(&self->sprite);
@@ -1103,7 +1103,7 @@ static void func_ov003_02091214(BtlPlayer00* self) {
         self->actor.isFlipped = FALSE;
     }
     if (wasFlipped != self->actor.isFlipped) {
-        CombatSe_PlayAtMainX(0x8E, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x8E, self->actor.position.x);
     }
     if (tick == 6 && self->sprite.sprite.bit_11 == 1) {
         BtlCollision_SetDisabled(&self->collider, 0);
@@ -1136,7 +1136,7 @@ static void func_ov003_02091468(BtlPlayer00* self) {
             break;
         case 1:
             if (self->timer == 0) {
-                CombatSe_PlayAtMainX(0x8B, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x8B, self->actor.position.x);
                 func_ov003_0209f000(9);
                 BtlSprite_SetAnimFromTable(&self->sprite, 33, 1);
                 BtlSprite_Restart(&self->sprite);
@@ -1191,7 +1191,7 @@ static void func_ov003_02091680(BtlPlayer00* self) {
             break;
         case 1:
             if (self->timer == 0) {
-                CombatSe_PlayAtMainX(0x8F, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x8F, self->actor.position.x);
                 func_ov003_0209f000(8);
                 BtlSprite_SetAnimFromTable(&self->sprite, 30, 1);
                 BtlSprite_Restart(&self->sprite);
@@ -1253,7 +1253,7 @@ static void func_ov003_02091850(BtlPlayer00* self) {
             break;
         case 2:
             if (self->timer == 0) {
-                CombatSe_PlayAtMainX(0x8F, self->actor.position.x);
+                BtlSe_PlayAtMainX(0x8F, self->actor.position.x);
                 func_ov003_0209f000(8);
                 BtlSprite_SetAnimFromTable(&self->sprite, 30, 1);
                 BtlSprite_Restart(&self->sprite);
@@ -1285,7 +1285,7 @@ static void func_ov003_02091a14(BtlPlayer00* self) {
 
     if (self->timer == 0) {
         func_ov003_0208f5e0(self, 0);
-        CombatSe_PlayAtMainX(0x39, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x39, self->actor.position.x);
         func_ov003_0209f000(5);
         BtlSprite_SetAnimFromTable(&self->sprite, 26, 1);
         BtlSprite_Restart(&self->sprite);
@@ -1304,7 +1304,7 @@ static void func_ov003_02091a14(BtlPlayer00* self) {
     }
     if (tick == 2) {
         if (func_ov003_0208fc7c(self, 7, 0x18, -0x40)) {
-            CombatSe_PlayAtMainX(0x3A, self->actor.position.x);
+            BtlSe_PlayAtMainX(0x3A, self->actor.position.x);
         }
     }
     if (tick == 3) {
@@ -1319,9 +1319,9 @@ static void func_ov003_02091b7c(BtlPlayer00* self) {
     u16 tick;
 
     if (self->timer == 0) {
-        CombatSe_PlayAtMainX(0x8C, self->actor.position.x);
-        CombatSys_WarpCharacter(0, self->command.target->position.x, self->command.target->position.y,
-                                self->command.target->position.z - 0x60000);
+        BtlSe_PlayAtMainX(0x8C, self->actor.position.x);
+        BtlPlayerUtil_WarpCharacter(0, self->command.target->position.x, self->command.target->position.y,
+                                    self->command.target->position.z - 0x60000);
         func_ov003_0208f5e0(self, 0);
         func_ov003_0209f000(6);
         BtlSprite_SetAnimFromTable(&self->sprite, 27, 1);
@@ -1331,7 +1331,7 @@ static void func_ov003_02091b7c(BtlPlayer00* self) {
     }
     tick = BtlPlayer00_Tick(&self->sprite);
     if (tick == 4 && self->sprite.sprite.bit_11 == 1) {
-        CombatSe_PlayAtMainX(0x8D, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x8D, self->actor.position.x);
     }
     if (tick >= 4 && tick < 7) {
         func_02026590(&self->actor.position.z, 0, (u16)(s16)(0x1C - self->timer));
@@ -1380,7 +1380,7 @@ static void func_ov003_02091d10(BtlPlayer00* self) {
     self->actor.zVelocity = 0;
     self->actor.position.z += ((sine << 3) - 0x10000 - self->actor.position.z) >> 3;
     if (!(self->timer % 60 == 0)) {
-        CombatSe_PlayAtMainX(0x150, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x150, self->actor.position.x);
     }
 }
 
@@ -1443,7 +1443,7 @@ static void func_ov003_020920c8(BtlPlayer00* self) {
         BtlCollision_SetDisabled(&self->collider, 1);
     }
     if (self->timer == 4) {
-        CombatSe_PlayAtMainX(0x3B, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x3B, self->actor.position.x);
         self->flags |= 1;
     }
     if (self->timer > 4) {
@@ -1463,7 +1463,7 @@ static void func_ov003_020920c8(BtlPlayer00* self) {
         self->flags &= ~1;
         self->actor.flags &= ~ACTOR_FLAG_INTANGIBLE;
         BtlCollision_SetDisabled(&self->collider, 0);
-        CombatSe_PlayAtMainX(0x3C, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x3C, self->actor.position.x);
         func_ov003_0208f384(self, func_ov003_02090588);
         return;
     }
@@ -1492,7 +1492,7 @@ static void func_ov003_0209228c(BtlPlayer00* self) {
             break;
     }
     if (self->timer == 0) {
-        CombatSe_PlayAtMainX(0x14E, self->actor.position.x);
+        BtlSe_PlayAtMainX(0x14E, self->actor.position.x);
         self->actor.flags &= ~ACTOR_FLAG_STAGGERED;
         BtlSprite_SetAnimFromTable(&self->sprite, anim, 1);
     }
@@ -1556,7 +1556,7 @@ static s32 BtlPlayer00_Init(TaskPool* pool, Task* task, void* args) {
     self->guardTimer = 0;
     self->hurtTimer  = 0;
     BtlSprite_LoadFromTable(0, &self->sprite, &data_ov003_020d77d8, data_ov003_020d79cc, 2, 0x3A, 0x64);
-    CombatHit_LoadSpark(0, &self->shadow, 2);
+    BtlHit_LoadSpark(0, &self->shadow, 2);
     BtlSprite_LoadDirect(0, &self->target, &data_ov003_020d7800, 22, 24, 23, 0x3D, 0);
     BtlStage_SetCameraTarget(0, self->actor.position.x, self->actor.position.y, self->actor.position.z);
     BtlCollision_Add(&self->collider, 0, 0xC, 0x30);
@@ -1627,7 +1627,7 @@ static s32 BtlPlayer00_Render(TaskPool* pool, Task* task, void* args) {
 
     if (!(self->flags & 1)) {
         BtlActor_Render(&self->actor, &self->sprite);
-        CombatHit_DrawSparkOnActor(&self->shadow, &self->actor);
+        BtlHit_DrawSparkOnActor(&self->shadow, &self->actor);
     }
     if (self->flags & 2) {
         s32 x = BtlStage_ToScreenX(0, self->targetX);

@@ -60,7 +60,7 @@ static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage
             CombatPsyAnim_Load(&self->spriteB, 2, 1, data_ov003_020dc93c[self->effect->index], 0);
             BtlSprite_SetAnim(&self->spriteB, 0, 0);
             func_ov003_02087804(0);
-            CombatSe_PlayAtMainX(0x87, self->x[0]);
+            BtlSe_PlayAtMainX(0x87, self->x[0]);
             return 1;
         }
         case 1: {
@@ -87,7 +87,7 @@ static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage
                             self->phase++;
                             self->timer = 0x3C;
                             BtlSprite_SetAnim(&self->spriteA, 3, 1);
-                            CombatSe_PlayAtMainX(0x87, self->x[0]);
+                            BtlSe_PlayAtMainX(0x87, self->x[0]);
                         }
                         if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP))
                             func_ov003_020b26cc(self);
@@ -101,7 +101,7 @@ static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage
                             self->phase++;
                             self->timer = 0x3C;
                             BtlSprite_SetAnim(&self->spriteA, 4, 1);
-                            CombatSe_PlayAtMainX(0x87, self->x[0]);
+                            BtlSe_PlayAtMainX(0x87, self->x[0]);
                         }
                         if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP))
                             func_ov003_020b26cc(self);
@@ -115,7 +115,7 @@ static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage
                             self->phase++;
                             self->timer = 0x3C;
                             BtlSprite_SetAnim(&self->spriteA, 5, 1);
-                            CombatSe_PlayAtMainX(0x87, self->x[0]);
+                            BtlSe_PlayAtMainX(0x87, self->x[0]);
                         }
                         if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP))
                             func_ov003_020b26cc(self);
@@ -130,7 +130,7 @@ static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage
                             self->timer = 0x3C;
                             BtlSprite_SetAnim(&self->spriteA, 6, 1);
                             BtlSprite_SetAnim(&self->spriteB, 1, 1);
-                            CombatSe_PlayAtMainX(0x88, self->x[0]);
+                            BtlSe_PlayAtMainX(0x88, self->x[0]);
                             CombatPsyAnim_Load(&self->spriteC, 2, 1, data_ov003_020dc93c[self->effect->index], 1);
                             BtlSprite_SetAnim(&self->spriteC, 7, 1);
                         }

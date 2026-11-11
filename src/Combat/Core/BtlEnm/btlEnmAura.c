@@ -84,10 +84,10 @@ static void func_ov003_020c97dc(Ov003CutinActor* owner) {
                 return;
             }
             if (RNG_Next(2)) {
-                CombatSe_PlayAtMainX(0x525, data_ov003_020e7324.ownerMain->base.actor.position.x);
+                BtlSe_PlayAtMainX(0x525, data_ov003_020e7324.ownerMain->base.actor.position.x);
                 return;
             }
-            CombatSe_PlayAtMainX(0x526, data_ov003_020e7324.ownerMain->base.actor.position.x);
+            BtlSe_PlayAtMainX(0x526, data_ov003_020e7324.ownerMain->base.actor.position.x);
             return;
         case 2:
         case 3:
@@ -95,10 +95,10 @@ static void func_ov003_020c97dc(Ov003CutinActor* owner) {
                 return;
             }
             if (RNG_Next(2)) {
-                CombatSe_PlayAtSubX(0x53D, data_ov003_020e7324.ownerSub->base.actor.position.x);
+                BtlSe_PlayAtSubX(0x53D, data_ov003_020e7324.ownerSub->base.actor.position.x);
                 return;
             }
-            CombatSe_PlayAtSubX(0x53E, data_ov003_020e7324.ownerSub->base.actor.position.x);
+            BtlSe_PlayAtSubX(0x53E, data_ov003_020e7324.ownerSub->base.actor.position.x);
             return;
         default:
             return;
@@ -273,7 +273,7 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             data_ov003_020e7324.mode = 0;
             func_ov003_020c9cf0(self, 0);
             if (self->intensity <= 0) {
-                CombatSe_PlayAtMainX(0x21, self->x);
+                BtlSe_PlayAtMainX(0x21, self->x);
             }
             if (self->intensity > 0 && self->side != 0) {
                 return;
@@ -309,7 +309,7 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             data_ov003_020e7324.mode = 0;
             func_ov003_020c9cf0(self, 1);
             if (self->intensity <= 0) {
-                CombatSe_PlayAtSubX(0x21, self->x);
+                BtlSe_PlayAtSubX(0x21, self->x);
             }
             if (self->intensity > 0 && self->side != 1) {
                 return;

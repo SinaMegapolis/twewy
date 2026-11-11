@@ -87,7 +87,7 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
                         for (s32 i = 0; i < 3; i++)
                             func_ov003_020ae350(self);
                         func_ov003_020a5a94(self->effect);
-                        CombatSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_SHOT01_01, (s16)self->position.x);
+                        BtlSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_SHOT01_01, (s16)self->position.x);
                     }
                     if (++self->releasedFrames >= 30)
                         func_ov003_020ae324(self);
@@ -101,7 +101,7 @@ static s32 func_ov003_020adedc(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
             }
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_EGENERATE_BOOT01_01))
-                CombatSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_BOOT01_01, (s16)self->position.x);
+                BtlSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_BOOT01_01, (s16)self->position.x);
             if (self->phase != 0) {
                 BtlSprite_Update(&self->sprites[0]);
                 BtlSprite_Update(&self->sprites[1]);

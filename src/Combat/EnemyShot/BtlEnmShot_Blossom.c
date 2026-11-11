@@ -775,7 +775,7 @@ void func_ov003_020cc71c(BattleActor* actor, s32 flag) {
     s32         value = 0;
 
     if (flag != 0) {
-        CombatSys_InitObsActor(&fresh, ((u16*)actor)[1]);
+        BtlObsMgr_InitActor(&fresh, ((u16*)actor)[1]);
         value = fresh.zGravity;
     }
     actor->xVelocity = value;
@@ -958,7 +958,7 @@ void func_ov003_020cccf0(s32 engine, Ov003EnemyShotSource* source) {
     } else {
         pan = BtlStage_ToScreenX(0, source->core.position.x);
     }
-    CombatSe_PlayPanned(source->sound, pan);
+    BtlSe_PlayPanned(source->sound, pan);
 }
 
 /// Whether a box of `marginX` by `marginY` around (`x`,`y`) lies outside the camera's field.
@@ -1202,8 +1202,8 @@ static s32 func_ov003_020cd44c(Ov003EnemyShotBlossom* self) {
     }
     BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &sy, &sx, self->source.core.position.x,
                            self->source.core.position.y, self->source.core.position.z);
-    self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
-                                                           &self->source.core.owner->base.actor.baseArgs, sx, sy);
+    self->source.core.hitResult = BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(self->source.core.attackId),
+                                                        &self->source.core.owner->base.actor.baseArgs, sx, sy);
     self->frame++;
     BtlSprite_Update(&self->sprite);
     return 1;

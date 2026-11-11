@@ -69,7 +69,7 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                             }
                             self->hit.activated = 1;
                             self->phase         = 2;
-                            CombatSe_PlayAtMainX(0x9E, touch->x);
+                            BtlSe_PlayAtMainX(0x9E, touch->x);
                         }
                     }
                     break;
@@ -84,7 +84,7 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
                         }
                         self->hit.activated = 1;
                         self->phase         = 2;
-                        CombatSe_PlayAtMainX(0x9E, touch->x);
+                        BtlSe_PlayAtMainX(0x9E, touch->x);
                     }
                     break;
                 case 2:

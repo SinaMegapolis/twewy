@@ -220,7 +220,7 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
     BtlSprite_Load(&data->base.sprite, &anim);
     BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
 
-    CombatHit_LoadSparkForUnit(arg0, &data->base.subSprite, &data->base.actor);
+    BtlHit_LoadSparkForUnit(arg0, &data->base.subSprite, &data->base.actor);
     func_ov003_020c495c(&data->base);
     if (arg0 == 0) {
         BtlCollision_Add(&data->base.collider, 1, r4->unk_03, r4->unk_04);
@@ -336,7 +336,7 @@ void func_ov013_02125efc(BtlEnm015* arg0) {
 
     arg0->base.actor.position.x = x;
     arg0->base.actor.position.y = y;
-    if (CombatHit_CanDrawSpark() != 0) {
-        CombatHit_DrawSparkOnActor(&arg0->base.subSprite, &arg0->base.actor);
+    if (BtlHit_CanDrawSpark() != 0) {
+        BtlHit_DrawSparkOnActor(&arg0->base.subSprite, &arg0->base.actor);
     }
 }

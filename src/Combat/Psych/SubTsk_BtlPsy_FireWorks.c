@@ -38,7 +38,7 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
                 case 0:
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         BtlSprite_Restart(&self->sprite);
-                        CombatSe_PlayAtMainX(0x54, self->args.position.x);
+                        BtlSe_PlayAtMainX(0x54, self->args.position.x);
                     }
                     if (--self->timer == 0) {
                         self->phase = 1;
@@ -59,11 +59,11 @@ static s32 func_ov003_020ab828(TaskPool* pool, Task* task, void* args, s32 stage
                 case 1:
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         BtlSprite_Restart(&self->sprite);
-                        CombatSe_PlayAtMainX(0x54, self->args.position.x);
+                        BtlSe_PlayAtMainX(0x54, self->args.position.x);
                     }
                     if (--self->timer == 0) {
                         s32 i, angle;
-                        CombatSe_PlayAtMainX(0x55, self->args.position.x);
+                        BtlSe_PlayAtMainX(0x55, self->args.position.x);
                         self->phase = 2;
                         CombatPsyAnim_SetAnim(&self->sprite, 0x9B, 1);
                         func_ov003_020a88c0(&burst, self->args.position.x, self->args.position.y, self->args.position.z, 2,

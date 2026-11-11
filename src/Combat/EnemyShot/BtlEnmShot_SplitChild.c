@@ -66,8 +66,8 @@ static s32 func_ov003_020d29d4(Ov003EnemyShotSplitChild* self) {
         self->velocity.z -= self->dampingStep.z;
     }
     self->source.core.hitResult =
-        CombatHit_AttackAt(CombatHit_GetAttackInfo(self->source.core.attackId), &self->source.core.owner->base.actor.baseArgs,
-                           self->source.core.position.x, self->source.core.position.y, self->source.core.position.z);
+        BtlHit_AttackAt(BtlHit_GetAttackInfo(self->source.core.attackId), &self->source.core.owner->base.actor.baseArgs,
+                        self->source.core.position.x, self->source.core.position.y, self->source.core.position.z);
     BtlSprite_Update(&self->sprite);
     return 1;
 }

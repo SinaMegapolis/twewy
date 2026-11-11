@@ -88,9 +88,9 @@ static void func_ov015_0212699c(BtlEnm026* data) {
                 dy = -0x800;
             }
             data->base.actor.position.y = data->base.actor.position.y + dy;
-            h                           = CombatHit_GetAttackInfo(0xB9);
-            if (CombatHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x, data->base.actor.position.y,
-                                   data->base.actor.position.z) == 1)
+            h                           = BtlHit_GetAttackInfo(0xB9);
+            if (BtlHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x, data->base.actor.position.y,
+                                data->base.actor.position.z) == 1)
             {
                 data->unk_1F0 = 0;
             }

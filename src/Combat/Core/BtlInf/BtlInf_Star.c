@@ -72,7 +72,7 @@ static void func_ov003_0209d5ac(s16* digits, s32 value) {
 
 /// Refreshes every element of the panel whose charge-command value changed.
 static void func_ov003_0209d5e0(BtlInf_Star* star) {
-    Ov003EffectCmd* charge = g_CombatGlobal->effectCmd;
+    BattleCmdDeck* charge = g_CombatGlobal->cmdDeck;
 
     if (star->step != charge->current) {
         star->step     = charge->current;
@@ -97,7 +97,7 @@ static void func_ov003_0209d5e0(BtlInf_Star* star) {
 
 /// Whether the charge command asked for the panel to be hidden.
 static BOOL func_ov003_0209d688(void) {
-    if (g_CombatGlobal->effectCmd->flags & 1) {
+    if (g_CombatGlobal->cmdDeck->flags & 1) {
         return TRUE;
     }
     return FALSE;

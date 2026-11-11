@@ -94,7 +94,7 @@ static void func_ov017_02125840(BtlBoss02_00_RG* rg) {
             var_r1 = -var_r1;
         }
         if (rg->unk_248 == 1 && F2I(var_r1) <= 0x10 &&
-            CombatHit_AttackCharacter(CombatHit_GetAttackInfo(240), &rg->attackArgs, rg->unk_23C) != 0)
+            BtlHit_AttackCharacter(BtlHit_GetAttackInfo(240), &rg->attackArgs, rg->unk_23C) != 0)
         {
             func_ov017_02130178(1, 1256, 1388, rg->base.actor.position.x);
             rg->unk_248 = 0;
@@ -133,7 +133,7 @@ static void func_ov017_02125984(BtlBoss02_00_RG* rg) {
 static void func_ov017_021259fc(BtlBoss02_00_RG* rg) {
     rg->base.actor.flags &= ~ACTOR_FLAG_IGNORES_HITS;
     func_ov017_02130178(1, 1255, 1388, rg->base.actor.position.x);
-    CombatHit_AttackUnit(CombatHit_GetAttackInfo(241), &rg->attackArgs, &rg->base.actor, rg->base.actor.position.x);
+    BtlHit_AttackUnit(BtlHit_GetAttackInfo(241), &rg->attackArgs, &rg->base.actor, rg->base.actor.position.x);
     rg->unk_262 = 120;
     rg->unk_24C = 1;
 }

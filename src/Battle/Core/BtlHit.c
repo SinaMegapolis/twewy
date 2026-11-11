@@ -1,4 +1,4 @@
-#include "Combat/Core/CombatHit.h"
+#include "Battle/Core/BtlHit.h"
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlDbg.h"
@@ -38,7 +38,7 @@
 // ---------------------------------------------------------------------------------------------
 
 /// One attack-info record: the base power, the reaction/stun ids, the half-extents the hit test
-/// uses and the bit-packed flags (attack-parameter id in bits 19..23). `CombatHit_GetAttackInfo`
+/// uses and the bit-packed flags (attack-parameter id in bits 19..23). `BtlHit_GetAttackInfo`
 /// indexes the command table with these.
 
 /// The per-hit arguments of an attack: damage scale percentages and the hit point.
@@ -145,10 +145,10 @@ static const Ov003AttackParams data_ov003_020d76d0[32] = {
 // ---------------------------------------------------------------------------------------------
 
 static void func_ov003_02089f90(s32 mode, BattleActor* unit, u16 variant, s16 arg3, s16 arg4);
-static s32  CombatHit_Dispatch(Ov003Hit* spawn);
+static s32  BtlHit_Dispatch(Ov003Hit* spawn);
 
 /// Maps a pixel distance to one of the six effect sizes.
-static s32 CombatHit_GetSparkSize(s32 arg0) {
+static s32 BtlHit_GetSparkSize(s32 arg0) {
     if (arg0 < 8) {
         return 0;
     }
@@ -167,7 +167,7 @@ static s32 CombatHit_GetSparkSize(s32 arg0) {
     return 5;
 }
 
-void CombatHit_LoadSpark(s32 engine, BattleSprite* sprite, s32 variant) {
+void BtlHit_LoadSpark(s32 engine, BattleSprite* sprite, s32 variant) {
     if (engine == 0) {
         BtlSprite_LoadDirectNoProto(0, sprite, &data_ov003_020d7800, 0xD, 0xF, 0xE, 0x3D, variant);
     } else {
@@ -178,7 +178,7 @@ void CombatHit_LoadSpark(s32 engine, BattleSprite* sprite, s32 variant) {
 }
 
 /// Positions and starts an effect actor for a unit that was just hit.
-void CombatHit_DrawSpark(BattleSprite* visual, s32 x, s32 y) {
+void BtlHit_DrawSpark(BattleSprite* visual, s32 x, s32 y) {
     s32 pan;
     s32 volume;
 
@@ -190,27 +190,27 @@ void CombatHit_DrawSpark(BattleSprite* visual, s32 x, s32 y) {
         volume = BtlStage_ToScreenY(1, y, 0);
     }
     BtlSprite_SetPosition(visual, pan, volume);
-    if (CombatHit_CanDrawSpark() == 0) {
+    if (BtlHit_CanDrawSpark() == 0) {
         return;
     }
     BtlSprite_Render(visual);
 }
 
 /// Spawns a hit effect for `unit` at the effect size its hit box implies.
-void CombatHit_LoadSparkForUnit(s32 engine, BattleSprite* sprite, BattleActor* unit) {
-    CombatHit_LoadSpark(engine, sprite, CombatHit_GetSparkSize(unit->radius));
+void BtlHit_LoadSparkForUnit(s32 engine, BattleSprite* sprite, BattleActor* unit) {
+    BtlHit_LoadSpark(engine, sprite, BtlHit_GetSparkSize(unit->radius));
 }
 
 /// Spawns the hit effect of an incoming attack on `unit`.
-void CombatHit_DrawSparkOnActor(BattleSprite* visual, BattleActor* actor) {
+void BtlHit_DrawSparkOnActor(BattleSprite* visual, BattleActor* actor) {
     if (actor->flags & ACTOR_FLAG_HIDDEN) {
         return;
     }
-    CombatHit_DrawSpark(visual, actor->position.x, actor->position.y);
+    BtlHit_DrawSpark(visual, actor->position.x, actor->position.y);
 }
 
 /// TRUE unless the battle's noise/attack phase suppresses effect spawning.
-s32 CombatHit_CanDrawSpark(void) {
+s32 BtlHit_CanDrawSpark(void) {
     s32 result = 1;
 
     if (g_CombatGlobal->unk3D878 & 2) {
@@ -1153,7 +1153,7 @@ static void func_ov003_02089f90(s32 mode, BattleActor* unit, u16 variant, s16 ar
 }
 
 /// Applies a plain hit to a unit (used by the projectile effects).
-s32 CombatHit_ApplyAttack(s32 mode, BattleActor* unit, u16 attackId) {
+s32 BtlHit_ApplyAttack(s32 mode, BattleActor* unit, u16 attackId) {
     s32 flags = unit->flags;
 
     if ((flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_INTANGIBLE) || (flags & ACTOR_FLAG_LAUNCHED) ||
@@ -1167,7 +1167,7 @@ s32 CombatHit_ApplyAttack(s32 mode, BattleActor* unit, u16 attackId) {
 }
 
 /// Applies a bare "stagger" hit to a unit.
-s32 CombatHit_Stagger(s32 mode, BattleActor* unit, s32 arg2) {
+s32 BtlHit_Stagger(s32 mode, BattleActor* unit, s32 arg2) {
     s32 flags = unit->flags;
 
     if ((flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_INTANGIBLE) || (flags & ACTOR_FLAG_LAUNCHED) ||
@@ -1184,12 +1184,12 @@ s32 CombatHit_Stagger(s32 mode, BattleActor* unit, s32 arg2) {
 }
 
 /// The attack-info table entry for `id`.
-const Ov003AttackInfo* CombatHit_GetAttackInfo(u16 id) {
+const Ov003AttackInfo* BtlHit_GetAttackInfo(u16 id) {
     return &CombatAttackInfo_Table[id];
 }
 
 /// Queues one of the "sweep" attack animations.
-s32 CombatHit_AttackUnit(const Ov003AttackInfo* info, BattleAttackArgs* payload, BattleActor* unit, s32 arg3) {
+s32 BtlHit_AttackUnit(const Ov003AttackInfo* info, BattleAttackArgs* payload, BattleActor* unit, s32 arg3) {
     Ov003Hit spawn;
 
     spawn.info    = info;
@@ -1199,11 +1199,11 @@ s32 CombatHit_AttackUnit(const Ov003AttackInfo* info, BattleAttackArgs* payload,
     spawn.x       = arg3;
     spawn.y       = 0;
     spawn.z       = 0;
-    return CombatHit_Dispatch(&spawn);
+    return BtlHit_Dispatch(&spawn);
 }
 
 /// Queues a point attack animation.
-s32 CombatHit_AttackAt(const Ov003AttackInfo* info, BattleAttackArgs* args, s32 x, s32 y, s32 z) {
+s32 BtlHit_AttackAt(const Ov003AttackInfo* info, BattleAttackArgs* args, s32 x, s32 y, s32 z) {
     Ov003Hit spawn;
 
     spawn.info    = info;
@@ -1213,11 +1213,11 @@ s32 CombatHit_AttackAt(const Ov003AttackInfo* info, BattleAttackArgs* args, s32 
     spawn.x       = x;
     spawn.y       = y;
     spawn.z       = z;
-    return CombatHit_Dispatch(&spawn);
+    return BtlHit_Dispatch(&spawn);
 }
 
 /// Queues a pixel-space attack animation.
-s32 CombatHit_AttackAtScreen(const Ov003AttackInfo* info, BattleAttackArgs* args, s32 x, s32 y) {
+s32 BtlHit_AttackAtScreen(const Ov003AttackInfo* info, BattleAttackArgs* args, s32 x, s32 y) {
     Ov003Hit spawn;
 
     spawn.info    = info;
@@ -1227,25 +1227,25 @@ s32 CombatHit_AttackAtScreen(const Ov003AttackInfo* info, BattleAttackArgs* args
     spawn.x       = x << 12;
     spawn.y       = y << 12;
     spawn.z       = 0;
-    return CombatHit_Dispatch(&spawn);
+    return BtlHit_Dispatch(&spawn);
 }
 
-s32 CombatHit_AttackCharacter(const Ov003AttackInfo* info, BattleAttackArgs* payload, s32 arg2) {
+s32 BtlHit_AttackCharacter(const Ov003AttackInfo* info, BattleAttackArgs* payload, s32 arg2) {
     if (((u32)(info->flags << 0x17) >> 0x1F) == 0) {
-        return CombatHit_AttackUnit(info, payload, g_CombatGlobal->player, arg2);
+        return BtlHit_AttackUnit(info, payload, g_CombatGlobal->player, arg2);
     }
-    return CombatHit_AttackUnit(info, payload, g_CombatGlobal->partner, arg2);
+    return BtlHit_AttackUnit(info, payload, g_CombatGlobal->partner, arg2);
 }
 
 /// Copies a spawn's attack arguments into the record the hit resolvers read.
-void CombatHit_ArmActor(u16 attackId, const BattleAttackArgs* args, BattleActor* actor) {
+void BtlHit_ArmActor(u16 attackId, const BattleAttackArgs* args, BattleActor* actor) {
     actor->impactAttackId = attackId;
     actor->impactArgs     = *args;
 }
 
 /// Spawns the attack animation and the effect it carries.
 // Nonmatching: instruction schedule of the local attack copy
-s32 CombatHit_ActorImpact(BattleActor* actor) {
+s32 BtlHit_ActorImpact(BattleActor* actor) {
     const Ov003AttackInfo* info;
     Ov003AttackInfo        attack;
     BattleAttackArgs       args;
@@ -1256,7 +1256,7 @@ s32 CombatHit_ActorImpact(BattleActor* actor) {
             return 0;
         }
     }
-    info   = CombatHit_GetAttackInfo(actor->impactAttackId);
+    info   = BtlHit_GetAttackInfo(actor->impactAttackId);
     attack = *info;
     args   = actor->impactArgs;
     if (((u32)(attack.flags << 0x18) >> 0x1F) == 0) {
@@ -1268,8 +1268,8 @@ s32 CombatHit_ActorImpact(BattleActor* actor) {
     attack.unk_07 = actor->height / 2;
     attack.unk_06 = attack.unk_05 = actor->radius;
     actor->flags |= ACTOR_FLAG_IMPACTING;
-    result = CombatHit_AttackAt(&attack, &args, actor->position.x, actor->position.y,
-                                actor->position.z - ((actor->height / 2) << 12));
+    result =
+        BtlHit_AttackAt(&attack, &args, actor->position.x, actor->position.y, actor->position.z - ((actor->height / 2) << 12));
     actor->flags &= ~ACTOR_FLAG_IMPACTING;
     if (actor->kind == ACTOR_KIND_OBJECT) {
         s16 hp = actor->currentHp;
@@ -1285,7 +1285,7 @@ s32 CombatHit_ActorImpact(BattleActor* actor) {
     return result;
 }
 
-static s32 CombatHit_Dispatch(Ov003Hit* spawn) {
+static s32 BtlHit_Dispatch(Ov003Hit* spawn) {
     u16 kind;
 
     if (g_CombatGlobal->unk3D874 != 2) {

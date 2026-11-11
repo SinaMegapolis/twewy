@@ -81,7 +81,7 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             }
             if (SpriteMgr_IsAnimationFinished(&self->sprites[1].sprite)) {
                 BtlSprite_Restart(&self->sprites[1]);
-                CombatSe_PlayAtMainX(0x93, self->position.x);
+                BtlSe_PlayAtMainX(0x93, self->position.x);
             }
             BtlSprite_Update(&self->sprites[0]);
             BtlSprite_Update(&self->sprites[1]);

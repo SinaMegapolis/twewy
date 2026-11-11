@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlDebug.h"
+#include "Battle/Core/BtlMgr.h"
 #include "Battle/Core/BtlStage.h"
-#include "Combat/Core/BtlMgr.h"
 #include "Combat/Core/BtlPop.h"
 #include "Combat/Core/Combat.h"
 #include "FixedPoint.h"

@@ -47,7 +47,7 @@ static void BtlObs_Bus_OnPhaseStart(BtlObs_Bus* obs) {
             BtlSprite_SetAnimFromTable(&obs->unk_0C4, 2, 0);
             BtlSprite_SetPaletteSource(&obs->unk_0C4, 11);
             BtlSprite_Release(&obs->unk_124);
-            CombatHit_LoadSparkForUnit(0, &obs->unk_124, &obs->actor);
+            BtlHit_LoadSparkForUnit(0, &obs->unk_124, &obs->actor);
         }
     }
 }
@@ -163,7 +163,7 @@ static s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
         BtlSprite_SetPosition(&obs->unk_0C4, posX, (s16)posY32);
         BtlSprite_SetSortKey(&obs->unk_0C4, 0x7FFFFFFF - obs->actor.position.y);
         BtlSprite_Render(&obs->unk_0C4);
-        CombatHit_DrawSparkOnActor(&obs->unk_124, &obs->actor);
+        BtlHit_DrawSparkOnActor(&obs->unk_124, &obs->actor);
     }
     return 1;
 }

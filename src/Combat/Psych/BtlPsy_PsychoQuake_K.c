@@ -47,7 +47,7 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
                 goto done;
             }
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_SYCOQUAKE01))
-                CombatSe_Play(SEIDX_SE_PSY_SYCOQUAKE01);
+                BtlSe_Play(SEIDX_SE_PSY_SYCOQUAKE01);
             switch (self->phase) {
                 case 0:
                     if (CombatCameraShake_Update(&self->camera, 0x333, 0, 0x8000)) {

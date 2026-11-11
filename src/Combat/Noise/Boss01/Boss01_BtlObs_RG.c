@@ -92,8 +92,8 @@ static s32 BtlObs_RG_Init(TaskPool* pool, Task* task, void* args) {
 
     obs->unk_284 = *spawnArgs->unk_C;
 
-    CombatSys_LoadObsSprite(1, &obs->base.sprite, spawnArgs->unk_2);
-    CombatSys_InitObsActor(&obs->base.actor, spawnArgs->unk_2);
+    BtlObsMgr_LoadSprite(1, &obs->base.sprite, spawnArgs->unk_2);
+    BtlObsMgr_InitActor(&obs->base.actor, spawnArgs->unk_2);
     obs->unk_1C2 = spawnArgs->unk_2;
 
     if (RNG_Next(2) != 0) {

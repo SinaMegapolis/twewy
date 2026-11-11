@@ -36,7 +36,7 @@ static s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage
             self->trail                    = arg->trail;
             CombatPsyAnim_Load(&self->sprite, 2, 1, arg->animation, 1);
             self->loopAnimation = arg->animation - 1;
-            CombatHit_LoadSpark(0, &self->icon, 2);
+            BtlHit_LoadSpark(0, &self->icon, 2);
             return 1;
         case 1:
             self = task->data;
@@ -60,7 +60,7 @@ static s32 func_ov003_020b40a0(TaskPool* pool, Task* task, void* args, s32 stage
             BtlSprite_SetPosition(&self->sprite, x, y);
             BtlSprite_SetSortKey(&self->sprite, self->position.y + 0x1F4000);
             BtlSprite_Render(&self->sprite);
-            CombatHit_DrawSpark(&self->icon, self->position.x, self->position.y);
+            BtlHit_DrawSpark(&self->icon, self->position.x, self->position.y);
             return 1;
         }
         case 3:

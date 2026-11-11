@@ -384,7 +384,7 @@ void BtlBadgeActor_SeparateAll(void) {
 void BtlBadgeActor_Request(Ov003TouchActor* actor, s32 request) {
     if (request == 5) {
         BtlBadgeActor_PickRequest(actor);
-        CombatSe_Play(SEIDX_SE_PSY_FULL);
+        BtlSe_Play(SEIDX_SE_PSY_FULL);
         return;
     }
     if (request == 2 && actor->params.unk_1E == 0) {

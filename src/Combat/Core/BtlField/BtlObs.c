@@ -72,7 +72,7 @@ static void func_ov003_020942e8(BtlObs* obs) {
         obs->state++;
     }
     if (func_ov003_020941d4(&obs->effect.actor)) {
-        CombatSys_PlayObsSe(0, obs->effect.config, obs->effect.actor.position.x);
+        BtlObsMgr_PlaySe(0, obs->effect.config, obs->effect.actor.position.x);
         obs->effect.actor.flags &= ~ACTOR_FLAG_THROWN;
         BtlCollision_SetDisabled(&obs->effect.sprite.collider, 0);
         if (obs->effect.id == 2) {
@@ -80,7 +80,7 @@ static void func_ov003_020942e8(BtlObs* obs) {
         }
         func_ov003_020941ac(obs, func_ov003_02094200);
     }
-    CombatHit_ActorImpact(&obs->effect.actor);
+    BtlHit_ActorImpact(&obs->effect.actor);
 }
 
 static void func_ov003_020943ac(BtlObs* obs) {
@@ -108,9 +108,9 @@ static s32 BtlObs_Init(TaskPool* pool, Task* task, void* args) {
     BtlObs*           obs   = task->data;
     Ov003EffectSpawn* spawn = args;
 
-    CombatSys_SetupObs(&obs->effect, spawn);
-    CombatSys_LoadObsSprite(0, &obs->sprites[0], spawn->id);
-    CombatSys_LoadObsHitEffect(0, &obs->sprites[1], spawn->id);
+    BtlObsMgr_Setup(&obs->effect, spawn);
+    BtlObsMgr_LoadSprite(0, &obs->sprites[0], spawn->id);
+    BtlObsMgr_LoadHitEffect(0, &obs->sprites[1], spawn->id);
     obs->visible = 1;
     obs->active  = 1;
     func_ov003_020941ac(obs, func_ov003_02094200);
@@ -144,7 +144,7 @@ static s32 BtlObs_Update(TaskPool* pool, Task* task, void* args) {
     if (obs->update != NULL) {
         obs->update(obs);
     }
-    CombatSys_UpdateObs(&obs->effect);
+    BtlObsMgr_Update(&obs->effect);
     BtlSprite_Update(&obs->sprites[0]);
     BtlSprite_Update(&obs->sprites[1]);
     return obs->active;
@@ -155,7 +155,7 @@ static s32 BtlObs_Render(TaskPool* pool, Task* task, void* args) {
 
     if (obs->visible) {
         BtlActor_Render(&obs->effect.actor, &obs->sprites[0]);
-        CombatHit_DrawSparkOnActor(&obs->sprites[1], &obs->effect.actor);
+        BtlHit_DrawSparkOnActor(&obs->sprites[1], &obs->effect.actor);
     }
     return 1;
 }
@@ -165,7 +165,7 @@ static s32 BtlObs_Release(TaskPool* pool, Task* task, void* args) {
 
     BtlSprite_Release(&obs->sprites[0]);
     BtlSprite_Release(&obs->sprites[1]);
-    CombatSys_RemoveObs(&obs->effect);
+    BtlObsMgr_Remove(&obs->effect);
     return 1;
 }
 

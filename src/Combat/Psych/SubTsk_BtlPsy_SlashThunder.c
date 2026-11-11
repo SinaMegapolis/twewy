@@ -94,7 +94,7 @@ s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage) {
             s16 y                  = arg->y + (dy >> 12);
             self->renderPosition.x = BtlStage_ToWorldX(0, (s16)(arg->x + (dx >> 12)));
             self->renderPosition.y = BtlStage_ToWorldY(0, y, 0);
-            CombatSe_PlayAtMainX(0x59, self->renderPosition.x);
+            BtlSe_PlayAtMainX(0x59, self->renderPosition.x);
             return 1;
         }
         case 1:
@@ -104,13 +104,13 @@ s32 func_ov003_020b9088(TaskPool* pool, Task* task, void* args, s32 stage) {
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         self->phase++;
                         CombatPsyAnim_SetAnim(&self->sprite, data_ov003_020dd00c[self->kind].animations[self->phase], 1);
-                        CombatSe_PlayAtMainX(0x59, self->renderPosition.x);
+                        BtlSe_PlayAtMainX(0x59, self->renderPosition.x);
                     }
                     break;
                 case 1: {
                     if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                         BtlSprite_Restart(&self->sprite);
-                        CombatSe_PlayAtMainX(0x59, self->renderPosition.x);
+                        BtlSe_PlayAtMainX(0x59, self->renderPosition.x);
                     }
                     if (--self->lifetime == 0) {
                         self->phase++;

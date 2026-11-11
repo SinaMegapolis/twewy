@@ -52,25 +52,40 @@ src/Combat/Core/CombatSpriteDefault.c:
     complete
     .data       start:0x020e38f0 end:0x020e391c
 
-src/Combat/Core/CombatSys.c:
-    .text       start:0x020862a4 end:0x02087b7c
-    .rodata     start:0x020d6fac end:0x020d7620
+src/Battle/Core/BtlObsMgr.c:
+    .text       start:0x020862a4 end:0x020868c8
+    .rodata     start:0x020d6fac end:0x020d7614
     .data       start:0x020e391c end:0x020e3934
     .bss        start:0x020e71b8 end:0x020e71bc
 
-src/Combat/Psych/BtlPsy_Instant.c:
+src/Battle/Core/BtlCmdQueue.c:
+    complete
+    .text       start:0x020868c8 end:0x02086b88
+
+src/Battle/Core/BtlCmdDeck.c:
+    .text       start:0x02086b88 end:0x02087250
+    .rodata     start:0x020d7614 end:0x020d7620
+
+src/Battle/Core/BtlAttackQueue.c:
+    complete
+    .text       start:0x02087250 end:0x02087458
+
+src/Battle/Core/BtlPlayerUtil.c:
+    .text       start:0x02087458 end:0x02087b7c
+
+src/Battle/Core/BtlPsyInstant.c:
     .text       start:0x02087b7c end:0x02087ed8
     .data       start:0x020e3934 end:0x020e397c
 
-src/Combat/Core/CombatSe.c:
+src/Battle/Core/BtlSe.c:
     complete
     .text       start:0x02087ed8 end:0x02087fa0
 
-src/Combat/Core/CombatHit.c:
+src/Battle/Core/BtlHit.c:
     .text       start:0x02087fa0 end:0x0208a488
     .rodata     start:0x020d7620 end:0x020d77d0
 
-src/Combat/Core/BtlMgr.c:
+src/Battle/Core/BtlMgr.c:
     .text       start:0x0208a488 end:0x0208ecb4
     .rodata     start:0x020d77d0 end:0x020d78f0
     .data       start:0x020e397c end:0x020e3ad4

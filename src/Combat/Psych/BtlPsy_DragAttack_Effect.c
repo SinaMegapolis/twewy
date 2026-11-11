@@ -96,7 +96,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
                     return 0;
             }
             CombatPsyAnim_Load(&self->sprite, 2, 1, animation, 0);
-            CombatSe_PlayAtMainX(0x64, player->position.x);
+            BtlSe_PlayAtMainX(0x64, player->position.x);
             func_ov003_02087804(0);
             return 1;
         }
@@ -118,7 +118,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
                         case 0x1C:
                             if (func_ov003_020a6628(&self->effect->streak, (u16)self->attackId, player->position.x,
                                                     player->position.y, player->position.z, 0, 0) == 1)
-                                CombatSe_PlayAtMainX(0x65, player->position.x);
+                                BtlSe_PlayAtMainX(0x65, player->position.x);
                             break;
                         case 0x1D: {
                             unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);

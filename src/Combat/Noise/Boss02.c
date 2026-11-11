@@ -438,7 +438,7 @@ static s32 func_ov017_02126d00(void* arg0, void* arg1, void* arg2, void* arg3, s
         var_r3 += 0x40000;
     }
     var_r4                = 1;
-    ((Boss03*)arg1)->unk4 = CombatSys_SpawnObsTask((u16)temp_r0, var_r3, arg4, arg1);
+    ((Boss03*)arg1)->unk4 = BtlObsMgr_SpawnTask((u16)temp_r0, var_r3, arg4, arg1);
     if (((Boss03*)arg1)->unk0 == -1) {
         var_r4                = 0;
         ((Boss03*)arg1)->unk4 = 0;
@@ -1862,7 +1862,7 @@ s32 func_ov017_02129438(void* arg0, void* arg1, s32 arg2) {
     data_ov017_021439d4.unk0   = 0;
     data_ov017_021439d4.unk2   = 0;
     BtlSprite_LoadFromTable(0, (BattleSprite*)temp_r4 + 0x84, &data_ov017_02141518, &data_ov017_02141568, 0, 0xD, 0x120);
-    CombatHit_LoadSparkForUnit(0, (BattleSprite*)(temp_r4 + 0xE4), &((Ov003EnemyActor*)temp_r4)->actor);
+    BtlHit_LoadSparkForUnit(0, (BattleSprite*)(temp_r4 + 0xE4), &((Ov003EnemyActor*)temp_r4)->actor);
     func_ov003_020c49c8((Ov003EnemyActor*)temp_r4);
     BtlCollision_Add(&((Ov003EnemyActor*)temp_r4)->collider, 1, ((Boss03*)temp_r5)->unk3, ((Boss03*)temp_r5)->unk4);
     func_ov003_020c4b5c((Ov003EnemyActor*)temp_r4);
@@ -3081,8 +3081,8 @@ s32 func_ov017_0212b6a4(void* arg0, void* arg1, void* arg2) {
     var_r9                     = temp_r7 + 4;
     var_r10                    = temp_r7 + 0x184;
     do {
-        CombatHit_LoadSpark(0, (BattleSprite*)var_r9, 4);
-        CombatHit_LoadSpark(0, (BattleSprite*)var_r10, 2);
+        BtlHit_LoadSpark(0, (BattleSprite*)var_r9, 4);
+        BtlHit_LoadSpark(0, (BattleSprite*)var_r10, 2);
         var_r8 += 1;
         var_r9 += 0x60;
         var_r10 += 0x60;
@@ -3170,8 +3170,7 @@ s32 func_ov017_0212b770(void* arg0, void* arg1) {
             break;
         case 2:
             func_ov017_0212b53c(sp8);
-            CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0xEA), ((Boss03*)sp8)->unk0 + 4,
-                                      g_CombatGlobal->player->position.x);
+            BtlHit_AttackCharacter(BtlHit_GetAttackInfo(0xEA), ((Boss03*)sp8)->unk0 + 4, g_CombatGlobal->player->position.x);
             if ((s32)data_ov017_021439dc.unkC <= 0) {
                 func_ov003_020c3acc(0, 0x2F9, g_CombatGlobal->player->position.x);
                 data_ov017_021439dc.unkC = 0x1B;
@@ -3225,8 +3224,8 @@ s32 func_ov017_0212b9d0(void* arg0, void* arg1) {
     var_r8                           = temp_r6 + 0x184;
     var_r4                           = 0;
     do {
-        CombatHit_DrawSpark(var_r5, ((Boss03*)var_r7)->unk4E4, ((Boss03*)var_r7)->unk4E8);
-        CombatHit_DrawSpark(var_r8, ((Boss03*)var_r7)->unk514, ((Boss03*)var_r7)->unk518);
+        BtlHit_DrawSpark(var_r5, ((Boss03*)var_r7)->unk4E4, ((Boss03*)var_r7)->unk4E8);
+        BtlHit_DrawSpark(var_r8, ((Boss03*)var_r7)->unk514, ((Boss03*)var_r7)->unk518);
         var_r4 += 1;
         var_r7 += 0xC;
         var_r5 += 0x60;
@@ -3813,7 +3812,7 @@ s32 func_ov017_0212cab0(void* arg0, void* arg1, void* arg2) {
     var_r7                     = temp_r4 + 4;
     ((Boss03*)temp_r4)->unk184 = 0;
     do {
-        CombatHit_LoadSpark(1, (BattleSprite*)var_r7, 2);
+        BtlHit_LoadSpark(1, (BattleSprite*)var_r7, 2);
         var_r6 += 1;
         var_r7 += 0x60;
     } while (var_r6 < 4);
@@ -3862,7 +3861,7 @@ s32 func_ov017_0212cb50(void* arg0, void* arg1) {
     do {
         var_r5 += temp_r7;
         var_r6 += temp_r4 >> 1;
-        CombatHit_DrawSpark(var_r9, var_r5, var_r6);
+        BtlHit_DrawSpark(var_r9, var_r5, var_r6);
         var_r8 += 1;
         var_r9 += 0x60;
     } while (var_r8 < 4);
@@ -3919,7 +3918,7 @@ s32 func_ov017_0212cccc(void* arg0, void* arg1, void* arg2) {
     var_r7                     = temp_r4 + 4;
     ((Boss03*)temp_r4)->unk184 = 0;
     do {
-        CombatHit_LoadSpark(0, (BattleSprite*)var_r7, 2);
+        BtlHit_LoadSpark(0, (BattleSprite*)var_r7, 2);
         var_r6 += 1;
         var_r7 += 0x60;
     } while (var_r6 < 4);
@@ -3968,7 +3967,7 @@ s32 func_ov017_0212cd6c(void* arg0, void* arg1) {
     do {
         var_r5 += temp_r7;
         var_r6 += temp_r4 >> 1;
-        CombatHit_DrawSpark(var_r9, var_r5, var_r6);
+        BtlHit_DrawSpark(var_r9, var_r5, var_r6);
         var_r8 += 1;
         var_r9 += 0x60;
     } while (var_r8 < 4);
@@ -4473,14 +4472,14 @@ static void func_ov017_0212dbd8(void* arg0) {
     if (((Boss03*)arg0)->unk80 != 0) {
         if (data_ov017_02143980 != 0x28) {
             if (temp_r1 < -0x40000) {
-                var_r0 = CombatHit_AttackAt(CombatHit_GetAttackInfo(0xEC), arg0 + 0x60, var_r4, temp_r5, temp_r6);
+                var_r0 = BtlHit_AttackAt(BtlHit_GetAttackInfo(0xEC), arg0 + 0x60, var_r4, temp_r5, temp_r6);
             } else {
-                var_r0 = CombatHit_AttackAt(CombatHit_GetAttackInfo(0xEB), arg0 + 0x60, var_r4, temp_r5, temp_r6);
+                var_r0 = BtlHit_AttackAt(BtlHit_GetAttackInfo(0xEB), arg0 + 0x60, var_r4, temp_r5, temp_r6);
             }
         } else if (temp_r1 < -0x40000) {
-            var_r0 = CombatHit_AttackAt(CombatHit_GetAttackInfo(0xEE), arg0 + 0x60, var_r4, temp_r5, temp_r6);
+            var_r0 = BtlHit_AttackAt(BtlHit_GetAttackInfo(0xEE), arg0 + 0x60, var_r4, temp_r5, temp_r6);
         } else {
-            var_r0 = CombatHit_AttackAt(CombatHit_GetAttackInfo(0xED), arg0 + 0x60, var_r4, temp_r5, temp_r6);
+            var_r0 = BtlHit_AttackAt(BtlHit_GetAttackInfo(0xED), arg0 + 0x60, var_r4, temp_r5, temp_r6);
         }
         if (var_r0 != 0) {
             ((Boss03*)arg0)->unk80 = 0;
@@ -4597,7 +4596,7 @@ static void func_ov017_0212df88(void* arg0) {
     temp_r7                = ((Boss03*)arg0)->unk70 - 0x20000;
     temp_r6                = ((Boss03*)arg0)->unk6C;
     if ((((Boss03*)arg0)->unk84 != 0) &&
-        (CombatHit_AttackAt(CombatHit_GetAttackInfo(0xEF), arg0 + 0x60, var_r5, temp_r6, temp_r7) != 0))
+        (BtlHit_AttackAt(BtlHit_GetAttackInfo(0xEF), arg0 + 0x60, var_r5, temp_r6, temp_r7) != 0))
     {
         ((Boss03*)arg0)->unk84 = 0;
     }

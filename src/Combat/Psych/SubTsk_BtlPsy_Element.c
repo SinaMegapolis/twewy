@@ -91,14 +91,14 @@ static s32 func_ov003_020ae46c(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a5a94(self->effect);
             s32 sound = data_ov003_020dc7b8[self->kind].startSound;
             if (sound != 0x56C && sound < 0x56C)
-                CombatSe_PlayAtMainX(sound, self->position.x);
+                BtlSe_PlayAtMainX(sound, self->position.x);
             return 1;
         case 1: {
             Ov003Element* self = task->data;
             if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
                 s32 sound = data_ov003_020dc7b8[self->kind].loopSound;
                 if (sound < 0x56C)
-                    CombatSe_PlayAtMainX(sound, self->position.x);
+                    BtlSe_PlayAtMainX(sound, self->position.x);
                 BtlSprite_Restart(&self->sprite);
             }
             BtlSprite_Update(&self->sprite);
@@ -334,7 +334,7 @@ static void func_ov003_020aefc0(Ov003Element* self) {
     if (hit == 1) {
         s32 sound = data_ov003_020dc7b8[self->kind].hitSound;
         if (sound < 0x56C)
-            CombatSe_PlayAtMainX(sound, self->position.x);
+            BtlSe_PlayAtMainX(sound, self->position.x);
     }
 }
 

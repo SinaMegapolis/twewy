@@ -40,7 +40,7 @@ static s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage
             self->particleTimer = 0;
             CombatPsyAnim_Load(&self->spriteA, 2, 1, 0xC7, 1);
             CombatPsyAnim_Load(&self->spriteB, 2, 1, 0xCB, 0);
-            CombatSe_PlayAtMainX(0x91, self->unit->actor.position.x);
+            BtlSe_PlayAtMainX(0x91, self->unit->actor.position.x);
             return 1;
         case 1: {
             Ov003IceHold* self = task->data;
@@ -93,7 +93,7 @@ static s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage
                         self->particleTimer--;
                     } else {
                         self->particleTimer = 12;
-                        CombatSe_PlayAtMainX(0x92, self->unit->actor.position.x);
+                        BtlSe_PlayAtMainX(0x92, self->unit->actor.position.x);
                     }
                     attackFlag = self->effect->unk_08 >= 4 ? (u16)0x1D : (u16)0;
                     index      = ((s32)(RNG_Next(0x10) << 12) >> 4) * 2;

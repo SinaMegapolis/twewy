@@ -104,7 +104,7 @@ static s32 func_ov010_02126e58(Enm006Swirl* data) {
     }
     if (data->unk_64 == 0) {
         data->unk_64++;
-        CombatSe_PlayPanned(SEIDX_SE_006_WATER_SWIRL, BtlStage_ToScreenX(0, data->unk_00->base.actor.position.x));
+        BtlSe_PlayPanned(SEIDX_SE_006_WATER_SWIRL, BtlStage_ToScreenX(0, data->unk_00->base.actor.position.x));
     }
     s32 w = func_ov003_020cb744(0);
     s32 h = func_ov003_020cb7a4(0);

@@ -43,7 +43,7 @@ static void func_ov013_0212710c(BtlEnm015* arg0) {
             func_ov003_020c4cc4(&arg0->base, 0x226);
             func_ov013_021257a4(arg0, arg0->unk_1E8 & 1);
             arg0->unk_1E8 = arg0->unk_1E8 + 1;
-            CombatHit_Stagger(0, player, 0);
+            BtlHit_Stagger(0, player, 0);
             func_ov013_02125838(arg0);
             arg0->unk_1C2 = arg0->unk_1C2 + 1;
             arg0->unk_1C0 = 0;
@@ -82,8 +82,8 @@ static void func_ov013_02127230(BtlEnm015* arg0) {
             }
             if (arg0->unk_1C0 == 0x2C) {
                 func_ov003_020c4cc4(&arg0->base, 0x224);
-                h = CombatHit_GetAttackInfo(0x89);
-                if (CombatHit_AttackAt(h, &arg0->base.actor.baseArgs, arg0->unk_1DC, arg0->unk_1E0, arg0->unk_1E4) == 1) {
+                h = BtlHit_GetAttackInfo(0x89);
+                if (BtlHit_AttackAt(h, &arg0->base.actor.baseArgs, arg0->unk_1DC, arg0->unk_1E0, arg0->unk_1E4) == 1) {
                     func_ov003_020c4cc4(&arg0->base, 0x225);
                 }
             }

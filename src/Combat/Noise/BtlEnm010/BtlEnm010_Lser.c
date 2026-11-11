@@ -217,7 +217,7 @@ static s32 func_ov011_02125f24(BtlEnm010Lser* data) {
         data->unk_250     = (data->unk_250 & ~1) | 1;
         data->unk_250     = data->unk_250 & ~2;
         data->emit.unk_26 = 0x2F;
-        CombatSe_PlayPanned((SndMgrSeIdx)0x1E5, BtlStage_ToScreenX(0, data->copy.position.x));
+        BtlSe_PlayPanned((SndMgrSeIdx)0x1E5, BtlStage_ToScreenX(0, data->copy.position.x));
     }
     flag = 1;
     if (data->emit.unk_24 > 0x24) {
@@ -289,7 +289,7 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
     }
     if (data->emit.unk_24 == 0x11) {
         data->unk_250 |= 4;
-        CombatSe_PlayPanned(SEIDX_SE_010_LAZERATTACK, BtlStage_ToScreenX(mode, data->copy.position.x));
+        BtlSe_PlayPanned(SEIDX_SE_010_LAZERATTACK, BtlStage_ToScreenX(mode, data->copy.position.x));
     }
     if ((u32)(data->unk_250 << 29) >> 31) {
         data->unk_22C = data->unk_22C + data->unk_248;
@@ -307,7 +307,7 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
         } else {
             idx = 0x56;
         }
-        rec = *CombatHit_GetAttackInfo((u16)idx);
+        rec = *BtlHit_GetAttackInfo((u16)idx);
         if (data->emit.unk_24 < 0xE) {
             rec.unk_05 = 0x18;
             rec.unk_07 = 0x20;
@@ -319,8 +319,8 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
         } else {
             x = data->unk_22C;
         }
-        if (CombatHit_AttackAt(&rec, &data->copy.baseArgs, x, data->unk_230, data->unk_234) == 1) {
-            CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, BtlStage_ToScreenX(mode, x));
+        if (BtlHit_AttackAt(&rec, &data->copy.baseArgs, x, data->unk_230, data->unk_234) == 1) {
+            BtlSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, BtlStage_ToScreenX(mode, x));
         }
     }
     data->emit.unk_24 = data->emit.unk_24 + 1;

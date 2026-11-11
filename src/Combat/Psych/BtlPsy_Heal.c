@@ -17,7 +17,7 @@ static s32 func_ov003_020b6370(void* args) {
     BattleActor*   player = func_ov003_020a6438();
     s32            amount = g_CombatGlobal->unk3D8D2 * arg->effect->params[1] / 100;
     func_ov003_020a5a94(arg->effect);
-    CombatSe_PlayAtMainX(0x14E, player->position.x);
+    BtlSe_PlayAtMainX(0x14E, player->position.x);
     func_ov003_020b67dc(arg->effect, player);
     func_ov003_0209b564(0, amount, player, 1);
     if (arg->effect->state == 0x3F)
@@ -120,7 +120,7 @@ static s32 func_ov003_020b6724(TaskPool* pool, Task* task, void* args, s32 stage
                 func_ov003_020a40b0(arg->actor);
                 func_ov003_020a40bc(arg->actor);
             }
-            CombatSe_PlayPanned(SEIDX_SE_PSY_BADGE_PUSH, (s16)(func_ov003_020a5a34(self->effect)->x >> 12));
+            BtlSe_PlayPanned(SEIDX_SE_PSY_BADGE_PUSH, (s16)(func_ov003_020a5a34(self->effect)->x >> 12));
             return 1;
         case 1:
             return 0;

@@ -51,7 +51,7 @@ static s32 func_ov003_020b3a14(TaskPool* pool, Task* task, void* args, s32 stage
                 result = func_ov003_020b3bdc(self);
             if (Sprite_HasAnimation(&self->sprite.sprite)) {
                 if (SpriteMgr_IsAnimationFinished(&self->sprite.sprite)) {
-                    CombatSe_PlayPanned(SEIDX_SE_PSY_ROCKONTHUNDER_DRAG01, self->x);
+                    BtlSe_PlayPanned(SEIDX_SE_PSY_ROCKONTHUNDER_DRAG01, self->x);
                     BtlSprite_Restart(&self->sprite);
                 }
                 BtlSprite_Update(&self->sprite);

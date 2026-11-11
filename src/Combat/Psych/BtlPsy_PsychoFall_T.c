@@ -42,7 +42,7 @@ static s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage
             self->timer  = 1;
             func_ov003_020a6464(1);
             func_ov003_020a6494(touch->x);
-            CombatSe_PlayPanned(SEIDX_SE_PSY_PSYCOFALL02, self->x);
+            BtlSe_PlayPanned(SEIDX_SE_PSY_PSYCOFALL02, self->x);
             func_ov003_02087804(0);
             return 1;
         case 1:

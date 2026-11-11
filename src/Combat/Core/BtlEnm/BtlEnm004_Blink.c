@@ -79,7 +79,7 @@ static s32 BtlEnm004_Blink_Init(TaskPool* pool, Task* task, void* args) {
         func_ov003_020cac84(FX32_CONVERT(self->count * self->count) / 2, &self->step, &offset);
         Vec_Sub(&self->position, &offset, &self->position);
     }
-    CombatHit_LoadSpark(owner->base.sprite.sprite.bits_0_1, &self->glow, 2);
+    BtlHit_LoadSpark(owner->base.sprite.sprite.bits_0_1, &self->glow, 2);
     return 1;
 }
 
@@ -118,7 +118,7 @@ static s32 BtlEnm004_Blink_Render(TaskPool* pool, Task* task, void* args) {
     BtlSprite_SetPosition(&self->sprite, x, y);
     BtlSprite_SetSortKey(&self->sprite, sort);
     BtlSprite_Render(&self->sprite);
-    CombatHit_DrawSpark(&self->glow, self->position.x, self->position.y);
+    BtlHit_DrawSpark(&self->glow, self->position.x, self->position.y);
     return 1;
 }
 

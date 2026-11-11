@@ -66,19 +66,19 @@ static void func_ov003_020a0fac(s32 weak) {
     u16 line;
 
     if (weak) {
-        CombatSe_Play(SEIDX_NEKU_BTL_WIN04);
+        BtlSe_Play(SEIDX_NEKU_BTL_WIN04);
         return;
     }
     line = RNG_Next(0xFFFF) % 3;
     switch (line) {
         case 0:
-            CombatSe_Play(SEIDX_NEKU_BTL_WIN01);
+            BtlSe_Play(SEIDX_NEKU_BTL_WIN01);
             break;
         case 1:
-            CombatSe_Play(SEIDX_NEKU_BTL_WIN02);
+            BtlSe_Play(SEIDX_NEKU_BTL_WIN02);
             break;
         case 2:
-            CombatSe_Play(SEIDX_NEKU_BTL_WIN03);
+            BtlSe_Play(SEIDX_NEKU_BTL_WIN03);
             break;
     }
 }
@@ -90,13 +90,13 @@ static void func_ov003_020a1038(s32 weak) {
     if (weak) {
         switch (g_CombatGlobal->unk3D88D) {
             case 0:
-                CombatSe_Play(SEIDX_SHIKI_BTL_WIN04);
+                BtlSe_Play(SEIDX_SHIKI_BTL_WIN04);
                 break;
             case 1:
-                CombatSe_Play(SEIDX_YOSHUA_BTL_WIN04);
+                BtlSe_Play(SEIDX_YOSHUA_BTL_WIN04);
                 break;
             case 2:
-                CombatSe_Play(SEIDX_BIITO_BTL_WIN04);
+                BtlSe_Play(SEIDX_BIITO_BTL_WIN04);
                 break;
         }
         return;
@@ -105,39 +105,39 @@ static void func_ov003_020a1038(s32 weak) {
     if (g_CombatGlobal->unk3D88D == 0) {
         switch (line) {
             case 0:
-                CombatSe_Play(SEIDX_SHIKI_BTL_WIN01);
+                BtlSe_Play(SEIDX_SHIKI_BTL_WIN01);
                 break;
             case 1:
-                CombatSe_Play(SEIDX_SHIKI_BTL_WIN02);
+                BtlSe_Play(SEIDX_SHIKI_BTL_WIN02);
                 break;
             case 2:
-                CombatSe_Play(SEIDX_SHIKI_BTL_WIN03);
+                BtlSe_Play(SEIDX_SHIKI_BTL_WIN03);
                 break;
         }
     }
     if (g_CombatGlobal->unk3D88D == 1) {
         switch (line) {
             case 0:
-                CombatSe_Play(SEIDX_YOSHUA_BTL_WIN01);
+                BtlSe_Play(SEIDX_YOSHUA_BTL_WIN01);
                 break;
             case 1:
-                CombatSe_Play(SEIDX_YOSHUA_BTL_WIN02);
+                BtlSe_Play(SEIDX_YOSHUA_BTL_WIN02);
                 break;
             case 2:
-                CombatSe_Play(SEIDX_YOSHUA_BTL_WIN03);
+                BtlSe_Play(SEIDX_YOSHUA_BTL_WIN03);
                 break;
         }
     }
     if (g_CombatGlobal->unk3D88D == 2) {
         switch (line) {
             case 0:
-                CombatSe_Play(SEIDX_BIITO_BTL_WIN01);
+                BtlSe_Play(SEIDX_BIITO_BTL_WIN01);
                 break;
             case 1:
-                CombatSe_Play(SEIDX_BIITO_BTL_WIN02);
+                BtlSe_Play(SEIDX_BIITO_BTL_WIN02);
                 break;
             case 2:
-                CombatSe_Play(SEIDX_BIITO_BTL_WIN03);
+                BtlSe_Play(SEIDX_BIITO_BTL_WIN03);
                 break;
         }
     }
@@ -149,63 +149,63 @@ static s32 func_ov003_020a11c8(void) {
 
     switch (g_CombatGlobal->unk3D88E) {
         case 13:
-            CombatSe_Play(SEIDX_KONISHI_N_BTL_OTHER01);
+            BtlSe_Play(SEIDX_KONISHI_N_BTL_OTHER01);
             break;
         case 33:
-            CombatSe_Play(result + 0x500);
+            BtlSe_Play(result + 0x500);
             break;
         case 16:
-            CombatSe_Play(result + 0x500);
+            BtlSe_Play(result + 0x500);
             break;
         case 18:
-            CombatSe_Play(SEIDX_MINAMI_N_BTL_OVR01);
+            BtlSe_Play(SEIDX_MINAMI_N_BTL_OVR01);
             break;
         case 19:
-            CombatSe_Play(SEIDX_HIGASHI_N_BTL_OVR02);
+            BtlSe_Play(SEIDX_HIGASHI_N_BTL_OVR02);
             break;
         case 20:
-            CombatSe_Play(SEIDX_KITA_N_BTL_OVR01);
+            BtlSe_Play(SEIDX_KITA_N_BTL_OVR01);
             break;
         case 21:
-            CombatSe_Play(SEIDX_KITA_N_BTL_OVR01);
+            BtlSe_Play(SEIDX_KITA_N_BTL_OVR01);
             break;
         case 23:
-            CombatSe_Play(SEIDX_BIITO_BTL_OVR01);
+            BtlSe_Play(SEIDX_BIITO_BTL_OVR01);
             break;
         case 24:
-            CombatSe_Play(SEIDX_BIITO_BTL_OVR01);
+            BtlSe_Play(SEIDX_BIITO_BTL_OVR01);
             break;
         case 25:
-            CombatSe_Play(SEIDX_BIITO_BTL_OVR01);
+            BtlSe_Play(SEIDX_BIITO_BTL_OVR01);
             break;
         case 26:
-            CombatSe_Play(SEIDX_BIITO_BTL_OVR01);
+            BtlSe_Play(SEIDX_BIITO_BTL_OVR01);
             break;
         case 27:
-            CombatSe_Play(SEIDX_KITA_BTL_OVR01);
+            BtlSe_Play(SEIDX_KITA_BTL_OVR01);
             break;
         case 28:
-            CombatSe_Play(SEIDX_KARIYA_BTL_OVR01);
+            BtlSe_Play(SEIDX_KARIYA_BTL_OVR01);
             break;
         case 29:
-            CombatSe_Play(SEIDX_YASHIRO_BTL_OVR01);
+            BtlSe_Play(SEIDX_YASHIRO_BTL_OVR01);
             break;
         case 30:
             if (RNG_Next(2) != 0) {
-                CombatSe_Play(SEIDX_KARIYA_BTL_OVR01);
+                BtlSe_Play(SEIDX_KARIYA_BTL_OVR01);
             } else {
-                CombatSe_Play(SEIDX_YASHIRO_BTL_OVR01);
+                BtlSe_Play(SEIDX_YASHIRO_BTL_OVR01);
             }
             break;
         case 31:
             if (RNG_Next(2) != 0) {
-                CombatSe_Play(SEIDX_KARIYA_B_BTL_OVR01);
+                BtlSe_Play(SEIDX_KARIYA_B_BTL_OVR01);
             } else {
-                CombatSe_Play(SEIDX_YASHIRO_B_BTL_OVR01);
+                BtlSe_Play(SEIDX_YASHIRO_B_BTL_OVR01);
             }
             break;
         case 32:
-            CombatSe_Play(SEIDX_HANEKOMA_N_EVENT_YOROKOBIS01);
+            BtlSe_Play(SEIDX_HANEKOMA_N_EVENT_YOROKOBIS01);
         default:
             result = 0;
             break;
@@ -239,7 +239,7 @@ static void func_ov003_020a1374(void) {
 static void func_ov003_020a13f8(BtlWin* self) {
     if (self->timer == 0) {
         self->timer = 30;
-        CombatSe_PlayPanned(SEIDX_SE_NOISEERASED01, 0x80);
+        BtlSe_PlayPanned(SEIDX_SE_NOISEERASED01, 0x80);
     }
     if (self->timer > 0) {
         func_020265d4(&self->x, 0x80000, (u16)self->timer);
@@ -269,7 +269,7 @@ static void func_ov003_020a14c8(BtlWin* self) {
         case 0:
             if (self->timer == 0) {
                 self->timer = 30;
-                CombatSe_PlayPanned(SEIDX_SE_NOISEERASED02, 0x80);
+                BtlSe_PlayPanned(SEIDX_SE_NOISEERASED02, 0x80);
             }
             if (self->timer > 0) {
                 func_020265d4(&self->x, 0x180000, (u16)self->timer);
@@ -280,7 +280,7 @@ static void func_ov003_020a14c8(BtlWin* self) {
                 return;
             }
             EasyFade_FadeBothDisplays(0, 0x10, 0x800);
-            CombatSe_Play(SEIDX_SE_BATTLE_OUT);
+            BtlSe_Play(SEIDX_SE_BATTLE_OUT);
             self->phase++;
             self->timer = 0;
             break;

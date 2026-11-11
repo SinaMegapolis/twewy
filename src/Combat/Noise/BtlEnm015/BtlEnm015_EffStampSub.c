@@ -40,14 +40,14 @@ static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
 
                 func_ov013_02125838(data->unk_00);
                 if (SndMgr_IsSEPlaying(SEIDX_SE_015_FOOTSTAMP02) == 0) {
-                    CombatSe_Play(SEIDX_SE_015_FOOTSTAMP02);
+                    BtlSe_Play(SEIDX_SE_015_FOOTSTAMP02);
                 }
-                h = CombatHit_GetAttackInfo(se);
-                r = CombatHit_AttackAt(h, &data->unk_00->base.actor.baseArgs, data->unk_68, data->unk_6C, data->unk_70);
+                h = BtlHit_GetAttackInfo(se);
+                r = BtlHit_AttackAt(h, &data->unk_00->base.actor.baseArgs, data->unk_68, data->unk_6C, data->unk_70);
                 if (r == 1) {
                     func_ov003_020c4cc4(&data->unk_00->base, 0x228);
                 } else if (r != 2) {
-                    if (CombatHit_Stagger(engine, base, 0) != 0) {
+                    if (BtlHit_Stagger(engine, base, 0) != 0) {
                         base->hit.stunTimer = 1;
                     }
                 }

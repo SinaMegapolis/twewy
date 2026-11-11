@@ -23,7 +23,7 @@ static s32 func_ov003_020b2e58(TaskPool* pool, Task* task, void* args, s32 stage
             self->entry.taskId = ((u32)task->generation << 16) | (u32)task->id;
             self->entry.actor  = arg->actor;
             BtlList_Append(self->list, &self->entry.node, &self->entry);
-            CombatSe_PlayAtMainX(0x14C, self->entry.actor->position.x);
+            BtlSe_PlayAtMainX(0x14C, self->entry.actor->position.x);
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0x10, 1);
             return 1;
         case 1:

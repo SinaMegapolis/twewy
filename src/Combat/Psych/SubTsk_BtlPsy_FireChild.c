@@ -43,7 +43,7 @@ static s32 func_ov003_020a9530(TaskPool* pool, Task* task, void* args, s32 stage
             CombatPsyAnim_Load(&child->sprite, 2, 1, arg->kind, 1);
             if (RNG_Next(2))
                 BtlSprite_SetFlip(&child->sprite, 1);
-            CombatSe_PlayAtMainX(0x149, child->position.x);
+            BtlSe_PlayAtMainX(0x149, child->position.x);
             return 1;
         case 1:
             child = task->data;

@@ -57,8 +57,8 @@ static s32 func_ov003_020d25e8(Ov003EnemyShotSpiral* self) {
     s16 x, y;
     BtlStage_WorldToScreen(func_ov003_020c37f8(&self->sprite) ? 1 : 0, &x, &y, self->source.core.position.x,
                            self->source.core.position.y, self->source.core.position.z);
-    self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
-                                                           &self->source.core.owner->base.actor.baseArgs, x, y);
+    self->source.core.hitResult = BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(self->source.core.attackId),
+                                                        &self->source.core.owner->base.actor.baseArgs, x, y);
     BtlSprite_Update(&self->sprite);
     return 1;
 }

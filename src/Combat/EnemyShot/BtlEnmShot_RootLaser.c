@@ -136,9 +136,9 @@ static s32 func_ov003_020d1ae8(Ov003EnemyShotRootLaser* self) {
             if (self->timer >= 0)
                 break;
             if (!SndMgr_IsSEPlaying(self->sound) && self->sound != 0x56C)
-                CombatSe_PlayPanned(self->sound, BtlStage_ToScreenX(0, self->owner.core.position.x));
+                BtlSe_PlayPanned(self->sound, BtlStage_ToScreenX(0, self->owner.core.position.x));
             if (!SndMgr_IsSEPlaying(self->sound2) && self->sound2 != 0x56C)
-                CombatSe_PlayPanned(self->sound2, BtlStage_ToScreenX(0, self->owner.core.position.x));
+                BtlSe_PlayPanned(self->sound2, BtlStage_ToScreenX(0, self->owner.core.position.x));
             Ov003EnemyShotRoot* root = BtlList_GetHead(&self->list);
             if (root == NULL)
                 return 0;

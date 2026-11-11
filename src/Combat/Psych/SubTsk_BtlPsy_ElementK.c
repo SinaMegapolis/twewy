@@ -109,7 +109,7 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
             for (i = 0; i < 3; i++)
                 func_ov003_020add40(&self->rays[i], self->x, self->y, self->effect);
             if (!SndMgr_IsSEPlaying(SEIDX_SE_PSY_EGENERATE_BOOT01_01))
-                CombatSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_BOOT01_01, self->x);
+                BtlSe_PlayPanned(SEIDX_SE_PSY_EGENERATE_BOOT01_01, self->x);
             BtlSprite_Update(&self->sprite);
             BtlSprite_Update(&self->aura);
             return 1;

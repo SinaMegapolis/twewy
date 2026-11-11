@@ -53,13 +53,13 @@ static void func_ov003_020a210c(BtlPause* self) {
         return;
     }
     if (self->resumed == 0) {
-        CombatSe_Play(SEIDX_BTL_SYSTEM_CURSOR);
+        BtlSe_Play(SEIDX_BTL_SYSTEM_CURSOR);
         BtlSprite_SetAnim(&self->sprites[2], 2, 1);
         BtlSprite_Restart(&self->sprites[2]);
         self->resumed = 1;
         return;
     }
-    CombatSe_Play(SEIDX_BTL_SYSTEM_EXECUTE);
+    BtlSe_Play(SEIDX_BTL_SYSTEM_EXECUTE);
     BtlMgr_SetState(5);
 }
 
@@ -105,7 +105,7 @@ static s32 BtlPause_Update(TaskPool* pool, Task* task, void* args) {
             CriSndMgr_Pause(g_CombatGlobal->unk3D870, 0);
         }
         func_02027200(g_CombatGlobal->unk3D87C);
-        CombatSe_Play(SEIDX_SE_PAUSE);
+        BtlSe_Play(SEIDX_SE_PAUSE);
     }
     if (g_CombatGlobal->unk3D87C != 0 && g_CombatGlobal->unk3D874 == 2) {
         func_ov003_020a210c(self);

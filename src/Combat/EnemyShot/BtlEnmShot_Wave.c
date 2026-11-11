@@ -57,8 +57,8 @@ static s32 func_ov003_020d3198(Ov003EnemyShotWave* self) {
     s16 x, y;
     BtlStage_WorldToScreen(engine, &x, &y, self->source.core.position.x + self->offsetX,
                            self->source.core.position.y + self->offsetY, self->source.core.position.z);
-    self->source.core.hitResult = CombatHit_AttackAtScreen(CombatHit_GetAttackInfo(self->source.core.attackId),
-                                                           &self->source.core.owner->base.actor.baseArgs, x, y);
+    self->source.core.hitResult = BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(self->source.core.attackId),
+                                                        &self->source.core.owner->base.actor.baseArgs, x, y);
     BtlSprite_Update(&self->sprite);
     return 1;
 }

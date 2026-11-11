@@ -43,7 +43,7 @@ static s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage
             CombatCameraShake_Start(&self->camera, 4, 0x1800);
             self->phase = 0;
             self->timer = 0;
-            CombatSe_PlayAtMainX(0x5A, player->position.x - 0x1E000);
+            BtlSe_PlayAtMainX(0x5A, player->position.x - 0x1E000);
             func_ov003_02087804(0);
             return 1;
         }
@@ -120,7 +120,7 @@ static s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage
 static void func_ov003_020ba68c(Ov003StreetLive* self) {
     BattleActor* player = func_ov003_020a6438();
     func_ov003_020ba08c(self->effect, player->position.x - 0x1E000, player->position.y - 0x52000);
-    CombatSe_PlayAtMainX(0x5A, player->position.x - 0x1E000);
+    BtlSe_PlayAtMainX(0x5A, player->position.x - 0x1E000);
 }
 
 static char                         data_ov003_020e5048[24] = "Tsk_BtlPsy_StreetLive";

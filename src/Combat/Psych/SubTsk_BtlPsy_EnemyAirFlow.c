@@ -41,7 +41,7 @@ static s32 func_ov003_020b01d8(TaskPool* pool, Task* task, void* args, s32 stage
             self->origin.z        = unit->actor.position.z;
             func_ov003_020a6164(unit, 4);
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0xBD, 0);
-            CombatSe_PlayAtMainX(0x89, unit->actor.position.x);
+            BtlSe_PlayAtMainX(0x89, unit->actor.position.x);
             return 1;
         }
         case 1: {
@@ -98,7 +98,7 @@ static s32 func_ov003_020b03b4(Ov003EnemyAirFlow* self) {
     func_ov003_020a88c0(&args, unit->actor.position.x, unit->actor.position.y, unit->actor.position.z, 2, 0xBE);
     func_ov003_020a88a8(&args);
     func_ov003_020a8768();
-    CombatSe_PlayAtMainX(0x8A, unit->actor.position.x);
+    BtlSe_PlayAtMainX(0x8A, unit->actor.position.x);
     self->landed = 1;
     func_ov003_020a6568(&self->effect->streak, 0x166, unit, unit->actor.position.x, 0, 0);
     return 0;

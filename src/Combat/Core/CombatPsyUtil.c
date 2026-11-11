@@ -245,7 +245,7 @@ void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, BattleAt
     }
     BtlActor_SetPendingCommand(&unit->actor, ACTOR_CMD_RELEASE);
     unit->actor.holderId = 0;
-    CombatHit_ArmActor(attackId, args, &unit->actor);
+    BtlHit_ArmActor(attackId, args, &unit->actor);
     idx                   = (angle >> 4) * 2;
     unit->actor.xVelocity = FX_Mul(FX_SinCosTable_[idx + 1], speed);
     unit->actor.yVelocity = FX_Mul(FX_SinCosTable_[idx], speed);
@@ -370,14 +370,14 @@ static void func_ov003_020a652c(Ov003AttackInfo* info, s32 force, u16 amount) {
 
 /// Queues a sweep attack against `unit`, resetting the streak when the info record says so.
 s32 func_ov003_020a6568(Ov003AttackStreak* streak, u16 attackId, Ov003EnemyActor* unit, s32 x, s32 force, u16 amount) {
-    Ov003AttackInfo info = *CombatHit_GetAttackInfo(attackId);
+    Ov003AttackInfo info = *BtlHit_GetAttackInfo(attackId);
     s32             result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
     }
     func_ov003_020a652c(&info, force, amount);
-    result = CombatHit_AttackUnit(&info, &streak->args, &unit->actor, x);
+    result = BtlHit_AttackUnit(&info, &streak->args, &unit->actor, x);
     if (result == 1) {
         streak->hits++;
         if (((u32)info.flags << 19) >> 31) {
@@ -390,14 +390,14 @@ s32 func_ov003_020a6568(Ov003AttackStreak* streak, u16 attackId, Ov003EnemyActor
 
 /// Queues a point attack at (x, y, z) and resets the streak when the info record says so.
 s32 func_ov003_020a6628(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 z, s32 force, u16 amount) {
-    Ov003AttackInfo info = *CombatHit_GetAttackInfo(attackId);
+    Ov003AttackInfo info = *BtlHit_GetAttackInfo(attackId);
     s32             result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
     }
     func_ov003_020a652c(&info, force, amount);
-    result = CombatHit_AttackAt(&info, &streak->args, x, y, z);
+    result = BtlHit_AttackAt(&info, &streak->args, x, y, z);
     if (result == 1) {
         streak->hits++;
         if (((u32)info.flags << 19) >> 31) {
@@ -410,14 +410,14 @@ s32 func_ov003_020a6628(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s
 
 /// Queues a pixel-space attack at (x, y) and resets the streak when the info record says so.
 s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount) {
-    Ov003AttackInfo info = *CombatHit_GetAttackInfo(attackId);
+    Ov003AttackInfo info = *BtlHit_GetAttackInfo(attackId);
     s32             result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
     }
     func_ov003_020a652c(&info, force, amount);
-    result = CombatHit_AttackAtScreen(&info, &streak->args, x, y);
+    result = BtlHit_AttackAtScreen(&info, &streak->args, x, y);
     if (result == 1) {
         streak->hits++;
         if (((u32)info.flags << 19) >> 31) {
@@ -582,8 +582,8 @@ s32 func_ov003_020a6b84(Ov003AttackStreak* streak, u16 arg1, Ov003EnemyActor* un
     s32 velocity = unit->actor.xVelocity;
 
     unit->actor.xVelocity = 0x1000;
-    CombatHit_ArmActor(arg1, &streak->args, &unit->actor);
-    s32 result            = CombatHit_ActorImpact(&unit->actor);
+    BtlHit_ArmActor(arg1, &streak->args, &unit->actor);
+    s32 result            = BtlHit_ActorImpact(&unit->actor);
     unit->actor.xVelocity = velocity;
     return result;
 }

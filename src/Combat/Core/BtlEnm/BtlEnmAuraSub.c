@@ -185,7 +185,7 @@ static s32 BtlEnmAuraSub_Init(TaskPool* pool, Task* task, void* args) {
     BtlSprite_LoadFromTableNoProto(engine, &aura->sprite, &data_ov003_020e0bcc, data_ov003_020e0bc4, 0, palette, 0x90);
     BtlSprite_SetPosition(&aura->sprite, (s32)(aura->x * 0x10) >> 16, (s32)(aura->y * 0x10) >> 16);
     func_ov003_020ca7b0(engine, aura);
-    CombatSe_PlayPanned(SEIDX_SE_GREEN_LIGHT, (s32)(aura->x * 0x10) >> 16);
+    BtlSe_PlayPanned(SEIDX_SE_GREEN_LIGHT, (s32)(aura->x * 0x10) >> 16);
     return 1;
 }
 

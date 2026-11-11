@@ -121,7 +121,7 @@ static s32 func_ov011_02128150(BtlEnm010SWay* p) {
         } else {
             pan = BtlStage_ToScreenX(0, o->actor.position.x);
         }
-        CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK, pan);
+        BtlSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK, pan);
         p->unk_08 = p->unk_08 + 1;
     }
     if (p->unk_04 == 0) {

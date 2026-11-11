@@ -310,7 +310,7 @@ static void func_ov009_02121ba8(BtlEnm003_UG* ug) {
                 BtlSprite_SetAnimFromTable(&ug->base.sprite, 7, 1);
                 BtlCollision_SetDisabled(&ug->base.collider, 0);
                 func_ov003_020c4b5c(&ug->base);
-                CombatSe_PlayAtMainX(0x19F, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(0x19F, ug->base.actor.position.x);
             }
             if (ug->unk_1C0 <= 20) {
                 ug->unk_1C0++;
@@ -325,13 +325,13 @@ static void func_ov009_02121ba8(BtlEnm003_UG* ug) {
                 BtlSprite_SetAnimFromTable(&ug->base.sprite, 8, 1);
                 func_ov009_02120b5c(ug, 0);
                 BtlCollision_SetDisabled(&ug->base.collider, 1);
-                CombatSe_PlayAtMainX(412, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(412, ug->base.actor.position.x);
             }
             ug->unk_1C0++;
             if ((ug->unk_1C0 == 3) && (func_ov003_020c5b2c(63, &ug->base, ug->base.actor.position.x, ug->base.actor.position.y,
                                                            ug->base.actor.position.z) == 1))
             {
-                CombatSe_PlayAtMainX(414, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(414, ug->base.actor.position.x);
             }
             if (ug->unk_1C0 <= 30) {
                 ug->unk_1C0++;
@@ -368,7 +368,7 @@ static void func_ov009_02121da8(BtlEnm003_UG* ug) {
                 BtlSprite_SetAnimFromTable(&ug->base.sprite, 9, 1);
                 BtlCollision_SetDisabled(&ug->base.collider, 0);
                 func_ov003_020c4b5c(&ug->base);
-                CombatSe_PlayAtMainX(415, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(415, ug->base.actor.position.x);
             }
             if (ug->unk_1C0 <= 40) {
                 ug->unk_1C0++;
@@ -382,14 +382,14 @@ static void func_ov009_02121da8(BtlEnm003_UG* ug) {
             if (ug->unk_1C0 == 0) {
                 BtlSprite_SetAnimFromTable(&ug->base.sprite, 10, 1);
                 func_ov009_02120b5c(ug, 1);
-                CombatSe_PlayAtMainX(412, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(412, ug->base.actor.position.x);
                 BtlCollision_SetDisabled(&ug->base.collider, 1);
             }
             if (ug->unk_1C0 == 3) {
                 if (func_ov003_020c5b2c(64, &ug->base, ug->base.actor.position.x, ug->base.actor.position.y,
                                         ug->base.actor.position.z) == 1)
                 {
-                    CombatSe_PlayAtMainX(414, ug->base.actor.position.x);
+                    BtlSe_PlayAtMainX(414, ug->base.actor.position.x);
                 }
                 func_ov009_021216e0(ug);
             }
@@ -444,7 +444,7 @@ static void func_ov009_02121fa4(BtlEnm003_UG* ug) {
                 BtlSprite_SetAnim(&ug->base.sprite, 1, 1);
                 func_ov003_020c5b2c(66, &ug->base, ug->base.actor.position.x, ug->base.actor.position.y,
                                     ug->base.actor.position.z);
-                CombatSe_PlayAtMainX(418, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(418, ug->base.actor.position.x);
             }
             if (SpriteMgr_IsAnimationFinished(&ug->base.sprite.sprite) != 0) {
                 ug->unk_1C0 = 0;
@@ -457,7 +457,7 @@ static void func_ov009_02121fa4(BtlEnm003_UG* ug) {
         case 2: {
             if (ug->unk_1C0 == 0) {
                 BtlSprite_SetAnim(&ug->base.sprite, 2, 1);
-                CombatSe_PlayAtMainX(419, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(419, ug->base.actor.position.x);
                 ug->unk_1D4.x = temp_r4->position.x - ug->base.actor.position.x;
                 ug->unk_1D4.y = temp_r4->position.y - ug->base.actor.position.y;
                 ug->unk_1D4.z = 0;
@@ -483,11 +483,11 @@ static void func_ov009_02121fa4(BtlEnm003_UG* ug) {
                 BtlSprite_SetAnim(&ug->base.sprite, 3, 1);
                 func_ov009_02120b5c(ug, 2);
                 func_ov009_02120b5c(ug, 3);
-                CombatSe_PlayAtMainX(413, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(413, ug->base.actor.position.x);
                 if (func_ov003_020c5b2c(67, &ug->base, ug->base.actor.position.x, ug->base.actor.position.y,
                                         ug->base.actor.position.z) == 1)
                 {
-                    CombatSe_PlayAtMainX(414, ug->base.actor.position.x);
+                    BtlSe_PlayAtMainX(414, ug->base.actor.position.x);
                 }
                 ug->unk_1C6 = 70;
             }
@@ -564,7 +564,7 @@ static void func_ov009_021223a0(BtlEnm003_UG* ug) {
                     ug->base.actor.baseArgs.powerPercent *= 2;
                 }
                 ug->unk_1E4 = RNG_Next(301) + 900;
-                CombatSe_PlayAtMainX(420, ug->base.actor.position.x);
+                BtlSe_PlayAtMainX(420, ug->base.actor.position.x);
             }
             if (SpriteMgr_IsAnimationFinished(&ug->base.sprite.sprite) != 0) {
                 BtlEnm003_UG_SetState(ug, func_ov009_021217dc);

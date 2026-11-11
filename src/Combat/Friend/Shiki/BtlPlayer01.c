@@ -86,7 +86,7 @@ void func_ov004_020e739c(s16* arg0, s32 arg1) {
     // u16   temp_r1;
     // void* var_r0;
 
-    // CombatSys_ShuffleIds(&subroutine_arg0, func_ov004_020e737c());
+    // BtlCmdDeck_Shuffle(&subroutine_arg0, func_ov004_020e737c());
     // var_r5 = 0;
     // var_r0 = BtlList_GetHead(arg0 + 4);
     // if (var_r0 != NULL) {
@@ -168,22 +168,22 @@ static void func_ov004_020e750c(BtlPlayer01* player, s32 arg1) {
     if (arg1 != 0) {
         switch (RNG_Next(2)) {
             case 0:
-                CombatSe_PlayAtSubX(917, player->actor.position.x);
+                BtlSe_PlayAtSubX(917, player->actor.position.x);
                 return;
             case 1:
-                CombatSe_PlayAtSubX(918, player->actor.position.x);
+                BtlSe_PlayAtSubX(918, player->actor.position.x);
                 return;
         }
     } else if (player->unk_144 <= 0) {
         switch (RNG_Next(3)) {
             case 0:
-                CombatSe_PlayAtSubX(914, player->actor.position.x);
+                BtlSe_PlayAtSubX(914, player->actor.position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(915, player->actor.position.x);
+                BtlSe_PlayAtSubX(915, player->actor.position.x);
                 break;
             case 2:
-                CombatSe_PlayAtSubX(916, player->actor.position.x);
+                BtlSe_PlayAtSubX(916, player->actor.position.x);
                 break;
         }
         player->unk_144 = 45;
@@ -194,58 +194,58 @@ static void func_ov004_020e75d8(BtlPlayer01* player, s32 arg1) {
     if (arg1 != 0) {
         switch (RNG_Next(9)) {
             case 0:
-                CombatSe_PlayAtSubX(899, player->actor.position.x);
+                BtlSe_PlayAtSubX(899, player->actor.position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(900, player->actor.position.x);
+                BtlSe_PlayAtSubX(900, player->actor.position.x);
                 break;
             case 2:
-                CombatSe_PlayAtSubX(901, player->actor.position.x);
+                BtlSe_PlayAtSubX(901, player->actor.position.x);
                 break;
             case 3:
-                CombatSe_PlayAtSubX(902, player->actor.position.x);
+                BtlSe_PlayAtSubX(902, player->actor.position.x);
                 break;
             case 4:
-                CombatSe_PlayAtSubX(903, player->actor.position.x);
+                BtlSe_PlayAtSubX(903, player->actor.position.x);
                 break;
             case 5:
-                CombatSe_PlayAtSubX(904, player->actor.position.x);
+                BtlSe_PlayAtSubX(904, player->actor.position.x);
                 break;
             case 6:
-                CombatSe_PlayAtSubX(905, player->actor.position.x);
+                BtlSe_PlayAtSubX(905, player->actor.position.x);
                 break;
             case 7:
-                CombatSe_PlayAtSubX(906, player->actor.position.x);
+                BtlSe_PlayAtSubX(906, player->actor.position.x);
                 break;
             case 8:
-                CombatSe_PlayAtSubX(907, player->actor.position.x);
+                BtlSe_PlayAtSubX(907, player->actor.position.x);
                 break;
         }
     } else if (player->unk_142 <= 0) {
         switch (RNG_Next(8)) {
             case 0:
-                CombatSe_PlayAtSubX(891, player->actor.position.x);
+                BtlSe_PlayAtSubX(891, player->actor.position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(892, player->actor.position.x);
+                BtlSe_PlayAtSubX(892, player->actor.position.x);
                 break;
             case 2:
-                CombatSe_PlayAtSubX(893, player->actor.position.x);
+                BtlSe_PlayAtSubX(893, player->actor.position.x);
                 break;
             case 3:
-                CombatSe_PlayAtSubX(894, player->actor.position.x);
+                BtlSe_PlayAtSubX(894, player->actor.position.x);
                 break;
             case 4:
-                CombatSe_PlayAtSubX(895, player->actor.position.x);
+                BtlSe_PlayAtSubX(895, player->actor.position.x);
                 break;
             case 5:
-                CombatSe_PlayAtSubX(896, player->actor.position.x);
+                BtlSe_PlayAtSubX(896, player->actor.position.x);
                 break;
             case 6:
-                CombatSe_PlayAtSubX(897, player->actor.position.x);
+                BtlSe_PlayAtSubX(897, player->actor.position.x);
                 break;
             case 7:
-                CombatSe_PlayAtSubX(898, player->actor.position.x);
+                BtlSe_PlayAtSubX(898, player->actor.position.x);
                 break;
         }
         player->unk_142 = 45;
@@ -334,10 +334,10 @@ static void func_ov004_020e79a8(BtlPlayer01* player, s32 arg1, s32 arg2) {
     s32 temp_r0;
 
     if (player->unk_140 == 0) {
-        temp_r0 = CombatSys_PopPartnerAction();
+        temp_r0 = BtlCmdQueue_Pop();
     }
 
-    switch (CombatSys_TakePartnerDirection()) {
+    switch (BtlCmdQueue_TakeDirection()) {
         case 1:
             player->actor.isFlipped = 0;
             break;
@@ -494,7 +494,7 @@ void func_ov004_020e7c14(BtlPlayer01* player) {
         case 4:
             if (player->unk_152 == 0) {
                 BtlSprite_SetAnimFromTable(&player->unk_07C, 0xFU, 1);
-                CombatSe_PlayAtMainX(0x369, g_CombatGlobal->player->position.x);
+                BtlSe_PlayAtMainX(0x369, g_CombatGlobal->player->position.x);
                 player->unk_152++;
             }
             if (SpriteMgr_IsAnimationFinished(&player->unk_07C.sprite) == 0) {
@@ -548,7 +548,7 @@ void func_ov004_020e7f30(BtlPlayer01* player) {
 void func_ov004_020e808c(BtlPlayer01* player) {
     switch (player->unk_150) {
         case 0: {
-            CombatSe_PlayAtSubX(0x85, player->actor.position.x);
+            BtlSe_PlayAtSubX(0x85, player->actor.position.x);
             BtlSprite_SetAnimFromTable(&player->unk_07C, 30, 1);
             BtlSprite_Restart(&player->unk_07C);
             player->unk_150++;
@@ -853,7 +853,7 @@ void func_ov004_020e8a00(BtlPlayer01* player) {
                 player->unk_140 = 3;
                 BtlSprite_SetAnimFromTable(&player->unk_07C, 28, 1);
                 BtlSprite_Restart(&player->unk_07C);
-                CombatSe_PlayAtSubX(0x38C, player->actor.position.x);
+                BtlSe_PlayAtSubX(0x38C, player->actor.position.x);
                 player->unk_152 = 30;
             }
             player->unk_152--;
@@ -1008,7 +1008,7 @@ s32 BtlPlayer01_Init(TaskPool* pool, Task* task, void* args) {
     } else {
         BtlSprite_LoadFromTable(1, &player->unk_07C, &data_ov003_020d77e0, data_ov004_020f008c, 3, 34, 100);
     }
-    CombatHit_LoadSparkForUnit(1, &player->unk_0DC, &player->actor);
+    BtlHit_LoadSparkForUnit(1, &player->unk_0DC, &player->actor);
     EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlArm_Doll, NULL, 0, NULL, &player->unk_140);
     return 1;
 }
@@ -1086,7 +1086,7 @@ s32 BtlPlayer01_Render(TaskPool* pool, Task* task, void* args) {
     BtlPlayer01* player = task->data;
 
     BtlActor_Render(&player->actor, &player->unk_07C);
-    CombatHit_DrawSparkOnActor((BattleSprite*)&player->unk_0DC, &player->actor);
+    BtlHit_DrawSparkOnActor((BattleSprite*)&player->unk_0DC, &player->actor);
     return 1;
 }
 

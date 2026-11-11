@@ -175,7 +175,7 @@ static void func_ov010_02125c80(BtlEnm006* data) {
                 func_ov003_020c4c1c(&data->base);
             }
             if (data->base.sprite.sprite.cellIndex == 1 && data->base.sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_006_WATER_MOVEL, BtlStage_ToScreenX(1, data->base.actor.position.x));
+                BtlSe_PlayPanned(SEIDX_SE_006_WATER_MOVEL, BtlStage_ToScreenX(1, data->base.actor.position.x));
             }
             func_ov003_020c5b2c(0x51, &data->base, data->base.actor.position.x, data->base.actor.position.y,
                                 data->base.actor.position.z);
@@ -213,7 +213,7 @@ static void func_ov010_02125de4(BtlEnm006* data) {
                 data->unk_1C0 = data->unk_1C0 + 1;
                 BtlSprite_SetAnimFromTable(cs, 3, 1);
                 func_ov003_020c4c1c(&data->base);
-                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, BtlStage_ToScreenX(1, data->base.actor.position.x));
+                BtlSe_PlayPanned(SEIDX_SE_006_SPLUSH, BtlStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&cs->sprite) == 0) {
                 return;
@@ -266,7 +266,7 @@ static void func_ov010_02125de4(BtlEnm006* data) {
                 }
             }
             if (data->base.sprite.sprite.cellIndex == 0xF && data->base.sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_006_WATER_SIGN, BtlStage_ToScreenX(1, data->base.actor.position.x));
+                BtlSe_PlayPanned(SEIDX_SE_006_WATER_SIGN, BtlStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&cs->sprite) == 0) {
                 return;
@@ -281,13 +281,13 @@ static void func_ov010_02125de4(BtlEnm006* data) {
                 data->base.actor.flags &= ~ACTOR_FLAG_NO_TARGET_MARKER;
                 func_ov003_020cb578(&data->base.actor, 1);
                 func_ov003_020c4c9c(&data->base);
-                CombatSe_PlayPanned(SEIDX_SE_006_VOC_BITE, BtlStage_ToScreenX(1, data->base.actor.position.x));
+                BtlSe_PlayPanned(SEIDX_SE_006_VOC_BITE, BtlStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 6 && data->base.sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_006_BITE, BtlStage_ToScreenX(1, data->base.actor.position.x));
+                BtlSe_PlayPanned(SEIDX_SE_006_BITE, BtlStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 9 && data->base.sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH_SP, BtlStage_ToScreenX(1, data->base.actor.position.x));
+                BtlSe_PlayPanned(SEIDX_SE_006_SPLUSH_SP, BtlStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 4 && data->base.sprite.sprite.frameTimer == 1) {
                 void* t = g_CombatGlobal->partner;
@@ -342,7 +342,7 @@ static void func_ov010_02125de4(BtlEnm006* data) {
                 data->base.actor.position.y = func_ov003_020cb784(1);
                 data->base.actor.position.z = 0;
                 func_ov003_020c4b1c(&data->base);
-                CombatSe_PlayPanned(SEIDX_SE_006_SPLUSH, BtlStage_ToScreenX(1, data->base.actor.position.x));
+                BtlSe_PlayPanned(SEIDX_SE_006_SPLUSH, BtlStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (SpriteMgr_IsAnimationFinished(&cs->sprite) == 0) {
                 return;
@@ -488,7 +488,7 @@ static s32 func_ov010_021265ac(BtlEnm006* data, s32 arg1) {
     func_ov010_02126830(data, (void*)0x2000);
     if ((data->base.sprite.sprite.cellIndex - 1) % 4 == 0) {
         if (data->base.sprite.sprite.frameTimer == 1) {
-            CombatSe_PlayPanned(SEIDX_SE_006_WATER_MOVES, BtlStage_ToScreenX(1, data->base.actor.position.x));
+            BtlSe_PlayPanned(SEIDX_SE_006_WATER_MOVES, BtlStage_ToScreenX(1, data->base.actor.position.x));
         }
     }
     if (func_ov010_0212688c(data) >= 0x2000) {

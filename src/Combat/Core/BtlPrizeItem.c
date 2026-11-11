@@ -753,7 +753,7 @@ static s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
         } else {
             pan = BtlStage_ToScreenX(1, self->position.x);
         }
-        CombatSe_PlayPanned(SEIDX_SE_COIN_GET, pan);
+        BtlSe_PlayPanned(SEIDX_SE_COIN_GET, pan);
     }
     BtlSprite_Release(&self->sprite);
     data_ov003_020e71c4.count--;

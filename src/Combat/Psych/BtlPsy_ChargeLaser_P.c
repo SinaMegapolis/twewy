@@ -88,7 +88,7 @@ static s32 func_ov003_020ac76c(TaskPool* pool, Task* task, void* args, s32 stage
                         func_ov003_020a40b0(self->actors[1]);
                     }
                     if (!self->soundPlayed) {
-                        CombatSe_PlayAtMainX(0x9F, func_ov003_020a6438()->position.x);
+                        BtlSe_PlayAtMainX(0x9F, func_ov003_020a6438()->position.x);
                         self->soundPlayed = 1;
                     }
                     if (self->particleTimer == 0) {
@@ -116,7 +116,7 @@ static s32 func_ov003_020ac76c(TaskPool* pool, Task* task, void* args, s32 stage
                             func_ov003_020a40bc(self->actors[1]);
                         }
                         CombatPsyAnim_Load(&self->sprite, 2, 1, self->animationKind + 0xEC, 1);
-                        CombatSe_PlayAtMainX(0xA0, func_ov003_020a6438()->position.x);
+                        BtlSe_PlayAtMainX(0xA0, func_ov003_020a6438()->position.x);
                     }
                     break;
                 case 1:

@@ -28,11 +28,11 @@ static char data_ov011_0212cc54[20];
 // function can be emitted in address order (the linker places functions
 // in source order).  Order within this block is unchanged.
 
-/// `CombatHit_GetAttackInfo` -- one argument; returns a pointer to the 0xC-byte record at
+/// `BtlHit_GetAttackInfo` -- one argument; returns a pointer to the 0xC-byte record at
 /// `base + index * 12` (`mla r0, 0xc, r0, table; bx lr`). The `u16` parameter is load-bearing:
 /// call sites truncate a computed selector with `lsl #0x10 / lsr #0x10`.
 
-/// `CombatHit_AttackAt` -- five arguments (r0-r3 plus one stack word), returning 1 on success.
+/// `BtlHit_AttackAt` -- five arguments (r0-r3 plus one stack word), returning 1 on success.
 
 static s32 func_ov011_02128758(TaskPool* pool, Task* task, void* args, s32 stage);
 static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1);
@@ -155,8 +155,8 @@ static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
 /// sum and its `>> 1` are spelled twice on purpose: the original folds the shifted operand into
 /// the `cmp` and materialises `r5` from a second `asr`.
 ///
-/// The render loop (`i = 0..4`) tints a `CombatHit_GetAttackInfo(0x57)` record with the half-radius
-/// byte and submits it through `CombatHit_AttackAt` against the copied halfword block at `+0xB0`
+/// The render loop (`i = 0..4`) tints a `BtlHit_GetAttackInfo(0x57)` record with the half-radius
+/// byte and submits it through `BtlHit_AttackAt` against the copied halfword block at `+0xB0`
 /// with the joint's x/y and `unk_098` as z; a `== 1` result plays SE `0x1DA`. The exit test is
 /// `unk_0A4 > g_CombatGlobal + 0x3D000 + 0x7CC` -- the four-hop global load, spelled with the
 /// split bias exactly like the rest of this file.
@@ -189,7 +189,7 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
         } else {
             pan = BtlStage_ToScreenX(0, p->unk_000->actor.position.x);
         }
-        CombatSe_PlayPanned(SEIDX_SE_010_SPIRALATTACK, pan);
+        BtlSe_PlayPanned(SEIDX_SE_010_SPIRALATTACK, pan);
     }
     for (i = 1; i < 5; i++) {
         dx   = p->unk_070[i] - p->unk_070[i - 1];
@@ -205,18 +205,18 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
     for (i = 0; i < 5; i++) {
         t         = (data_ov011_0212c21c[i] * 16) >> 12;
         v         = (s16)(t >> 1);
-        fx        = *CombatHit_GetAttackInfo(0x57);
+        fx        = *BtlHit_GetAttackInfo(0x57);
         fx.unk_05 = (u8)v;
         fx.unk_06 = (u8)v;
         fx.unk_07 = (u8)v;
-        if (CombatHit_AttackAt(&fx, &p->args, p->unk_070[i], p->unk_084[i], p->unk_098) == 1) {
+        if (BtlHit_AttackAt(&fx, &p->args, p->unk_070[i], p->unk_084[i], p->unk_098) == 1) {
             s32 pan;
             if (func_ov003_020c37f8(&p->sprite) != 0) {
                 pan = BtlStage_ToScreenX(1, p->unk_070[i]);
             } else {
                 pan = BtlStage_ToScreenX(0, p->unk_070[i]);
             }
-            CombatSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, pan);
+            BtlSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, pan);
         }
     }
     if (p->unk_0A4 > g_CombatGlobal->stages[0].width) {

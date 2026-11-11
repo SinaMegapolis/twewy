@@ -54,13 +54,13 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a64ac();
             switch (barrier->spawn.kind) {
                 case 0:
-                    CombatSe_PlayAtMainX(0xB2, player->position.x);
+                    BtlSe_PlayAtMainX(0xB2, player->position.x);
                     break;
                 case 2:
-                    CombatSe_PlayAtMainX(0x94, player->position.x);
+                    BtlSe_PlayAtMainX(0x94, player->position.x);
                     break;
                 case 1:
-                    CombatSe_PlayAtMainX(0xB0, player->position.x);
+                    BtlSe_PlayAtMainX(0xB0, player->position.x);
                     barrier->cooldown = 0;
                     break;
             }
@@ -177,13 +177,13 @@ static void func_ov003_020aa860(Ov003Barrier* barrier) {
     BtlSprite_Restart(&barrier->sprites[3]);
     switch (barrier->spawn.kind) {
         case 0:
-            CombatSe_PlayAtMainX(0xB3, player->position.x);
+            BtlSe_PlayAtMainX(0xB3, player->position.x);
             break;
         case 1:
-            CombatSe_PlayAtMainX(0xB1, player->position.x);
+            BtlSe_PlayAtMainX(0xB1, player->position.x);
             break;
         case 2:
-            CombatSe_PlayAtMainX(0x95, player->position.x);
+            BtlSe_PlayAtMainX(0x95, player->position.x);
             break;
     }
 }

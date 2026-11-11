@@ -121,7 +121,7 @@ static void func_ov003_020c1238(u16 character, u16 level) {
         u16 attack = subAttacks.entries[character][level];
         do {
             BattleActor* owner = g_CombatGlobal->partner;
-            CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &owner->baseArgs, &unit->actor, owner->position.x);
+            BtlHit_AttackUnit(BtlHit_GetAttackInfo(attack), &owner->baseArgs, &unit->actor, owner->position.x);
             unit = BtlList_GetNext(&unit->node);
         } while (unit);
     }
@@ -130,7 +130,7 @@ static void func_ov003_020c1238(u16 character, u16 level) {
         u16 attack = mainAttacks.entries[character][level];
         do {
             BattleActor* owner = g_CombatGlobal->player;
-            CombatHit_AttackUnit(CombatHit_GetAttackInfo(attack), &args, &unit->actor, owner->position.x);
+            BtlHit_AttackUnit(BtlHit_GetAttackInfo(attack), &args, &unit->actor, owner->position.x);
             unit = BtlList_GetNext(&unit->node);
         } while (unit);
     }
@@ -341,10 +341,10 @@ static void func_ov003_020c1918(BtlActSp* self) {
                 if (!self->timer) {
                     Ov003EnemyActor* unit  = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
                     BattleActor*     owner = g_CombatGlobal->partner;
-                    CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0x12D), &unit->actor.baseArgs, owner->position.x);
+                    BtlHit_AttackCharacter(BtlHit_GetAttackInfo(0x12D), &unit->actor.baseArgs, owner->position.x);
                     unit  = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
                     owner = g_CombatGlobal->player;
-                    CombatHit_AttackCharacter(CombatHit_GetAttackInfo(0x12E), &unit->actor.baseArgs, owner->position.x);
+                    BtlHit_AttackCharacter(BtlHit_GetAttackInfo(0x12E), &unit->actor.baseArgs, owner->position.x);
                 }
                 g_CombatGlobal->unk3D878 &= ~0x10000;
                 self->active = 0;

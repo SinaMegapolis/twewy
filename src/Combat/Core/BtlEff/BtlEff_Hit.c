@@ -89,10 +89,10 @@ static s32 BtlEff_Hit_Init(TaskPool* pool, Task* task, void* args) {
 
     if (eff->effect.sprite.sprite.bits_0_1 == 1) {
         g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF + 1;
-        CombatSe_PlayAtSubX(def->sound, eff->effect.position.x);
+        BtlSe_PlayAtSubX(def->sound, eff->effect.position.x);
     } else {
         g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE + 1;
-        CombatSe_PlayAtMainX(def->sound, eff->effect.position.x);
+        BtlSe_PlayAtMainX(def->sound, eff->effect.position.x);
     }
     return 1;
 }

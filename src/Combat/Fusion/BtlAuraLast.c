@@ -44,9 +44,9 @@ static void func_ov007_020e75fc(s32 arg0, BattleSprite* cSprite, u16 arg2, u16 a
 
 static void func_ov007_020e764c(void) {
     if (g_CombatGlobal->unk3D8EE < 0x1F4) {
-        CombatSe_PlayAtMainX(0x365, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x365, g_CombatGlobal->player->position.x);
     } else {
-        CombatSe_PlayAtMainX(0x366, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x366, g_CombatGlobal->player->position.x);
     }
 }
 
@@ -193,7 +193,7 @@ static void func_ov007_020e7a8c(BtlAuraLast* data) {
         g_CombatGlobal->unk3D8EC = 0;
         data->unk_804            = g_CombatGlobal->partner->screenX << 12;
         data->unk_808            = (g_CombatGlobal->partner->screenY - 0x20) << 12;
-        CombatSe_PlayAtSubX(0x21, data->unk_804);
+        BtlSe_PlayAtSubX(0x21, data->unk_804);
         g_CombatGlobal->unk3D8F0 = 0;
         func_ov007_020e769c(&data->unk_80C);
         data->unk_7FC = 1;

@@ -40,30 +40,30 @@ static void func_ov003_0209f040(void) {
     if (g_CombatGlobal->unk3D88D == 0) {
         switch (rnd) {
             case 0:
-                CombatSe_PlayAtSubX(0x38F, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x38F, g_CombatGlobal->partner->position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(0x390, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x390, g_CombatGlobal->partner->position.x);
                 break;
         }
     }
     if (g_CombatGlobal->unk3D88D == 1) {
         switch (rnd) {
             case 0:
-                CombatSe_PlayAtSubX(0x3B7, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x3B7, g_CombatGlobal->partner->position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(0x3B8, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x3B8, g_CombatGlobal->partner->position.x);
                 break;
         }
     }
     if (g_CombatGlobal->unk3D88D == 2) {
         switch (rnd) {
             case 0:
-                CombatSe_PlayAtSubX(0x3DF, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x3DF, g_CombatGlobal->partner->position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(0x3E0, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x3E0, g_CombatGlobal->partner->position.x);
                 break;
         }
     }
@@ -74,10 +74,10 @@ static void func_ov003_0209f154(void) {
     u16 rnd = RNG_Next(2);
 
     if (rnd != 0) {
-        CombatSe_PlayAtMainX(0x367, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x367, g_CombatGlobal->player->position.x);
         return;
     }
-    CombatSe_PlayAtMainX(0x368, g_CombatGlobal->player->position.x);
+    BtlSe_PlayAtMainX(0x368, g_CombatGlobal->player->position.x);
 }
 
 /// Plays one of the death sound effects for `engine`'s screen, when the random roll allows it.

@@ -61,7 +61,7 @@ s32 BtlEff_Bomb_Update(TaskPool* pool, Task* task, void* args) {
         case 1:
             if (eff->unk_7E == 0) {
                 BtlSprite_SetAnimFromTable(&eff->sprite, 0, 1);
-                CombatSe_PlayAtMainX(501, eff->unk_60.x);
+                BtlSe_PlayAtMainX(501, eff->unk_60.x);
             }
             if (eff->unk_78 == 0) {
                 eff->unk_78 = func_ov003_020c5bc4(eff->unk_74, &eff->unk_6C, eff->unk_60.x, eff->unk_60.y, eff->unk_60.z);

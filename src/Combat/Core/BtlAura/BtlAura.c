@@ -72,9 +72,9 @@ static void func_ov003_020960b4(s32* value, s32 target, u16 frames) {
 /// The sound that plays when the main screen's aura starts.
 static void func_ov003_020960f0(void) {
     if (g_CombatGlobal->unk3D8EE < 500) {
-        CombatSe_PlayAtMainX(0x365, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x365, g_CombatGlobal->player->position.x);
     } else {
-        CombatSe_PlayAtMainX(0x366, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x366, g_CombatGlobal->player->position.x);
     }
 }
 
@@ -83,25 +83,25 @@ static void func_ov003_02096140(void) {
     if (g_CombatGlobal->unk3D8EE < 500) {
         switch (g_CombatGlobal->unk3D88D) {
             case 0:
-                CombatSe_PlayAtSubX(0x38D, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x38D, g_CombatGlobal->partner->position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(0x3B5, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x3B5, g_CombatGlobal->partner->position.x);
                 break;
             case 2:
-                CombatSe_PlayAtSubX(0x3DD, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x3DD, g_CombatGlobal->partner->position.x);
                 break;
         }
     } else {
         switch (g_CombatGlobal->unk3D88D) {
             case 0:
-                CombatSe_PlayAtSubX(0x38E, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x38E, g_CombatGlobal->partner->position.x);
                 break;
             case 1:
-                CombatSe_PlayAtSubX(0x3B6, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x3B6, g_CombatGlobal->partner->position.x);
                 break;
             case 2:
-                CombatSe_PlayAtSubX(0x3DE, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(0x3DE, g_CombatGlobal->partner->position.x);
                 break;
         }
     }
@@ -328,7 +328,7 @@ static void func_ov003_020969a4(BtlAura* self) {
             g_CombatGlobal->unk3D8EC = 0;
             func_ov003_02096788(self, 0);
             if (self->intensity <= 0) {
-                CombatSe_PlayAtMainX(0x21, self->x);
+                BtlSe_PlayAtMainX(0x21, self->x);
             }
             if (self->intensity > 0 && self->side != 0) {
                 return;
@@ -343,7 +343,7 @@ static void func_ov003_020969a4(BtlAura* self) {
             g_CombatGlobal->unk3D8EC = 0;
             func_ov003_02096788(self, 1);
             if (self->intensity <= 0) {
-                CombatSe_PlayAtSubX(0x21, self->x);
+                BtlSe_PlayAtSubX(0x21, self->x);
             }
             if (self->intensity > 0 && self->side != 1) {
                 return;

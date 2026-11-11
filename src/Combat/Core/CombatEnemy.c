@@ -129,7 +129,7 @@ void func_ov003_020c20d4(Ov003CutinTracks* tracks, Ov003CutinActor* actor) {
                 BtlSprite_SetPosition(&actor->base.sprite, posX, posY);
                 BtlSprite_SetSortKey(&actor->base.sprite, limit + (spriteIndex << 12));
                 BtlSprite_Render(&actor->base.sprite);
-                CombatHit_DrawSparkOnActor(&actor->base.subSprite, &actor->base.actor);
+                BtlHit_DrawSparkOnActor(&actor->base.subSprite, &actor->base.actor);
             }
             offset += 0xC;
             i++;
@@ -832,19 +832,19 @@ static s32 func_ov003_020c3a70(u32 index) {
 }
 
 u32 func_ov003_020c3aac(u32 id) {
-    return ((u32)CombatHit_GetAttackInfo(id)->flags << 23) >> 31;
+    return ((u32)BtlHit_GetAttackInfo(id)->flags << 23) >> 31;
 }
 
 void func_ov003_020c3acc(s32 engine, void* arg1, s32 arg2) {
     switch (engine) {
         case 0:
-            CombatSe_PlayAtMainX(arg1, arg2);
+            BtlSe_PlayAtMainX(arg1, arg2);
             return;
         case 1:
-            CombatSe_PlayAtSubX(arg1, arg2);
+            BtlSe_PlayAtSubX(arg1, arg2);
             return;
         case 2:
-            CombatSe_PlayAtMainX(arg1, arg2);
+            BtlSe_PlayAtMainX(arg1, arg2);
             return;
     }
 }

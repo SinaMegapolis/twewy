@@ -78,13 +78,13 @@ static s32 func_ov011_02127ce0(TaskPool* pool, Task* task, void* args, s32 stage
                 bias = -bias;
             }
             if (data->sprite.sprite.cellIndex == 2 && data->sprite.sprite.frameTimer == 1) {
-                CombatSe_PlayPanned(SEIDX_SE_010_FIREATTACK, pan);
+                BtlSe_PlayPanned(SEIDX_SE_010_FIREATTACK, pan);
             }
             if (data->sprite.sprite.cellIndex >= 4 && data->sprite.sprite.cellIndex <= 6) {
                 if (func_ov003_020c5b2c((u16)snd, data->unk_060->actor.position.x + bias, data->unk_060->actor.position.y,
                                         data->unk_060->actor.position.z, data->unk_060->actor.position.z) == 1)
                 {
-                    CombatSe_PlayPanned(SEIDX_SE_010_FIREATTACK_HIT, pan);
+                    BtlSe_PlayPanned(SEIDX_SE_010_FIREATTACK_HIT, pan);
                 }
             }
             if (SpriteMgr_IsAnimationFinished(&data->sprite.sprite) != 0) {

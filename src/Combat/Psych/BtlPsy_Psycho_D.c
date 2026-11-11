@@ -87,7 +87,7 @@ static s32 func_ov003_020b5480(TaskPool* pool, Task* task, void* args, s32 stage
                 case 2:
                     if (SpriteMgr_IsAnimationFinished(&self->spriteB.sprite)) {
                         BtlSprite_Restart(&self->spriteB);
-                        CombatSe_PlayAtMainX(0x5D, self->unit->actor.position.x);
+                        BtlSe_PlayAtMainX(0x5D, self->unit->actor.position.x);
                     }
                     BtlSprite_Update(&self->spriteB);
                     BtlSprite_Update(&self->spriteA);
@@ -137,13 +137,13 @@ static s32 func_ov003_020b5744(Ov003PsychoD* self) {
     Ov003EnemyActor* unit = self->unit;
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG)) {
         func_ov003_020a6198(self->unit, 5);
-        CombatSe_PlayAtMainX(0x5C, unit->actor.position.x);
+        BtlSe_PlayAtMainX(0x5C, unit->actor.position.x);
         return 0;
     }
     if (self->timer == 0) {
         if (!func_ov003_020a6164(unit, 5))
             return 0;
-        CombatSe_PlayAtMainX(0x5B, unit->actor.position.x);
+        BtlSe_PlayAtMainX(0x5B, unit->actor.position.x);
         self->x     = unit->actor.position.x;
         self->y     = unit->actor.position.y;
         self->timer = 0xA;
@@ -160,7 +160,7 @@ static s32 func_ov003_020b5744(Ov003PsychoD* self) {
         self->timer--;
     }
     if (self->timer <= 0) {
-        CombatSe_PlayAtMainX(0x5C, unit->actor.position.x);
+        BtlSe_PlayAtMainX(0x5C, unit->actor.position.x);
         func_ov003_020b5d40(self, 1);
     }
     return 1;
@@ -257,7 +257,7 @@ static s32 func_ov003_020b5934(Ov003PsychoD* self) {
         }
     }
     if (self->radius >= 0x1000 && func_ov003_020a6b84(&self->effect->streak, 0x187, unit) == 1)
-        CombatSe_PlayAtMainX(0x65, self->unit->actor.position.x);
+        BtlSe_PlayAtMainX(0x65, self->unit->actor.position.x);
     BtlStage_SetCameraTarget(0, unit->actor.position.x, unit->actor.position.y, unit->actor.position.z);
     return 1;
 }

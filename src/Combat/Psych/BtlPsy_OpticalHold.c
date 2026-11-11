@@ -46,7 +46,7 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
             CombatPsyAnim_Load(&self->sprites[2], 2, 1, 0xCD, 0);
             CombatPsyAnim_Load(&self->sprites[1], 2, 1, 0xCC, 0);
             CombatPsyAnim_Load(&self->sprites[0], 2, 1, 0xCC, 0);
-            CombatSe_PlayAtMainX(0x4F, self->unit->actor.position.x);
+            BtlSe_PlayAtMainX(0x4F, self->unit->actor.position.x);
             self->angle = 0;
             func_ov003_020a5d88(self->particles, 6, 7);
             return 1;
@@ -103,7 +103,7 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                     if (self->angle > 0x800) {
                         self->angle = 0x800;
                         self->state = 2;
-                        CombatSe_PlayAtMainX(0x50, self->unit->actor.position.x);
+                        BtlSe_PlayAtMainX(0x50, self->unit->actor.position.x);
                     }
                     if (self->spawnTimer == 0) {
                         s32 y;
@@ -123,7 +123,7 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
                 case 2:
                     if (func_ov003_020a6568(&self->effect->streak, 0x16A, self->unit, self->unit->actor.position.x, 0,
                                             self->effect->unk_08 >= 8 ? (u16)0x11 : (u16)0) == 1)
-                        CombatSe_PlayAtMainX(0x51, self->unit->actor.position.x);
+                        BtlSe_PlayAtMainX(0x51, self->unit->actor.position.x);
                     func_ov003_020a5a94(self->effect);
                     break;
                 case 3:

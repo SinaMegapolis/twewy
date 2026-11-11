@@ -282,8 +282,8 @@ static void func_ov012_02127134(BtlEnm014* data) {
                 d = (data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? d : -d;
                 x = data->base.actor.position.x;
                 if (data->unk_1D0 == 0) {
-                    data->unk_1D0 = CombatHit_AttackAt(CombatHit_GetAttackInfo(0x82), &data->base.actor.baseArgs, x + d,
-                                                       data->base.actor.position.y, data->base.actor.position.z);
+                    data->unk_1D0 = BtlHit_AttackAt(BtlHit_GetAttackInfo(0x82), &data->base.actor.baseArgs, x + d,
+                                                    data->base.actor.position.y, data->base.actor.position.z);
                     if (data->unk_1D0 == 1) {
                         func_ov003_020c4cc4(&data->base, 0x21A);
                         player->zVelocity = FX_Mul(player->zVelocity, 0x2000);
@@ -352,9 +352,9 @@ static void func_ov012_02127378(BtlEnm014* data) {
                 se            = (data->base.spriteIndex == 3) ? 0x84 : 0x83;
                 d             = FX32_CONVERT(func_ov003_020cd11c(se));
                 d             = (data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) ? d : -d;
-                h             = CombatHit_GetAttackInfo(se);
-                data->unk_1D0 = CombatHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x + d,
-                                                   data->base.actor.position.y, data->base.actor.position.z);
+                h             = BtlHit_GetAttackInfo(se);
+                data->unk_1D0 = BtlHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x + d,
+                                                data->base.actor.position.y, data->base.actor.position.z);
             }
             if (SpriteMgr_IsAnimationFinished(&data->base.sprite.sprite) == 0) {
                 return;

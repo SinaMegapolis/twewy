@@ -52,7 +52,7 @@ static s32 func_ov003_020b83ec(TaskPool* pool, Task* task, void* args, s32 stage
                     func_ov003_020a5a94(self->effect);
                     if (self->timer > 0xE) {
                         if (self->soundPlayed == 0) {
-                            CombatSe_PlayAtMainX(0x6E, func_ov003_020a6438()->position.x);
+                            BtlSe_PlayAtMainX(0x6E, func_ov003_020a6438()->position.x);
                             self->soundPlayed = 1;
                         }
                         if (self->burstTimer != 0) {

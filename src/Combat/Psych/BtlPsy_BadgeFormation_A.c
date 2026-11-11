@@ -35,7 +35,7 @@ static s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage
             MI_CpuCopyU8(arg->actors, formation->actors, sizeof(formation->actors));
             formation->effect->unk_0A++;
             owner = func_ov003_020a5a34(formation->effect);
-            CombatSe_PlayPanned(SEIDX_SE_PSY_BADGE_PUSH, (s16)(owner->x >> 12));
+            BtlSe_PlayPanned(SEIDX_SE_PSY_BADGE_PUSH, (s16)(owner->x >> 12));
             formation->state = 0;
             owner            = func_ov003_020a5a34(formation->effect);
             for (i = 0; i < 4; i++) {
@@ -62,7 +62,7 @@ static s32 func_ov003_020a9f64(TaskPool* pool, Task* task, void* args, s32 stage
                             return 0;
                         formation->state = 1;
                         CombatPsyAnim_SetAnim(&formation->sprite, 0xFF, 1);
-                        CombatSe_PlayPanned(SEIDX_SE_PSY_BADGEBEAM01, (s16)(formation->position.x >> 12));
+                        BtlSe_PlayPanned(SEIDX_SE_PSY_BADGEBEAM01, (s16)(formation->position.x >> 12));
                     }
                     break;
                 case 1:

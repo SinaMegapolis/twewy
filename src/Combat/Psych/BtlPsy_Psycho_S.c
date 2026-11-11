@@ -41,7 +41,7 @@ static s32 func_ov003_020b5dc4(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a5a94(self->args.effect);
             func_ov003_020a61e4(self->args.unit, 5, 0x189, &self->args.effect->streak.args, touch->angle,
                                 self->args.effect->params[0], self->args.effect->params[1]);
-            CombatSe_PlayAtMainX(0x67, self->args.unit->actor.position.x);
+            BtlSe_PlayAtMainX(0x67, self->args.unit->actor.position.x);
             func_ov003_020a647c(self->args.unit->actor.position.x);
             return 1;
         }

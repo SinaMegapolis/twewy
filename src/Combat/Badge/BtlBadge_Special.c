@@ -159,7 +159,7 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
             self->index = index;
             BtlSprite_Release(&self->actor.sprite);
             func_ov003_020a0244(self->index, &self->actor);
-            CombatSe_Play(SEIDX_SE_GIRL_ESP_FULL);
+            BtlSe_Play(SEIDX_SE_GIRL_ESP_FULL);
             func_ov003_02094668(&self->actor.sprite, self->index);
         }
     } else {
@@ -168,7 +168,7 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
         if (self->index > 0) {
             self->actor.unk_044 = 1;
             func_ov003_020a0244(self->index, &self->actor);
-            CombatSe_Play(SEIDX_SE_GIRL_ESP_FULL);
+            BtlSe_Play(SEIDX_SE_GIRL_ESP_FULL);
             func_ov003_02094668(&self->actor.sprite, self->index);
         }
     }

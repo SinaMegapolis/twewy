@@ -3,6 +3,7 @@
 #include "Combat/Core/BtlTch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatEffectActor.h"
+#include "Combat/Core/CombatEnemyActor.h"
 #include "Engine/EasyTask.h"
 #include "Engine/IO/TouchInput.h"
 #include "FixedPoint.h"

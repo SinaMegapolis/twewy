@@ -137,7 +137,7 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                     break;
                 case 19:
                 case 20:
-                    CombatSe_PlayAtMainX(0x57, self->x);
+                    BtlSe_PlayAtMainX(0x57, self->x);
                     self->phase = 2;
                     break;
                 case 7:
@@ -176,7 +176,7 @@ s32 func_ov003_020b6ba4(TaskPool* pool, Task* task, void* args, s32 stage) {
                 s32 sound = data_ov003_020dcb10[self->kind].trailSound;
                 s32 sePan = self->x;
                 if (sound < 0x56C) {
-                    CombatSe_PlayAtMainX(sound, sePan);
+                    BtlSe_PlayAtMainX(sound, sePan);
                 }
             }
             return 1;
@@ -338,7 +338,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
         s32 sePan = self->x;
 
         if (sound < 0x56C) {
-            CombatSe_PlayAtMainX(sound, sePan);
+            BtlSe_PlayAtMainX(sound, sePan);
         }
         switch (self->kind - 0x15) {
             case 0:
@@ -358,7 +358,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                 func_ov003_020a88c0(&anim15, self->x, self->y, self->z, 2, 0x53);
                 func_ov003_020a899c(&anim15, 0);
                 func_ov003_020a88a8(&anim15);
-                CombatSe_PlayAtMainX(0x69, self->x);
+                BtlSe_PlayAtMainX(0x69, self->x);
                 return 0;
             case 1:
                 func_ov003_020a88c0(&anim16, self->x, self->y, self->z, 2, 0x53);
@@ -377,7 +377,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                     func_ov003_020b6b20(&args16);
                     offset += 0x2000;
                 }
-                CombatSe_PlayAtMainX(0x69, self->x);
+                BtlSe_PlayAtMainX(0x69, self->x);
                 return 0;
             case 3:
                 func_ov003_020a88c0(&anim18, self->x, self->y, self->z, 2, 0x58);
@@ -396,7 +396,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                     func_ov003_020b6b20(&args18);
                     offset += 0x4000;
                 }
-                CombatSe_PlayAtMainX(0x69, self->x);
+                BtlSe_PlayAtMainX(0x69, self->x);
                 return 0;
             case 4:
                 func_ov003_020a88c0(&anim19, self->x, self->y, self->z, 2, 0x58);
@@ -415,7 +415,7 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
                     func_ov003_020b6b20(&args19);
                     offset += 0x2000;
                 }
-                CombatSe_PlayAtMainX(0x69, self->x);
+                BtlSe_PlayAtMainX(0x69, self->x);
                 return 0;
             default:
             case 2:
@@ -436,7 +436,7 @@ static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP)) {
         return;
     }
-    CombatSe_PlayAtMainX(0xA5, self->x);
+    BtlSe_PlayAtMainX(0xA5, self->x);
     self->renderAngle = self->angle = func_ov003_020a62d0(x, y, touch->x, touch->y);
 }
 
@@ -446,7 +446,7 @@ static void func_ov003_020b7760(Ov003ShockWaveBody* self) {
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH)) {
         return;
     }
-    CombatSe_PlayAtMainX(0xA5, self->x);
+    BtlSe_PlayAtMainX(0xA5, self->x);
     self->renderAngle = self->angle = touch->angle;
 }
 
@@ -473,7 +473,7 @@ static s32 func_ov003_020b77a8(Ov003ShockWaveBody* self) {
         func_ov003_020b6b20(&args);
         args.angle = (u16)(self->angle - 0x1800);
         func_ov003_020b6b20(&args);
-        CombatSe_PlayAtMainX(0xA5, self->x);
+        BtlSe_PlayAtMainX(0xA5, self->x);
         return 0;
     }
     return 1;

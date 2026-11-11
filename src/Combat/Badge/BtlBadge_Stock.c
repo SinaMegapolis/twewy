@@ -119,7 +119,7 @@ static s32 func_ov003_020a7eb0(TaskPool* pool, Task* task, void* args, s32 stage
                     }
                     if (actor->unk_044 <= 0) {
                         BtlBadgeActor_Request(actor, 2);
-                        CombatSe_Play(SEIDX_SE_PSY_EMPTY);
+                        BtlSe_Play(SEIDX_SE_PSY_EMPTY);
                     }
                     break;
                 case 4:

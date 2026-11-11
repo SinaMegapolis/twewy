@@ -77,7 +77,7 @@ static s32 BtlEff_Fall_Init(TaskPool* pool, Task* task, void* args) {
         func_ov003_020c38e8((BattleSprite*)temp_r4);
     }
 
-    CombatSe_PlayAtMainX(500, ((Boss01*)temp_r4->unk_64)->unk_28);
+    BtlSe_PlayAtMainX(500, ((Boss01*)temp_r4->unk_64)->unk_28);
     return 1;
 }
 
@@ -114,7 +114,7 @@ static s32 BtlEff_Fall_Update(TaskPool* pool, Task* task, void* args) {
             } else if (((Ov016SpriteParams*)eff->unk_60)->unk2 == 0x19) {
                 BtlActor_SetPendingCommand(eff->unk_60 + 4, ACTOR_CMD_HIT);
             } else {
-                CombatSys_DefeatObs(eff->unk_60);
+                BtlObsMgr_Defeat(eff->unk_60);
             }
         }
     }

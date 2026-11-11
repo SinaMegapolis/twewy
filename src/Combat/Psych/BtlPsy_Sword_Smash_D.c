@@ -104,7 +104,7 @@ static void func_ov003_02095608(BtlPsySmash* smash) {
 }
 static void func_ov003_020956c4(BtlPsySmash* smash) {
     if (smash->timer == 0) {
-        CombatSe_PlayAtMainX(0xB6, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0xB6, g_CombatGlobal->player->position.x);
         smash->timer = 21;
     }
     if (smash->timer > 0)
@@ -126,7 +126,7 @@ static s32 func_ov003_02095764(TaskPool* pool, Task* task, void* args) {
     smash->particleTimer     = 0;
     smash->active            = 1;
     func_ov003_020953b4(smash, func_ov003_02095608);
-    CombatSe_PlayAtMainX(0xB5, g_CombatGlobal->player->position.x);
+    BtlSe_PlayAtMainX(0xB5, g_CombatGlobal->player->position.x);
     return 1;
 }
 static s32 func_ov003_020957e4(TaskPool* pool, Task* task, void* args) {

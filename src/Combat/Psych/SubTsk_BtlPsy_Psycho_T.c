@@ -52,7 +52,7 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
                                 data_ov003_020dca4c.rows[self->context->effect->index]
                                     .lifetimeCost[func_ov003_020b4e2c(self->unit->actor.radius)]);
             self->context->refCount++;
-            CombatSe_PlayAtMainX(0x9C, self->unit->actor.position.x);
+            BtlSe_PlayAtMainX(0x9C, self->unit->actor.position.x);
             return 1;
         case 1: {
             s32 result = 0;
@@ -64,7 +64,7 @@ static s32 func_ov003_020b4e8c(TaskPool* pool, Task* task, void* args, s32 stage
                 BtlSprite_Restart(&self->sprite);
             }
             if (result)
-                CombatSe_PlayAtMainX(0x9D, self->unit->actor.position.x);
+                BtlSe_PlayAtMainX(0x9D, self->unit->actor.position.x);
             BtlSprite_Update(&self->sprite);
             if (self->phase >= 2) {
                 self->unit->actor.zVelocity = 0;

@@ -48,7 +48,7 @@ s32 CombatPsyTrail_Update(Ov003TrailEffect* effect) {
                     }
                 }
                 if (CombatPsyTrail_IsValidStroke(effect) != 0) {
-                    CombatSe_PlayPanned(SEIDX_SE_PSY_FIREBALL01_02, effect->pivotX);
+                    BtlSe_PlayPanned(SEIDX_SE_PSY_FIREBALL01_02, effect->pivotX);
                     effect->state = 1;
                     return 1;
                 }
@@ -58,7 +58,7 @@ s32 CombatPsyTrail_Update(Ov003TrailEffect* effect) {
                 }
             }
             if (SndMgr_IsSEPlaying(SEIDX_SE_PSY_FIREBALL01_01) == 0) {
-                CombatSe_PlayPanned(SEIDX_SE_PSY_FIREBALL01_01, g_CombatGlobal->touchWork.x);
+                BtlSe_PlayPanned(SEIDX_SE_PSY_FIREBALL01_01, g_CombatGlobal->touchWork.x);
             }
             return 1;
         case 1:
