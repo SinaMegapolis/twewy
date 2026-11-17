@@ -26,7 +26,7 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
             self = task->data;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = *arg;
-            func_ov003_02087804(0);
+            BtlPlayerUtil_PlayAttackVoice(0);
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
             func_ov003_020a6464(1);
@@ -51,7 +51,7 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
             switch (self->phase) {
                 case 0:
                     if (CombatCameraShake_Update(&self->camera, 0x333, 0, 0x8000)) {
-                        Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+                        Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesMain);
                         while (unit != NULL) {
                             if (unit->actor.position.z == 0 && unit->actor.zGravity != 0 && unit->group != 4 &&
                                 unit->group != 7 && unit->group != 8 && unit->group != 12 && unit->group != 15)
@@ -138,7 +138,7 @@ static s32 func_ov003_020b0610(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003PsychoQuake* self = task->data;
             func_ov003_020a6464(0);
             Ov003EffectState* effect = self->effect;
-            Ov003EnemyActor*  unit   = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+            Ov003EnemyActor*  unit   = BtlList_GetHead(&gBattle->enemiesMain);
             while (unit != NULL) {
                 if (func_ov003_020a60a8(unit, 4)) {
                     func_ov003_020a6198(unit, 4);

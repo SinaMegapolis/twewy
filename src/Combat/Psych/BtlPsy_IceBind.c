@@ -6,7 +6,7 @@
 static const TaskHandle data_ov003_020dc8b8;
 
 s32 func_ov003_020afdf0(Ov003EffectContext* context, Ov003EffectState* effect) {
-    BattleTouchWork* touch = func_ov003_020a62a0();
+    BattleTouch* touch = func_ov003_020a62a0();
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG))
         return 0;
     if (BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER))
@@ -41,9 +41,9 @@ static s32 func_ov003_020afeb4(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a6464(1);
             return 1;
         case 1: {
-            Ov003IceBind*    self  = task->data;
-            BattleTouchWork* touch = func_ov003_020a62a0();
-            BattleActor*     held  = touch->held;
+            Ov003IceBind* self  = task->data;
+            BattleTouch*  touch = func_ov003_020a62a0();
+            BattleActor*  held  = touch->held;
             if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG))
                 return 0;
             if (func_ov003_020a63a8(self->args.effect))

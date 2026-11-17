@@ -1,3 +1,4 @@
+#include "Battle/Core/BtlMgr.h"
 #include "Combat/Core/BtlCutIn.h"
 #include "Combat/Core/BtlSpecial.h"
 #include "Combat/Core/CombatCutin.h"
@@ -71,8 +72,7 @@ typedef struct BtlCutIn01SpriteLayout {
     u16 paletteEntries[3], y[3];
 } BtlCutIn01SpriteLayout;
 
-extern const BinIdentifier data_ov003_020d7828;
-extern u8                  data_ov003_020e71d9;
+extern u8 data_ov003_020e71d9;
 
 static const SpriteAnimEntry BtlCutIn01_NekuAnims[2] = {
     {1, 3, 2, 0},
@@ -253,7 +253,7 @@ static void BtlCutIn01_LoadScenes(BtlCutIn01* self, u16 kind) {
     func_0200d1d8(&neku->mainMap, 0, 1, NULL, neku->mainTiles, 1, 1);
     PaletteMgr_Flush(g_PaletteManagers[0], neku->palettes[1]);
     func_0200d858(&neku->mainMap, 0, 0, 0);
-    BtlSprite_LoadFromTable(1, &neku->sprite, &data_ov003_020d7828, BtlCutIn01_NekuAnims, 0, 4, 80);
+    BtlSprite_LoadFromTable(1, &neku->sprite, &Iden_BtlSpecial, BtlCutIn01_NekuAnims, 0, 4, 80);
     BtlSprite_SetAnimFromTable(&neku->sprite, 0, 1);
     BtlSprite_SetFlip(&neku->sprite, 0);
     neku->x                = -0x100000;
@@ -284,7 +284,7 @@ static void BtlCutIn01_LoadScenes(BtlCutIn01* self, u16 kind) {
     BtlCutIn01_LoadOverlays(self, kind);
     BtlCutIn01SpriteLayout layout = BtlCutIn01_PartnerSpriteLayout;
     partner->y                    = layout.y[kind];
-    BtlSprite_LoadFromTable(1, &partner->sprite, &data_ov003_020d7828, BtlCutIn01_PartnerAnims, (u16)(kind * 2),
+    BtlSprite_LoadFromTable(1, &partner->sprite, &Iden_BtlSpecial, BtlCutIn01_PartnerAnims, (u16)(kind * 2),
                             layout.paletteEntries[kind], 80);
     BtlSprite_SetAnimFromTable(&partner->sprite, self->kind * 2, 1);
     BtlSprite_SetFlip(&partner->sprite, 0);

@@ -28,7 +28,6 @@
 #include "Combat/Core/CombatBossExp.h"
 #include "Combat/Core/CombatCameraShake.h"
 #include "Combat/Core/CombatCutin.h"
-#include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatEnemy.h"
 #include "Combat/Core/CombatEnemyAi.h"
 #include "Combat/Core/CombatEnemyGroup.h"

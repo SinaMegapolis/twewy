@@ -86,9 +86,9 @@ void func_ov012_021256f0(s32 engine, BtlEnm014* data, s32 arg2) {
 
     TaskPool* pool;
     if (engine == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm014_Eff, NULL, 0, NULL, &spawn);
 }
@@ -138,9 +138,9 @@ void func_ov012_02125858(BtlEnm014* data) {
     BattleActor* target;
 
     if (data->base.sprite.sprite.bits_0_1 == 0) {
-        target = g_CombatGlobal->player;
+        target = gBattle->player;
     } else {
-        target = g_CombatGlobal->partner;
+        target = gBattle->partner;
     }
     data->base.actor.damageTakenPercent = 100;
     if (data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
@@ -163,15 +163,15 @@ hit:
 }
 
 void func_ov012_021258e8(void) {
-    if (g_CombatGlobal->unk3D88E != 0x90) {
+    if (gBattle->encounterId != 0x90) {
         return;
     }
     if (gSaveData.battleClearTime <= 0x654) {
         return;
     }
-    g_CombatGlobal->unk3D875 = 2;
-    g_CombatGlobal->unk3D878 |= 0x200000;
-    g_CombatGlobal->unk3D878 |= 0x20000000;
+    gBattle->goal = BATTLE_GOAL_SCRIPTED;
+    gBattle->flags |= BATTLE_FLAG_SCRIPTED_END;
+    gBattle->flags |= BATTLE_FLAG_SCRIPTED_GOAL_MET;
 }
 
 void func_ov012_02125958(BtlEnm014* data) {

@@ -18,9 +18,9 @@ s32 func_ov003_020d33f0(Ov003EnemyShotSource* source, s32 speed, u16 angle, u16 
     args.yScale    = yScale;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0cec, NULL, 0, NULL, &args);
 }
 
@@ -39,7 +39,7 @@ static s32 func_ov003_020d349c(Ov003EnemyShotWindMill* self, Ov003EnemyShotWindM
 }
 
 static s32 func_ov003_020d350c(Ov003EnemyShotWindMill* self) {
-    if (g_CombatGlobal->unk3D878 & 0x40)
+    if (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN)
         return 1;
     if (!func_ov003_020cce34(self->source.core.owner->base.sprite.sprite.bits_0_1))
         return 0;

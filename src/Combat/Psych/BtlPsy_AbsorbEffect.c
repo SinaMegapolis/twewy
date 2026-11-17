@@ -25,11 +25,11 @@ s32 func_ov003_020a9154(TaskPool* pool, Task* task, void* args, s32 stage) {
         default:
         case 0: {
             Ov003AbsorbArgs* arg = args;
-            BattleTouchWork* touch;
+            BattleTouch*     touch;
             effect = task->data;
             MI_CpuSet(effect, 0, sizeof(*effect));
             effect->slots      = arg->slots;
-            touch              = &g_CombatGlobal->touchWork;
+            touch              = &gBattle->touchWork;
             effect->position.x = BtlStage_ToWorldX(0, touch->x);
             effect->position.y = BtlStage_ToWorldY(0, touch->y, 0x1000);
             effect->position.z = 0x1000;

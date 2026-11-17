@@ -25,9 +25,9 @@ s32 func_ov011_02127c84(Ov003EnemyActor* owner) {
 
     data = owner;
     if (func_ov003_020c37f8(&data->sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     return EasyTask_CreateTask(pool, &data_ov011_0212c1d4, 0, 0, 0, &data);
 }

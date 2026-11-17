@@ -66,7 +66,7 @@ s32 func_ov011_02128718(Ov003EnemyActor* owner) {
     Ov003EnemyActor* arg0;
 
     arg0 = owner;
-    return EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &data_ov011_0212c210, 0, 0, 0, &arg0);
+    return EasyTask_CreateTask(&gBattle->mainPool, &data_ov011_0212c210, 0, 0, 0, &arg0);
 }
 
 /// `Tsk_BtlEnm010_Sprl`'s task entry, third of the three identical four-way dispatchers
@@ -158,18 +158,18 @@ static s32 func_ov011_021287b8(BtlEnm010Sprl* data, Ov003EnemyActor** arg1) {
 /// The render loop (`i = 0..4`) tints a `BtlHit_GetAttackInfo(0x57)` record with the half-radius
 /// byte and submits it through `BtlHit_AttackAt` against the copied halfword block at `+0xB0`
 /// with the joint's x/y and `unk_098` as z; a `== 1` result plays SE `0x1DA`. The exit test is
-/// `unk_0A4 > g_CombatGlobal + 0x3D000 + 0x7CC` -- the four-hop global load, spelled with the
+/// `unk_0A4 > gBattle + 0x3D000 + 0x7CC` -- the four-hop global load, spelled with the
 /// split bias exactly like the rest of this file.
 static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
-    s32             dx;
-    s32             dy;
-    s32             dist;
-    s32             half;
-    s32             pan;
-    s32             i;
-    Ov003AttackInfo fx;
-    s32             t;
-    s16             v;
+    s32              dx;
+    s32              dy;
+    s32              dist;
+    s32              half;
+    s32              pan;
+    s32              i;
+    BattleAttackInfo fx;
+    s32              t;
+    s16              v;
 
     if (func_ov003_020c3c28() != 0) {
         return 0;
@@ -203,13 +203,13 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
         p->unk_084[i] = p->unk_084[i - 1] + FX_Divide(FX_Mul(dy, half), dist);
     }
     for (i = 0; i < 5; i++) {
-        t         = (data_ov011_0212c21c[i] * 16) >> 12;
-        v         = (s16)(t >> 1);
-        fx        = *BtlHit_GetAttackInfo(0x57);
-        fx.unk_05 = (u8)v;
-        fx.unk_06 = (u8)v;
-        fx.unk_07 = (u8)v;
-        if (BtlHit_AttackAt(&fx, &p->args, p->unk_070[i], p->unk_084[i], p->unk_098) == 1) {
+        t             = (data_ov011_0212c21c[i] * 16) >> 12;
+        v             = (s16)(t >> 1);
+        fx            = *BtlHit_GetAttackInfo(0x57);
+        fx.halfWidth  = (u8)v;
+        fx.halfHeight = (u8)v;
+        fx.halfDepth  = (u8)v;
+        if (BtlHit_AttackAt(&fx, &p->args, p->unk_070[i], p->unk_084[i], p->unk_098) == BTL_HIT_RESULT_LANDED) {
             s32 pan;
             if (func_ov003_020c37f8(&p->sprite) != 0) {
                 pan = BtlStage_ToScreenX(1, p->unk_070[i]);
@@ -219,7 +219,7 @@ static s32 func_ov011_021288c8(BtlEnm010Sprl* p) {
             BtlSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, pan);
         }
     }
-    if (p->unk_0A4 > g_CombatGlobal->stages[0].width) {
+    if (p->unk_0A4 > gBattle->stages[0].width) {
         return 0;
     }
     BtlSprite_Update(&p->sprite);

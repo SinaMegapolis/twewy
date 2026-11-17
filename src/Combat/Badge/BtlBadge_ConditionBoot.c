@@ -38,7 +38,7 @@ void func_ov003_020a6f90(Ov003TouchActor* actor, s32 arg1) {
 
     sp8.unk_04 = arg1;
     sp8.actor  = actor;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5cc, NULL, 0, NULL, &sp8);
+    EasyTask_CreateTask(&gBattle->commonPool, &data_ov003_020dc5cc, NULL, 0, NULL, &sp8);
 }
 
 static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -73,7 +73,8 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
             BtlBadgeConditionBoot* self = task->data;
             Ov003TouchActor*       slots[6];
 
-            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
+            if (gBattle->specialFreeze != 0 || (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0 ||
+                (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) != 0)
             {
                 return 1;
             }
@@ -89,7 +90,7 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
                     return 0;
             }
             if (self->unk_04 == 0) {
-                if (g_CombatGlobal->unk3D874 == 2) {
+                if (gBattle->state == BATTLE_STATE_FIGHT) {
                     s32 triggered = self->unk_08 == 2 && func_ov003_020a5ac4(slots, 6, &self->actor->effect, 0) != 0;
 
                     if (triggered) {
@@ -111,7 +112,7 @@ static s32 func_ov003_020a6fdc(TaskPool* pool, Task* task, void* args, s32 stage
             if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
                 return 1;
             }
-            if ((g_CombatGlobal->unk3D878 & 6) != 0 || g_CombatGlobal->unk3D884 != 0) {
+            if ((gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0 || gBattle->specialFreeze != 0) {
                 return 1;
             }
             actor = self->actor;

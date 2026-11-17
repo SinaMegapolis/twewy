@@ -18,7 +18,7 @@ const TaskHandle        data_ov003_020dc614     = {data_ov003_020e4980, func_ov0
 static const TaskHandle data_ov003_020dc620     = {data_ov003_020e4994, func_ov003_020a8780, sizeof(BtlFieldShake)};
 
 static s32 func_ov003_020a8718(TaskPool* pool, Task* task, void* args, s32 stage) {
-    Ov003EffectSlots* slots = &g_CombatGlobal->effectSlots;
+    Ov003EffectSlots* slots = &gBattle->effectSlots;
     switch (stage) {
         case 0:
             slots->unk_0C   = 0;

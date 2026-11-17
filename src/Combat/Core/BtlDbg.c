@@ -171,11 +171,11 @@ static s32 BtlDbg_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 void BtlDbg_CreateTask(void) {
-    BtlDbg_TaskId = EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlDbg, NULL, 0, NULL, NULL);
+    BtlDbg_TaskId = EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlDbg, NULL, 0, NULL, NULL);
 }
 
 void BtlDbg_PostRect(u16 kind, u16 life, s32 x, s32 y, s16 width, s16 height) {
-    BtlDbg* dbg = EasyTask_GetTaskData(&g_CombatGlobal->unk_10118, BtlDbg_TaskId);
+    BtlDbg* dbg = EasyTask_GetTaskData(&gBattle->commonPool, BtlDbg_TaskId);
 
     if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_DISP_AREA) != BTL_DEBUG_DISP_AREA_OFF) {
         BtlDbg_AddRect(dbg, kind, life, x, y, width, height);

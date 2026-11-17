@@ -42,9 +42,9 @@ void func_ov010_02126c38(BtlEnm006* arg0) {
     BtlEnm006* self = arg0;
     TaskPool*  pool;
     if (func_ov003_020c37f8(&self->base.sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_Swirl, 0, 0, 0, &self);
 }

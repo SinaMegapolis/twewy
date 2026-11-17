@@ -1,6 +1,7 @@
 #ifndef COMBAT_CORE_COMBATEFFECTS_H
 #define COMBAT_CORE_COMBATEFFECTS_H
 #include "Battle/Core/BtlSprite.h"
+#include "SndMgrSeIdx.h"
 #include <nitro/fx.h>
 
 typedef struct CombatEffect {
@@ -37,6 +38,6 @@ typedef struct CombatHitParams {
     /* 0x0A */ u16             pack;
     /* 0x0C */ u16             charTiles;    // char VRAM to reserve, in 32-byte units
     /* 0x0E */ u16             paletteEntry; // palette data entry
-    /* 0x10 */ s32             sound;
+    /* 0x10 */ SndMgrSeIdx     sound;
 } CombatHitParams;                           // Size: 0x14
 #endif

@@ -24,8 +24,8 @@ s32 CombatPsyTrail_Update(Ov003TrailEffect* effect) {
     BtlSprite_Update(&effect->spriteB);
     switch (effect->state) {
         case 0:
-            effect->points[effect->count][0] = g_CombatGlobal->touchWork.x;
-            effect->points[effect->count][1] = g_CombatGlobal->touchWork.y;
+            effect->points[effect->count][0] = gBattle->touchWork.x;
+            effect->points[effect->count][1] = gBattle->touchWork.y;
             effect->count++;
             if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) == 0) {
                 effect->state = 3;
@@ -33,17 +33,17 @@ s32 CombatPsyTrail_Update(Ov003TrailEffect* effect) {
             }
             count = effect->count;
             if (count > 2) {
-                if (func_ov003_020a632c(effect->points[count - 1][0], effect->points[count - 1][1],
-                                        g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) > 0x6000)
+                if (func_ov003_020a632c(effect->points[count - 1][0], effect->points[count - 1][1], gBattle->touchWork.x,
+                                        gBattle->touchWork.y) > 0x6000)
                 {
                     if (effect->count < 0x78) {
                         s16 x = effect->points[count - 1][0];
                         s16 y = effect->points[count - 1][1];
 
-                        effect->points[count - 1][0]     = x + (g_CombatGlobal->touchWork.x - x) / 2;
-                        effect->points[count - 1][1]     = y + (g_CombatGlobal->touchWork.y - y) / 2;
-                        effect->points[effect->count][0] = g_CombatGlobal->touchWork.x;
-                        effect->points[effect->count][1] = g_CombatGlobal->touchWork.y;
+                        effect->points[count - 1][0]     = x + (gBattle->touchWork.x - x) / 2;
+                        effect->points[count - 1][1]     = y + (gBattle->touchWork.y - y) / 2;
+                        effect->points[effect->count][0] = gBattle->touchWork.x;
+                        effect->points[effect->count][1] = gBattle->touchWork.y;
                         effect->count++;
                     }
                 }
@@ -58,7 +58,7 @@ s32 CombatPsyTrail_Update(Ov003TrailEffect* effect) {
                 }
             }
             if (SndMgr_IsSEPlaying(SEIDX_SE_PSY_FIREBALL01_01) == 0) {
-                BtlSe_PlayPanned(SEIDX_SE_PSY_FIREBALL01_01, g_CombatGlobal->touchWork.x);
+                BtlSe_PlayPanned(SEIDX_SE_PSY_FIREBALL01_01, gBattle->touchWork.x);
             }
             return 1;
         case 1:
@@ -94,7 +94,7 @@ void CombatPsyTrail_Render(Ov003TrailEffect* effect) {
     if (effect->state != 0) {
         return;
     }
-    BtlSprite_SetPosition(&effect->spriteB, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y);
+    BtlSprite_SetPosition(&effect->spriteB, gBattle->touchWork.x, gBattle->touchWork.y);
     BtlSprite_SetSortKey(&effect->spriteB, 0x3B7000);
     BtlSprite_Render(&effect->spriteB);
 }

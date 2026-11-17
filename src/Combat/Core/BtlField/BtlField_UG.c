@@ -172,7 +172,7 @@ static s32 BtlField_UG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(state, NULL, sizeof(*state));
     func_ov003_020933f0();
-    state->camera = &g_CombatGlobal->stages[0];
+    state->camera = &gBattle->stages[0];
     state->camera->flags |= BATTLE_STAGE_FLAG_BG_IN_USE;
 
     def = &BtlField_UG_Defs[state->camera->fieldId];
@@ -224,7 +224,7 @@ static s32 BtlField_UG_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlField_UG_Update(TaskPool* pool, Task* task, void* args) {
     BtlFieldUG* state = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 0x1000) {
+    if (gBattle->flags & BATTLE_FLAG_FIELDS_STOPPED) {
         return 0;
     }
     if (state->update != NULL) {

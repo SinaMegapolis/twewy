@@ -34,7 +34,7 @@ s32 func_ov003_020c3960(s32* value, s32 margin);
 /// Rotates a 2D offset so it points along the vector between the noise and its target.
 void      func_ov003_020c39b0(Vec* src, Vec* dst);
 TaskPool* func_ov003_020c3a10(u32 index);
-void      func_ov003_020c3acc(s32 engine, void* arg1, s32 arg2);
+void      func_ov003_020c3acc(s32 engine, SndMgrSeIdx seIdx, s32 arg2);
 void      func_ov003_020c3b1c(u16* tracks);
 /// Returns the first index whose cumulative weight exceeds `target`.
 s32                     func_ov003_020c3b30(u16* weights, s32 count, s32 target);

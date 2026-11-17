@@ -11,12 +11,9 @@ typedef enum BattleStageFlags {
 /// edge of the floor (main screen only), and the camera that looks at it. Positions are 20.12 fixed point; field
 /// positions are relative to the field's top-left corner, BG positions are in the 512x512 background.
 typedef struct BattleStage {
-    /* 0x00 */ union {
-        s16 unk_00;
-        u16 fieldId;      // index into BtlField_UG_Defs (main) / BtlField_RG_Defs (sub)
-    };
-    /* 0x02 */ u16 flags; // BattleStageFlags
-    /* 0x04 */ s32 left;  // field rectangle in the background
+    /* 0x00 */ u16 fieldId; // index into BtlField_UG_Defs (main) / BtlField_RG_Defs (sub)
+    /* 0x02 */ u16 flags;   // BattleStageFlags
+    /* 0x04 */ s32 left;    // field rectangle in the background
     /* 0x08 */ s32 top;
     /* 0x0C */ s32 width;
     /* 0x10 */ s32 height;

@@ -399,18 +399,18 @@ static void func_ov003_020c7f58(BossExp1* self) {
     switch (self->phase) {
         case 0:
             EasyFade_FadeBothDisplays(2, 0x10, 0x1000);
-            g_CombatGlobal->unk3D878 |= 0x1000;
-            g_CombatGlobal->unk3D878 |= 0x2000;
+            gBattle->flags |= BATTLE_FLAG_FIELDS_STOPPED;
+            gBattle->flags |= BATTLE_FLAG_SANDSTORM_STOPPED;
             self->phase++;
             return;
         case 1:
-            if (!(g_CombatGlobal->unk3D878 & 1) && !(g_CombatGlobal->stages[0].flags & BATTLE_STAGE_FLAG_BG_IN_USE) &&
-                !(g_CombatGlobal->stages[1].flags & BATTLE_STAGE_FLAG_BG_IN_USE))
+            if (!(gBattle->flags & BATTLE_FLAG_SANDSTORM) && !(gBattle->stages[0].flags & BATTLE_STAGE_FLAG_BG_IN_USE) &&
+                !(gBattle->stages[1].flags & BATTLE_STAGE_FLAG_BG_IN_USE))
             {
                 func_ov003_020c73a0();
-                g_CombatGlobal->unk3D884 = 1;
-                g_CombatGlobal->unk3D878 &= ~0x2000;
-                EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Tsk_BtlSandstorm, NULL, 0, NULL, NULL);
+                gBattle->specialFreeze = 1;
+                gBattle->flags &= ~BATTLE_FLAG_SANDSTORM_STOPPED;
+                EasyTask_CreateTask(&gBattle->controlPool, &Tsk_BtlSandstorm, NULL, 0, NULL, NULL);
                 self->phase++;
                 return;
             }
@@ -751,8 +751,8 @@ static void func_ov003_020c8be8(BossExp1* self) {
 /// Hands the screens back to the battle.
 static void func_ov003_020c8ddc(BossExp1* self) {
     func_ov003_020c759c();
-    g_CombatGlobal->unk3D884 = 0;
-    g_CombatGlobal->unk3D878 &= ~0x1000;
+    gBattle->specialFreeze = 0;
+    gBattle->flags &= ~BATTLE_FLAG_FIELDS_STOPPED;
     BtlStage_StartFieldTasks(1);
     EasyFade_FadeBothDisplays(0, 0, 0xCCD);
     self->running = 0;
@@ -763,7 +763,7 @@ static s32 BossExp1_Init(TaskPool* pool, Task* task, void* args) {
     BossExp1Anims* param = args;
 
     MI_CpuSet(self, 0, sizeof(*self));
-    g_CombatGlobal->unk3D878 |= 2;
+    gBattle->flags |= BATTLE_FLAG_SPECIAL;
     data_ov003_020e7254  = 1;
     self->anims.slots[0] = param->slots[0];
     self->anims.slots[1] = param->slots[1];
@@ -796,7 +796,7 @@ static s32 BossExp1_Render(TaskPool* pool, Task* task, void* args) {
 }
 
 static s32 BossExp1_Release(TaskPool* pool, Task* task, void* args) {
-    g_CombatGlobal->unk3D878 &= ~2;
+    gBattle->flags &= ~BATTLE_FLAG_SPECIAL;
     data_ov003_020e7254 = 0;
     return 1;
 }

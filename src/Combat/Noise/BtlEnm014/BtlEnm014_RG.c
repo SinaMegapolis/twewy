@@ -58,7 +58,7 @@ static void func_ov012_02125d84(BtlEnm014* data) {
 }
 
 static void func_ov012_02125de4(BtlEnm014* data) {
-    BattleActor* partner = g_CombatGlobal->partner;
+    BattleActor* partner = gBattle->partner;
 
     switch (data->unk_1C2) {
         case 0:

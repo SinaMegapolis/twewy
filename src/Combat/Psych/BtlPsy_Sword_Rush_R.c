@@ -20,36 +20,36 @@ typedef struct BtlPsyRush {
 static void func_ov003_02095b1c(BtlPsyRush* self) {
     if (self->timer == 0) {
         if (self->count >= 9) {
-            func_ov003_02087310();
-            func_ov003_02087250(self->effect, self->target, 1);
+            BtlAttackQueue_Clear();
+            BtlAttackQueue_Push(self->effect, self->target, 1);
             self->active = 0;
             return;
         }
-        func_ov003_02087310();
-        func_ov003_02087250(self->effect, self->target, 0);
+        BtlAttackQueue_Clear();
+        BtlAttackQueue_Push(self->effect, self->target, 0);
         self->count++;
         self->timer = 15;
     }
     self->timer--;
-    if (g_CombatGlobal->touchWork.tapCount != 0)
+    if (gBattle->touchWork.tapCount != 0)
         return;
-    func_ov003_02087310();
+    BtlAttackQueue_Clear();
 }
 static s32 func_ov003_02095bb0(TaskPool* pool, Task* task, void* args) {
     BtlPsyRush*     self = task->data;
     BtlPsyRushArgs* arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
-    g_CombatGlobal->unk3D8C8 = 1;
-    self->effect             = arg->effect;
-    self->target             = arg->target;
-    self->count              = 0;
-    self->active             = 1;
+    gBattle->unk3D8C8 = 1;
+    self->effect      = arg->effect;
+    self->target      = arg->target;
+    self->count       = 0;
+    self->active      = 1;
     return 1;
 }
 static s32 func_ov003_02095c04(TaskPool* pool, Task* task, void* args) {
     BtlPsyRush* self = task->data;
-    if (!g_CombatGlobal->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
-        func_ov003_02087310();
+    if (!gBattle->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
+        BtlAttackQueue_Clear();
         return 0;
     }
     func_ov003_02095b1c(self);

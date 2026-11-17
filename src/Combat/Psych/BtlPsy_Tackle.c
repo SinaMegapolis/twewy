@@ -22,7 +22,7 @@ static void func_ov003_02094abc(BtlPsyTackle* self, void (*update)(BtlPsyTackle*
     self->timer  = 0;
 }
 static void func_ov003_02094ad0(BtlPsyTackle* self) {
-    if (!g_CombatGlobal->unk3D8C8)
+    if (!gBattle->unk3D8C8)
         return;
     self->handle = func_ov003_020aced0(self->effect);
     func_ov003_02094abc(self, func_ov003_02094b14);
@@ -31,9 +31,9 @@ static void func_ov003_02094b14(BtlPsyTackle* self) {
     BattleActor* actor;
     s32          x, y, oldX;
     u16          angle;
-    if (!g_CombatGlobal->unk3D8C8)
+    if (!gBattle->unk3D8C8)
         self->active = 0;
-    actor = g_CombatGlobal->player;
+    actor = gBattle->player;
     x     = actor->position.x;
     oldX  = self->x;
     if (oldX == x && self->y == actor->position.y)
@@ -42,16 +42,16 @@ static void func_ov003_02094b14(BtlPsyTackle* self) {
     angle = FX_Atan2Idx(y - self->y, actor->position.x - oldX);
     func_ov003_020acd04();
     func_ov003_020acf0c(self->handle, angle);
-    self->x = g_CombatGlobal->player->position.x;
-    self->y = g_CombatGlobal->player->position.y;
+    self->x = gBattle->player->position.x;
+    self->y = gBattle->player->position.y;
 }
 static s32 func_ov003_02094bc0(TaskPool* pool, Task* task, void* args) {
     BtlPsyTackle*      self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
     self->effect = *arg;
-    self->x      = g_CombatGlobal->player->position.x;
-    self->y      = g_CombatGlobal->player->position.y;
+    self->x      = gBattle->player->position.x;
+    self->y      = gBattle->player->position.y;
     func_ov003_02094abc(self, func_ov003_02094ad0);
     self->active = 1;
     self->handle = -1;
@@ -86,7 +86,7 @@ static s32 func_ov003_02094cb0(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_02094cf8(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02087704())
+    if (!BtlPlayerUtil_IsLongPlayerDrag())
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7dac.taskName);
     *arg                   = effect;
@@ -96,7 +96,7 @@ s32 func_ov003_02094cf8(Ov003EffectContext* context, Ov003EffectState* effect) {
     return 1;
 }
 s32 func_ov003_02094d4c(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (!func_ov003_02087704())
+    if (!BtlPlayerUtil_IsLongPlayerDrag())
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7dac.taskName);
     *arg                   = effect;

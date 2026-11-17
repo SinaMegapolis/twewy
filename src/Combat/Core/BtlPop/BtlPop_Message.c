@@ -33,8 +33,6 @@ static s32 BtlPop_Message_RunTask(TaskPool* pool, Task* task, void* args, s32 st
 
 static const TaskHandle Tsk_BtlPop_Message = {"Tsk_BtlPop_Message", BtlPop_Message_RunTask, sizeof(BtlPop_Message)};
 
-extern BinIdentifier data_ov003_020d7800;
-
 static s32 BtlPop_Message_Init(TaskPool* pool, Task* task, void* args) {
     BtlPop_Message*     message = task->data;
     BtlPop_MessageArgs* params  = args;
@@ -53,12 +51,12 @@ static s32 BtlPop_Message_Init(TaskPool* pool, Task* task, void* args) {
 
     if (params->engine == 0) {
         animIndex = 0x3D;
-        g_CombatGlobal->popupCountMain++;
+        gBattle->popupCountMain++;
     } else {
         animIndex = 0x3F;
-        g_CombatGlobal->popupCountSub++;
+        gBattle->popupCountSub++;
     }
-    BtlSprite_LoadDirectNoProto(params->engine, &message->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, animIndex,
+    BtlSprite_LoadDirectNoProto(params->engine, &message->sprite, &Iden_BtlMenu, 0x25, 0x27, 0x26, animIndex,
                                 (u16)(params->animBase + 50));
     BtlSprite_SetPriority(&message->sprite, 0);
     BtlSprite_SetSortKey(&message->sprite, 1);
@@ -116,9 +114,9 @@ static s32 BtlPop_Message_Release(TaskPool* pool, Task* task, void* args) {
     BtlPop_Message* message = task->data;
 
     if (message->sprite.sprite.bits_0_1 == 0) {
-        g_CombatGlobal->popupCountMain--;
+        gBattle->popupCountMain--;
     } else {
-        g_CombatGlobal->popupCountSub--;
+        gBattle->popupCountSub--;
     }
     BtlSprite_Release(&message->sprite);
     return 1;
@@ -131,7 +129,7 @@ static s32 BtlPop_Message_RunTask(TaskPool* pool, Task* task, void* args, s32 st
         .render     = BtlPop_Message_Render,
         .cleanup    = BtlPop_Message_Release,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -143,9 +141,9 @@ void func_ov003_0209c984(s32 engine, s32 animBase, s32 x, s32 y, s32 z) {
     s32                popupCount;
 
     if (engine == 0) {
-        popupCount = g_CombatGlobal->popupCountMain;
+        popupCount = gBattle->popupCountMain;
     } else {
-        popupCount = g_CombatGlobal->popupCountSub;
+        popupCount = gBattle->popupCountSub;
     }
 
     popupCount = popupCount < 10;
@@ -155,6 +153,6 @@ void func_ov003_0209c984(s32 engine, s32 animBase, s32 x, s32 y, s32 z) {
         params.x        = x;
         params.y        = y;
         params.z        = z;
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Message, NULL, 0, NULL, &params);
+        EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlPop_Message, NULL, 0, NULL, &params);
     }
 }

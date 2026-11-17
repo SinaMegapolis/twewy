@@ -27,8 +27,6 @@ typedef struct BtlWin {
     /* 0xD0 */ s32          running;
 } BtlWin; // Size: 0xD4
 
-extern const BinIdentifier data_ov003_020d7818;
-
 static s32 BtlWin_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlWin = {"Tsk_BtlWin", BtlWin_RunTask, sizeof(BtlWin)};
@@ -46,7 +44,7 @@ static void func_ov003_020a0f08(BtlWin* self, BtlWinState state) {
 static void func_ov003_020a0f1c(s32 engine, BattleSprite* sprite) {
     SpriteAnimationEx anim;
 
-    BtlSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
+    BtlSprite_InitAnim(&anim.anim, engine, &Iden_BtlJingle);
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 2;
@@ -88,7 +86,7 @@ static void func_ov003_020a1038(s32 weak) {
     s32 line;
 
     if (weak) {
-        switch (g_CombatGlobal->unk3D88D) {
+        switch (gBattle->partnerId) {
             case 0:
                 BtlSe_Play(SEIDX_SHIKI_BTL_WIN04);
                 break;
@@ -102,7 +100,7 @@ static void func_ov003_020a1038(s32 weak) {
         return;
     }
     line = RNG_Next(3);
-    if (g_CombatGlobal->unk3D88D == 0) {
+    if (gBattle->partnerId == 0) {
         switch (line) {
             case 0:
                 BtlSe_Play(SEIDX_SHIKI_BTL_WIN01);
@@ -115,7 +113,7 @@ static void func_ov003_020a1038(s32 weak) {
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 1) {
+    if (gBattle->partnerId == 1) {
         switch (line) {
             case 0:
                 BtlSe_Play(SEIDX_YOSHUA_BTL_WIN01);
@@ -128,7 +126,7 @@ static void func_ov003_020a1038(s32 weak) {
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 2) {
+    if (gBattle->partnerId == 2) {
         switch (line) {
             case 0:
                 BtlSe_Play(SEIDX_BIITO_BTL_WIN01);
@@ -147,7 +145,7 @@ static void func_ov003_020a1038(s32 weak) {
 static s32 func_ov003_020a11c8(void) {
     s32 result = 1;
 
-    switch (g_CombatGlobal->unk3D88E) {
+    switch (gBattle->encounterId) {
         case 13:
             BtlSe_Play(SEIDX_KONISHI_N_BTL_OTHER01);
             break;
@@ -219,10 +217,10 @@ static void func_ov003_020a1374(void) {
     s32 other;
 
     if (func_ov003_020a11c8() == 0) {
-        if (g_CombatGlobal->unk3D8D0 < g_CombatGlobal->unk3D8D2 / 2) {
+        if (gBattle->teamHp < gBattle->teamMaxHp / 2) {
             weak = 1;
         }
-        if (g_CombatGlobal->unk3D88D != 0 && g_CombatGlobal->unk3D88D != 1 && g_CombatGlobal->unk3D88D != 2) {
+        if (gBattle->partnerId != 0 && gBattle->partnerId != 1 && gBattle->partnerId != 2) {
             other = 1;
         } else {
             other = 0;
@@ -288,7 +286,7 @@ static void func_ov003_020a14c8(BtlWin* self) {
             if (EasyFade_IsFading()) {
                 return;
             }
-            BtlMgr_SetState(7);
+            BtlMgr_SetState(BATTLE_STATE_RESULTS_DONE);
             self->running = 0;
             break;
     }
@@ -323,7 +321,7 @@ static s32 BtlWin_Render(TaskPool* pool, Task* task, void* args) {
 
     BtlSprite_SetPosition(&self->sprites[1], (self->subX * 0x10) >> 16, 0x60);
     BtlSprite_Render(&self->sprites[1]);
-    if (g_CombatGlobal->unk3D88D == 3) {
+    if (gBattle->partnerId == 3) {
         return 1;
     }
     BtlSprite_SetPosition(&self->sprites[0], (self->x * 0x10) >> 16, 0x60);

@@ -33,7 +33,7 @@ static const TaskHandle data_ov003_020dc5e4       = {data_ov003_020e4924, func_o
 void func_ov003_020a7640(Ov003PinAction* action) {
     Ov003PinAction* args = action;
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5e4, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->commonPool, &data_ov003_020dc5e4, NULL, 0, NULL, &args);
 }
 
 static s32 func_ov003_020a7688(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -73,7 +73,8 @@ static s32 func_ov003_020a7688(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003TouchActor* actor = &self->actor;
             s32              state;
 
-            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
+            if (gBattle->specialFreeze != 0 || (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0 ||
+                (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) != 0)
             {
                 return 1;
             }
@@ -86,7 +87,7 @@ static s32 func_ov003_020a7688(TaskPool* pool, Task* task, void* args, s32 stage
                     self->glowing = 0;
                     BtlSprite_SetAnim(&self->bar, 8, 0);
                 }
-                if (g_CombatGlobal->unk3D874 == 2) {
+                if (gBattle->state == BATTLE_STATE_FIGHT) {
                     SpriteAnimationEx anim;
 
                     BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);

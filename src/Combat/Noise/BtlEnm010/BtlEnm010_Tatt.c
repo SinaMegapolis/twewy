@@ -74,9 +74,9 @@ s32 func_ov011_02128c44(Ov003EnemyActor* owner) {
 
     arg0 = owner;
     if (func_ov003_020c37f8(&arg0->sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     return EasyTask_CreateTask(pool, &data_ov011_0212c240, 0, 0, 0, &arg0);
 }
@@ -197,13 +197,13 @@ static BtlEnm010TattRec* func_ov011_02128f80(BtlEnm010Tatt* data) {
     best = NULL;
     v    = 0x7FFFFFFF;
     if (((u32)(data->unk_24C << 30) >> 31) != 0) {
-        d = (s32)(BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x) > 0
-                      ? 0.5f + (f32)(BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x) << 12)
-                      : (f32)(BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x) << 12) - 0.5f);
+        d = (s32)(BtlStage_ToScreenX(1, gBattle->partner->position.x) > 0
+                      ? 0.5f + (f32)(BtlStage_ToScreenX(1, gBattle->partner->position.x) << 12)
+                      : (f32)(BtlStage_ToScreenX(1, gBattle->partner->position.x) << 12) - 0.5f);
     } else {
-        d = (s32)(BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x) > 0
-                      ? 0.5f + (f32)(BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x) << 12)
-                      : (f32)(BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x) << 12) - 0.5f);
+        d = (s32)(BtlStage_ToScreenX(0, gBattle->player->position.x) > 0
+                      ? 0.5f + (f32)(BtlStage_ToScreenX(0, gBattle->player->position.x) << 12)
+                      : (f32)(BtlStage_ToScreenX(0, gBattle->player->position.x) << 12) - 0.5f);
     }
     p = data->rec;
     for (i = 0; i < 4; i++) {
@@ -340,11 +340,11 @@ static void func_ov011_02129410(BtlEnm010Tatt* p, BtlEnm010TattRec* rec) {
     s32 off;
 
     if (((u32)(p->unk_24C << 30) >> 31) != 0) {
-        vx = FX32_CONVERT(BtlStage_ToScreenX(1, g_CombatGlobal->partner->position.x));
-        vy = FX32_CONVERT(BtlStage_ToScreenY(1, g_CombatGlobal->partner->position.y, g_CombatGlobal->partner->position.z));
+        vx = FX32_CONVERT(BtlStage_ToScreenX(1, gBattle->partner->position.x));
+        vy = FX32_CONVERT(BtlStage_ToScreenY(1, gBattle->partner->position.y, gBattle->partner->position.z));
     } else {
-        vx = FX32_CONVERT(BtlStage_ToScreenX(0, g_CombatGlobal->player->position.x));
-        vy = FX32_CONVERT(BtlStage_ToScreenY(0, g_CombatGlobal->player->position.y, g_CombatGlobal->player->position.z));
+        vx = FX32_CONVERT(BtlStage_ToScreenX(0, gBattle->player->position.x));
+        vy = FX32_CONVERT(BtlStage_ToScreenY(0, gBattle->player->position.y, gBattle->player->position.z));
     }
     switch (rec->unk_64) {
         case 0:

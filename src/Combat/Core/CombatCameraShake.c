@@ -4,7 +4,7 @@
 
 /// Binds camera `index` to the animation driven by `obj`.
 void CombatCameraShake_Bind(Ov003CameraAnim* obj, s32 index, s32 arg2) {
-    obj->camera         = &g_CombatGlobal->stages[index];
+    obj->camera         = &gBattle->stages[index];
     obj->camera->shakeX = 0;
     obj->camera->shakeY = 0;
     obj->camera->shakeZ = 0;

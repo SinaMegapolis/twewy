@@ -679,14 +679,14 @@ static s32 func_ov011_0212791c(TaskPool* pool, Task* task, void* args) {
     s32          v;
 
     data = task->data;
-    t    = g_CombatGlobal->partner;
+    t    = gBattle->partner;
     MI_CpuSet(data, 0, 0x208);
-    t->position.x                     = (func_ov003_020cb744(1) >> 1) + 0x40000;
-    t->position.y                     = func_ov003_020cb7a4(1) >> 1;
-    t->position.z                     = 0;
-    g_CombatGlobal->unk3D878          = g_CombatGlobal->unk3D878 | 0x40000000;
-    g_CombatGlobal->stages[1].centerX = (func_ov003_020cb744(1) >> 1) + 0x40000;
-    g_CombatGlobal->stages[1].centerY = func_ov003_020cb7a4(1) >> 1;
+    t->position.x              = (func_ov003_020cb744(1) >> 1) + 0x40000;
+    t->position.y              = func_ov003_020cb7a4(1) >> 1;
+    t->position.z              = 0;
+    gBattle->flags             = gBattle->flags | BATTLE_FLAG_NO_GUARD_TURN;
+    gBattle->stages[1].centerX = (func_ov003_020cb744(1) >> 1) + 0x40000;
+    gBattle->stages[1].centerY = func_ov003_020cb7a4(1) >> 1;
     func_ov003_020c3efc(&data->base, args);
     func_ov003_020c44ac(&data->base);
     data->unk_1CC = 1;
@@ -725,7 +725,7 @@ static s32 func_ov011_02127a64(TaskPool* pool, Task* task, void* args) {
             func_ov011_021265d4(data, func_ov011_021276e0);
             break;
     }
-    EasyTask_ValidateTaskId(&g_CombatGlobal->taskPool, (u32*)&data->unk_1FC);
+    EasyTask_ValidateTaskId(&gBattle->subPool, (u32*)&data->unk_1FC);
     if (data->unk_200 != -1) {
         data->unk_204 = data->unk_204 + 1;
     }

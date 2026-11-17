@@ -53,9 +53,9 @@ void func_ov010_021256d0(BtlEnm006* owner, BtlEnm006* target) {
     args[0] = owner;
     args[1] = target;
     if (func_ov003_020c37f8(&target->base.sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_DeadEff, 0, 0, 0, args);
 }

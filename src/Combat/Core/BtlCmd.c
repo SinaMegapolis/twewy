@@ -87,8 +87,7 @@ typedef struct BtlCmd {
     /* 0x624 */ BtlCmdRecord* otherB;
 } BtlCmd; // Size: 0x628
 
-extern const BinIdentifier data_ov003_020d7808;
-extern u8                  data_02071cf0[];
+extern u8 data_02071cf0[];
 
 static s32 BtlCmd_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -125,7 +124,7 @@ static void func_ov003_02097544(BtlCmd* self, BtlCmdState state) {
 static void func_ov003_0209755c(BattleSprite* sprite, u16 index, s32 mode) {
     SpriteAnimationEx anim;
 
-    BtlSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
+    BtlSprite_InitAnim(&anim.anim, 1, &Iden_BtlCmd);
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 1;
@@ -144,10 +143,10 @@ static void func_ov003_0209755c(BattleSprite* sprite, u16 index, s32 mode) {
 /// Loads a marker sprite for the kind of effect command the battle is running.
 static void func_ov003_02097604(BattleSprite* sprite) {
     SpriteAnimationEx anim;
-    BattleCmdDeck*    command = g_CombatGlobal->cmdDeck;
+    BattleCmdDeck*    command = gBattle->cmdDeck;
 
-    BtlSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
-    switch (command->mode) {
+    BtlSprite_InitAnim(&anim.anim, 1, &Iden_BtlCmd);
+    switch (command->partner) {
         case 1:
             anim.anim.bits_10_11 = 0;
             anim.anim.unk_18     = 2;
@@ -192,7 +191,7 @@ static void func_ov003_02097604(BattleSprite* sprite) {
 static s32 func_ov003_02097760(s32 side) {
     s32 row = 5;
 
-    switch (g_CombatGlobal->unk3D88D) {
+    switch (gBattle->partnerId) {
         case 0:
             if (side != 1) {
                 row = 4;
@@ -261,11 +260,11 @@ static void func_ov003_020977e0(BtlCmd* self) {
 
 /// Which way the enemies mostly stand compared with the gauge actor: 0x800 for one side, 1 for the other.
 static u32 func_ov003_02097984(u32 wanted) {
-    BattleActor*     gauge  = g_CombatGlobal->partner;
+    BattleActor*     gauge  = gBattle->partner;
     s32              ahead  = 0;
     s32              behind = 0;
     u32              result = 0;
-    Ov003CutinActor* enemy  = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
+    Ov003CutinActor* enemy  = BtlList_GetHead(&gBattle->enemiesSub);
 
     while (enemy != NULL) {
         if (!(enemy->base.actor.flags & ACTOR_FLAG_DEFEATED) && !(enemy->base.actor.flags & ACTOR_FLAG_INTANGIBLE)) {
@@ -318,7 +317,7 @@ static void func_ov003_02097a40(BtlCmd* self) {
     if (self->counter < wait) {
         return;
     }
-    g_CombatGlobal->unk3D878 |= 0x10;
+    gBattle->flags |= BATTLE_FLAG_PARTNER_AUTO;
     self->mode    = 2;
     self->counter = 0;
     self->wanted  = func_ov003_02097984(self->wanted);
@@ -353,7 +352,7 @@ static void func_ov003_02097b70(BtlCmd* self) {
     if (InputStatus.buttonState.currButtons & (INPUT_BUTTON_A | INPUT_BUTTON_B | INPUT_BUTTON_RIGHT | INPUT_BUTTON_LEFT |
                                                INPUT_BUTTON_UP | INPUT_BUTTON_DOWN | INPUT_BUTTON_X | INPUT_BUTTON_Y))
     {
-        g_CombatGlobal->unk3D878 &= ~0x10;
+        gBattle->flags &= ~BATTLE_FLAG_PARTNER_AUTO;
         self->mode    = 1;
         self->counter = 0;
     }
@@ -422,7 +421,7 @@ static void func_ov003_02097d40(BtlCmd* self, BtlCmdRecord* record, s32 count) {
     for (i = count; i < 16; i++) {
         record->cells[i].state = 0;
     }
-    record->value = func_ov003_02086d24();
+    record->value = BtlCmdDeck_DealCard();
     if (self->current != record && self->step >= params->length - 1) {
         record->first  = -1;
         record->second = -1;
@@ -464,7 +463,7 @@ static void func_ov003_02097e90(BtlCmd* self, BtlCmdRecord* record, s16 x, s16 y
         BtlSprite_Render(&record->cell);
         x = (s16)(x + self->cellWidth);
     }
-    func_ov003_02086d8c(&record->marker, record->value, record->ready, x, y, self->cellWidth);
+    BtlCmdDeck_RenderCard(&record->marker, record->value, record->ready, x, y, self->cellWidth);
 }
 
 /// Starts the chain `chain`; `direction` 2 runs it to the right.
@@ -478,8 +477,8 @@ static void func_ov003_02097f3c(BtlCmd* self, s32 chain, s32 direction) {
     }
     func_ov003_02086af0();
     BtlCmdQueue_SetDirection(direction);
-    if (func_ov003_02086f7c() != 0) {
-        func_ov003_020871cc(1);
+    if (BtlCmdDeck_IsRoundComplete() != 0) {
+        BtlCmdDeck_DealBoard(1);
     }
     self->step    = 0;
     self->chain   = chain;
@@ -558,7 +557,7 @@ static void func_ov003_020981f8(BtlCmd* self, s32 cancel) {
             self->visible = 0;
             BtlSe_Play(SEIDX_SE_GIRL_DART_CURSOR02);
             BtlCmdQueue_Push(2);
-            func_ov003_02086e38(self->current->value, self->x, self->y, self->cellWidth);
+            BtlCmdDeck_UseCard(self->current->value, self->x, self->y, self->cellWidth);
             break;
     }
     func_ov003_02097c00((BtlCmdCell*)((u8*)cells + cursor), self->cellWidth, 1);
@@ -616,7 +615,7 @@ static void func_ov003_020983ac(BtlCmd* self) {
 }
 
 static void func_ov003_0209842c(BtlCmd* self) {
-    if (func_ov003_02086a64() != 0) {
+    if (BtlCmdQueue_IsPartnerReady() != 0) {
         BtlCmdQueue_Clear();
         func_ov003_02097544(self, func_ov003_02098458);
     }
@@ -624,7 +623,7 @@ static void func_ov003_0209842c(BtlCmd* self) {
 
 static void func_ov003_02098458(BtlCmd* self) {
     func_ov003_02097a40(self);
-    if (func_ov003_02086a80() != 0) {
+    if (BtlCmdQueue_IsPartnerJumping() != 0) {
         func_ov003_020983ac(self);
     } else {
         func_ov003_0209830c(self);
@@ -743,7 +742,7 @@ static s32 BtlCmd_Init(TaskPool* pool, Task* task, void* args) {
     self->wanted   = 0;
     self->input    = 0;
     self->counter  = 0;
-    g_CombatGlobal->unk3D878 &= ~0x10;
+    gBattle->flags &= ~BATTLE_FLAG_PARTNER_AUTO;
     BtlCmdQueue_Init((BattleCmdQueue*)self);
     func_ov003_020977e0(self);
     func_ov003_02097544(self, func_ov003_0209842c);
@@ -753,18 +752,18 @@ static s32 BtlCmd_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlCmd_Update(TaskPool* pool, Task* task, void* args) {
     BtlCmd* self = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 0x40) {
+    if (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) {
         return 1;
     }
-    if (g_CombatGlobal->unk3D874 != 2) {
+    if (gBattle->state != BATTLE_STATE_FIGHT) {
         self->input = 0;
     } else {
         func_ov003_02097b70(self);
     }
-    if (g_CombatGlobal->unk3D8E0 != 0) {
-        g_CombatGlobal->unk3D8E0 = 0;
-        self->timer              = 0;
-        self->visible            = 0;
+    if (gBattle->unk3D8E0 != 0) {
+        gBattle->unk3D8E0 = 0;
+        self->timer       = 0;
+        self->visible     = 0;
         BtlCmdQueue_Clear();
         BtlCmdQueue_Push(8);
         func_ov003_02097544(self, func_ov003_0209842c);
@@ -853,7 +852,7 @@ static s32 BtlCmd_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
         .cleanup    = BtlCmd_Release,
     };
 
-    if (func_ov003_0208b690(stage)) {
+    if (BtlMgr_IsStageFrozen(stage)) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);

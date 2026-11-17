@@ -47,8 +47,8 @@ static void BtlObs_RG_StateHit(BtlObs_RG* obs) {
     obs->base.actor.flags |= ACTOR_FLAG_STAGGERED | ACTOR_FLAG_DEFEATED;
     func_ov003_020c4a34(&obs->base);
 
-    if (g_CombatGlobal->unk3D8A0 == obs) {
-        g_CombatGlobal->unk3D8A0 = NULL;
+    if (gBattle->lockOnTarget == obs) {
+        gBattle->lockOnTarget = NULL;
     }
 
     if (obs->base.flags18C & 0x1000) {
@@ -66,7 +66,7 @@ static void BtlObs_RG_StateHit(BtlObs_RG* obs) {
 }
 
 static void BtlObs_RG_StateFall(BtlObs_RG* obs) {
-    BattleActor* temp_r5 = g_CombatGlobal->partner;
+    BattleActor* temp_r5 = gBattle->partner;
 
     if (obs->unk_292 == 0) {
         if (obs->unk_1C2 == 0) {
@@ -109,7 +109,7 @@ static s32 BtlObs_RG_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_RG_Update(TaskPool* pool, Task* task, void* args) {
     BtlObs_RG* obs = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 2) {
+    if (gBattle->flags & BATTLE_FLAG_SPECIAL) {
         return 1;
     }
 
@@ -142,8 +142,8 @@ static s32 BtlObs_RG_Destroy(TaskPool* pool, Task* task, void* args) {
 
     BtlSprite_Release(&obs->base.sprite);
     func_ov003_020c4a34(&obs->base);
-    if (g_CombatGlobal->unk3D8A0 == obs) {
-        g_CombatGlobal->unk3D8A0 = NULL;
+    if (gBattle->lockOnTarget == obs) {
+        gBattle->lockOnTarget = NULL;
     }
     return 1;
 }
@@ -162,5 +162,5 @@ s32 BtlObs_RG_CreateTask(u16 arg0, void* arg1) {
     BtlObs_RG_Args args;
     args.unk_C = arg1;
     args.unk_2 = arg0;
-    return EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlObs_RG, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(&gBattle->subPool, &Tsk_BtlObs_RG, NULL, 0, NULL, &args);
 }

@@ -1,11 +1,11 @@
+#include "Battle/Core/BtlMgr.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
 
-extern s32           data_ov003_020e71e0;
-extern BinIdentifier data_ov003_020d77e0;
+extern s32 data_ov003_020e71e0;
 
 typedef struct {
     /* 0x00 */ BattleSprite sprite;
@@ -37,8 +37,8 @@ s32 Feat00_EffDoll_Init(TaskPool* pool, Task* task, void* args) {
     Feat00_EffDoll_Args* dollArgs = args;
 
     MI_CpuSet(doll, 0, sizeof(Feat00_EffDoll));
-    BtlSprite_LoadFromTable(dollArgs->unk_0, &doll->sprite, &data_ov003_020d77e0, data_ov004_020f0480,
-                            dollArgs->animTableIndex, 63, 68);
+    BtlSprite_LoadFromTable(dollArgs->unk_0, &doll->sprite, &Iden_BtlPly01, data_ov004_020f0480, dollArgs->animTableIndex, 63,
+                            68);
     BtlSprite_SetAnimFromTable(&doll->sprite, dollArgs->animTableIndex, 1);
 
     doll->posX = dollArgs->posX;
@@ -101,5 +101,5 @@ void Feat00_EffDoll_CreateTask(s32 arg0, s16 animIndex, s16 posX, s16 posY, s32 
     args.posX           = posX;
     args.posY           = posY;
     args.unk_8          = arg5;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_Feat00_EffDoll, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->specialPool, &Tsk_Feat00_EffDoll, NULL, 0, NULL, &args);
 }

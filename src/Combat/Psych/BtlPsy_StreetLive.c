@@ -44,7 +44,7 @@ static s32 func_ov003_020ba350(TaskPool* pool, Task* task, void* args, s32 stage
             self->phase = 0;
             self->timer = 0;
             BtlSe_PlayAtMainX(0x5A, player->position.x - 0x1E000);
-            func_ov003_02087804(0);
+            BtlPlayerUtil_PlayAttackVoice(0);
             return 1;
         }
         case 1:

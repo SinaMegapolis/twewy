@@ -30,7 +30,7 @@ static s32 func_ov012_02126a1c(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126a4c(BtlEnm014* data) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
     s32          lo     = data->base.actor.position.x - 0x3C000;
 
     if (data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED) {
@@ -47,7 +47,7 @@ static s32 func_ov012_02126a4c(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126ad8(BtlEnm014* data) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
     s32          lo;
 
     if (data->base.spriteIndex == 0) {
@@ -68,7 +68,7 @@ static s32 func_ov012_02126ad8(BtlEnm014* data) {
 }
 
 static void func_ov012_02126b74(BtlEnm014* data) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
     s32          d      = player->position.x - data->unk_1E4;
 
     if (d < 0) {
@@ -81,7 +81,7 @@ static void func_ov012_02126b74(BtlEnm014* data) {
 }
 
 static void func_ov012_02126bb0(BtlEnm014* data) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
 
     data->unk_1E0.word = 0;
     data->unk_1E4      = player->position.x;
@@ -96,7 +96,7 @@ static void func_ov012_02126bd8(BtlEnm014* data) {
 }
 
 static s32 func_ov012_02126c1c(BtlEnm014* data) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
 
     if (!(data->base.sprite.flags & BTL_SPRITE_FLAG_FLIPPED)) {
         if (data->base.actor.position.x < player->position.x) {
@@ -118,7 +118,7 @@ miss:
 }
 
 static void func_ov012_02126c74(BtlEnm014* data) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
     s32          dx     = player->position.x - data->base.actor.position.x;
     s32          aim;
     s32          idx;
@@ -259,7 +259,7 @@ static void func_ov012_02126ea0(BtlEnm014* data) {
 }
 
 static void func_ov012_02127134(BtlEnm014* data) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
 
     switch (data->unk_1C2) {
         case 0:

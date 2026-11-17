@@ -57,7 +57,7 @@ void func_ov003_020d07a8(Ov003EnemyShotSource* source, BattleList* list, Ov003En
     args.length    = length;
     args.step      = step;
     args.delay     = delay;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &data_ov003_020e0c8c, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->mainPool, &data_ov003_020e0c8c, NULL, 0, NULL, &args);
 }
 
 static s32 func_ov003_020d0834(Ov003EnemyShotLaserSub* self, Ov003EnemyShotLaserSubArgs* args) {
@@ -89,12 +89,12 @@ static s32 func_ov003_020d0834(Ov003EnemyShotLaserSub* self, Ov003EnemyShotLaser
 }
 
 static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
-    Ov003AttackInfo info;
-    s16             x, y;
-    s32             boxX, boxY, boxZ;
-    s32             halfWidth, halfHeight;
+    BattleAttackInfo info;
+    s16              x, y;
+    s32              boxX, boxY, boxZ;
+    s32              halfWidth, halfHeight;
 
-    if (g_CombatGlobal->unk3D878 & 0x40)
+    if (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN)
         return 1;
     if (func_ov003_020c3c28()) {
         func_ov003_020d117c(self->list);
@@ -170,11 +170,11 @@ static s32 func_ov003_020d0990(Ov003EnemyShotLaserSub* self) {
     halfHeight = FX_Mul(self->growY, FX32_CONVERT(self->inset)) >> 1;
     if (halfHeight < 0x1000)
         halfHeight = 0x1000;
-    info.unk_05 = halfWidth >> 12;
-    info.unk_06 = halfHeight >> 12;
-    boxX        = self->x;
-    boxY        = self->y;
-    boxZ        = self->z;
+    info.halfWidth  = halfWidth >> 12;
+    info.halfHeight = halfHeight >> 12;
+    boxX            = self->x;
+    boxY            = self->y;
+    boxZ            = self->z;
     switch (self->direction) {
         case 0:
             boxX -= FX_Mul(self->growX, FX32_CONVERT(self->inset)) >> 1;

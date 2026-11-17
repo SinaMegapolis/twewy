@@ -22,9 +22,9 @@ s32 func_ov003_020d0518(Ov003EnemyShotSource* finalSource, s32 finalSpeed, u16 f
     args.delay         = delay;
     TaskPool* pool;
     if (finalSource->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c80, NULL, 0, NULL, &args);
 }
 

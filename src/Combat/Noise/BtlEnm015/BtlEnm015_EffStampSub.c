@@ -24,9 +24,9 @@ static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
     s32          se;
 
     if (engine != 0) {
-        base = g_CombatGlobal->partner;
+        base = gBattle->partner;
     } else {
-        base = g_CombatGlobal->player;
+        base = gBattle->player;
     }
     se = (engine != 0) ? 0x8A : 0x88;
 
@@ -44,9 +44,9 @@ static s32 func_ov013_02126788(BtlEnm015StampSub* data) {
                 }
                 h = BtlHit_GetAttackInfo(se);
                 r = BtlHit_AttackAt(h, &data->unk_00->base.actor.baseArgs, data->unk_68, data->unk_6C, data->unk_70);
-                if (r == 1) {
+                if (r == BTL_HIT_RESULT_LANDED) {
                     func_ov003_020c4cc4(&data->unk_00->base, 0x228);
-                } else if (r != 2) {
+                } else if (r != BTL_HIT_RESULT_GUARDED) {
                     if (BtlHit_Stagger(engine, base, 0) != 0) {
                         base->hit.stunTimer = 1;
                     }

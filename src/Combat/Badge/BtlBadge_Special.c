@@ -40,7 +40,6 @@ typedef struct BtlBadgeSpecialAnim {
 // ---------------------------------------------------------------------------------------------
 
 /// The battle sprite page the badge family loads from (`Apl_Hir/Grp_BtlBadge.bin`).
-extern const BinIdentifier data_ov003_020d7810;
 
 static s32 func_ov003_0209477c(TaskPool* pool, Task* task, void* args);
 static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args);
@@ -91,7 +90,7 @@ static void func_ov003_02094668(BattleSprite* sprite, s32 index) {
     if (index > 3) {
         return;
     }
-    switch (g_CombatGlobal->unk3D88D) {
+    switch (gBattle->partnerId) {
         case 0:
             partner = index - 1;
             break;
@@ -103,7 +102,7 @@ static void func_ov003_02094668(BattleSprite* sprite, s32 index) {
             break;
     }
     record = &data_ov003_020d7d40[partner];
-    BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020d7810);
+    BtlSprite_InitAnim(&anim.anim, 2, &Iden_BtlBadge);
     anim.anim.bits_10_11 = 1;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = record->anim;
@@ -126,7 +125,7 @@ static s32 func_ov003_0209477c(TaskPool* pool, Task* task, void* args) {
     s32              val  = 0;
 
     MI_CpuSet(self, 0, sizeof(*self));
-    if (!(g_CombatGlobal->unk3D88D == 0 || g_CombatGlobal->unk3D88D == 1 || g_CombatGlobal->unk3D88D == 2)) {
+    if (!(gBattle->partnerId == 0 || gBattle->partnerId == 1 || gBattle->partnerId == 2)) {
         return 0;
     }
     self->actor.state   = 3;
@@ -140,7 +139,7 @@ static s32 func_ov003_0209477c(TaskPool* pool, Task* task, void* args) {
     self->actor.unk_044 = val;
     self->index         = 0;
     self->timer         = val;
-    BtlList_Append(&g_CombatGlobal->unk3D8BC, &self->actor.node, &self->actor);
+    BtlList_Append(&gBattle->unk3D8BC, &self->actor.node, &self->actor);
     return 1;
 }
 
@@ -149,11 +148,11 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
     BtlBadgeSpecial* self = task->data;
     s8               index;
 
-    if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 2) != 0) {
+    if (gBattle->specialFreeze != 0 || (gBattle->flags & BATTLE_FLAG_SPECIAL) != 0) {
         return 1;
     }
     if (self->index > 0) {
-        s32 index = func_ov003_02086fec();
+        s32 index = BtlCmdDeck_GetStars();
 
         if (self->index != index) {
             self->index = index;
@@ -163,7 +162,7 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
             func_ov003_02094668(&self->actor.sprite, self->index);
         }
     } else {
-        self->index = func_ov003_02086fec();
+        self->index = BtlCmdDeck_GetStars();
         self->timer = 0x14;
         if (self->index > 0) {
             self->actor.unk_044 = 1;
@@ -172,11 +171,11 @@ static s32 func_ov003_02094850(TaskPool* pool, Task* task, void* args) {
             func_ov003_02094668(&self->actor.sprite, self->index);
         }
     }
-    if (self->index > 0 && self->timer <= 0 && g_CombatGlobal->unk3D874 == 2 && (g_CombatGlobal->unk3D878 & 0x20000) == 0 &&
-        func_ov003_020a3f20(&self->actor) != 0)
+    if (self->index > 0 && self->timer <= 0 && gBattle->state == BATTLE_STATE_FIGHT &&
+        (gBattle->flags & BATTLE_FLAG_SPECIAL_LOCKED) == 0 && func_ov003_020a3f20(&self->actor) != 0)
     {
-        g_CombatGlobal->unk3D878 |= 0x20000;
-        func_ov003_02087008();
+        gBattle->flags |= BATTLE_FLAG_SPECIAL_LOCKED;
+        BtlCmdDeck_StartFusion();
         self->index         = 0;
         self->actor.unk_044 = 0;
         BtlSprite_Release(&self->actor.sprite);

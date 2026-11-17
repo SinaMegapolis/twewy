@@ -28,7 +28,7 @@ static s32 func_ov003_020acb74(Ov003ChargeLaser* self, Ov003EnemyActor* unit) {
 }
 
 void func_ov003_020acc60(Ov003ChargeLaser* self) {
-    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesMain);
     while (unit != NULL) {
         s32 distance = unit->actor.screenY - unit->actor.centerHeight - self->y;
         if (distance < 0)

@@ -50,7 +50,7 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003BlackHoll* self = task->data;
             if (--self->lifetime == 0)
                 return 0;
-            Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+            Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesMain);
             while (unit != NULL) {
                 if (func_ov003_020a60a8(unit, 2)) {
                     Vec origin = {self->position.x, self->position.y, self->position.z};
@@ -107,7 +107,7 @@ static s32 func_ov003_020aad24(TaskPool* pool, Task* task, void* args, s32 stage
             BtlSprite_Release(&self->sprites[1]);
             func_ov003_020a5fc0(self->particles, 6);
             self->effect->unk_0A--;
-            Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+            Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesMain);
             while (unit != NULL) {
                 func_ov003_020a6198(unit, 2);
                 unit = BtlList_GetNext(&unit->node);

@@ -1,6 +1,6 @@
 #include "Battle/Core/BtlCmdDeck.h"
+#include "Battle/Core/BtlObsMgr.h"
 #include "Combat/Core/BtlPop.h"
-#include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatAbility.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Friend/Private/Beat.h"
@@ -13,99 +13,92 @@
 #include <nitro/fx.h>
 #include <nitro/math.h>
 
-/// Frame counts of the three sync-gauge charge steps (one row per mode).
-static const s8 data_ov003_020d7614[4][3] = {
+/// Matched cards needed for each fusion star, on top of `fusionsUsed`, one row per partner.
+static const s8 BtlCmdDeck_StarThresholds[4][3] = {
     {4, 8, 16},
     {4, 8, 16},
     {4, 8, 16},
     {0, 0,  0},
 };
 
-/// Advances the charge step until it covers the accumulated progress. Returns TRUE if it moved.
-static s32 func_ov003_02086b88(BattleCmdDeck* cmd) {
-    s32 advanced = 0;
+/// Awards every fusion star the progress has reached. Returns TRUE if any was awarded.
+static BOOL BtlCmdDeck_AdvanceStars(BattleCmdDeck* deck) {
+    BOOL advanced = FALSE;
 
-    while (cmd->progress >= cmd->next) {
-        if (cmd->current >= cmd->count) {
+    while (deck->progress >= deck->threshold) {
+        if (deck->stars >= deck->maxStars) {
             break;
         }
-        cmd->current++;
-        cmd->next = cmd->stage + data_ov003_020d7614[cmd->mode][cmd->current];
-        advanced  = 1;
+        deck->stars++;
+        deck->threshold = deck->fusionsUsed + BtlCmdDeck_StarThresholds[deck->partner][deck->stars];
+        advanced        = TRUE;
     }
     return advanced;
 }
 
-/// Shuffles `table[0..count-1]` into a random permutation (insertion shuffle).
 void BtlCmdDeck_Shuffle(u16* table, u32 count) {
-    u16 value = 0;
-    s32 i     = 0;
+    u16 value;
 
-    if (count == 0) {
-        return;
-    }
-    do {
+    s16 i = 0;
+    value = 0;
+    while (count > value) {
         s32 target = RNG_Next(i + 1);
         s32 j      = i;
-
         while (j > target) {
             table[j] = table[j - 1];
             j--;
         }
+
         table[target] = value;
+        i++;
         value++;
-        i = (s16)(i + 1);
-    } while (count > value);
+    }
 }
 
-/// Eases `*value` towards the sine table entry `*index` by an eighth of the difference.
 void BtlCmdDeck_EaseToSine(s32* value, s16* index) {
     *value += ((SIN2(FX_SinCosTable_, (u16)(*index << 9)) * 4) - *value) / 8;
     *index += 1;
 }
 
-/// Refills the effect command's queue with a fresh shuffle.
-void func_ov003_02086cc0(void) {
-    BattleCmdDeck* cmd = g_CombatGlobal->cmdDeck;
+void BtlCmdDeck_Refill(void) {
+    BattleCmdDeck* deck = gBattle->cmdDeck;
 
-    switch (cmd->mode) {
-        case 1:
-            cmd->remaining = func_ov005_020e74fc(&cmd->queue[0], cmd->capacity, cmd->unk_2C);
+    switch (deck->partner) {
+        case PARTNER_JOSHUA:
+            deck->remaining = func_ov005_020e74fc(&deck->cards[0], deck->capacity, deck->partnerData);
             break;
-        case 0:
-        case 2:
+        case PARTNER_SHIKI:
+        case PARTNER_BEAT:
         default:
-            BtlCmdDeck_Shuffle(&cmd->queue[0], cmd->capacity);
-            cmd->remaining = cmd->capacity;
+            BtlCmdDeck_Shuffle(&deck->cards[0], deck->capacity);
+            deck->remaining = deck->capacity;
             break;
     }
 }
 
-u16 func_ov003_02086d24(void) {
-    BattleCmdDeck* cmd = g_CombatGlobal->cmdDeck;
-    u16            value;
+u16 BtlCmdDeck_DealCard(void) {
+    BattleCmdDeck* deck = gBattle->cmdDeck;
+    u16            card;
 
-    if (cmd->mode == 2) {
-        return func_ov006_020e7538(cmd->unk_2C);
+    if (deck->partner == PARTNER_BEAT) {
+        return func_ov006_020e7538(deck->partnerData);
     }
-    if (cmd->remaining == 0) {
-        func_ov003_02086cc0();
+    if (deck->remaining == 0) {
+        BtlCmdDeck_Refill();
     }
-    cmd->remaining--;
-    value                      = cmd->queue[cmd->remaining];
-    cmd->queue[cmd->remaining] = 0xFFFF;
-    return value;
+    deck->remaining--;
+    card                         = deck->cards[deck->remaining];
+    deck->cards[deck->remaining] = 0xFFFF;
+    return card;
 }
 
-/// Draws one battle effect frame: a sprite animation for the charge effects, a delegated draw for
-/// the special ones.
-void func_ov003_02086d8c(BattleSprite* sprite, s32 animId, s32 flipped, s32 x, s16 y, s16 z) {
-    switch (g_CombatGlobal->cmdDeck->mode) {
-        case 0:
-        case 1: {
-            u16 anim = animId * 2;
+void BtlCmdDeck_RenderCard(BattleSprite* sprite, s32 card, BOOL flipped, s32 x, s16 y, s16 width) {
+    switch (gBattle->cmdDeck->partner) {
+        case PARTNER_SHIKI:
+        case PARTNER_JOSHUA: {
+            u16 anim = card * 2;
 
-            if (flipped != 0) {
+            if (flipped) {
                 anim++;
             }
             BtlSprite_SetAnim(sprite, anim, 0);
@@ -114,53 +107,50 @@ void func_ov003_02086d8c(BattleSprite* sprite, s32 animId, s32 flipped, s32 x, s
             BtlSprite_Render(sprite);
             break;
         }
-        case 2:
-            func_ov006_020e73b8(sprite, animId, flipped, x, y, z);
+        case PARTNER_BEAT:
+            func_ov006_020e73b8(sprite, card, flipped, x, y, width);
             break;
     }
 }
 
-/// Fires the effect command: the charge effects add a card attack, the special ones spawn their
-/// own task.
-void func_ov003_02086e38(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    BattleCmdDeck* cmd = g_CombatGlobal->cmdDeck;
-    s32            value;
+void BtlCmdDeck_UseCard(s32 card, s32 x, s32 y, s32 width) {
+    BattleCmdDeck* deck = gBattle->cmdDeck;
 
-    if (cmd->flags & 1) {
-        return;
-    }
-    value = arg1 + (arg3 << 12);
-    switch (cmd->mode) {
-        case 2:
-            func_ov006_020ea6c0(arg0, value, arg2);
-            break;
-        case 1:
-            func_ov005_020eb29c(arg0, value, arg2);
-            break;
-        case 0:
-        default:
-            BtlCmd_Esp_CreateTask(arg0, value, arg2);
-            break;
+    if (!(deck->flags & BTL_CMD_DECK_FLAG_DISABLED)) {
+        s32 position = x + (width << 12);
+
+        switch (deck->partner) {
+            case PARTNER_BEAT:
+                func_ov006_020ea6c0(card, position, y);
+                break;
+            case PARTNER_JOSHUA:
+                func_ov005_020eb29c(card, position, y);
+                break;
+            case PARTNER_SHIKI:
+            default:
+                BtlCmd_Esp_CreateTask(card, position, y);
+                break;
+        }
     }
 }
 
-s16* func_ov003_02086e94(void) {
-    return (s16*)g_CombatGlobal->cmdDeck->unk_2C;
+s16* BtlCmdDeck_GetPartnerData(void) {
+    return gBattle->cmdDeck->partnerData;
 }
 
-/// Number of charge steps the active partner's sticker grants, clamped to 1..3.
-static u8 func_ov003_02086eb0(void) {
+/// Fusion stars the active partner's Fusion Boost stickers allow, clamped to 1..3.
+static u8 BtlCmdDeck_GetMaxStars(void) {
     u32 count = 0;
 
-    switch (g_CombatGlobal->unk3D88D) {
-        case 0:
-            count = Inventory_GetOwnedCount(0x2B0);
+    switch (gBattle->partnerId) {
+        case PARTNER_SHIKI:
+            count = Inventory_GetOwnedCount(ITEM_STICKER_FUSION_BOOST_SHIKI);
             break;
-        case 1:
-            count = Inventory_GetOwnedCount(0x2B8);
+        case PARTNER_JOSHUA:
+            count = Inventory_GetOwnedCount(ITEM_STICKER_FUSION_BOOST_JOSHUA);
             break;
-        case 2:
-            count = Inventory_GetOwnedCount(0x2C0);
+        case PARTNER_BEAT:
+            count = Inventory_GetOwnedCount(ITEM_STICKER_FUSION_BOOST_BEAT);
             break;
         default:
             break;
@@ -174,110 +164,107 @@ static u8 func_ov003_02086eb0(void) {
     return count;
 }
 
-s32 func_ov003_02086f20(s32 arg0, s32 arg1) {
-    BattleCmdDeck* cmd = g_CombatGlobal->cmdDeck;
+BOOL BtlCmdDeck_AddProgress(s32 amount, s32 x) {
+    BattleCmdDeck* deck = gBattle->cmdDeck;
 
-    if (cmd->current >= cmd->count) {
-        return 0;
+    if (deck->stars >= deck->maxStars) {
+        return FALSE;
     }
-    func_ov003_0209d038(arg0, arg1 + 7, 0x12);
-    cmd->progress += arg0;
-    return func_ov003_02086b88(cmd);
+    func_ov003_0209d038(amount, x + 7, 18);
+    deck->progress += amount;
+    return BtlCmdDeck_AdvanceStars(deck);
 }
 
-s32 func_ov003_02086f7c(void) {
-    s32 done = 0;
+BOOL BtlCmdDeck_IsRoundComplete(void) {
+    BOOL done = FALSE;
 
-    switch (g_CombatGlobal->cmdDeck->mode) {
-        case 1:
-            if (*func_ov003_02086e94() >= 5) {
-                done = 1;
+    switch (gBattle->cmdDeck->partner) {
+        case PARTNER_JOSHUA:
+            if (*BtlCmdDeck_GetPartnerData() >= 5) {
+                done = TRUE;
             }
             break;
-        case 2:
-            done = 1;
+        case PARTNER_BEAT:
+            done = TRUE;
             break;
         default:
-        case 0:
-            if (*func_ov003_02086e94() >= 3) {
-                done = 1;
+        case PARTNER_SHIKI:
+            if (*BtlCmdDeck_GetPartnerData() >= 3) {
+                done = TRUE;
             }
             break;
     }
     return done;
 }
 
-s8 func_ov003_02086fec(void) {
-    return g_CombatGlobal->cmdDeck->current;
+s8 BtlCmdDeck_GetStars(void) {
+    return gBattle->cmdDeck->stars;
 }
 
-/// Starts the next charge step: advances the stage, re-shuffles the queue and restarts the effect.
-void func_ov003_02087008(void) {
-    BattleCmdDeck* cmd      = g_CombatGlobal->cmdDeck;
-    s8             stage    = cmd->current;
-    u16            previous = stage - 1;
+void BtlCmdDeck_StartFusion(void) {
+    BattleCmdDeck* deck  = gBattle->cmdDeck;
+    s8             stars = deck->stars;
+    u16            level = stars - 1;
 
-    cmd->stage++;
-    cmd->current  = 0;
-    cmd->progress = 0;
-    cmd->next     = cmd->stage + data_ov003_020d7614[cmd->mode][cmd->current];
-    func_ov003_020871cc(1);
-    func_ov003_020c1f18(&g_CombatGlobal->unk_34230, previous);
+    deck->fusionsUsed++;
+    deck->stars     = 0;
+    deck->progress  = 0;
+    deck->threshold = deck->fusionsUsed + BtlCmdDeck_StarThresholds[deck->partner][deck->stars];
+    BtlCmdDeck_DealBoard(TRUE);
+    func_ov003_020c1f18(&gBattle->specialPool, level);
 }
 
-void func_ov003_02087094(BattleCmdDeck* cmd, u8 mode, s32 arg2) {
-    g_CombatGlobal->cmdDeck = cmd;
-    cmd->mode               = mode;
-    cmd->unk_2C             = arg2;
-    cmd->flags              = 0;
-    cmd->current            = 0;
-    cmd->count              = func_ov003_02086eb0();
-    cmd->stage              = gSaveData.battleChargeStage;
-    cmd->progress           = gSaveData.battleChargeProgress;
-    cmd->next               = cmd->stage + data_ov003_020d7614[cmd->mode][cmd->current];
-    if (g_CombatGlobal->unk3D88C == 0 && gSaveData.battleTimer == 0) {
-        if (CombatAbility_IsActive(7) != 0) {
-            cmd->progress += (s8)CombatAbility_GetValue(7);
-        }
+void BtlCmdDeck_Init(BattleCmdDeck* deck, u8 partner, void* partnerData) {
+    gBattle->cmdDeck  = deck;
+    deck->partner     = partner;
+    deck->partnerData = partnerData;
+    deck->flags       = 0;
+    deck->stars       = 0;
+    deck->maxStars    = BtlCmdDeck_GetMaxStars();
+    deck->fusionsUsed = gSaveData.battleChargeStage;
+    deck->progress    = gSaveData.battleChargeProgress;
+    deck->threshold   = deck->fusionsUsed + BtlCmdDeck_StarThresholds[deck->partner][deck->stars];
+    if (gBattle->chainIndex == 0 && gSaveData.battleTimer == 0 && CombatAbility_IsActive(7)) {
+        deck->progress += (s8)CombatAbility_GetValue(7);
     }
-    func_ov003_02086b88(cmd);
-    switch (cmd->mode) {
-        case 1:
-            cmd->capacity = 10;
+    BtlCmdDeck_AdvanceStars(deck);
+    switch (deck->partner) {
+        case PARTNER_JOSHUA:
+            deck->capacity = 10;
             break;
-        case 2:
-            cmd->capacity = 4;
+        case PARTNER_BEAT:
+            deck->capacity = 4;
             break;
         default:
-        case 0:
-            cmd->capacity = func_ov004_020e737c();
+        case PARTNER_SHIKI:
+            deck->capacity = func_ov004_020e737c();
             break;
     }
-    func_ov003_02086cc0();
+    BtlCmdDeck_Refill();
 }
 
-void func_ov003_020871b0(BattleCmdDeck* cmd) {
-    gSaveData.battleChargeProgress = cmd->progress;
-    gSaveData.battleChargeStage    = cmd->stage;
+void BtlCmdDeck_Save(BattleCmdDeck* deck) {
+    gSaveData.battleChargeProgress = deck->progress;
+    gSaveData.battleChargeStage    = deck->fusionsUsed;
 }
 
-void func_ov003_020871cc(s32 arg0) {
-    BattleCmdDeck* cmd = g_CombatGlobal->cmdDeck;
+void BtlCmdDeck_DealBoard(BOOL redeal) {
+    BattleCmdDeck* deck = gBattle->cmdDeck;
 
-    switch (cmd->mode) {
-        case 1:
-            func_ov005_020e740c(cmd->unk_2C, arg0);
+    switch (deck->partner) {
+        case PARTNER_JOSHUA:
+            func_ov005_020e740c(deck->partnerData, redeal);
             break;
-        case 2:
-            func_ov006_020e74b0(cmd->unk_2C, arg0);
+        case PARTNER_BEAT:
+            func_ov006_020e74b0(deck->partnerData, redeal);
             break;
         default:
-        case 0:
-            func_ov004_020e739c(cmd->unk_2C, arg0);
+        case PARTNER_SHIKI:
+            func_ov004_020e739c(deck->partnerData, redeal);
             break;
     }
 }
 
-void func_ov003_0208722c(void) {
-    g_CombatGlobal->cmdDeck->flags |= 1;
+void BtlCmdDeck_Disable(void) {
+    gBattle->cmdDeck->flags |= BTL_CMD_DECK_FLAG_DISABLED;
 }

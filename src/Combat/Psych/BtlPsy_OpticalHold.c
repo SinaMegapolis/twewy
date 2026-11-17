@@ -205,7 +205,7 @@ static s32 func_ov003_020b1634(TaskPool* pool, Task* task, void* args, s32 stage
 
 /// Returns the held actor while the optical-hold touch is active, or NULL when it is not.
 static Ov003EnemyActor* func_ov003_020b1c50(void) {
-    BattleTouchWork* touch;
+    BattleTouch*     touch;
     Ov003EnemyActor* unit;
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG))
         return NULL;

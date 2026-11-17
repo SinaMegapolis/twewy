@@ -20,9 +20,9 @@ static s32 func_ov003_020cde74(BattleSprite* source, s32 x, s32 y, s32 z, s32 fl
     args.kind       = kind;
     TaskPool* pool;
     if (source->sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c38, NULL, 0, NULL, &args);
 }
 

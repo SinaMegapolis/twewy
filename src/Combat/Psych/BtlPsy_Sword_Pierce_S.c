@@ -14,11 +14,11 @@ typedef struct BtlPsyPierce {
     s32 active;
 } BtlPsyPierce;
 static s32 func_ov003_020958e0(void) {
-    s32          y, py, x, px, dx, dy;
-    Ov003Global* global;
-    if (!BtlTouch_SlashCrosses(g_CombatGlobal->player))
+    s32     y, py, x, px, dx, dy;
+    Battle* global;
+    if (!BtlTouch_SlashCrosses(gBattle->player))
         return 0;
-    global = g_CombatGlobal;
+    global = gBattle;
     y      = global->touchWork.startY;
     py     = global->touchWork.endY;
     x      = global->touchWork.startX;
@@ -35,19 +35,19 @@ static s32 func_ov003_02095954(TaskPool* pool, Task* task, void* args) {
     BtlPsyPierce*      self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
-    g_CombatGlobal->unk3D8CC = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.endX);
-    g_CombatGlobal->unk3D8C8 = 1;
-    self->effect             = *arg;
-    self->active             = 1;
-    self->update             = NULL;
-    self->state              = 0;
-    self->timer              = 0;
-    func_ov003_02087250(self->effect, g_CombatGlobal->player, g_CombatGlobal->touchWork.angle);
+    gBattle->unk3D8CC = BtlStage_ToWorldX(0, gBattle->touchWork.endX);
+    gBattle->unk3D8C8 = 1;
+    self->effect      = *arg;
+    self->active      = 1;
+    self->update      = NULL;
+    self->state       = 0;
+    self->timer       = 0;
+    BtlAttackQueue_Push(self->effect, gBattle->player, gBattle->touchWork.angle);
     return 1;
 }
 static s32 func_ov003_020959f4(TaskPool* pool, Task* task, void* args) {
     BtlPsyPierce* self = task->data;
-    if (!g_CombatGlobal->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
+    if (!gBattle->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
         self->update = NULL;
         self->state  = 0;
         self->timer  = 0;
@@ -61,7 +61,7 @@ static s32 func_ov003_02095a58(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 static s32 func_ov003_02095a60(TaskPool* pool, Task* task, void* args) {
-    g_CombatGlobal->unk3D8C8 = 0;
+    gBattle->unk3D8C8 = 0;
     return 1;
 }
 

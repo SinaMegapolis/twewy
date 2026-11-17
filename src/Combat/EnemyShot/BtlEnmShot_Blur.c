@@ -12,9 +12,9 @@ s32 func_ov003_020cd6f4(Ov003EnemyShotSource* source, s32 opacity, s32 decay) {
     args.decay   = decay;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c18, NULL, 0, NULL, &args);
 }
 

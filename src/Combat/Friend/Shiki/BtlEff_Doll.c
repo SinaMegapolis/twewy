@@ -6,8 +6,6 @@
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
 
-extern BinIdentifier data_ov003_020d77e0;
-
 typedef struct {
     /* 0x00 */ char unk_00[0x24];
     /* 0x24 */ u32  unk_24;
@@ -47,7 +45,7 @@ s32 BtlEff_Doll_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(doll, 0, sizeof(BtlEff_Doll));
     doll->unk_60 = (s32)dollArgs->unk_4;
-    BtlSprite_LoadFromTable(1, &doll->sprite, &data_ov003_020d77e0, data_ov004_020f0374, dollArgs->unk_0, 0x3F, 0x40);
+    BtlSprite_LoadFromTable(1, &doll->sprite, &Iden_BtlPly01, data_ov004_020f0374, dollArgs->unk_0, 0x3F, 0x40);
     BtlSprite_SetAnimFromTable(&doll->sprite, dollArgs->unk_0, 1);
     return 1;
 }
@@ -96,7 +94,7 @@ s32 BtlEff_Doll_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
         .render     = BtlEff_Doll_Render,
         .cleanup    = BtlEff_Doll_Destroy,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);
@@ -106,5 +104,5 @@ void BtlEff_Doll_CreateTask(u16 arg0, void* arg1) {
     BtlEff_Doll_Args args;
     args.unk_0 = arg0;
     args.unk_4 = arg1;
-    EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlEff_Doll, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->subPool, &Tsk_BtlEff_Doll, NULL, 0, NULL, &args);
 }

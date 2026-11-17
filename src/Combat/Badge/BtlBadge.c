@@ -26,7 +26,7 @@ static const TaskHandle data_ov003_020dc5c0       = {data_ov003_020e48e0, func_o
 void func_ov003_020a6d24(Ov003PinAction* action) {
     Ov003PinAction* args = action;
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5c0, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->commonPool, &data_ov003_020dc5c0, NULL, 0, NULL, &args);
 }
 
 static s32 func_ov003_020a6d6c(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -57,7 +57,8 @@ static s32 func_ov003_020a6d6c(TaskPool* pool, Task* task, void* args, s32 stage
         case 1: {
             BtlBadge* self = task->data;
 
-            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
+            if (gBattle->specialFreeze != 0 || (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0 ||
+                (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) != 0)
             {
                 return 1;
             }

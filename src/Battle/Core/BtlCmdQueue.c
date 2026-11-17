@@ -1,121 +1,117 @@
 #include "Battle/Core/BtlCmdQueue.h"
 #include "Battle/Core/BtlList.h"
-#include "Combat/Core/Combat.h"
+#include "Battle/Core/BtlObsMgr.h"
 
 void BtlCmdQueue_Push(u16 value) {
-    BattleCmdQueue*      state = g_CombatGlobal->cmdQueue;
+    BattleCmdQueue*      queue = gBattle->cmdQueue;
     BattleCmdQueueEntry* entry;
 
-    state->unk_08 = 0;
-    entry         = BtlList_GetHead(&state->free);
+    queue->partnerReady = FALSE;
+    entry               = BtlList_GetHead(&queue->free);
     if (entry != NULL) {
         entry->value = value;
-        BtlList_Remove(&state->free, &entry->node);
-        BtlList_Append(&state->queued, &entry->node, entry);
-        return;
-    }
-    entry = BtlList_GetTail(&state->queued);
-    if (entry != NULL) {
-        entry->value = value;
+        BtlList_Remove(&queue->free, &entry->node);
+        BtlList_Append(&queue->queued, &entry->node, entry);
+    } else {
+        entry = BtlList_GetTail(&queue->queued);
+        if (entry != NULL) {
+            entry->value = value;
+        }
     }
 }
 
+/// Moves a queued entry back to the free list.
 static void BtlCmdQueue_Free(BattleCmdQueueEntry* entry) {
-    BattleCmdQueue* state = g_CombatGlobal->cmdQueue;
+    BattleCmdQueue* queue = gBattle->cmdQueue;
 
-    if (entry == NULL) {
-        return;
+    if (entry != NULL) {
+        entry->value = 0;
+        BtlList_Remove(&queue->queued, &entry->node);
+        BtlList_Append(&queue->free, &entry->node, entry);
     }
-    entry->value = 0;
-    BtlList_Remove(&state->queued, &entry->node);
-    BtlList_Append(&state->free, &entry->node, entry);
 }
 
 void BtlCmdQueue_Clear(void) {
-    BattleCmdQueueEntry* entry = BtlList_GetHead(&g_CombatGlobal->cmdQueue->queued);
+    BattleCmdQueueEntry* entry = BtlList_GetHead(&gBattle->cmdQueue->queued);
 
-    if (entry == NULL) {
-        return;
-    }
-    do {
+    while (entry != NULL) {
         BattleCmdQueueEntry* next = BtlList_GetNext(&entry->node);
         BtlCmdQueue_Free(entry);
         entry = next;
-    } while (entry != NULL);
+    }
 }
 
-void BtlCmdQueue_SetDirection(s32 value) {
-    g_CombatGlobal->cmdQueue->direction = value;
+void BtlCmdQueue_SetDirection(s32 direction) {
+    gBattle->cmdQueue->direction = direction;
 }
 
 u16 BtlCmdQueue_Pop(void) {
-    BattleCmdQueue*      state = g_CombatGlobal->cmdQueue;
+    BattleCmdQueue*      queue = gBattle->cmdQueue;
     u16                  value = 0;
-    BattleCmdQueueEntry* entry = BtlList_GetHead(&state->queued);
+    BattleCmdQueueEntry* entry = BtlList_GetHead(&queue->queued);
 
     if (entry != NULL) {
         value        = entry->value;
         entry->value = 0;
-        BtlList_Remove(&state->queued, &entry->node);
-        BtlList_Append(&state->free, &entry->node, entry);
+        BtlList_Remove(&queue->queued, &entry->node);
+        BtlList_Append(&queue->free, &entry->node, entry);
     }
     return value;
 }
 
 u16 BtlCmdQueue_TakeDirection(void) {
-    BattleCmdQueue* state = g_CombatGlobal->cmdQueue;
-    u16             value = state->direction;
+    BattleCmdQueue* queue     = gBattle->cmdQueue;
+    u16             direction = queue->direction;
 
-    state->direction = 0;
-    return value;
+    queue->direction = 0;
+    return direction;
 }
 
-s32 func_ov003_02086a64(void) {
-    return g_CombatGlobal->cmdQueue->unk_08;
+BOOL BtlCmdQueue_IsPartnerReady(void) {
+    return gBattle->cmdQueue->partnerReady;
 }
 
-s32 func_ov003_02086a80(void) {
-    if (g_CombatGlobal->cmdQueue->flags & 4) {
-        return 1;
+BOOL BtlCmdQueue_IsPartnerJumping(void) {
+    if (gBattle->cmdQueue->flags & BTL_CMD_QUEUE_FLAG_PARTNER_JUMPING) {
+        return TRUE;
     }
-    return 0;
+    return FALSE;
 }
 
-void func_ov003_02086aa8(s32 value) {
-    g_CombatGlobal->cmdQueue->unk_08 = value;
+void BtlCmdQueue_SetPartnerReady(BOOL ready) {
+    gBattle->cmdQueue->partnerReady = ready;
 }
 
-void func_ov003_02086ac4(s32 enabled) {
-    BattleCmdQueue* state = g_CombatGlobal->cmdQueue;
+void BtlCmdQueue_SetPartnerJumping(BOOL jumping) {
+    BattleCmdQueue* queue = gBattle->cmdQueue;
 
-    if (enabled != 0) {
-        state->flags |= 4;
+    if (jumping) {
+        queue->flags |= BTL_CMD_QUEUE_FLAG_PARTNER_JUMPING;
     } else {
-        state->flags &= ~4;
+        queue->flags &= ~BTL_CMD_QUEUE_FLAG_PARTNER_JUMPING;
     }
 }
 
 void func_ov003_02086af0(void) {
-    g_CombatGlobal->cmdQueue->flags &= ~2;
+    gBattle->cmdQueue->flags &= ~BTL_CMD_QUEUE_FLAG_UNK_1;
 }
 
-/// Resets a sync gauge state and seeds its 16 pooled entries into the free list.
-void BtlCmdQueue_Init(BattleCmdQueue* state) {
+void BtlCmdQueue_Init(BattleCmdQueue* queue) {
     s32                  i;
     BattleCmdQueueEntry* entry;
 
-    g_CombatGlobal->cmdQueue = state;
-    state->flags             = 0;
-    state->unk_04            = 0;
-    state->unk_06            = 0;
-    state->unk_08            = 0;
-    state->direction         = 0;
-    BtlList_Init(&state->free);
-    BtlList_Init(&state->queued);
-    entry = state->entries;
+    gBattle->cmdQueue   = queue;
+    queue->flags        = 0;
+    queue->unk_04       = 0;
+    queue->unk_06       = 0;
+    queue->partnerReady = FALSE;
+    queue->direction    = 0;
+    BtlList_Init(&queue->free);
+    BtlList_Init(&queue->queued);
+    entry = queue->entries;
     for (i = 0; i < 16; i++) {
         entry->value = 0;
-        BtlList_Append(&state->free, &entry->node, entry);
+        BtlList_Append(&queue->free, &entry->node, entry);
         entry++;
     }
 }

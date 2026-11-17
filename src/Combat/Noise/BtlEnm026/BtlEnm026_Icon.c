@@ -127,7 +127,7 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
                 hp = 0x63;
             }
             if (data->unk_130 == 0) {
-                if (g_CombatGlobal->unk3D874 == 2) {
+                if (gBattle->state == BATTLE_STATE_FIGHT) {
                     if (hp == 0) {
                         if (SndMgr_IsSEPlaying(SEIDX_SE_026_TIMER0) == 0) {
                             BtlSe_Play(SEIDX_SE_026_TIMER0);
@@ -165,7 +165,7 @@ static s32 func_ov015_02126464(BtlEnm026Icon* data) {
             BtlSprite_Restart(&data->unk_00);
             if (SndMgr_IsSEPlaying(SEIDX_SE_026_VOC_IBIKI) == 0) {
                 if (data_ov015_02128500.flag08 == 0) {
-                    if (g_CombatGlobal->unk3D874 == 2) {
+                    if (gBattle->state == BATTLE_STATE_FIGHT) {
                         BtlSe_Play(SEIDX_SE_026_VOC_IBIKI);
                     }
                 }

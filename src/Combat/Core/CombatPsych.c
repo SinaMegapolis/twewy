@@ -56,7 +56,7 @@ typedef struct Ov003EffectEntry {
 
 /// The 0x3C-byte effect block at 0xCC of a badge, driven by `CombatPsych.c`.
 
-/// The touch-slot origin/destination block at `Ov003Global + 0x3D358`.
+/// The touch-slot origin/destination block at `Battle + 0x3D358`.
 
 /// One of the 0x70-byte sprite slots an effect owns: a `BattleSprite` plus its spin/fade timers.
 
@@ -162,7 +162,7 @@ static char data_ov003_020e48cc[0x14] = "Data/PsyData.bin";
 /// from overlapping actors; also ramps the effect speed of actors near the effect origin.
 static void func_ov003_020a5250(Ov003TouchActor* actor) {
     Ov003TouchActor* other;
-    BattleTouchWork* origin;
+    BattleTouch*     origin;
     s32              angle;
 
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) != 0) {
@@ -201,7 +201,7 @@ static void func_ov003_020a5250(Ov003TouchActor* actor) {
         actor->velocityY = -actor->velocityY;
     }
 
-    for (other = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); other != NULL; other = BtlList_GetNext(&other->node)) {
+    for (other = BtlList_GetHead(&gBattle->unk3D8BC); other != NULL; other = BtlList_GetNext(&other->node)) {
         if (other != actor &&
             func_ov003_020a62ec(other->x, other->y, actor->x, actor->y) < ((other->radius + actor->radius) << 12))
         {
@@ -227,7 +227,7 @@ void func_ov003_020a5540(Ov003EffectState* effect, Ov003TouchActor* actor) {
         func_ov003_020a5d50(effect->context.arg);
         effect->context.arg = NULL;
     }
-    if (func_0200f93c((StrListOwner*)&g_CombatGlobal->unk_201A4) > 0x80U) {
+    if (func_0200f93c((StrListOwner*)&gBattle->psychPool) > 0x80U) {
         return;
     }
     entry = func_ov003_020a5d74(effect->state);
@@ -304,7 +304,7 @@ static s32 func_ov003_020a5738(Ov003TouchActor** slots, s32 count, s32 mode) {
     for (i = 0; i < count; i++) {
         slots[i] = NULL;
     }
-    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&gBattle->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->kind == 0xFFFE) {
             continue;
         }
@@ -384,7 +384,7 @@ void func_ov003_020a58e4(Ov003EffectState* effect, u16 arg1, u8 arg2) {
 
 /// Records the touch-slot origins used by the effect selection.
 void func_ov003_020a593c(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    Ov003EffectSlots* slots = &g_CombatGlobal->effectSlots;
+    Ov003EffectSlots* slots = &gBattle->effectSlots;
 
     slots->unk_00   = arg0;
     slots->unk_04   = arg1;
@@ -397,7 +397,7 @@ void func_ov003_020a593c(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 
 /// Fires the shared effect for all five touch slots and arms its cooldown.
 static void func_ov003_020a5974(Ov003EffectState* effect) {
-    Ov003EffectSlots* state = &g_CombatGlobal->effectSlots;
+    Ov003EffectSlots* state = &gBattle->effectSlots;
     s32               i;
 
     if (state->cooldown != 0) {
@@ -413,25 +413,25 @@ static void func_ov003_020a5974(Ov003EffectState* effect) {
 }
 
 void func_ov003_020a59dc(void) {
-    g_CombatGlobal->effectSlots.unk_0C = 0;
+    gBattle->effectSlots.unk_0C = 0;
 }
 
 static s32 func_ov003_020a59f8(void) {
-    if (g_CombatGlobal->effectSlots.unk_0C != 0) {
+    if (gBattle->effectSlots.unk_0C != 0) {
         return 1;
     }
     return 0;
 }
 
 u8 func_ov003_020a5a1c(void) {
-    return g_CombatGlobal->effectSlots.unk_15;
+    return gBattle->effectSlots.unk_15;
 }
 
 /// Finds the badge that owns the effect state at `effect`.
 Ov003TouchActor* func_ov003_020a5a34(Ov003EffectState* effect) {
     Ov003TouchActor* actor;
 
-    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&gBattle->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->kind != 0xFFFE && &actor->effect == effect) {
             return actor;
         }
@@ -470,7 +470,7 @@ s32 func_ov003_020a5b18(s32 state) {
     Ov003TouchActor* actor;
     s32              total = 0;
 
-    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&gBattle->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->kind != 0xFFFE && actor->effect.state == state) {
             total += actor->effect.unk_0A;
         }
@@ -499,7 +499,7 @@ static void func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectS
     for (i = 0; i < count; i++) {
         slots[i] = NULL;
     }
-    actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
+    actor = BtlList_GetHead(&gBattle->unk3D8BC);
     while (actor != NULL) {
         if (actor->kind == 0xFFFE) {
             actor = BtlList_GetNext(&actor->node);
@@ -533,11 +533,11 @@ static void func_ov003_020a5bac(Ov003TouchActor** slots, s32 count, Ov003EffectS
 }
 
 void* func_ov003_020a5d2c(s32 size, const char* name) {
-    return Mem_AllocHeapTail(&g_CombatGlobal->heap_20224, size);
+    return Mem_AllocHeapTail(&gBattle->psychHeap, size);
 }
 
 static void func_ov003_020a5d50(void* ptr) {
-    Mem_Free(&g_CombatGlobal->heap_20224, ptr);
+    Mem_Free(&gBattle->psychHeap, ptr);
 }
 
 /// The behaviour table entry for effect `state`.

@@ -25,7 +25,7 @@ s32 Boss01s_LandUG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(landUG, 0, sizeof(Boss01s_LandUG));
     BtlSprite_LoadFromTable(0, &landUG->sprite, &data_ov016_02128f98, &LandUG_Anim, 0, 4, 0xC);
-    landUG->unk_60 = g_CombatGlobal->stages[0].width / 2;
+    landUG->unk_60 = gBattle->stages[0].width / 2;
     landUG->unk_64 = -0x1E000;
     landUG->unk_68 = 0;
     return 1;
@@ -76,5 +76,5 @@ s32 Boss01s_LandUG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 void Boss01s_LandUG_CreateTask(void) {
-    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_Boss01s_LandUG, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->mainPool, &Tsk_Boss01s_LandUG, NULL, 0, NULL, NULL);
 }

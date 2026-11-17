@@ -25,8 +25,6 @@ typedef struct BtlEffDeadSpawn {
     /* 0x10 */ s32 hasPartner;
 } BtlEffDeadSpawn; // Size: 0x14
 
-extern const BinIdentifier data_ov003_020d7800;
-
 static s32 BtlEff_Dead_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static const TaskHandle Tsk_BtlEff_Dead = {"Tsk_BtlEff_Dead", BtlEff_Dead_RunTask, sizeof(CombatDeadEffect)};
@@ -37,33 +35,33 @@ static const SpriteAnimEntry data_ov003_020d86a0[];
 static void func_ov003_0209f040(void) {
     u16 rnd = RNG_Next(2);
 
-    if (g_CombatGlobal->unk3D88D == 0) {
+    if (gBattle->partnerId == PARTNER_SHIKI) {
         switch (rnd) {
             case 0:
-                BtlSe_PlayAtSubX(0x38F, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(SEIDX_SHIKI_BTL_PRS01, gBattle->partner->position.x);
                 break;
             case 1:
-                BtlSe_PlayAtSubX(0x390, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(SEIDX_SHIKI_BTL_PRS02, gBattle->partner->position.x);
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 1) {
+    if (gBattle->partnerId == PARTNER_JOSHUA) {
         switch (rnd) {
             case 0:
-                BtlSe_PlayAtSubX(0x3B7, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(SEIDX_YOSHUA_BTL_PRS01, gBattle->partner->position.x);
                 break;
             case 1:
-                BtlSe_PlayAtSubX(0x3B8, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(SEIDX_YOSHUA_BTL_PRS02, gBattle->partner->position.x);
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 2) {
+    if (gBattle->partnerId == PARTNER_BEAT) {
         switch (rnd) {
             case 0:
-                BtlSe_PlayAtSubX(0x3DF, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(SEIDX_BIITO_BTL_PRS01, gBattle->partner->position.x);
                 break;
             case 1:
-                BtlSe_PlayAtSubX(0x3E0, g_CombatGlobal->partner->position.x);
+                BtlSe_PlayAtSubX(SEIDX_BIITO_BTL_PRS02, gBattle->partner->position.x);
                 break;
         }
     }
@@ -74,10 +72,10 @@ static void func_ov003_0209f154(void) {
     u16 rnd = RNG_Next(2);
 
     if (rnd != 0) {
-        BtlSe_PlayAtMainX(0x367, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x367, gBattle->player->position.x);
         return;
     }
-    BtlSe_PlayAtMainX(0x368, g_CombatGlobal->player->position.x);
+    BtlSe_PlayAtMainX(0x368, gBattle->player->position.x);
 }
 
 /// Plays one of the death sound effects for `engine`'s screen, when the random roll allows it.
@@ -106,7 +104,7 @@ static s32 BtlEff_Dead_Init(TaskPool* pool, Task* task, void* args) {
     state->position.y = spawn->y;
     state->position.z = spawn->z;
     state->playVoice  = spawn->hasPartner;
-    BtlSprite_LoadFromTable(spawn->engine, &state->sprite, &data_ov003_020d7800, data_ov003_020d86a0, 0,
+    BtlSprite_LoadFromTable(spawn->engine, &state->sprite, &Iden_BtlMenu, data_ov003_020d86a0, 0,
                             (spawn->engine == 0) ? 0x3D : 0x3F, 0x20);
     BtlSprite_SetAnimFromTable(&state->sprite, 0, 1);
     state->sprite.flags |= BTL_SPRITE_FLAG_OBJ_WINDOW;
@@ -123,7 +121,7 @@ static s32 BtlEff_Dead_Update(TaskPool* pool, Task* task, void* args) {
             u8 partner = 0xFF;
 
             if (state->sprite.sprite.bits_0_1 == 1) {
-                switch (g_CombatGlobal->unk3D88D) {
+                switch (gBattle->partnerId) {
                     case 0:
                         partner = 0;
                         break;
@@ -177,7 +175,7 @@ static s32 BtlEff_Dead_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
         .cleanup    = BtlEff_Dead_Release,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -192,7 +190,7 @@ void func_ov003_0209f444(s32 engine, s32 x, s32 y, s32 z, s32 hasPartner) {
     spawn.y          = y;
     spawn.z          = z;
     spawn.hasPartner = hasPartner;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Dead, NULL, 0, NULL, &spawn);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlEff_Dead, NULL, 0, NULL, &spawn);
 }
 
 static const SpriteAnimEntry data_ov003_020d86a0[1] = {

@@ -33,8 +33,6 @@ typedef struct BtlOver {
     /* 0xDA */ s16          phase;
 } BtlOver; // Size: 0xDC
 
-extern const BinIdentifier data_ov003_020d7818;
-
 extern u16 data_02066aec[];
 extern u16 data_02066eec[];
 
@@ -57,7 +55,7 @@ static void func_ov003_020a1714(BtlOver* self, BtlOverState state) {
 static void func_ov003_020a1728(s32 engine, BattleSprite* sprite) {
     SpriteAnimationEx anim;
 
-    BtlSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
+    BtlSprite_InitAnim(&anim.anim, engine, &Iden_BtlJingle);
     anim.anim.bits_10_11 = 0;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 3;
@@ -76,7 +74,7 @@ static void func_ov003_020a1728(s32 engine, BattleSprite* sprite) {
 static s32 func_ov003_020a17bc(void) {
     s32 result = 1;
 
-    switch (g_CombatGlobal->unk3D88E) {
+    switch (gBattle->encounterId) {
         case 10:
             SndMgr_StartPlayingSE(SEIDX_KONISHI_N_BTL_WIN01);
             break;
@@ -161,7 +159,7 @@ static void func_ov003_020a1994(void) {
         return;
     }
     line = RNG_Next(2);
-    switch (g_CombatGlobal->unk3D88D) {
+    switch (gBattle->partnerId) {
         case 0:
         case 1:
         case 2:
@@ -182,7 +180,7 @@ static void func_ov003_020a1994(void) {
         }
         return;
     }
-    if (g_CombatGlobal->unk3D88D == 0) {
+    if (gBattle->partnerId == 0) {
         switch (line) {
             case 0:
                 SndMgr_StartPlayingSE(SEIDX_SHIKI_BTL_OVR01);
@@ -192,7 +190,7 @@ static void func_ov003_020a1994(void) {
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 1) {
+    if (gBattle->partnerId == 1) {
         switch (line) {
             case 0:
                 SndMgr_StartPlayingSE(SEIDX_YOSHUA_BTL_OVR01);
@@ -202,7 +200,7 @@ static void func_ov003_020a1994(void) {
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 2) {
+    if (gBattle->partnerId == 2) {
         switch (line) {
             case 0:
                 SndMgr_StartPlayingSE(SEIDX_BIITO_BTL_OVR01);
@@ -216,7 +214,7 @@ static void func_ov003_020a1994(void) {
 
 /// Returns 1 when the screens are darkened (every battle except the last four of the story).
 static s32 func_ov003_020a1af0(void) {
-    switch (g_CombatGlobal->unk3D88E) {
+    switch (gBattle->encounterId) {
         case 19:
         case 20:
         case 21:
@@ -276,7 +274,7 @@ static void func_ov003_020a1c80(BtlOver* self) {
     if (self->timer == 0) {
         self->timer = 30;
         func_0202fbf4(0);
-        CriSndMgr_Stop(g_CombatGlobal->unk3D870);
+        CriSndMgr_Stop(gBattle->bgmHandle);
         SndMgr_PlaySEWithPan(SEIDX_SE_GAMEOVER, 0x80);
         EasyFade_FadeBothDisplays(0, 0, 0x1000);
     }
@@ -333,7 +331,7 @@ static void func_ov003_020a1db4(BtlOver* self) {
             Display_SetMainLayers(0x10);
             Display_SetSubLayers(0x10);
         }
-        g_CombatGlobal->unk3D884 = 1;
+        gBattle->specialFreeze = 1;
     }
     self->timer--;
     if (self->timer <= 0) {
@@ -355,7 +353,7 @@ static void func_ov003_020a1eb4(BtlOver* self) {
     self->timer--;
     if (self->timer <= 0) {
         func_ov003_020a1714(self, NULL);
-        BtlMgr_SetState(7);
+        BtlMgr_SetState(BATTLE_STATE_RESULTS_DONE);
     }
 }
 
@@ -363,7 +361,7 @@ static s32 BtlOver_Init(TaskPool* pool, Task* task, void* args) {
     BtlOver* self = task->data;
 
     MI_CpuSet(self, 0, sizeof(*self));
-    g_CombatGlobal->unk3D878 |= 0x20;
+    gBattle->flags |= BATTLE_FLAG_SE_MUTED;
     func_ov003_020a1728(1, &self->sprites[0]);
     func_ov003_020a1728(0, &self->sprites[1]);
     self->phase = 0;

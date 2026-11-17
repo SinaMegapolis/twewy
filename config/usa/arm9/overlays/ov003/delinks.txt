@@ -33,29 +33,30 @@ src/Battle/Core/BtlDebug.c:
     complete
     .text       start:0x02084a30 end:0x02085104
 
-src/Battle/Core/BtlTouch.c:
-    .text       start:0x02085104 end:0x020862a4
-
-src/Combat/Core/CombatAttackInfo.c:
+src/Battle/Core/BtlAttackInfo.c:
     complete
     .rodata     start:0x020d422c end:0x020d54f8
 
-src/Combat/Core/CombatObsSpawn.c:
+src/Battle/Core/BtlObsSpawn.c:
     .rodata     start:0x020d54f8 end:0x020d6ab0
     .data       start:0x020e3780 end:0x020e38f0
 
-src/Combat/Core/CombatEnmOverlay.c:
+src/Battle/Core/BtlEnmOverlay.c:
     complete
     .rodata     start:0x020d6ab0 end:0x020d6fac
 
-src/Combat/Core/CombatSpriteDefault.c:
+src/Battle/Core/BtlSpriteDefault.c:
     complete
     .data       start:0x020e38f0 end:0x020e391c
 
+src/Battle/Core/BtlTouch.c:
+    .text       start:0x02085104 end:0x020862a4
+    .rodata     start:0x020d6fac end:0x020d6fb4
+    .data       start:0x020e391c end:0x020e3934
+
 src/Battle/Core/BtlObsMgr.c:
     .text       start:0x020862a4 end:0x020868c8
-    .rodata     start:0x020d6fac end:0x020d7614
-    .data       start:0x020e391c end:0x020e3934
+    .rodata     start:0x020d6fb4 end:0x020d7614
     .bss        start:0x020e71b8 end:0x020e71bc
 
 src/Battle/Core/BtlCmdQueue.c:
@@ -63,6 +64,7 @@ src/Battle/Core/BtlCmdQueue.c:
     .text       start:0x020868c8 end:0x02086b88
 
 src/Battle/Core/BtlCmdDeck.c:
+    complete
     .text       start:0x02086b88 end:0x02087250
     .rodata     start:0x020d7614 end:0x020d7620
 

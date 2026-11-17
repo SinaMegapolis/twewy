@@ -30,8 +30,6 @@ static s32 BtlInf_Star_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
 
 const TaskHandle Tsk_BtlInf_Star = {"Tsk_BtlInf_Star", BtlInf_Star_RunTask, sizeof(BtlInf_Star)};
 
-extern const BinIdentifier data_ov003_020d7800;
-
 /// Splits `value` (clamped to 0..99) into two decimal digits, least significant first, and
 /// returns how many digits are needed to show it.
 static s32 func_ov003_0209d51c(s32* digits, s32 value) {
@@ -72,12 +70,12 @@ static void func_ov003_0209d5ac(s16* digits, s32 value) {
 
 /// Refreshes every element of the panel whose charge-command value changed.
 static void func_ov003_0209d5e0(BtlInf_Star* star) {
-    BattleCmdDeck* charge = g_CombatGlobal->cmdDeck;
+    BattleCmdDeck* charge = gBattle->cmdDeck;
 
-    if (star->step != charge->current) {
-        star->step     = charge->current;
+    if (star->step != charge->stars) {
+        star->step     = charge->stars;
         star->stepAnim = (s16)(star->step + 2);
-        if (star->step >= charge->count) {
+        if (star->step >= charge->maxStars) {
             star->isComplete = TRUE;
             star->starAnim   = 1;
         } else {
@@ -89,15 +87,15 @@ static void func_ov003_0209d5e0(BtlInf_Star* star) {
         star->progress = charge->progress;
         func_ov003_0209d5ac(&star->progressLo, star->progress);
     }
-    if (charge->next != star->next) {
-        star->next = charge->next;
+    if (charge->threshold != star->next) {
+        star->next = charge->threshold;
         func_ov003_0209d5ac(&star->nextLo, star->next);
     }
 }
 
 /// Whether the charge command asked for the panel to be hidden.
 static BOOL func_ov003_0209d688(void) {
-    if (g_CombatGlobal->cmdDeck->flags & 1) {
+    if (gBattle->cmdDeck->flags & BTL_CMD_DECK_FLAG_DISABLED) {
         return TRUE;
     }
     return FALSE;
@@ -112,7 +110,7 @@ static s32 BtlInf_Star_Init(TaskPool* pool, Task* task, void* args) {
     star->next       = 0;
     star->isComplete = FALSE;
 
-    BtlSprite_LoadDirect(1, &star->sprite, &data_ov003_020d7800, 0x19, 0x1B, 0x1A, 0x3F, 0);
+    BtlSprite_LoadDirect(1, &star->sprite, &Iden_BtlMenu, 0x19, 0x1B, 0x1A, 0x3F, 0);
     BtlSprite_SetPriority(&star->sprite, 0);
 
     star->starAnim = 0;
@@ -161,7 +159,7 @@ static s32 BtlInf_Star_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
         .render     = BtlInf_Star_Render,
         .cleanup    = BtlInf_Star_Release,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);

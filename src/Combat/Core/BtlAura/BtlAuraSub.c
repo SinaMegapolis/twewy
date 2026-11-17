@@ -17,7 +17,6 @@
 // helpers drive the whole task data; the flames themselves live in the 0x60..0x760 range.
 
 /// The battle sprite sheet every flame is loaded from.
-extern const BinIdentifier data_ov003_020d7800;
 
 static s32 BtlAuraSub_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -57,7 +56,7 @@ static void func_ov003_0209703c(s32 engine, BtlAuraSub* aura) {
             flame->riseSpeed = (RNG_Next(3) + 1) << 12;
             anim             = RNG_Next(2);
         }
-        BtlSprite_LoadDirectNoProto(engine, &flame->sprite, &data_ov003_020d7800, 0x13, 0x15, 0x14, palette, anim);
+        BtlSprite_LoadDirectNoProto(engine, &flame->sprite, &Iden_BtlMenu, 0x13, 0x15, 0x14, palette, anim);
         BtlSprite_SetAnim((BattleSprite*)flame, (u16)anim, 1);
         i++;
         spread += 0x1000;
@@ -99,9 +98,9 @@ static void func_ov003_020971c0(BtlAuraSub* aura) {
     flame = aura->flames;
     do {
         if (flame->sprite.sprite.bits_0_1 == 0) {
-            owner = g_CombatGlobal->player;
+            owner = gBattle->player;
         } else {
-            owner = g_CombatGlobal->partner;
+            owner = gBattle->partner;
         }
         sortKey = 0x80000000 - owner->position.y;
         if (SpriteMgr_IsAnimationFinished(&flame->sprite.sprite) == 0) {
@@ -149,7 +148,7 @@ static s32 BtlAuraSub_Init(TaskPool* pool, Task* task, void* args) {
         aura->y -= 0xC0000;
         palette = 0x3E;
     }
-    BtlSprite_LoadFromTableNoProto(engine, &aura->sprite, &data_ov003_020d7800, data_ov003_020d7ec8, 0, palette, 0x90);
+    BtlSprite_LoadFromTableNoProto(engine, &aura->sprite, &Iden_BtlMenu, data_ov003_020d7ec8, 0, palette, 0x90);
     BtlSprite_SetPosition(&aura->sprite, (s32)(aura->x * 0x10) >> 16, (s32)(aura->y * 0x10) >> 16);
     func_ov003_0209703c(engine, aura);
     BtlSe_PlayPanned(SEIDX_SE_GREEN_LIGHT, (s32)(aura->x * 0x10) >> 16);
@@ -160,7 +159,7 @@ static s32 BtlAuraSub_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlAuraSub_Update(TaskPool* pool, Task* task, void* args) {
     BtlAuraSub* aura = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 0x40) {
+    if (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) {
         return 1;
     }
     if ((s32)aura->timer <= 0) {
@@ -181,9 +180,9 @@ static s32 BtlAuraSub_Render(TaskPool* pool, Task* task, void* args) {
 
     if (aura->sortKey > 0) {
         if (aura->sprite.sprite.bits_0_1 == 0) {
-            owner = g_CombatGlobal->player;
+            owner = gBattle->player;
         } else {
-            owner = g_CombatGlobal->partner;
+            owner = gBattle->partner;
         }
         BtlSprite_SetAffineTransform(&aura->sprite, 0, aura->sortKey, aura->sortKey, 1);
         BtlSprite_SetSortKey(&aura->sprite, 0x80000000 - owner->position.y);
@@ -210,7 +209,7 @@ static s32 BtlAuraSub_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
         .cleanup    = BtlAuraSub_Release,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -222,5 +221,5 @@ void func_ov003_020974f8(s32 x, s32 y) {
 
     args.x = x;
     args.y = y;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAuraSub, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlAuraSub, NULL, 0, NULL, &args);
 }

@@ -75,7 +75,7 @@ void func_ov003_020a7ba8(Ov003TouchActor* actor) {
             }
             break;
     }
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5f0, NULL, 0, NULL, &spawn);
+    EasyTask_CreateTask(&gBattle->commonPool, &data_ov003_020dc5f0, NULL, 0, NULL, &spawn);
 }
 
 /// The ranking badge stages: build, update, position and render, release.
@@ -109,7 +109,7 @@ static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage
         case 1: {
             BtlBadgeRankingEffect* self = task->data;
 
-            if (g_CombatGlobal->unk3D874 == 2) {
+            if (gBattle->state == BATTLE_STATE_FIGHT) {
                 return 0;
             }
             BtlSprite_Update(&self->sprite);
@@ -123,7 +123,7 @@ static s32 func_ov003_020a7c9c(TaskPool* pool, Task* task, void* args, s32 stage
             if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
                 return 1;
             }
-            if ((g_CombatGlobal->unk3D878 & 6) != 0 || g_CombatGlobal->unk3D884 != 0) {
+            if ((gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0 || gBattle->specialFreeze != 0) {
                 return 1;
             }
             x = (s32)((u32)self->source->x << 4) >> 16;

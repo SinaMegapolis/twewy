@@ -26,8 +26,8 @@ static s32 func_ov003_020b2998(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                   = task->data;
-            BattleTouchWork* touch = &g_CombatGlobal->touchWork;
+            self               = task->data;
+            BattleTouch* touch = &gBattle->touchWork;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect  = *arg;
             self->phase   = 0;

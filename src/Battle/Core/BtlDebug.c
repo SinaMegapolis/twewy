@@ -1,11 +1,11 @@
 #include "Battle/Core/BtlDebug.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlObsMgr.h"
 #include "Combat/Core/BtlDbg.h"
 #include "Combat/Core/BtlInf.h"
-#include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "FixedPoint.h"
+#include "Player/Stats.h"
 #include <nitro/mi/cpumem.h>
 
 /// The value BattleDebugSettings::magic holds once the settings have been initialized
@@ -96,6 +96,7 @@ s32 BtlDebug_GetSetting(BattleDebugSetting setting) {
     return gBattleDebugSettings.values[setting];
 }
 
+/// Sets a debug setting's value.
 static void BtlDebug_SetSetting(BattleDebugSetting setting, s32 value) {
     gBattleDebugSettings.values[setting] = value;
 }
@@ -110,13 +111,13 @@ s32 BtlDebug_GetCurrent(void) {
 
 /// Draws the footprint circles of the player, every enemy and every object.
 static void BtlDebug_DrawFootprints(void) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
     s16          radius = player->radius;
 
     BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, player->position.x - I2F(radius), player->position.y - I2F(radius / 2),
                     radius * 2, radius);
 
-    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesMain);
     while (unit != NULL) {
         radius = unit->actor.radius;
         BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, unit->actor.position.x - I2F(radius),
@@ -124,7 +125,7 @@ static void BtlDebug_DrawFootprints(void) {
         unit = BtlList_GetNext(&unit->node);
     }
 
-    Ov003EffectActor* obs = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
+    BattleObsActor* obs = BtlList_GetHead(&gBattle->obsList);
     while (obs != NULL) {
         radius = obs->actor.radius;
         BtlDbg_PostRect(BTLDBG_KIND_FOOTPRINT, 0, obs->actor.position.x - I2F(radius), obs->actor.position.y - I2F(radius / 2),
@@ -135,14 +136,14 @@ static void BtlDebug_DrawFootprints(void) {
 
 /// Draws the hit boxes of the player, every enemy and every object.
 static void BtlDebug_DrawHitboxes(void) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
     s32          radius = player->radius;
     s32          height = player->height;
 
     BtlDbg_PostRect(BTLDBG_KIND_HITBOX, 0, player->position.x - I2F(radius + 24),
                     player->position.z + (player->position.y - I2F(height + 18)), (radius + 24) * 2, height + 48);
 
-    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesMain);
     while (unit != NULL) {
         radius = unit->actor.radius;
         height = unit->actor.height;
@@ -151,7 +152,7 @@ static void BtlDebug_DrawHitboxes(void) {
         unit = BtlList_GetNext(&unit->node);
     }
 
-    Ov003EffectActor* obs = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
+    BattleObsActor* obs = BtlList_GetHead(&gBattle->obsList);
     while (obs != NULL) {
         BattleActor* sub = &obs->actor;
 
@@ -178,11 +179,11 @@ void BtlDebug_DrawCollision(void) {
 
 void BtlDebug_ShowSyncValues(void) {
     if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_DISP_PRM) != FALSE) {
-        Ov003Global* global  = g_CombatGlobal;
+        Battle*      global  = gBattle;
         BattleActor* player  = global->player;
         BattleActor* partner = global->partner;
 
-        func_ov003_020a2f7c(&global->unk_10118, &partner->defense, &player->defense, &partner->attack, &player->attack, 0,
-                            &global->unk3D8D2, 0, 0);
+        func_ov003_020a2f7c(&global->commonPool, &partner->defense, &player->defense, &partner->attack, &player->attack, 0,
+                            &global->teamMaxHp, 0, 0);
     }
 }

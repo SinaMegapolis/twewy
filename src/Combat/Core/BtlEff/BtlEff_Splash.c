@@ -40,20 +40,18 @@ static s32 BtlEff_Splash_RunTask(TaskPool* pool, Task* task, void* args, s32 sta
 
 static const TaskHandle Tsk_BtlEff_Splash = {"Tsk_BtlEff_Splash", BtlEff_Splash_RunTask, sizeof(BtlEffSplash)};
 
-extern const BinIdentifier data_ov003_020d77d8, data_ov003_020d77e0, data_ov003_020d77e8, data_ov003_020d77f0;
-
 /// Loads the sub-screen particle sprite of the active partner.
 static void func_ov003_0209f7c4(BattleSprite* sprite, u16 anim) {
-    switch (g_CombatGlobal->unk3D88D) {
+    switch (gBattle->partnerId) {
         case 1:
-            BtlSprite_LoadDirect(1, sprite, &data_ov003_020d77e8, 40, 42, 41, 44, anim);
+            BtlSprite_LoadDirect(1, sprite, &Iden_BtlPly02, 40, 42, 41, 44, anim);
             break;
         case 2:
-            BtlSprite_LoadDirect(1, sprite, &data_ov003_020d77f0, 44, 46, 45, 47, anim);
+            BtlSprite_LoadDirect(1, sprite, &Iden_BtlPly03, 44, 46, 45, 47, anim);
             break;
         case 0:
         default:
-            BtlSprite_LoadDirect(1, sprite, &data_ov003_020d77e0, 35, 37, 36, 38, anim);
+            BtlSprite_LoadDirect(1, sprite, &Iden_BtlPly01, 35, 37, 36, 38, anim);
             break;
     }
 }
@@ -76,7 +74,7 @@ static void func_ov003_0209f8b0(BtlEffSplash* splash) {
         if (splash->engine == 1) {
             func_ov003_0209f7c4(&particle->sprite, anim);
         } else {
-            BtlSprite_LoadDirect(2, &particle->sprite, &data_ov003_020d77d8, 86, 88, 87, 89, anim);
+            BtlSprite_LoadDirect(2, &particle->sprite, &Iden_BtlPly00, 86, 88, 87, 89, anim);
         }
         BtlSprite_SetAnim(&particle->sprite, anim, 1);
         angle += 0x10000 / splash->count;
@@ -147,7 +145,7 @@ static s32 BtlEff_Splash_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Splash_Update(TaskPool* pool, Task* task, void* args) {
     BtlEffSplash* splash = task->data;
 
-    if (!splash->independent && (g_CombatGlobal->unk3D878 & 6)) {
+    if (!splash->independent && (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT))) {
         return 1;
     }
     if (splash->timer > 0) {
@@ -162,7 +160,7 @@ static s32 BtlEff_Splash_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Splash_Render(TaskPool* pool, Task* task, void* args) {
     BtlEffSplash* splash = task->data;
 
-    if (!splash->independent && (g_CombatGlobal->unk3D878 & 6)) {
+    if (!splash->independent && (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT))) {
         return 1;
     }
     func_ov003_0209fa14(splash);
@@ -195,9 +193,9 @@ void func_ov003_0209fc88(s32 engine, s32 x, s32 y, s32 z, s16 count, s32 indepen
     params.count       = count;
     params.independent = independent;
     if (independent) {
-        EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BtlEff_Splash, NULL, 0, NULL, &params);
-    } else if (g_CombatGlobal->unk3D878 & 0x80) {
-        g_CombatGlobal->unk3D878 &= ~0x80;
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Splash, NULL, 0, NULL, &params);
+        EasyTask_CreateTask(&gBattle->specialPool, &Tsk_BtlEff_Splash, NULL, 0, NULL, &params);
+    } else if (gBattle->flags & BATTLE_FLAG_AURA_SPLASH) {
+        gBattle->flags &= ~BATTLE_FLAG_AURA_SPLASH;
+        EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlEff_Splash, NULL, 0, NULL, &params);
     }
 }

@@ -13,11 +13,9 @@
 
 // The HP bar HUD: the player's and the partner's HP bars, each with a lagging "damage" overlay
 // and a white after-image segment, plus the two status overlays. The bars are driven from the two
-// gauges in `Ov003Global` (0x3D8D0/0x3D8D2 for the player, 0x3D8D4/0x3D8D6 for the partner);
+// gauges in `Battle` (0x3D8D0/0x3D8D2 for the player, 0x3D8D4/0x3D8D6 for the partner);
 // `func_ov003_02098da0` is the interpolation state machine that turns the gauges into the
 // per-sprite pixel widths and flag bits the render stage consumes.
-
-extern const BinIdentifier data_ov003_020d7800;
 
 static s32 BtlBarHP_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -31,35 +29,35 @@ static const TaskHandle* const sBtlBarHpHandle = &Tsk_BtlBarHP;
 /// Plays the damage voice sample for the bar that just dropped below half, once the battle is in
 /// its "fighting" state (0x2). `arg0` selects the partner's sample table (`unk3D88D`).
 static void func_ov003_02098c28(s32 arg0, s32 arg1) {
-    if (g_CombatGlobal->unk3D874 != 2) {
+    if (gBattle->state != BATTLE_STATE_FIGHT) {
         return;
     }
     if (arg0 == 0) {
         if (arg1 >= -0x50) {
             return;
         }
-        BtlSe_PlayAtMainX(0x36F, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x36F, gBattle->player->position.x);
         return;
     }
     if (arg1 <= 0x50) {
         return;
     }
-    switch (g_CombatGlobal->unk3D88D) {
+    switch (gBattle->partnerId) {
         case 0:
-            BtlSe_PlayAtSubX(0x397, g_CombatGlobal->partner->position.x);
+            BtlSe_PlayAtSubX(SEIDX_SHIKI_BTL_PNC01, gBattle->partner->position.x);
             return;
         case 1:
-            BtlSe_PlayAtSubX(0x3BF, g_CombatGlobal->partner->position.x);
+            BtlSe_PlayAtSubX(SEIDX_YOSHUA_BTL_PNC01, gBattle->partner->position.x);
             return;
         case 2:
-            BtlSe_PlayAtSubX(0x3E7, g_CombatGlobal->partner->position.x);
+            BtlSe_PlayAtSubX(SEIDX_BIITO_BTL_PNC01, gBattle->partner->position.x);
             return;
     }
 }
 
 /// Converts a gauge value to a bar width in pixels (a full bar is 0xA2 pixels wide).
 static s32 func_ov003_02098ce4(s16 value) {
-    s32 width = ((value << 12) / g_CombatGlobal->unk3D8D2) * 0xA2;
+    s32 width = ((value << 12) / gBattle->teamMaxHp) * 0xA2;
 
     return (width << 4) >> 16;
 }
@@ -67,8 +65,8 @@ static s32 func_ov003_02098ce4(s16 value) {
 /// Resets a freshly created bar to the gauges' current values.
 static void func_ov003_02098d18(BtlBar* bar) {
     bar->flags   = 0;
-    bar->unk_3DA = g_CombatGlobal->unk3D8D4;
-    bar->unk_3DC = g_CombatGlobal->unk3D8D6;
+    bar->unk_3DA = gBattle->partnerDamage;
+    bar->unk_3DC = gBattle->playerDamage;
     bar->unk_3EC = func_ov003_02098ce4(bar->unk_3DA);
     bar->unk_3EE = func_ov003_02098ce4(bar->unk_3DC);
     bar->unk_3E4 = bar->unk_3EC << 12;
@@ -90,7 +88,7 @@ static void func_ov003_02098da0(BtlBar* bar) {
     s32 other;
 
     bar->flags = 0;
-    if ((g_CombatGlobal->unk3D8D0 > 0) && (g_CombatGlobal->unk3D8D0 <= (g_CombatGlobal->unk3D8D2 >> 2))) {
+    if ((gBattle->teamHp > 0) && (gBattle->teamHp <= (gBattle->teamMaxHp >> 2))) {
         if (bar->unk_3F8 == 0) {
             BtlSprite_SetAnim(&bar->sprites[0], 5, 1);
             BtlSprite_SetAnim(&bar->sprites[5], 5, 1);
@@ -107,22 +105,22 @@ static void func_ov003_02098da0(BtlBar* bar) {
         bar->unk_3F8 = 0;
     }
 
-    if (bar->unk_3DA < g_CombatGlobal->unk3D8D4) {
+    if (bar->unk_3DA < gBattle->partnerDamage) {
         bar->unk_3DE = 0x1E;
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3F0 = 1;
-    } else if (bar->unk_3DA > g_CombatGlobal->unk3D8D4) {
+    } else if (bar->unk_3DA > gBattle->partnerDamage) {
         bar->unk_3DE = 0x1E;
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3F0 = 2;
     } else if (bar->unk_3DE <= 0) {
         bar->unk_3F0 = 0;
     }
-    if (bar->unk_3DC < g_CombatGlobal->unk3D8D6) {
+    if (bar->unk_3DC < gBattle->playerDamage) {
         bar->unk_3E0 = 0x1E;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3F4 = 1;
-    } else if (bar->unk_3DC > g_CombatGlobal->unk3D8D6) {
+    } else if (bar->unk_3DC > gBattle->playerDamage) {
         bar->unk_3E0 = 0x1E;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3F4 = 2;
@@ -130,9 +128,9 @@ static void func_ov003_02098da0(BtlBar* bar) {
         bar->unk_3F4 = 0;
     }
 
-    bar->unk_3DA = g_CombatGlobal->unk3D8D4;
-    bar->unk_3DC = g_CombatGlobal->unk3D8D6;
-    bar->unk_3EC = func_ov003_02098ce4(g_CombatGlobal->unk3D8D4);
+    bar->unk_3DA = gBattle->partnerDamage;
+    bar->unk_3DC = gBattle->playerDamage;
+    bar->unk_3EC = func_ov003_02098ce4(gBattle->partnerDamage);
     fixed        = (bar->unk_3E4 << 4) >> 16;
 
     width        = (bar->unk_3F0 == 2) ? fixed : bar->unk_3EC;
@@ -163,7 +161,7 @@ static void func_ov003_02098da0(BtlBar* bar) {
         bar->unk_3D6 = fixed - 0x50;
     }
 
-    bar->unk_3EE = func_ov003_02098ce4(g_CombatGlobal->unk3D8D6);
+    bar->unk_3EE = func_ov003_02098ce4(gBattle->playerDamage);
     fixed        = (bar->unk_3E8 << 4) >> 16;
 
     target       = (bar->unk_3F4 == 2) ? fixed : bar->unk_3EE;
@@ -203,7 +201,7 @@ static void func_ov003_02098da0(BtlBar* bar) {
         bar->unk_3E0--;
     }
 
-    if (g_CombatGlobal->unk3D8D0 <= 0) {
+    if (gBattle->teamHp <= 0) {
         bar->flags &= ~0x400;
         bar->flags &= ~0x800;
     }
@@ -215,16 +213,16 @@ static s32 BtlBarHP_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(bar, 0, sizeof(BtlBar));
 
-    BtlSprite_LoadDirect(1, &bar->sprites[5], &data_ov003_020d7800, 46, 48, 47, 0x3F, 0);
-    BtlSprite_LoadDirect(1, &bar->sprites[6], &data_ov003_020d7800, 46, 48, 47, 0x3F, 1);
-    BtlSprite_LoadDirect(1, &bar->sprites[9], &data_ov003_020d7800, 46, 48, 47, 0x3F, 2);
-    BtlSprite_LoadDirect(1, &bar->sprites[8], &data_ov003_020d7800, 46, 48, 47, 0x3F, 3);
-    BtlSprite_LoadDirect(1, &bar->sprites[7], &data_ov003_020d7800, 46, 48, 47, 0x3F, 4);
-    BtlSprite_LoadDirect(0, &bar->sprites[0], &data_ov003_020d7800, 43, 45, 44, 0x3D, 0);
-    BtlSprite_LoadDirect(0, &bar->sprites[1], &data_ov003_020d7800, 43, 45, 44, 0x3D, 1);
-    BtlSprite_LoadDirect(0, &bar->sprites[4], &data_ov003_020d7800, 43, 45, 44, 0x3D, 2);
-    BtlSprite_LoadDirect(0, &bar->sprites[3], &data_ov003_020d7800, 43, 45, 44, 0x3D, 3);
-    BtlSprite_LoadDirect(0, &bar->sprites[2], &data_ov003_020d7800, 43, 45, 44, 0x3D, 4);
+    BtlSprite_LoadDirect(1, &bar->sprites[5], &Iden_BtlMenu, 46, 48, 47, 0x3F, 0);
+    BtlSprite_LoadDirect(1, &bar->sprites[6], &Iden_BtlMenu, 46, 48, 47, 0x3F, 1);
+    BtlSprite_LoadDirect(1, &bar->sprites[9], &Iden_BtlMenu, 46, 48, 47, 0x3F, 2);
+    BtlSprite_LoadDirect(1, &bar->sprites[8], &Iden_BtlMenu, 46, 48, 47, 0x3F, 3);
+    BtlSprite_LoadDirect(1, &bar->sprites[7], &Iden_BtlMenu, 46, 48, 47, 0x3F, 4);
+    BtlSprite_LoadDirect(0, &bar->sprites[0], &Iden_BtlMenu, 43, 45, 44, 0x3D, 0);
+    BtlSprite_LoadDirect(0, &bar->sprites[1], &Iden_BtlMenu, 43, 45, 44, 0x3D, 1);
+    BtlSprite_LoadDirect(0, &bar->sprites[4], &Iden_BtlMenu, 43, 45, 44, 0x3D, 2);
+    BtlSprite_LoadDirect(0, &bar->sprites[3], &Iden_BtlMenu, 43, 45, 44, 0x3D, 3);
+    BtlSprite_LoadDirect(0, &bar->sprites[2], &Iden_BtlMenu, 43, 45, 44, 0x3D, 4);
 
     BtlSprite_SetSortKey(&bar->sprites[5], 9);
     BtlSprite_SetSortKey(&bar->sprites[6], 7);
@@ -374,7 +372,7 @@ static s32 BtlBarHP_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
         .cleanup    = BtlBarHP_Release,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);

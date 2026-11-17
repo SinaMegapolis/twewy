@@ -23,7 +23,7 @@ s32 Boss01s_LandRG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(rg, 0, sizeof(Boss01s_LandRG));
     BtlSprite_LoadFromTable(1, &rg->sprite, &data_ov016_02128f98, &data_ov016_02129054, 0, 4, 0x3E);
-    rg->unk_60 = g_CombatGlobal->stages[1].width / 2;
+    rg->unk_60 = gBattle->stages[1].width / 2;
     rg->unk_64 = 0;
     rg->unk_68 = -0x4B000;
     return 1;
@@ -74,5 +74,5 @@ s32 Boss01s_LandRG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 void Boss01s_LandRG_CreateTask(void) {
-    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_Boss01s_LandRG, 0, 0, 0, NULL);
+    EasyTask_CreateTask(&gBattle->mainPool, &Tsk_Boss01s_LandRG, 0, 0, 0, NULL);
 }

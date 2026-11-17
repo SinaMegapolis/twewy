@@ -2,6 +2,7 @@
 #define TWEWY_BATTLE_CORE_BTLTOUCH_H
 
 #include "Battle/Core/BtlActor.h"
+#include "Engine/File/BinMgr.h"
 
 /// What the stylus did this frame, as recognized by BtlTouch_Update
 typedef enum BattleTouchGesture {
@@ -35,7 +36,7 @@ typedef enum BattleTouchTargetKind {
 
 /// The battle's touch recognizer state, shared by psych effects and actor selection. Positions are
 /// bottom screen pixels.
-typedef struct BattleTouchWork {
+typedef struct BattleTouch {
     /* 0x00 */ BOOL         active;   // the recognizer has run since BtlTouch_Clear
     /* 0x04 */ u16          flags;    // BattleTouchFlags
     /* 0x06 */ u16          gesture;  // BattleTouchGesture of this frame
@@ -74,7 +75,10 @@ typedef struct BattleTouchWork {
     /* 0x56 */ s16          anchorX;
     /* 0x58 */ s16          anchorY;
     /* 0x5A */ u8           reserved5A[2];
-} BattleTouchWork; // Size: 0x5C
+} BattleTouch; // Size: 0x5C
+
+/// The touch cursor graphics.
+extern const BinIdentifier Iden_BtlTch;
 
 /**
  * @brief Forgets the current gesture and touched actors

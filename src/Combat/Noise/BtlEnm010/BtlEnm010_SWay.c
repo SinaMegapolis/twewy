@@ -43,9 +43,9 @@ s32 func_ov011_02127f6c(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, s3
     TaskPool*         pool;
 
     if (func_ov003_020c37f8(&owner->sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     if (arg4 == 1) {
         arg6 = 0;
@@ -125,9 +125,9 @@ static s32 func_ov011_02128150(BtlEnm010SWay* p) {
         p->unk_08 = p->unk_08 + 1;
     }
     if (p->unk_04 == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     for (i = 0; i < 5; i++) {
         EasyTask_ValidateTaskId(pool, (u32*)&p->unk_0C[i]);
@@ -143,9 +143,9 @@ static s32 func_ov011_02128250(BtlEnm010SWay* p) {
     s32       i;
 
     if (p->unk_04 == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     for (i = 0; i < 5; i++) {
         Task* t = EasyTask_GetTaskById(pool, p->unk_0C[i]);

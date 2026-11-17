@@ -213,8 +213,8 @@ static void func_ov011_0212a134(BtlEnm010UG* data) {
             break;
         case 2:
             v = data->base.actor.isFlipped;
-            if ((v == 0 && data->base.actor.position.x < g_CombatGlobal->player->position.x) ||
-                (v == 1 && data->base.actor.position.x > g_CombatGlobal->player->position.x))
+            if ((v == 0 && data->base.actor.position.x < gBattle->player->position.x) ||
+                (v == 1 && data->base.actor.position.x > gBattle->player->position.x))
             {
                 if (data->unk_1FC == 3) {
                     func_ov011_02129ed0(data, func_ov011_0212aa20);
@@ -358,7 +358,7 @@ static void func_ov011_0212a674(BtlEnm010UG* data) {
         case 0:
             v             = data->base.actor.position.x;
             data->unk_1DC = v;
-            data->unk_1E0 = g_CombatGlobal->player->position.y;
+            data->unk_1E0 = gBattle->player->position.y;
             v             = 0;
             data->unk_1E4 = v;
             if (func_ov011_0212b5d8(data, data->unk_1C0) == 0 || data->unk_1C0 >= 0x3C) {
@@ -401,7 +401,7 @@ static void func_ov011_0212a78c(BtlEnm010UG* data) {
         case 0:
             v             = data->base.actor.position.x;
             data->unk_1DC = v;
-            data->unk_1E0 = g_CombatGlobal->player->position.y;
+            data->unk_1E0 = gBattle->player->position.y;
             v             = 0;
             data->unk_1E4 = v;
             if (func_ov011_0212b5d8(data, data->unk_1C0) == 0 || data->unk_1C0 >= 0x3C) {
@@ -480,7 +480,7 @@ static void func_ov011_0212aa20(BtlEnm010UG* data) {
     bias = (data->base.actor.isFlipped == 0) ? 0 - 0x60000 : 0x60000;
     if (data->unk_1C4 == 0 && data->unk_1C0 == 0) {
         data->unk_1C4 = (func_ov003_020cba2c(data->base.actor.position.x, data->base.actor.position.y,
-                                             g_CombatGlobal->player->position.x, g_CombatGlobal->player->position.y) < 0x80000)
+                                             gBattle->player->position.x, gBattle->player->position.y) < 0x80000)
                             ? 1
                             : 0;
         data->unk_1C0 = 0;
@@ -488,9 +488,9 @@ static void func_ov011_0212aa20(BtlEnm010UG* data) {
     switch (data->unk_1C4) {
         case 0:
             if (data->unk_1C0 == 0) {
-                data->unk_1DC = (data->base.actor.position.x < g_CombatGlobal->player->position.x)
-                                    ? g_CombatGlobal->player->position.x - 0x60000
-                                    : g_CombatGlobal->player->position.x + 0x60000;
+                data->unk_1DC = (data->base.actor.position.x < gBattle->player->position.x)
+                                    ? gBattle->player->position.x - 0x60000
+                                    : gBattle->player->position.x + 0x60000;
                 data->unk_1E0 = data->base.actor.position.y;
                 data->unk_1E4 = 0;
             }
@@ -530,7 +530,7 @@ static void func_ov011_0212ac0c(BtlEnm010UG* data) {
         case 0:
             v             = data->base.actor.position.x;
             data->unk_1DC = v;
-            data->unk_1E0 = g_CombatGlobal->player->position.y;
+            data->unk_1E0 = gBattle->player->position.y;
             v             = 0;
             data->unk_1E4 = v;
             if (func_ov011_0212b5d8(data, data->unk_1C0) == 0 || data->unk_1C0 >= 0x3C) {
@@ -763,8 +763,8 @@ static void func_ov011_0212b3ec(BtlEnm010UG* data) {
     }
     if (RNG_Next(0x64) < data_ov011_0212c35c[data->base.spriteIndex]) {
         v = data->base.actor.isFlipped;
-        if ((v == 0 && g_CombatGlobal->player->position.x < data->base.actor.position.x) ||
-            (v == 1 && g_CombatGlobal->player->position.x > data->base.actor.position.x))
+        if ((v == 0 && gBattle->player->position.x < data->base.actor.position.x) ||
+            (v == 1 && gBattle->player->position.x > data->base.actor.position.x))
         {
             func_ov011_02129ed0(data, func_ov011_0212aa20);
             return;
@@ -993,12 +993,12 @@ static s32 func_ov011_0212bac8(TaskPool* pool, Task* task, void* args) {
             func_ov011_02129ed0(data, func_ov011_0212b558);
             break;
     }
-    if (g_CombatGlobal->unk3D874 == 2) {
+    if (gBattle->state == BATTLE_STATE_FIGHT) {
         if (func_ov003_020c3bf0(data) == 0) {
             func_ov011_0212bd90(data, 0);
         }
     }
-    EasyTask_ValidateTaskId(&g_CombatGlobal->unk_00000, (u32*)&data->unk_208);
+    EasyTask_ValidateTaskId(&gBattle->mainPool, (u32*)&data->unk_208);
     if (data->unk_20C != -1) {
         data->unk_210 = data->unk_210 + 1;
     }

@@ -8,8 +8,6 @@
 #include "SpriteMgr.h"
 #include <nitro/mi/cpumem.h>
 
-extern const BinIdentifier data_ov003_020d77f8;
-
 /// Task data of the warp effect (`Tsk_BtlEff_Warp`): a pair of sprites, one left behind at the
 /// previous position of the display actor and one at its new position.
 typedef struct BtlEff_Warp {
@@ -33,7 +31,7 @@ static const SpriteAnimEntry data_ov003_020d86e0[2];
 /// Loads one half of the warp effect: animation `animIndex` of the warp sprite, flipped to match
 /// the display actor it belongs to, and marks that half as playing.
 static s32 func_ov003_0209f4a0(s32 mode, CombatEffect* sprite, u16 animIndex, s32 flip) {
-    BtlSprite_LoadFromTable(mode, &sprite->sprite, &data_ov003_020d77f8, data_ov003_020d86e0, animIndex, 1, 0x30);
+    BtlSprite_LoadFromTable(mode, &sprite->sprite, &Iden_BtlEffect, data_ov003_020d86e0, animIndex, 1, 0x30);
     BtlSprite_SetAnimFromTable(&sprite->sprite, animIndex, 1);
     BtlSprite_SetFlip(&sprite->sprite, flip);
     sprite->active = 1;
@@ -87,9 +85,9 @@ static s32 BtlEff_Warp_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(eff, 0, sizeof(BtlEff_Warp));
     if (p->mode == 1) {
-        actor = g_CombatGlobal->partner;
+        actor = gBattle->partner;
     } else {
-        actor = g_CombatGlobal->player;
+        actor = gBattle->player;
     }
     flip = actor->isFlipped != 0;
     // Volatile mode preserves the retail reload before each load call.
@@ -135,7 +133,7 @@ static s32 BtlEff_Warp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
         .cleanup    = BtlEff_Warp_Release,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -154,5 +152,5 @@ void func_ov003_0209f770(s32 mode, s32 x, s32 y, s32 z) {
     args.x    = x;
     args.y    = y;
     args.z    = z;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Warp, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlEff_Warp, NULL, 0, NULL, &args);
 }

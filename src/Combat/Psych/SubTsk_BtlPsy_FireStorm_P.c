@@ -47,14 +47,14 @@ static s32 func_ov003_020a9884(TaskPool* pool, Task* task, void* args, s32 stage
                 return 1;
             }
             storm->cooldown = storm->effect->params[1];
-            x               = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-            y               = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+            x               = BtlStage_ToWorldX(0, gBattle->touchWork.x);
+            y               = BtlStage_ToWorldY(0, gBattle->touchWork.y, 0);
             radius          = storm->effect->params[0];
             parentId        = ((u32)task->generation << 16) | task->id;
             offsetY         = -radius + RNG_Next(radius * 2 + 1);
             func_ov003_020a94d8(storm->effect, x + ((-radius + RNG_Next(radius * 2 + 1)) << 12), y + (offsetY << 12), 0x6B,
                                 0x157, 0x1000, 0, 0, parentId);
-            func_ov003_020a6494(g_CombatGlobal->touchWork.x);
+            func_ov003_020a6494(gBattle->touchWork.x);
             func_ov003_020a5a94(storm->effect);
             return 1;
         }

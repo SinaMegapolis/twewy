@@ -20,9 +20,9 @@ s32 func_ov003_020cfedc(Ov003EnemyShotSource* source, u16 angleStep, s16 lifetim
     source->core.flags |= 0x40;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c74, NULL, 0, NULL, &args);
 }
 

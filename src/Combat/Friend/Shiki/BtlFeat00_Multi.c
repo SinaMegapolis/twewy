@@ -8,9 +8,7 @@
 #include "SndMgr.h"
 #include "main_02026528.h"
 
-extern s32           data_ov003_020e71e0;
-extern BinIdentifier data_ov003_020d77d8;
-extern BinIdentifier data_ov003_020d77e0;
+extern s32 data_ov003_020e71e0;
 
 typedef struct BtlFeat00_Multi {
     /* 0x00 */ BattleSprite sprite;
@@ -145,11 +143,11 @@ s32 BtlFeat00_Multi_Init(TaskPool* pool, Task* task, void* args) {
     multi->unk_64 = 0x1000;
     multi->unk_68 = 0x2000;
     if (multiArgs->unk_4 < 3) {
-        BtlSprite_LoadFromTable(multiArgs->unk_0, &multi->sprite, &data_ov003_020d77d8, data_ov004_020f0400, multiArgs->unk_4,
-                                58, 80);
+        BtlSprite_LoadFromTable(multiArgs->unk_0, &multi->sprite, &Iden_BtlPly00, data_ov004_020f0400, multiArgs->unk_4, 58,
+                                80);
     } else {
-        BtlSprite_LoadFromTable(multiArgs->unk_0, &multi->sprite, &data_ov003_020d77e0, data_ov004_020f0400, multiArgs->unk_4,
-                                63, 20);
+        BtlSprite_LoadFromTable(multiArgs->unk_0, &multi->sprite, &Iden_BtlPly01, data_ov004_020f0400, multiArgs->unk_4, 63,
+                                20);
     }
     BtlSprite_SetAnimFromTable(&multi->sprite, multiArgs->unk_4, 1);
     BtlSprite_SetFlip(&multi->sprite, multiArgs->unk_C);
@@ -206,5 +204,5 @@ void BtlFeat00_Multi_CreateTask(s32 arg0, u16 arg1, s16 arg2, s16 arg3, s32 arg4
     args.unk_6 = arg2;
     args.unk_8 = arg3;
     args.unk_C = arg4;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BtlFeat00_Multi, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->specialPool, &Tsk_BtlFeat00_Multi, NULL, 0, NULL, &args);
 }

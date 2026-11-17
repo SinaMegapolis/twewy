@@ -1,422 +1,422 @@
-#include "Combat/Core/CombatObsSpawn.h"
+#include "Battle/Core/BtlObsSpawn.h"
 
-static const CombatObsSpawnCmd CombatObsSpawn_List11_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List11_3[2] = {
     {   9, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List20_1[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List20_1[2] = {
     {   2, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List03_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List03_3[2] = {
     {  12, 4},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List06_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List06_2[2] = {
     {   5, 3},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List09_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List09_2[2] = {
     {  10, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List22_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List22_2[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List01_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List01_2[2] = {
     {   3, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List13_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List13_0[2] = {
     {   5, 3},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List14_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List14_0[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List14_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List14_3[2] = {
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List08_1[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List08_1[2] = {
     {   5, 3},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List09_1[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List09_1[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List10_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List10_0[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List17_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List17_0[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List12_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List12_0[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List12_1[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List12_1[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List02_1[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List02_1[2] = {
     {   4, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List03_1[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List03_1[2] = {
     {   9, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List13_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List13_3[2] = {
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List04_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List04_2[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List14_1[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List14_1[2] = {
     {   5, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List06_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List06_0[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List07_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List07_0[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List08_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List08_0[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List16_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List16_0[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List09_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List09_0[2] = {
     {   2, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List21_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List21_2[2] = {
     {   4, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List09_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List09_3[2] = {
     {   5, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List08_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List08_2[2] = {
     {   9, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List22_1[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List22_1[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List11_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List11_2[2] = {
     {   6, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List22_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List22_0[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List19_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List19_0[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List01_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List01_0[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List01_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List01_3[2] = {
     {  10, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List02_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List02_0[2] = {
     {   2, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List22_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List22_3[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List03_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List03_0[2] = {
     {   5, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List20_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List20_3[2] = {
     {   9, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List18_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List18_2[2] = {
     {   3, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List12_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List12_3[2] = {
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List18_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List18_0[2] = {
     {   0, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List17_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List17_3[2] = {
     {  12, 4},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List21_0[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List21_0[2] = {
     {   1, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List14_2[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List14_2[2] = {
     {   9, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List05_3[2] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List05_3[2] = {
     {   5, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List15_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List15_2[3] = {
     {   3, 1},
     {   7, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List15_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List15_3[3] = {
     {   5, 2},
     {  13, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List19_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List19_2[3] = {
     {   3, 2},
     {  11, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List08_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List08_3[3] = {
     {  11, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List16_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List16_1[3] = {
     {   1, 1},
     {   9, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List19_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List19_3[3] = {
     {   9, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List16_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List16_2[3] = {
     {   2, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List10_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List10_1[3] = {
     {   5, 1},
     {   9, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List16_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List16_3[3] = {
     {   3, 1},
     {   9, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List20_0[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List20_0[3] = {
     {   2, 1},
     {   8, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List10_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List10_2[3] = {
     {   6, 1},
     {  13, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List10_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List10_3[3] = {
     {   9, 1},
     {  11, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List11_0[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List11_0[3] = {
     {   5, 2},
     {   6, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List11_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List11_1[3] = {
     {   9, 2},
     {  11, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List07_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List07_3[3] = {
     {   5, 1},
     {   6, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List07_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List07_2[3] = {
     {   3, 1},
     {  12, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List17_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List17_1[3] = {
     {   3, 1},
     {   9, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List21_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List21_3[3] = {
     {   9, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List17_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List17_2[3] = {
     {   5, 2},
     {  12, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List00_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List00_1[3] = {
     {   1, 1},
     {   5, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List20_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List20_2[3] = {
     {   3, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List00_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List00_2[3] = {
     {   2, 1},
     {   9, 3},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List00_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List00_3[3] = {
     {   9, 2},
     {  12, 3},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List01_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List01_1[3] = {
     {   2, 1},
     {   6, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List12_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List12_2[3] = {
     {   5, 1},
     {   9, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List02_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List02_2[3] = {
     {   5, 2},
     {   7, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List02_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List02_3[3] = {
     {   6, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List13_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List13_1[3] = {
     {   9, 2},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List18_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List18_1[3] = {
     {   1, 1},
     {   8, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List03_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List03_2[3] = {
     {  10, 1},
     {  11, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List13_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List13_2[3] = {
     {  11, 2},
     {  12, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List04_0[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List04_0[3] = {
     {   0, 1},
     {   4, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List04_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List04_1[3] = {
     {   1, 1},
     {  10, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List04_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List04_3[3] = {
     {   9, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List05_0[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List05_0[3] = {
     {   2, 1},
     {   8, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List05_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List05_1[3] = {
     {   3, 1},
     {   5, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List18_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List18_3[3] = {
     {   6, 1},
     {   7, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List05_2[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List05_2[3] = {
     {   9, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List06_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List06_1[3] = {
     {   4, 1},
     {  13, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List06_3[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List06_3[3] = {
     {   6, 1},
     {   7, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List15_0[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List15_0[3] = {
     {   0, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List07_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List07_1[3] = {
     {   9, 1},
     {   8, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List15_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List15_1[3] = {
     {   1, 1},
     {  11, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List19_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List19_1[3] = {
     {   2, 1},
     {  12, 2},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List21_1[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List21_1[3] = {
     {   3, 2},
     {   6, 1},
     {0xFF, 0}
 };
-static const CombatObsSpawnCmd CombatObsSpawn_List00_0[3] = {
+static const BattleObsSpawnCmd BtlObsSpawn_List00_0[3] = {
     {   0, 1},
     {   3, 1},
     {0xFF, 0}
 };
 
 /// Weights (in percent) of the four spawn lists an encounter may roll; the remainder spawns nothing.
-const u8 CombatObsSpawn_EncounterWeights[1275][4] = {
+const u8 BtlObsSpawn_EncounterWeights[1275][4] = {
     {  0,   0,  25,  25},
     {  0,   0,  25,  25},
     {  0,   0,   0,   0},
@@ -1694,29 +1694,29 @@ const u8 CombatObsSpawn_EncounterWeights[1275][4] = {
     { 10,  15,  20,  55},
 };
 
-/// Spawn lists per field group (`Ov003CameraPath.unk_04[0x13]`), one per weighted roll.
-const CombatObsSpawnCmd* CombatObsSpawn_FieldLists[23][4] = {
-    {CombatObsSpawn_List00_0, CombatObsSpawn_List00_1, CombatObsSpawn_List00_2, CombatObsSpawn_List00_3},
-    {CombatObsSpawn_List01_0, CombatObsSpawn_List01_1, CombatObsSpawn_List01_2, CombatObsSpawn_List01_3},
-    {CombatObsSpawn_List02_0, CombatObsSpawn_List02_1, CombatObsSpawn_List02_2, CombatObsSpawn_List02_3},
-    {CombatObsSpawn_List03_0, CombatObsSpawn_List03_1, CombatObsSpawn_List03_2, CombatObsSpawn_List03_3},
-    {CombatObsSpawn_List04_0, CombatObsSpawn_List04_1, CombatObsSpawn_List04_2, CombatObsSpawn_List04_3},
-    {CombatObsSpawn_List05_0, CombatObsSpawn_List05_1, CombatObsSpawn_List05_2, CombatObsSpawn_List05_3},
-    {CombatObsSpawn_List06_0, CombatObsSpawn_List06_1, CombatObsSpawn_List06_2, CombatObsSpawn_List06_3},
-    {CombatObsSpawn_List07_0, CombatObsSpawn_List07_1, CombatObsSpawn_List07_2, CombatObsSpawn_List07_3},
-    {CombatObsSpawn_List08_0, CombatObsSpawn_List08_1, CombatObsSpawn_List08_2, CombatObsSpawn_List08_3},
-    {CombatObsSpawn_List09_0, CombatObsSpawn_List09_1, CombatObsSpawn_List09_2, CombatObsSpawn_List09_3},
-    {CombatObsSpawn_List10_0, CombatObsSpawn_List10_1, CombatObsSpawn_List10_2, CombatObsSpawn_List10_3},
-    {CombatObsSpawn_List11_0, CombatObsSpawn_List11_1, CombatObsSpawn_List11_2, CombatObsSpawn_List11_3},
-    {CombatObsSpawn_List12_0, CombatObsSpawn_List12_1, CombatObsSpawn_List12_2, CombatObsSpawn_List12_3},
-    {CombatObsSpawn_List13_0, CombatObsSpawn_List13_1, CombatObsSpawn_List13_2, CombatObsSpawn_List13_3},
-    {CombatObsSpawn_List14_0, CombatObsSpawn_List14_1, CombatObsSpawn_List14_2, CombatObsSpawn_List14_3},
-    {CombatObsSpawn_List15_0, CombatObsSpawn_List15_1, CombatObsSpawn_List15_2, CombatObsSpawn_List15_3},
-    {CombatObsSpawn_List16_0, CombatObsSpawn_List16_1, CombatObsSpawn_List16_2, CombatObsSpawn_List16_3},
-    {CombatObsSpawn_List17_0, CombatObsSpawn_List17_1, CombatObsSpawn_List17_2, CombatObsSpawn_List17_3},
-    {CombatObsSpawn_List18_0, CombatObsSpawn_List18_1, CombatObsSpawn_List18_2, CombatObsSpawn_List18_3},
-    {CombatObsSpawn_List19_0, CombatObsSpawn_List19_1, CombatObsSpawn_List19_2, CombatObsSpawn_List19_3},
-    {CombatObsSpawn_List20_0, CombatObsSpawn_List20_1, CombatObsSpawn_List20_2, CombatObsSpawn_List20_3},
-    {CombatObsSpawn_List21_0, CombatObsSpawn_List21_1, CombatObsSpawn_List21_2, CombatObsSpawn_List21_3},
-    {CombatObsSpawn_List22_0, CombatObsSpawn_List22_1, CombatObsSpawn_List22_2, CombatObsSpawn_List22_3},
+/// The spawn lists of each field's object group (`BtlFieldDef.obsGroup`), one per weighted roll.
+const BattleObsSpawnCmd* BtlObsSpawn_FieldLists[23][4] = {
+    {BtlObsSpawn_List00_0, BtlObsSpawn_List00_1, BtlObsSpawn_List00_2, BtlObsSpawn_List00_3},
+    {BtlObsSpawn_List01_0, BtlObsSpawn_List01_1, BtlObsSpawn_List01_2, BtlObsSpawn_List01_3},
+    {BtlObsSpawn_List02_0, BtlObsSpawn_List02_1, BtlObsSpawn_List02_2, BtlObsSpawn_List02_3},
+    {BtlObsSpawn_List03_0, BtlObsSpawn_List03_1, BtlObsSpawn_List03_2, BtlObsSpawn_List03_3},
+    {BtlObsSpawn_List04_0, BtlObsSpawn_List04_1, BtlObsSpawn_List04_2, BtlObsSpawn_List04_3},
+    {BtlObsSpawn_List05_0, BtlObsSpawn_List05_1, BtlObsSpawn_List05_2, BtlObsSpawn_List05_3},
+    {BtlObsSpawn_List06_0, BtlObsSpawn_List06_1, BtlObsSpawn_List06_2, BtlObsSpawn_List06_3},
+    {BtlObsSpawn_List07_0, BtlObsSpawn_List07_1, BtlObsSpawn_List07_2, BtlObsSpawn_List07_3},
+    {BtlObsSpawn_List08_0, BtlObsSpawn_List08_1, BtlObsSpawn_List08_2, BtlObsSpawn_List08_3},
+    {BtlObsSpawn_List09_0, BtlObsSpawn_List09_1, BtlObsSpawn_List09_2, BtlObsSpawn_List09_3},
+    {BtlObsSpawn_List10_0, BtlObsSpawn_List10_1, BtlObsSpawn_List10_2, BtlObsSpawn_List10_3},
+    {BtlObsSpawn_List11_0, BtlObsSpawn_List11_1, BtlObsSpawn_List11_2, BtlObsSpawn_List11_3},
+    {BtlObsSpawn_List12_0, BtlObsSpawn_List12_1, BtlObsSpawn_List12_2, BtlObsSpawn_List12_3},
+    {BtlObsSpawn_List13_0, BtlObsSpawn_List13_1, BtlObsSpawn_List13_2, BtlObsSpawn_List13_3},
+    {BtlObsSpawn_List14_0, BtlObsSpawn_List14_1, BtlObsSpawn_List14_2, BtlObsSpawn_List14_3},
+    {BtlObsSpawn_List15_0, BtlObsSpawn_List15_1, BtlObsSpawn_List15_2, BtlObsSpawn_List15_3},
+    {BtlObsSpawn_List16_0, BtlObsSpawn_List16_1, BtlObsSpawn_List16_2, BtlObsSpawn_List16_3},
+    {BtlObsSpawn_List17_0, BtlObsSpawn_List17_1, BtlObsSpawn_List17_2, BtlObsSpawn_List17_3},
+    {BtlObsSpawn_List18_0, BtlObsSpawn_List18_1, BtlObsSpawn_List18_2, BtlObsSpawn_List18_3},
+    {BtlObsSpawn_List19_0, BtlObsSpawn_List19_1, BtlObsSpawn_List19_2, BtlObsSpawn_List19_3},
+    {BtlObsSpawn_List20_0, BtlObsSpawn_List20_1, BtlObsSpawn_List20_2, BtlObsSpawn_List20_3},
+    {BtlObsSpawn_List21_0, BtlObsSpawn_List21_1, BtlObsSpawn_List21_2, BtlObsSpawn_List21_3},
+    {BtlObsSpawn_List22_0, BtlObsSpawn_List22_1, BtlObsSpawn_List22_2, BtlObsSpawn_List22_3},
 };

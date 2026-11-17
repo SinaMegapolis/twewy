@@ -23,8 +23,8 @@ static s32 func_ov003_020b7c4c(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                   = task->data;
-            BattleTouchWork* touch = &g_CombatGlobal->touchWork;
+            self               = task->data;
+            BattleTouch* touch = &gBattle->touchWork;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
             self->timer  = 5;
@@ -55,7 +55,7 @@ static s32 func_ov003_020b7c4c(TaskPool* pool, Task* task, void* args, s32 stage
                     if (--self->timer == 0)
                         return 0;
                     if (BtlTouch_GetSlashed(ACTOR_KIND_PLAYER)) {
-                        BattleTouchWork* touch = &g_CombatGlobal->touchWork;
+                        BattleTouch* touch = &gBattle->touchWork;
                         func_ov003_020a6494(touch->endX);
                         self->angle = func_ov003_020a62d0(touch->startX, touch->startY, touch->endX, touch->endY);
                         self->angle = func_ov003_020b6b50(self->angle, data_ov003_020dce10[self->effect->index].angleLimit);
@@ -91,7 +91,7 @@ static s32 func_ov003_020b7e68(Ov003BoomerangShotS* self) {
     s32          i;
     s32          count;
     left    = 0;
-    player  = g_CombatGlobal->player;
+    player  = gBattle->player;
     count   = self->effect->params[0];
     targetX = BtlStage_ToWorldX(0, self->x);
     originY = player->position.y;

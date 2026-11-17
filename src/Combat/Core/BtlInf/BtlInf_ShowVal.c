@@ -39,7 +39,6 @@ static s32 BtlInf_ShowVal_RunTask(TaskPool* pool, Task* task, void* args, s32 st
 
 static const TaskHandle Tsk_BtlInf_ShowVal = {"Tsk_BtlInf_ShowVal", BtlInf_ShowVal_RunTask, sizeof(BtlInf_ShowVal)};
 
-extern const BinIdentifier data_ov003_020d7800;
 extern const BinIdentifier Iden_ItemData;
 
 static void func_ov003_020a2a88(BtlInf_ShowVal* showVal, void (*update)(BtlInf_ShowVal*)) {
@@ -90,17 +89,17 @@ static s32 BtlInf_ShowVal_Init(TaskPool* pool, Task* task, void* args) {
     BtlInf_ShowVal* showVal = task->data;
 
     MI_CpuSet(showVal, 0, sizeof(BtlInf_ShowVal));
-    showVal->args            = *(BtlInf_ShowValArgs*)args;
-    g_CombatGlobal->unk3D8F8 = 0;
-    showVal->isVisible       = TRUE;
-    showVal->phase           = 0;
-    showVal->timer           = 0;
-    showVal->state           = 0;
+    showVal->args       = *(BtlInf_ShowValArgs*)args;
+    gBattle->comboCount = 0;
+    showVal->isVisible  = TRUE;
+    showVal->phase      = 0;
+    showVal->timer      = 0;
+    showVal->state      = 0;
     func_ov003_020a2a88(showVal, func_ov003_020a2b54);
-    BtlSprite_LoadDirect(1, &showVal->mainSprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x14);
+    BtlSprite_LoadDirect(1, &showVal->mainSprite, &Iden_BtlMenu, 0x25, 0x27, 0x26, 0x3D, 0x14);
     BtlSprite_SetPriority(&showVal->mainSprite, 0);
     BtlSprite_SetSortKey(&showVal->mainSprite, 0);
-    BtlSprite_LoadDirect(0, &showVal->subSprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x14);
+    BtlSprite_LoadDirect(0, &showVal->subSprite, &Iden_BtlMenu, 0x25, 0x27, 0x26, 0x3D, 0x14);
     BtlSprite_SetPriority(&showVal->subSprite, 0);
     BtlSprite_SetSortKey(&showVal->subSprite, 0);
     return 1;
@@ -207,7 +206,7 @@ s32 func_ov003_020a2f7c(TaskPool* pool, ...) {
 }
 
 void func_ov003_020a300c(void) {
-    Ov003TouchEvent* events = g_CombatGlobal->touchEvents;
+    Ov003TouchEvent* events = gBattle->touchEvents;
     s32              i;
 
     for (i = 0; i < 14; i++) {

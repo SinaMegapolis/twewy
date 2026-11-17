@@ -31,8 +31,7 @@ typedef struct BossExp1Piece {
     /* 0x7E */ u16              reserved7E;
 } BossExp1Piece; // Size: 0x80
 
-extern const BinIdentifier data_ov003_020d7800;
-extern const TaskHandle    Tsk_BossExp1;
+extern const TaskHandle Tsk_BossExp1;
 
 static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -100,13 +99,15 @@ s32 func_ov003_020c9338(Ov003EnemyActor* actor) {
 
     switch (data_ov003_020e7254.phase) {
         case 0:
-            if (data_ov003_020e7254.timer > 0 && data_ov003_020e7254.task == -1 && !(g_CombatGlobal->unk3D878 & 0x20000)) {
+            if (data_ov003_020e7254.timer > 0 && data_ov003_020e7254.task == -1 &&
+                !(gBattle->flags & BATTLE_FLAG_SPECIAL_LOCKED))
+            {
                 data_ov003_020e7254.anims.actor = actor;
                 data_ov003_020e7254.task =
-                    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BossExp1, NULL, 0, NULL, &data_ov003_020e7254.anims);
+                    EasyTask_CreateTask(&gBattle->specialPool, &Tsk_BossExp1, NULL, 0, NULL, &data_ov003_020e7254.anims);
                 if (data_ov003_020e7254.task != -1) {
-                    g_CombatGlobal->unk3D878 |= 0x20000;
-                    g_CombatGlobal->unk3D878 |= 0x10000;
+                    gBattle->flags |= BATTLE_FLAG_SPECIAL_LOCKED;
+                    gBattle->flags |= BATTLE_FLAG_NO_PAUSE;
                     data_ov003_020e7254.timer = 0;
                     data_ov003_020e7254.phase++;
                     if (actor->actor.flags & ACTOR_FLAG_KILLED) {
@@ -117,7 +118,7 @@ s32 func_ov003_020c9338(Ov003EnemyActor* actor) {
             data_ov003_020e7254.timer++;
             break;
         case 1:
-            if (!(g_CombatGlobal->unk3D878 & 2)) {
+            if (!(gBattle->flags & BATTLE_FLAG_SPECIAL)) {
                 result = 0;
             } else {
                 data_ov003_020e7254.timer++;
@@ -146,9 +147,9 @@ static s32 BtlEff_SideMove_RunTask(TaskPool* pool, Task* task, void* args, s32 s
                 self->velocityY  = (self->actor->base.unk_1B0 - self->actor->base.actor.position.y) / 20;
                 self->fall       = -0xA000;
                 self->frame      = 0;
-                BtlSprite_LoadFromTable(1, &self->sprite, &data_ov003_020d7800, data_ov003_020e0b80, 0, 0x3F, 0);
+                BtlSprite_LoadFromTable(1, &self->sprite, &Iden_BtlMenu, data_ov003_020e0b80, 0, 0x3F, 0);
                 BtlSprite_SetAnimFromTable(&self->sprite, 0, 1);
-                if (self->actor->base.actor.position.x > g_CombatGlobal->partner->position.x) {
+                if (self->actor->base.actor.position.x > gBattle->partner->position.x) {
                     BtlSprite_SetFlip(&self->sprite, 1);
                     self->position.x -= 0x18000;
                 } else {

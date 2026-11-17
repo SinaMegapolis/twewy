@@ -18,9 +18,9 @@ s32 func_ov003_020cf81c(Ov003EnemyShotSource* source, s32 speed, u16 count, u16 
     args.stopOnCrossing = stopOnCrossing;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     source->core.flags &= ~4;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c68, NULL, 0, NULL, &args);
 }
@@ -28,9 +28,9 @@ s32 func_ov003_020cf81c(Ov003EnemyShotSource* source, s32 speed, u16 count, u16 
 static void func_ov003_020cf8d4(Ov003EnemyShotMachineGun* self) {
     TaskPool* pool;
     if (self->source.core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     s32 i;
     for (i = self->lastTask; i >= 0; i--) {
         s32 result = func_ov003_020ccca4(self->source.core.owner->base.sprite.sprite.bits_0_1, self->taskIds[i]);
@@ -57,9 +57,9 @@ static s32 func_ov003_020cf990(Ov003EnemyShotMachineGun* self) {
     if (self->crossing != 0) {
         BattleActor* target;
         if (func_ov003_020c37f8(&self->source.core.owner->base.sprite))
-            target = g_CombatGlobal->partner;
+            target = gBattle->partner;
         else
-            target = g_CombatGlobal->player;
+            target = gBattle->player;
         if (self->crossing == 2) {
             if (target->position.x <= self->source.core.position.x)
                 return 1;
@@ -72,9 +72,9 @@ static s32 func_ov003_020cf990(Ov003EnemyShotMachineGun* self) {
     if (self->remaining < 0) {
         TaskPool* pool;
         if (self->source.core.owner->base.sprite.sprite.bits_0_1 == 0)
-            pool = &g_CombatGlobal->unk_00000;
+            pool = &gBattle->mainPool;
         else
-            pool = &g_CombatGlobal->taskPool;
+            pool = &gBattle->subPool;
         s32 empty = 1;
         s32 i;
         for (i = self->lastTask; i >= 0; i--) {
@@ -105,9 +105,9 @@ static s32 func_ov003_020cfad8(Ov003EnemyShotMachineGun* self, Ov003EnemyShotMac
         self->taskIds[i] = -1;
     BattleActor* target;
     if (func_ov003_020c37f8(&self->source.core.owner->base.sprite))
-        target = g_CombatGlobal->partner;
+        target = gBattle->partner;
     else
-        target = g_CombatGlobal->player;
+        target = gBattle->player;
     s32 height       = FX32_CONVERT(target->height);
     s32 targetZ      = target->position.z - (height >> 1);
     s32 dx           = target->position.x - self->source.core.position.x;
@@ -137,9 +137,9 @@ static s32 func_ov003_020cfc9c(Ov003EnemyShotMachineGun* self) {
         if (self->fixedAim == 0) {
             BattleActor* target;
             if (func_ov003_020c37f8(&self->source.core.owner->base.sprite))
-                target = g_CombatGlobal->partner;
+                target = gBattle->partner;
             else
-                target = g_CombatGlobal->player;
+                target = gBattle->player;
             s32 height       = FX32_CONVERT(target->height);
             s32 targetZ      = target->position.z - (height >> 1);
             s32 dx           = target->position.x - self->source.core.position.x;

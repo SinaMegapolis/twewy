@@ -38,7 +38,6 @@ typedef char                 check_PrizeItem[(sizeof(BtlPrizeItem) == 0x88) ? 1 
 typedef char                 check_PrizeItem_phase[(offsetof(BtlPrizeItem, phase) == 0x6C) ? 1 : -1];
 typedef char                 check_PrizeItem_angle[(offsetof(BtlPrizeItem, angle) == 0x84) ? 1 : -1];
 extern const BtlPrizeLookup  data_ov003_020dd228[13], data_ov003_020dd290[96];
-extern const BinIdentifier   data_ov003_020d7800;
 static const TaskHandle      Tsk_BtlPrizeItem;
 static const SpriteAnimEntry data_ov003_020dd3c8, data_ov003_020dd3e4[5];
 static const BinIdentifier   data_ov003_020dd3d0;
@@ -491,9 +490,9 @@ s32 func_ov003_020bb48c(s32 engine, s8 grade, u16 item, s32 x, s32 y, s32 z, s32
     }
     TaskPool* pool;
     if (args.engine == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     return EasyTask_CreateTask(pool, &Tsk_BtlPrizeItem, NULL, 0, NULL, &args);
 }
@@ -544,7 +543,7 @@ static s32 func_ov003_020bb6d4(const Ov003ActorParams* params) {
     s8 grade = func_ov003_020bb8bc();
 
     do {
-        s32 rate = (u16)g_CombatGlobal->unk3D892 * params->dropRates[grade];
+        s32 rate = (u16)gBattle->dropRate * params->dropRates[grade];
         if (rate > RNG_Next(10000)) {
             return grade;
         }
@@ -554,12 +553,12 @@ static s32 func_ov003_020bb6d4(const Ov003ActorParams* params) {
 }
 
 static void func_ov003_020bb73c(s32 group, s16 variant) {
-    if (g_CombatGlobal->unk3D88E == 0x1E) {
+    if (gBattle->encounterId == 0x1E) {
         func_ov003_020bb0f0(0x37, 0);
         func_ov003_020bb0f0(0x39, 0);
         return;
     }
-    if (g_CombatGlobal->unk3D88E == 0x1F) {
+    if (gBattle->encounterId == 0x1F) {
         func_ov003_020bb0f0(0x37, 2);
         func_ov003_020bb0f0(0x39, 2);
         return;
@@ -619,9 +618,9 @@ static void func_ov003_020bb90c(BtlPrizeItem* self) {
     BattleActor* owner;
 
     if (func_ov003_020c37f8(&self->sprite)) {
-        owner = g_CombatGlobal->partner;
+        owner = gBattle->partner;
     } else {
-        owner = g_CombatGlobal->player;
+        owner = gBattle->player;
     }
     FX_Atan2Idx(self->position.x - owner->position.x, self->position.y - FX_Mul(owner->position.y, 0x3000));
     s32 dy       = self->position.y - FX_Mul(owner->position.y, 0x3000);
@@ -640,9 +639,9 @@ static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
     BattleActor* owner;
 
     if (args->engine == 0) {
-        owner = g_CombatGlobal->player;
+        owner = gBattle->player;
     } else {
-        owner = g_CombatGlobal->partner;
+        owner = gBattle->partner;
     }
     MI_CpuSet(self, 0, sizeof(*self));
     self->position.x = args->position.x;
@@ -671,7 +670,7 @@ static s32 func_ov003_020bba2c(BtlPrizeItem* self, BtlPrizeArgs* args) {
         if (args->mode == 1) {
             animation = 4;
         }
-        BtlSprite_LoadFromTable(args->engine, &self->sprite, &data_ov003_020d7800, data_ov003_020dd3e4, animation, 0x3D, 4);
+        BtlSprite_LoadFromTable(args->engine, &self->sprite, &Iden_BtlMenu, data_ov003_020dd3e4, animation, 0x3D, 4);
         BtlSprite_SetAnimFromTable(&self->sprite, animation, 0);
     }
     self->radius = 0x50000;
@@ -687,9 +686,9 @@ static s32 func_ov003_020bbc14(BtlPrizeItem* self) {
     BattleActor* owner;
 
     if (func_ov003_020c37f8(&self->sprite)) {
-        owner = g_CombatGlobal->partner;
+        owner = gBattle->partner;
     } else {
-        owner = g_CombatGlobal->player;
+        owner = gBattle->player;
     }
     s32 active = 1;
     if (func_ov003_020c3c28()) {
@@ -743,7 +742,7 @@ static s32 func_ov003_020bbec0(BtlPrizeItem* self) {
 }
 
 static s32 func_ov003_020bbf5c(BtlPrizeItem* self) {
-    if ((u16)(g_CombatGlobal->unk3D874 + 0xFFFE) <= 1) {
+    if ((u16)(gBattle->state + 0xFFFE) <= 1) {
         s32 pan;
 
         func_ov003_0209c984(self->sprite.sprite.bits_0_1, 1, self->position.x, FX_Divide(self->position.y, 0x3000),

@@ -44,7 +44,7 @@ static s32 BtlSandstorm_Init(TaskPool* pool, Task* task, void* args) {
     void*              subScreen;
     void*              subPal;
 
-    g_CombatGlobal->unk3D878 |= 1;
+    gBattle->flags |= BATTLE_FLAG_SANDSTORM;
 
     mbg                 = &g_DisplaySettings.engineState[0].bgSettings[3];
     mbg->bgMode         = DISPLAY_BGMODE_TEXT;
@@ -98,7 +98,7 @@ static s32 BtlSandstorm_Init(TaskPool* pool, Task* task, void* args) {
 }
 
 static s32 BtlSandstorm_Update(TaskPool* pool, Task* task, void* args) {
-    if (!(g_CombatGlobal->unk3D878 & 0x2000)) {
+    if (!(gBattle->flags & BATTLE_FLAG_SANDSTORM_STOPPED)) {
         return 1;
     }
     return 0;
@@ -126,7 +126,7 @@ static s32 BtlSandstorm_Release(TaskPool* pool, Task* task, void* args) {
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], self->subScreen);
     BgResMgr_ReleaseChar(g_BgResourceManagers[DISPLAY_SUB], self->subCharacters);
     PaletteMgr_ReleaseResource(g_PaletteManagers[DISPLAY_SUB], self->subPalette);
-    g_CombatGlobal->unk3D878 &= ~1;
+    gBattle->flags &= ~BATTLE_FLAG_SANDSTORM;
     return 1;
 }
 

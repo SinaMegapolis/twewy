@@ -17,9 +17,9 @@ s32 func_ov003_020d1eec(Ov003EnemyShotSource* source, s32 x, s32 y, s32 z, s32 s
     args.angle      = angle;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0cb0, NULL, 0, NULL, &args);
 }
 
@@ -58,7 +58,7 @@ static s32 func_ov003_020d1f90(Ov003EnemyShotSingle* self, Ov003EnemyShotSingleA
 }
 
 static s32 func_ov003_020d21c0(Ov003EnemyShotSingle* self) {
-    if (g_CombatGlobal->unk3D878 & 0x40)
+    if (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN)
         return 1;
     if (func_ov003_020ccc00(&self->source, &self->sprite))
         return 0;

@@ -1,6 +1,7 @@
 #ifndef BATTLE_CORE_BTLSPRITE_H
 #define BATTLE_CORE_BTLSPRITE_H
 
+#include "Display.h"
 #include "Engine/File/BinMgr.h"
 #include "SpriteMgr.h"
 
@@ -170,7 +171,7 @@ SpriteFrameInfo* BtlSprite_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode);
  * @param engine The screen the sprite is drawn on (DISPLAY_MAIN, DISPLAY_SUB or DISPLAY_EXTENDED)
  * @param iden The file the sprite's resources come from
  */
-void BtlSprite_InitAnim(SpriteAnimation* anim, s32 engine, const BinIdentifier* iden);
+void BtlSprite_InitAnim(SpriteAnimation* anim, DisplayEngine engine, const BinIdentifier* iden);
 
 /**
  * @brief Loads the sprite and resets its battle state (no animation, unsorted, no flags, own palette)
@@ -196,8 +197,8 @@ s32 BtlSprite_Load(BattleSprite* cSprite, SpriteAnimationEx* anim);
  * @param charTiles Char VRAM to reserve, in 32-byte units; 0 = the size of the largest cell
  * @return 1 on success; 0 on failure, with BTL_SPRITE_FLAG_LOAD_FAILED set
  */
-s32 BtlSprite_LoadFromTable(s32 engine, BattleSprite* cSprite, const BinIdentifier* iden, const SpriteAnimEntry* table,
-                            u16 entry, u16 paletteEntry, u16 charTiles);
+s32 BtlSprite_LoadFromTable(DisplayEngine engine, BattleSprite* cSprite, const BinIdentifier* iden,
+                            const SpriteAnimEntry* table, u16 entry, u16 paletteEntry, u16 charTiles);
 
 /**
  * @brief Loads a sprite with all its char data at once and no animation table
@@ -213,7 +214,7 @@ s32 BtlSprite_LoadFromTable(s32 engine, BattleSprite* cSprite, const BinIdentifi
  * @param paletteEntry Pack entry of the palette data
  * @param animIndex The animation within the animation data to start on
  */
-void BtlSprite_LoadDirect(s32 engine, BattleSprite* cSprite, const BinIdentifier* iden, s32 charEntry, u16 animEntry,
+void BtlSprite_LoadDirect(DisplayEngine engine, BattleSprite* cSprite, const BinIdentifier* iden, s32 charEntry, u16 animEntry,
                           u16 cellEntry, u16 paletteEntry, u16 animIndex);
 
 #define BtlSprite_LoadFromTableNoProto                                                                                   \

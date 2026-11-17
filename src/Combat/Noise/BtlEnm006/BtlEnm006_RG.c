@@ -253,11 +253,11 @@ static void func_ov010_02125de4(BtlEnm006* data) {
                 BtlSprite_SetAnimFromTable(cs, 0xD, 1);
                 data->base.flags18C &= ~1;
                 if (data->base.actor.isFlipped == 0) {
-                    data->base.actor.position.x = g_CombatGlobal->stages[1].centerX + 0x10000;
+                    data->base.actor.position.x = gBattle->stages[1].centerX + 0x10000;
                 } else {
-                    data->base.actor.position.x = g_CombatGlobal->stages[1].centerX - 0x10000;
+                    data->base.actor.position.x = gBattle->stages[1].centerX - 0x10000;
                 }
-                data->base.actor.position.y = g_CombatGlobal->stages[1].centerY;
+                data->base.actor.position.y = gBattle->stages[1].centerY;
                 data->base.actor.position.z = 0;
                 if (data->base.actor.isFlipped == 1) {
                     data->base.actor.position.x = data->base.actor.position.x - 0xB000;
@@ -290,7 +290,7 @@ static void func_ov010_02125de4(BtlEnm006* data) {
                 BtlSe_PlayPanned(SEIDX_SE_006_SPLUSH_SP, BtlStage_ToScreenX(1, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 4 && data->base.sprite.sprite.frameTimer == 1) {
-                void* t = g_CombatGlobal->partner;
+                void* t = gBattle->partner;
                 if (func_ov010_021268c4(data, t) != 0) {
                     data->ext.rg.unk_1F8 = func_ov010_021270a8(data, t);
                 }

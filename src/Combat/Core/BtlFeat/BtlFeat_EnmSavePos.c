@@ -69,27 +69,27 @@ static void BtlFeat_RestoreEnmList(BattleList* list, Ov003ActorSnapshot* snapsho
 }
 
 void BtlFeat_SaveEnmPos(void) {
-    sFeatEnmSnapshots.mainCount = BtlFeat_SaveEnmList(&g_CombatGlobal->unk3D8AC, &sFeatEnmSnapshots.main);
-    sFeatEnmSnapshots.subCount  = BtlFeat_SaveEnmList(&g_CombatGlobal->unk3D8A4, &sFeatEnmSnapshots.sub);
+    sFeatEnmSnapshots.mainCount = BtlFeat_SaveEnmList(&gBattle->enemiesSub, &sFeatEnmSnapshots.main);
+    sFeatEnmSnapshots.subCount  = BtlFeat_SaveEnmList(&gBattle->enemiesMain, &sFeatEnmSnapshots.sub);
 }
 
 void BtlFeat_RestoreEnmPos(void) {
     if (sFeatEnmSnapshots.main != NULL) {
-        BtlFeat_RestoreEnmList(&g_CombatGlobal->unk3D8AC, sFeatEnmSnapshots.main, sFeatEnmSnapshots.mainCount);
+        BtlFeat_RestoreEnmList(&gBattle->enemiesSub, sFeatEnmSnapshots.main, sFeatEnmSnapshots.mainCount);
         Mem_Free(&gDebugHeap, sFeatEnmSnapshots.main);
         sFeatEnmSnapshots.main = NULL;
     }
 
     if (sFeatEnmSnapshots.sub != NULL) {
-        BtlFeat_RestoreEnmList(&g_CombatGlobal->unk3D8A4, sFeatEnmSnapshots.sub, sFeatEnmSnapshots.subCount);
+        BtlFeat_RestoreEnmList(&gBattle->enemiesMain, sFeatEnmSnapshots.sub, sFeatEnmSnapshots.subCount);
         Mem_Free(&gDebugHeap, sFeatEnmSnapshots.sub);
         sFeatEnmSnapshots.sub = NULL;
     }
 }
 
 void BtlFeat_HaltEnm(void) {
-    BtlFeat_SetEnmListCommand(&g_CombatGlobal->unk3D8AC, ACTOR_CMD_FEAT);
-    BtlFeat_SetEnmListCommand(&g_CombatGlobal->unk3D8A4, ACTOR_CMD_FEAT);
+    BtlFeat_SetEnmListCommand(&gBattle->enemiesSub, ACTOR_CMD_FEAT);
+    BtlFeat_SetEnmListCommand(&gBattle->enemiesMain, ACTOR_CMD_FEAT);
 }
 
 void BtlFeat_ForEachEnmSnapshot(s32 mode, Ov003SnapshotCallback callback, void* args) {

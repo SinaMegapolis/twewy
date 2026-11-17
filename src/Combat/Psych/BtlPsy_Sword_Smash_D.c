@@ -24,7 +24,7 @@ static void func_ov003_020953b4(BtlPsySmash* smash, void (*update)(BtlPsySmash*)
 }
 static s32 func_ov003_020953c8(void) {
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG)) {
-        Ov003Global* global = g_CombatGlobal;
+        Battle* global = gBattle;
         if (global->touchWork.held != NULL && global->touchWork.held->kind == ACTOR_KIND_PLAYER)
             return global->touchWork.stillFrames > 16;
     }
@@ -32,7 +32,7 @@ static s32 func_ov003_020953c8(void) {
 }
 static void func_ov003_02095428(s32 tier) {
     Ov003PsychEffectArgs args;
-    BattleActor*         actor = g_CombatGlobal->player;
+    BattleActor*         actor = gBattle->player;
     s32                  kind;
     switch (tier) {
         case 0:
@@ -56,7 +56,7 @@ static void func_ov003_02095428(s32 tier) {
 }
 static void func_ov003_020954e4(void) {
     Ov003PsychEffectArgs args;
-    BattleActor*         actor = g_CombatGlobal->player;
+    BattleActor*         actor = gBattle->player;
     func_ov003_020a88c0(&args, actor->position.x, actor->position.y, actor->position.z - (actor->centerHeight << 12), 2, 0xD3);
     func_ov003_020a899c(&args, 0);
     func_ov003_020a88a8(&args);
@@ -99,12 +99,12 @@ static void func_ov003_02095608(BtlPsySmash* smash) {
     SndMgr_StopPlayingSE(SEIDX_SE_PSY_HVSWORD_TAME01_01);
     func_ov003_0209557c(smash->effect, smash->tier);
     BtlTouch_Clear();
-    func_ov003_02087250(smash->effect, g_CombatGlobal->player, smash->tier);
+    BtlAttackQueue_Push(smash->effect, gBattle->player, smash->tier);
     smash->active = 0;
 }
 static void func_ov003_020956c4(BtlPsySmash* smash) {
     if (smash->timer == 0) {
-        BtlSe_PlayAtMainX(0xB6, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0xB6, gBattle->player->position.x);
         smash->timer = 21;
     }
     if (smash->timer > 0)
@@ -113,20 +113,20 @@ static void func_ov003_020956c4(BtlPsySmash* smash) {
         return;
     func_ov003_0209557c(smash->effect, smash->tier);
     BtlTouch_Clear();
-    func_ov003_02087250(smash->effect, g_CombatGlobal->player, smash->tier);
+    BtlAttackQueue_Push(smash->effect, gBattle->player, smash->tier);
     smash->active = 0;
 }
 static s32 func_ov003_02095764(TaskPool* pool, Task* task, void* args) {
     BtlPsySmash*       smash = task->data;
     Ov003EffectState** arg   = args;
     MI_CpuSet(smash, 0, sizeof(*smash));
-    g_CombatGlobal->unk3D8C8 = 1;
-    smash->effect            = *arg;
-    smash->tier              = 0;
-    smash->particleTimer     = 0;
-    smash->active            = 1;
+    gBattle->unk3D8C8    = 1;
+    smash->effect        = *arg;
+    smash->tier          = 0;
+    smash->particleTimer = 0;
+    smash->active        = 1;
     func_ov003_020953b4(smash, func_ov003_02095608);
-    BtlSe_PlayAtMainX(0xB5, g_CombatGlobal->player->position.x);
+    BtlSe_PlayAtMainX(0xB5, gBattle->player->position.x);
     return 1;
 }
 static s32 func_ov003_020957e4(TaskPool* pool, Task* task, void* args) {
@@ -141,7 +141,7 @@ static s32 func_ov003_0209581c(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 static s32 func_ov003_02095824(TaskPool* pool, Task* task, void* args) {
-    g_CombatGlobal->unk3D8C8 = 0;
+    gBattle->unk3D8C8 = 0;
     return 1;
 }
 

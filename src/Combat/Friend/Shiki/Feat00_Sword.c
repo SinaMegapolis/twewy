@@ -1,11 +1,11 @@
+#include "Battle/Core/BtlMgr.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/Combat.h"
 #include "EasyFade.h"
 #include "Engine/EasyTask.h"
 #include "SndMgr.h"
 
-extern BinIdentifier data_ov003_020d77d8;
-extern s32           data_ov003_020e71e0;
+extern s32 data_ov003_020e71e0;
 
 typedef struct {
     /* 0x00 */ BattleSprite sprite;
@@ -38,8 +38,8 @@ s32 Feat00_Sword_Init(TaskPool* pool, Task* task, void* args) {
     Feat00_Sword_Args* swordArgs = args;
 
     MI_CpuSet(sword, 0, sizeof(Feat00_Sword));
-    BtlSprite_LoadFromTable(swordArgs->unk_0, &sword->sprite, &data_ov003_020d77d8, data_ov004_020f044c,
-                            (u16)(s32)swordArgs->unk_4, 58, 68);
+    BtlSprite_LoadFromTable(swordArgs->unk_0, &sword->sprite, &Iden_BtlPly00, data_ov004_020f044c, (u16)(s32)swordArgs->unk_4,
+                            58, 68);
     BtlSprite_SetAnimFromTable(&sword->sprite, swordArgs->unk_4, 1);
 
     sword->unk_64 = swordArgs->unk_C;
@@ -99,5 +99,5 @@ void Feat00_Sword_CreateTask(u32 arg0, u16 arg1, s16 arg2, s16 arg3, s32 arg4, s
     args.unk_0 = arg0;
     args.unk_E = arg3;
     args.unk_8 = arg5;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_Feat00_Sword, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->specialPool, &Tsk_Feat00_Sword, NULL, 0, NULL, &args);
 }

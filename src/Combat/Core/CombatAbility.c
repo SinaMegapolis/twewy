@@ -19,7 +19,7 @@ void CombatAbility_Queue(s32 id, s32 touchIndex, u32 slot) {
     Ov003AbilityData ability;
     s32              i;
 
-    events = g_CombatGlobal->touchEvents;
+    events = gBattle->touchEvents;
     func_020274ac(&ability, id, &Iden_AbilityData);
     if (touchIndex >= 0 && touchIndex <= 2) {
         anyTouch = 0;
@@ -68,7 +68,7 @@ static s32 CombatAbility_IsSourceActive(s32 slot) {
     if (slot == -1) {
         return 1;
     }
-    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&gBattle->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->slot != slot) {
             continue;
         }
@@ -85,7 +85,7 @@ static s32 CombatAbility_IsSourceActive(s32 slot) {
 
 /// TRUE when `actionId` is one of the actions a queued ability grants.
 static s32 CombatAbility_IsActiveFor(s32 actionId, s32 touchMode) {
-    Ov003TouchEvent*        events = g_CombatGlobal->touchEvents;
+    Ov003TouchEvent*        events = gBattle->touchEvents;
     const Ov003AbilityData* ability;
     s32                     i;
     s32                     j;
@@ -123,7 +123,7 @@ s32 CombatAbility_IsActiveForPartner(s32 actionId) {
 /// The amount of `actionId` a queued ability grants: most actions add the recorded amount,
 /// but a few (the multi-hit ones) report their per-action value directly.
 static s32 CombatAbility_GetValueFor(s32 actionId, s32 touchMode) {
-    Ov003TouchEvent*        events = g_CombatGlobal->touchEvents;
+    Ov003TouchEvent*        events = gBattle->touchEvents;
     const Ov003AbilityData* ability;
     s32                     i;
     s32                     j;

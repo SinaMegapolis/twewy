@@ -28,7 +28,7 @@ const TaskHandle Tsk_BtlEnm026_UG = {data_ov015_021284d4, func_ov015_021275fc, 0
 static char data_ov015_021284d4[44] = "Tsk_BtlEnm026_UG";
 
 static void func_ov015_02126fd8(BtlEnm026* data) {
-    BattleActor* player = g_CombatGlobal->player;
+    BattleActor* player = gBattle->player;
 
     switch (data->unk_1C2) {
         case 0:
@@ -102,7 +102,7 @@ static void func_ov015_02126fd8(BtlEnm026* data) {
             data->base.actor.position.y = data->base.actor.position.y + dy;
             h                           = BtlHit_GetAttackInfo(0xB8);
             if (BtlHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x, data->base.actor.position.y,
-                                data->base.actor.position.z) == 1)
+                                data->base.actor.position.z) == BTL_HIT_RESULT_LANDED)
             {
                 data->unk_1F0 = 0;
             }
@@ -240,7 +240,7 @@ void func_ov015_021276c4() {}
 
 void func_ov015_021276c8(void) {
     if (data_ov015_02128500.unk_24 == 0) {
-        Ov003Node3D8BC* node = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
+        Ov003Node3D8BC* node = BtlList_GetHead(&gBattle->unk3D8BC);
         node                 = BtlList_GetNext(&node->node);
         while (node != 0) {
             if (node->unk_044 < node->unk_046) {
@@ -272,7 +272,7 @@ void func_ov015_02127758(BtlEnm026* data) {
 void func_ov015_021277a4(BtlEnm026* data) {
     if (func_ov003_020c37f8(&data->base.sprite) == 0 && data_ov015_02128500.flag08 == 0) {
         if (data_ov015_02128500.unk_20 != 0) {
-            if (g_CombatGlobal->unk3D8F8 != 0) {
+            if (gBattle->comboCount != 0) {
                 return;
             }
             data_ov015_02128500.unk_20 = 0;
@@ -287,7 +287,7 @@ void func_ov015_021277a4(BtlEnm026* data) {
             }
             return;
         }
-        if (g_CombatGlobal->unk3D8F8 != 0) {
+        if (gBattle->comboCount != 0) {
             data_ov015_02128500.unk_20 = 1;
         }
         return;
@@ -404,7 +404,7 @@ void func_ov015_02127ac4(BtlEnm026* data) {
     if (data->unk_1D4 != 1 || data_ov015_02128500.unk14 != 3) {
         return;
     }
-    node = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    node = BtlList_GetHead(&gBattle->enemiesMain);
     while (node != 0) {
         func_ov003_020c4fc8(&node->base);
         node = BtlList_GetNext(&node->base.node);
@@ -456,7 +456,7 @@ void func_ov015_02127ca0(BtlEnm026* data) {
     if (flag == 0) {
         return;
     }
-    if (g_CombatGlobal->unk3D874 != 2) {
+    if (gBattle->state != BATTLE_STATE_FIGHT) {
         return;
     }
     if (data_ov015_02128500.result10 == -1) {
@@ -484,7 +484,7 @@ void func_ov015_02127da4(BtlEnm026* data) {
     if (func_ov003_020c37f8(&data->base.sprite) != 0 || data->unk_1D4 != 1) {
         return;
     }
-    if (g_CombatGlobal->unk3D874 != 2) {
+    if (gBattle->state != BATTLE_STATE_FIGHT) {
         return;
     }
     if (data->base.actor.flags & ACTOR_FLAG_DEFEATED) {
@@ -552,10 +552,10 @@ void func_ov015_02127f90(BtlEnm026* data) {
     if (data_ov015_02128500.unk14 == 3) {
         data_ov015_02128500.result10 = -1;
     }
-    if (g_CombatGlobal->microphone.detected == 0) {
+    if (gBattle->microphone.detected == 0) {
         return;
     }
-    if (g_CombatGlobal->unk3D874 == 2) {
+    if (gBattle->state == BATTLE_STATE_FIGHT) {
         data->base.actor.pendingCommand = ACTOR_CMD_DEFEAT;
     }
 }

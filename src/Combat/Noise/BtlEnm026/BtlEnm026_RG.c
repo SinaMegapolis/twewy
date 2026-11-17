@@ -44,7 +44,7 @@ static void func_ov015_021268b0(BtlEnm026* data) {
 }
 
 static void func_ov015_0212699c(BtlEnm026* data) {
-    BattleActor* partner = g_CombatGlobal->partner;
+    BattleActor* partner = gBattle->partner;
 
     switch (data->unk_1C2) {
         case 0:
@@ -90,7 +90,7 @@ static void func_ov015_0212699c(BtlEnm026* data) {
             data->base.actor.position.y = data->base.actor.position.y + dy;
             h                           = BtlHit_GetAttackInfo(0xB9);
             if (BtlHit_AttackAt(h, &data->base.actor.baseArgs, data->base.actor.position.x, data->base.actor.position.y,
-                                data->base.actor.position.z) == 1)
+                                data->base.actor.position.z) == BTL_HIT_RESULT_LANDED)
             {
                 data->unk_1F0 = 0;
             }

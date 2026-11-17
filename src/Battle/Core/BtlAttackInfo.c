@@ -1,6 +1,6 @@
-#include "Combat/Core/CombatAttackInfo.h"
+#include "Battle/Core/BtlAttackInfo.h"
 
-const Ov003AttackInfo CombatAttackInfo_Table[401] = {
+const BattleAttackInfo BtlAttackInfo_Table[401] = {
     {  35,  0,  0,  3,  32,  32,  48,   0x8A28},
     {  35, 20,  0, 20,  32,  32,  48,  0x31A29},
     {  80,  0,  0,  3,  24,   8,  48,  0x51A2C},

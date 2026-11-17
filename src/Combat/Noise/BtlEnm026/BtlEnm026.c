@@ -223,7 +223,7 @@ static void func_ov015_021256f8(BtlEnm026* data) {
 static void func_ov015_021257f8(BtlEnm026* data) {
     TaskPool* pool;
 
-    if (g_CombatGlobal->unk3D874 != 2) {
+    if (gBattle->state != BATTLE_STATE_FIGHT) {
         return;
     }
     data_ov015_02128500.unk14 = data->base.actor.pendingCommand;
@@ -246,9 +246,9 @@ static void func_ov015_021257f8(BtlEnm026* data) {
     if (data_ov015_02128500.result10 == -1) {
         if (data_ov015_02128500.variant == 0xB) {
             if (func_ov003_020c37f8(&data->base.sprite) == 0) {
-                pool = &g_CombatGlobal->unk_00000;
+                pool = &gBattle->mainPool;
             } else {
-                pool = &g_CombatGlobal->taskPool;
+                pool = &gBattle->subPool;
             }
             EasyTask_DeleteTask(pool, data->unk_1E0);
         }
@@ -261,10 +261,10 @@ static void func_ov015_021257f8(BtlEnm026* data) {
             data->unk_1D0 = vel;
         }
         func_ov003_020ccec0(&data->base.actor, 1);
-        g_CombatGlobal->unk3D878 |= 0x200000;
+        gBattle->flags |= BATTLE_FLAG_SCRIPTED_END;
         if (data_ov015_02128500.variant == 3) {
-            g_CombatGlobal->unk3D875 = 2;
-            g_CombatGlobal->unk3D878 |= 0x20000000;
+            gBattle->goal = BATTLE_GOAL_SCRIPTED;
+            gBattle->flags |= BATTLE_FLAG_SCRIPTED_GOAL_MET;
         }
     } else {
         if (func_ov003_020c37f8(&data->base.sprite) == 0) {
@@ -277,7 +277,7 @@ static void func_ov015_021257f8(BtlEnm026* data) {
             data_ov015_02128500.variant != 3 && data_ov015_02128500.variant != 9 && data_ov015_02128500.variant != 8 &&
             data_ov015_02128500.variant != 5 && data_ov015_02128500.variant != 0x11)
         {
-            BtlHit_Stagger(0, &data->base.partner->actor, 0);
+            BtlHit_Stagger(BATTLE_SIDE_PLAYER, &data->base.partner->actor, 0);
         }
     }
 }
@@ -287,9 +287,9 @@ static s32 func_ov015_021259f4(BtlEnm026* owner, s32 kind, void* params) {
     Enm026IconSpawn spawn;
 
     if (func_ov003_020c37f8(&owner->base.sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     spawn.unk_00 = owner;
     spawn.unk_04 = kind;
@@ -399,10 +399,10 @@ void func_ov015_02125d0c(BtlEnm026* data, s32 count, const TaskHandle* handleA, 
         return;
     }
     for (i = 0; i < count; i++) {
-        blockB.unk_08 = RNG_Next(g_CombatGlobal->stages[0].width >> 12) << 12;
-        blockB.unk_0C = RNG_Next(g_CombatGlobal->stages[0].height >> 12) << 12;
-        blockA.unk_08 = RNG_Next(g_CombatGlobal->stages[1].width >> 12) << 12;
-        blockA.unk_0C = RNG_Next(g_CombatGlobal->stages[1].height >> 12) << 12;
+        blockB.unk_08 = RNG_Next(gBattle->stages[0].width >> 12) << 12;
+        blockB.unk_0C = RNG_Next(gBattle->stages[0].height >> 12) << 12;
+        blockA.unk_08 = RNG_Next(gBattle->stages[1].width >> 12) << 12;
+        blockA.unk_0C = RNG_Next(gBattle->stages[1].height >> 12) << 12;
         func_ov003_020c3cec(handleA, handleB, (handleA != 0) ? &blockB : NULL, (handleB != 0) ? &blockA : NULL);
     }
 }

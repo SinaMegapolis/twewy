@@ -159,5 +159,5 @@ void BtlEff_Fall_CreateTask(UnkStruct_Boss01* arg0, Boss01* arg1, s32 arg2) {
     args.unk_C = arg2;
     args.unk_0 = arg0;
     args.unk_4 = (s32)&arg0->unk_00[4];
-    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Task_BtlEff_Fall, 0, 0, 0, &args);
+    EasyTask_CreateTask(&gBattle->mainPool, &Task_BtlEff_Fall, 0, 0, 0, &args);
 }

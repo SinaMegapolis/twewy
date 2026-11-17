@@ -11,7 +11,7 @@
 #include <nitro/mi/cpumem.h>
 
 // The BS (beat/sync) bar HUD: the partner's sync gauge with its two "banked" segments, drawn with
-// the same ten-sprite layout as the HP bar (`BtlBarHP`). The gauge itself lives in `Ov003Global`
+// the same ten-sprite layout as the HP bar (`BtlBarHP`). The gauge itself lives in `Battle`
 // (0x3D8D8 value, 0x3D8DA max, 0x3D8DC/0x3D8DE the two banked segments); this unit splits it into
 // the bar's pixel widths and drives the fill/drain animation.
 
@@ -20,8 +20,6 @@ typedef struct BtlBarBS {
     /* 0x000 */ BtlBar bar;
     /* 0x3FC */ s32    unk_3FC;
 } BtlBarBS; // Size: 0x400
-
-extern const BinIdentifier data_ov003_020d7800;
 
 static s32 BtlBarBS_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -54,21 +52,21 @@ static void func_ov003_020999c4(BtlBar* bar) {
 static void func_ov003_02099a98(BtlBar* bar) {
     s32 oldB    = bar->unk_3DC;
     s32 oldA    = bar->unk_3DA;
-    s32 bankedB = g_CombatGlobal->unk3D8DE;
-    s32 bankedA = g_CombatGlobal->unk3D8DC;
+    s32 bankedB = gBattle->bossDamageByPlayer;
+    s32 bankedA = gBattle->bossDamageByPartner;
     s32 delta   = (bankedB - oldB) + (bankedA - oldA);
-    s32 free    = (bankedB + bankedA) - g_CombatGlobal->unk3D8DA * 3 / 4;
+    s32 free    = (bankedB + bankedA) - gBattle->bossMaxHp * 3 / 4;
 
     // The gauge width is recomputed per store; the retail build has a division by 4 and then a
     // separate division by 2 for each of the three segments.
-    bar->unk_3DC             = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
-    bar->unk_3DA             = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
-    g_CombatGlobal->unk3D8DE = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
+    bar->unk_3DC                = gBattle->bossMaxHp * 3 / 4 / 2;
+    bar->unk_3DA                = gBattle->bossMaxHp * 3 / 4 / 2;
+    gBattle->bossDamageByPlayer = gBattle->bossMaxHp * 3 / 4 / 2;
 
     if (delta > 0) {
-        g_CombatGlobal->unk3D8DE += (s16)(free * (bankedB - oldB) / delta);
+        gBattle->bossDamageByPlayer += (s16)(free * (bankedB - oldB) / delta);
     }
-    g_CombatGlobal->unk3D8DC = g_CombatGlobal->unk3D8DA - g_CombatGlobal->unk3D8D8 - g_CombatGlobal->unk3D8DE;
+    gBattle->bossDamageByPartner = gBattle->bossMaxHp - gBattle->bossHp - gBattle->bossDamageByPlayer;
 }
 
 /// Drains the gauge: the mirror image of `func_ov003_02099a98`.
@@ -76,47 +74,47 @@ static void func_ov003_02099a98(BtlBar* bar) {
 static void func_ov003_02099b94(BtlBar* bar) {
     s32 oldB    = bar->unk_3DC;
     s32 oldA    = bar->unk_3DA;
-    s32 bankedB = g_CombatGlobal->unk3D8DE;
-    s32 bankedA = g_CombatGlobal->unk3D8DC;
+    s32 bankedB = gBattle->bossDamageByPlayer;
+    s32 bankedA = gBattle->bossDamageByPartner;
     s32 delta   = (oldB - bankedB) + (oldA - bankedA);
-    s32 free    = g_CombatGlobal->unk3D8DA * 3 / 4 - (bankedB + bankedA);
+    s32 free    = gBattle->bossMaxHp * 3 / 4 - (bankedB + bankedA);
 
-    bar->unk_3DC             = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
-    bar->unk_3DA             = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
-    g_CombatGlobal->unk3D8DE = g_CombatGlobal->unk3D8DA * 3 / 4 / 2;
+    bar->unk_3DC                = gBattle->bossMaxHp * 3 / 4 / 2;
+    bar->unk_3DA                = gBattle->bossMaxHp * 3 / 4 / 2;
+    gBattle->bossDamageByPlayer = gBattle->bossMaxHp * 3 / 4 / 2;
 
     if (delta > 0) {
-        g_CombatGlobal->unk3D8DE -= (s16)(free * (oldB - bankedB) / delta);
+        gBattle->bossDamageByPlayer -= (s16)(free * (oldB - bankedB) / delta);
     }
-    g_CombatGlobal->unk3D8DC = g_CombatGlobal->unk3D8DA - g_CombatGlobal->unk3D8D8 - g_CombatGlobal->unk3D8DE;
+    gBattle->bossDamageByPartner = gBattle->bossMaxHp - gBattle->bossHp - gBattle->bossDamageByPlayer;
 }
 
 /// Clamps both banked segments to at least 3/8 of the gauge's maximum.
 /// Clamps both banked segments to at least 3/8 of the gauge's maximum.
 static void func_ov003_02099c90(void) {
-    s32 span    = g_CombatGlobal->unk3D8DA * 3 / 4;
+    s32 span    = gBattle->bossMaxHp * 3 / 4;
     s32 width   = span / 2;
-    s32 bankedB = g_CombatGlobal->unk3D8DE;
+    s32 bankedB = gBattle->bossDamageByPlayer;
 
     if (bankedB < width) {
-        g_CombatGlobal->unk3D8DE = width;
-        g_CombatGlobal->unk3D8DC -= (s16)(width - bankedB);
+        gBattle->bossDamageByPlayer = width;
+        gBattle->bossDamageByPartner -= (s16)(width - bankedB);
     }
     {
-        s32 bankedA = g_CombatGlobal->unk3D8DC;
+        s32 bankedA = gBattle->bossDamageByPartner;
 
         if (bankedA < width) {
-            g_CombatGlobal->unk3D8DC = width;
-            g_CombatGlobal->unk3D8DE -= (s16)(width - bankedA);
+            gBattle->bossDamageByPartner = width;
+            gBattle->bossDamageByPlayer -= (s16)(width - bankedA);
         }
     }
 }
 
 /// Converts a banked segment value to a bar width in pixels, for a gauge that is filling.
 static s32 func_ov003_02099d24(s16 value) {
-    s32 span  = g_CombatGlobal->unk3D8DA * 3 / 4;
+    s32 span  = gBattle->bossMaxHp * 3 / 4;
     s16 local = value - (s16)(span / 2);
-    s32 unit  = g_CombatGlobal->unk3D8DA / 4;
+    s32 unit  = gBattle->bossMaxHp / 4;
 
     if (local > unit) {
         local = unit;
@@ -126,7 +124,7 @@ static s32 func_ov003_02099d24(s16 value) {
 
 /// Converts a banked segment value to a bar width in pixels.
 static s32 func_ov003_02099d98(s16 value) {
-    s32 span  = g_CombatGlobal->unk3D8DA * 3 / 4;
+    s32 span  = gBattle->bossMaxHp * 3 / 4;
     s16 local = value;
 
     if (local > span) {
@@ -139,26 +137,26 @@ static s32 func_ov003_02099d98(s16 value) {
 static void func_ov003_02099dec(BtlBarBS* bs, BattleActor* actor) {
     BtlBar* bar = &bs->bar;
 
-    g_CombatGlobal->unk3D8D8 = actor->currentHp;
-    g_CombatGlobal->unk3D8DA = actor->maxHp;
+    gBattle->bossHp    = actor->currentHp;
+    gBattle->bossMaxHp = actor->maxHp;
     actor->flags |= ACTOR_FLAG_BOSS_GAUGE_HP;
     if (actor->linkedActor != NULL) {
         actor->linkedActor->flags |= ACTOR_FLAG_BOSS_GAUGE_HP;
     }
 
     bar->flags   = 0;
-    bar->unk_3DA = g_CombatGlobal->unk3D8DC;
-    bar->unk_3DC = g_CombatGlobal->unk3D8DE;
+    bar->unk_3DA = gBattle->bossDamageByPartner;
+    bar->unk_3DC = gBattle->bossDamageByPlayer;
 
-    if (g_CombatGlobal->unk3D8D8 <= g_CombatGlobal->unk3D8DA / 4) {
+    if (gBattle->bossHp <= gBattle->bossMaxHp / 4) {
         func_ov003_02099a98(bar);
         bar->unk_3F8 = 1;
-        bar->unk_3EC = func_ov003_02099d24(g_CombatGlobal->unk3D8DC);
-        bar->unk_3EE = func_ov003_02099d24(g_CombatGlobal->unk3D8DE);
+        bar->unk_3EC = func_ov003_02099d24(gBattle->bossDamageByPartner);
+        bar->unk_3EE = func_ov003_02099d24(gBattle->bossDamageByPlayer);
     } else {
         bar->unk_3F8 = 0;
-        bar->unk_3EC = func_ov003_02099d98(g_CombatGlobal->unk3D8DC);
-        bar->unk_3EE = func_ov003_02099d98(g_CombatGlobal->unk3D8DE);
+        bar->unk_3EC = func_ov003_02099d98(gBattle->bossDamageByPartner);
+        bar->unk_3EE = func_ov003_02099d98(gBattle->bossDamageByPlayer);
     }
 
     func_ov003_020999c4(bar);
@@ -181,7 +179,7 @@ static void func_ov003_02099f40(BtlBar* bar) {
 
     bar->flags = 0;
     if (bar->unk_3F8 == 0) {
-        if (g_CombatGlobal->unk3D8D8 <= g_CombatGlobal->unk3D8DA / 4) {
+        if (gBattle->bossHp <= gBattle->bossMaxHp / 4) {
             func_ov003_02099a98(bar);
             bar->unk_3F8 = 1;
             bar->unk_3EC = 0;
@@ -192,11 +190,11 @@ static void func_ov003_02099f40(BtlBar* bar) {
             bar->unk_3C2 = 0;
             func_ov003_020999c4(bar);
         }
-    } else if (g_CombatGlobal->unk3D8D8 > g_CombatGlobal->unk3D8DA / 4) {
+    } else if (gBattle->bossHp > gBattle->bossMaxHp / 4) {
         func_ov003_02099b94(bar);
         bar->unk_3F8 = 0;
-        bar->unk_3EC = func_ov003_02099d98(g_CombatGlobal->unk3D8DC);
-        bar->unk_3EE = func_ov003_02099d98(g_CombatGlobal->unk3D8DE);
+        bar->unk_3EC = func_ov003_02099d98(gBattle->bossDamageByPartner);
+        bar->unk_3EE = func_ov003_02099d98(gBattle->bossDamageByPlayer);
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3C0 = 0;
@@ -206,22 +204,22 @@ static void func_ov003_02099f40(BtlBar* bar) {
         func_ov003_02099c90();
     }
 
-    if (bar->unk_3DA < g_CombatGlobal->unk3D8DC) {
+    if (bar->unk_3DA < gBattle->bossDamageByPartner) {
         bar->unk_3DE = 0x1E;
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3F0 = 1;
-    } else if (bar->unk_3DA > g_CombatGlobal->unk3D8DC) {
+    } else if (bar->unk_3DA > gBattle->bossDamageByPartner) {
         bar->unk_3DE = 0x1E;
         bar->unk_3E4 = bar->unk_3EC << 12;
         bar->unk_3F0 = 2;
     } else if (bar->unk_3DE <= 0) {
         bar->unk_3F0 = 0;
     }
-    if (bar->unk_3DC < g_CombatGlobal->unk3D8DE) {
+    if (bar->unk_3DC < gBattle->bossDamageByPlayer) {
         bar->unk_3E0 = 0x1E;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3F4 = 1;
-    } else if (bar->unk_3DC > g_CombatGlobal->unk3D8DE) {
+    } else if (bar->unk_3DC > gBattle->bossDamageByPlayer) {
         bar->unk_3E0 = 0x1E;
         bar->unk_3E8 = bar->unk_3EE << 12;
         bar->unk_3F4 = 2;
@@ -229,13 +227,13 @@ static void func_ov003_02099f40(BtlBar* bar) {
         bar->unk_3F4 = 0;
     }
 
-    bar->unk_3DA = g_CombatGlobal->unk3D8DC;
-    bar->unk_3DC = g_CombatGlobal->unk3D8DE;
+    bar->unk_3DA = gBattle->bossDamageByPartner;
+    bar->unk_3DC = gBattle->bossDamageByPlayer;
 
     if (bar->unk_3F8 != 0) {
-        bar->unk_3EC = func_ov003_02099d24(g_CombatGlobal->unk3D8DC);
+        bar->unk_3EC = func_ov003_02099d24(gBattle->bossDamageByPartner);
     } else {
-        bar->unk_3EC = func_ov003_02099d98(g_CombatGlobal->unk3D8DC);
+        bar->unk_3EC = func_ov003_02099d98(gBattle->bossDamageByPartner);
     }
     fixed = (bar->unk_3E4 << 4) >> 16;
 
@@ -268,9 +266,9 @@ static void func_ov003_02099f40(BtlBar* bar) {
     }
 
     if (bar->unk_3F8 != 0) {
-        bar->unk_3EE = func_ov003_02099d24(g_CombatGlobal->unk3D8DE);
+        bar->unk_3EE = func_ov003_02099d24(gBattle->bossDamageByPlayer);
     } else {
-        bar->unk_3EE = func_ov003_02099d98(g_CombatGlobal->unk3D8DE);
+        bar->unk_3EE = func_ov003_02099d98(gBattle->bossDamageByPlayer);
     }
     fixed = (bar->unk_3E8 << 4) >> 16;
 
@@ -311,7 +309,7 @@ static void func_ov003_02099f40(BtlBar* bar) {
         bar->unk_3E0--;
     }
 
-    if (g_CombatGlobal->unk3D8D8 <= 0) {
+    if (gBattle->bossHp <= 0) {
         bar->flags &= ~0x400;
         bar->flags &= ~0x800;
     }
@@ -323,16 +321,16 @@ static s32 BtlBarBS_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(bar, 0, sizeof(BtlBarBS));
 
-    BtlSprite_LoadDirect(1, &bar->sprites[5], &data_ov003_020d7800, 46, 48, 47, 0x3F, 6);
-    BtlSprite_LoadDirect(1, &bar->sprites[6], &data_ov003_020d7800, 46, 48, 47, 0x3F, 1);
-    BtlSprite_LoadDirect(1, &bar->sprites[9], &data_ov003_020d7800, 46, 48, 47, 0x3F, 2);
-    BtlSprite_LoadDirect(1, &bar->sprites[8], &data_ov003_020d7800, 46, 48, 47, 0x3F, 3);
-    BtlSprite_LoadDirect(1, &bar->sprites[7], &data_ov003_020d7800, 46, 48, 47, 0x3F, 4);
-    BtlSprite_LoadDirect(0, &bar->sprites[0], &data_ov003_020d7800, 43, 45, 44, 0x3D, 6);
-    BtlSprite_LoadDirect(0, &bar->sprites[1], &data_ov003_020d7800, 43, 45, 44, 0x3D, 1);
-    BtlSprite_LoadDirect(0, &bar->sprites[4], &data_ov003_020d7800, 43, 45, 44, 0x3D, 2);
-    BtlSprite_LoadDirect(0, &bar->sprites[3], &data_ov003_020d7800, 43, 45, 44, 0x3D, 3);
-    BtlSprite_LoadDirect(0, &bar->sprites[2], &data_ov003_020d7800, 43, 45, 44, 0x3D, 4);
+    BtlSprite_LoadDirect(1, &bar->sprites[5], &Iden_BtlMenu, 46, 48, 47, 0x3F, 6);
+    BtlSprite_LoadDirect(1, &bar->sprites[6], &Iden_BtlMenu, 46, 48, 47, 0x3F, 1);
+    BtlSprite_LoadDirect(1, &bar->sprites[9], &Iden_BtlMenu, 46, 48, 47, 0x3F, 2);
+    BtlSprite_LoadDirect(1, &bar->sprites[8], &Iden_BtlMenu, 46, 48, 47, 0x3F, 3);
+    BtlSprite_LoadDirect(1, &bar->sprites[7], &Iden_BtlMenu, 46, 48, 47, 0x3F, 4);
+    BtlSprite_LoadDirect(0, &bar->sprites[0], &Iden_BtlMenu, 43, 45, 44, 0x3D, 6);
+    BtlSprite_LoadDirect(0, &bar->sprites[1], &Iden_BtlMenu, 43, 45, 44, 0x3D, 1);
+    BtlSprite_LoadDirect(0, &bar->sprites[4], &Iden_BtlMenu, 43, 45, 44, 0x3D, 2);
+    BtlSprite_LoadDirect(0, &bar->sprites[3], &Iden_BtlMenu, 43, 45, 44, 0x3D, 3);
+    BtlSprite_LoadDirect(0, &bar->sprites[2], &Iden_BtlMenu, 43, 45, 44, 0x3D, 4);
 
     BtlSprite_SetSortKey(&bar->sprites[5], 9);
     BtlSprite_SetSortKey(&bar->sprites[6], 7);
@@ -467,7 +465,7 @@ static s32 BtlBarBS_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
         .cleanup    = BtlBarBS_Release,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -475,5 +473,5 @@ static s32 BtlBarBS_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 }
 
 void func_ov003_0209ab9c(BattleActor* actor) {
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlBarBS, NULL, 0, NULL, actor);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlBarBS, NULL, 0, NULL, actor);
 }

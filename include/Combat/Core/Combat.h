@@ -1,14 +1,8 @@
 #ifndef COMBAT_CORE_COMBAT_H
 #define COMBAT_CORE_COMBAT_H
 
-#include "Battle/Core/BtlActor.h"
-#include "Battle/Core/BtlAttackQueue.h"
-#include "Battle/Core/BtlCmdDeck.h"
-#include "Battle/Core/BtlCmdQueue.h"
-#include "Battle/Core/BtlList.h"
-#include "Battle/Core/BtlStage.h"
-#include "Battle/Core/BtlTouch.h"
-#include "Combat/Core/CombatMic.h"
+#include "Battle/Core/BtlMgr.h"
+#include "Battle/Core/BtlObsMgr.h"
 #include "Combat/Core/CombatPsych.h"
 #include "Engine/EasyTask.h"
 #include "Engine/File/DatMgr.h"
@@ -25,142 +19,6 @@ typedef struct Ov003CameraAnim {
     /* 0x10 */ s32          dir;   // 1 = negative offset
     /* 0x14 */ s32          offset;
 } Ov003CameraAnim;                 // Size: 0x18
-
-typedef struct Ov003EffectSlots {
-    union {
-        struct {
-            s32 unk_00;
-            s32 unk_04;
-            s32 unk_08;
-        };
-        Vec position;
-    };
-    /* 0x0C */ union {
-        s32 unk_0C;
-        void (*onAbsorb)(void*);
-    };
-    /* 0x10 */ union {
-        s32   unk_10;
-        void* callbackArg;
-    };
-    /* 0x14 */ u8 cooldown;
-    /* 0x15 */ u8 unk_15;
-} Ov003EffectSlots; // Size: 0x18
-
-typedef union Ov003AbilityFlags {
-    struct {
-        /* 0x0 */ u8 valid;
-        /* 0x1 */ u8 usable[3];
-    };
-    u32 raw;
-} Ov003AbilityFlags;
-
-typedef struct Ov003AbilitySlot {
-    /* 0x0 */ s32 actionId;
-    /* 0x4 */ s32 amount;
-} Ov003AbilitySlot; // Size: 0x8
-
-typedef struct Ov003AbilityData {
-    /* 0x00 */ Ov003AbilityFlags flags;
-    /* 0x04 */ Ov003AbilitySlot  slots[4];
-} Ov003AbilityData; // Size: 0x24
-
-typedef struct Ov003TouchEvent {
-    /* 0x00 */ u32              unk_00; // ability id, 0xFF = free slot
-    /* 0x04 */ u32              anyTouch;
-    /* 0x08 */ Ov003AbilityData ability;
-    /* 0x2C */ u32              slot; // touch slot the event belongs to
-} Ov003TouchEvent;                    // Size: 0x30
-
-typedef struct {
-    /* 0x00000 */ TaskPool          unk_00000;
-    /* 0x00080 */ Heap              heap_00080;
-    /* 0x0008C */ u8                heapData_00080[0x8000];
-    /* 0x0808C */ TaskPool          taskPool;
-    /* 0x0810C */ Heap              heap_0810C;
-    /* 0x08118 */ u8                heapData_0810C[0x8000];
-    /* 0x10118 */ TaskPool          unk_10118;
-    /* 0x10198 */ Heap              heap_10198;
-    /* 0x101A4 */ u8                heapData_10198[0x10000];
-    /* 0x201A4 */ TaskPool          unk_201A4;
-    /* 0x20224 */ Heap              heap_20224;
-    /* 0x20230 */ u8                heapData_20224[0x14000];
-    /* 0x34230 */ TaskPool          unk_34230;
-    /* 0x342B0 */ Heap              heap_342B0;
-    /* 0x342BC */ u8                heapData_342B0[0x8000];
-    /* 0x3C2BC */ TaskPool          unk_3C2BC;
-    /* 0x3C33C */ Heap              heap_3C33C;
-    /* 0x3C348 */ u8                heapData_3C33C[0x1000];
-    /* 0x3D348 */ PaletteResource*  unk3D348[2];
-    /* 0x3D350 */ Data*             unk3D350;
-    /* 0x3D354 */ Data*             unk3D354;
-    /* 0x3D358 */ Ov003EffectSlots  effectSlots;
-    /* 0x3D370 */ BattleTouchWork   touchWork;
-    /* 0x3D3CC */ BattleAttackQueue attackQueue;
-    /* 0x3D4BC */ Ov003TouchEvent   touchEvents[14];
-    /* 0x3D75C */ u8                unk_3D75C[4];
-    /* 0x3D760 */ BtlMicInput       microphone;
-    /* 0x3D7A4 */ u8                unk_3D7A4[0x3D7C0 - 0x3D7A4];
-    /* 0x3D7C0 */ BattleStage       stages[2]; // [0] main engine, [1] sub engine
-    /* 0x3D870 */ s32               unk3D870;
-    /* 0x3D874 */ u8                unk3D874;  // battle state
-    /* 0x3D875 */ u8                unk3D875;  // battle sub state
-    /* 0x3D876 */ char              unk_3D876[0x2];
-    /* 0x3D878 */ u32               unk3D878;
-    /* 0x3D87C */ s32               unk3D87C;
-    /* 0x3D880 */ s32               unk3D880;
-    /* 0x3D884 */ s32               unk3D884;
-    /* 0x3D888 */ s32               unk3D888;
-    /* 0x3D88C */ s8                unk3D88C; // battle index within the chain, 0-based
-    /* 0x3D88D */ u8                unk3D88D; // active partner (PARTNER_*)
-    /* 0x3D88E */ u16               unk3D88E; // encounter id of the current battle
-    /* 0x3D890 */ u8                unk3D890; // battle music id
-    /* 0x3D892 */ s16               unk3D892; // drop rate
-    /* 0x3D894 */ s16               unk3D894;
-    /* 0x3D896 */ s16               unk3D896; // partner sync rate
-    /* 0x3D898 */ BattleActor*      player;   // Neku (BtlPlayer00), on the main engine
-    /* 0x3D89C */ BattleActor*      partner;  // the partner, on the sub engine
-    /* 0x3D8A0 */ void*             unk3D8A0;
-    /* 0x3D8A4 */ BattleList        unk3D8A4; // units the sub screen attacks
-    /* 0x3D8AC */ BattleList        unk3D8AC; // units the main screen attacks
-    /* 0x3D8B4 */ BattleList        unk3D8B4;
-    /* 0x3D8BC */ BattleList        unk3D8BC;
-    /* 0x3D8C4 */ u16               touchActorCount;
-    /* 0x3D8C6 */ u8                unk_3D8C6[0x2];
-    /* 0x3D8C8 */ s32               unk3D8C8;
-    /* 0x3D8CC */ s32               unk3D8CC;
-    /* 0x3D8D0 */ s16               unk3D8D0; // level-up gauge value
-    /* 0x3D8D2 */ s16               unk3D8D2; // level-up gauge maximum
-    /* 0x3D8D4 */ s16               unk3D8D4; // banked gauge A
-    /* 0x3D8D6 */ s16               unk3D8D6; // banked gauge B
-    /* 0x3D8D8 */ s16               unk3D8D8; // second gauge value
-    /* 0x3D8DA */ s16               unk3D8DA; // second gauge maximum
-    /* 0x3D8DC */ s16               unk3D8DC; // second gauge banked A
-    /* 0x3D8DE */ s16               unk3D8DE; // second gauge banked B
-    /* 0x3D8E0 */ s32               unk3D8E0;
-    /* 0x3D8E4 */ BattleCmdQueue*   cmdQueue;
-    /* 0x3D8E8 */ BattleCmdDeck*    cmdDeck;
-    /* 0x3D8EC */ u8                unk3D8EC;
-    /* 0x3D8ED */ s8                unk3D8ED;
-    /* 0x3D8EE */ s16               unk3D8EE;
-    /* 0x3D8F0 */ s32               unk3D8F0;
-    /* 0x3D8F4 */ s32               unk3D8F4;
-    /* 0x3D8F8 */ s16               unk3D8F8;
-    /* 0x3D8FA */ s16               unk3D8FA;
-    /* 0x3D8FC */ s8                popupCountMain; // live message popups, main screen
-    /* 0x3D8FD */ s8                popupCountSub;  // live message popups, sub screen
-    /* 0x3D8FE */ u8                unk3D8FE;
-    /* 0x3D8FF */ u8                unk3D8FF;
-    /* 0x3D900 */ u16               unk3D900;
-    /* 0x3D902 */ u16               unk3D902;
-    /* 0x3D904 */ s16               unk3D904; // level-up flash timer, main screen
-    /* 0x3D906 */ s16               unk3D906; // level-up flash timer queue, main screen
-    /* 0x3D908 */ s16               unk3D908; // level-up flash timer, sub screen
-    /* 0x3D90A */ s16               unk3D90A; // level-up flash timer queue, sub screen
-    /* 0x3D90C */ s32               unk3D90C;
-} Ov003Global;                                // Size: 0x3D910
-
-extern Ov003Global* g_CombatGlobal;
 
 // Used in TaskStage.render functions
 void func_ov003_020c4878(void*);

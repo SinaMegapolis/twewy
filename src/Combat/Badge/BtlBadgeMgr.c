@@ -38,8 +38,8 @@ static void BtlBadgeMgr_UpdateAll(void);
 
 /// Drops every badge of the battle.
 void BtlBadgeMgr_Clear(void) {
-    g_CombatGlobal->touchActorCount = 0;
-    BtlList_Init(&g_CombatGlobal->unk3D8BC);
+    gBattle->touchActorCount = 0;
+    BtlList_Init(&gBattle->unk3D8BC);
 }
 
 /// Publishes the actor positions to the 3D layer's slot table.
@@ -47,7 +47,7 @@ void BtlBadgeMgr_PublishSlots(void) {
     Ov003TouchActor*     actor;
     Ov003TouchSlotTable* table = &gSaveData.battleTouchSlots;
 
-    actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
+    actor = BtlList_GetHead(&gBattle->unk3D8BC);
     MI_CpuSet(table->kind, 0, 6);
     if (actor != NULL && actor->kind == 0xFFFE) {
         table->playerX = actor->x >> 12;
@@ -62,7 +62,7 @@ void BtlBadgeMgr_PublishSlots(void) {
             table->x[actor->slot] = actor->x >> 12;
             table->y[actor->slot] = actor->y >> 12;
         }
-        if (g_CombatGlobal->unk3D890 != 0xD) {
+        if (gBattle->musicId != 0xD) {
             table->kind[actor->slot] = 0;
         } else {
             table->kind[actor->slot]   = actor->state;
@@ -98,7 +98,7 @@ void BtlBadgeMgr_SpawnBadges(s32 arg0) {
     RawPinData     pin;
     u16            i;
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020d7d24, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->commonPool, &data_ov003_020d7d24, NULL, 0, NULL, NULL);
     for (i = 0; i < 6; i++) {
         u16                pinId = BtlBadgeActor_GetEquippedPin(arg0, i)->pinID;
         const EquippedPin* equipped;
@@ -130,12 +130,12 @@ void BtlBadgeMgr_SpawnBadges(s32 arg0) {
             case 14:
             case 18:
             case 40:
-                g_CombatGlobal->touchWork.flags |= BTL_TOUCH_ALLOW_RAPID_TAP;
+                gBattle->touchWork.flags |= BTL_TOUCH_ALLOW_RAPID_TAP;
                 break;
             case 15:
             case 17:
             case 26:
-                g_CombatGlobal->touchWork.flags |= BTL_TOUCH_ALLOW_SCRIBBLE;
+                gBattle->touchWork.flags |= BTL_TOUCH_ALLOW_SCRIBBLE;
                 break;
         }
     }
@@ -146,7 +146,7 @@ void BtlBadgeMgr_SpawnBadges(s32 arg0) {
 static void BtlBadgeMgr_UpdateAll(void) {
     Ov003TouchActor* actor;
 
-    actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
+    actor = BtlList_GetHead(&gBattle->unk3D8BC);
     BtlBadgeActor_SeparateAll();
     while (actor != NULL) {
         if (actor->kind != 0xFFFE) {
@@ -160,7 +160,7 @@ static void BtlBadgeMgr_UpdateAll(void) {
 s32 BtlBadgeMgr_AnyActive(void) {
     Ov003TouchActor* actor;
 
-    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&gBattle->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         if (actor->kind != 0xFFFE && actor->unk_00E != 2) {
             return 1;
         }
@@ -172,7 +172,7 @@ s32 BtlBadgeMgr_AnyActive(void) {
 static void BtlBadgeMgr_ResetPositions(void) {
     Ov003TouchActor* actor;
 
-    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&gBattle->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         actor->x = data_0205c19d[actor->slot * 2] << 12;
         actor->y = data_0205c19d[actor->slot * 2 + 1] << 12;
     }
@@ -182,7 +182,7 @@ static void BtlBadgeMgr_ResetPositions(void) {
 void BtlBadgeMgr_ClearDrag(void) {
     Ov003TouchActor* actor;
 
-    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&gBattle->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         actor->unk_04C = 0;
     }
 }
@@ -196,7 +196,7 @@ void BtlBadgeMgr_DebugDrag(void) {
         BtlBadgeMgr_ResetPositions();
         return;
     }
-    for (actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
+    for (actor = BtlList_GetHead(&gBattle->unk3D8BC); actor != NULL; actor = BtlList_GetNext(&actor->node)) {
         s32 active = func_ov003_020a3e50(actor);
 
         if (actor->unk_04C != 0) {
@@ -207,15 +207,15 @@ void BtlBadgeMgr_DebugDrag(void) {
             }
         }
         if (selected == NULL && BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) != 0 && active != 0) {
-            if (BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0) {
+            if (BtlBadgeActor_HitTest(actor, gBattle->touchWork.x, gBattle->touchWork.y) != 0) {
                 selected       = actor;
                 actor->unk_04C = 1;
             }
         }
     }
     if (selected != NULL) {
-        selected->x = g_CombatGlobal->touchWork.x << 12;
-        selected->y = g_CombatGlobal->touchWork.y << 12;
+        selected->x = gBattle->touchWork.x << 12;
+        selected->y = gBattle->touchWork.y << 12;
     }
     BtlBadgeActor_SeparateAll();
 }

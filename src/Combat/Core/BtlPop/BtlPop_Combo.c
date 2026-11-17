@@ -11,7 +11,7 @@
 
 // The combo-count popup: a task that shows the running hit combo next to the main actor, then
 // re-shows it with a flash every time the combo grows. The combo itself lives in
-// `g_CombatGlobal->unk3D8F8`; hitting the actor's hit flags feed it through the shared
+// `gBattle->comboCount`; hitting the actor's hit flags feed it through the shared
 // `data_ov003_020e71bc` command mailbox.
 
 typedef struct BtlPop_Combo {
@@ -48,8 +48,6 @@ static s32 BtlPop_Combo_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
 const TaskHandle Tsk_BtlPop_Combo = {"Tsk_BtlPop_Combo", BtlPop_Combo_RunTask, sizeof(BtlPop_Combo)};
 
 static BtlPop_ComboCmd data_ov003_020e71bc;
-
-extern const BinIdentifier data_ov003_020d7800;
 
 static void func_ov003_0209ba40(BtlPop_Combo* combo);
 static void func_ov003_0209ba94(BtlPop_Combo* combo);
@@ -116,7 +114,7 @@ static void func_ov003_0209b8f4(BtlPop_Combo* combo) {
     combo->z          = -0x16000;
     combo->isActive   = TRUE;
     combo->shownCombo = 0;
-    combo->combo      = g_CombatGlobal->unk3D8F8;
+    combo->combo      = gBattle->comboCount;
     func_ov003_0209b760(combo, func_ov003_0209ba94);
 }
 
@@ -137,14 +135,14 @@ static void func_ov003_0209b93c(BtlPop_Combo* combo, BtlPop_ComboCmd* cmd) {
             }
 
             if (combo->isActive == FALSE) {
-                if (g_CombatGlobal->unk3D8F8 > 1) {
+                if (gBattle->comboCount > 1) {
                     func_ov003_0209b8f4(combo);
                 } else {
                     combo->timer = 0;
                     func_ov003_0209b760(combo, func_ov003_0209ba40);
                 }
             } else if (combo->state == 4) {
-                combo->combo = g_CombatGlobal->unk3D8F8;
+                combo->combo = gBattle->comboCount;
                 combo->timer = 0;
 
                 if (combo->combo != 1) {
@@ -166,8 +164,8 @@ static void func_ov003_0209ba40(BtlPop_Combo* combo) {
     }
     combo->timer--;
     if (combo->timer <= 0) {
-        g_CombatGlobal->unk3D8F8 = 0;
-        combo->timer             = 0;
+        gBattle->comboCount = 0;
+        combo->timer        = 0;
         func_ov003_0209b760(combo, NULL);
     }
 }
@@ -251,24 +249,24 @@ static void func_ov003_0209ba94(BtlPop_Combo* combo) {
             if (combo->isVisible == FALSE) {
                 combo->flashTimer = 0;
             }
-            if ((g_CombatGlobal->unk3D878 & 8) == 0) {
+            if ((gBattle->flags & BATTLE_FLAG_LEVEL_UP) == 0) {
                 combo->timer--;
                 if (combo->timer <= 0) {
                     combo->state = 5;
                 }
             }
-            if (g_CombatGlobal->unk3D8F8 > combo->combo) {
+            if (gBattle->comboCount > combo->combo) {
                 combo->state = 2;
                 combo->timer = 0;
-                combo->combo = g_CombatGlobal->unk3D8F8;
+                combo->combo = gBattle->comboCount;
             }
         } break;
 
         case 5: {
             if (combo->timer == 0) {
                 func_ov003_0209d4b0();
-                g_CombatGlobal->unk3D8F8 = 0;
-                combo->timer             = 5;
+                gBattle->comboCount = 0;
+                combo->timer        = 5;
                 func_ov003_0209b88c(combo, 0);
             }
             if (combo->timer > 0) {
@@ -276,7 +274,7 @@ static void func_ov003_0209ba94(BtlPop_Combo* combo) {
             }
             combo->timer--;
             if (combo->timer <= 0) {
-                if (g_CombatGlobal->unk3D8F8 > 1) {
+                if (gBattle->comboCount > 1) {
                     func_ov003_0209b8f4(combo);
                 } else {
                     combo->isActive = FALSE;
@@ -292,17 +290,17 @@ static s32 BtlPop_Combo_Init(TaskPool* pool, Task* task, void* args) {
     BtlPop_Combo* combo = task->data;
 
     MI_CpuSet(combo, 0, sizeof(BtlPop_Combo));
-    g_CombatGlobal->unk3D8F8 = 0;
-    combo->x                 = 0;
-    combo->y                 = 0xB4000;
-    combo->z                 = 0;
-    combo->unk84             = 0;
-    combo->timer             = 0;
-    combo->state             = 0;
-    combo->digitCount        = 0;
-    combo->isActive          = FALSE;
+    gBattle->comboCount = 0;
+    combo->x            = 0;
+    combo->y            = 0xB4000;
+    combo->z            = 0;
+    combo->unk84        = 0;
+    combo->timer        = 0;
+    combo->state        = 0;
+    combo->digitCount   = 0;
+    combo->isActive     = FALSE;
 
-    BtlSprite_LoadDirect(0, &combo->sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, 0x36);
+    BtlSprite_LoadDirect(0, &combo->sprite, &Iden_BtlMenu, 0x25, 0x27, 0x26, 0x3D, 0x36);
     BtlSprite_SetPriority(&combo->sprite, 0);
     BtlSprite_SetSortKey(&combo->sprite, 0);
     return 1;
@@ -382,7 +380,7 @@ static s32 BtlPop_Combo_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
         .render     = BtlPop_Combo_Render,
         .cleanup    = BtlPop_Combo_Release,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -393,8 +391,8 @@ static s32 BtlPop_Combo_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
 void func_ov003_0209c150(s16 combo) {
     data_ov003_020e71bc.type  = 1;
     data_ov003_020e71bc.value = combo;
-    g_CombatGlobal->unk3D8F8++;
-    if (gSaveData.battleMaxHits < g_CombatGlobal->unk3D8F8) {
-        gSaveData.battleMaxHits = g_CombatGlobal->unk3D8F8;
+    gBattle->comboCount++;
+    if (gSaveData.battleMaxHits < gBattle->comboCount) {
+        gSaveData.battleMaxHits = gBattle->comboCount;
     }
 }

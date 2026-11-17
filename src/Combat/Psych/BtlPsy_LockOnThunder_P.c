@@ -24,8 +24,8 @@ static s32 func_ov003_020b3a14(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                   = task->data;
-            BattleTouchWork* touch = func_ov003_020a62a0();
+            self               = task->data;
+            BattleTouch* touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = *arg;
             func_ov003_020b2fd8(&self->targets);
@@ -90,7 +90,7 @@ static s32 func_ov003_020b3bdc(Ov003LockOnThunderP* self) {
         return 1;
     }
     func_ov003_020a5a94(self->effect);
-    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesMain);
     while (unit != NULL) {
         s32 distance =
             func_ov003_020a632c(unit->actor.screenX, unit->actor.screenY - unit->actor.centerHeight, self->x, self->y);

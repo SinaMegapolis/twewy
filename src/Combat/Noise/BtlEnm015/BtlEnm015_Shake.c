@@ -45,9 +45,9 @@ static s32 func_ov013_02126f8c(BtlEnm015Shake* data, BtlEnm015* args) {
     data->unk_00 = args;
 
     if (func_ov003_020c37f8(&args->base.sprite) != 0) {
-        data->unk_04 = &g_CombatGlobal->stages[1];
+        data->unk_04 = &gBattle->stages[1];
     } else {
-        data->unk_04 = &g_CombatGlobal->stages[0];
+        data->unk_04 = &gBattle->stages[0];
     }
 
     data->unk_08 = 0x5000;

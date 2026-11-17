@@ -5,6 +5,28 @@
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/CombatAttack.h"
 #include "Engine/EasyTask.h"
+#include <nitro/fx/fx_vector.h>
+
+typedef struct Ov003EffectSlots {
+    union {
+        struct {
+            s32 unk_00;
+            s32 unk_04;
+            s32 unk_08;
+        };
+        Vec position;
+    };
+    /* 0x0C */ union {
+        s32 unk_0C;
+        void (*onAbsorb)(void*);
+    };
+    /* 0x10 */ union {
+        s32   unk_10;
+        void* callbackArg;
+    };
+    /* 0x14 */ u8 cooldown;
+    /* 0x15 */ u8 unk_15;
+} Ov003EffectSlots; // Size: 0x18
 
 typedef union Ov003PsychParamsHead {
     struct {

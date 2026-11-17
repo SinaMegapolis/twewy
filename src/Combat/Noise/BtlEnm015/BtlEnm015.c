@@ -71,9 +71,9 @@ void func_ov013_021256f0(BtlEnm015* arg0, u16 arg1, void* arg2, void* arg3, void
 
     TaskPool* pool;
     if (func_ov003_020c37f8(&arg0->base.sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
 
     if (arg1 != 0) {
@@ -93,9 +93,9 @@ void func_ov013_021257a4(BtlEnm015* arg0, s32 arg1) {
 
     TaskPool* pool;
     if (func_ov003_020c37f8(&arg0->base.sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm015_EffStamp, NULL, 0, NULL, &spawn);
 }
@@ -107,13 +107,13 @@ void func_ov013_02125838(BtlEnm015* arg0) {
         if (data_ov013_02127640 != -1) {
             return;
         }
-        pool                = &g_CombatGlobal->taskPool;
+        pool                = &gBattle->subPool;
         data_ov013_02127640 = EasyTask_CreateTask(pool, &Tsk_BtlEnm015_Shake, NULL, 0, NULL, arg0);
     } else {
         if (data_ov013_02127644 != -1) {
             return;
         }
-        pool                = &g_CombatGlobal->unk_00000;
+        pool                = &gBattle->mainPool;
         data_ov013_02127644 = EasyTask_CreateTask(pool, &Tsk_BtlEnm015_Shake, NULL, 0, NULL, arg0);
     }
 }
@@ -220,7 +220,7 @@ void func_ov013_02125b8c(s32 arg0, BtlEnm015* data, s32 arg2, s32 arg3) {
     BtlSprite_Load(&data->base.sprite, &anim);
     BtlSprite_SetAnimFromTable(&data->base.sprite, 0, 0);
 
-    BtlHit_LoadSparkForUnit(arg0, &data->base.subSprite, &data->base.actor);
+    BtlHit_LoadSparkForActor(arg0, &data->base.subSprite, &data->base.actor);
     func_ov003_020c495c(&data->base);
     if (arg0 == 0) {
         BtlCollision_Add(&data->base.collider, 1, r4->unk_03, r4->unk_04);
@@ -276,7 +276,7 @@ s32 func_ov013_02125d24(BtlEnm015* arg0) {
     } else {
         func_ov003_020c4668(&arg0->base);
     }
-    if (g_CombatGlobal->unk3D874 == 2 && func_ov003_020c3c28() == 0 && arg0->base.sprite.animTableIndex == 0) {
+    if (gBattle->state == BATTLE_STATE_FIGHT && func_ov003_020c3c28() == 0 && arg0->base.sprite.animTableIndex == 0) {
         u16 diff;
         if (SpriteMgr_IsFrameFinished(&arg0->base.sprite.sprite)) {
             diff = arg0->base.sprite.sprite.currentFrame - arg0->base.sprite.sprite.loopFrame + 1;
@@ -326,7 +326,7 @@ void func_ov013_02125efc(BtlEnm015* arg0) {
         arg0->base.actor.flags &= ~ACTOR_FLAG_TOUCHED;
     }
 
-    if (g_CombatGlobal->unk3D87C != 0 && arg0->base.sprite.paletteMode == BTL_SPRITE_PALETTE_FLASH) {
+    if (gBattle->paused != 0 && arg0->base.sprite.paletteMode == BTL_SPRITE_PALETTE_FLASH) {
         BtlSprite_SetPaletteMode(&arg0->base.sprite, BTL_SPRITE_PALETTE_OWN);
         BtlActor_Render(&arg0->base.actor, &arg0->base.sprite);
         BtlSprite_SetPaletteMode(&arg0->base.sprite, BTL_SPRITE_PALETTE_FLASH);

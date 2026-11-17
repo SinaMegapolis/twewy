@@ -28,7 +28,7 @@ s32 func_ov003_020b47fc(Ov003EffectContext* context, Ov003EffectState* effect) {
 static s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage) {
     Ov003EffectState** arg = args;
     Ov003PsychoFallT*  self;
-    BattleTouchWork*   touch;
+    BattleTouch*       touch;
     switch (stage) {
         default:
         case 0:
@@ -43,7 +43,7 @@ static s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage
             func_ov003_020a6464(1);
             func_ov003_020a6494(touch->x);
             BtlSe_PlayPanned(SEIDX_SE_PSY_PSYCOFALL02, self->x);
-            func_ov003_02087804(0);
+            BtlPlayerUtil_PlayAttackVoice(0);
             return 1;
         case 1:
             self = task->data;
@@ -66,7 +66,7 @@ static s32 func_ov003_020b4854(TaskPool* pool, Task* task, void* args, s32 stage
                     if (--self->timer == 0)
                         return 0;
                     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) || BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP)) {
-                        BattleTouchWork* held = &g_CombatGlobal->touchWork;
+                        BattleTouch* held = &gBattle->touchWork;
                         func_ov003_020a6494(held->x);
                         self->x = held->x;
                         self->y = held->y;

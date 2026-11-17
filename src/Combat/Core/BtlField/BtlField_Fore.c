@@ -174,7 +174,7 @@ static s32 BtlField_Fore_Render(TaskPool* pool, Task* task, void* args) {
     s32               posX;
     s32               posY;
 
-    if (g_CombatGlobal->unk3D878 & 0x1000) {
+    if (gBattle->flags & BATTLE_FLAG_FIELDS_STOPPED) {
         return 1;
     }
     i = 0;
@@ -243,6 +243,6 @@ void func_ov003_0209409c(s32 bgIndex) {
             return;
     }
     {
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Task_BtlField_Fore, NULL, 0, NULL, &args);
+        EasyTask_CreateTask(&gBattle->commonPool, &Task_BtlField_Fore, NULL, 0, NULL, &args);
     }
 }

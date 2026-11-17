@@ -33,8 +33,8 @@ static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage
             wave = task->data;
             MI_CpuSet(wave, 0, sizeof(*wave));
             wave->effect     = *(Ov003EffectState**)args;
-            wave->position.x = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-            wave->position.y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+            wave->position.x = BtlStage_ToWorldX(0, gBattle->touchWork.x);
+            wave->position.y = BtlStage_ToWorldY(0, gBattle->touchWork.y, 0);
             wave->flags      = 0;
             wave->hasSpawned = 0;
             wave->exhausted  = 0;
@@ -55,8 +55,8 @@ static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage
                     break;
                 case 1:
                     if (wave->wasHeld == 0) {
-                        wave->position.x  = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-                        wave->position.y  = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+                        wave->position.x  = BtlStage_ToWorldX(0, gBattle->touchWork.x);
+                        wave->position.y  = BtlStage_ToWorldY(0, gBattle->touchWork.y, 0);
                         wave->activeTicks = 0;
                         wave->flags |= 1;
                     }
@@ -74,8 +74,8 @@ static s32 func_ov003_020a9ac4(TaskPool* pool, Task* task, void* args, s32 stage
                 wave->flags |= 1;
             }
             if (wave->flags & 1) {
-                s32 x = BtlStage_ToWorldX(0, g_CombatGlobal->touchWork.x);
-                s32 y = BtlStage_ToWorldY(0, g_CombatGlobal->touchWork.y, 0);
+                s32 x = BtlStage_ToWorldX(0, gBattle->touchWork.x);
+                s32 y = BtlStage_ToWorldY(0, gBattle->touchWork.y, 0);
                 wave->position.x += (x - wave->position.x) >> 3;
                 wave->position.y += (y - wave->position.y) >> 3;
                 BtlStage_ClampToFloor(&wave->position.x, &wave->position.y, 0, 0);

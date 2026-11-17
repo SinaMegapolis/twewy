@@ -1,7 +1,7 @@
-#include "Combat/Core/CombatSpriteDefault.h"
+#include "Battle/Core/BtlSpriteDefault.h"
 #include "Battle/Core/BtlSprite.h"
 
-SpriteAnimation CombatSprite_DefaultAnim = {
+SpriteAnimation BtlSpriteDefault_Anim = {
     .bits_0_1          = 0,
     .dataType          = 1,
     .bit_6             = 0,

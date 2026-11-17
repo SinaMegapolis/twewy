@@ -8,8 +8,6 @@
 #include "SpriteMgr.h"
 #include "main_02026528.h"
 
-extern BinIdentifier data_ov003_020d7800;
-
 static s32  func_ov007_020e7c98(TaskPool* pool, Task* task, void* args);
 static s32  func_ov007_020e7d48(TaskPool* pool, Task* task, void* args);
 static s32  func_ov007_020e7da4(TaskPool* pool, Task* task, void* args);
@@ -38,24 +36,24 @@ static void func_ov007_020e75e4(BtlAuraLast* data, void (*callback)(BtlAuraLast*
 }
 
 static void func_ov007_020e75fc(s32 arg0, BattleSprite* cSprite, u16 arg2, u16 arg3) {
-    BtlSprite_LoadFromTable(arg0, cSprite, &data_ov003_020d7800, data_ov007_020e7f80, 0, arg3, 0x40);
+    BtlSprite_LoadFromTable(arg0, cSprite, &Iden_BtlMenu, data_ov007_020e7f80, 0, arg3, 0x40);
     BtlSprite_SetAnimFromTable(cSprite, arg2, 0);
 }
 
 static void func_ov007_020e764c(void) {
-    if (g_CombatGlobal->unk3D8EE < 0x1F4) {
-        BtlSe_PlayAtMainX(0x365, g_CombatGlobal->player->position.x);
+    if (gBattle->auraRate < 0x1F4) {
+        BtlSe_PlayAtMainX(0x365, gBattle->player->position.x);
     } else {
-        BtlSe_PlayAtMainX(0x366, g_CombatGlobal->player->position.x);
+        BtlSe_PlayAtMainX(0x366, gBattle->player->position.x);
     }
 }
 
 static void func_ov007_020e769c(s16* out) {
-    *out = (s8)g_CombatGlobal->unk3D8ED * 0x32 + 0xC8;
+    *out = (s8)gBattle->auraPasses * 0x32 + 0xC8;
     if (*out > 0x1F4) {
         *out = 0x1F4;
     }
-    func_ov003_0208cbc8();
+    BtlMgr_CountAuraPass();
 }
 
 static void func_ov007_020e76dc(BtlAuraLast* data, s32 arg) {
@@ -99,19 +97,19 @@ static void func_ov007_020e76dc(BtlAuraLast* data, s32 arg) {
         animIndex     = (s16)(RNG_Next(2) + 5);
         flag          = 0;
         size          = 0x3E;
-        posX          = (s16)(g_CombatGlobal->player->screenX + (RNG_Next(0x19) - 0xC));
-        posY          = (s16)(g_CombatGlobal->player->screenY + (RNG_Next(0x31) - 0x30));
+        posX          = (s16)(gBattle->player->screenX + (RNG_Next(0x19) - 0xC));
+        posY          = (s16)(gBattle->player->screenY + (RNG_Next(0x31) - 0x30));
         data->unk_7F0 = 4;
     }
 
     s32 flip;
     if (flag == 0) {
-        flip = 0x80000000 - g_CombatGlobal->player->position.y;
+        flip = 0x80000000 - gBattle->player->position.y;
     } else {
         flip = 0;
     }
 
-    BtlSprite_LoadDirect(flag, &sprite->sprite, &data_ov003_020d7800, 0x13, 0x15, 0x14, size, (u16)animIndex);
+    BtlSprite_LoadDirect(flag, &sprite->sprite, &Iden_BtlMenu, 0x13, 0x15, 0x14, size, (u16)animIndex);
     BtlSprite_SetAnim(&sprite->sprite, (u16)animIndex, 1);
     BtlSprite_SetPosition(&sprite->sprite, posX, posY);
     BtlSprite_SetSortKey(&sprite->sprite, flip);
@@ -169,7 +167,7 @@ static void func_ov007_020e79d8(BtlAuraLast* data) {
         if ((sprite->sprite.sprite.bits_0_1) == 1) {
             BtlSprite_SetSortKey(&sprite->sprite, 0);
         } else {
-            BattleActor* target = g_CombatGlobal->player;
+            BattleActor* target = gBattle->player;
             BtlSprite_SetSortKey(&sprite->sprite, 0x80000000 - target->position.y);
         }
         BtlSprite_Render(&sprite->sprite);
@@ -186,15 +184,15 @@ static void func_ov007_020e7a54(BtlAuraLast* data) {
 }
 
 static void func_ov007_020e7a8c(BtlAuraLast* data) {
-    if (g_CombatGlobal->unk3D8EC == 1) {
+    if (gBattle->auraPass == 1) {
         return;
     }
-    if (g_CombatGlobal->unk3D8EC == 2) {
-        g_CombatGlobal->unk3D8EC = 0;
-        data->unk_804            = g_CombatGlobal->partner->screenX << 12;
-        data->unk_808            = (g_CombatGlobal->partner->screenY - 0x20) << 12;
-        BtlSe_PlayAtSubX(0x21, data->unk_804);
-        g_CombatGlobal->unk3D8F0 = 0;
+    if (gBattle->auraPass == 2) {
+        gBattle->auraPass = 0;
+        data->unk_804     = gBattle->partner->screenX << 12;
+        data->unk_808     = (gBattle->partner->screenY - 0x20) << 12;
+        BtlSe_PlayAtSubX(SEIDX_SE_GREEN_LIGHT02, data->unk_804);
+        gBattle->auraOnPartner = 0;
         func_ov007_020e769c(&data->unk_80C);
         data->unk_7FC = 1;
         func_ov007_020e75e4(data, func_ov007_020e7b54);
@@ -206,7 +204,7 @@ static void func_ov007_020e7a8c(BtlAuraLast* data) {
 }
 
 static void func_ov007_020e7b54(BtlAuraLast* data) {
-    BattleActor* target = g_CombatGlobal->player;
+    BattleActor* target = gBattle->player;
     s32          posX   = target->screenX << 12;
     s32          posY   = (target->screenY + 0xA0) << 12;
 
@@ -231,8 +229,8 @@ static void func_ov007_020e7b54(BtlAuraLast* data) {
             data->unk_7FC = 0;
             data->unk_800 = 1;
             func_ov003_020974f8(posX, posY);
-            g_CombatGlobal->unk3D8EE = data->unk_80C;
-            g_CombatGlobal->unk3D8F4 = 1;
+            gBattle->auraRate     = data->unk_80C;
+            gBattle->auraOnPlayer = 1;
             func_ov007_020e764c();
             func_ov007_020e75e4(data, func_ov007_020e7a8c);
             break;
@@ -242,14 +240,14 @@ static void func_ov007_020e7b54(BtlAuraLast* data) {
 static s32 func_ov007_020e7c98(TaskPool* pool, Task* task, void* args) {
     BtlAuraLast* data = task->data;
 
-    data->unk_804            = 0;
-    data->unk_808            = 0;
-    data->unk_7FC            = 0;
-    data->unk_800            = 0;
-    g_CombatGlobal->unk3D8EE = 0x64;
-    g_CombatGlobal->unk3D8ED = 0;
-    g_CombatGlobal->unk3D8F0 = 0;
-    g_CombatGlobal->unk3D8F4 = 0;
+    data->unk_804          = 0;
+    data->unk_808          = 0;
+    data->unk_7FC          = 0;
+    data->unk_800          = 0;
+    gBattle->auraRate      = 0x64;
+    gBattle->auraPasses    = 0;
+    gBattle->auraOnPartner = 0;
+    gBattle->auraOnPlayer  = 0;
 
     func_ov007_020e75fc(1, &data->unk_000, 0, 0x40);
     func_ov007_020e75fc(0, &data->unk_060, 0, 0x3E);
@@ -286,14 +284,14 @@ static s32 func_ov007_020e7da4(TaskPool* pool, Task* task, void* args) {
             BtlSprite_Render(&data->unk_000);
         }
         if (data->unk_808 > 0xA8000) {
-            BattleActor* target = g_CombatGlobal->player;
+            BattleActor* target = gBattle->player;
             BtlSprite_SetPosition(&data->unk_060, (s16)(data->unk_804 >> 12), (s16)((data->unk_808 >> 12) - 0xC0));
             BtlSprite_SetSortKey(&data->unk_060, 0x80000001 - target->position.y);
             BtlSprite_Render(&data->unk_060);
         }
     }
     if (data->unk_800 != 0) {
-        BattleActor* target = g_CombatGlobal->player;
+        BattleActor* target = gBattle->player;
         BtlSprite_SetPosition(&data->unk_0C0, target->screenX, (s16)(target->screenY - 0x20));
         BtlSprite_SetSortKey(&data->unk_0C0, 0x80000001 - target->position.y);
         BtlSprite_Render(&data->unk_0C0);
@@ -315,7 +313,7 @@ static s32 func_ov007_020e7eb0(TaskPool* pool, Task* task, void* args) {
 static s32 func_ov007_020e7ee0(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov007_020e7f70;
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);

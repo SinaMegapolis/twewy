@@ -9,8 +9,6 @@
 #include "main_02026528.h"
 #include <nitro/mi/cpumem.h>
 
-extern BinIdentifier data_ov003_020d7808;
-
 typedef struct {
     /* 0x00 */ u16  unk_00;
     /* 0x02 */ char unk_02[0xCA - 0x2];
@@ -57,7 +55,7 @@ static void func_ov004_020ea634(BtlCmd_Esp* cmd, void (*arg1)(BtlCmd_Esp*)) {
 static void func_ov004_020ea648(BattleSprite* arg0, u16 arg1) {
     SpriteAnimationEx sp0;
 
-    BtlSprite_InitAnim(&sp0.anim, 1, &data_ov003_020d7808);
+    BtlSprite_InitAnim(&sp0.anim, 1, &Iden_BtlCmd);
     sp0.anim.bits_10_11 = 0;
     sp0.anim.unk_18     = 2;
     sp0.anim.packIndex  = 2;
@@ -86,7 +84,7 @@ static s32 func_ov004_020ea6f0(EspUnk* arg0, u16 arg1) {
 }
 
 static s32 func_ov004_020ea730(u16 arg0) {
-    s16*    temp_r0 = func_ov003_02086e94();
+    s16*    temp_r0 = BtlCmdDeck_GetPartnerData();
     EspUnk* var_r5  = BtlList_GetHead((BattleList*)(temp_r0 + 2));
     while (var_r5 != NULL) {
         if (var_r5->unk_CC == *temp_r0) {
@@ -102,7 +100,7 @@ static s32 func_ov004_020ea730(u16 arg0) {
 }
 
 static s32 func_ov004_020ea7ac(void) {
-    EspUnk* var_r0 = BtlList_GetHead((BattleList*)((u8*)func_ov003_02086e94() + 4));
+    EspUnk* var_r0 = BtlList_GetHead((BattleList*)((u8*)BtlCmdDeck_GetPartnerData() + 4));
     while (var_r0 != NULL) {
         if ((var_r0->unk_CA & 2) == 0 && (var_r0->unk_CA & 1)) {
             return 0;
@@ -113,16 +111,16 @@ static s32 func_ov004_020ea7ac(void) {
 }
 
 static s32 func_ov004_020ea7f4(void) {
-    s16* temp_r0 = func_ov003_02086e94();
+    s16* temp_r0 = BtlCmdDeck_GetPartnerData();
     s32  var_r5  = 0;
 
     EspUnk* temp = BtlList_GetHead((BattleList*)(temp_r0 + 2));
     while (temp != NULL) {
         if (temp->unk_CC == *temp_r0) {
             if (temp->unk_CA & 8) {
-                var_r5 = func_ov003_02086f20(2, temp->unk_CE);
+                var_r5 = BtlCmdDeck_AddProgress(2, temp->unk_CE);
             } else {
-                var_r5 = func_ov003_02086f20(1, temp->unk_CE);
+                var_r5 = BtlCmdDeck_AddProgress(1, temp->unk_CE);
             }
             break;
         } else {
@@ -141,7 +139,7 @@ static void func_ov004_020ea878(BtlCmd_Esp* cmd) {
         cmd->unk_78 = 0x10;
     }
     if (cmd->unk_78 > 0) {
-        temp_r0   = func_ov003_02086e94();
+        temp_r0   = BtlCmdDeck_GetPartnerData();
         temp_r0_2 = func_ov004_020e742c(temp_r0, *temp_r0);
         if (temp_r0_2 != NULL) {
             func_020265d4(&cmd->unk_64, temp_r0_2->unk_CE << 0xC, (u16)cmd->unk_78);
@@ -222,7 +220,7 @@ static s32 BtlCmd_Esp_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlCmd_Esp_Update(TaskPool* pool, Task* task, void* args) {
     BtlCmd_Esp* cmd = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 6) {
+    if (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) {
         return 0;
     }
     if (cmd->unk_74 != NULL) {
@@ -264,5 +262,5 @@ void BtlCmd_Esp_CreateTask(s32 arg0, s32 arg1, s32 arg2) {
     args.unk_4 = arg1;
     args.unk_8 = arg2;
     args.unk_0 = arg0;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlCmd_Esp, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlCmd_Esp, NULL, 0, NULL, &args);
 }

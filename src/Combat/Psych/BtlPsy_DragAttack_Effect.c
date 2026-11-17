@@ -21,7 +21,7 @@ s32 func_ov003_020acdc0(TaskPool* pool, Task* task, void* args) {
     if (self->opacity < 0)
         self->active = 0;
     if (self->captured == 0) {
-        BattleActor* player = g_CombatGlobal->player;
+        BattleActor* player = gBattle->player;
         self->position.x    = player->position.x;
         self->position.y    = player->position.y;
         self->position.z    = player->position.z;
@@ -75,7 +75,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
         default:
         case 0: {
             self                = task->data;
-            BattleActor* player = g_CombatGlobal->player;
+            BattleActor* player = gBattle->player;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect      = *arg;
             self->phase       = 0;
@@ -97,13 +97,13 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
             }
             CombatPsyAnim_Load(&self->sprite, 2, 1, animation, 0);
             BtlSe_PlayAtMainX(0x64, player->position.x);
-            func_ov003_02087804(0);
+            BtlPlayerUtil_PlayAttackVoice(0);
             return 1;
         }
         case 1: {
             Ov003DragAttack* self = task->data;
             Ov003EnemyActor* unit;
-            BattleActor*     player = g_CombatGlobal->player;
+            BattleActor*     player = gBattle->player;
             BtlSprite_Update(&self->sprite);
             switch (self->phase) {
                 case 0:
@@ -121,7 +121,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
                                 BtlSe_PlayAtMainX(0x65, player->position.x);
                             break;
                         case 0x1D: {
-                            unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+                            unit = BtlList_GetHead(&gBattle->enemiesMain);
                             while (unit != NULL) {
                                 s32 dz = player->position.z - unit->actor.position.z;
                                 if (dz < 0)
@@ -157,7 +157,7 @@ static s32 func_ov003_020acf24(TaskPool* pool, Task* task, void* args, s32 stage
         }
         case 2: {
             self                = task->data;
-            BattleActor* player = g_CombatGlobal->player;
+            BattleActor* player = gBattle->player;
             BtlSprite_SetPosition(&self->sprite, player->screenX, (s16)(player->screenY - 24));
             BtlSprite_SetAffineTransform(&self->sprite, self->angle, 0x1000, 0x1000, 1);
             if (self->opacity >= 0x1000)

@@ -257,5 +257,5 @@ void func_ov003_020cac38(s32 x, s32 y) {
 
     args.x = x;
     args.y = y;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEnmAuraSub, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlEnmAuraSub, NULL, 0, NULL, &args);
 }

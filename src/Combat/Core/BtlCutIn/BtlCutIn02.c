@@ -377,7 +377,7 @@ static void func_ov003_020c1044(BtlCutIn02* self) {
     MI_CpuSet(self, 0, sizeof(*self));
     func_ov003_020bfbb8(self, data_ov003_020e53a8);
     EasyFade_FadeBothDisplays(0, 0, 0x800);
-    switch (g_CombatGlobal->unk3D88D) {
+    switch (gBattle->partnerId) {
         case 2:
             self->kind = 2;
             return;

@@ -1,17 +1,19 @@
 #include "Battle/Core/BtlActor.h"
 #include "Battle/Core/BtlDebug.h"
 #include "Battle/Core/BtlMgr.h"
+#include "Battle/Core/BtlObsMgr.h"
 #include "Battle/Core/BtlStage.h"
 #include "Combat/Core/BtlPop.h"
-#include "Combat/Core/Combat.h"
 #include "FixedPoint.h"
 #include <nitro/fx.h>
 
+/// Ends the actor's hit stun.
 static void BtlActor_ClearHitStun(BattleActor* actor) {
     actor->hit.stunTimer = 0;
     actor->hit.finisher  = FALSE;
 }
 
+/// Slows the actor's ground velocity by its damping step, then scales it down while it is on the ground.
 static void BtlActor_ApplyPlanarDamping(BattleActor* actor) {
     if ((actor->flags & ACTOR_FLAG_LAUNCHED) == 0) {
         if (actor->xVelocity > 0) {
@@ -44,6 +46,7 @@ static void BtlActor_ApplyPlanarDamping(BattleActor* actor) {
     }
 }
 
+/// Deals the periodic effect's damage every 180 frames, defeating the actor (or the whole team) at 0 HP.
 static void BtlActor_ApplyPeriodicEffectTick(s32 engine, BattleActor* actor) {
     if (actor->periodicEffectTimer % 180 == 0) {
         s32 damage = actor->periodicEffectAmount;
@@ -53,9 +56,9 @@ static void BtlActor_ApplyPeriodicEffectTick(s32 engine, BattleActor* actor) {
             func_ov003_0209b564(engine, damage, actor, 3);
             if (actor->currentHp <= 0) {
                 actor->flags |= ACTOR_FLAG_KILLED;
-                BtlActor_ForceDefeat(g_CombatGlobal->player);
-                BtlActor_ForceDefeat(g_CombatGlobal->partner);
-                g_CombatGlobal->unk3D878 |= 0x30000;
+                BtlActor_ForceDefeat(gBattle->player);
+                BtlActor_ForceDefeat(gBattle->partner);
+                gBattle->flags |= (BATTLE_FLAG_NO_PAUSE | BATTLE_FLAG_SPECIAL_LOCKED);
             }
         } else {
             BtlMgr_AddUnitHp(engine, actor, -damage);
@@ -125,7 +128,7 @@ void BtlActor_ResetAttack(BattleActor* actor) {
 }
 
 void BtlActor_UpdateEffects(s32 engine, BattleActor* actor) {
-    if ((g_CombatGlobal->unk3D878 & 6) == 0) {
+    if ((gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) == 0) {
         if (actor->periodicEffectMode == 1) {
             BtlActor_ApplyPeriodicEffectTick(engine, actor);
         }

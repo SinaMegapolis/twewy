@@ -74,7 +74,7 @@ typedef struct BtlFieldDef {
     /* 0x18 */ u8                         rowIndex2;
     /* 0x19 */ u8                         rowIndex3;
     /* 0x1A */ u8                         scriptCount; // entries in `scripts`
-    /* 0x1B */ u8                         obsGroup;    // field-object spawn group (`CombatObsSpawn_FieldLists`)
+    /* 0x1B */ u8                         obsGroup;    // field-object spawn group (`BtlObsSpawn_FieldLists`)
 } BtlFieldDef;                                         // Size: 0x1C
 
 // BtlFieldScript_RG.c

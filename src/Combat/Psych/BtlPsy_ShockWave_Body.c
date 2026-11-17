@@ -429,9 +429,9 @@ static s32 func_ov003_020b72b8(Ov003ShockWaveBody* self) {
 }
 
 static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
-    BattleTouchWork* touch = &g_CombatGlobal->touchWork;
-    s32              x     = BtlStage_ToScreenX(0, self->x);
-    s32              y     = BtlStage_ToScreenY(0, self->y, self->z);
+    BattleTouch* touch = &gBattle->touchWork;
+    s32          x     = BtlStage_ToScreenX(0, self->x);
+    s32          y     = BtlStage_ToScreenY(0, self->y, self->z);
 
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP)) {
         return;
@@ -441,7 +441,7 @@ static void func_ov003_020b76e4(Ov003ShockWaveBody* self) {
 }
 
 static void func_ov003_020b7760(Ov003ShockWaveBody* self) {
-    BattleTouchWork* touch = &g_CombatGlobal->touchWork;
+    BattleTouch* touch = &gBattle->touchWork;
 
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH)) {
         return;
@@ -480,7 +480,7 @@ static s32 func_ov003_020b77a8(Ov003ShockWaveBody* self) {
 }
 
 static void func_ov003_020b78b0(Ov003ShockWaveBody* self) {
-    BattleActor* actor = g_CombatGlobal->player;
+    BattleActor* actor = gBattle->player;
     s32          x;
     s32          y;
     s16          targetX;

@@ -69,7 +69,7 @@ BtlCollision_ClearHits kind:function(arm,size=0x2c) addr:0x020844e8 local
 BtlCollision_CollidePair kind:function(arm,size=0x120) addr:0x02084514 local
 BtlCollision_Add kind:function(arm,size=0x44) addr:0x02084634
 BtlCollision_Remove kind:function(arm,size=0x1c) addr:0x02084678
- BtlCollision_SetDisabled kind:function(arm,size=0x18) addr:0x02084694
+BtlCollision_SetDisabled kind:function(arm,size=0x18) addr:0x02084694
 BtlCollision_SetPosition kind:function(arm,size=0x14) addr:0x020846ac
 BtlCollision_ApplyPush kind:function(arm,size=0x30) addr:0x020846c0
 BtlCollision_GetLayerList kind:function(arm,size=0xc) addr:0x020846f0
@@ -149,41 +149,41 @@ BtlCmdQueue_Clear kind:function(arm,size=0x4c) addr:0x0208697c
 BtlCmdQueue_SetDirection kind:function(arm,size=0x1c) addr:0x020869c8
 BtlCmdQueue_Pop kind:function(arm,size=0x5c) addr:0x020869e4
 BtlCmdQueue_TakeDirection kind:function(arm,size=0x24) addr:0x02086a40
-func_ov003_02086a64 kind:function(arm,size=0x1c) addr:0x02086a64
-func_ov003_02086a80 kind:function(arm,size=0x28) addr:0x02086a80
-func_ov003_02086aa8 kind:function(arm,size=0x1c) addr:0x02086aa8
-func_ov003_02086ac4 kind:function(arm,size=0x2c) addr:0x02086ac4
+BtlCmdQueue_IsPartnerReady kind:function(arm,size=0x1c) addr:0x02086a64
+BtlCmdQueue_IsPartnerJumping kind:function(arm,size=0x28) addr:0x02086a80
+BtlCmdQueue_SetPartnerReady kind:function(arm,size=0x1c) addr:0x02086aa8
+BtlCmdQueue_SetPartnerJumping kind:function(arm,size=0x2c) addr:0x02086ac4
 func_ov003_02086af0 kind:function(arm,size=0x24) addr:0x02086af0
 BtlCmdQueue_Init kind:function(arm,size=0x74) addr:0x02086b14
-func_ov003_02086b88 kind:function(arm,size=0x7c) addr:0x02086b88 local
+BtlCmdDeck_AdvanceStars kind:function(arm,size=0x7c) addr:0x02086b88 local
 BtlCmdDeck_Shuffle kind:function(arm,size=0x74) addr:0x02086c04
 BtlCmdDeck_EaseToSine kind:function(arm,size=0x48) addr:0x02086c78
-func_ov003_02086cc0 kind:function(arm,size=0x64) addr:0x02086cc0
-func_ov003_02086d24 kind:function(arm,size=0x68) addr:0x02086d24
-func_ov003_02086d8c kind:function(arm,size=0xac) addr:0x02086d8c
-func_ov003_02086e38 kind:function(arm,size=0x5c) addr:0x02086e38
-func_ov003_02086e94 kind:function(arm,size=0x1c) addr:0x02086e94
-func_ov003_02086eb0 kind:function(arm,size=0x70) addr:0x02086eb0 local
-func_ov003_02086f20 kind:function(arm,size=0x5c) addr:0x02086f20
-func_ov003_02086f7c kind:function(arm,size=0x70) addr:0x02086f7c
-func_ov003_02086fec kind:function(arm,size=0x1c) addr:0x02086fec
-func_ov003_02087008 kind:function(arm,size=0x8c) addr:0x02087008
-func_ov003_02087094 kind:function(arm,size=0x11c) addr:0x02087094
-func_ov003_020871b0 kind:function(arm,size=0x1c) addr:0x020871b0
-func_ov003_020871cc kind:function(arm,size=0x60) addr:0x020871cc
-func_ov003_0208722c kind:function(arm,size=0x24) addr:0x0208722c
-func_ov003_02087250 kind:function(arm,size=0x64) addr:0x02087250
-func_ov003_020872b4 kind:function(arm,size=0x5c) addr:0x020872b4
-func_ov003_02087310 kind:function(arm,size=0x48) addr:0x02087310
-func_ov003_02087358 kind:function(arm,size=0x20) addr:0x02087358
-func_ov003_02087378 kind:function(arm,size=0x68) addr:0x02087378
-func_ov003_020873e0 kind:function(arm,size=0x78) addr:0x020873e0
-func_ov003_02087458 kind:function(arm,size=0xe8) addr:0x02087458
-func_ov003_02087540 kind:function(arm,size=0x11c) addr:0x02087540
-func_ov003_0208765c kind:function(arm,size=0x64) addr:0x0208765c
-func_ov003_020876c0 kind:function(arm,size=0x44) addr:0x020876c0
-func_ov003_02087704 kind:function(arm,size=0x100) addr:0x02087704
-func_ov003_02087804 kind:function(arm,size=0x2fc) addr:0x02087804
+BtlCmdDeck_Refill kind:function(arm,size=0x64) addr:0x02086cc0
+BtlCmdDeck_DealCard kind:function(arm,size=0x68) addr:0x02086d24
+BtlCmdDeck_RenderCard kind:function(arm,size=0xac) addr:0x02086d8c
+BtlCmdDeck_UseCard kind:function(arm,size=0x5c) addr:0x02086e38
+BtlCmdDeck_GetPartnerData kind:function(arm,size=0x1c) addr:0x02086e94
+BtlCmdDeck_GetMaxStars kind:function(arm,size=0x70) addr:0x02086eb0 local
+BtlCmdDeck_AddProgress kind:function(arm,size=0x5c) addr:0x02086f20
+BtlCmdDeck_IsRoundComplete kind:function(arm,size=0x70) addr:0x02086f7c
+BtlCmdDeck_GetStars kind:function(arm,size=0x1c) addr:0x02086fec
+BtlCmdDeck_StartFusion kind:function(arm,size=0x8c) addr:0x02087008
+BtlCmdDeck_Init kind:function(arm,size=0x11c) addr:0x02087094
+BtlCmdDeck_Save kind:function(arm,size=0x1c) addr:0x020871b0
+BtlCmdDeck_DealBoard kind:function(arm,size=0x60) addr:0x020871cc
+BtlCmdDeck_Disable kind:function(arm,size=0x24) addr:0x0208722c
+BtlAttackQueue_Push kind:function(arm,size=0x64) addr:0x02087250
+BtlAttackQueue_Remove kind:function(arm,size=0x5c) addr:0x020872b4
+BtlAttackQueue_Clear kind:function(arm,size=0x48) addr:0x02087310
+BtlAttackQueue_GetHead kind:function(arm,size=0x20) addr:0x02087358
+BtlAttackQueue_Init kind:function(arm,size=0x68) addr:0x02087378
+BtlAttackQueue_DropInvalid kind:function(arm,size=0x78) addr:0x020873e0
+BtlPlayerUtil_UpdateRegen kind:function(arm,size=0xe8) addr:0x02087458
+BtlPlayerUtil_UpdateAuraInvincibility kind:function(arm,size=0x11c) addr:0x02087540
+BtlPlayerUtil_UpdateIdlePose kind:function(arm,size=0x64) addr:0x0208765c
+BtlPlayerUtil_IsPlayerDown kind:function(arm,size=0x44) addr:0x020876c0
+BtlPlayerUtil_IsLongPlayerDrag kind:function(arm,size=0x100) addr:0x02087704
+BtlPlayerUtil_PlayAttackVoice kind:function(arm,size=0x2fc) addr:0x02087804
 BtlPlayerUtil_WarpCharacter kind:function(arm,size=0x7c) addr:0x02087b00
 BtlPsyInstant_IsVerticalStroke kind:function(arm,size=0x94) addr:0x02087b7c local
 BtlPsyInstant_FirePierce kind:function(arm,size=0x18) addr:0x02087c10 local
@@ -201,57 +201,57 @@ BtlSe_PlayAtSubX kind:function(arm,size=0x3c) addr:0x02087f64
 BtlHit_GetSparkSize kind:function(arm,size=0x40) addr:0x02087fa0 local
 BtlHit_LoadSpark kind:function(arm,size=0x84) addr:0x02087fe0
 BtlHit_DrawSpark kind:function(arm,size=0x80) addr:0x02088064
-BtlHit_LoadSparkForUnit kind:function(arm,size=0x28) addr:0x020880e4
+BtlHit_LoadSparkForActor kind:function(arm,size=0x28) addr:0x020880e4
 BtlHit_DrawSparkOnActor kind:function(arm,size=0x24) addr:0x0208810c
 BtlHit_CanDrawSpark kind:function(arm,size=0x84) addr:0x02088130
-func_ov003_020881b4 kind:function(arm,size=0xb0) addr:0x020881b4 local
-func_ov003_02088264 kind:function(arm,size=0x8c) addr:0x02088264 local
-func_ov003_020882f0 kind:function(arm,size=0x9c) addr:0x020882f0 local
-func_ov003_0208838c kind:function(arm,size=0x9c) addr:0x0208838c local
-func_ov003_02088428 kind:function(arm,size=0x26c) addr:0x02088428 local
-func_ov003_02088694 kind:function(arm,size=0x80) addr:0x02088694 local
-func_ov003_02088714 kind:function(arm,size=0x50) addr:0x02088714 local
-func_ov003_02088764 kind:function(arm,size=0x24) addr:0x02088764 local
-func_ov003_02088788 kind:function(arm,size=0xa4) addr:0x02088788 local
-func_ov003_0208882c kind:function(arm,size=0x84) addr:0x0208882c local
-func_ov003_020888b0 kind:function(arm,size=0xd8) addr:0x020888b0 local
-func_ov003_02088988 kind:function(arm,size=0xc0) addr:0x02088988 local
-func_ov003_02088a48 kind:function(arm,size=0x74) addr:0x02088a48 local
-func_ov003_02088abc kind:function(arm,size=0xa0) addr:0x02088abc local
-func_ov003_02088b5c kind:function(arm,size=0x164) addr:0x02088b5c local
-func_ov003_02088cc0 kind:function(arm,size=0x4c) addr:0x02088cc0 local
-func_ov003_02088d0c kind:function(arm,size=0x250) addr:0x02088d0c local
-func_ov003_02088f5c kind:function(arm,size=0x194) addr:0x02088f5c local
-func_ov003_020890f0 kind:function(arm,size=0xa4) addr:0x020890f0 local
-func_ov003_02089194 kind:function(arm,size=0x2a8) addr:0x02089194 local
-func_ov003_0208943c kind:function(arm,size=0x170) addr:0x0208943c local
-func_ov003_020895ac kind:function(arm,size=0x124) addr:0x020895ac local
-func_ov003_020896d0 kind:function(arm,size=0x134) addr:0x020896d0 local
-func_ov003_02089804 kind:function(arm,size=0x80) addr:0x02089804 local
-func_ov003_02089884 kind:function(arm,size=0xf0) addr:0x02089884 local
-func_ov003_02089974 kind:function(arm,size=0x190) addr:0x02089974 local
-func_ov003_02089b04 kind:function(arm,size=0x170) addr:0x02089b04 local
-func_ov003_02089c74 kind:function(arm,size=0x1a4) addr:0x02089c74 local
-func_ov003_02089e18 kind:function(arm,size=0x178) addr:0x02089e18 local
-func_ov003_02089f90 kind:function(arm,size=0x98) addr:0x02089f90 local
-BtlHit_ApplyAttack kind:function(arm,size=0x64) addr:0x0208a028
+BtlHit_PostDebugBox kind:function(arm,size=0xb0) addr:0x020881b4 local
+BtlHit_RollDamageNegate kind:function(arm,size=0x8c) addr:0x02088264 local
+BtlHit_ApplyPinchAttackUp kind:function(arm,size=0x9c) addr:0x020882f0 local
+BtlHit_ApplyPinchDefenseUp kind:function(arm,size=0x9c) addr:0x0208838c local
+BtlHit_ApplyStatusAbilities kind:function(arm,size=0x26c) addr:0x02088428 local
+BtlHit_AddAirComboBonus kind:function(arm,size=0x80) addr:0x02088694 local
+BtlHit_IsImmune kind:function(arm,size=0x50) addr:0x02088714 local
+BtlHit_CheckIgnoresHits kind:function(arm,size=0x24) addr:0x02088764 local
+BtlHit_OverlapsBox kind:function(arm,size=0xa4) addr:0x02088788 local
+BtlHit_OverlapsScreenBox kind:function(arm,size=0x84) addr:0x0208882c local
+BtlHit_ApplyReaction kind:function(arm,size=0xd8) addr:0x020888b0 local
+BtlHit_PassAura kind:function(arm,size=0xc0) addr:0x02088988 local
+BtlHit_CheckFromBehind kind:function(arm,size=0x74) addr:0x02088a48 local
+BtlHit_ApplyKnockback kind:function(arm,size=0xa0) addr:0x02088abc local
+BtlHit_RollStatusEffect kind:function(arm,size=0x164) addr:0x02088b5c local
+BtlHit_ApplyStatusEffect kind:function(arm,size=0x4c) addr:0x02088cc0 local
+BtlHit_SpawnHitEffect kind:function(arm,size=0x250) addr:0x02088d0c local
+BtlHit_TryGuard kind:function(arm,size=0x194) addr:0x02088f5c local
+BtlHit_GetAffinityPercent kind:function(arm,size=0xa4) addr:0x020890f0 local
+BtlHit_CalcEnemyDamage kind:function(arm,size=0x2a8) addr:0x02089194 local
+BtlHit_CalcTeamDamage kind:function(arm,size=0x170) addr:0x0208943c local
+BtlHit_DamageEnemy kind:function(arm,size=0x124) addr:0x020895ac local
+BtlHit_DamageTeam kind:function(arm,size=0x134) addr:0x020896d0 local
+BtlHit_ApplyDamage kind:function(arm,size=0x80) addr:0x02089804 local
+BtlHit_ResolveOnActor kind:function(arm,size=0xf0) addr:0x02089884 local
+BtlHit_ResolvePointOnEnemies kind:function(arm,size=0x190) addr:0x02089974 local
+BtlHit_ResolvePointOnCharacter kind:function(arm,size=0x170) addr:0x02089b04 local
+BtlHit_ResolveScreenOnEnemies kind:function(arm,size=0x1a4) addr:0x02089c74 local
+BtlHit_ResolveScreenOnCharacter kind:function(arm,size=0x178) addr:0x02089e18 local
+BtlHit_StartStatusEffect kind:function(arm,size=0x98) addr:0x02089f90 local
+BtlHit_FlinchWithStatus kind:function(arm,size=0x64) addr:0x0208a028
 BtlHit_Stagger kind:function(arm,size=0x88) addr:0x0208a08c
 BtlHit_GetAttackInfo kind:function(arm,size=0x14) addr:0x0208a114
-BtlHit_AttackUnit kind:function(arm,size=0x3c) addr:0x0208a128
+BtlHit_AttackActor kind:function(arm,size=0x3c) addr:0x0208a128
 BtlHit_AttackAt kind:function(arm,size=0x40) addr:0x0208a164
 BtlHit_AttackAtScreen kind:function(arm,size=0x44) addr:0x0208a1a4
 BtlHit_AttackCharacter kind:function(arm,size=0x4c) addr:0x0208a1e8
 BtlHit_ArmActor kind:function(arm,size=0x28) addr:0x0208a234
 BtlHit_ActorImpact kind:function(arm,size=0x190) addr:0x0208a25c
-BtlHit_Dispatch kind:function(arm,size=0x9c) addr:0x0208a3ec local
+BtlHit_Resolve kind:function(arm,size=0x9c) addr:0x0208a3ec local
 BtlMgr_CalcMaxHp kind:function(arm,size=0x94) addr:0x0208a488 local
 BtlMgr_LoadOverlays kind:function(arm,size=0x35c) addr:0x0208a51c local
 BtlMgr_GetPartner kind:function(arm,size=0x1a4) addr:0x0208a878 local
-func_ov003_0208aa1c kind:function(arm,size=0x318) addr:0x0208aa1c local
-func_ov003_0208ad34 kind:function(arm,size=0xf0) addr:0x0208ad34 local
-func_ov003_0208ae24 kind:function(arm,size=0x74) addr:0x0208ae24 local
-func_ov003_0208ae98 kind:function(arm,size=0x40) addr:0x0208ae98 local
-func_ov003_0208aed8 kind:function(arm,size=0xc4) addr:0x0208aed8 local
+BtlMgr_InitTeam kind:function(arm,size=0x318) addr:0x0208aa1c local
+BtlMgr_InitBadges kind:function(arm,size=0xf0) addr:0x0208ad34 local
+BtlMgr_InitThreads kind:function(arm,size=0x74) addr:0x0208ae24 local
+BtlMgr_StartLevelUp kind:function(arm,size=0x40) addr:0x0208ae98 local
+BtlMgr_AreEnemiesDefeated kind:function(arm,size=0xc4) addr:0x0208aed8 local
 func_ov003_0208af9c kind:function(arm,size=0x30) addr:0x0208af9c
 BtlMgr_AddExp kind:function(arm,size=0x1b0) addr:0x0208afcc
 BtlMgr_AwardExp kind:function(arm,size=0x54) addr:0x0208b17c local
@@ -262,15 +262,15 @@ BtlMgr_MoveByAngle kind:function(arm,size=0x74) addr:0x0208b2fc
 BtlMgr_WorldToScreen kind:function(arm,size=0x5c) addr:0x0208b370
 BtlMgr_AddTeamHp kind:function(arm,size=0x14c) addr:0x0208b3cc
 BtlMgr_AddUnitHp kind:function(arm,size=0x178) addr:0x0208b518
-func_ov003_0208b690 kind:function(arm,size=0x44) addr:0x0208b690
-func_ov003_0208b6d4 kind:function(arm,size=0x48) addr:0x0208b6d4 local
-func_ov003_0208b71c kind:function(arm,size=0x228) addr:0x0208b71c local
-func_ov003_0208b944 kind:function(arm,size=0x964) addr:0x0208b944 local
-func_ov003_0208c2a8 kind:function(arm,size=0x214) addr:0x0208c2a8 local
-func_ov003_0208c4bc kind:function(arm,size=0x90) addr:0x0208c4bc local
-func_ov003_0208c54c kind:function(arm,size=0x148) addr:0x0208c54c local
-func_ov003_0208c694 kind:function(arm,size=0x84) addr:0x0208c694 local
-func_ov003_0208c718 kind:function(arm,size=0x84) addr:0x0208c718 local
+BtlMgr_IsStageFrozen kind:function(arm,size=0x44) addr:0x0208b690
+BtlMgr_StartReady kind:function(arm,size=0x48) addr:0x0208b6d4 local
+BtlMgr_CheckVictory kind:function(arm,size=0x228) addr:0x0208b71c local
+BtlMgr_StartBattle kind:function(arm,size=0x964) addr:0x0208b944 local
+BtlMgr_Tick kind:function(arm,size=0x214) addr:0x0208c2a8 local
+BtlMgr_RunTasks kind:function(arm,size=0x90) addr:0x0208c4bc local
+BtlMgr_EndBattle kind:function(arm,size=0x148) addr:0x0208c54c local
+BtlMgr_GetAttackBoost kind:function(arm,size=0x84) addr:0x0208c694 local
+BtlMgr_GetDefenseBoost kind:function(arm,size=0x84) addr:0x0208c718 local
 BtlMgr_IsTargetOnSide kind:function(arm,size=0x74) addr:0x0208c79c
 BtlMgr_FindNearestTarget kind:function(arm,size=0xb0) addr:0x0208c810
 BtlMgr_FindFarthestTarget kind:function(arm,size=0xb0) addr:0x0208c8c0
@@ -278,34 +278,34 @@ BtlMgr_GainExp kind:function(arm,size=0x70) addr:0x0208c970
 BtlMgr_GainPP kind:function(arm,size=0x24) addr:0x0208c9e0
 BtlMgr_HasAbility kind:function(arm,size=0x20) addr:0x0208ca04
 BtlMgr_GetAbilityValue kind:function(arm,size=0x30) addr:0x0208ca24
-func_ov003_0208ca54 kind:function(arm,size=0x8c) addr:0x0208ca54
-func_ov003_0208cae0 kind:function(arm,size=0x8c) addr:0x0208cae0
-func_ov003_0208cb6c kind:function(arm,size=0x40) addr:0x0208cb6c
-func_ov003_0208cbac kind:function(arm,size=0x1c) addr:0x0208cbac
-func_ov003_0208cbc8 kind:function(arm,size=0x4c) addr:0x0208cbc8
-func_ov003_0208cc14 kind:function(arm,size=0x380) addr:0x0208cc14 local
-func_ov003_0208cf94 kind:function(arm,size=0x7c) addr:0x0208cf94 local
-func_ov003_0208d010 kind:function(arm,size=0x1c0) addr:0x0208d010 local
-func_ov003_0208d1d0 kind:function(arm,size=0x2cc) addr:0x0208d1d0 local
-func_ov003_0208d49c kind:function(arm,size=0xd0) addr:0x0208d49c local
-func_ov003_0208d56c kind:function(arm,size=0x20) addr:0x0208d56c local
-func_ov003_0208d58c kind:function(arm,size=0x18) addr:0x0208d58c local
-func_ov003_0208d5a4 kind:function(arm,size=0x28) addr:0x0208d5a4 local
-func_ov003_0208d5cc kind:function(arm,size=0x3c) addr:0x0208d5cc local
-func_ov003_0208d608 kind:function(arm,size=0x90) addr:0x0208d608 local
-func_ov003_0208d698 kind:function(arm,size=0x480) addr:0x0208d698 local
-func_ov003_0208db18 kind:function(arm,size=0xdc) addr:0x0208db18 local
-func_ov003_0208dbf4 kind:function(arm,size=0x70) addr:0x0208dbf4 local
-func_ov003_0208dc64 kind:function(arm,size=0x3a4) addr:0x0208dc64 local
-func_ov003_0208e008 kind:function(arm,size=0x5c) addr:0x0208e008 local
-func_ov003_0208e064 kind:function(arm,size=0x34) addr:0x0208e064 local
-func_ov003_0208e098 kind:function(arm,size=0x358) addr:0x0208e098 local
-func_ov003_0208e3f0 kind:function(arm,size=0x130) addr:0x0208e3f0 local
-func_ov003_0208e520 kind:function(arm,size=0x7c) addr:0x0208e520 local
-func_ov003_0208e59c kind:function(arm,size=0x5c) addr:0x0208e59c local
-func_ov003_0208e5f8 kind:function(arm,size=0x70) addr:0x0208e5f8 local
-func_ov003_0208e668 kind:function(arm,size=0x158) addr:0x0208e668 local
-func_ov003_0208e7c0 kind:function(arm,size=0x70) addr:0x0208e7c0 local
+BtlMgr_GetAttack kind:function(arm,size=0x8c) addr:0x0208ca54
+BtlMgr_GetDefense kind:function(arm,size=0x8c) addr:0x0208cae0
+BtlMgr_RecordDamageDealt kind:function(arm,size=0x40) addr:0x0208cb6c
+BtlMgr_CountTeamHit kind:function(arm,size=0x1c) addr:0x0208cbac
+BtlMgr_CountAuraPass kind:function(arm,size=0x4c) addr:0x0208cbc8
+BtlMgr_CalcBonuses kind:function(arm,size=0x380) addr:0x0208cc14 local
+BtlMgr_RecordClearTime kind:function(arm,size=0x7c) addr:0x0208cf94 local
+BtlMgr_InitHardware kind:function(arm,size=0x1c0) addr:0x0208d010 local
+BtlMgr_InitDisplay kind:function(arm,size=0x2cc) addr:0x0208d1d0 local
+BtlMgr_VBlank kind:function(arm,size=0xd0) addr:0x0208d49c local
+BtlMgr_InitGraphics kind:function(arm,size=0x20) addr:0x0208d56c local
+BtlMgr_ExitGraphics kind:function(arm,size=0x18) addr:0x0208d58c local
+BtlMgr_SetEncounter kind:function(arm,size=0x28) addr:0x0208d5a4 local
+BtlMgr_CountUnplayedTracks kind:function(arm,size=0x3c) addr:0x0208d5cc local
+BtlMgr_PickTrack kind:function(arm,size=0x90) addr:0x0208d608 local
+BtlMgr_SetupScriptedBattle kind:function(arm,size=0x480) addr:0x0208d698 local
+BtlMgr_PickEncounter kind:function(arm,size=0xdc) addr:0x0208db18 local
+BtlMgr_PlayTrack kind:function(arm,size=0x70) addr:0x0208dbf4 local
+BtlMgr_PickMusic kind:function(arm,size=0x3a4) addr:0x0208dc64 local
+BtlMgr_AdvanceChain kind:function(arm,size=0x5c) addr:0x0208e008 local
+BtlMgr_SaveLevel kind:function(arm,size=0x34) addr:0x0208e064 local
+BtlMgr_LeaveBattle kind:function(arm,size=0x358) addr:0x0208e098 local
+BtlMgr_LeaveRetry kind:function(arm,size=0x130) addr:0x0208e3f0 local
+BtlMgr_FadeIn kind:function(arm,size=0x7c) addr:0x0208e520 local
+BtlMgr_FadeOut kind:function(arm,size=0x5c) addr:0x0208e59c local
+BtlMgr_WaitReady kind:function(arm,size=0x70) addr:0x0208e5f8 local
+BtlMgr_RunBattle kind:function(arm,size=0x158) addr:0x0208e668 local
+BtlMgr_WaitResults kind:function(arm,size=0x70) addr:0x0208e7c0 local
 BtlMgr_Init kind:function(arm,size=0x2d4) addr:0x0208e830 local
 BtlMgr_Main kind:function(arm,size=0x118) addr:0x0208eb04 local
 BtlMgr_Exit kind:function(arm,size=0x58) addr:0x0208ec1c local
@@ -1866,154 +1866,152 @@ CombatAnim_ShakeStart kind:function(arm,size=0x24) addr:0x020d415c
 CombatAnim_ShakeUpdate kind:function(arm,size=0x70) addr:0x020d4180
 CombatAnim_ShakeApply kind:function(arm,size=0x30) addr:0x020d41f0
 CombatAnim_ShakeStop kind:function(arm,size=0xc) addr:0x020d4220
-CombatAttackInfo_Table kind:data(any) addr:0x020d422c
-CombatObsSpawn_List11_3 kind:data(any) addr:0x020d54f8
-CombatObsSpawn_List20_1 kind:data(any) addr:0x020d54fc
-CombatObsSpawn_List03_3 kind:data(any) addr:0x020d5500
-CombatObsSpawn_List06_2 kind:data(any) addr:0x020d5504
-CombatObsSpawn_List09_2 kind:data(any) addr:0x020d5508
-CombatObsSpawn_List22_2 kind:data(any) addr:0x020d550c
-CombatObsSpawn_List01_2 kind:data(any) addr:0x020d5510
-CombatObsSpawn_List13_0 kind:data(any) addr:0x020d5514
-CombatObsSpawn_List14_0 kind:data(any) addr:0x020d5518
-CombatObsSpawn_List14_3 kind:data(any) addr:0x020d551c
-CombatObsSpawn_List08_1 kind:data(any) addr:0x020d5520
-CombatObsSpawn_List09_1 kind:data(any) addr:0x020d5524
-CombatObsSpawn_List10_0 kind:data(any) addr:0x020d5528
-CombatObsSpawn_List17_0 kind:data(any) addr:0x020d552c
-CombatObsSpawn_List12_0 kind:data(any) addr:0x020d5530
-CombatObsSpawn_List12_1 kind:data(any) addr:0x020d5534
-CombatObsSpawn_List02_1 kind:data(any) addr:0x020d5538
-CombatObsSpawn_List03_1 kind:data(any) addr:0x020d553c
-CombatObsSpawn_List13_3 kind:data(any) addr:0x020d5540
-CombatObsSpawn_List04_2 kind:data(any) addr:0x020d5544
-CombatObsSpawn_List14_1 kind:data(any) addr:0x020d5548
-CombatObsSpawn_List06_0 kind:data(any) addr:0x020d554c
-CombatObsSpawn_List07_0 kind:data(any) addr:0x020d5550
-CombatObsSpawn_List08_0 kind:data(any) addr:0x020d5554
-CombatObsSpawn_List16_0 kind:data(any) addr:0x020d5558
-CombatObsSpawn_List09_0 kind:data(any) addr:0x020d555c
-CombatObsSpawn_List21_2 kind:data(any) addr:0x020d5560
-CombatObsSpawn_List09_3 kind:data(any) addr:0x020d5564
-CombatObsSpawn_List08_2 kind:data(any) addr:0x020d5568
-CombatObsSpawn_List22_1 kind:data(any) addr:0x020d556c
-CombatObsSpawn_List11_2 kind:data(any) addr:0x020d5570
-CombatObsSpawn_List22_0 kind:data(any) addr:0x020d5574
-CombatObsSpawn_List19_0 kind:data(any) addr:0x020d5578
-CombatObsSpawn_List01_0 kind:data(any) addr:0x020d557c
-CombatObsSpawn_List01_3 kind:data(any) addr:0x020d5580
-CombatObsSpawn_List02_0 kind:data(any) addr:0x020d5584
-CombatObsSpawn_List22_3 kind:data(any) addr:0x020d5588
-CombatObsSpawn_List03_0 kind:data(any) addr:0x020d558c
-CombatObsSpawn_List20_3 kind:data(any) addr:0x020d5590
-CombatObsSpawn_List18_2 kind:data(any) addr:0x020d5594
-CombatObsSpawn_List12_3 kind:data(any) addr:0x020d5598
-CombatObsSpawn_List18_0 kind:data(any) addr:0x020d559c
-CombatObsSpawn_List17_3 kind:data(any) addr:0x020d55a0
-CombatObsSpawn_List21_0 kind:data(any) addr:0x020d55a4
-CombatObsSpawn_List14_2 kind:data(any) addr:0x020d55a8
-CombatObsSpawn_List05_3 kind:data(any) addr:0x020d55ac
-CombatObsSpawn_List15_2 kind:data(any) addr:0x020d55b0
-CombatObsSpawn_List15_3 kind:data(any) addr:0x020d55b6
-CombatObsSpawn_List19_2 kind:data(any) addr:0x020d55bc
-CombatObsSpawn_List08_3 kind:data(any) addr:0x020d55c2
-CombatObsSpawn_List16_1 kind:data(any) addr:0x020d55c8
-CombatObsSpawn_List19_3 kind:data(any) addr:0x020d55ce
-CombatObsSpawn_List16_2 kind:data(any) addr:0x020d55d4
-CombatObsSpawn_List10_1 kind:data(any) addr:0x020d55da
-CombatObsSpawn_List16_3 kind:data(any) addr:0x020d55e0
-CombatObsSpawn_List20_0 kind:data(any) addr:0x020d55e6
-CombatObsSpawn_List10_2 kind:data(any) addr:0x020d55ec
-CombatObsSpawn_List10_3 kind:data(any) addr:0x020d55f2
-CombatObsSpawn_List11_0 kind:data(any) addr:0x020d55f8
-CombatObsSpawn_List11_1 kind:data(any) addr:0x020d55fe
-CombatObsSpawn_List07_3 kind:data(any) addr:0x020d5604
-CombatObsSpawn_List07_2 kind:data(any) addr:0x020d560a
-CombatObsSpawn_List17_1 kind:data(any) addr:0x020d5610
-CombatObsSpawn_List21_3 kind:data(any) addr:0x020d5616
-CombatObsSpawn_List17_2 kind:data(any) addr:0x020d561c
-CombatObsSpawn_List00_1 kind:data(any) addr:0x020d5622
-CombatObsSpawn_List20_2 kind:data(any) addr:0x020d5628
-CombatObsSpawn_List00_2 kind:data(any) addr:0x020d562e
-CombatObsSpawn_List00_3 kind:data(any) addr:0x020d5634
-CombatObsSpawn_List01_1 kind:data(any) addr:0x020d563a
-CombatObsSpawn_List12_2 kind:data(any) addr:0x020d5640
-CombatObsSpawn_List02_2 kind:data(any) addr:0x020d5646
-CombatObsSpawn_List02_3 kind:data(any) addr:0x020d564c
-CombatObsSpawn_List13_1 kind:data(any) addr:0x020d5652
-CombatObsSpawn_List18_1 kind:data(any) addr:0x020d5658
-CombatObsSpawn_List03_2 kind:data(any) addr:0x020d565e
-CombatObsSpawn_List13_2 kind:data(any) addr:0x020d5664
-CombatObsSpawn_List04_0 kind:data(any) addr:0x020d566a
-CombatObsSpawn_List04_1 kind:data(any) addr:0x020d5670
-CombatObsSpawn_List04_3 kind:data(any) addr:0x020d5676
-CombatObsSpawn_List05_0 kind:data(any) addr:0x020d567c
-CombatObsSpawn_List05_1 kind:data(any) addr:0x020d5682
-CombatObsSpawn_List18_3 kind:data(any) addr:0x020d5688
-CombatObsSpawn_List05_2 kind:data(any) addr:0x020d568e
-CombatObsSpawn_List06_1 kind:data(any) addr:0x020d5694
-CombatObsSpawn_List06_3 kind:data(any) addr:0x020d569a
-CombatObsSpawn_List15_0 kind:data(any) addr:0x020d56a0
-CombatObsSpawn_List07_1 kind:data(any) addr:0x020d56a6
-CombatObsSpawn_List15_1 kind:data(any) addr:0x020d56ac
-CombatObsSpawn_List19_1 kind:data(any) addr:0x020d56b2
-CombatObsSpawn_List21_1 kind:data(any) addr:0x020d56b8
-CombatObsSpawn_List00_0 kind:data(any) addr:0x020d56be
-CombatObsSpawn_EncounterWeights kind:data(any) addr:0x020d56c4
-CombatEnmOverlay_Table kind:data(any) addr:0x020d6ab0
+BtlAttackInfo_Table kind:data(any) addr:0x020d422c
+BtlObsSpawn_List11_3 kind:data(any) addr:0x020d54f8
+BtlObsSpawn_List20_1 kind:data(any) addr:0x020d54fc
+BtlObsSpawn_List03_3 kind:data(any) addr:0x020d5500
+BtlObsSpawn_List06_2 kind:data(any) addr:0x020d5504
+BtlObsSpawn_List09_2 kind:data(any) addr:0x020d5508
+BtlObsSpawn_List22_2 kind:data(any) addr:0x020d550c
+BtlObsSpawn_List01_2 kind:data(any) addr:0x020d5510
+BtlObsSpawn_List13_0 kind:data(any) addr:0x020d5514
+BtlObsSpawn_List14_0 kind:data(any) addr:0x020d5518
+BtlObsSpawn_List14_3 kind:data(any) addr:0x020d551c
+BtlObsSpawn_List08_1 kind:data(any) addr:0x020d5520
+BtlObsSpawn_List09_1 kind:data(any) addr:0x020d5524
+BtlObsSpawn_List10_0 kind:data(any) addr:0x020d5528
+BtlObsSpawn_List17_0 kind:data(any) addr:0x020d552c
+BtlObsSpawn_List12_0 kind:data(any) addr:0x020d5530
+BtlObsSpawn_List12_1 kind:data(any) addr:0x020d5534
+BtlObsSpawn_List02_1 kind:data(any) addr:0x020d5538
+BtlObsSpawn_List03_1 kind:data(any) addr:0x020d553c
+BtlObsSpawn_List13_3 kind:data(any) addr:0x020d5540
+BtlObsSpawn_List04_2 kind:data(any) addr:0x020d5544
+BtlObsSpawn_List14_1 kind:data(any) addr:0x020d5548
+BtlObsSpawn_List06_0 kind:data(any) addr:0x020d554c
+BtlObsSpawn_List07_0 kind:data(any) addr:0x020d5550
+BtlObsSpawn_List08_0 kind:data(any) addr:0x020d5554
+BtlObsSpawn_List16_0 kind:data(any) addr:0x020d5558
+BtlObsSpawn_List09_0 kind:data(any) addr:0x020d555c
+BtlObsSpawn_List21_2 kind:data(any) addr:0x020d5560
+BtlObsSpawn_List09_3 kind:data(any) addr:0x020d5564
+BtlObsSpawn_List08_2 kind:data(any) addr:0x020d5568
+BtlObsSpawn_List22_1 kind:data(any) addr:0x020d556c
+BtlObsSpawn_List11_2 kind:data(any) addr:0x020d5570
+BtlObsSpawn_List22_0 kind:data(any) addr:0x020d5574
+BtlObsSpawn_List19_0 kind:data(any) addr:0x020d5578
+BtlObsSpawn_List01_0 kind:data(any) addr:0x020d557c
+BtlObsSpawn_List01_3 kind:data(any) addr:0x020d5580
+BtlObsSpawn_List02_0 kind:data(any) addr:0x020d5584
+BtlObsSpawn_List22_3 kind:data(any) addr:0x020d5588
+BtlObsSpawn_List03_0 kind:data(any) addr:0x020d558c
+BtlObsSpawn_List20_3 kind:data(any) addr:0x020d5590
+BtlObsSpawn_List18_2 kind:data(any) addr:0x020d5594
+BtlObsSpawn_List12_3 kind:data(any) addr:0x020d5598
+BtlObsSpawn_List18_0 kind:data(any) addr:0x020d559c
+BtlObsSpawn_List17_3 kind:data(any) addr:0x020d55a0
+BtlObsSpawn_List21_0 kind:data(any) addr:0x020d55a4
+BtlObsSpawn_List14_2 kind:data(any) addr:0x020d55a8
+BtlObsSpawn_List05_3 kind:data(any) addr:0x020d55ac
+BtlObsSpawn_List15_2 kind:data(any) addr:0x020d55b0
+BtlObsSpawn_List15_3 kind:data(any) addr:0x020d55b6
+BtlObsSpawn_List19_2 kind:data(any) addr:0x020d55bc
+BtlObsSpawn_List08_3 kind:data(any) addr:0x020d55c2
+BtlObsSpawn_List16_1 kind:data(any) addr:0x020d55c8
+BtlObsSpawn_List19_3 kind:data(any) addr:0x020d55ce
+BtlObsSpawn_List16_2 kind:data(any) addr:0x020d55d4
+BtlObsSpawn_List10_1 kind:data(any) addr:0x020d55da
+BtlObsSpawn_List16_3 kind:data(any) addr:0x020d55e0
+BtlObsSpawn_List20_0 kind:data(any) addr:0x020d55e6
+BtlObsSpawn_List10_2 kind:data(any) addr:0x020d55ec
+BtlObsSpawn_List10_3 kind:data(any) addr:0x020d55f2
+BtlObsSpawn_List11_0 kind:data(any) addr:0x020d55f8
+BtlObsSpawn_List11_1 kind:data(any) addr:0x020d55fe
+BtlObsSpawn_List07_3 kind:data(any) addr:0x020d5604
+BtlObsSpawn_List07_2 kind:data(any) addr:0x020d560a
+BtlObsSpawn_List17_1 kind:data(any) addr:0x020d5610
+BtlObsSpawn_List21_3 kind:data(any) addr:0x020d5616
+BtlObsSpawn_List17_2 kind:data(any) addr:0x020d561c
+BtlObsSpawn_List00_1 kind:data(any) addr:0x020d5622
+BtlObsSpawn_List20_2 kind:data(any) addr:0x020d5628
+BtlObsSpawn_List00_2 kind:data(any) addr:0x020d562e
+BtlObsSpawn_List00_3 kind:data(any) addr:0x020d5634
+BtlObsSpawn_List01_1 kind:data(any) addr:0x020d563a
+BtlObsSpawn_List12_2 kind:data(any) addr:0x020d5640
+BtlObsSpawn_List02_2 kind:data(any) addr:0x020d5646
+BtlObsSpawn_List02_3 kind:data(any) addr:0x020d564c
+BtlObsSpawn_List13_1 kind:data(any) addr:0x020d5652
+BtlObsSpawn_List18_1 kind:data(any) addr:0x020d5658
+BtlObsSpawn_List03_2 kind:data(any) addr:0x020d565e
+BtlObsSpawn_List13_2 kind:data(any) addr:0x020d5664
+BtlObsSpawn_List04_0 kind:data(any) addr:0x020d566a
+BtlObsSpawn_List04_1 kind:data(any) addr:0x020d5670
+BtlObsSpawn_List04_3 kind:data(any) addr:0x020d5676
+BtlObsSpawn_List05_0 kind:data(any) addr:0x020d567c
+BtlObsSpawn_List05_1 kind:data(any) addr:0x020d5682
+BtlObsSpawn_List18_3 kind:data(any) addr:0x020d5688
+BtlObsSpawn_List05_2 kind:data(any) addr:0x020d568e
+BtlObsSpawn_List06_1 kind:data(any) addr:0x020d5694
+BtlObsSpawn_List06_3 kind:data(any) addr:0x020d569a
+BtlObsSpawn_List15_0 kind:data(any) addr:0x020d56a0
+BtlObsSpawn_List07_1 kind:data(any) addr:0x020d56a6
+BtlObsSpawn_List15_1 kind:data(any) addr:0x020d56ac
+BtlObsSpawn_List19_1 kind:data(any) addr:0x020d56b2
+BtlObsSpawn_List21_1 kind:data(any) addr:0x020d56b8
+BtlObsSpawn_List00_0 kind:data(any) addr:0x020d56be
+BtlObsSpawn_EncounterWeights kind:data(any) addr:0x020d56c4
+BtlEnmOverlay_Table kind:data(any) addr:0x020d6ab0
 Iden_BtlTch kind:data(any) addr:0x020d6fac
-data_ov003_020d6fb4 kind:data(any) addr:0x020d6fb4
-data_ov003_020d6fc4 kind:data(any) addr:0x020d6fc4
-data_ov003_020d6fd4 kind:data(any) addr:0x020d6fd4
-data_ov003_020d6fe4 kind:data(any) addr:0x020d6fe4
-data_ov003_020d6ff4 kind:data(any) addr:0x020d6ff4
-data_ov003_020d7004 kind:data(any) addr:0x020d7004
-data_ov003_020d7014 kind:data(any) addr:0x020d7014
-data_ov003_020d7024 kind:data(any) addr:0x020d7024
-data_ov003_020d703c kind:data(any) addr:0x020d703c
-data_ov003_020d7054 kind:data(any) addr:0x020d7054
-data_ov003_020d706c kind:data(any) addr:0x020d706c
-data_ov003_020d7084 kind:data(any) addr:0x020d7084
-data_ov003_020d709c kind:data(any) addr:0x020d709c
-data_ov003_020d70b4 kind:data(any) addr:0x020d70b4
-data_ov003_020d70cc kind:data(any) addr:0x020d70cc
-data_ov003_020d70e4 kind:data(any) addr:0x020d70e4
-data_ov003_020d70fc kind:data(any) addr:0x020d70fc
-data_ov003_020d7114 kind:data(any) addr:0x020d7114
-data_ov003_020d712c kind:data(any) addr:0x020d712c
-data_ov003_020d7144 kind:data(any) addr:0x020d7144
-data_ov003_020d715c kind:data(any) addr:0x020d715c
-data_ov003_020d7174 kind:data(any) addr:0x020d7174
-data_ov003_020d718c kind:data(any) addr:0x020d718c
-data_ov003_020d71a4 kind:data(any) addr:0x020d71a4
+BtlObsMgr_Anims14 kind:data(any) addr:0x020d6fb4
+BtlObsMgr_Anims22 kind:data(any) addr:0x020d6fc4
+BtlObsMgr_Anims12 kind:data(any) addr:0x020d6fd4
+BtlObsMgr_Anims11 kind:data(any) addr:0x020d6fe4
+BtlObsMgr_Anims13 kind:data(any) addr:0x020d6ff4
+BtlObsMgr_Anims10 kind:data(any) addr:0x020d7004
+BtlObsMgr_Anims23 kind:data(any) addr:0x020d7014
+BtlObsMgr_Anims20 kind:data(any) addr:0x020d7024
+BtlObsMgr_Anims15 kind:data(any) addr:0x020d703c
+BtlObsMgr_Anims21 kind:data(any) addr:0x020d7054
+BtlObsMgr_Anims01 kind:data(any) addr:0x020d706c
+BtlObsMgr_Anims00 kind:data(any) addr:0x020d7084
+BtlObsMgr_Anims16 kind:data(any) addr:0x020d709c
+BtlObsMgr_Anims07 kind:data(any) addr:0x020d70b4
+BtlObsMgr_Anims17 kind:data(any) addr:0x020d70cc
+BtlObsMgr_Anims08 kind:data(any) addr:0x020d70e4
+BtlObsMgr_Anims09 kind:data(any) addr:0x020d70fc
+BtlObsMgr_Anims18 kind:data(any) addr:0x020d7114
+BtlObsMgr_Anims06 kind:data(any) addr:0x020d712c
+BtlObsMgr_Anims05 kind:data(any) addr:0x020d7144
+BtlObsMgr_Anims04 kind:data(any) addr:0x020d715c
+BtlObsMgr_Anims03 kind:data(any) addr:0x020d7174
+BtlObsMgr_Anims02 kind:data(any) addr:0x020d718c
+BtlObsMgr_Anims19 kind:data(any) addr:0x020d71a4
 BtlObsMgr_AnimSets kind:data(any) addr:0x020d71bc
 BtlObsMgr_Configs kind:data(any) addr:0x020d72dc
 BtlObsMgr_DropKinds kind:data(any) addr:0x020d75fc
-data_ov003_020d7614 kind:data(any) addr:0x020d7614
-data_ov003_020d7620 kind:data(any) addr:0x020d7620
-data_ov003_020d7622 kind:data(any) addr:0x020d7622
-data_ov003_020d7630 kind:data(any) addr:0x020d7630
-data_ov003_020d7650 kind:data(any) addr:0x020d7650
-data_ov003_020d7654 kind:data(any) addr:0x020d7654
-data_ov003_020d76d0 kind:data(any) addr:0x020d76d0
-data_ov003_020d77d0 kind:data(any) addr:0x020d77d0
-data_ov003_020d77d8 kind:data(any) addr:0x020d77d8
-data_ov003_020d77e0 kind:data(any) addr:0x020d77e0
-data_ov003_020d77e8 kind:data(any) addr:0x020d77e8
-data_ov003_020d77f0 kind:data(any) addr:0x020d77f0
-data_ov003_020d77f8 kind:data(any) addr:0x020d77f8
-data_ov003_020d7800 kind:data(any) addr:0x020d7800
-data_ov003_020d7808 kind:data(any) addr:0x020d7808
-data_ov003_020d7810 kind:data(any) addr:0x020d7810
-data_ov003_020d7818 kind:data(any) addr:0x020d7818
-data_ov003_020d7820 kind:data(any) addr:0x020d7820
-data_ov003_020d7828 kind:data(any) addr:0x020d7828
-data_ov003_020d7830 kind:data(any) addr:0x020d7830
-data_ov003_020d7834 kind:data(any) addr:0x020d7834
-data_ov003_020d7838 kind:data(any) addr:0x020d7838
+BtlCmdDeck_StarThresholds kind:data(any) addr:0x020d7614 local
+BtlHit_DifficultyDamagePercents kind:data(any) addr:0x020d7620
+BtlHit_ChainDamagePercents kind:data(any) addr:0x020d7630
+BtlHit_Knockbacks kind:data(any) addr:0x020d7650
+BtlHit_StatusEffects kind:data(any) addr:0x020d76d0
+BtlMgr_ExpPercents kind:data(any) addr:0x020d77d0
+Iden_BtlPly00 kind:data(any) addr:0x020d77d8
+Iden_BtlPly01 kind:data(any) addr:0x020d77e0
+Iden_BtlPly02 kind:data(any) addr:0x020d77e8
+Iden_BtlPly03 kind:data(any) addr:0x020d77f0
+Iden_BtlEffect kind:data(any) addr:0x020d77f8
+Iden_BtlMenu kind:data(any) addr:0x020d7800
+Iden_BtlCmd kind:data(any) addr:0x020d7808
+Iden_BtlBadge kind:data(any) addr:0x020d7810
+Iden_BtlJingle kind:data(any) addr:0x020d7818
+Iden_BtlObs kind:data(any) addr:0x020d7820
+Iden_BtlSpecial kind:data(any) addr:0x020d7828
+BtlMgr_Encounter51Phases kind:data(any) addr:0x020d7830
+BtlMgr_Encounter20Phases kind:data(any) addr:0x020d7834
+BtlMgr_Encounter10Phases kind:data(any) addr:0x020d7838
 BtlMgr_ProcessStages kind:data(any) addr:0x020d7844
-data_ov003_020d7850 kind:data(any) addr:0x020d7850
-data_ov003_020d7898 kind:data(any) addr:0x020d7898
+BtlMgr_TrackFiles kind:data(any) addr:0x020d7850
+BtlMgr_ChapterTracks kind:data(any) addr:0x020d7898
 Task_BtlTch kind:data(any) addr:0x020d78f0
 @2965 kind:data(any) addr:0x020d78fc local
 Tsk_BtlTch_Click kind:data(any) addr:0x020d790c
@@ -4060,27 +4058,27 @@ data_ov003_020e3674 kind:data(any) addr:0x020e3674
 data_ov003_020e36b0 kind:data(any) addr:0x020e36b0
 data_ov003_020e36ec kind:data(any) addr:0x020e36ec
 data_ov003_020e3728 kind:data(any) addr:0x020e3728
-CombatObsSpawn_FieldLists kind:data(any) addr:0x020e3780
-CombatSprite_DefaultAnim kind:data(any) addr:0x020e38f0
-Path_BtlTch kind:data(any) addr:0x020e391c
+BtlObsSpawn_FieldLists kind:data(any) addr:0x020e3780
+BtlSpriteDefault_Anim kind:data(any) addr:0x020e38f0
+@1974 kind:data(byte[23]) addr:0x020e391c local
 BtlPsy_Pierce_ArgName kind:data(any) addr:0x020e3934
 BtlPsy_Syoryu_ArgName kind:data(any) addr:0x020e3944
 BtlPsy_Kabuto_ArgName kind:data(any) addr:0x020e3958
 BtlPsy_Teleport_ArgName kind:data(any) addr:0x020e396c
-data_ov003_020e397c kind:data(any) addr:0x020e397c
-data_ov003_020e3994 kind:data(any) addr:0x020e3994
-data_ov003_020e39ac kind:data(any) addr:0x020e39ac
-data_ov003_020e39c4 kind:data(any) addr:0x020e39c4
-data_ov003_020e39e0 kind:data(any) addr:0x020e39e0
-data_ov003_020e39fc kind:data(any) addr:0x020e39fc
-data_ov003_020e3a18 kind:data(any) addr:0x020e3a18
-data_ov003_020e3a34 kind:data(any) addr:0x020e3a34
-data_ov003_020e3a50 kind:data(any) addr:0x020e3a50
-data_ov003_020e3a6c kind:data(any) addr:0x020e3a6c
-data_ov003_020e3a88 kind:data(any) addr:0x020e3a88
-data_ov003_020e3aa4 kind:data(any) addr:0x020e3aa4
-data_ov003_020e3ac0 kind:data(any) addr:0x020e3ac0
-data_ov003_020e3ac4 kind:data(any) addr:0x020e3ac4 local
+Path_BtlCmd kind:data(any) addr:0x020e397c
+Path_BtlObs kind:data(any) addr:0x020e3994
+Path_BtlMenu kind:data(any) addr:0x020e39ac
+Path_BtlBadge kind:data(any) addr:0x020e39c4
+Path_BtlPly02 kind:data(any) addr:0x020e39e0
+Path_BtlPly00 kind:data(any) addr:0x020e39fc
+Path_BtlPly01 kind:data(any) addr:0x020e3a18
+Path_BtlPly03 kind:data(any) addr:0x020e3a34
+Path_BtlJingle kind:data(any) addr:0x020e3a50
+Path_BtlEffect kind:data(any) addr:0x020e3a6c
+Path_BtlSpecial kind:data(any) addr:0x020e3a88
+BtlMgr_HeapTag kind:data(any) addr:0x020e3aa4
+BtlMgr_SequenceName kind:data(any) addr:0x020e3ac0
+BtlMgr_SequenceNameBuf kind:data(any) addr:0x020e3ac4 local
 @2923 kind:data(any) addr:0x020e3ad4 local
 @2923 kind:data(byte[17]) addr:0x020e3ae0 local
 @2923 kind:data(byte[17]) addr:0x020e3af4 local
@@ -4430,7 +4428,7 @@ data_ov003_020e7050 kind:data(any) addr:0x020e7050
 data_ov003_020e707c kind:data(any) addr:0x020e707c
 CombatEnemyParam_Table kind:data(any) addr:0x020e70ac
 BtlCollision_LayerLists kind:bss addr:0x020e71a0 local
-g_CombatGlobal kind:bss addr:0x020e71b8
+gBattle kind:bss addr:0x020e71b8
 data_ov003_020e71bc kind:bss addr:0x020e71bc local
 BtlDbg_TaskId kind:bss addr:0x020e71c0 local
 data_ov003_020e71c4 kind:bss addr:0x020e71c4 local

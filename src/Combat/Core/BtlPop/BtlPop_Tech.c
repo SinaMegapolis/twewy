@@ -34,8 +34,6 @@ static s32 BtlPop_Tech_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
 
 static const TaskHandle Tsk_BtlPop_Tech = {"Tsk_BtlPop_Tech", BtlPop_Tech_RunTask, sizeof(BtlPop_Tech)};
 
-extern const BinIdentifier data_ov003_020d7800;
-
 /// Splits `value` (clamped to 0..9999) into decimal digits, least significant first, and returns
 /// how many digits are needed to show it.
 static s32 func_ov003_0209d088(s32* digits, s32 value) {
@@ -67,7 +65,7 @@ static s32 func_ov003_0209d088(s32* digits, s32 value) {
 
 /// Loads the popup's sprite and starts it on its first animation.
 static void func_ov003_0209d154(BattleSprite* sprite, s32 variant) {
-    BtlSprite_LoadDirectNoProto(0, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3D, variant);
+    BtlSprite_LoadDirectNoProto(0, sprite, &Iden_BtlMenu, 0x25, 0x27, 0x26, 0x3D, variant);
     BtlSprite_SetPriority(sprite, 0);
     BtlSprite_SetSortKey(sprite, 1);
 }
@@ -81,9 +79,9 @@ static s32 BtlPop_Tech_Init(TaskPool* pool, Task* task, void* args) {
 
     tech->techId     = params->techId;
     tech->digitCount = func_ov003_0209d088(digits, params->techId);
-    tech->x          = g_CombatGlobal->player->position.x;
-    tech->y          = g_CombatGlobal->player->position.y;
-    tech->z          = g_CombatGlobal->player->position.z - (g_CombatGlobal->player->centerHeight << 12);
+    tech->x          = gBattle->player->position.x;
+    tech->y          = gBattle->player->position.y;
+    tech->z          = gBattle->player->position.z - (gBattle->player->centerHeight << 12);
     tech->targetZ    = tech->z - 0x20000;
     tech->state      = 0;
     tech->timer      = 0;
@@ -165,7 +163,7 @@ static s32 BtlPop_Tech_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
         .render     = BtlPop_Tech_Render,
         .cleanup    = BtlPop_Tech_Release,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -173,9 +171,9 @@ static s32 BtlPop_Tech_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 void func_ov003_0209d4b0(void) {
-    if (g_CombatGlobal->unk3D8FA > 0) {
-        BtlPop_TechArgs params = {g_CombatGlobal->unk3D8FA};
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Tech, NULL, 0, NULL, &params);
-        g_CombatGlobal->unk3D8FA = 0;
+    if (gBattle->techBonus > 0) {
+        BtlPop_TechArgs params = {gBattle->techBonus};
+        EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlPop_Tech, NULL, 0, NULL, &params);
+        gBattle->techBonus = 0;
     }
 }

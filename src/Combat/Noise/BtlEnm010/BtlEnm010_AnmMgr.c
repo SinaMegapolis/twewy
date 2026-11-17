@@ -208,12 +208,12 @@ static BtlEnm010Bss data_ov011_0212cca0;
 void func_ov011_021256c0(u16 arg0) {
     u16   param              = arg0;
     u32   zero               = 0;
-    Task* t                  = EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov011_0212bfa4, 0, 0, zero, &param);
+    Task* t                  = EasyTask_CreateTask(&gBattle->commonPool, &data_ov011_0212bfa4, 0, 0, zero, &param);
     data_ov011_0212cca0.task = t;
 }
 
 void func_ov011_02125714(void) {
-    Task* t = EasyTask_GetTaskById(&g_CombatGlobal->unk_10118, data_ov011_0212cca0.task);
+    Task* t = EasyTask_GetTaskById(&gBattle->commonPool, data_ov011_0212cca0.task);
     if (t != NULL) {
         t->flags |= 0x10;
     }
@@ -228,7 +228,7 @@ void func_ov011_02125750(s32 arg0, BattleSprite* arg1, s32 arg2) {
     u16              phase;
 
     BtlSprite_Release(arg1);
-    data = EasyTask_GetTaskData(&g_CombatGlobal->unk_10118, data_ov011_0212cca0.task);
+    data = EasyTask_GetTaskData(&gBattle->commonPool, data_ov011_0212cca0.task);
     bin  = data_ov011_0212cb1c[data->unk_38][arg2];
     if (func_ov003_020cb32c(&data->bins, bin) == 0) {
         slot = 0;
@@ -266,7 +266,7 @@ void func_ov011_021258b4(s32 arg0, BattleSprite* arg1, s32 arg2) {
     u16              elem;
     u16              pal;
 
-    data = EasyTask_GetTaskData(&g_CombatGlobal->unk_10118, data_ov011_0212cca0.task);
+    data = EasyTask_GetTaskData(&gBattle->commonPool, data_ov011_0212cca0.task);
     bin  = data_ov011_0212cae8[arg2];
     if (func_ov003_020cb32c(&data->bins, bin) == 0) {
         slot = 2;

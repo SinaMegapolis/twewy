@@ -1,4 +1,5 @@
 #include "Battle/Core/BtlSprite.h"
+#include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/BtlTch.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
@@ -26,8 +27,8 @@ static s32 BtlTch_Slash_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
 const TaskHandle Tsk_BtlTch_Slash = {"Tsk_BtlTch_Slash", BtlTch_Slash_RunTask, sizeof(BtlTchSlash)};
 
 static s32 BtlTch_Slash_Init(TaskPool* pool, Task* task, void* args) {
-    BtlTchSlash*     effect = task->data;
-    BattleTouchWork* input  = &g_CombatGlobal->touchWork;
+    BtlTchSlash* effect = task->data;
+    BattleTouch* input  = &gBattle->touchWork;
 
     MI_CpuSet(effect, 0, sizeof(*effect));
     effect->isActive = TRUE;

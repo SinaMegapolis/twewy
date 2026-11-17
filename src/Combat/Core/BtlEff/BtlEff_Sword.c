@@ -19,8 +19,6 @@ typedef struct BtlEffSwordSpawn {
     /* 0x00 */ s16 animIndex;
 } BtlEffSwordSpawn;
 
-extern const BinIdentifier data_ov003_020d77d8;
-
 static s32 BtlEff_Sword_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 static const TaskHandle Tsk_BtlEff_Sword = {"Tsk_BtlEff_Sword", BtlEff_Sword_RunTask, sizeof(BattleSprite)};
@@ -33,7 +31,7 @@ static s32 BtlEff_Sword_Init(TaskPool* pool, Task* task, void* args) {
     BtlEffSwordSpawn* spawn  = args;
 
     MI_CpuSet(sprite, 0, sizeof(BattleSprite));
-    BtlSprite_LoadFromTable(0, sprite, &data_ov003_020d77d8, data_ov003_020d8650, spawn->animIndex, 0x3A, 0x68);
+    BtlSprite_LoadFromTable(0, sprite, &Iden_BtlPly00, data_ov003_020d8650, spawn->animIndex, 0x3A, 0x68);
     BtlSprite_SetAnimFromTable(sprite, spawn->animIndex, 1);
     return (sprite->flags & BTL_SPRITE_FLAG_LOAD_FAILED) ? 0 : 1;
 }
@@ -43,10 +41,10 @@ static s32 BtlEff_Sword_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Sword_Update(TaskPool* pool, Task* task, void* args) {
     BattleSprite* sprite = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 0x40) {
+    if (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) {
         return 1;
     }
-    if (func_ov003_020876c0() != 0) {
+    if (BtlPlayerUtil_IsPlayerDown() != 0) {
         return 0;
     }
     if (SpriteMgr_IsAnimationFinished(&sprite->sprite) != 0) {
@@ -59,7 +57,7 @@ static s32 BtlEff_Sword_Update(TaskPool* pool, Task* task, void* args) {
 /// Pins the slash to the main display's target actor and sorts it in front of it.
 static s32 BtlEff_Sword_Render(TaskPool* pool, Task* task, void* args) {
     BattleSprite* sprite = task->data;
-    BattleActor*  actor  = g_CombatGlobal->player;
+    BattleActor*  actor  = gBattle->player;
     s32           posX;
     s32           posY;
 
@@ -90,7 +88,7 @@ static s32 BtlEff_Sword_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
         .cleanup    = BtlEff_Sword_Release,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -102,7 +100,7 @@ void func_ov003_0209f000(s16 animIndex) {
     // taking the address of an incoming register argument.
     s16 anim = animIndex;
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_BtlEff_Sword, NULL, 0, NULL, &anim);
+    EasyTask_CreateTask(&gBattle->mainPool, &Tsk_BtlEff_Sword, NULL, 0, NULL, &anim);
 }
 
 static const SpriteAnimEntry data_ov003_020d8650[10] = {

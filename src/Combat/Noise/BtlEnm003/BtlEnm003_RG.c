@@ -124,7 +124,7 @@ static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
 
         case 1: {
             if (rg->frameCount == 0) {
-                BtlSe_PlayAtSubX(415, rg->base.actor.position.x);
+                BtlSe_PlayAtSubX(SEIDX_SE_BEAR_VOC_ATTACK, rg->base.actor.position.x);
             }
             BtlSprite_SetAnimFromTable(&rg->base.sprite, 7, 1);
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
@@ -142,9 +142,9 @@ static void func_ov009_02120dd0(BtlEnm003_RG* rg) {
                 if (func_ov003_020c5b2c(68, &rg->base, rg->base.actor.position.x, rg->base.actor.position.y,
                                         rg->base.actor.position.z) == 1)
                 {
-                    BtlSe_PlayAtSubX(414, rg->base.actor.position.x);
+                    BtlSe_PlayAtSubX(SEIDX_SE_BEAR_ATTACKHIT, rg->base.actor.position.x);
                 }
-                BtlSe_PlayAtSubX(412, rg->base.actor.position.x);
+                BtlSe_PlayAtSubX(SEIDX_SE_BEAR_ATTACK, rg->base.actor.position.x);
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->base.actor.position.x = rg->base.unk_1AC;
@@ -169,7 +169,7 @@ static void func_ov009_02120f64(BtlEnm003_RG* rg) {
 
         case 1: {
             if (rg->frameCount == 0) {
-                BtlSe_PlayAtSubX(415, rg->base.actor.position.x);
+                BtlSe_PlayAtSubX(SEIDX_SE_BEAR_VOC_ATTACK, rg->base.actor.position.x);
             }
             BtlSprite_SetAnimFromTable(&rg->base.sprite, 9, 1);
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
@@ -187,9 +187,9 @@ static void func_ov009_02120f64(BtlEnm003_RG* rg) {
                 if (func_ov003_020c5b2c(69, &rg->base, rg->base.actor.position.x, rg->base.actor.position.y,
                                         rg->base.actor.position.z) == 1)
                 {
-                    BtlSe_PlayAtSubX(414, rg->base.actor.position.x);
+                    BtlSe_PlayAtSubX(SEIDX_SE_BEAR_ATTACKHIT, rg->base.actor.position.x);
                 }
-                BtlSe_PlayAtSubX(412, rg->base.actor.position.x);
+                BtlSe_PlayAtSubX(SEIDX_SE_BEAR_ATTACK, rg->base.actor.position.x);
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 rg->base.actor.position.x = rg->base.unk_1AC;
@@ -239,7 +239,7 @@ static void func_ov009_021210f8(BtlEnm003_RG* rg) {
                     rg->base.actor.baseArgs.powerPercent *= 2;
                 }
                 rg->unk_1D4 = ((RNG_Next(6) + 15) * 60);
-                BtlSe_PlayAtSubX(420, rg->base.actor.position.x);
+                BtlSe_PlayAtSubX(SEIDX_SE_BEAR_VOC_SHOUT, rg->base.actor.position.x);
             }
             if (SpriteMgr_IsAnimationFinished(&rg->base.sprite.sprite) != 0) {
                 BtlEnm003_RG_SetState(rg, func_ov009_02120c70);

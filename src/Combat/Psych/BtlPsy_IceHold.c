@@ -64,8 +64,8 @@ static s32 func_ov003_020b1130(TaskPool* pool, Task* task, void* args, s32 stage
             if (self->unit != func_ov003_020b15a0()) {
                 self->timer--;
             } else {
-                BattleTouchWork* touch = func_ov003_020a62a0();
-                self->timer            = 0x3C;
+                BattleTouch* touch = func_ov003_020a62a0();
+                self->timer        = 0x3C;
                 self->frames++;
                 s32 kind  = RNG_Next(3);
                 s32 angle = RNG_Next(0x5000) + 0x1800;

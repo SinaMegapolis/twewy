@@ -36,7 +36,7 @@ static s32 func_ov003_020ba0b8(TaskPool* pool, Task* task, void* args, s32 stage
             shock->scale += 0x4CD;
             if (shock->scale >= 0xA000)
                 return 0;
-            unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+            unit = BtlList_GetHead(&gBattle->enemiesMain);
             while (unit != NULL) {
                 s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.centerHeight);
                 s32 radius   = FX_Mul(shock->scale, 0x10000);

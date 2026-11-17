@@ -60,9 +60,9 @@ s32 func_ov003_020cec78(Ov003EnemyShotSource* source, u16 moveAngle, s32 moveSpe
     source->core.flags |= 0x40;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c50, NULL, 0, NULL, &args);
 }
 
@@ -103,7 +103,7 @@ static s32 func_ov003_020ced48(Ov003EnemyShotGenerator* self, Ov003EnemyShotGene
 }
 
 static s32 func_ov003_020cef74(Ov003EnemyShotGenerator* self) {
-    if (g_CombatGlobal->unk3D878 & 0x40)
+    if (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN)
         return 1;
     switch (((u32(*)())BtlActor_PopPendingCommand)()) {
         default:
@@ -180,8 +180,8 @@ static s32 func_ov003_020cf2a0(Ov003EnemyShotGenerator* self) {
     self->actor.flags18C = (self->actor.flags18C | 0x40) & ~0x20;
     self->actor.actor.flags |= ACTOR_FLAG_DEFEATED;
     func_ov003_020c4a08((Ov003CutinActor*)self);
-    if (g_CombatGlobal->unk3D8A0 == self)
-        g_CombatGlobal->unk3D8A0 = NULL;
+    if (gBattle->lockOnTarget == self)
+        gBattle->lockOnTarget = NULL;
     BtlSprite_Release(&self->actor.sprite);
     return 1;
 }

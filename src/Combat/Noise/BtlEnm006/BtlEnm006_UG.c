@@ -249,7 +249,7 @@ static void func_ov010_02127764(BtlEnm006* data) {
                 BtlSe_PlayPanned(SEIDX_SE_006_SPLUSH_SP, BtlStage_ToScreenX(0, data->base.actor.position.x));
             }
             if (data->base.sprite.sprite.cellIndex == 4 && data->base.sprite.sprite.frameTimer == 1) {
-                void* t = g_CombatGlobal->player;
+                void* t = gBattle->player;
                 if (func_ov010_02128bcc(data, t) != 0) {
                     func_ov010_021270a8(data, t);
                 }
@@ -343,27 +343,27 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
                 data->unk_1C0 = data->unk_1C0 + 1;
                 BtlSprite_SetAnimFromTable(&data->base.sprite, 0xF, 1);
                 data->base.flags18C &= ~1;
-                if (data->base.actor.position.x < g_CombatGlobal->player->position.x) {
+                if (data->base.actor.position.x < gBattle->player->position.x) {
                     func_ov003_020c4ab4(&data->base, 0);
                 } else {
                     func_ov003_020c4ab4(&data->base, 1);
                 }
-                data->base.actor.position.y = g_CombatGlobal->player->position.y;
+                data->base.actor.position.y = gBattle->player->position.y;
                 data->base.actor.position.z = 0;
                 if (data->base.actor.position.y < 0x20000) {
                     data->base.actor.position.y = 0x20000;
                 }
                 if (data->base.actor.isFlipped == 0) {
-                    data->base.actor.position.x = g_CombatGlobal->player->position.x - 0x60000;
+                    data->base.actor.position.x = gBattle->player->position.x - 0x60000;
                 } else {
-                    data->base.actor.position.x = g_CombatGlobal->player->position.x + 0x60000;
+                    data->base.actor.position.x = gBattle->player->position.x + 0x60000;
                 }
                 if (func_ov003_020cc300(&data->base, 0) == 0) {
                     func_ov003_020c4c9c(&data->base);
                     if (data->base.actor.isFlipped == 0) {
-                        data->base.actor.position.x = g_CombatGlobal->player->position.x - 0x60000;
+                        data->base.actor.position.x = gBattle->player->position.x - 0x60000;
                     } else {
-                        data->base.actor.position.x = g_CombatGlobal->player->position.x + 0x60000;
+                        data->base.actor.position.x = gBattle->player->position.x + 0x60000;
                     }
                 }
             }
@@ -399,7 +399,7 @@ static void func_ov010_02127cc0(BtlEnm006* data) {
                 }
             }
             if (data->base.sprite.sprite.cellIndex == v && data->base.sprite.sprite.frameTimer == 1) {
-                s32 t = BtlHit_GetAttackInfo(n)->unk_05;
+                s32 t = BtlHit_GetAttackInfo(n)->halfWidth;
                 s32 x;
                 if (data->base.actor.isFlipped == 0) {
                     x = data->base.actor.position.x - 0x48000 +
@@ -768,7 +768,7 @@ static BattleActor* func_ov010_02128b48(void) {
     if (hits != 0 && RNG_Next(0x64) >= 0x14) {
         goto pick;
     }
-    return g_CombatGlobal->player;
+    return gBattle->player;
 pick:
     ctx.remaining = RNG_Next(hits);
     func_ov003_020cb498(0, 0x3C, (void*)func_ov010_02128c6c, &ctx);

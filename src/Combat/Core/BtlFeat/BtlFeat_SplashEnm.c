@@ -87,8 +87,8 @@ static s32 func_ov003_020bc0ac(BtlFeatSplashEnm* self) {
         self->timer = self->args.start;
         if (self->mainEnemy == NULL && self->subEnemy == NULL) {
             self->rounds++;
-            self->subEnemy  = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
-            self->mainEnemy = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
+            self->subEnemy  = BtlList_GetHead(&gBattle->enemiesMain);
+            self->mainEnemy = BtlList_GetHead(&gBattle->enemiesSub);
         }
         if (!(self->rounds < self->args.rounds && self->shots < self->args.count)) {
             func_ov003_020bc068(self);
@@ -178,8 +178,8 @@ static s32 BtlFeat_SplashEnm_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(self, 0, sizeof(*self));
     self->args      = *param;
-    self->subEnemy  = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
-    self->mainEnemy = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
+    self->subEnemy  = BtlList_GetHead(&gBattle->enemiesMain);
+    self->mainEnemy = BtlList_GetHead(&gBattle->enemiesSub);
     switch (param->mode) {
         case 1:
             func_ov003_020bc078(self, data_ov003_020e50d4);
@@ -234,5 +234,5 @@ void func_ov003_020bc690(u16 start, u16 count, s32 sound) {
     args.start = start;
     args.end   = start;
     args.sound = sound;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BtlFeat_SplashEnm, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->specialPool, &Tsk_BtlFeat_SplashEnm, NULL, 0, NULL, &args);
 }

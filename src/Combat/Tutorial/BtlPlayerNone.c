@@ -32,10 +32,10 @@ static s32 func_ov008_020e7374(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(data, 0, sizeof(BtlPlayerNone));
     BtlActor_Init(&data->actor, ACTOR_KIND_PLAYER);
-    g_CombatGlobal->partner  = &data->actor;
+    gBattle->partner         = &data->actor;
     data->actor.isFlipped    = FALSE;
-    data->actor.position.x   = g_CombatGlobal->stages[1].centerX;
-    data->actor.position.y   = g_CombatGlobal->stages[1].centerY;
+    data->actor.position.x   = gBattle->stages[1].centerX;
+    data->actor.position.y   = gBattle->stages[1].centerY;
     data->actor.position.z   = 0;
     data->actor.zGravity     = 0x800;
     data->actor.radius       = 0xC;
@@ -69,7 +69,7 @@ static s32 func_ov008_020e746c(TaskPool* pool, Task* task, void* args) {
 static s32 func_ov008_020e7474(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov008_020e7a10;
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);

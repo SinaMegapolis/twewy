@@ -21,7 +21,7 @@ s32 func_ov003_020aaab8(Ov003EffectContext* context, Ov003EffectState* effect) {
 }
 
 static s32 func_ov003_020aaad4(Ov003EffectContext* context, Ov003EffectState* effect, s32 automatic, s32 mode, s32 kind) {
-    BattleTouchWork* touch = func_ov003_020a62a0();
+    BattleTouch* touch = func_ov003_020a62a0();
     if (func_ov003_020a5b18(0x17) || func_ov003_020a5b18(0x18) || func_ov003_020a5b18(0x19))
         return 0;
     if (automatic == 0) {
@@ -63,7 +63,7 @@ static s32 func_ov003_020aaba0(TaskPool* pool, Task* task, void* args, s32 stage
         case 1: {
             BtlBarrierCharge* charge = task->data;
             func_ov003_020a6438();
-            BattleTouchWork* touch = func_ov003_020a62a0();
+            BattleTouch* touch = func_ov003_020a62a0();
             func_ov003_020a5a94(charge->args.spawn.effect);
             if (func_ov003_020a63a8(charge->args.spawn.effect) || !BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) ||
                 touch->held != func_ov003_020a6438())

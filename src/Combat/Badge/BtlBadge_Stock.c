@@ -34,7 +34,7 @@ static const TaskHandle data_ov003_020dc5fc       = {data_ov003_020e4954, func_o
 void func_ov003_020a7e68(Ov003PinAction* action) {
     Ov003PinAction* args = action;
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc5fc, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->commonPool, &data_ov003_020dc5fc, NULL, 0, NULL, &args);
 }
 
 /// Shows `count` remaining uses on the bar: its animation id is offset by the count.
@@ -77,14 +77,15 @@ static s32 func_ov003_020a7eb0(TaskPool* pool, Task* task, void* args, s32 stage
             Ov003TouchActor* actor = &self->actor;
             s32              state;
 
-            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
+            if (gBattle->specialFreeze != 0 || (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0 ||
+                (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) != 0)
             {
                 return 1;
             }
             state = BtlBadgeActor_RunRequest(actor);
             if (state == 3 || state == 7) {
                 func_ov003_020a82d0(self, actor->unk_044);
-                if (g_CombatGlobal->unk3D874 == 2) {
+                if (gBattle->state == BATTLE_STATE_FIGHT) {
                     SpriteAnimationEx anim;
 
                     BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020dc044);

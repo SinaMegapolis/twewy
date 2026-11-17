@@ -188,7 +188,7 @@ s32 func_ov003_020c44ac(Ov003EnemyActor* actor) {
         return 0;
     }
     func_ov003_020c4264(actor);
-    BtlHit_LoadSparkForUnit(1, &actor->subSprite, &actor->actor);
+    BtlHit_LoadSparkForActor(1, &actor->subSprite, &actor->actor);
     func_ov003_020c4988(actor);
     func_ov003_020c44a4(actor);
     return result;
@@ -206,7 +206,7 @@ s32 func_ov003_020c4520(Ov003EnemyActor* actor) {
     if (result == 0) {
         return 0;
     }
-    BtlHit_LoadSparkForUnit(0, &actor->subSprite, &actor->actor);
+    BtlHit_LoadSparkForActor(0, &actor->subSprite, &actor->actor);
     func_ov003_020c49c8(actor);
     BtlCollision_Add(&actor->collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(actor);
@@ -225,7 +225,7 @@ s32 func_ov003_020c45a4(Ov003CutinActor* actor) {
     if (result == 0) {
         return 0;
     }
-    BtlHit_LoadSparkForUnit(0, &actor->base.subSprite, &actor->base.actor);
+    BtlHit_LoadSparkForActor(0, &actor->base.subSprite, &actor->base.actor);
     func_ov003_020c49c8(&actor->base);
     BtlCollision_Add(&actor->base.collider, 1, params->unk_03, params->unk_04);
     func_ov003_020c44a4(&actor->base);
@@ -373,7 +373,7 @@ void func_ov003_020c4988(Ov003EnemyActor* actor) {
         return;
     }
     actor->flags18C = (u16)(actor->flags18C | 2);
-    BtlList_Append(&g_CombatGlobal->unk3D8AC, &actor->node, actor);
+    BtlList_Append(&gBattle->enemiesSub, &actor->node, actor);
 }
 
 void func_ov003_020c49c8(Ov003EnemyActor* actor) {
@@ -381,7 +381,7 @@ void func_ov003_020c49c8(Ov003EnemyActor* actor) {
         return;
     }
     actor->flags18C = (u16)(actor->flags18C | 2);
-    BtlList_Append(&g_CombatGlobal->unk3D8A4, &actor->node, actor);
+    BtlList_Append(&gBattle->enemiesMain, &actor->node, actor);
 }
 
 void func_ov003_020c4a08(Ov003CutinActor* actor) {
@@ -397,7 +397,7 @@ s32 func_ov003_020c4a34(Ov003EnemyActor* actor) {
         return 0;
     }
     actor->flags18C = (u16)(actor->flags18C & ~2);
-    return (s32)BtlList_Remove(&g_CombatGlobal->unk3D8AC, &actor->node);
+    return (s32)BtlList_Remove(&gBattle->enemiesSub, &actor->node);
 }
 
 s32 func_ov003_020c4a74(Ov003EnemyActor* actor) {
@@ -405,7 +405,7 @@ s32 func_ov003_020c4a74(Ov003EnemyActor* actor) {
         return 0;
     }
     actor->flags18C = (u16)(actor->flags18C & ~2);
-    return (s32)BtlList_Remove(&g_CombatGlobal->unk3D8A4, &actor->node);
+    return (s32)BtlList_Remove(&gBattle->enemiesMain, &actor->node);
 }
 
 /// Faces the main sprite towards (1) or away from (0) the sub screen.
@@ -429,7 +429,7 @@ void func_ov003_020c4af0(Ov003EnemyActor* actor) {
 
 /// Declared `int`: noise callers treat it like an undeclared (implicitly `int`) function.
 s32 func_ov003_020c4b1c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < g_CombatGlobal->partner->position.x) {
+    if (actor->actor.position.x < gBattle->partner->position.x) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -437,7 +437,7 @@ s32 func_ov003_020c4b1c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4b5c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < g_CombatGlobal->player->position.x) {
+    if (actor->actor.position.x < gBattle->player->position.x) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -445,7 +445,7 @@ void func_ov003_020c4b5c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4b9c(Ov003CutinActor* actor) {
-    if (actor->base.actor.position.x < g_CombatGlobal->partner->position.x) {
+    if (actor->base.actor.position.x < gBattle->partner->position.x) {
         func_ov003_020c4ab4(&actor->base, 0);
         return;
     }
@@ -453,7 +453,7 @@ void func_ov003_020c4b9c(Ov003CutinActor* actor) {
 }
 
 void func_ov003_020c4bdc(Ov003CutinActor* actor) {
-    if (actor->base.actor.position.x < g_CombatGlobal->player->position.x) {
+    if (actor->base.actor.position.x < gBattle->player->position.x) {
         func_ov003_020c4ab4(&actor->base, 0);
         return;
     }
@@ -461,7 +461,7 @@ void func_ov003_020c4bdc(Ov003CutinActor* actor) {
 }
 
 void func_ov003_020c4c1c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < g_CombatGlobal->stages[1].width / 2) {
+    if (actor->actor.position.x < gBattle->stages[1].width / 2) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -469,7 +469,7 @@ void func_ov003_020c4c1c(Ov003EnemyActor* actor) {
 }
 
 void func_ov003_020c4c5c(Ov003EnemyActor* actor) {
-    if (actor->actor.position.x < g_CombatGlobal->stages[0].width / 2) {
+    if (actor->actor.position.x < gBattle->stages[0].width / 2) {
         func_ov003_020c4ab4(actor, 1);
         return;
     }
@@ -545,7 +545,7 @@ static s32 func_ov003_020c4dec(s32 value) {
 }
 
 s32 func_ov003_020c4e0c(s32 value) {
-    u8 partner = g_CombatGlobal->unk3D88D;
+    u8 partner = gBattle->partnerId;
 
     if ((partner != 0) && (partner != 1) && (partner != 2)) {
         return 0;
@@ -595,11 +595,11 @@ static s32 func_ov003_020c4f20(s32 id, BattleList* list) {
 }
 
 void func_ov003_020c4f60(s32 id) {
-    func_ov003_020c4f20(id, &g_CombatGlobal->unk3D8AC);
+    func_ov003_020c4f20(id, &gBattle->enemiesSub);
 }
 
 void func_ov003_020c4f80(s32 id) {
-    func_ov003_020c4f20(id, &g_CombatGlobal->unk3D8A4);
+    func_ov003_020c4f20(id, &gBattle->enemiesMain);
 }
 
 /// Knocks the actor out: zero HP, defeat command, "defeated" flag.
@@ -628,7 +628,7 @@ s32 func_ov003_020c4ff4(Ov003EnemyActor* actor) {
         func_ov003_020c4f00(actor->partner);
     }
     actor->actor.invincibleTimer = 5;
-    g_CombatGlobal->unk3D90A     = 5;
+    gBattle->hitStopSubNext      = 5;
     return 1;
 }
 
@@ -643,7 +643,7 @@ s32 func_ov003_020c5058(Ov003EnemyActor* actor) {
         func_ov003_020c4ee0(actor->partner);
     }
     actor->actor.invincibleTimer = 5;
-    g_CombatGlobal->unk3D906     = 5;
+    gBattle->hitStopMainNext     = 5;
     return 1;
 }
 
@@ -651,12 +651,12 @@ void func_ov003_020c50bc(void) {
     Ov003CutinActor* entry;
     Ov003CutinActor* next;
 
-    entry = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    entry = BtlList_GetHead(&gBattle->enemiesMain);
     while (entry != NULL) {
         func_ov003_020c5058(&entry->base);
         entry = BtlList_GetNext(&entry->base.node);
     }
-    next = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
+    next = BtlList_GetHead(&gBattle->enemiesSub);
     while (next != NULL) {
         func_ov003_020c4ff4(&next->base);
         next = BtlList_GetNext(&next->base.node);
@@ -697,7 +697,7 @@ void func_ov003_020c51a4(Ov003CutinActor* actor, s32 x, s32 y) {
 
 /// True if the actor and its partner swapped sides of the sub-screen centre.
 s32 func_ov003_020c5220(Ov003EnemyActor* actor) {
-    s32 centre = g_CombatGlobal->stages[1].width / 2;
+    s32 centre = gBattle->stages[1].width / 2;
     s32 x      = actor->actor.position.x;
     s32 lower  = centre - 0x10000;
 
@@ -725,7 +725,7 @@ static s32 func_ov003_020c5288(Ov003EnemyActor* actor, s32 x, s32 y) {
     hitbox[1] = y - FX32_CONVERT(width) / 2;
     hitbox[0] = x - FX32_CONVERT(width);
 
-    entry = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
+    entry = BtlList_GetHead(&gBattle->enemiesSub);
     while (entry != NULL) {
         width2   = entry->base.actor.radius;
         other[3] = FX32_CONVERT(width2);
@@ -746,7 +746,7 @@ static void func_ov003_020c54e0(s32* over, s32* total) {
 
     *over  = 0;
     *total = 0;
-    entry  = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
+    entry  = BtlList_GetHead(&gBattle->enemiesSub);
     while (entry != NULL) {
         if (entry->base.actor.height > 0x40) {
             (*over)++;
@@ -768,9 +768,9 @@ static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u1
     u16 flags196;
 
     if (arg3 != 0) {
-        maxSpeed = (g_CombatGlobal->stages[1].width / 4) >> 12;
+        maxSpeed = (gBattle->stages[1].width / 4) >> 12;
     } else {
-        maxSpeed = (g_CombatGlobal->stages[1].width / 4 * 3) >> 12;
+        maxSpeed = (gBattle->stages[1].width / 4 * 3) >> 12;
     }
     flags196 = actor->flags196.raw;
     if ((((u32)flags196 << 0x19) >> 0x1F) != 0 && (((u32)flags196 << 0x18) >> 0x1F) == 0) {
@@ -790,7 +790,7 @@ static void func_ov003_020c554c(Ov003EnemyActor* actor, s32* outX, s32* outY, u1
     }
 
     func_ov003_020c54e0(&over, &total);
-    size     = g_CombatGlobal->stages[1].height;
+    size     = gBattle->stages[1].height;
     centre   = actor->actor.radius / 2;
     speed    = ((size * over) / total) >> 0xC;
     minSpeed = size >> 0xC;
@@ -842,7 +842,7 @@ s32 func_ov003_020c5924(Ov003EnemyActor* actor, s32* out) {
     u16 dir;
 
     while (1) {
-        dir = actor->unk_1AC > g_CombatGlobal->stages[1].width / 2;
+        dir = actor->unk_1AC > gBattle->stages[1].width / 2;
         func_ov003_020c554c(actor, out, out + 1, dir);
         if (func_ov003_020c5288(actor, out[0], out[1]) != 0) {
             return 1;
@@ -930,7 +930,7 @@ s32 func_ov003_020c5b64(u16 id, Ov003EnemyActor* owner, s32 x, s32 y) {
     return BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(id), &owner->actor.baseArgs, x, y);
 }
 
-s32 func_ov003_020c5b8c(const Ov003AttackInfo* info, Ov003EnemyActor* owner, s32 x, s32 y, s32 z) {
+s32 func_ov003_020c5b8c(const BattleAttackInfo* info, Ov003EnemyActor* owner, s32 x, s32 y, s32 z) {
     return BtlHit_AttackAt(info, &owner->actor.baseArgs, x, y, z);
 }
 
@@ -1010,9 +1010,9 @@ s32 func_ov003_020c5bfc(Ov003EnemyActor* actor) {
             return 1;
 
         case 3:
-            if (g_CombatGlobal->unk3D874 == 2) {
+            if (gBattle->state == BATTLE_STATE_FIGHT) {
                 if (CombatAbility_IsActive(0xF) != 0) {
-                    BtlHit_ApplyAttack(actor->sprite.sprite.bits_0_1, &actor->actor, (u16)CombatAbility_GetValue(0xF));
+                    BtlHit_FlinchWithStatus(actor->sprite.sprite.bits_0_1, &actor->actor, (u16)CombatAbility_GetValue(0xF));
                 }
                 return 0;
             }
@@ -1028,7 +1028,7 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
     if (((g_Cutin->flags.raw << 0x1E) >> 0x1F) != 0) {
         return 0;
     }
-    partner = g_CombatGlobal->unk3D88D;
+    partner = gBattle->partnerId;
     if ((partner != 0) && (partner != 1) && (partner != 2)) {
         return 0;
     }
@@ -1069,7 +1069,7 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
                 func_ov003_020c5924(actor, target);
                 actor->unk_1AC = target[0];
                 actor->unk_1B0 = target[1];
-                EasyTask_CreateTask(&g_CombatGlobal->taskPool, &BtlEff_SideMove, NULL, 0, NULL, actor);
+                EasyTask_CreateTask(&gBattle->subPool, &BtlEff_SideMove, NULL, 0, NULL, actor);
                 func_ov003_020c4cc4(actor, 0x1A);
             }
             if (actor->unk_1A4 < actor->unk_1A6) {
@@ -1120,7 +1120,7 @@ s32 func_ov003_020c5e98(Ov003EnemyActor* actor) {
             return 1;
 
         case 5:
-            if (g_CombatGlobal->unk3D874 == 2) {
+            if (gBattle->state == BATTLE_STATE_FIGHT) {
                 return 0;
             }
             return 1;
@@ -1534,8 +1534,8 @@ static void func_ov003_020c6e0c(Ov003EnemyActor* actor) {
     actor->flags18C = (u16)((actor->flags18C | 0x40) & ~0x20);
     func_ov003_020c4ee0(actor);
     func_ov003_020c4a34(actor);
-    if (g_CombatGlobal->unk3D8A0 == actor) {
-        g_CombatGlobal->unk3D8A0 = NULL;
+    if (gBattle->lockOnTarget == actor) {
+        gBattle->lockOnTarget = NULL;
     }
 }
 
@@ -1709,7 +1709,7 @@ s32 func_ov003_020c72b4(Ov003EnemyActor* actor, s32 a, s32 b) {
         func_ov003_020c7224(actor);
         actor->unk_1A4++;
     }
-    if (g_CombatGlobal->unk3D878 & 2) {
+    if (gBattle->flags & BATTLE_FLAG_SPECIAL) {
         return 1;
     }
     func_ov003_020c7224(actor);

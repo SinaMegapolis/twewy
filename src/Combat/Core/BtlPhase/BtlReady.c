@@ -31,8 +31,6 @@ typedef struct BtlReady {
     /* 0x258 */ s32           running;
 } BtlReady;                           // Size: 0x25C
 
-extern const BinIdentifier data_ov003_020d7818;
-
 static s32 BtlReady_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlReady = {"Tsk_BtlReady", BtlReady_RunTask, sizeof(BtlReady)};
@@ -77,7 +75,7 @@ static void func_ov003_020a0624(s32 engine, BattleSprite* sprite, u16 index, u16
     u16               cellIndex;
     s16               animIndex;
 
-    BtlSprite_InitAnim(&anim.anim, engine, &data_ov003_020d7818);
+    BtlSprite_InitAnim(&anim.anim, engine, &Iden_BtlJingle);
     anim.anim.bits_10_11 = 1;
     charIndex            = data_ov003_020d8780[index].charDataIndex;
     animDataIndex        = data_ov003_020d8780[index].animDataIndex;
@@ -116,7 +114,7 @@ static void func_ov003_020a0750(s32 weak) {
     s32 line;
 
     if (weak) {
-        switch (g_CombatGlobal->unk3D88D) {
+        switch (gBattle->partnerId) {
             case 0:
                 BtlSe_Play(SEIDX_SHIKI_BTL_OP_DANGER01);
                 break;
@@ -130,7 +128,7 @@ static void func_ov003_020a0750(s32 weak) {
         return;
     }
     line = RNG_Next(2);
-    if (g_CombatGlobal->unk3D88D == 0) {
+    if (gBattle->partnerId == 0) {
         switch (line) {
             case 0:
                 BtlSe_Play(SEIDX_SHIKI_BTL_OP01);
@@ -140,7 +138,7 @@ static void func_ov003_020a0750(s32 weak) {
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 1) {
+    if (gBattle->partnerId == 1) {
         switch (line) {
             case 0:
                 BtlSe_Play(SEIDX_YOSHUA_BTL_OP01);
@@ -150,7 +148,7 @@ static void func_ov003_020a0750(s32 weak) {
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 2) {
+    if (gBattle->partnerId == 2) {
         switch (line) {
             case 0:
                 BtlSe_Play(SEIDX_BIITO_BTL_OP01);
@@ -167,10 +165,10 @@ static void func_ov003_020a0898(void) {
     s32 weak = 0;
     s32 other;
 
-    if (g_CombatGlobal->unk3D8D0 < g_CombatGlobal->unk3D8D2 / 2) {
+    if (gBattle->teamHp < gBattle->teamMaxHp / 2) {
         weak = 1;
     }
-    if (g_CombatGlobal->unk3D88D != 0 && g_CombatGlobal->unk3D88D != 1 && g_CombatGlobal->unk3D88D != 2) {
+    if (gBattle->partnerId != 0 && gBattle->partnerId != 1 && gBattle->partnerId != 2) {
         other = 1;
     } else {
         other = 0;
@@ -231,7 +229,7 @@ static void func_ov003_020a09f4(BtlReady* self) {
             break;
         case 1:
             EasyFade_FadeBothDisplays(0, 0, 0x800);
-            BtlMgr_SetState(2);
+            BtlMgr_SetState(BATTLE_STATE_FIGHT);
             BtlTouch_Clear();
             func_ov003_020a060c(self, func_ov003_020a0ac0);
             break;
@@ -260,9 +258,9 @@ static s32 BtlReady_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(self, 0, sizeof(*self));
     if (gSaveData.unk_3130 != 3) {
-        g_CombatGlobal->unk3D878 |= 0x10000;
+        gBattle->flags |= BATTLE_FLAG_NO_PAUSE;
     }
-    number = g_CombatGlobal->unk3D88C + 2;
+    number = gBattle->chainIndex + 2;
     func_ov003_020a0624(1, &self->sprites[0], 0, 0x90);
     func_ov003_020a0624(0, &self->sprites[3], 0, 0x90);
     func_ov003_020a0624(1, &self->sprites[1], 1, 0x6C);
@@ -271,12 +269,12 @@ static s32 BtlReady_Init(TaskPool* pool, Task* task, void* args) {
     func_ov003_020a0624(0, &self->sprites[5], number, 0x30);
     self->x    = -0x80000;
     self->subX = 0x180000;
-    if (g_CombatGlobal->unk3D878 & 0x80000000) {
+    if (gBattle->flags & BATTLE_FLAG_CHAIN) {
         self->y = 0x50;
     } else {
         self->y = 0x60;
     }
-    self->speaks  = !(g_CombatGlobal->unk3D878 & 0x100000);
+    self->speaks  = !(gBattle->flags & BATTLE_FLAG_SILENT_READY);
     self->running = 1;
     func_ov003_020a060c(self, func_ov003_020a0910);
     return 1;
@@ -285,7 +283,7 @@ static s32 BtlReady_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlReady_Update(TaskPool* pool, Task* task, void* args) {
     BtlReady* self = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 6) {
+    if (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) {
         return 0;
     }
     if (self->state != NULL) {
@@ -293,7 +291,7 @@ static s32 BtlReady_Update(TaskPool* pool, Task* task, void* args) {
     }
     BtlSprite_Update(&self->sprites[0]);
     BtlSprite_Update(&self->sprites[3]);
-    if (g_CombatGlobal->unk3D878 & 0x80000000) {
+    if (gBattle->flags & BATTLE_FLAG_CHAIN) {
         BtlSprite_Update(&self->sprites[1]);
         BtlSprite_Update(&self->sprites[4]);
         BtlSprite_Update(&self->sprites[2]);
@@ -314,18 +312,18 @@ static s32 BtlReady_Render(TaskPool* pool, Task* task, void* args) {
     x    = (self->x * 0x10) >> 16;
     BtlSprite_SetPosition(&self->sprites[3], subX, self->y);
     BtlSprite_Render(&self->sprites[3]);
-    if (g_CombatGlobal->unk3D878 & 0x80000000) {
+    if (gBattle->flags & BATTLE_FLAG_CHAIN) {
         BtlSprite_SetPosition(&self->sprites[4], x, self->y);
         BtlSprite_Render(&self->sprites[4]);
         BtlSprite_SetPosition(&self->sprites[5], x, self->y);
         BtlSprite_Render(&self->sprites[5]);
     }
-    if (g_CombatGlobal->unk3D88D == 3) {
+    if (gBattle->partnerId == 3) {
         return 1;
     }
     BtlSprite_SetPosition(&self->sprites[0], x, self->y);
     BtlSprite_Render(&self->sprites[0]);
-    if (g_CombatGlobal->unk3D878 & 0x80000000) {
+    if (gBattle->flags & BATTLE_FLAG_CHAIN) {
         BtlSprite_SetPosition(&self->sprites[1], subX, self->y);
         BtlSprite_Render(&self->sprites[1]);
         BtlSprite_SetPosition(&self->sprites[2], subX, self->y);
@@ -343,8 +341,8 @@ static s32 BtlReady_Release(TaskPool* pool, Task* task, void* args) {
     BtlSprite_Release(&self->sprites[4]);
     BtlSprite_Release(&self->sprites[2]);
     BtlSprite_Release(&self->sprites[5]);
-    if (g_CombatGlobal->unk3D874 == 2) {
-        g_CombatGlobal->unk3D878 &= ~0x10000;
+    if (gBattle->state == BATTLE_STATE_FIGHT) {
+        gBattle->flags &= ~BATTLE_FLAG_NO_PAUSE;
     }
     return 1;
 }

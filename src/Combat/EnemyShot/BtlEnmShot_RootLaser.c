@@ -34,14 +34,14 @@ typedef struct Ov003EnemyShotRootLaser {
 static const TaskHandle data_ov003_020e0ca4;
 
 void func_ov003_020d1538(Ov003EnemyShotRootLaserArgs* args) {
-    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &data_ov003_020e0ca4, NULL, 0, NULL, args);
+    EasyTask_CreateTask(&gBattle->mainPool, &data_ov003_020e0ca4, NULL, 0, NULL, args);
 }
 
 /// Lays the roots of the beam across the screen from the shot's position, alternating a vertical and a horizontal
 /// root, and stops once the next root would fall outside the camera.
 static s32 func_ov003_020d1570(Ov003EnemyShotRootLaser* self) {
-    BattleActor* target = g_CombatGlobal->player;
-    BattleStage* camera = &g_CombatGlobal->stages[0];
+    BattleActor* target = gBattle->player;
+    BattleStage* camera = &gBattle->stages[0];
     u16          parity = 0;
     s32          scale;
     s32          x, y, z;

@@ -182,8 +182,8 @@ void BtlBadgeActor_Init(Ov003TouchActor* actor, const Ov003ActorSpawn* spawn) {
     func_ov003_020a58e4(&actor->effect, actor->params.head.unk_02, actor->params.unk_04);
     func_ov003_020a7284(actor);
     func_ov003_020a7ba8(actor);
-    g_CombatGlobal->touchActorCount++;
-    BtlList_Append(&g_CombatGlobal->unk3D8BC, &actor->node, actor);
+    gBattle->touchActorCount++;
+    BtlList_Append(&gBattle->unk3D8BC, &actor->node, actor);
 }
 
 void func_ov003_020a3d98(Ov003TouchActor* actor) {
@@ -202,8 +202,8 @@ s32 func_ov003_020a3dbc(Ov003TouchActor* actor) {
     if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
         return 0;
     }
-    waiting = g_CombatGlobal->unk3D878 & 6;
-    if (waiting != 0 || g_CombatGlobal->unk3D884 != 0) {
+    waiting = gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT);
+    if (waiting != 0 || gBattle->specialFreeze != 0) {
         return 0;
     }
     if (actor->kind == 0xFFFE) {
@@ -223,8 +223,8 @@ s32 func_ov003_020a3e50(Ov003TouchActor* actor) {
     if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
         return 0;
     }
-    waiting = g_CombatGlobal->unk3D878 & 6;
-    if (waiting != 0 || g_CombatGlobal->unk3D884 != 0) {
+    waiting = gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT);
+    if (waiting != 0 || gBattle->specialFreeze != 0) {
         return 0;
     }
     if (actor->kind == 0xFFFE) {
@@ -237,7 +237,7 @@ s32 func_ov003_020a3e50(Ov003TouchActor* actor) {
 // Nonmatching: load of the battle-mode flag is not hoisted out of the branches the same way.
 s32 func_ov003_020a3edc(Ov003TouchActor* actor) {
     u8  mode = actor->unk_00E;
-    s32 flag = g_CombatGlobal->unk3D880;
+    s32 flag = gBattle->lrHeld;
 
     if (mode == 0) {
         return flag == 0;
@@ -251,18 +251,18 @@ s32 func_ov003_020a3edc(Ov003TouchActor* actor) {
 /// TRUE when a touch is inside one of the actor's active touch areas.
 s32 func_ov003_020a3f20(Ov003TouchActor* actor) {
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) != 0 &&
-        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
+        BtlBadgeActor_HitTest(actor, gBattle->touchWork.x, gBattle->touchWork.y) != 0)
     {
         return 1;
     }
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) != 0 &&
-        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.startX, g_CombatGlobal->touchWork.startY) != 0 &&
-        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
+        BtlBadgeActor_HitTest(actor, gBattle->touchWork.startX, gBattle->touchWork.startY) != 0 &&
+        BtlBadgeActor_HitTest(actor, gBattle->touchWork.x, gBattle->touchWork.y) != 0)
     {
         return 1;
     }
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP) != 0 &&
-        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.endX, g_CombatGlobal->touchWork.endY) != 0)
+        BtlBadgeActor_HitTest(actor, gBattle->touchWork.endX, gBattle->touchWork.endY) != 0)
     {
         return 1;
     }
@@ -272,12 +272,12 @@ s32 func_ov003_020a3f20(Ov003TouchActor* actor) {
 /// TRUE when the release point of the current touch is inside the actor.
 s32 func_ov003_020a401c(Ov003TouchActor* actor) {
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_TAP) != 0 &&
-        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.x, g_CombatGlobal->touchWork.y) != 0)
+        BtlBadgeActor_HitTest(actor, gBattle->touchWork.x, gBattle->touchWork.y) != 0)
     {
         return 1;
     }
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_RAPID_TAP) != 0 &&
-        BtlBadgeActor_HitTest(actor, g_CombatGlobal->touchWork.endX, g_CombatGlobal->touchWork.endY) != 0)
+        BtlBadgeActor_HitTest(actor, gBattle->touchWork.endX, gBattle->touchWork.endY) != 0)
     {
         return 1;
     }
@@ -324,10 +324,10 @@ void BtlBadgeActor_SeparateAll(void) {
     Ov003TouchActor* a;
     Ov003TouchActor* b;
 
-    for (a = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); a != NULL; a = BtlList_GetNext(&a->node)) {
+    for (a = BtlList_GetHead(&gBattle->unk3D8BC); a != NULL; a = BtlList_GetNext(&a->node)) {
         s32 aActive = func_ov003_020a3e50(a);
 
-        for (b = BtlList_GetTail(&g_CombatGlobal->unk3D8BC); b != NULL; b = BtlList_GetPrev(&b->node)) {
+        for (b = BtlList_GetTail(&gBattle->unk3D8BC); b != NULL; b = BtlList_GetPrev(&b->node)) {
             s32 bActive = func_ov003_020a3e50(b);
             s32 radius;
             s32 dx;
@@ -359,7 +359,7 @@ void BtlBadgeActor_SeparateAll(void) {
             }
         }
     }
-    for (a = BtlList_GetHead(&g_CombatGlobal->unk3D8BC); a != NULL; a = BtlList_GetNext(&a->node)) {
+    for (a = BtlList_GetHead(&gBattle->unk3D8BC); a != NULL; a = BtlList_GetNext(&a->node)) {
         s32 radius;
 
         if (func_ov003_020a3e50(a) == 0) {
@@ -486,7 +486,7 @@ void BtlBadgeActor_PickRequest(Ov003TouchActor* actor) {
             }
             break;
     }
-    if ((gSaveData.unk_3142 > 1) && g_CombatGlobal->unk3D890 == 0xD) {
+    if ((gSaveData.unk_3142 > 1) && gBattle->musicId == 0xD) {
         switch (gSaveData.battleTouchSlots.kind[actor->slot]) {
             case 3:
                 actor->request = 7;
@@ -502,7 +502,7 @@ void BtlBadgeActor_PickRequest(Ov003TouchActor* actor) {
                 break;
         }
     }
-    if (g_CombatGlobal->unk3D88D == 5) {
+    if (gBattle->partnerId == 5) {
         actor->request = 6;
     }
     if (func_ov003_020a6cc4(actor->params.unk_05) != 0) {

@@ -2,6 +2,7 @@
 #define TWEWY_BATTLE_CORE_BTLBGSCRIPT_H
 
 #include "Combat/Core/CombatBgAnimSlot.h"
+#include "Display.h"
 #include "Engine/File/BinMgr.h"
 #include "Engine/File/DatMgr.h"
 #include "Engine/Resources/BgResMgr.h"
@@ -59,8 +60,8 @@ typedef struct BattleBgScriptSlotCmd {
 /// The interpreter state for the background scripts of one screen engine, and what those scripts
 /// left loaded: the palettes, the last pack entry they read, and up to two animated tile slots.
 typedef struct BattleBgScriptState {
-    /* 0x00 */ s32            engine; // 0 = main engine, 1 = sub engine
-    /* 0x04 */ BinIdentifier* iden;   // pack the graphics come from
+    /* 0x00 */ DisplayEngine  engine;
+    /* 0x04 */ BinIdentifier* iden; // pack the graphics come from
     /* 0x08 */ union {
         const BattleBgScriptWord*    word;
         const BattleBgScriptCmd*     cmd;
@@ -80,10 +81,10 @@ typedef struct BattleBgScriptState {
  * @brief Sets up an empty script state for one screen engine
  *
  * @param state The script state to set up
- * @param engine The screen engine its scripts load into: 0 = main, 1 = sub
+ * @param engine The screen engine its scripts load into (DISPLAY_MAIN or DISPLAY_SUB)
  * @param iden The pack the scripts load their graphics from
  */
-void BtlBgScript_Init(BattleBgScriptState* state, s32 engine, BinIdentifier* iden);
+void BtlBgScript_Init(BattleBgScriptState* state, DisplayEngine engine, BinIdentifier* iden);
 
 /**
  * @brief Runs a background script to its end

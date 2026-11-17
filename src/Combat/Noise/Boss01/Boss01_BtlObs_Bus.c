@@ -47,7 +47,7 @@ static void BtlObs_Bus_OnPhaseStart(BtlObs_Bus* obs) {
             BtlSprite_SetAnimFromTable(&obs->unk_0C4, 2, 0);
             BtlSprite_SetPaletteSource(&obs->unk_0C4, 11);
             BtlSprite_Release(&obs->unk_124);
-            BtlHit_LoadSparkForUnit(0, &obs->unk_124, &obs->actor);
+            BtlHit_LoadSparkForActor(0, &obs->unk_124, &obs->actor);
         }
     }
 }
@@ -113,7 +113,7 @@ static s32 BtlObs_Bus_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus* obs = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 0x1000) {
+    if (gBattle->flags & BATTLE_FLAG_FIELDS_STOPPED) {
         return 1;
     }
     switch (BtlActor_PopPendingCommand(&obs->actor)) {
@@ -140,7 +140,7 @@ static s32 BtlObs_Bus_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlObs_Bus_Render(TaskPool* pool, Task* task, void* args) {
     BtlObs_Bus* obs = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 0x1000) {
+    if (gBattle->flags & BATTLE_FLAG_FIELDS_STOPPED) {
         return 1;
     }
     if (obs->unk_190 == 0) {
@@ -189,6 +189,6 @@ static s32 BtlObs_Bus_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
 void* BtlObs_Bus_CreateTask(struct Boss01_UG* bossUG) {
     struct Boss01_UG* sp8 = bossUG;
 
-    s32 taskId = EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_BtlObs_Bus, NULL, 0, NULL, &sp8);
-    return EasyTask_GetTaskData(&g_CombatGlobal->unk_00000, taskId);
+    s32 taskId = EasyTask_CreateTask(&gBattle->mainPool, &Tsk_BtlObs_Bus, NULL, 0, NULL, &sp8);
+    return EasyTask_GetTaskData(&gBattle->mainPool, taskId);
 }

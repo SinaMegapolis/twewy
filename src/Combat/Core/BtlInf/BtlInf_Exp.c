@@ -20,8 +20,6 @@ static s32 BtlInf_Exp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
 
 const TaskHandle Tsk_BtlInf_Exp = {"Tsk_BtlInf_Exp", BtlInf_Exp_RunTask, sizeof(BtlInf_Exp)};
 
-extern const BinIdentifier data_ov003_020d7800;
-
 /// Splits `value` (clamped to 0..99999) into decimal digits, least significant first, and returns
 /// how many digits are needed to show it.
 static s32 func_ov003_0209d8a0(s32* digits, s32 value) {
@@ -69,11 +67,11 @@ static s32 BtlInf_Exp_Init(TaskPool* pool, Task* task, void* args) {
     BtlInf_Exp* exp = task->data;
     s32         i;
 
-    BtlSprite_LoadDirect(1, &exp->label, &data_ov003_020d7800, 7, 9, 8, 0x3F, 0);
+    BtlSprite_LoadDirect(1, &exp->label, &Iden_BtlMenu, 7, 9, 8, 0x3F, 0);
     BtlSprite_SetPosition(&exp->label, 6, 15);
     BtlSprite_SetPriority(&exp->label, 0);
     for (i = 0; i < 5; i++) {
-        BtlSprite_LoadDirect(1, &exp->digits[i], &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3F, 0);
+        BtlSprite_LoadDirect(1, &exp->digits[i], &Iden_BtlMenu, 0x25, 0x27, 0x26, 0x3F, 0);
         BtlSprite_SetPriority(&exp->digits[i], 0);
     }
     func_ov003_0209d9a8(exp);
@@ -134,7 +132,7 @@ static s32 BtlInf_Exp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
         .render     = BtlInf_Exp_Render,
         .cleanup    = BtlInf_Exp_Release,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);

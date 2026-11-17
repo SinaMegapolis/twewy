@@ -109,28 +109,28 @@ static void func_ov003_020c1224(BtlActSp* self, void (*update)(BtlActSp*)) {
 static void func_ov003_020c1238(u16 character, u16 level) {
     BtlActSpAttackTable subAttacks  = data_ov003_020ddad4;
     BtlActSpAttackTable mainAttacks = data_ov003_020ddae6;
-    BattleActor*        mainActor   = g_CombatGlobal->player;
+    BattleActor*        mainActor   = gBattle->player;
     BattleAttackArgs    args;
 
     args.power            = mainActor->attack;
     args.powerPercent     = 0x64;
     args.effectPercent    = 0x64;
     args.comboFrames      = 0x5A;
-    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
+    Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesSub);
     if (unit) {
         u16 attack = subAttacks.entries[character][level];
         do {
-            BattleActor* owner = g_CombatGlobal->partner;
-            BtlHit_AttackUnit(BtlHit_GetAttackInfo(attack), &owner->baseArgs, &unit->actor, owner->position.x);
+            BattleActor* owner = gBattle->partner;
+            BtlHit_AttackActor(BtlHit_GetAttackInfo(attack), &owner->baseArgs, &unit->actor, owner->position.x);
             unit = BtlList_GetNext(&unit->node);
         } while (unit);
     }
-    unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    unit = BtlList_GetHead(&gBattle->enemiesMain);
     if (unit) {
         u16 attack = mainAttacks.entries[character][level];
         do {
-            BattleActor* owner = g_CombatGlobal->player;
-            BtlHit_AttackUnit(BtlHit_GetAttackInfo(attack), &args, &unit->actor, owner->position.x);
+            BattleActor* owner = gBattle->player;
+            BtlHit_AttackActor(BtlHit_GetAttackInfo(attack), &args, &unit->actor, owner->position.x);
             unit = BtlList_GetNext(&unit->node);
         } while (unit);
     }
@@ -138,24 +138,24 @@ static void func_ov003_020c1238(u16 character, u16 level) {
     s16 heal;
     switch (level) {
         case 0:
-            heal = g_CombatGlobal->unk3D8D2 * 20 / 100;
+            heal = gBattle->teamMaxHp * 20 / 100;
             break;
         case 1:
-            heal = g_CombatGlobal->unk3D8D2 * 50 / 100;
+            heal = gBattle->teamMaxHp * 50 / 100;
             break;
         case 2:
-            heal = g_CombatGlobal->unk3D8D2 * 100 / 100;
+            heal = gBattle->teamMaxHp * 100 / 100;
             break;
     }
-    s32 missing = g_CombatGlobal->unk3D8D2 - g_CombatGlobal->unk3D8D0;
+    s32 missing = gBattle->teamMaxHp - gBattle->teamHp;
     if (missing < heal) {
         heal = missing;
     }
     s32 rounded = heal + ((u32)heal >> 31);
     BtlMgr_AddTeamHp(0, (heal & 1) + (rounded >> 1));
     BtlMgr_AddTeamHp(1, (s16)((rounded << 15) >> 16));
-    BtlActor_ClearPeriodicEffect(g_CombatGlobal->partner);
-    BtlActor_ClearPeriodicEffect(g_CombatGlobal->player);
+    BtlActor_ClearPeriodicEffect(gBattle->partner);
+    BtlActor_ClearPeriodicEffect(gBattle->player);
 }
 
 // Nonmatching: display-setting store scheduling.
@@ -243,18 +243,18 @@ static void func_ov003_020c1848(BtlActSp* self) {
         case 0:
             SndMgr_PlaySEWithPan(SEIDX_SE_FINISHMOVE, 0x80);
             EasyFade_FadeBothDisplays(2, 0x10, 0x1000);
-            g_CombatGlobal->unk3D878 |= 0x1000;
-            g_CombatGlobal->unk3D878 |= 0x2000;
+            gBattle->flags |= BATTLE_FLAG_FIELDS_STOPPED;
+            gBattle->flags |= BATTLE_FLAG_SANDSTORM_STOPPED;
             self->phase++;
             return;
         case 1:
-            if (g_CombatGlobal->unk3D878 & 1) {
+            if (gBattle->flags & BATTLE_FLAG_SANDSTORM) {
                 return;
             }
-            if (g_CombatGlobal->stages[0].flags & BATTLE_STAGE_FLAG_BG_IN_USE) {
+            if (gBattle->stages[0].flags & BATTLE_STAGE_FLAG_BG_IN_USE) {
                 return;
             }
-            if (g_CombatGlobal->stages[1].flags & BATTLE_STAGE_FLAG_BG_IN_USE) {
+            if (gBattle->stages[1].flags & BATTLE_STAGE_FLAG_BG_IN_USE) {
                 return;
             }
             func_ov003_020c14ec();
@@ -270,44 +270,43 @@ static void func_ov003_020c1918(BtlActSp* self) {
     switch (self->phase) {
         case 0:
             PaletteMgr_UnknownLoop(g_PaletteManagers[1]);
-            g_CombatGlobal->unk3D878 |= 0x10000;
-            g_CombatGlobal->unk3D884 = 1;
-            g_CombatGlobal->unk3D8C8 = 0;
-            EasyTask_CleanupAllTasks(&g_CombatGlobal->unk_201A4);
+            gBattle->flags |= BATTLE_FLAG_NO_PAUSE;
+            gBattle->specialFreeze = 1;
+            gBattle->unk3D8C8      = 0;
+            EasyTask_CleanupAllTasks(&gBattle->psychPool);
             Mem_ValidateSequences(&gMainHeap);
             if (self->character == 3) {
-                self->taskId = BtlCutIn00_CreateKariyaYashiroTask(&g_CombatGlobal->unk_34230);
+                self->taskId = BtlCutIn00_CreateKariyaYashiroTask(&gBattle->specialPool);
             } else {
-                self->taskId =
-                    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, cutins.entries[self->level], NULL, 0, NULL, NULL);
+                self->taskId = EasyTask_CreateTask(&gBattle->specialPool, cutins.entries[self->level], NULL, 0, NULL, NULL);
             }
             self->phase++;
             BtlCutIn_SetSpecialKind(1);
             BtlFeat_HaltEnm();
             return;
         case 1:
-            if (EasyTask_ValidateTaskId(&g_CombatGlobal->unk_34230, &self->taskId)) {
+            if (EasyTask_ValidateTaskId(&gBattle->specialPool, &self->taskId)) {
                 return;
             }
-            g_CombatGlobal->unk3D884 = 0;
-            g_CombatGlobal->unk3D888 = 1;
-            g_CombatGlobal->unk3D878 |= 4;
+            gBattle->specialFreeze = 0;
+            gBattle->unk3D888      = 1;
+            gBattle->flags |= BATTLE_FLAG_FEAT;
             BtlFeat_SaveEnmPos();
             if (self->skipFeature) {
                 self->phase++;
                 return;
             }
             if (self->character == 3) {
-                self->taskId = EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &data_ov024_020f6b7c, NULL, 0, NULL, NULL);
+                self->taskId = EasyTask_CreateTask(&gBattle->specialPool, &data_ov024_020f6b7c, NULL, 0, NULL, NULL);
             } else {
-                self->taskId = EasyTask_CreateTask(&g_CombatGlobal->unk_34230, features.entries[self->character][self->level],
-                                                   NULL, 0, NULL, NULL);
+                self->taskId = EasyTask_CreateTask(&gBattle->specialPool, features.entries[self->character][self->level], NULL,
+                                                   0, NULL, NULL);
             }
             self->phase++;
             self->timer = 2;
             return;
         case 2:
-            if (EasyTask_ValidateTaskId(&g_CombatGlobal->unk_34230, &self->taskId)) {
+            if (EasyTask_ValidateTaskId(&gBattle->specialPool, &self->taskId)) {
                 return;
             }
             data_ov003_020e71d8.released = 1;
@@ -319,16 +318,16 @@ static void func_ov003_020c1918(BtlActSp* self) {
             PaletteMgr_UnknownLoop(g_PaletteManagers[1]);
             return;
         case 3:
-            if (EasyTask_ValidateTaskId(&g_CombatGlobal->unk_34230, &self->taskId)) {
+            if (EasyTask_ValidateTaskId(&gBattle->specialPool, &self->taskId)) {
                 return;
             }
-            g_CombatGlobal->unk3D878 &= ~4;
+            gBattle->flags &= ~BATTLE_FLAG_FEAT;
             BtlFeat_RestoreEnmPos();
-            g_CombatGlobal->unk3D888 = 0;
+            gBattle->unk3D888 = 0;
             self->phase++;
             self->timer = 0;
-            g_CombatGlobal->unk3D878 &= ~0x1000;
-            g_CombatGlobal->unk3D878 &= ~0x2000;
+            gBattle->flags &= ~BATTLE_FLAG_FIELDS_STOPPED;
+            gBattle->flags &= ~BATTLE_FLAG_SANDSTORM_STOPPED;
             BtlStage_StartFieldTasks(1);
             BtlStage_StartSandstorm();
             if (self->character == 3) {
@@ -339,14 +338,14 @@ static void func_ov003_020c1918(BtlActSp* self) {
         case 4:
             if (self->character == 3) {
                 if (!self->timer) {
-                    Ov003EnemyActor* unit  = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
-                    BattleActor*     owner = g_CombatGlobal->partner;
+                    Ov003EnemyActor* unit  = BtlList_GetHead(&gBattle->enemiesSub);
+                    BattleActor*     owner = gBattle->partner;
                     BtlHit_AttackCharacter(BtlHit_GetAttackInfo(0x12D), &unit->actor.baseArgs, owner->position.x);
-                    unit  = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
-                    owner = g_CombatGlobal->player;
+                    unit  = BtlList_GetHead(&gBattle->enemiesMain);
+                    owner = gBattle->player;
                     BtlHit_AttackCharacter(BtlHit_GetAttackInfo(0x12E), &unit->actor.baseArgs, owner->position.x);
                 }
-                g_CombatGlobal->unk3D878 &= ~0x10000;
+                gBattle->flags &= ~BATTLE_FLAG_NO_PAUSE;
                 self->active = 0;
                 EasyFade_FadeBothDisplays(0, 0, 0x800);
                 self->timer++;
@@ -357,7 +356,7 @@ static void func_ov003_020c1918(BtlActSp* self) {
             } else {
                 func_ov003_020c17bc();
             }
-            g_CombatGlobal->unk3D878 &= ~0x10000;
+            gBattle->flags &= ~BATTLE_FLAG_NO_PAUSE;
             self->active = 0;
             return;
     }
@@ -368,7 +367,7 @@ static s32 BtlActSp00_Init(TaskPool* pool, Task* task, void* args) {
     BtlActSp*     self  = task->data;
     BtlActSpArgs* spawn = args;
 
-    g_CombatGlobal->unk3D878 |= 2;
+    gBattle->flags |= BATTLE_FLAG_SPECIAL;
     MI_CpuSet(self, 0, sizeof(*self));
     data_ov003_020e71d8.released  = 0;
     self->selection               = spawn->selection;
@@ -394,10 +393,10 @@ static s32 BtlActSp00_Render(TaskPool* pool, Task* task, void* args) {
 }
 
 static s32 BtlActSp00_Release(TaskPool* pool, Task* task, void* args) {
-    EasyTask_CleanupAllTasks(&g_CombatGlobal->unk_34230);
+    EasyTask_CleanupAllTasks(&gBattle->specialPool);
     BtlFeat_RestoreEnmPos();
-    g_CombatGlobal->unk3D878 &= ~2;
-    g_CombatGlobal->unk3D878 &= ~0x20000;
+    gBattle->flags &= ~BATTLE_FLAG_SPECIAL;
+    gBattle->flags &= ~BATTLE_FLAG_SPECIAL_LOCKED;
     Mem_ValidateSequences(&gMainHeap);
     return 1;
 }
@@ -417,7 +416,7 @@ void func_ov003_020c1f18(TaskPool* pool, u16 level) {
     BtlActSpArgs args;
     u16          character;
 
-    switch (g_CombatGlobal->unk3D88D) {
+    switch (gBattle->partnerId) {
         case 1:
             character = 1;
             break;
@@ -461,7 +460,7 @@ s32 func_ov003_020c2008(TaskPool* pool) {
     args.character     = 3;
     args.level         = 0;
     args.skipFeature   = 0;
-    BattleActor* owner = g_CombatGlobal->partner;
+    BattleActor* owner = gBattle->partner;
     owner->flags &= ~ACTOR_FLAG_GUARDING;
     return EasyTask_CreateTask(pool, &Tsk_BtlActSp00, NULL, 0, NULL, &args);
 }

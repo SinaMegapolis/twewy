@@ -48,8 +48,6 @@ static s32 BtlPop_Num_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
 
 static const TaskHandle Tsk_BtlPop_Num = {"Tsk_BtlPop_Num", BtlPop_Num_RunTask, sizeof(BtlPop_Num)};
 
-extern const BinIdentifier data_ov003_020d7800;
-
 /// Splits `value` (clamped to 0..99999) into decimal digits, least significant first, and
 /// returns how many digits are needed to show it. A value of -1 stores a lone `-` glyph.
 static s32 func_ov003_0209af30(s32* digits, s32 value) {
@@ -87,7 +85,7 @@ static s32 func_ov003_0209af30(s32* digits, s32 value) {
 
 /// Loads the popup sprite and starts it on the digit animation set of `engine`.
 static void func_ov003_0209b04c(s32 engine, BattleSprite* sprite, s32 arg2, s32 variant) {
-    BtlSprite_LoadDirectNoProto(engine, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, variant, arg2);
+    BtlSprite_LoadDirectNoProto(engine, sprite, &Iden_BtlMenu, 0x25, 0x27, 0x26, variant, arg2);
     BtlSprite_SetPriority(sprite, 0);
     BtlSprite_SetSortKey(sprite, 1);
 }
@@ -128,10 +126,10 @@ static s32 BtlPop_Num_Init(TaskPool* pool, Task* task, void* args) {
 
     if (num->engine != 1) {
         animIndex = 0x3D;
-        g_CombatGlobal->popupCountMain++;
+        gBattle->popupCountMain++;
     } else {
         animIndex = 0x3F;
-        g_CombatGlobal->popupCountSub++;
+        gBattle->popupCountSub++;
     }
     func_ov003_0209b04c(num->engine, &num->sprite, 0, animIndex);
 
@@ -218,9 +216,9 @@ static s32 BtlPop_Num_Release(TaskPool* pool, Task* task, void* args) {
 
     BtlSprite_Release(&num->sprite);
     if (num->engine != 1) {
-        g_CombatGlobal->popupCountMain--;
+        gBattle->popupCountMain--;
     } else {
-        g_CombatGlobal->popupCountSub--;
+        gBattle->popupCountSub--;
     }
     return 1;
 }
@@ -232,7 +230,7 @@ static s32 BtlPop_Num_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
         .render     = BtlPop_Num_Render,
         .cleanup    = BtlPop_Num_Release,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -244,9 +242,9 @@ void func_ov003_0209b564(s32 engine, s32 value, BattleActor* actor, s32 element)
     s32            popupCount;
 
     if (engine != 1) {
-        popupCount = g_CombatGlobal->popupCountMain;
+        popupCount = gBattle->popupCountMain;
     } else {
-        popupCount = g_CombatGlobal->popupCountSub;
+        popupCount = gBattle->popupCountSub;
     }
     switch (popupCount < 10) {
         case FALSE: {
@@ -262,7 +260,7 @@ void func_ov003_0209b564(s32 engine, s32 value, BattleActor* actor, s32 element)
     params.element    = element;
     params.subType    = 0;
     params.isCritical = FALSE;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
 }
 
 void func_ov003_0209b61c(s32 engine, s32 value, BattleActor* actor) {
@@ -270,9 +268,9 @@ void func_ov003_0209b61c(s32 engine, s32 value, BattleActor* actor) {
     s32            popupCount;
 
     if (engine != 1) {
-        popupCount = g_CombatGlobal->popupCountMain;
+        popupCount = gBattle->popupCountMain;
     } else {
-        popupCount = g_CombatGlobal->popupCountSub;
+        popupCount = gBattle->popupCountSub;
     }
 
     switch (popupCount < 10) {
@@ -306,5 +304,5 @@ void func_ov003_0209b61c(s32 engine, s32 value, BattleActor* actor) {
             params.element = 0;
             break;
     }
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlPop_Num, NULL, 0, NULL, &params);
 }

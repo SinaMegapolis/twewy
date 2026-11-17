@@ -11,7 +11,7 @@ static s32 func_ov003_02095d08(TaskPool* pool, Task* task, void* args) {
     MI_CpuSet(self, 0, sizeof(*self));
     self->effect = *arg;
     CombatPsyTrail_Init(&self->trail);
-    g_CombatGlobal->unk3D8C8 = 1;
+    gBattle->unk3D8C8 = 1;
     return 1;
 }
 static s32 func_ov003_02095d50(TaskPool* pool, Task* task, void* args) {
@@ -22,7 +22,7 @@ static s32 func_ov003_02095d50(TaskPool* pool, Task* task, void* args) {
         case 0:
             func_ov003_020a5aa4(self->effect);
             func_ov003_020a5a94(self->effect);
-            func_ov003_02087250(self->effect, g_CombatGlobal->player, 0);
+            BtlAttackQueue_Push(self->effect, gBattle->player, 0);
             return 0;
         case 1:
             return 1;
@@ -39,7 +39,7 @@ static s32 func_ov003_02095dd4(TaskPool* pool, Task* task, void* args) {
 static s32 func_ov003_02095dec(TaskPool* pool, Task* task, void* args) {
     Ov003PsychTrail* self = task->data;
     CombatPsyTrail_Release(&self->trail);
-    g_CombatGlobal->unk3D8C8 = 0;
+    gBattle->unk3D8C8 = 0;
     return 1;
 }
 

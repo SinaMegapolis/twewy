@@ -204,12 +204,12 @@ static void func_ov003_020c23bc(void) {
                     sumX += params->unk_28;
                     sumY += params->unk_2A;
                 }
-                subData.x  = RNG_Next((u32)(g_CombatGlobal->stages[0].width >> 12)) << 12;
-                subData.y  = RNG_Next((u32)(g_CombatGlobal->stages[0].height >> 12)) << 12;
+                subData.x  = RNG_Next((u32)(gBattle->stages[0].width >> 12)) << 12;
+                subData.y  = RNG_Next((u32)(gBattle->stages[0].height >> 12)) << 12;
                 subData.z  = 0;
-                mainData.x = RNG_Next((u32)(g_CombatGlobal->stages[1].width >> 12)) << 12;
+                mainData.x = RNG_Next((u32)(gBattle->stages[1].width >> 12)) << 12;
                 mainData.z = 0;
-                mainData.y = RNG_Next((u32)(g_CombatGlobal->stages[1].height >> 12)) << 12;
+                mainData.y = RNG_Next((u32)(gBattle->stages[1].height >> 12)) << 12;
                 func_ov003_020c3cec(data_ov003_020e68d0[subData.group], data_ov003_020e67e0[mainData.group], (u32*)&subData,
                                     (u32*)&mainData);
             }
@@ -272,24 +272,24 @@ static void func_ov003_020c2624(u16* script) {
             subData.sprite = (s16)((Ov003CutinCmd*)script)->bits.sprite;
             subData.flags  = (subData.flags & ~1) | ((Ov003CutinCmd*)script)->bits.flag;
             subData.x      = ((s32*)data_ov003_020e05d4)[point * 2] +
-                        ((s32)(g_CombatGlobal->stages[0].width + ((u32)g_CombatGlobal->stages[0].width >> 31)) >> 1);
+                        ((s32)(gBattle->stages[0].width + ((u32)gBattle->stages[0].width >> 31)) >> 1);
             subData.y = ((s32*)data_ov003_020e05d4)[point * 2 + 1] +
-                        ((s32)(g_CombatGlobal->stages[0].height + ((u32)g_CombatGlobal->stages[0].height >> 31)) >> 1);
+                        ((s32)(gBattle->stages[0].height + ((u32)gBattle->stages[0].height >> 31)) >> 1);
             subData.z =
                 -(s32)((params->unk_19 > 0) ? (0.5f + (f32)(params->unk_19 << 12)) : ((f32)(params->unk_19 << 12) - 0.5f));
             mainData.group  = ((Ov003CutinCmd*)script)->bits.group;
             mainData.sprite = (s16)((Ov003CutinCmd*)script)->bits.sprite;
             mainData.flags  = (mainData.flags & ~1) | ((Ov003CutinCmd*)script)->bits.flag;
             mainData.x      = ((s32*)data_ov003_020e0664)[point * 2] +
-                         ((s32)(g_CombatGlobal->stages[1].width + ((u32)g_CombatGlobal->stages[1].width >> 31)) >> 1);
+                         ((s32)(gBattle->stages[1].width + ((u32)gBattle->stages[1].width >> 31)) >> 1);
             mainData.y = ((s32*)data_ov003_020e0664)[point * 2 + 1] +
-                         ((s32)(g_CombatGlobal->stages[1].height + ((u32)g_CombatGlobal->stages[1].height >> 31)) >> 1);
+                         ((s32)(gBattle->stages[1].height + ((u32)gBattle->stages[1].height >> 31)) >> 1);
             mainData.z =
                 -(s32)((params->unk_19 > 0) ? (0.5f + (f32)(params->unk_19 << 12)) : ((f32)(params->unk_19 << 12) - 0.5f));
             if ((first == 1) && (RNG_Next(2) != 0)) {
-                subData.x = ((s32)(g_CombatGlobal->stages[0].width + ((u32)g_CombatGlobal->stages[0].width >> 31)) >> 1) -
+                subData.x = ((s32)(gBattle->stages[0].width + ((u32)gBattle->stages[0].width >> 31)) >> 1) -
                             ((s32*)data_ov003_020e05d4)[point * 2];
-                mainData.x = ((s32)(g_CombatGlobal->stages[1].width + ((u32)g_CombatGlobal->stages[1].width >> 31)) >> 1) -
+                mainData.x = ((s32)(gBattle->stages[1].width + ((u32)gBattle->stages[1].width >> 31)) >> 1) -
                              ((s32*)data_ov003_020e0664)[point * 2];
             }
             func_ov003_020c3cec(data_ov003_020e68d0[subData.group], data_ov003_020e67e0[mainData.group], (u32*)&subData,
@@ -362,7 +362,7 @@ void func_ov003_020c2b68(Ov003CutinActor* actor) {
 
 /// True while the actor is safely inside the camera bounds.
 s32 func_ov003_020c2bbc(Ov003CutinActor* actor) {
-    Ov003Global* p     = g_CombatGlobal;
+    Battle*      p     = gBattle;
     BattleStage* cam   = &p->stages[0];
     BattleActor* other = p->player;
 
@@ -442,8 +442,8 @@ s32 func_ov003_020c2c30(Ov003CutinActor* actor, s32 animBase, s32 targetX, s32 t
             actor->base.actor.position.x += actor->velocityX;
             actor->base.actor.position.y += actor->velocityY;
             actor->base.actor.position.z += actor->velocityZ;
-            if ((actor->base.actor.isFlipped == 1 && actor->base.actor.position.x > g_CombatGlobal->stages[1].width / 2) ||
-                (actor->base.actor.isFlipped == 0 && actor->base.actor.position.x < g_CombatGlobal->stages[1].width / 2))
+            if ((actor->base.actor.isFlipped == 1 && actor->base.actor.position.x > gBattle->stages[1].width / 2) ||
+                (actor->base.actor.isFlipped == 0 && actor->base.actor.position.x < gBattle->stages[1].width / 2))
             {
                 actor->base.unk_1AC = actor->targetX;
                 actor->base.unk_1B0 = actor->targetY;
@@ -494,8 +494,8 @@ s32 func_ov003_020c2f68(Ov003CutinActor* actor, s32 animBase, s32 speed, s32 spr
     anim3   = animBase + 3;
     anim4   = animBase + 4;
     animFar = animBase + 5;
-    other   = g_CombatGlobal->player;
-    limit   = g_CombatGlobal->stages[0].width;
+    other   = gBattle->player;
+    limit   = gBattle->stages[0].width;
     switch (actor->state) {
         case 0:
             if (actor->timer == 0) {
@@ -779,7 +779,7 @@ static s32 func_ov003_020c3950(u32 index) {
 
 /// Clamps `*value` to the camera's horizontal bounds.
 s32 func_ov003_020c3960(s32* value, s32 margin) {
-    Ov003Global* p   = g_CombatGlobal;
+    Battle*      p   = gBattle;
     BattleStage* cam = &p->stages[0];
     s32          v   = *value;
     s32          ret = 0;
@@ -809,21 +809,21 @@ void func_ov003_020c39b0(Vec* src, Vec* dst) {
 }
 
 TaskPool* func_ov003_020c3a10(u32 index) {
-    Ov003Global* p = g_CombatGlobal;
+    Battle* p = gBattle;
 
     g_Cutin->cameraMain = p;
-    g_Cutin->cameraSub  = &p->taskPool;
+    g_Cutin->cameraSub  = &p->subPool;
     g_Cutin->unk_1C     = p;
     return ((TaskPool**)data_ov003_020e71f8)[index];
 }
 
 static BattleStage* func_ov003_020c3a48(u32 index) {
-    return &g_CombatGlobal->stages[func_ov003_020c3950(index)];
+    return &gBattle->stages[func_ov003_020c3950(index)];
 }
 
 static s32 func_ov003_020c3a70(u32 index) {
-    Ov003Global* p        = g_CombatGlobal;
-    void*        mainTask = p->player;
+    Battle* p        = gBattle;
+    void*   mainTask = p->player;
 
     g_Cutin->taskMain = mainTask;
     g_Cutin->taskSub  = p->partner;
@@ -832,19 +832,19 @@ static s32 func_ov003_020c3a70(u32 index) {
 }
 
 u32 func_ov003_020c3aac(u32 id) {
-    return ((u32)BtlHit_GetAttackInfo(id)->flags << 23) >> 31;
+    return BtlHit_GetAttackInfo(id)->flags.bits.screen;
 }
 
-void func_ov003_020c3acc(s32 engine, void* arg1, s32 arg2) {
+void func_ov003_020c3acc(s32 engine, SndMgrSeIdx seIdx, s32 x) {
     switch (engine) {
         case 0:
-            BtlSe_PlayAtMainX(arg1, arg2);
+            BtlSe_PlayAtMainX(seIdx, x);
             return;
         case 1:
-            BtlSe_PlayAtSubX(arg1, arg2);
+            BtlSe_PlayAtSubX(seIdx, x);
             return;
         case 2:
-            BtlSe_PlayAtMainX(arg1, arg2);
+            BtlSe_PlayAtMainX(seIdx, x);
             return;
     }
 }
@@ -884,7 +884,7 @@ static void func_ov003_020c3b6c(u16* tracks) {
 }
 
 void func_ov003_020c3ba8(s32 x, s32 y) {
-    Ov003Global* p      = g_CombatGlobal;
+    Battle*      p      = gBattle;
     BattleActor* sub    = p->partner;
     BattleStage* camera = &p->stages[1];
 
@@ -896,14 +896,14 @@ void func_ov003_020c3ba8(s32 x, s32 y) {
 }
 
 s32 func_ov003_020c3bf0(void* actor) {
-    if ((g_CombatGlobal->unk3D878 & 2) && (func_ov003_020c9008() == 0)) {
+    if ((gBattle->flags & BATTLE_FLAG_SPECIAL) && (func_ov003_020c9008() == 0)) {
         return 1;
     }
     return 0;
 }
 
 s32 func_ov003_020c3c28(void) {
-    return g_CombatGlobal->unk3D878 & 2;
+    return gBattle->flags & BATTLE_FLAG_SPECIAL;
 }
 
 /// Resets a noise script buffer (0x14 bytes: cursor data, count, flags and three words).
@@ -961,25 +961,25 @@ s32 func_ov003_020c3d28(const TaskHandle* subHandle, const TaskHandle* mainHandl
         return 0;
     }
     if (mainHandle != NULL) {
-        mainId  = EasyTask_CreateTask(&g_CombatGlobal->unk_00000, mainHandle, NULL, 0, NULL, mainData);
+        mainId  = EasyTask_CreateTask(&gBattle->mainPool, mainHandle, NULL, 0, NULL, mainData);
         *subOut = mainId;
         if (mainId == -1) {
             return 0;
         }
     }
     if (subHandle != NULL) {
-        subId    = EasyTask_CreateTask(&g_CombatGlobal->taskPool, subHandle, NULL, 0, NULL, subData);
+        subId    = EasyTask_CreateTask(&gBattle->subPool, subHandle, NULL, 0, NULL, subData);
         *mainOut = subId;
         if (subId == -1) {
             if (*subOut != -1) {
-                EasyTask_DeleteTask(&g_CombatGlobal->unk_00000, *subOut);
+                EasyTask_DeleteTask(&gBattle->mainPool, *subOut);
             }
             return 0;
         }
     }
     if ((subHandle != NULL) && (mainHandle != NULL)) {
-        mainBlock = EasyTask_GetTaskData(&g_CombatGlobal->unk_00000, *subOut);
-        subBlock  = EasyTask_GetTaskData(&g_CombatGlobal->taskPool, *mainOut);
+        mainBlock = EasyTask_GetTaskData(&gBattle->mainPool, *subOut);
+        subBlock  = EasyTask_GetTaskData(&gBattle->subPool, *mainOut);
         func_ov003_020c3e68(mainBlock, subBlock);
     }
     g_Cutin->unk_00++;

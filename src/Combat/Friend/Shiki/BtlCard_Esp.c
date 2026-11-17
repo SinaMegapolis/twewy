@@ -41,8 +41,6 @@ typedef struct {
 
 static s32 BtlCard_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
-extern BinIdentifier data_ov003_020d7808;
-
 static const SpriteAnimEntry data_ov004_020f0290[25] = {
     {1, 3, 2,  0},
     {1, 3, 2, 24},
@@ -76,7 +74,7 @@ const TaskHandle Tsk_BtlCard_Esp = {"Tsk_BtlCard_Esp", BtlCard_Esp_RunTask, 0x35
 static void func_ov004_020eac00(BattleSprite* arg0, s32 arg1, s32 arg2) {
     SpriteAnimationEx anim;
 
-    BtlSprite_InitAnim(&anim.anim, 1, &data_ov003_020d7808);
+    BtlSprite_InitAnim(&anim.anim, 1, &Iden_BtlCmd);
     anim.anim.bits_10_11 = 1;
     anim.anim.unk_18     = 2;
     anim.anim.packIndex  = 2;
@@ -236,15 +234,15 @@ static s32 BtlCard_Esp_Init(TaskPool* pool, Task* task, void* args) {
     BtlCard_Esp* esp = task->data;
 
     MI_CpuSet(esp, 0, sizeof(BtlCard_Esp));
-    func_ov003_02087094(&esp->effectCmd, 0, (s32)&esp->unk_098);
+    BtlCmdDeck_Init(&esp->effectCmd, 0, &esp->unk_098);
     if (func_ov004_020e7360() == 0) {
-        func_ov003_0208722c();
+        BtlCmdDeck_Disable();
     }
     BtlList_Init(&esp->unk_098.unk_004);
     func_ov004_020eaccc(&esp->unk_098, 0, 0x98, 0x14);
     func_ov004_020eaccc(&esp->unk_098, 1, 0x7F, 0x14);
     func_ov004_020eaccc(&esp->unk_098, 2, 0x66, 0x14);
-    func_ov003_020871cc(0);
+    BtlCmdDeck_DealBoard(0);
     func_ov004_020eac00(&esp->sprite, 0x16, 4);
     BtlSprite_SetAnimFromTable(&esp->sprite, 0x16, 0);
     return 1;
@@ -253,7 +251,7 @@ static s32 BtlCard_Esp_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlCard_Esp_Update(TaskPool* pool, Task* task, void* args) {
     BtlCard_Esp* esp = task->data;
 
-    if ((esp->effectCmd.flags & 1) == 0) {
+    if ((esp->effectCmd.flags & BTL_CMD_DECK_FLAG_DISABLED) == 0) {
         func_ov004_020eafb0(&esp->unk_098);
         BtlSprite_Update(&esp->sprite);
     }
@@ -263,7 +261,7 @@ static s32 BtlCard_Esp_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlCard_Esp_Render(TaskPool* pool, Task* task, void* args) {
     BtlCard_Esp* esp = task->data;
 
-    if ((esp->effectCmd.flags & 1) == 0) {
+    if ((esp->effectCmd.flags & BTL_CMD_DECK_FLAG_DISABLED) == 0) {
         func_ov004_020eb004(&esp->unk_098);
         func_ov004_020eb0d8(esp);
     }
@@ -275,7 +273,7 @@ static s32 BtlCard_Esp_Destroy(TaskPool* pool, Task* task, void* args) {
 
     func_ov004_020eb0a0(&esp->unk_098);
     BtlSprite_Release(&esp->sprite);
-    func_ov003_020871b0(&esp->effectCmd);
+    BtlCmdDeck_Save(&esp->effectCmd);
     return 1;
 }
 
@@ -286,7 +284,7 @@ static s32 BtlCard_Esp_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
         .render     = BtlCard_Esp_Render,
         .cleanup    = BtlCard_Esp_Destroy,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);

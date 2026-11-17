@@ -22,10 +22,10 @@ static s32 func_ov003_020baab0(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                   = task->data;
-            BattleTouchWork* touch = func_ov003_020a62a0();
-            s16              midX  = touch->startX + (touch->endX - touch->startX) / 2;
-            s16              midY  = touch->startY + (touch->endY - touch->startY) / 2;
+            self               = task->data;
+            BattleTouch* touch = func_ov003_020a62a0();
+            s16          midX  = touch->startX + (touch->endX - touch->startX) / 2;
+            s16          midY  = touch->startY + (touch->endY - touch->startY) / 2;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
             self->timer  = 8;

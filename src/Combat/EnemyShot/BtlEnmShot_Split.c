@@ -8,9 +8,9 @@ static const TaskHandle data_ov003_020e0cd4;
 s32 func_ov003_020d2bc0(Ov003EnemyShotSplitArgs* args) {
     TaskPool* pool;
     if (args->source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0cd4, NULL, 0, NULL, args);
 }
 

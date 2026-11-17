@@ -40,9 +40,9 @@ s32 func_ov003_020cda50(Ov003EnemyShotSource* source, Ov003EnemyShotSource* seco
     args.velocity.z   = z;
     TaskPool* pool;
     if (!func_ov003_020c37f8(&source->core.owner->base.sprite))
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c24, NULL, 0, NULL, &args);
 }
 

@@ -302,7 +302,7 @@ static void func_ov003_020aefc0(Ov003Element* self) {
     s32 hit      = 0;
     if (attackId == 0x16F && func_ov003_020a51c0())
         attackId = 0x170;
-    Ov003EnemyActor* unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    Ov003EnemyActor* unit = BtlList_GetHead(&gBattle->enemiesMain);
     while (unit != NULL) {
         s32 x       = BtlStage_ToScreenX(0, self->position.x) * 4096;
         s32 y       = BtlStage_ToScreenY(0, self->position.y, self->position.z) * 4096;
@@ -344,7 +344,7 @@ static BattleActor* func_ov003_020af1e0(Ov003Element* self) {
     s32              nearest = 0x7FFFFFFF;
     s32              x       = BtlStage_ToScreenX(0, self->position.x);
     s32              y       = BtlStage_ToScreenY(0, self->position.y, self->position.z);
-    Ov003EnemyActor* unit    = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+    Ov003EnemyActor* unit    = BtlList_GetHead(&gBattle->enemiesMain);
     while (unit != NULL) {
         if (!(unit->actor.flags & ACTOR_FLAG_DEFEATED)) {
             s32 distance = func_ov003_020a632c(x, y, unit->actor.screenX, unit->actor.screenY - unit->actor.centerHeight);

@@ -213,5 +213,5 @@ void BtlFeat01_Multi_CreateTask(s32 arg0, s32 arg1, u16 arg2) {
     }
     args.unk_C8 = arg1;
     args.unk_DC = arg2;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BtlFeat01_Multi, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->specialPool, &Tsk_BtlFeat01_Multi, NULL, 0, NULL, &args);
 }

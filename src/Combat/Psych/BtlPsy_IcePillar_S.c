@@ -11,7 +11,7 @@ static const s32        data_ov003_020dc954[3];
 
 s32 func_ov003_020b2710(Ov003EffectContext* context, Ov003EffectState* effect) {
     Ov003EffectState** arg;
-    BattleTouchWork*   touch;
+    BattleTouch*       touch;
 
     if (!BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH))
         return 0;
@@ -32,7 +32,7 @@ static s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage
         default:
         case 0: {
             Ov003IcePillarS* self  = task->data;
-            BattleTouchWork* touch = func_ov003_020a62a0();
+            BattleTouch*     touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = *arg;
             self->x      = BtlStage_ToWorldX(0, touch->startX);
@@ -46,7 +46,7 @@ static s32 func_ov003_020b2780(TaskPool* pool, Task* task, void* args, s32 stage
                 self->step = -0x18000;
             else
                 self->step = 0x18000;
-            func_ov003_02087804(0);
+            BtlPlayerUtil_PlayAttackVoice(0);
             return 1;
         }
         case 1: {

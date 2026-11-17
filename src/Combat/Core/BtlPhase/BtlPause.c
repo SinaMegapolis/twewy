@@ -18,8 +18,6 @@ typedef struct BtlPause {
     /* 0x120 */ s32          resumed;
 } BtlPause; // Size: 0x124
 
-extern const BinIdentifier data_ov003_020d7800;
-
 static s32 BtlPause_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlPause = {"Tsk_BtlPause", BtlPause_RunTask, sizeof(BtlPause)};
@@ -37,9 +35,9 @@ static void func_ov003_020a210c(BtlPause* self) {
     if (TouchInput_WasTouchPressed() == 0) {
         return;
     }
-    touchX = g_CombatGlobal->touchWork.x;
+    touchX = gBattle->touchWork.x;
     if (touchX >= 0x38 && touchX <= 0xC8) {
-        touchY = g_CombatGlobal->touchWork.y;
+        touchY = gBattle->touchWork.y;
         if (touchY >= 0x56 && touchY <= 0x6A) {
             overButton = 1;
         } else {
@@ -60,7 +58,7 @@ static void func_ov003_020a210c(BtlPause* self) {
         return;
     }
     BtlSe_Play(SEIDX_BTL_SYSTEM_EXECUTE);
-    BtlMgr_SetState(5);
+    BtlMgr_SetState(BATTLE_STATE_QUIT);
 }
 
 static s32 BtlPause_Init(TaskPool* pool, Task* task, void* args) {
@@ -68,15 +66,15 @@ static s32 BtlPause_Init(TaskPool* pool, Task* task, void* args) {
     s32       anim;
 
     self->resumed = 0;
-    BtlSprite_LoadDirect(1, &self->sprites[0], &data_ov003_020d7800, 40, 42, 41, 0x3F, 0);
+    BtlSprite_LoadDirect(1, &self->sprites[0], &Iden_BtlMenu, 40, 42, 41, 0x3F, 0);
     BtlSprite_SetPosition(&self->sprites[0], 128, 96);
     BtlSprite_SetSortKey(&self->sprites[0], 0);
     BtlSprite_SetPriority(&self->sprites[0], 0);
     // The second banner shares the file and the frame range, only its first animation differs
     // between the "new game" and the resumed battle.
     anim = (gSaveData.unk_3140 & 1) ? 3 : 1;
-    BtlSprite_LoadDirect(0, &self->sprites[1], &data_ov003_020d7800, 40, 42, 41, 0x3D, anim);
-    BtlSprite_LoadDirect(0, &self->sprites[2], &data_ov003_020d7800, 40, 42, 41, 0x3D, 2);
+    BtlSprite_LoadDirect(0, &self->sprites[1], &Iden_BtlMenu, 40, 42, 41, 0x3D, anim);
+    BtlSprite_LoadDirect(0, &self->sprites[2], &Iden_BtlMenu, 40, 42, 41, 0x3D, 2);
     BtlSprite_SetAnim(&self->sprites[2], 2, 1);
     BtlSprite_SetPosition(&self->sprites[1], 128, 96);
     BtlSprite_SetPosition(&self->sprites[2], 128, 96);
@@ -90,27 +88,27 @@ static s32 BtlPause_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPause_Update(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 0x10000) {
+    if (gBattle->flags & BATTLE_FLAG_NO_PAUSE) {
         return 1;
     }
     if (InputStatus.buttonState.pressedButtons & INPUT_BUTTON_START) {
-        s32 paused = g_CombatGlobal->unk3D87C == 0;
+        s32 paused = gBattle->paused == 0;
 
-        g_CombatGlobal->unk3D87C = paused;
-        if (g_CombatGlobal->unk3D87C != 0) {
+        gBattle->paused = paused;
+        if (gBattle->paused != 0) {
             self->resumed = 0;
-            CriSndMgr_Pause(g_CombatGlobal->unk3D870, 1);
+            CriSndMgr_Pause(gBattle->bgmHandle, 1);
         } else {
             BtlBadgeMgr_ClearDrag();
-            CriSndMgr_Pause(g_CombatGlobal->unk3D870, 0);
+            CriSndMgr_Pause(gBattle->bgmHandle, 0);
         }
-        func_02027200(g_CombatGlobal->unk3D87C);
+        func_02027200(gBattle->paused);
         BtlSe_Play(SEIDX_SE_PAUSE);
     }
-    if (g_CombatGlobal->unk3D87C != 0 && g_CombatGlobal->unk3D874 == 2) {
+    if (gBattle->paused != 0 && gBattle->state == BATTLE_STATE_FIGHT) {
         func_ov003_020a210c(self);
     }
-    if (g_CombatGlobal->unk3D87C != 0) {
+    if (gBattle->paused != 0) {
         BtlSprite_Update(&self->sprites[0]);
         BtlSprite_Update(&self->sprites[1]);
         BtlSprite_Update(&self->sprites[2]);
@@ -121,8 +119,8 @@ static s32 BtlPause_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPause_Render(TaskPool* pool, Task* task, void* args) {
     BtlPause* self = task->data;
 
-    if (g_CombatGlobal->unk3D87C != 0) {
-        if (g_CombatGlobal->unk3D88D != 3) {
+    if (gBattle->paused != 0) {
+        if (gBattle->partnerId != 3) {
             BtlSprite_Render(&self->sprites[0]);
         }
         BtlSprite_Render(&self->sprites[1]);

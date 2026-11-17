@@ -27,8 +27,8 @@ s32 func_ov003_020b9518(TaskPool* pool, Task* task, void* args, s32 stage) {
     switch (stage) {
         default:
         case 0: {
-            self                   = task->data;
-            BattleTouchWork* touch = func_ov003_020a62a0();
+            self               = task->data;
+            BattleTouch* touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect    = arg->effect;
             self->x         = touch->startX;
@@ -62,11 +62,11 @@ s32 func_ov003_020b9518(TaskPool* pool, Task* task, void* args, s32 stage) {
                     if (--self->timer == 0)
                         return 0;
                     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_SLASH)) {
-                        BattleTouchWork* touch = func_ov003_020a62a0();
-                        self->x                = touch->startX;
-                        self->y                = touch->startY;
-                        self->previousX        = touch->endX;
-                        self->previousY        = touch->endY;
+                        BattleTouch* touch = func_ov003_020a62a0();
+                        self->x            = touch->startX;
+                        self->y            = touch->startY;
+                        self->previousX    = touch->endX;
+                        self->previousY    = touch->endY;
                         func_ov003_020b96d8(self);
                         if (!func_ov003_020a5aa4(self->effect))
                             return 0;

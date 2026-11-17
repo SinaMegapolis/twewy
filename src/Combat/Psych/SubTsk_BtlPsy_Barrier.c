@@ -67,10 +67,10 @@ static s32 func_ov003_020aa358(TaskPool* pool, Task* task, void* args, s32 stage
             return 1;
         }
         case 1: {
-            Ov003Barrier*    barrier = task->data;
-            BattleActor*     player  = func_ov003_020a6438();
-            BattleTouchWork* touch   = func_ov003_020a62a0();
-            s32              active  = 1;
+            Ov003Barrier* barrier = task->data;
+            BattleActor*  player  = func_ov003_020a6438();
+            BattleTouch*  touch   = func_ov003_020a62a0();
+            s32           active  = 1;
             func_ov003_020a5a94(barrier->spawn.effect);
             func_ov003_020a6450();
             func_ov003_020aa860(barrier);
@@ -202,7 +202,7 @@ static void func_ov003_020aa990(Ov003Barrier* barrier) {
 
 static void func_ov003_020aa9f4(Ov003EffectState* effect, s32 percent) {
     BattleActor* player = func_ov003_020a6438();
-    s32          amount = g_CombatGlobal->unk3D8D2 * percent / 100;
+    s32          amount = gBattle->teamMaxHp * percent / 100;
     SndMgr_PlaySEWithPan(SEIDX_SE_BOY_RECOVER_DRINK, BtlStage_ToScreenX(0, player->position.x));
     func_ov003_020b67dc(effect, player);
     func_ov003_0209b564(2, amount, player, 1);

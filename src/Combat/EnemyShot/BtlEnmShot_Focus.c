@@ -47,9 +47,9 @@ static s32 func_ov003_020ce39c(Ov003EnemyShotSource* source, u16 angle, s32 spee
     args.targetZ = targetZ;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c44, NULL, 0, NULL, &args);
 }
 

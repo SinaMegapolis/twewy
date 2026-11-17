@@ -309,5 +309,5 @@ void func_ov003_020bce18(s32 screen, u16 group, u16 variant, u16 duration) {
     args.group    = group;
     args.variant  = variant;
     args.duration = duration;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_34230, &Tsk_BtlFeat_SplashBg, NULL, 0, NULL, &args);
+    EasyTask_CreateTask(&gBattle->specialPool, &Tsk_BtlFeat_SplashBg, NULL, 0, NULL, &args);
 }

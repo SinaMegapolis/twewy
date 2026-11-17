@@ -36,8 +36,6 @@ static const SpriteAnimEntry data_ov003_020d80f8[5] = {
     {58, 60, 59, 4},
 };
 
-extern BinIdentifier data_ov003_020d7800;
-
 /// Picks the label sprite for the unit's current periodic effect mode. Mode 0 (no effect) hides
 /// the popup; modes 1..4 map onto the four sprite table entries.
 static void func_ov003_0209ca18(BtlPop_State* state) {
@@ -73,7 +71,7 @@ static s32 BtlPop_State_Init(TaskPool* pool, Task* task, void* args) {
     state->actor      = params->actor;
     state->effectMode = state->actor->periodicEffectMode;
     state->isActive   = TRUE;
-    BtlSprite_LoadFromTableNoProto(params->engine, &state->sprite, &data_ov003_020d7800, data_ov003_020d80f8, 0,
+    BtlSprite_LoadFromTableNoProto(params->engine, &state->sprite, &Iden_BtlMenu, data_ov003_020d80f8, 0,
                                    params->engine == 0 ? 0x3D : 0x3F, 4);
     BtlSprite_SetPriority(&state->sprite, 0);
     func_ov003_0209ca18(state);
@@ -131,7 +129,7 @@ static s32 BtlPop_State_RunTask(TaskPool* pool, Task* task, void* args, s32 stag
         .render     = BtlPop_State_Render,
         .cleanup    = BtlPop_State_Release,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -143,5 +141,5 @@ s32 func_ov003_0209ccc0(s32 engine, BattleActor* actor) {
 
     params.engine = engine;
     params.actor  = actor;
-    return EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_State, NULL, 0, NULL, &params);
+    return EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlPop_State, NULL, 0, NULL, &params);
 }

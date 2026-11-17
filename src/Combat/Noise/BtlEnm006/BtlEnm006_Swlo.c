@@ -38,9 +38,9 @@ s32 func_ov010_021270a8(BtlEnm006* owner, BtlEnm006* target) {
     args.unk_00 = NULL;
     args.unk_08 = target;
     if (func_ov003_020c37f8(&owner->base.sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     return EasyTask_CreateTask(pool, &Tsk_BtlEnm006_Swlo, 0, 0, 0, &args);
 }
@@ -52,9 +52,9 @@ void func_ov010_02127110(BtlEnm006* owner, BtlEnm006* target) {
     args.unk_00 = (BtlEnm006*)1;
     args.unk_0C = target;
     if (func_ov003_020c37f8(&owner->base.sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     EasyTask_CreateTask(pool, &Tsk_BtlEnm006_Swlo, 0, 0, 0, &args);
 }

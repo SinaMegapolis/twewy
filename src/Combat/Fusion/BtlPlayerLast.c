@@ -19,9 +19,9 @@ static void func_ov007_020e7360(BtlPlayerLast* data, void (*callback)(BtlPlayerL
 
 static void func_ov007_020e7374(BtlPlayerLast* data, u16 arg) {
     func_ov021_020f11bc((s16)arg, &data->actor.position.x, &data->actor.position.y, &data->actor.position.z);
-    data->actor.screenX      = BtlStage_ToScreenX(1, data->actor.position.x);
-    data->actor.screenY      = BtlStage_ToScreenY(1, data->actor.position.y, data->actor.position.z);
-    g_CombatGlobal->unk3D8EC = 2;
+    data->actor.screenX = BtlStage_ToScreenX(1, data->actor.position.x);
+    data->actor.screenY = BtlStage_ToScreenY(1, data->actor.position.y, data->actor.position.z);
+    gBattle->auraPass   = 2;
     func_ov021_020f13b0();
 }
 
@@ -54,10 +54,10 @@ static s32 func_ov007_020e7478(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(data, 0, sizeof(BtlPlayerLast));
     BtlActor_Init(&data->actor, ACTOR_KIND_PLAYER);
-    g_CombatGlobal->partner  = &data->actor;
+    gBattle->partner         = &data->actor;
     data->actor.isFlipped    = FALSE;
-    data->actor.position.x   = g_CombatGlobal->stages[1].centerX;
-    data->actor.position.y   = g_CombatGlobal->stages[1].centerY;
+    data->actor.position.x   = gBattle->stages[1].centerX;
+    data->actor.position.y   = gBattle->stages[1].centerY;
     data->actor.position.z   = 0;
     data->actor.zGravity     = 0x800;
     data->actor.radius       = 0xC;
@@ -96,7 +96,7 @@ static s32 func_ov007_020e757c(TaskPool* pool, Task* task, void* args, s32 stage
         .cleanup    = func_ov007_020e7574,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);

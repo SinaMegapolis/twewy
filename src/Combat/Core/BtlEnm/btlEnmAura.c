@@ -95,10 +95,10 @@ static void func_ov003_020c97dc(Ov003CutinActor* owner) {
                 return;
             }
             if (RNG_Next(2)) {
-                BtlSe_PlayAtSubX(0x53D, data_ov003_020e7324.ownerSub->base.actor.position.x);
+                BtlSe_PlayAtSubX(SEIDX_YASHIRO_BTL_OTHER01, data_ov003_020e7324.ownerSub->base.actor.position.x);
                 return;
             }
-            BtlSe_PlayAtSubX(0x53E, data_ov003_020e7324.ownerSub->base.actor.position.x);
+            BtlSe_PlayAtSubX(SEIDX_YASHIRO_BTL_OTHER02, data_ov003_020e7324.ownerSub->base.actor.position.x);
             return;
         default:
             return;
@@ -294,12 +294,12 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             }
             data_ov003_020e7324.ready++;
             if (data_ov003_020e7324.ready % 5 == 0 && func_ov024_020f10d8(data_ov003_020e7324.ownerMain)) {
-                if (!(g_CombatGlobal->unk3D878 & 0x20000)) {
-                    g_CombatGlobal->unk3D878 |= 0x20000;
-                    g_CombatGlobal->unk3D878 |= 0x10000;
-                    BattleActor* owner = g_CombatGlobal->partner;
+                if (!(gBattle->flags & BATTLE_FLAG_SPECIAL_LOCKED)) {
+                    gBattle->flags |= BATTLE_FLAG_SPECIAL_LOCKED;
+                    gBattle->flags |= BATTLE_FLAG_NO_PAUSE;
+                    BattleActor* owner = gBattle->partner;
                     owner->flags &= ~ACTOR_FLAG_GUARDING;
-                    func_ov003_020c2008(&g_CombatGlobal->unk_34230);
+                    func_ov003_020c2008(&gBattle->specialPool);
                 }
             }
             func_ov003_020c9d54(self);
@@ -309,7 +309,7 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             data_ov003_020e7324.mode = 0;
             func_ov003_020c9cf0(self, 1);
             if (self->intensity <= 0) {
-                BtlSe_PlayAtSubX(0x21, self->x);
+                BtlSe_PlayAtSubX(SEIDX_SE_GREEN_LIGHT02, self->x);
             }
             if (self->intensity > 0 && self->side != 1) {
                 return;
@@ -330,12 +330,12 @@ static void func_ov003_020c9de8(BtlEnmAura* self) {
             }
             data_ov003_020e7324.ready++;
             if (data_ov003_020e7324.ready % 5 == 0 && func_ov024_020f10d8(data_ov003_020e7324.ownerMain)) {
-                if (!(g_CombatGlobal->unk3D878 & 0x20000)) {
-                    g_CombatGlobal->unk3D878 |= 0x20000;
-                    g_CombatGlobal->unk3D878 |= 0x10000;
-                    BattleActor* owner = g_CombatGlobal->partner;
+                if (!(gBattle->flags & BATTLE_FLAG_SPECIAL_LOCKED)) {
+                    gBattle->flags |= BATTLE_FLAG_SPECIAL_LOCKED;
+                    gBattle->flags |= BATTLE_FLAG_NO_PAUSE;
+                    BattleActor* owner = gBattle->partner;
                     owner->flags &= ~ACTOR_FLAG_GUARDING;
-                    func_ov003_020c2008(&g_CombatGlobal->unk_34230);
+                    func_ov003_020c2008(&gBattle->specialPool);
                 }
             }
             func_ov003_020c9d54(self);

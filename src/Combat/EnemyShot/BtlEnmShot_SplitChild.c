@@ -16,9 +16,9 @@ s32 func_ov003_020d281c(Ov003EnemyShotSource* source, s32 x, s32 y, s32 z, s32 d
     args.damping    = damping;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0cc8, NULL, 0, NULL, &args);
 }
 

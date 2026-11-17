@@ -483,6 +483,6 @@ s32 BtlCutIn00_CreateKariyaYashiroTask(TaskPool* pool) {
     BtlCutIn00Args args;
 
     args.kind    = 2;
-    args.partner = g_CombatGlobal->unk3D88D;
+    args.partner = gBattle->partnerId;
     return EasyTask_CreateTask(pool, &Tsk_BtlCutIn00, NULL, 0, NULL, &args);
 }

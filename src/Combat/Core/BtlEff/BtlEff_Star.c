@@ -40,10 +40,8 @@ static const TaskHandle Tsk_BtlEff_Star = {"Tsk_BtlEff_Star", BtlEff_Star_RunTas
 static const SpriteAnimEntry data_ov003_020d8714 = {28, 30, 29, 0};
 static const SpriteAnimEntry data_ov003_020d870c = {1, 3, 2, 0};
 
-extern const BinIdentifier data_ov003_020d7800, data_ov003_020d7810;
-
 static void func_ov003_0209fd48(s32 engine, BattleSprite* sprite) {
-    BtlSprite_LoadDirect(engine, sprite, &data_ov003_020d7800, 25, 27, 26, 0x3F, 12);
+    BtlSprite_LoadDirect(engine, sprite, &Iden_BtlMenu, 25, 27, 26, 0x3F, 12);
     BtlSprite_SetPriority(sprite, 0);
 }
 
@@ -137,11 +135,11 @@ static s32 BtlEff_Star_Init(TaskPool* pool, Task* task, void* args) {
     star->owner    = params->owner;
     star->timer    = 0;
     star->isActive = TRUE;
-    BtlSprite_LoadFromTable(1, &star->sprites[0], &data_ov003_020d7800, &data_ov003_020d8714, 0, 0x3F, 16);
+    BtlSprite_LoadFromTable(1, &star->sprites[0], &Iden_BtlMenu, &data_ov003_020d8714, 0, 0x3F, 16);
     BtlSprite_SetAnimFromTable(&star->sprites[0], 0, 1);
     BtlSprite_SetPriority(&star->sprites[0], 0);
     BtlSprite_SetPosition(&star->sprites[0], 128, 0);
-    BtlSprite_InitAnim(&anim.anim, 2, &data_ov003_020d7810);
+    BtlSprite_InitAnim(&anim.anim, 2, &Iden_BtlBadge);
     anim.anim.unk_18     = 2;
     anim.anim.unk_26     = 2;
     anim.anim.packIndex  = 1;
@@ -163,7 +161,7 @@ static s32 BtlEff_Star_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlEff_Star_Update(TaskPool* pool, Task* task, void* args) {
     BtlEffStar* star = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 6) {
+    if (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) {
         return 0;
     }
     if (star->timer % 4 == 0) {
@@ -217,5 +215,5 @@ s32 func_ov003_020a0244(s32 level, Ov003TouchActor* owner) {
 
     params.owner = owner;
     params.level = level;
-    return EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Star, NULL, 0, NULL, &params);
+    return EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlEff_Star, NULL, 0, NULL, &params);
 }

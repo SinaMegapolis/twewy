@@ -46,7 +46,7 @@
 
 /// The per-hit arguments of an attack (attack x/y/amount pairs).
 
-/// One row of the encounter-id â†’ kind table at 0x020dc568.
+/// One row of the encounter-id â�?�? kind table at 0x020dc568.
 typedef struct Ov003EncounterEntry {
     /* 0x0 */ u32 encounterId;
     /* 0x4 */ u16 unk_04;
@@ -62,7 +62,7 @@ static void func_ov003_020a6bb8(BattleAttackArgs* args, Ov003TouchActor* actor);
 /// Animation ids handed to `CombatPsyAnim_Load`, indexed by the caller's set number.
 static const u32 data_ov003_020dc560[2] = {0xCF, 0xA3};
 
-/// Encounter id â‡’ per-encounter hit kind.
+/// Encounter id â‡�? per-encounter hit kind.
 static const Ov003EncounterEntry data_ov003_020dc568[11] = {
     {0xA7,  0x56, 0},
     {0xA8,  0x6B, 0},
@@ -157,19 +157,19 @@ void func_ov003_020a5fc0(Ov003AnimSprite* sprites, s32 count) {
 // ---------------------------------------------------------------------------------------------
 
 s32 func_ov003_020a6000(const TaskHandle* handle, void* arg) {
-    return EasyTask_CreateTask(&g_CombatGlobal->unk_201A4, handle, NULL, 0, NULL, arg);
+    return EasyTask_CreateTask(&gBattle->psychPool, handle, NULL, 0, NULL, arg);
 }
 
 BOOL func_ov003_020a603c(u32* id) {
-    return EasyTask_ValidateTaskId(&g_CombatGlobal->unk_201A4, id);
+    return EasyTask_ValidateTaskId(&gBattle->psychPool, id);
 }
 
 void func_ov003_020a6060(u32 id) {
-    EasyTask_DeleteTask(&g_CombatGlobal->unk_201A4, id);
+    EasyTask_DeleteTask(&gBattle->psychPool, id);
 }
 
 void* func_ov003_020a6084(u32 id) {
-    return EasyTask_GetTaskData(&g_CombatGlobal->unk_201A4, id);
+    return EasyTask_GetTaskData(&gBattle->psychPool, id);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -258,8 +258,8 @@ void func_ov003_020a61e4(Ov003EnemyActor* unit, u16 arg1, s32 attackId, BattleAt
 // Geometry helpers
 // ---------------------------------------------------------------------------------------------
 
-BattleTouchWork* func_ov003_020a62a0(void) {
-    return &g_CombatGlobal->touchWork;
+BattleTouch* func_ov003_020a62a0(void) {
+    return &gBattle->touchWork;
 }
 
 s32 func_ov003_020a62b8(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -301,7 +301,7 @@ ret_true:
 /// Whether the current battle lets the effect run.
 s32 func_ov003_020a63a8(Ov003EffectState* effect) {
     func_ov003_020a6438();
-    if (func_ov003_020a3edc(func_ov003_020a5a34(effect)) == 0 || func_ov003_020876c0() != 0) {
+    if (func_ov003_020a3edc(func_ov003_020a5a34(effect)) == 0 || BtlPlayerUtil_IsPlayerDown() != 0) {
         return 1;
     }
     return 0;
@@ -315,7 +315,7 @@ s32 func_ov003_020a63e4(void) {
     if (BtlTouch_IsTargetKind(BTL_TOUCH_TARGET_PLAYER) != 0) {
         return 0;
     }
-    if (g_CombatGlobal->touchWork.stillFrames > 0xB) {
+    if (gBattle->touchWork.stillFrames > 0xB) {
         return 1;
     }
     return 0;
@@ -323,7 +323,7 @@ s32 func_ov003_020a63e4(void) {
 
 /// The player's battle actor.
 BattleActor* func_ov003_020a6438(void) {
-    return g_CombatGlobal->player;
+    return gBattle->player;
 }
 
 void func_ov003_020a6450(void) {
@@ -331,11 +331,11 @@ void func_ov003_020a6450(void) {
 }
 
 void func_ov003_020a6464(s32 arg0) {
-    g_CombatGlobal->unk3D8C8 = arg0;
+    gBattle->unk3D8C8 = arg0;
 }
 
 void func_ov003_020a647c(s32 arg0) {
-    g_CombatGlobal->unk3D8CC = arg0;
+    gBattle->unk3D8CC = arg0;
 }
 
 void func_ov003_020a6494(s16 arg0) {
@@ -343,7 +343,7 @@ void func_ov003_020a6494(s16 arg0) {
 }
 
 void func_ov003_020a64ac(void) {
-    g_CombatGlobal->unk3D8CC = func_ov003_020a6438()->position.x;
+    gBattle->unk3D8CC = func_ov003_020a6438()->position.x;
 }
 
 /// Initialises the effect's sprite anchor from the owning badge.
@@ -359,19 +359,19 @@ void func_ov003_020a64d0(Ov003EffectState* effect, s16 arg1) {
 }
 
 /// Overrides the info record's side bit and amount field.
-static void func_ov003_020a652c(Ov003AttackInfo* info, s32 force, u16 amount) {
+static void func_ov003_020a652c(BattleAttackInfo* info, s32 force, u16 amount) {
     if (force != 0) {
-        info->flags = (info->flags & ~0x1000) | (((u32)force << 31) >> 19);
+        info->flags.bits.finisher = force;
     }
     if (amount != 0) {
-        info->flags = (info->flags & ~0xF80000) | (((u32)amount << 27) >> 8);
+        info->flags.bits.statusEffect = amount;
     }
 }
 
 /// Queues a sweep attack against `unit`, resetting the streak when the info record says so.
 s32 func_ov003_020a6568(Ov003AttackStreak* streak, u16 attackId, Ov003EnemyActor* unit, s32 x, s32 force, u16 amount) {
-    Ov003AttackInfo info = *BtlHit_GetAttackInfo(attackId);
-    s32             result;
+    BattleAttackInfo info = *BtlHit_GetAttackInfo(attackId);
+    s32              result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
@@ -380,7 +380,7 @@ s32 func_ov003_020a6568(Ov003AttackStreak* streak, u16 attackId, Ov003EnemyActor
     result = BtlHit_AttackUnit(&info, &streak->args, &unit->actor, x);
     if (result == 1) {
         streak->hits++;
-        if (((u32)info.flags << 19) >> 31) {
+        if (info.flags.bits.finisher) {
             streak->hits = 0;
             func_ov003_0209fc88(2, unit->actor.position.x, unit->actor.position.y, unit->actor.position.z, 0x10, 0);
         }
@@ -390,8 +390,8 @@ s32 func_ov003_020a6568(Ov003AttackStreak* streak, u16 attackId, Ov003EnemyActor
 
 /// Queues a point attack at (x, y, z) and resets the streak when the info record says so.
 s32 func_ov003_020a6628(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 z, s32 force, u16 amount) {
-    Ov003AttackInfo info = *BtlHit_GetAttackInfo(attackId);
-    s32             result;
+    BattleAttackInfo info = *BtlHit_GetAttackInfo(attackId);
+    s32              result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
@@ -400,7 +400,7 @@ s32 func_ov003_020a6628(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s
     result = BtlHit_AttackAt(&info, &streak->args, x, y, z);
     if (result == 1) {
         streak->hits++;
-        if (((u32)info.flags << 19) >> 31) {
+        if (info.flags.bits.finisher) {
             streak->hits = 0;
             func_ov003_0209fc88(2, x, y, z, 0x10, 0);
         }
@@ -410,8 +410,8 @@ s32 func_ov003_020a6628(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s
 
 /// Queues a pixel-space attack at (x, y) and resets the streak when the info record says so.
 s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s32 force, u16 amount) {
-    Ov003AttackInfo info = *BtlHit_GetAttackInfo(attackId);
-    s32             result;
+    BattleAttackInfo info = *BtlHit_GetAttackInfo(attackId);
+    s32              result;
 
     if (streak->maxHits != 0xFF && streak->hits >= (s32)streak->maxHits) {
         force = 1;
@@ -420,7 +420,7 @@ s32 func_ov003_020a66f4(Ov003AttackStreak* streak, u16 attackId, s32 x, s32 y, s
     result = BtlHit_AttackAtScreen(&info, &streak->args, x, y);
     if (result == 1) {
         streak->hits++;
-        if (((u32)info.flags << 19) >> 31) {
+        if (info.flags.bits.finisher) {
             streak->hits = 0;
             s32 posY     = BtlStage_ToWorldY(0, y, 0);
             s32 posX     = BtlStage_ToWorldX(0, x);
@@ -569,7 +569,7 @@ s32 func_ov003_020a6acc(Ov003AttackStreak* streak, u16 attackId, s32 x1, s32 y1,
     Ov003EnemyActor* unit;
     s32              hit = 0;
 
-    for (unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&gBattle->enemiesMain); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         if (func_ov003_020a6924(unit, x1, y1, x2, y2) != 0 && func_ov003_020a6568(streak, attackId, unit, x, 0, 0) == 1) {
             hit = 1;
         }
@@ -593,7 +593,7 @@ static void func_ov003_020a6bb8(BattleAttackArgs* args, Ov003TouchActor* actor) 
     u32 i;
 
     for (i = 0; i < 0xB; i++) {
-        if (g_CombatGlobal->unk3D88E == data_ov003_020dc568[i].encounterId && actor->kind != data_ov003_020dc568[i].unk_04) {
+        if (gBattle->encounterId == data_ov003_020dc568[i].encounterId && actor->kind != data_ov003_020dc568[i].unk_04) {
             args->power = 0;
             return;
         }

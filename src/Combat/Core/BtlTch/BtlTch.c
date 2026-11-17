@@ -20,11 +20,11 @@ static void BtlTch_SetUpdate(BtlIcon* icon, void (*update)(BtlIcon*)) {
 
 /// Switches the cursor animation whenever the recognised touch gesture changes.
 static void BtlTch_FollowGesture(BtlIcon* icon) {
-    if (icon->animState == g_CombatGlobal->touchWork.gesture) {
+    if (icon->animState == gBattle->touchWork.gesture) {
         return;
     }
 
-    icon->animState = g_CombatGlobal->touchWork.gesture;
+    icon->animState = gBattle->touchWork.gesture;
 
     switch (icon->animState) {
         case 5:
@@ -63,9 +63,9 @@ static void BtlTch_UpdateHold(BtlIcon* icon) {
 
 /// Picks the drag animation from how long the stylus has been scribbling.
 static void BtlTch_UpdateDrag(BtlIcon* icon) {
-    if (g_CombatGlobal->touchWork.sweepFrames < 2) {
+    if (gBattle->touchWork.sweepFrames < 2) {
         BtlSprite_SetAnim(&icon->sprite, 6, 0);
-    } else if (g_CombatGlobal->touchWork.sweepFrames < 8) {
+    } else if (gBattle->touchWork.sweepFrames < 8) {
         BtlSprite_SetAnim(&icon->sprite, 7, 0);
     } else {
         BtlSprite_SetAnim(&icon->sprite, 8, 0);
@@ -94,8 +94,8 @@ static s32 BtlTch_Update(TaskPool* pool, Task* task, void* args) {
         icon->update(icon);
     }
     if (icon->unk_6C != 0) {
-        icon->x = g_CombatGlobal->touchWork.x;
-        icon->y = g_CombatGlobal->touchWork.y;
+        icon->x = gBattle->touchWork.x;
+        icon->y = gBattle->touchWork.y;
         BtlSprite_Update(&icon->sprite);
     }
     return 1;

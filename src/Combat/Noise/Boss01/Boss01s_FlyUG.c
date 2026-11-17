@@ -24,7 +24,7 @@ static const TaskHandle      Tsk_Boss01s_FlyUG     = {"Tsk_Boss01s_FlyUG", Boss0
 static const SpriteAnimEntry data_ov016_0212903c[] = {1, 3, 2, 4, 1, 3, 2, 5, 1, 3, 2, 6};
 
 void Boss01s_FlyUG_GetSpawnPos(Boss01s_FlyUG* arg0, Vec* arg1) {
-    s32 width = F2I(g_CombatGlobal->stages[0].width);
+    s32 width = F2I(gBattle->stages[0].width);
 
     if (RNG_Next(2) != 0) {
         arg1->x = I2F((width / 2 - 0x30) + RNG_Next(65));
@@ -162,6 +162,6 @@ s32 Boss01s_FlyUG_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
 
 void Boss01s_FlyUG_CreateTask(void) {
     for (s32 i = 0; i < 5; i++) {
-        EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_Boss01s_FlyUG, 0, 0, 0, NULL);
+        EasyTask_CreateTask(&gBattle->mainPool, &Tsk_Boss01s_FlyUG, 0, 0, 0, NULL);
     }
 }

@@ -16,7 +16,7 @@ s32 func_ov003_020d1228(Ov003EnemyShotSource* source, BattleList* list, u16 angl
     args.position.z = z;
     args.scaleX     = scaleX;
     args.scaleY     = scaleY;
-    return EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &data_ov003_020e0c98, NULL, 0, NULL, &args);
+    return EasyTask_CreateTask(&gBattle->mainPool, &data_ov003_020e0c98, NULL, 0, NULL, &args);
 }
 
 static s32 func_ov003_020d12b4(Ov003EnemyShotRoot* self, Ov003EnemyShotRootArgs* args) {

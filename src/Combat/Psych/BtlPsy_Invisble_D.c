@@ -6,7 +6,6 @@
 #include <nitro/mi/cpumem.h>
 
 #include "SpriteMgr.h"
-extern const BinIdentifier data_ov003_020d77f8;
 typedef struct BtlPsyInvisible {
     Ov003EffectState* effect;
     BattleSprite      sprite;
@@ -43,8 +42,8 @@ static void func_ov003_02094da0(BtlPsyInvisible* self, void (*update)(BtlPsyInvi
 }
 static void func_ov003_02094db4(BtlPsyInvisible* self) {
     if (self->state == 0) {
-        self->x = g_CombatGlobal->player->position.x;
-        self->y = g_CombatGlobal->player->position.y;
+        self->x = gBattle->player->position.x;
+        self->y = gBattle->player->position.y;
         BtlSprite_SetAnim(&self->sprite, 0, 1);
         self->state++;
     }
@@ -57,10 +56,10 @@ static void func_ov003_02094e40(BtlPsyInvisible* self) {
     func_ov003_020a5a94(self->effect);
     if (BtlTouch_IsGesture(BTL_TOUCH_GESTURE_DRAG) && func_ov003_020a5aa4(self->effect) && !func_ov003_020a63a8(self->effect))
         return;
-    g_CombatGlobal->unk3D8C8 = 0;
-    self->visible            = 1;
-    self->x                  = g_CombatGlobal->player->position.x;
-    self->y                  = g_CombatGlobal->player->position.y;
+    gBattle->unk3D8C8 = 0;
+    self->visible     = 1;
+    self->x           = gBattle->player->position.x;
+    self->y           = gBattle->player->position.y;
     func_ov003_02094da0(self, func_ov003_02094edc);
 }
 static void func_ov003_02094edc(BtlPsyInvisible* self) {
@@ -75,12 +74,12 @@ static s32 func_ov003_02094f24(TaskPool* pool, Task* task, void* args) {
     BtlPsyInvisible*   self = task->data;
     Ov003EffectState** arg  = args;
     MI_CpuSet(self, 0, sizeof(*self));
-    g_CombatGlobal->unk3D8C8 = 1;
-    self->effect             = *arg;
-    self->visible            = 1;
-    self->active             = 1;
+    gBattle->unk3D8C8 = 1;
+    self->effect      = *arg;
+    self->visible     = 1;
+    self->active      = 1;
     func_ov003_02094da0(self, func_ov003_02094db4);
-    BtlSprite_LoadFromTable(0, &self->sprite, &data_ov003_020d77f8, data_ov003_020d7de4, 0, 1, 0x30);
+    BtlSprite_LoadFromTable(0, &self->sprite, &Iden_BtlEffect, data_ov003_020d7de4, 0, 1, 0x30);
     return 1;
 }
 static s32 func_ov003_02094fb8(TaskPool* pool, Task* task, void* args) {
@@ -113,9 +112,9 @@ static s32 func_ov003_02095064(TaskPool* pool, Task* task, void* args, s32 stage
     return stages.iter[stage](pool, task, args);
 }
 s32 func_ov003_020950ac(Ov003EffectContext* context, Ov003EffectState* effect) {
-    if (g_CombatGlobal->unk3D894 < 100)
+    if (gBattle->moveSpeed < 100)
         return 0;
-    if (!func_ov003_02087704())
+    if (!BtlPlayerUtil_IsLongPlayerDrag())
         return 0;
     Ov003EffectState** arg = func_ov003_020a5d2c(sizeof(*arg), data_ov003_020d7dc8.taskName);
     *arg                   = effect;

@@ -82,14 +82,14 @@ static s32 func_ov003_020abb5c(TaskPool* pool, Task* task, void* args, s32 stage
 
 /// Adjusts the contact attack's dimensions to the selected object's dimensions.
 static s32 func_ov003_020abdb8(Ov003ObsBomb* self) {
-    Ov003AttackInfo info  = *BtlHit_GetAttackInfo(0x190);
-    s16             depth = self->args.unit->actor.height;
-    s16             width = self->args.unit->actor.radius;
-    info.unk_05           = width;
-    info.unk_06           = width / 2;
-    info.unk_07           = depth;
+    BattleAttackInfo info  = *BtlHit_GetAttackInfo(0x190);
+    s16              depth = self->args.unit->actor.height;
+    s16              width = self->args.unit->actor.radius;
+    info.halfWidth         = width;
+    info.halfHeight        = width / 2;
+    info.halfDepth         = depth;
     return BtlHit_AttackAt(&info, &self->args.effect->streak.args, self->args.unit->actor.position.x,
-                           self->args.unit->actor.position.y, self->args.unit->actor.position.z) == 1;
+                           self->args.unit->actor.position.y, self->args.unit->actor.position.z) == BTL_HIT_RESULT_LANDED;
 }
 
 static char             data_ov003_020e4af8[24] = "SubTsk_BtlPsy_ObsBomb";

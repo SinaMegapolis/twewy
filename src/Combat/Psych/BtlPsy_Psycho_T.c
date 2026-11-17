@@ -46,8 +46,8 @@ static s32 func_ov003_020b5fe4(TaskPool* pool, Task* task, void* args, s32 stage
             CombatPsyAnim_Load(&self->sprite, 2, 1, 0x10, 1);
             return 1;
         case 1: {
-            Ov003PsychoT*    self  = task->data;
-            BattleTouchWork* touch = func_ov003_020a62a0();
+            Ov003PsychoT* self  = task->data;
+            BattleTouch*  touch = func_ov003_020a62a0();
             switch (self->phase) {
                 case 0:
                     if (--self->timer == 0) {

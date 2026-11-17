@@ -1,8 +1,8 @@
+#include "Battle/Core/BtlAttackInfo.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPop.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatAttackInfo.h"
 #include "Combat/Core/CombatEnemyShot.h"
 #include "Engine/Core/Memory.h"
 #include "Engine/EasyTask.h"
@@ -202,9 +202,9 @@ u16 func_ov003_020cb3c4(s32 side, s32 group) {
     BattleListNode* node;
 
     if (side == 1) {
-        node = g_CombatGlobal->unk3D8AC.head;
+        node = gBattle->enemiesSub.head;
     } else {
-        node = g_CombatGlobal->unk3D8A4.head;
+        node = gBattle->enemiesMain.head;
     }
     if (node == NULL) {
         return count;
@@ -226,9 +226,9 @@ Ov003EnemyActor* func_ov003_020cb42c(s32 side, s32 group, s32 n) {
     BattleListNode*  node;
 
     if (side == 1) {
-        node = g_CombatGlobal->unk3D8AC.head;
+        node = gBattle->enemiesSub.head;
     } else {
-        node = g_CombatGlobal->unk3D8A4.head;
+        node = gBattle->enemiesMain.head;
     }
     n++;
     if (n == 0) {
@@ -253,9 +253,9 @@ s32 func_ov003_020cb498(s32 side, s32 group, BtlActorFilter filter, void* arg) {
     BattleListNode* node;
 
     if (side == 1) {
-        node = g_CombatGlobal->unk3D8AC.head;
+        node = gBattle->enemiesSub.head;
     } else {
-        node = g_CombatGlobal->unk3D8A4.head;
+        node = gBattle->enemiesMain.head;
     }
     if (node == NULL) {
         return count;
@@ -332,7 +332,7 @@ s32 func_ov003_020cb648(Ov003EnemyActor* actor, s32 percent) {
 
 /// Pushes `*value` past the camera's left edge shifted by the view angle.
 static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
-    BattleStage* camera = &g_CombatGlobal->stages[index];
+    BattleStage* camera = &gBattle->stages[index];
     s32          limit  = camera->floorTop + FX_Mul(FX_SinIdx(camera->floorSlope), scale);
 
     if (*value - margin < limit) {
@@ -343,7 +343,7 @@ static s32 func_ov003_020cb674(s32 index, s32* value, s32 margin, s32 scale) {
 }
 
 static s32 func_ov003_020cb6e8(s32 index, s32* value, s32 margin, s32 scale) {
-    BattleStage* camera = &g_CombatGlobal->stages[index];
+    BattleStage* camera = &gBattle->stages[index];
     s32          moved  = 0;
 
     if (func_ov003_020cb674(index, value, margin, scale) != 0) {
@@ -357,24 +357,24 @@ static s32 func_ov003_020cb6e8(s32 index, s32* value, s32 margin, s32 scale) {
 }
 
 s32 func_ov003_020cb744(s32 index) {
-    return g_CombatGlobal->stages[index].width;
+    return gBattle->stages[index].width;
 }
 
 s32 func_ov003_020cb764(s32 index) {
-    return g_CombatGlobal->stages[index].centerX;
+    return gBattle->stages[index].centerX;
 }
 
 s32 func_ov003_020cb784(s32 index) {
-    return g_CombatGlobal->stages[index].centerY;
+    return gBattle->stages[index].centerY;
 }
 
 s32 func_ov003_020cb7a4(s32 index) {
-    return g_CombatGlobal->stages[index].height;
+    return gBattle->stages[index].height;
 }
 
 /// Whether (`x`, `y`) lies inside the camera's field.
 s32 func_ov003_020cb7c4(s32 index, s32 x, s32 y) {
-    if (x < 0 || x > g_CombatGlobal->stages[index].width || y < 0 || y > g_CombatGlobal->stages[index].height) {
+    if (x < 0 || x > gBattle->stages[index].width || y < 0 || y > gBattle->stages[index].height) {
         return 0;
     }
     return 1;
@@ -382,7 +382,7 @@ s32 func_ov003_020cb7c4(s32 index, s32 x, s32 y) {
 
 /// Keeps (`*x`, `*y`) at least a margin inside the camera's field. Returns whether it had to move them.
 static s32 func_ov003_020cb814(s32 index, s32* x, s32* y, s32 marginX, s32 marginY) {
-    BattleStage* camera = &g_CombatGlobal->stages[index];
+    BattleStage* camera = &gBattle->stages[index];
     s32          moved  = 0;
 
     if (*x - marginX < 0) {
@@ -609,7 +609,7 @@ void func_ov003_020cbf54(BtlVec2* out, BtlVec2 p0, BtlVec2 p1, BtlVec2 p2, BtlVe
 
 /// Whether the actor is on the left half of the camera.
 s32 func_ov003_020cc2d0(BattleActor* actor, s32 index) {
-    return actor->position.x < (g_CombatGlobal->stages[index].width >> 1);
+    return actor->position.x < (gBattle->stages[index].width >> 1);
 }
 
 /// Whether the actor sits fully inside the camera's field.
@@ -657,7 +657,7 @@ s32 func_ov003_020cc38c(BattleActor* actor, s32 x, s32 y, s32 z, s32 marginX, s3
 
 /// A mask of the 32 points around the actor (at `radius`, `yScale` as tall) that are inside the camera's field.
 u32 func_ov003_020cc430(Ov003CutinActor* actor, s32 index, s32 radius, s32 yScale) {
-    BattleStage* camera = &g_CombatGlobal->stages[index];
+    BattleStage* camera = &gBattle->stages[index];
     s16          size   = actor->base.actor.radius;
     s32          left   = FX32_CONVERT(size);
     s32          right  = camera->width - FX32_CONVERT(size);
@@ -700,7 +700,7 @@ s32 func_ov003_020cc5d0(BattleActor* actor) {
 /// How many entries of `id` the touch list holds (0x19 counts all).
 s32 func_ov003_020cc5fc(s32 unused, s32 id) {
     s32             count = 0;
-    BattleListNode* node  = g_CombatGlobal->unk3D8B4.head;
+    BattleListNode* node  = gBattle->obsList.head;
 
     if (node == NULL) {
         return count;
@@ -724,7 +724,7 @@ void* func_ov003_020cc644(s32 side, s32 id, s32 n) {
     if (side == 1) {
         return item;
     }
-    node = g_CombatGlobal->unk3D8B4.head;
+    node = gBattle->obsList.head;
     if (node == NULL) {
         return item;
     }
@@ -750,7 +750,7 @@ void* func_ov003_020cc644(s32 side, s32 id, s32 n) {
 
 /// How many entries of `id` in the touch list pass `filter`.
 s32 func_ov003_020cc6a4(s32 unused, s32 id, BtlItemFilter filter, s32 arg) {
-    BattleListNode* node  = g_CombatGlobal->unk3D8B4.head;
+    BattleListNode* node  = gBattle->obsList.head;
     s32             count = 0;
 
     if (node == NULL) {
@@ -784,9 +784,9 @@ void func_ov003_020cc71c(BattleActor* actor, s32 flag) {
 /// The gauge actor of the screen `side`.
 void* func_ov003_020cc750(s32 side) {
     if (side == 1) {
-        return g_CombatGlobal->partner;
+        return gBattle->partner;
     }
-    return g_CombatGlobal->player;
+    return gBattle->player;
 }
 
 void func_ov003_020cc784(BattleActor* actor, s32 flag) {
@@ -925,7 +925,7 @@ s32 func_ov003_020ccc60(s32 side, s32 id) {
     if (id == -1) {
         return 0;
     }
-    data = EasyTask_GetTaskData(side == 0 ? &g_CombatGlobal->unk_00000 : &g_CombatGlobal->taskPool, id);
+    data = EasyTask_GetTaskData(side == 0 ? &gBattle->mainPool : &gBattle->subPool, id);
     return data[1];
 }
 
@@ -936,7 +936,7 @@ s32 func_ov003_020ccca4(s32 side, u32 id) {
     if (id == -1) {
         return 0;
     }
-    data = EasyTask_GetTaskData(side == 0 ? &g_CombatGlobal->unk_00000 : &g_CombatGlobal->taskPool, id);
+    data = EasyTask_GetTaskData(side == 0 ? &gBattle->mainPool : &gBattle->subPool, id);
     if (data == NULL) {
         return 0;
     }
@@ -963,7 +963,7 @@ void func_ov003_020cccf0(s32 engine, Ov003EnemyShotSource* source) {
 
 /// Whether a box of `marginX` by `marginY` around (`x`,`y`) lies outside the camera's field.
 static s32 func_ov003_020ccd50(s32 index, s32 x, s32 y, s32 marginX, s32 marginY) {
-    BattleStage* camera = &g_CombatGlobal->stages[index];
+    BattleStage* camera = &gBattle->stages[index];
 
     if (x + marginX < 0) {
         return 1;
@@ -1000,9 +1000,9 @@ s32 func_ov003_020cce34(s32 side) {
     Ov003CutinActor* actor;
 
     if (side == 0) {
-        actor = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
+        actor = BtlList_GetHead(&gBattle->enemiesMain);
     } else {
-        actor = BtlList_GetHead(&g_CombatGlobal->unk3D8AC);
+        actor = BtlList_GetHead(&gBattle->enemiesSub);
     }
     if (actor != NULL) {
         do {
@@ -1029,11 +1029,11 @@ void func_ov003_020ccec0(BattleActor* actor, s32 flag) {
 }
 
 s32 func_ov003_020ccedc(s32 index) {
-    return g_CombatGlobal->stages[index].width;
+    return gBattle->stages[index].width;
 }
 
 s32 func_ov003_020ccefc(s32 index) {
-    return g_CombatGlobal->stages[index].height;
+    return gBattle->stages[index].height;
 }
 
 /// Brings `*value` toward 0 by `step` and stops at 0.
@@ -1093,8 +1093,8 @@ s32 func_ov003_020cd010(Ov003EnemyActor* actor) {
             actor->flags18C &= ~0x20;
             func_ov003_020c4ee0(actor);
             func_ov003_020c4a34(actor);
-            if (g_CombatGlobal->unk3D8A0 == actor) {
-                g_CombatGlobal->unk3D8A0 = NULL;
+            if (gBattle->lockOnTarget == actor) {
+                gBattle->lockOnTarget = NULL;
             }
         }
         actor->actor.flags |= ACTOR_FLAG_DEFEATED;
@@ -1117,7 +1117,7 @@ s32 func_ov003_020cd010(Ov003EnemyActor* actor) {
 }
 
 s32 func_ov003_020cd11c(s32 index) {
-    return CombatAttackInfo_Table[index].unk_05;
+    return BtlAttackInfo_Table[index].halfWidth;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1136,9 +1136,9 @@ s32 func_ov003_020cd134(Ov003EnemyShotSource* source, u16 angle, s32 speed, s32 
     args.curveSpeed = curveSpeed;
     args.yScale     = yScale;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     return EasyTask_CreateTask(pool, &data_ov003_020e0c0c, NULL, 0, NULL, &args);
 }

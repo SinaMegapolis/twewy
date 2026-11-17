@@ -1,91 +1,80 @@
 #include "Battle/Core/BtlAttackQueue.h"
 #include "Battle/Core/BtlList.h"
-#include "Combat/Core/Combat.h"
+#include "Battle/Core/BtlObsMgr.h"
 
-/// Pushes a battle actor towards `x`/`y`/`z` through the shared action-effect pool.
-void func_ov003_02087250(Ov003EffectState* state, BattleActor* target, s32 angle) {
-    BattleAttackQueue*  pool = &g_CombatGlobal->attackQueue;
-    BattleQueuedAttack* effect;
+void BtlAttackQueue_Push(Ov003EffectState* state, BattleActor* target, s32 variant) {
+    BattleAttackQueue* queue = &gBattle->attackQueue;
 
-    if (target == NULL) {
-        return;
+    if (target != NULL) {
+        BattleQueuedAttack* attack = BtlList_GetHead(&queue->free);
+
+        if (attack != NULL) {
+            attack->state   = state;
+            attack->target  = target;
+            attack->variant = variant;
+            BtlList_Remove(&queue->free, &attack->node);
+            BtlList_Append(&queue->active, &attack->node, attack);
+        }
     }
-    effect = BtlList_GetHead(&pool->free);
-    if (effect == NULL) {
-        return;
-    }
-    effect->state  = state;
-    effect->target = target;
-    effect->angle  = angle;
-    BtlList_Remove(&pool->free, &effect->node);
-    BtlList_Append(&pool->active, &effect->node, effect);
 }
 
-void func_ov003_020872b4(BattleQueuedAttack* effect) {
-    BattleAttackQueue* pool = &g_CombatGlobal->attackQueue;
+void BtlAttackQueue_Remove(BattleQueuedAttack* attack) {
+    BattleAttackQueue* queue = &gBattle->attackQueue;
 
-    if (effect == NULL || effect->target == NULL) {
-        return;
+    if (attack != NULL && attack->target != NULL) {
+        attack->unk_00  = 0;
+        attack->state   = NULL;
+        attack->target  = NULL;
+        attack->variant = 0;
+        BtlList_Remove(&queue->active, &attack->node);
+        BtlList_Append(&queue->free, &attack->node, attack);
     }
-    effect->unk_00 = 0;
-    effect->state  = NULL;
-    effect->target = NULL;
-    effect->angle  = 0;
-    BtlList_Remove(&pool->active, &effect->node);
-    BtlList_Append(&pool->free, &effect->node, effect);
 }
 
-void func_ov003_02087310(void) {
-    BattleQueuedAttack* effect = BtlList_GetHead(&g_CombatGlobal->attackQueue.active);
+void BtlAttackQueue_Clear(void) {
+    BattleQueuedAttack* attack = BtlList_GetHead(&gBattle->attackQueue.active);
 
-    if (effect == NULL) {
-        return;
+    while (attack != NULL) {
+        BattleQueuedAttack* next = BtlList_GetNext(&attack->node);
+        BtlAttackQueue_Remove(attack);
+        attack = next;
     }
-    do {
-        BattleQueuedAttack* next = BtlList_GetNext(&effect->node);
-        func_ov003_020872b4(effect);
-        effect = next;
-    } while (effect != NULL);
 }
 
-BattleQueuedAttack* func_ov003_02087358(void) {
-    return BtlList_GetHead(&g_CombatGlobal->attackQueue.active);
+BattleQueuedAttack* BtlAttackQueue_GetHead(void) {
+    return BtlList_GetHead(&gBattle->attackQueue.active);
 }
 
-void func_ov003_02087378(void) {
-    BattleAttackQueue*  pool = &g_CombatGlobal->attackQueue;
+void BtlAttackQueue_Init(void) {
+    BattleAttackQueue*  queue = &gBattle->attackQueue;
     s32                 i;
-    BattleQueuedAttack* effect;
+    BattleQueuedAttack* attack;
 
-    BtlList_Init(&pool->free);
-    BtlList_Init(&pool->active);
-    effect = pool->entries;
+    BtlList_Init(&queue->free);
+    BtlList_Init(&queue->active);
+    attack = queue->entries;
     for (i = 0; i < 8; i++) {
-        effect->unk_00 = 0;
-        effect->state  = NULL;
-        effect->target = NULL;
-        effect->angle  = 0;
-        BtlList_Append(&pool->free, &effect->node, effect);
-        effect++;
+        attack->unk_00  = 0;
+        attack->state   = NULL;
+        attack->target  = NULL;
+        attack->variant = 0;
+        BtlList_Append(&queue->free, &attack->node, attack);
+        attack++;
     }
 }
 
-/// Retires the action effects whose target actor is gone or defeated.
-void func_ov003_020873e0(void) {
-    BattleQueuedAttack* effect = BtlList_GetHead(&g_CombatGlobal->attackQueue.active);
+void BtlAttackQueue_DropInvalid(void) {
+    BattleQueuedAttack* attack = BtlList_GetHead(&gBattle->attackQueue.active);
 
-    if (effect == NULL) {
-        return;
-    }
-    do {
-        s32 flags = effect->target->flags;
+    while (attack != NULL) {
+        s32 flags = attack->target->flags;
 
         if ((flags & ACTOR_FLAG_DEFEATED) || (flags & ACTOR_FLAG_INTANGIBLE) || (flags & ACTOR_FLAG_LAUNCHED)) {
-            BattleQueuedAttack* next = BtlList_GetNext(&effect->node);
-            func_ov003_020872b4(effect);
-            effect = next;
+            BattleQueuedAttack* next = BtlList_GetNext(&attack->node);
+            BtlAttackQueue_Remove(attack);
+            attack = next;
         } else {
-            effect = BtlList_GetNext(&effect->node);
+            attack = BtlList_GetNext(&attack->node);
         }
-    } while (effect != NULL);
+    }
 }

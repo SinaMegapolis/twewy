@@ -9,7 +9,7 @@
 
 #include <nitro/g2.h>
 
-void BtlBgScript_Init(BattleBgScriptState* state, s32 engine, BinIdentifier* iden) {
+void BtlBgScript_Init(BattleBgScriptState* state, DisplayEngine engine, BinIdentifier* iden) {
     s32 i;
 
     state->engine       = engine;

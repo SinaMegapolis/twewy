@@ -43,7 +43,7 @@ void func_ov003_020a8300(Ov003TouchActor* actor, s32 duration, s32 arg2) {
     sp8.actor    = actor;
     sp8.duration = duration;
     sp8.total    = arg2;
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc608, NULL, 0, NULL, &sp8);
+    EasyTask_CreateTask(&gBattle->commonPool, &data_ov003_020dc608, NULL, 0, NULL, &sp8);
 }
 
 static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage) {
@@ -86,7 +86,8 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
         case 1: {
             BtlBadgeTimeBoot* self = task->data;
 
-            if (g_CombatGlobal->unk3D884 != 0 || (g_CombatGlobal->unk3D878 & 6) != 0 || (g_CombatGlobal->unk3D878 & 0x40) != 0)
+            if (gBattle->specialFreeze != 0 || (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0 ||
+                (gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) != 0)
             {
                 return 1;
             }
@@ -106,7 +107,7 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
                     return 0;
             }
             if (self->unk_004 == 0) {
-                if (g_CombatGlobal->unk3D874 == 2) {
+                if (gBattle->state == BATTLE_STATE_FIGHT) {
                     self->actor->unk_048 = self->actor->unk_048 - 1;
                 }
                 if (self->armed == 0 && self->actor->unk_048 < self->unk_008 / 2) {
@@ -133,7 +134,7 @@ static s32 func_ov003_020a8350(TaskPool* pool, Task* task, void* args, s32 stage
             if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_PLAYER_ONLY) {
                 return 1;
             }
-            if ((g_CombatGlobal->unk3D878 & 6) != 0 || g_CombatGlobal->unk3D884 != 0) {
+            if ((gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0 || gBattle->specialFreeze != 0) {
                 return 1;
             }
 

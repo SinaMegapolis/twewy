@@ -57,8 +57,6 @@ static const SpriteAnimEntry data_ov003_020d8050[14] = {
     {10, 12, 11, 13},
 };
 
-extern BinIdentifier data_ov003_020d7800;
-
 /// Splits a rate into its hundreds and tens digit.
 // Nonmatching: regalloc
 static void func_ov003_0209c1a4(s32* digits, s32 value) {
@@ -103,12 +101,10 @@ static s32 BtlPop_Rate_Init(TaskPool* pool, Task* task, void* args) {
         animIndex = 0x3F;
     }
 
-    BtlSprite_LoadFromTableNoProto(params->engine, &rate->sprite, &data_ov003_020d7800, data_ov003_020d8050, 0, animIndex,
-                                   0x24);
+    BtlSprite_LoadFromTableNoProto(params->engine, &rate->sprite, &Iden_BtlMenu, data_ov003_020d8050, 0, animIndex, 0x24);
     BtlSprite_SetPriority(&rate->sprite, 0);
     BtlSprite_SetSortKey(&rate->sprite, 1);
-    BtlSprite_LoadFromTableNoProto(params->engine, &rate->tensSprite, &data_ov003_020d7800, data_ov003_020d8050, 4, animIndex,
-                                   4);
+    BtlSprite_LoadFromTableNoProto(params->engine, &rate->tensSprite, &Iden_BtlMenu, data_ov003_020d8050, 4, animIndex, 4);
     BtlSprite_SetPriority(&rate->tensSprite, 0);
     BtlSprite_SetSortKey(&rate->tensSprite, 1);
     func_ov003_0209c1f0(rate, params->rate);
@@ -161,12 +157,12 @@ static s32 BtlPop_Rate_Release(TaskPool* pool, Task* task, void* args) {
     BtlPop_Rate* rate = task->data;
 
     if (rate->sprite.sprite.bits_0_1 == 0) {
-        if (rate->rate == (s16)g_CombatGlobal->unk3D900) {
-            g_CombatGlobal->unk3D900 = 0;
+        if (rate->rate == (s16)gBattle->unk3D900) {
+            gBattle->unk3D900 = 0;
         }
     } else {
-        if (rate->rate == (s16)g_CombatGlobal->unk3D902) {
-            g_CombatGlobal->unk3D902 = 0;
+        if (rate->rate == (s16)gBattle->unk3D902) {
+            gBattle->unk3D902 = 0;
         }
     }
     BtlSprite_Release(&rate->sprite);
@@ -181,7 +177,7 @@ static s32 BtlPop_Rate_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
         .render     = BtlPop_Rate_Render,
         .cleanup    = BtlPop_Rate_Release,
     };
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -190,30 +186,30 @@ static s32 BtlPop_Rate_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
 
 void func_ov003_0209c568(s32 engine) {
     BtlPop_RateArgs params;
-    s16             rate          = g_CombatGlobal->unk3D8EE;
+    s16             rate          = gBattle->auraRate;
     BOOL            isRateChanged = FALSE;
 
     if (rate >= 200) {
         if (engine == 0) {
-            if ((s16)g_CombatGlobal->unk3D900 != rate) {
-                isRateChanged            = TRUE;
-                params.x                 = g_CombatGlobal->player->position.x;
-                params.y                 = g_CombatGlobal->player->position.y;
-                params.z                 = g_CombatGlobal->player->position.z - 0x20000;
-                g_CombatGlobal->unk3D900 = g_CombatGlobal->unk3D8EE;
+            if ((s16)gBattle->unk3D900 != rate) {
+                isRateChanged     = TRUE;
+                params.x          = gBattle->player->position.x;
+                params.y          = gBattle->player->position.y;
+                params.z          = gBattle->player->position.z - 0x20000;
+                gBattle->unk3D900 = gBattle->auraRate;
             }
-        } else if ((s16)g_CombatGlobal->unk3D902 != rate) {
-            isRateChanged            = TRUE;
-            params.x                 = g_CombatGlobal->partner->position.x;
-            params.y                 = g_CombatGlobal->partner->position.y;
-            params.z                 = g_CombatGlobal->partner->position.z - 0x20000;
-            g_CombatGlobal->unk3D902 = g_CombatGlobal->unk3D8EE;
+        } else if ((s16)gBattle->unk3D902 != rate) {
+            isRateChanged     = TRUE;
+            params.x          = gBattle->partner->position.x;
+            params.y          = gBattle->partner->position.y;
+            params.z          = gBattle->partner->position.z - 0x20000;
+            gBattle->unk3D902 = gBattle->auraRate;
         }
 
         if (isRateChanged) {
             params.engine = engine;
-            params.rate   = g_CombatGlobal->unk3D8EE;
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Rate, NULL, 0, NULL, &params);
+            params.rate   = gBattle->auraRate;
+            EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlPop_Rate, NULL, 0, NULL, &params);
         }
     }
 }

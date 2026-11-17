@@ -32,8 +32,8 @@ static s32 func_ov003_020ad778(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                   = task->data;
-            BattleTouchWork* touch = func_ov003_020a62a0();
+            self               = task->data;
+            BattleTouch* touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect    = *arg;
             self->x         = touch->sweepCenterX;

@@ -176,8 +176,8 @@ static s32 func_ov003_020b3834(TaskPool* pool, Task* task, void* args, s32 stage
 }
 
 static s32 func_ov003_020b38d4(Ov003LockOnThunder* self) {
-    BattleTouchWork* touch = func_ov003_020a62a0();
-    s32              stop  = 0;
+    BattleTouch* touch = func_ov003_020a62a0();
+    s32          stop  = 0;
     if (!func_ov003_020a5aa4(self->effect) || func_ov003_020a63a8(self->effect)) {
         func_ov003_020a6464(0);
         stop = 1;

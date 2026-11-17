@@ -34,7 +34,7 @@ static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage
         default:
         case 0: {
             Ov003IcePillarR* self  = task->data;
-            BattleTouchWork* touch = func_ov003_020a62a0();
+            BattleTouch*     touch = func_ov003_020a62a0();
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = *arg;
             self->count  = (u8)self->effect->params[0];
@@ -59,7 +59,7 @@ static s32 func_ov003_020b202c(TaskPool* pool, Task* task, void* args, s32 stage
             BtlSprite_SetAnim(&self->spriteA, 2, 1);
             CombatPsyAnim_Load(&self->spriteB, 2, 1, data_ov003_020dc93c[self->effect->index], 0);
             BtlSprite_SetAnim(&self->spriteB, 0, 0);
-            func_ov003_02087804(0);
+            BtlPlayerUtil_PlayAttackVoice(0);
             BtlSe_PlayAtMainX(0x87, self->x[0]);
             return 1;
         }

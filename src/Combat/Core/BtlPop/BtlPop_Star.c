@@ -33,8 +33,6 @@ static s32 BtlPop_Star_RunTask(TaskPool* pool, Task* task, void* args, s32 stage
 
 static const TaskHandle Tsk_BtlPop_Star = {"Tsk_BtlPop_Star", BtlPop_Star_RunTask, sizeof(BtlPop_Star)};
 
-extern const BinIdentifier data_ov003_020d7800;
-
 /// Splits `value` (clamped to 0..99) into decimal digits, least significant first, and returns
 /// how many digits are needed. A value of -1 stores a lone `-` glyph.
 static s32 func_ov003_0209cd0c(s32* digits, s32 value) {
@@ -56,7 +54,7 @@ static s32 func_ov003_0209cd0c(s32* digits, s32 value) {
 
 /// Loads the popup sprite on the star-digit animation set.
 static void func_ov003_0209cd74(BattleSprite* sprite, s32 variant) {
-    BtlSprite_LoadDirectNoProto(1, sprite, &data_ov003_020d7800, 0x25, 0x27, 0x26, 0x3F, variant);
+    BtlSprite_LoadDirectNoProto(1, sprite, &Iden_BtlMenu, 0x25, 0x27, 0x26, 0x3F, variant);
     BtlSprite_SetPriority(sprite, 0);
     BtlSprite_SetSortKey(sprite, 1);
 }
@@ -85,7 +83,7 @@ static s32 BtlPop_Star_Init(TaskPool* pool, Task* task, void* args) {
 static s32 BtlPop_Star_Update(TaskPool* pool, Task* task, void* args) {
     BtlPop_Star* star = task->data;
 
-    if (g_CombatGlobal->unk3D878 & 6) {
+    if (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) {
         return 0;
     }
     if (star->timer > 0) {
@@ -145,5 +143,5 @@ s32 func_ov003_0209d038(s32 value, s16 x, s32 y) {
     params.value = value;
     params.x     = x;
     params.y     = y;
-    return EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Star, NULL, 0, NULL, &params);
+    return EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlPop_Star, NULL, 0, NULL, &params);
 }

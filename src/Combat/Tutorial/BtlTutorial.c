@@ -51,7 +51,7 @@ static void func_ov008_020e74dc(void) {
 static s32 func_ov008_020e7580(void) {
     s32 result = 0;
 
-    switch (g_CombatGlobal->unk3D88E - 0x32) {
+    switch (gBattle->encounterId - 0x32) {
         case 0:
             result = 0;
             break;
@@ -96,7 +96,7 @@ static s32 func_ov008_020e769c(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(data, 0, sizeof(BtlTutorial));
     func_ov008_020e74dc();
-    g_CombatGlobal->stages[1].flags |= BATTLE_STAGE_FLAG_BG_IN_USE;
+    gBattle->stages[1].flags |= BATTLE_STAGE_FLAG_BG_IN_USE;
 
     s32                       variant = func_ov008_020e7580();
     Data*                     pack1;
@@ -157,14 +157,14 @@ static s32 func_ov008_020e7910(TaskPool* pool, Task* task, void* args) {
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], data->unk_08);
     BgResMgr_ReleaseScreen(g_BgResourceManagers[DISPLAY_SUB], data->unk_0C);
     PaletteMgr_ReleaseResource(g_PaletteManagers[DISPLAY_SUB], data->unk_10);
-    g_CombatGlobal->stages[1].flags &= ~BATTLE_STAGE_FLAG_BG_IN_USE;
+    gBattle->stages[1].flags &= ~BATTLE_STAGE_FLAG_BG_IN_USE;
     return 1;
 }
 
 static s32 func_ov008_020e799c(TaskPool* pool, Task* task, void* args, s32 stage) {
     TaskStages stages = data_ov008_020e7a28;
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);

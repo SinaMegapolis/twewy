@@ -19,9 +19,9 @@ s32 func_ov003_020cf34c(Ov003EnemyShotSource* source, u16 angle, s32 initialSpee
     source->core.flags |= 0x44;
     TaskPool* pool;
     if (source->core.owner->base.sprite.sprite.bits_0_1 == 0)
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     else
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     return EasyTask_CreateTask(pool, &data_ov003_020e0c5c, NULL, 0, NULL, &args);
 }
 
@@ -48,9 +48,9 @@ static s32 func_ov003_020cf400(Ov003EnemyShotHoming* self, Ov003EnemyShotHomingA
 static s32 func_ov003_020cf554(Ov003EnemyShotHoming* self) {
     BattleActor* target;
     if (func_ov003_020c37f8(&self->sprite))
-        target = g_CombatGlobal->partner;
+        target = gBattle->partner;
     else
-        target = g_CombatGlobal->player;
+        target = gBattle->player;
     s32 engine = func_ov003_020c37f8(&self->sprite) ? 1 : 0;
     if (func_ov003_020ccb9c(&self->source, &self->sprite))
         return 0;

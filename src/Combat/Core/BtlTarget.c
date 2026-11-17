@@ -13,8 +13,6 @@ typedef struct BtlTarget {
     /* 0xC8 */ s32 active;
 } BtlTarget; // Size: 0xCC
 
-extern const BinIdentifier data_ov003_020d7800;
-
 static s32 BtlTarget_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
 const TaskHandle Tsk_BtlTarget = {"Tsk_BtlTarget", BtlTarget_RunTask, sizeof(BtlTarget)};
@@ -58,8 +56,8 @@ static s32 BtlTarget_Init(TaskPool* pool, Task* task, void* args) {
     target->active = 1;
     target->target = NULL;
     func_ov003_0209abdc(target, NULL);
-    BtlSprite_LoadFromTable(1, &target->sprites[0], &data_ov003_020d7800, data_ov003_020d7fec, 0, 0x3F, 0x10);
-    BtlSprite_LoadFromTable(0, &target->sprites[1], &data_ov003_020d7800, data_ov003_020d7fec, 0, 0x3D, 0x10);
+    BtlSprite_LoadFromTable(1, &target->sprites[0], &Iden_BtlMenu, data_ov003_020d7fec, 0, 0x3F, 0x10);
+    BtlSprite_LoadFromTable(0, &target->sprites[1], &Iden_BtlMenu, data_ov003_020d7fec, 0, 0x3D, 0x10);
     BtlSprite_SetAnimFromTable(&target->sprites[0], 1, 1);
     BtlSprite_SetAnimFromTable(&target->sprites[1], 1, 1);
     return 1;
@@ -67,13 +65,13 @@ static s32 BtlTarget_Init(TaskPool* pool, Task* task, void* args) {
 
 static s32 BtlTarget_Update(TaskPool* pool, Task* task, void* args) {
     BtlTarget*   target = task->data;
-    BattleActor* actor  = g_CombatGlobal->unk3D8A0;
+    BattleActor* actor  = gBattle->lockOnTarget;
 
     if (actor != NULL && ((actor->flags & ACTOR_FLAG_DEFEATED) || (actor->flags & ACTOR_FLAG_INTANGIBLE))) {
-        g_CombatGlobal->unk3D8A0 = NULL;
+        gBattle->lockOnTarget = NULL;
     }
-    if (target->target != g_CombatGlobal->unk3D8A0) {
-        target->target = g_CombatGlobal->unk3D8A0;
+    if (target->target != gBattle->lockOnTarget) {
+        target->target = gBattle->lockOnTarget;
         BtlSprite_SetAnim(&target->sprites[0], 2, 1);
         BtlSprite_SetAnim(&target->sprites[1], 2, 1);
         BtlSprite_Restart(&target->sprites[0]);
@@ -91,7 +89,7 @@ static s32 BtlTarget_Update(TaskPool* pool, Task* task, void* args) {
 static s32 BtlTarget_Render(TaskPool* pool, Task* task, void* args) {
     BtlTarget* target = task->data;
 
-    if (g_CombatGlobal->unk3D874 != 2) {
+    if (gBattle->state != BATTLE_STATE_FIGHT) {
         return 1;
     }
     if (target->target != NULL) {
@@ -119,7 +117,7 @@ static s32 BtlTarget_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) 
         .cleanup    = BtlTarget_Release,
     };
 
-    if (func_ov003_0208b690(stage)) {
+    if (BtlMgr_IsStageFrozen(stage)) {
         return 1;
     }
     return stages.iter[stage](pool, task, args);

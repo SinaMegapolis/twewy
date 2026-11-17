@@ -19,13 +19,13 @@ typedef struct BtlPsySlash {
     s32 active;
 } BtlPsySlash;
 static u16 func_ov003_02095120(void) {
-    Ov003Global* global = g_CombatGlobal;
-    s32          x      = global->touchWork.startX;
-    s32          y      = global->touchWork.startY;
-    s32          px     = global->touchWork.endX;
-    s32          py     = global->touchWork.endY;
-    s32          dy     = y - py;
-    s32          dx;
+    Battle* global = gBattle;
+    s32     x      = global->touchWork.startX;
+    s32     y      = global->touchWork.startY;
+    s32     px     = global->touchWork.endX;
+    s32     py     = global->touchWork.endY;
+    s32     dy     = y - py;
+    s32     dx;
     if (dy < 0)
         dy = -dy;
     dx = x - px;
@@ -40,13 +40,13 @@ static void func_ov003_0209519c(BtlPsySlash* self) {
     if (!func_ov003_020a5ab4(self->effect))
         return;
     if (BtlTouch_SlashCrosses(self->target)) {
-        func_ov003_02087250(self->effect, self->target, func_ov003_02095120());
+        BtlAttackQueue_Push(self->effect, self->target, func_ov003_02095120());
         return;
     }
     target = BtlTouch_GetSlashed(ACTOR_KIND_ENEMY);
     if (!target)
         return;
-    func_ov003_02087250(self->effect, self->target, func_ov003_02095120());
+    BtlAttackQueue_Push(self->effect, self->target, func_ov003_02095120());
     // Retail launches this attack at the old target before saving the replacement.
     self->target = target;
 }
@@ -60,13 +60,13 @@ static s32 func_ov003_02095200(TaskPool* pool, Task* task, void* args) {
     self->update = func_ov003_0209519c;
     self->timer  = 0;
     self->state  = 0;
-    func_ov003_02087250(self->effect, self->target, arg->direction);
-    g_CombatGlobal->unk3D8C8 = 1;
+    BtlAttackQueue_Push(self->effect, self->target, arg->direction);
+    gBattle->unk3D8C8 = 1;
     return 1;
 }
 static s32 func_ov003_02095274(TaskPool* pool, Task* task, void* args) {
     BtlPsySlash* self = task->data;
-    if (!g_CombatGlobal->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
+    if (!gBattle->unk3D8C8 || func_ov003_020a63a8(self->effect)) {
         self->update = NULL;
         self->timer  = 0;
         self->state  = 0;
@@ -80,8 +80,8 @@ static s32 func_ov003_020952d8(TaskPool* pool, Task* task, void* args) {
     return 1;
 }
 static s32 func_ov003_020952e0(TaskPool* pool, Task* task, void* args) {
-    g_CombatGlobal->unk3D8C8 = 0;
-    func_ov003_02087310();
+    gBattle->unk3D8C8 = 0;
+    BtlAttackQueue_Clear();
     return 1;
 }
 

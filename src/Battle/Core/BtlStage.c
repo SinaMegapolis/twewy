@@ -1,7 +1,7 @@
 #include "Battle/Core/BtlStage.h"
+#include "Battle/Core/BtlObsMgr.h"
 #include "Combat/Core/BtlField.h"
 #include "Combat/Core/BtlFieldData.h"
-#include "Combat/Core/Combat.h"
 #include "Engine/EasyTask.h"
 #include "FixedPoint.h"
 #include "Player/Inventory.h"
@@ -27,8 +27,8 @@ extern const TaskHandle data_ov021_020f798c;
 extern const TaskHandle data_ov008_020e7a68;
 
 void BtlStage_InitMain(void) {
-    const BtlFieldRect* rect  = BtlField_UG_Defs[g_CombatGlobal->stages[0].fieldId].rect;
-    BattleStage*        stage = &g_CombatGlobal->stages[0];
+    const BtlFieldRect* rect  = BtlField_UG_Defs[gBattle->stages[0].fieldId].rect;
+    BattleStage*        stage = &gBattle->stages[0];
     s16                 rightHeight;
     s16                 topHeight;
     s16                 margin;
@@ -49,8 +49,8 @@ void BtlStage_InitMain(void) {
 }
 
 void BtlStage_InitSub(void) {
-    const BtlFieldRectRG* rect   = BtlField_RG_Defs[g_CombatGlobal->stages[1].fieldId].rect;
-    BattleStage*          stage  = &g_CombatGlobal->stages[1];
+    const BtlFieldRectRG* rect   = BtlField_RG_Defs[gBattle->stages[1].fieldId].rect;
+    BattleStage*          stage  = &gBattle->stages[1];
     s16                   bottom = 512 - rect->floorBottom;
 
     BtlStage_SetFieldRect(DISPLAY_SUB, 112, (s16)(bottom - rect->floorHeight), 400, bottom);
@@ -91,7 +91,7 @@ static void BtlStage_PickBgScript(void) {
 }
 
 void BtlStage_SetFieldRect(DisplayEngine engine, s32 x0, s32 y0, s32 x1, s32 y1) {
-    BattleStage* stage = &g_CombatGlobal->stages[engine];
+    BattleStage* stage = &gBattle->stages[engine];
     s32          width = x1 - x0;
 
     stage->panOffsetY = 0;
@@ -107,7 +107,7 @@ void BtlStage_SetFieldRect(DisplayEngine engine, s32 x0, s32 y0, s32 x1, s32 y1)
 }
 
 void BtlStage_SetCameraTarget(DisplayEngine engine, s32 x, s32 y, s32 z) {
-    BattleStage* stage = &g_CombatGlobal->stages[engine];
+    BattleStage* stage = &gBattle->stages[engine];
 
     stage->targetX = x + stage->left;
     stage->targetY = y + stage->top;
@@ -115,7 +115,7 @@ void BtlStage_SetCameraTarget(DisplayEngine engine, s32 x, s32 y, s32 z) {
 }
 
 BOOL BtlStage_IsOutsideFloor(s32 x, s32 y, s32 marginX, s32 marginY) {
-    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BattleStage* stage = &gBattle->stages[0];
     s32          limit = stage->floorTop + FX_Mul(FX_SinIdx(stage->floorSlope), x);
 
     if (y - marginY < limit || y + marginY > stage->height || x - marginX < 0 || x + marginX > stage->width) {
@@ -125,7 +125,7 @@ BOOL BtlStage_IsOutsideFloor(s32 x, s32 y, s32 marginX, s32 marginY) {
 }
 
 BOOL BtlStage_ClampToFloorTop(s32* value, s32 margin, s32 x) {
-    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BattleStage* stage = &gBattle->stages[0];
     BOOL         moved = FALSE;
     s32          limit = stage->floorTop + FX_Mul(FX_SinIdx(stage->floorSlope), x);
 
@@ -137,7 +137,7 @@ BOOL BtlStage_ClampToFloorTop(s32* value, s32 margin, s32 x) {
 }
 
 BOOL BtlStage_ClampYToFloor(s32* value, s32 margin, s32 x) {
-    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BattleStage* stage = &gBattle->stages[0];
     BOOL         moved = FALSE;
 
     if (BtlStage_ClampToFloorTop(value, margin, x)) {
@@ -151,7 +151,7 @@ BOOL BtlStage_ClampYToFloor(s32* value, s32 margin, s32 x) {
 }
 
 BOOL BtlStage_ClampXToField(s32* value, s32 margin) {
-    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BattleStage* stage = &gBattle->stages[0];
     BOOL         moved = FALSE;
 
     if (*value - margin < 0) {
@@ -177,7 +177,7 @@ BOOL BtlStage_ClampToFloor(s32* x, s32* y, s32 marginX, s32 marginY) {
 }
 
 BOOL BtlStage_ClampYToField(s32* value, s32 margin) {
-    BattleStage* stage = &g_CombatGlobal->stages[0];
+    BattleStage* stage = &gBattle->stages[0];
     BOOL         moved = FALSE;
 
     if (*value - margin < 0) {
@@ -193,7 +193,7 @@ BOOL BtlStage_ClampYToField(s32* value, s32 margin) {
 void BtlStage_Init(void) {
     u16 id = gSaveData.unk_3138;
 
-    switch (g_CombatGlobal->unk3D88E) {
+    switch (gBattle->encounterId) {
         case 9:
             id = 26;
             break;
@@ -225,10 +225,10 @@ void BtlStage_Init(void) {
     if (id >= 41) {
         id = 0;
     }
-    g_CombatGlobal->stages[0].fieldId = id;
-    g_CombatGlobal->stages[0].flags   = 0;
-    g_CombatGlobal->stages[1].fieldId = id;
-    g_CombatGlobal->stages[1].flags   = 0;
+    gBattle->stages[0].fieldId = id;
+    gBattle->stages[0].flags   = 0;
+    gBattle->stages[1].fieldId = id;
+    gBattle->stages[1].flags   = 0;
     BtlStage_InitMain();
     BtlStage_InitSub();
 }
@@ -239,97 +239,97 @@ void BtlStage_StartFieldTasks(s32 flag) {
     }
 
     u16 args = flag;
-    switch (g_CombatGlobal->unk3D88E) {
+    switch (gBattle->encounterId) {
         case 7:
         case 8:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov018_020feb70, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov018_020fec54, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov018_020feb70, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov018_020fec54, NULL, 0, NULL, &args);
             break;
         case 10:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_021416f4, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141700, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov017_021416f4, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov017_02141700, NULL, 0, NULL, &args);
             break;
         case 11:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_021416f4, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141da8, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov017_021416f4, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov017_02141da8, NULL, 0, NULL, &args);
             break;
         case 12:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_021416f4, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141da8, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov017_021416f4, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov017_02141da8, NULL, 0, NULL, &args);
             break;
         case 13:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141ed4, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov017_02141ef8, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov017_02141ed4, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov017_02141ef8, NULL, 0, NULL, &args);
             break;
         case 19:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov019_020fa764, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov019_020fa780, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov019_020fa764, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov019_020fa780, NULL, 0, NULL, &args);
             break;
         case 20:
         case 21:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov020_020f6fc0, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov020_020f701c, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov020_020f6fc0, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov020_020f701c, NULL, 0, NULL, &args);
             break;
         case 22:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov021_020f7824, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov021_020f7880, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov021_020f7824, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov021_020f7880, NULL, 0, NULL, &args);
             break;
         case 27:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov021_020f78b4, NULL, 0, NULL, &args);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov021_020f798c, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov021_020f78b4, NULL, 0, NULL, &args);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov021_020f798c, NULL, 0, NULL, &args);
             break;
         default:
-            if (g_CombatGlobal->unk3D88D != 3) {
-                EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlField_UG, NULL, 0, NULL, &args);
-                EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov008_020e7a68, NULL, 0, NULL, &args);
+            if (gBattle->partnerId != 3) {
+                EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlField_UG, NULL, 0, NULL, &args);
+                EasyTask_CreateTask(&gBattle->commonPool, &data_ov008_020e7a68, NULL, 0, NULL, &args);
             } else {
-                EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlField_UG, NULL, 0, NULL, &args);
-                EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlField_RG, NULL, 0, NULL, &args);
+                EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlField_UG, NULL, 0, NULL, &args);
+                EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlField_RG, NULL, 0, NULL, &args);
             }
             break;
     }
 }
 
 void BtlStage_StartSandstorm(void) {
-    switch (g_CombatGlobal->unk3D88E) {
+    switch (gBattle->encounterId) {
         case 19:
         case 20:
         case 21:
         case 22:
             break;
         default:
-            EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Tsk_BtlSandstorm, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->controlPool, &Tsk_BtlSandstorm, NULL, 0, NULL, NULL);
             break;
     }
 }
 
 void BtlStage_WorldToScreen(DisplayEngine engine, s16* screenX, s16* screenY, s32 x, s32 y, s32 z) {
-    BattleStage* stage = &g_CombatGlobal->stages[engine];
+    BattleStage* stage = &gBattle->stages[engine];
 
     *screenX = F2I(x - stage->viewX + I2F(128) + stage->left);
     *screenY = F2I(y + z - stage->viewY + I2F(96) + stage->top);
 }
 
 s16 BtlStage_ToScreenX(DisplayEngine engine, s32 x) {
-    BattleStage* stage = &g_CombatGlobal->stages[engine];
+    BattleStage* stage = &gBattle->stages[engine];
 
     return F2I(x - stage->viewX + I2F(128) + stage->left);
 }
 
 s16 BtlStage_ToScreenY(DisplayEngine engine, s32 y, s32 z) {
-    BattleStage* stage = &g_CombatGlobal->stages[engine];
+    BattleStage* stage = &gBattle->stages[engine];
 
     return F2I(y + z - stage->viewY + I2F(96) + stage->top);
 }
 
 s32 BtlStage_ToWorldX(DisplayEngine engine, s32 screenX) {
-    BattleStage* stage = &g_CombatGlobal->stages[engine];
+    BattleStage* stage = &gBattle->stages[engine];
 
     return stage->viewX + I2F(screenX) - I2F(128) - stage->left;
 }
 
 s32 BtlStage_ToWorldY(DisplayEngine engine, s32 screenY, s32 height) {
-    BattleStage* stage = &g_CombatGlobal->stages[engine];
+    BattleStage* stage = &gBattle->stages[engine];
 
     return stage->viewY + I2F(screenY) - I2F(96) - stage->top - height;
 }

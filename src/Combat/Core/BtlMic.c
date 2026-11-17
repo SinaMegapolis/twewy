@@ -16,7 +16,7 @@ void BtlMic_Init(void) {
 
     func_020405d4();
     func_02040ac0();
-    input = &g_CombatGlobal->microphone;
+    input = &gBattle->microphone;
     for (i = 0; i < 0x20; i++) {
         input->samples[i] = 0;
     }
@@ -33,13 +33,13 @@ void BtlMic_Init(void) {
 }
 
 void BtlMic_CreateTask(void) {
-    BtlMicInput* input = &g_CombatGlobal->microphone;
+    BtlMicInput* input = &gBattle->microphone;
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlMic, NULL, 0, NULL, &input);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlMic, NULL, 0, NULL, &input);
 }
 
 s32 func_ov003_020a50cc(void) {
-    BtlMicInput* input = &g_CombatGlobal->microphone;
+    BtlMicInput* input = &gBattle->microphone;
 
     return input->cooldown != 0 ? 0 : input->detected;
 }
@@ -93,7 +93,7 @@ s32 func_ov003_020a51c0(void) {
     s32 seen[6];
     MI_CpuSet(seen, 0, sizeof(seen));
 
-    Ov003TouchActor* actor = BtlList_GetHead(&g_CombatGlobal->unk3D8BC);
+    Ov003TouchActor* actor = BtlList_GetHead(&gBattle->unk3D8BC);
     while (actor != NULL) {
         if (actor->kind >= 212 && actor->kind <= 217) {
             s32 index = actor->kind - 212;

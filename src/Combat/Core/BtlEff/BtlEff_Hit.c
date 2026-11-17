@@ -24,7 +24,6 @@ typedef struct BtlEff_HitArgs {
 } BtlEff_HitArgs; // Size: 0x14
 
 /// Named battle sprite-page identifiers.
-extern const BinIdentifier data_ov003_020d77f8;
 
 static s32 BtlEff_Hit_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -78,7 +77,7 @@ static s32 BtlEff_Hit_Init(TaskPool* pool, Task* task, void* args) {
     eff->effect.position.z = p->z;
     def                    = &data_ov003_020d842c[p->id];
 
-    BtlSprite_LoadFromTable(def->engine, &eff->effect.sprite, &data_ov003_020d77f8, &def->anim, 0, def->paletteEntry,
+    BtlSprite_LoadFromTable(def->engine, &eff->effect.sprite, &Iden_BtlEffect, &def->anim, 0, def->paletteEntry,
                             def->charTiles);
     if (eff->effect.sprite.flags & BTL_SPRITE_FLAG_LOAD_FAILED) {
         return 0;
@@ -88,10 +87,10 @@ static s32 BtlEff_Hit_Init(TaskPool* pool, Task* task, void* args) {
     BtlSprite_SetFlip(&eff->effect.sprite, p->flip);
 
     if (eff->effect.sprite.sprite.bits_0_1 == 1) {
-        g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF + 1;
+        gBattle->unk3D8FF = (s8)gBattle->unk3D8FF + 1;
         BtlSe_PlayAtSubX(def->sound, eff->effect.position.x);
     } else {
-        g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE + 1;
+        gBattle->unk3D8FE = (s8)gBattle->unk3D8FE + 1;
         BtlSe_PlayAtMainX(def->sound, eff->effect.position.x);
     }
     return 1;
@@ -136,9 +135,9 @@ static s32 BtlEff_Hit_Release(TaskPool* pool, Task* task, void* args) {
     CombatHitEffect* eff = task->data;
 
     if (eff->effect.sprite.sprite.bits_0_1 == 1) {
-        g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF - 1;
+        gBattle->unk3D8FF = (s8)gBattle->unk3D8FF - 1;
     } else {
-        g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE - 1;
+        gBattle->unk3D8FE = (s8)gBattle->unk3D8FE - 1;
     }
     BtlSprite_Release(&eff->effect.sprite);
     return 1;
@@ -152,7 +151,7 @@ static s32 BtlEff_Hit_RunTask(TaskPool* pool, Task* task, void* args, s32 stage)
         .cleanup    = BtlEff_Hit_Release,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -165,9 +164,9 @@ void func_ov003_0209ed70(u8 id, s32 x, s32 y, s32 z, s32 flip) {
     s32            live;
 
     if (data_ov003_020d842c[id].engine == 1) {
-        live = (s8)g_CombatGlobal->unk3D8FF;
+        live = (s8)gBattle->unk3D8FF;
     } else {
-        live = (s8)g_CombatGlobal->unk3D8FE;
+        live = (s8)gBattle->unk3D8FE;
     }
     // The retail code folds the room test back into the same variable.
     live = live < 10;
@@ -178,6 +177,6 @@ void func_ov003_0209ed70(u8 id, s32 x, s32 y, s32 z, s32 flip) {
         args.z    = z;
         args.flip = flip;
 
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_Hit, NULL, 0, NULL, &args);
+        EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlEff_Hit, NULL, 0, NULL, &args);
     }
 }

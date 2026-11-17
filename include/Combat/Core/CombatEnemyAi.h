@@ -48,7 +48,7 @@ void func_ov003_020c5ac0(Ov003EnemyActor* self, u16 attackId, BattleActor* targe
                          s32 zVelocity);
 s32  func_ov003_020c5b0c(u16 id, Ov003EnemyActor* owner, s32 arg2);
 s32  func_ov003_020c5b64(u16 id, Ov003EnemyActor* owner, s32 x, s32 y);
-s32  func_ov003_020c5b8c(const Ov003AttackInfo* info, Ov003EnemyActor* owner, s32 x, s32 y, s32 z);
+s32  func_ov003_020c5b8c(const BattleAttackInfo* info, Ov003EnemyActor* owner, s32 x, s32 y, s32 z);
 s32  func_ov003_020c5ba4(u16 id, BattleAttackArgs* args, s32 arg2);
 /// Third noise state machine: dash in, bounce and recover.
 s32  func_ov003_020c6920(Ov003EnemyActor* actor, u16 anim, s32 arg2);

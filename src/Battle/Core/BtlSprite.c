@@ -1,6 +1,6 @@
 #include "Battle/Core/BtlSprite.h"
-#include "Combat/Core/Combat.h"
-#include "Combat/Core/CombatSpriteDefault.h"
+#include "Battle/Core/BtlObsMgr.h"
+#include "Battle/Core/BtlSpriteDefault.h"
 #include "Engine/Core/OamMgr.h"
 #include "Engine/Core/System.h"
 #include "SpriteMgr.h"
@@ -107,8 +107,8 @@ void BtlSprite_SetPaletteMode(BattleSprite* cSprite, BattleSpritePaletteMode mod
 
     switch (cSprite->paletteMode) {
         case BTL_SPRITE_PALETTE_FLASH: {
-            cSprite->sprite.paletteData = g_CombatGlobal->unk3D348[cSprite->sprite.bits_0_1];
-            cSprite->sprite.unk3C       = (UnkSmallInternal*)Data_GetPackEntryData(g_CombatGlobal->unk3D350, 65);
+            cSprite->sprite.paletteData = gBattle->menuPalettes[cSprite->sprite.bits_0_1];
+            cSprite->sprite.unk3C       = (UnkSmallInternal*)Data_GetPackEntryData(gBattle->menuData, 65);
         } break;
 
         case BTL_SPRITE_PALETTE_OWN: {
@@ -155,8 +155,8 @@ SpriteFrameInfo* BtlSprite_GetFrameInfo(Sprite* sprite, s32 arg, s32 mode) {
     return NULL;
 }
 
-void BtlSprite_InitAnim(SpriteAnimation* anim, s32 engine, const BinIdentifier* iden) {
-    *anim          = CombatSprite_DefaultAnim;
+void BtlSprite_InitAnim(SpriteAnimation* anim, DisplayEngine engine, const BinIdentifier* iden) {
+    *anim          = BtlSpriteDefault_Anim;
     anim->bits_0_1 = engine;
     anim->binIden  = iden;
 }
@@ -179,8 +179,8 @@ s32 BtlSprite_Load(BattleSprite* cSprite, SpriteAnimationEx* anim) {
     return 1;
 }
 
-s32 BtlSprite_LoadFromTable(s32 engine, BattleSprite* cSprite, const BinIdentifier* iden, const SpriteAnimEntry* table,
-                            u16 entry, u16 paletteEntry, u16 charTiles) {
+s32 BtlSprite_LoadFromTable(DisplayEngine engine, BattleSprite* cSprite, const BinIdentifier* iden,
+                            const SpriteAnimEntry* table, u16 entry, u16 paletteEntry, u16 charTiles) {
     SpriteAnimationEx      anim;
     const SpriteAnimEntry* animEntry;
 
@@ -197,7 +197,7 @@ s32 BtlSprite_LoadFromTable(s32 engine, BattleSprite* cSprite, const BinIdentifi
     return BtlSprite_Load(cSprite, &anim);
 }
 
-void BtlSprite_LoadDirect(s32 engine, BattleSprite* cSprite, const BinIdentifier* iden, s32 charEntry, u16 animEntry,
+void BtlSprite_LoadDirect(DisplayEngine engine, BattleSprite* cSprite, const BinIdentifier* iden, s32 charEntry, u16 animEntry,
                           u16 cellEntry, u16 paletteEntry, u16 animIndex) {
     SpriteAnimationEx anim;
 
@@ -241,8 +241,8 @@ void BtlSprite_Render(BattleSprite* cSprite) {
 
     if (cSprite->paletteMode == BTL_SPRITE_PALETTE_FLICKER) {
         if (SysControl.frameCount & 1) {
-            cSprite->sprite.paletteData = g_CombatGlobal->unk3D348[cSprite->sprite.bits_0_1];
-            cSprite->sprite.unk3C       = (UnkSmallInternal*)Data_GetPackEntryData(g_CombatGlobal->unk3D350, 65);
+            cSprite->sprite.paletteData = gBattle->menuPalettes[cSprite->sprite.bits_0_1];
+            cSprite->sprite.unk3C       = (UnkSmallInternal*)Data_GetPackEntryData(gBattle->menuData, 65);
         } else {
             cSprite->sprite.paletteData = cSprite->basePalette;
             cSprite->sprite.unk3C       = cSprite->basePaletteSource;

@@ -69,9 +69,9 @@ s32 func_ov011_02125b98(Ov003EnemyActor* owner, s32 arg1) {
     TaskPool*         pool;
 
     if (func_ov003_020c37f8(&owner->sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     args.unk_00 = owner;
     args.unk_14 = arg1;
@@ -298,9 +298,9 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
         }
     }
     if (data->emit.unk_24 >= 0xA) {
-        Ov003AttackInfo rec;
-        s32             x;
-        s32             idx;
+        BattleAttackInfo rec;
+        s32              x;
+        s32              idx;
 
         if (func_ov003_020c37f8(&data->sprite[0]) != 0) {
             idx = 0x5E;
@@ -309,17 +309,17 @@ static s32 func_ov011_021260e8(BtlEnm010Lser* data) {
         }
         rec = *BtlHit_GetAttackInfo((u16)idx);
         if (data->emit.unk_24 < 0xE) {
-            rec.unk_05 = 0x18;
-            rec.unk_07 = 0x20;
-            x          = (data->copy.isFlipped == 0) ? data->unk_22C + 0x18000 : data->unk_22C - 0x18000;
+            rec.halfWidth = 0x18;
+            rec.halfDepth = 0x20;
+            x             = (data->copy.isFlipped == 0) ? data->unk_22C + 0x18000 : data->unk_22C - 0x18000;
         } else if (data->emit.unk_24 < 0x11) {
-            rec.unk_05 = 0x20;
-            rec.unk_07 = 0x10;
-            x          = (data->copy.isFlipped == 0) ? data->unk_22C + 0x28000 : data->unk_22C - 0x18000;
+            rec.halfWidth = 0x20;
+            rec.halfDepth = 0x10;
+            x             = (data->copy.isFlipped == 0) ? data->unk_22C + 0x28000 : data->unk_22C - 0x18000;
         } else {
             x = data->unk_22C;
         }
-        if (BtlHit_AttackAt(&rec, &data->copy.baseArgs, x, data->unk_230, data->unk_234) == 1) {
+        if (BtlHit_AttackAt(&rec, &data->copy.baseArgs, x, data->unk_230, data->unk_234) == BTL_HIT_RESULT_LANDED) {
             BtlSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, BtlStage_ToScreenX(mode, x));
         }
     }

@@ -78,7 +78,7 @@ static s16 func_ov009_021214e4(BtlEnm003_UG* ug) {
     return var_r0;
 }
 
-static s32 func_ov009_02121534(BtlEnm003_UG* ug, Ov003EffectActor* arg1) {
+static s32 func_ov009_02121534(BtlEnm003_UG* ug, BattleObsActor* arg1) {
     // if ((func_ov003_020c5a60(&ug->base, &arg1->actor) != 0) && (arg1->actor.xVelocity == 0) && (arg1->actor.yVelocity == 0)
     // &&
     //     (arg1->actor.position.z == 0)) {
@@ -87,7 +87,7 @@ static s32 func_ov009_02121534(BtlEnm003_UG* ug, Ov003EffectActor* arg1) {
     // return 0;
 }
 
-static s32 func_ov009_02121574(BtlEnm003_UG* ug, Ov003EffectActor* arg1) {
+static s32 func_ov009_02121574(BtlEnm003_UG* ug, BattleObsActor* arg1) {
 
     if (func_ov009_02121534(ug, arg1) == 0) {
         return 0;
@@ -121,8 +121,8 @@ static s32 func_ov009_02121574(BtlEnm003_UG* ug, Ov003EffectActor* arg1) {
     return 0;
 }
 
-static Ov003EffectActor* func_ov009_02121638(BtlEnm003_UG* ug) {
-    Ov003EffectActor* var_r4 = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
+static BattleObsActor* func_ov009_02121638(BtlEnm003_UG* ug) {
+    BattleObsActor* var_r4 = BtlList_GetHead(&gBattle->obsList);
 
     while (var_r4 != NULL) {
         if (func_ov009_02121574(ug, var_r4) != 0) {
@@ -133,7 +133,7 @@ static Ov003EffectActor* func_ov009_02121638(BtlEnm003_UG* ug) {
     return NULL;
 }
 
-static void func_ov009_02121690(BtlEnm003_UG* ug, Ov003EffectActor* arg1) {
+static void func_ov009_02121690(BtlEnm003_UG* ug, BattleObsActor* arg1) {
     s32 var_r3 = (ug->base.actor.isFlipped) ? 0x5000 : -0x5000;
 
     func_ov003_020c5ac0(&ug->base, 65, &arg1->actor, var_r3, 0, -0x3000);
@@ -141,7 +141,7 @@ static void func_ov009_02121690(BtlEnm003_UG* ug, Ov003EffectActor* arg1) {
 }
 
 static void func_ov009_021216e0(BtlEnm003_UG* ug) {
-    Ov003EffectActor* var_r4 = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
+    BattleObsActor* var_r4 = BtlList_GetHead(&gBattle->obsList);
 
     while (var_r4 != NULL) {
         if (func_ov009_02121574(ug, var_r4) != 0) {
@@ -174,7 +174,7 @@ static void func_ov009_021217a0(BtlEnm003_UG* ug) {
 }
 
 static void func_ov009_021217dc(BtlEnm003_UG* ug) {
-    BattleActor* temp_r4 = g_CombatGlobal->player;
+    BattleActor* temp_r4 = gBattle->player;
     s16          temp_r5 = RNG_Next(100);
 
     if (ug->unk_1C0 == 0) {
@@ -244,7 +244,7 @@ static void func_ov009_02121930(BtlEnm003_UG* ug) {
 }
 
 static void func_ov009_02121998(BtlEnm003_UG* ug) {
-    BattleActor* temp_r4 = g_CombatGlobal->player;
+    BattleActor* temp_r4 = gBattle->player;
 
     s32 var_r5 = ug->base.actor.position.x - temp_r4->position.x;
     if (var_r5 < 0) {
@@ -418,7 +418,7 @@ static void func_ov009_02121da8(BtlEnm003_UG* ug) {
 }
 
 static void func_ov009_02121fa4(BtlEnm003_UG* ug) {
-    BattleActor* temp_r4 = g_CombatGlobal->player;
+    BattleActor* temp_r4 = gBattle->player;
 
     switch (ug->unk_1C8) {
         case 0: {

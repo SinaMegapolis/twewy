@@ -28,8 +28,8 @@ static s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage
     switch (stage) {
         default:
         case 0: {
-            self                   = task->data;
-            BattleTouchWork* touch = &g_CombatGlobal->touchWork;
+            self               = task->data;
+            BattleTouch* touch = &gBattle->touchWork;
             MI_CpuSet(self, 0, sizeof(*self));
             self->effect = arg->effect;
             self->timer  = 5;
@@ -68,7 +68,7 @@ static s32 func_ov003_020b87f8(TaskPool* pool, Task* task, void* args, s32 stage
                         relaunch = 1;
                         state->burstCount++;
                     } else if (BtlTouch_GetSlashed(ACTOR_KIND_PLAYER) != 0) {
-                        BattleTouchWork* touch = &g_CombatGlobal->touchWork;
+                        BattleTouch* touch = &gBattle->touchWork;
                         func_ov003_020a6494(touch->endX);
                         state->angle = func_ov003_020a62d0(touch->startX, touch->startY, touch->endX, touch->endY);
                         state->angle = func_ov003_020b6b50(state->angle, data_ov003_020dceb4[state->effect->index].angleLimit);
@@ -113,7 +113,7 @@ static s32 func_ov003_020b8ab8(Ov003StraightShotS* self) {
     s32                           originX;
     kind    = &data_ov003_020dceb4[self->effect->index];
     left    = 0;
-    player  = g_CombatGlobal->player;
+    player  = gBattle->player;
     targetX = BtlStage_ToWorldX(0, self->x);
     originY = player->position.y;
     if (targetX < player->position.x) {

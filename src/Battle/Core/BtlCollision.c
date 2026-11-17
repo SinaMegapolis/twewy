@@ -17,6 +17,7 @@ typedef enum {
 
 static BattleList BtlCollision_LayerLists[BTLCOLLISION_LIST_COUNT];
 
+/// The list colliders of a layer are stored in.
 static BattleList* BtlCollision_FindList(BtlCollisionLayer layer) {
     switch (layer) {
         case BTLCOLLISION_LAYER_PLAYER:
@@ -33,6 +34,7 @@ static BattleList* BtlCollision_FindList(BtlCollisionLayer layer) {
     }
 }
 
+/// Clears the hit layers of every collider in a list.
 static void BtlCollision_ClearHits(BattleList* list) {
     BtlCollider* collider = BtlList_GetHead(list);
 
@@ -43,6 +45,7 @@ static void BtlCollision_ClearHits(BattleList* list) {
     }
 }
 
+/// Pushes two overlapping colliders apart and records the hit on both.
 static void BtlCollision_CollidePair(BtlCollider* a, BtlCollider* b) {
     s32 radii = a->radius + b->radius;
     s32 dx    = a->x - b->x;
@@ -125,6 +128,7 @@ void BtlCollision_CollideAll(BattleList* listA, BattleList* listB) {
     }
 }
 
+/// Collides every enabled collider in listA with every enabled one in listB, each pair once.
 static void BtlCollision_CollideEnabled(BattleList* listA, BattleList* listB) {
     BtlCollider* a = BtlList_GetHead(listA);
 

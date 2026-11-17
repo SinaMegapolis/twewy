@@ -48,7 +48,7 @@ static s32 func_ov003_020b4bcc(TaskPool* pool, Task* task, void* args, s32 stage
                             self->x     = self->trail.trail.pivotX;
                             self->y     = self->trail.trail.pivotY;
                             func_ov003_020a5aa4(self->trail.effect);
-                            func_ov003_02087804(0);
+                            BtlPlayerUtil_PlayAttackVoice(0);
                             return 1;
                         case 1:
                             return 1;

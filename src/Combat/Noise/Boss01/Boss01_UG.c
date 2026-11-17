@@ -1,9 +1,9 @@
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlObsMgr.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
-#include "Combat/Core/CombatEffectActor.h"
 #include "Combat/Core/CombatEnemyActor.h"
 #include "Combat/Core/CombatEnemyShot.h"
 #include "Combat/Noise/Boss01.h"
@@ -24,16 +24,16 @@ typedef struct Boss01_UG {
     /* 0x1C4 */ s16             unk_1C4;
     /* 0x1C6 */ s16             unk_1C6;
     /* 0x1C8 */ void (*unk_1C8)(struct Boss01_UG*);
-    /* 0x1CC */ s32               unk_1CC;
-    /* 0x1D0 */ s32               unk_1D0;
-    /* 0x1D4 */ s32               unk_1D4;
-    /* 0x1D8 */ PaletteResource*  unk_1D8;
-    /* 0x1DC */ s32               unk_1DC;
-    /* 0x1E0 */ Ov003EffectActor* unk_1E0; // the obstacle being carried
-    /* 0x1E4 */ Ov003EffectActor* unk_1E4; // the bus
-    /* 0x1E8 */ void*             unk_1E8;
-    /* 0x1EC */ s32               unk_1EC;
-    /* 0x1F0 */ s32               unk_1F0;
+    /* 0x1CC */ s32              unk_1CC;
+    /* 0x1D0 */ s32              unk_1D0;
+    /* 0x1D4 */ s32              unk_1D4;
+    /* 0x1D8 */ PaletteResource* unk_1D8;
+    /* 0x1DC */ s32              unk_1DC;
+    /* 0x1E0 */ BattleObsActor*  unk_1E0; // the obstacle being carried
+    /* 0x1E4 */ BattleObsActor*  unk_1E4; // the bus
+    /* 0x1E8 */ void*            unk_1E8;
+    /* 0x1EC */ s32              unk_1EC;
+    /* 0x1F0 */ s32              unk_1F0;
 } Boss01_UG; // Size: 0x1F4
 
 static void func_ov016_021266f4(Boss01_UG* bossUG);
@@ -53,7 +53,7 @@ static void func_ov016_021262d8(Boss01_UG* bossUG) {
         return;
     }
 
-    Data* temp_r0 = g_CombatGlobal->unk3D350;
+    Data* temp_r0 = gBattle->menuData;
     void* var_r8  = Data_GetPackEntryData(temp_r0, 66);
 
     PaletteResource* temp_r4 = bossUG->unk_1D8;
@@ -110,7 +110,7 @@ static s32 func_ov016_02126468(Boss01_UG* bossUG) {
     }
     if (var_ip == 0) {
         var_ip_2 = 0;
-        if ((temp_lr != 0) && ((s32)bossUG->base.actor.position.x > (s32)(g_CombatGlobal->stages[0].width + 0x80000))) {
+        if ((temp_lr != 0) && ((s32)bossUG->base.actor.position.x > (s32)(gBattle->stages[0].width + 0x80000))) {
             var_ip_2 = 1;
         }
         if (var_ip_2 == 0) {
@@ -128,7 +128,7 @@ static void func_ov016_021264d8(void*) {
                         subroutine);
 }
 
-static s32 func_ov016_02126514(Boss01_UG* bossUG, Ov003EffectActor* arg1) {
+static s32 func_ov016_02126514(Boss01_UG* bossUG, BattleObsActor* arg1) {
     if ((func_ov003_020c5a28(&bossUG->base, &arg1->actor) != 0) && (arg1->actor.xVelocity == 0) &&
         (arg1->actor.yVelocity == 0) && (arg1->actor.position.z == 0))
     {
@@ -137,7 +137,7 @@ static s32 func_ov016_02126514(Boss01_UG* bossUG, Ov003EffectActor* arg1) {
     return 0;
 }
 
-static s32 func_ov016_02126554(Boss01_UG* bossUG, Ov003EffectActor* arg1, s32 arg2) {
+static s32 func_ov016_02126554(Boss01_UG* bossUG, BattleObsActor* arg1, s32 arg2) {
     if ((arg2 != 0) && (func_ov009_020fa71c(arg1) == 0)) {
         return 0;
     }
@@ -147,10 +147,10 @@ static s32 func_ov016_02126554(Boss01_UG* bossUG, Ov003EffectActor* arg1, s32 ar
     return func_ov016_02126514(bossUG, arg1);
 }
 
-static Ov003EffectActor* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
-    Ov003EffectActor* var_r4  = NULL;
-    s32               temp_r5 = RNG_Next(func_ov003_020cc5fc(0, 0x19));
-    Ov003EffectActor* var_r8  = BtlList_GetHead(&g_CombatGlobal->unk3D8B4);
+static BattleObsActor* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
+    BattleObsActor* var_r4  = NULL;
+    s32             temp_r5 = RNG_Next(func_ov003_020cc5fc(0, 0x19));
+    BattleObsActor* var_r8  = BtlList_GetHead(&gBattle->obsList);
 
     for (s32 var_r9 = 0; var_r8 != NULL; var_r9++) {
         if (func_ov016_02126554(bossUG, var_r8, arg1) != 0) {
@@ -164,11 +164,11 @@ static Ov003EffectActor* func_ov016_021265a8(Boss01_UG* bossUG, s32 arg1) {
     return var_r4;
 }
 
-static Ov003EffectActor* func_ov016_02126638(Boss01_UG* bossUG) {
-    s16               temp_r1_2;
-    Ov003EffectActor* temp_r1;
-    Ov003EffectActor* temp_r4;
-    Ov003EffectActor* var_r0;
+static BattleObsActor* func_ov016_02126638(Boss01_UG* bossUG) {
+    s16             temp_r1_2;
+    BattleObsActor* temp_r1;
+    BattleObsActor* temp_r4;
+    BattleObsActor* var_r0;
 
     temp_r4   = func_ov016_021265a8(bossUG, 0);
     var_r0    = func_ov016_021265a8(bossUG, 1);
@@ -260,7 +260,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
     s32          temp_r3;
     s32          temp_r3_2;
     u32          temp_r1;
-    BattleActor* temp_r4 = g_CombatGlobal->player;
+    BattleActor* temp_r4 = gBattle->player;
 
     if (bossUG->unk_1C0 == 0) {
         func_ov003_020c4c5c(&bossUG->base);
@@ -319,7 +319,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
         }
     }
     if (func_ov016_02126468(bossUG) != 0) {
-        Ov003EffectActor* temp_r0_3 = func_ov016_02126638(bossUG);
+        BattleObsActor* temp_r0_3 = func_ov016_02126638(bossUG);
         if (bossUG->unk_1E8 != 0) {
             *data_ov016_021292c0 = 2;
             Boss01_UG_SetState(bossUG, func_ov016_02126854);
@@ -335,7 +335,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
             Boss01_UG_SetState(bossUG, func_ov016_02126c24);
             return;
         }
-        if (BtlList_GetHead(&g_CombatGlobal->unk3D8B4) != 0) {
+        if (BtlList_GetHead(&gBattle->obsList) != 0) {
             *data_ov016_021292c0 = 3;
             Boss01_UG_SetState(bossUG, func_ov016_02126c24);
             return;
@@ -353,7 +353,7 @@ static void func_ov016_02126854(Boss01_UG* bossUG) {
 }
 
 static void func_ov016_02126c24(Boss01_UG* bossUG) {
-    BattleActor* temp_r5 = g_CombatGlobal->player;
+    BattleActor* temp_r5 = gBattle->player;
 
     if (bossUG->unk_1C0 == 0) {
         func_ov003_020c4c5c(&bossUG->base);
@@ -385,7 +385,7 @@ static void func_ov016_02126c24(Boss01_UG* bossUG) {
 }
 
 static void func_ov016_02126d38(Boss01_UG* bossUG) {
-    BattleActor* temp_r4 = g_CombatGlobal->player;
+    BattleActor* temp_r4 = gBattle->player;
 
     if (bossUG->unk_1C0 == 0) {
         bossUG->unk_1E0 = func_ov016_02126638(bossUG);
@@ -495,7 +495,7 @@ static s32 Boss01_UG_Init(TaskPool* pool, Task* task, void* args) {
 
     MI_CpuSet(bossUG, 0, 0x1F4);
 
-    void* src       = Data_GetPackEntryData(g_CombatGlobal->unk3D350, 66);
+    void* src       = Data_GetPackEntryData(gBattle->menuData, 66);
     bossUG->unk_1D8 = PaletteMgr_AcquireContiguous(g_PaletteManagers[DISPLAY_EXTENDED], src, 5, 1);
 
     func_ov003_020c3efc(&bossUG->base, args);

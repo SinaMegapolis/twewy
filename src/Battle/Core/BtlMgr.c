@@ -1,5 +1,7 @@
 #include "Battle/Core/BtlMgr.h"
 #include "Battle/Core/BtlActor.h"
+#include "Battle/Core/BtlEnmOverlay.h"
+#include "Battle/Core/BtlObsMgr.h"
 #include "Battle/Core/BtlSprite.h"
 #include "Battle/Core/BtlTouch.h"
 #include "Combat/Core/BtlAura.h"
@@ -9,10 +11,8 @@
 #include "Combat/Core/BtlEff.h"
 #include "Combat/Core/BtlPhase.h"
 #include "Combat/Core/BtlTch.h"
-#include "Combat/Core/Combat.h"
 #include "Combat/Core/CombatApi.h"
 #include "Combat/Core/CombatAttack.h"
-#include "Combat/Core/CombatEnmOverlay.h"
 #include "Combat/Fusion/BtlFusion.h"
 #include "Combat/Tutorial/BtlTutorial.h"
 #include "CriSndMgr.h"
@@ -50,16 +50,6 @@
 #include <nitro/math.h>
 #include <nitro/mi/cpumem.h>
 
-/// A single link of the intrusive unit lists in `Ov003Global` (0x3D8A4..0x3D8C0). The link always
-/// lives at offset 0x178 inside a unit and its `self` pointer points back at the unit.
-
-/// Common prefix shared by every combat unit (players, partners, noise). Only the fields the battle
-/// manager itself touches are modelled here; concrete units extend this layout.
-
-/// A battle icon whose animation is driven by the shared state at `Ov003Global.touchWork.gesture`.
-
-/// Overlay 4 id per noise id.
-
 extern const TaskHandle Tsk_BtlPlayer01;
 extern const TaskHandle Tsk_BtlCard_Esp;
 extern const TaskHandle data_ov004_020f0120;
@@ -71,78 +61,50 @@ extern const TaskHandle Tsk_BtlTarget;
 extern const TaskHandle data_ov003_020dc614;
 extern const TaskHandle data_ov003_020d4f74;
 
-// Overlay ids are absolute linker symbols whose "address" is the overlay index.
-extern u32 OVERLAY_4_ID;
-extern u32 OVERLAY_5_ID;
-extern u32 OVERLAY_6_ID;
-extern u32 OVERLAY_7_ID;
-extern u32 OVERLAY_8_ID;
-extern u32 OVERLAY_9_ID;
-extern u32 OVERLAY_10_ID;
-extern u32 OVERLAY_11_ID;
-extern u32 OVERLAY_12_ID;
-extern u32 OVERLAY_13_ID;
-extern u32 OVERLAY_14_ID;
-extern u32 OVERLAY_15_ID;
-extern u32 OVERLAY_16_ID;
-extern u32 OVERLAY_17_ID;
-extern u32 OVERLAY_18_ID;
-extern u32 OVERLAY_19_ID;
-extern u32 OVERLAY_20_ID;
-extern u32 OVERLAY_21_ID;
-extern u32 OVERLAY_22_ID;
-extern u32 OVERLAY_23_ID;
-extern u32 OVERLAY_24_ID;
-extern u32 OVERLAY_25_ID;
+static void BtlMgr_Init(BattleMgrWork* work);
+static void BtlMgr_Main(BattleMgrWork* work);
+static void BtlMgr_Exit(BattleMgrWork* work);
+static void BtlMgr_WaitReady(BattleMgrWork* work);
+static void BtlMgr_RunBattle(BattleMgrWork* work);
+static void BtlMgr_WaitResults(BattleMgrWork* work);
 
-static void BtlMgr_Init(BattleMgrWork*);
-static void BtlMgr_Main(BattleMgrWork*);
-static void BtlMgr_Exit(BattleMgrWork*);
-static void func_ov003_0208e5f8(BattleMgrWork*);
-static void func_ov003_0208e668(BattleMgrWork*);
-static void func_ov003_0208e7c0(BattleMgrWork*);
-
-// ---------------------------------------------------------------------------------------------
-// Data
-// ---------------------------------------------------------------------------------------------
-
-static char data_ov003_020e397c[0x18] = "Apl_Fur/Grp_BtlCmd.bin";
-static char data_ov003_020e3994[0x18] = "Apl_Fur/Grp_BtlObs.bin";
-static char data_ov003_020e39ac[0x18] = "Apl_Fur/Bin_BtlMenu.bin";
-static char data_ov003_020e39c4[0x1C] = "Apl_Fur/Grp_BtlBadge.bin";
-static char data_ov003_020e39e0[0x1C] = "Apl_Fur/Grp_BtlPly02.bin";
-static char data_ov003_020e39fc[0x1C] = "Apl_Fur/Grp_BtlPly00.bin";
-static char data_ov003_020e3a18[0x1C] = "Apl_Fur/Grp_BtlPly01.bin";
-static char data_ov003_020e3a34[0x1C] = "Apl_Fur/Grp_BtlPly03.bin";
-static char data_ov003_020e3a50[0x1C] = "Apl_Fur/Grp_BtlJingle.bin";
-static char data_ov003_020e3a6c[0x1C] = "Apl_Fur/Grp_BtlEffect.bin";
-static char data_ov003_020e3a88[0x1C] = "Apl_Fuk/Grp_BtlSpecial.bin";
-static char data_ov003_020e3aa4[0x1C] = "BtlMgr.c : BtlMgr_Init()";
+static char Path_BtlCmd[0x18]     = "Apl_Fur/Grp_BtlCmd.bin";
+static char Path_BtlObs[0x18]     = "Apl_Fur/Grp_BtlObs.bin";
+static char Path_BtlMenu[0x18]    = "Apl_Fur/Bin_BtlMenu.bin";
+static char Path_BtlBadge[0x1C]   = "Apl_Fur/Grp_BtlBadge.bin";
+static char Path_BtlPly02[0x1C]   = "Apl_Fur/Grp_BtlPly02.bin";
+static char Path_BtlPly00[0x1C]   = "Apl_Fur/Grp_BtlPly00.bin";
+static char Path_BtlPly01[0x1C]   = "Apl_Fur/Grp_BtlPly01.bin";
+static char Path_BtlPly03[0x1C]   = "Apl_Fur/Grp_BtlPly03.bin";
+static char Path_BtlJingle[0x1C]  = "Apl_Fur/Grp_BtlJingle.bin";
+static char Path_BtlEffect[0x1C]  = "Apl_Fur/Grp_BtlEffect.bin";
+static char Path_BtlSpecial[0x1C] = "Apl_Fuk/Grp_BtlSpecial.bin";
+static char BtlMgr_HeapTag[0x1C]  = "BtlMgr.c : BtlMgr_Init()";
 
 /// The heap sequence name the battle work area is tagged with.
-static char data_ov003_020e3ac4[16];
-char*       data_ov003_020e3ac0     = data_ov003_020e3ac4;
-static char data_ov003_020e3ac4[16] = "Seq_Battle()";
+static char BtlMgr_SequenceNameBuf[16];
+char*       BtlMgr_SequenceName        = BtlMgr_SequenceNameBuf;
+static char BtlMgr_SequenceNameBuf[16] = "Seq_Battle()";
 
-/// Experience gained is scaled by a percentage that depends on the battle difficulty.
-static const s16 data_ov003_020d77d0[4] = {50, 100, 150, 200};
+/// Experience percentage per difficulty.
+static const s16 BtlMgr_ExpPercents[4] = {50, 100, 150, 200};
 
-const BinIdentifier data_ov003_020d77d8 = {3, data_ov003_020e39fc};
-const BinIdentifier data_ov003_020d77e0 = {4, data_ov003_020e3a18};
-const BinIdentifier data_ov003_020d77e8 = {5, data_ov003_020e39e0};
-const BinIdentifier data_ov003_020d77f0 = {6, data_ov003_020e3a34};
-const BinIdentifier data_ov003_020d77f8 = {3, data_ov003_020e3a6c};
-const BinIdentifier data_ov003_020d7800 = {3, data_ov003_020e39ac};
-const BinIdentifier data_ov003_020d7808 = {3, data_ov003_020e397c};
-const BinIdentifier data_ov003_020d7810 = {3, data_ov003_020e39c4};
-const BinIdentifier data_ov003_020d7818 = {3, data_ov003_020e3a50};
-const BinIdentifier data_ov003_020d7820 = {3, data_ov003_020e3994};
-const BinIdentifier data_ov003_020d7828 = {3, data_ov003_020e3a88};
+const BinIdentifier Iden_BtlPly00   = {3, Path_BtlPly00};
+const BinIdentifier Iden_BtlPly01   = {4, Path_BtlPly01};
+const BinIdentifier Iden_BtlPly02   = {5, Path_BtlPly02};
+const BinIdentifier Iden_BtlPly03   = {6, Path_BtlPly03};
+const BinIdentifier Iden_BtlEffect  = {3, Path_BtlEffect};
+const BinIdentifier Iden_BtlMenu    = {3, Path_BtlMenu};
+const BinIdentifier Iden_BtlCmd     = {3, Path_BtlCmd};
+const BinIdentifier Iden_BtlBadge   = {3, Path_BtlBadge};
+const BinIdentifier Iden_BtlJingle  = {3, Path_BtlJingle};
+const BinIdentifier Iden_BtlObs     = {3, Path_BtlObs};
+const BinIdentifier Iden_BtlSpecial = {3, Path_BtlSpecial};
 
-/// Encounter id per boss phase, indexed by the chained-battle timer.
-static const u16 data_ov003_020d7830[2] = {0x33, 0x34};
-static const u16 data_ov003_020d7834[2] = {0x14, 0x15};
-static const u16 data_ov003_020d7838[6] = {0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x00};
+/// The encounters played in turn by the multi-phase encounters 51, 20 and 10.
+static const u16 BtlMgr_Encounter51Phases[2] = {0x33, 0x34};
+static const u16 BtlMgr_Encounter20Phases[2] = {0x14, 0x15};
+static const u16 BtlMgr_Encounter10Phases[6] = {0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x00};
 
 /// Process stages of the battle overlay: init, main, exit.
 static void (*const BtlMgr_ProcessStages[3])(BattleMgrWork*) = {
@@ -151,31 +113,27 @@ static void (*const BtlMgr_ProcessStages[3])(BattleMgrWork*) = {
     BtlMgr_Exit,
 };
 
-/// Per-encounter battle track ids.
-static const u32 data_ov003_020d7850[18] = {8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26, 22, 23, 26, 21};
+/// The sound file of each battle track.
+static const u32 BtlMgr_TrackFiles[18] = {8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 26, 22, 23, 26, 21};
 
-/// Per-chapter set of characters that may join the battle, as a 16-bit mask.
-static const u32 data_ov003_020d7898[22] = {1,      1,      0x1003, 0x1003, 0x1007, 0x1087, 0x287, 0xe88,
-                                            0xa88,  0x1298, 0x1218, 0x438,  0x438,  0x538,  0xd40, 0xd44,
-                                            0x1946, 0x18e6, 0xcf6,  0x77f,  0x37f,  0x1fff};
+/// The battle tracks each chapter picks from at random, as a mask of track indices.
+static const u32 BtlMgr_ChapterTracks[22] = {1,      1,      0x1003, 0x1003, 0x1007, 0x1087, 0x287, 0xe88,
+                                             0xa88,  0x1298, 0x1218, 0x438,  0x438,  0x538,  0xd40, 0xd44,
+                                             0x1946, 0x18e6, 0xcf6,  0x77f,  0x37f,  0x1fff};
 
-// ---------------------------------------------------------------------------------------------
-// Functions
-// ---------------------------------------------------------------------------------------------
-
-/// Maximum HP of the player (or partner) at the battle's current level.
+/// The team's maximum HP at the battle level, plus ability 3's bonus.
 static s32 BtlMgr_CalcMaxHp(void) {
-    Ov003Global* g = g_CombatGlobal;
-    s32          partner;
+    Battle* g = gBattle;
+    s32     partner;
 
-    switch (g->unk3D88D) {
-        case 0:
+    switch (g->partnerId) {
+        case PARTNER_SHIKI:
             partner = 0;
             break;
-        case 1:
+        case PARTNER_JOSHUA:
             partner = 1;
             break;
-        case 2:
+        case PARTNER_BEAT:
             partner = 2;
             break;
         default:
@@ -190,9 +148,9 @@ static s32 BtlMgr_CalcMaxHp(void) {
     return maxHealth;
 }
 
-/// Loads the player/partner/badge overlays and picks the battle track for the encounter.
+/// Loads the partner's overlay and the encounter's noise overlays.
 static void BtlMgr_LoadOverlays(u32 partner, u16 encounterId) {
-    s32 overlay4 = CombatEnmOverlay_Table[encounterId];
+    s32 overlay4 = BtlEnmOverlay_Table[encounterId];
 
     switch (partner) {
         case 0:
@@ -313,8 +271,7 @@ static void BtlMgr_LoadOverlays(u32 partner, u16 encounterId) {
     }
 }
 
-/// Returns the partner that fights alongside the player for an encounter. Most encounters force a
-/// specific partner; everything else uses the one selected in the phone menu.
+/// The partner that fights in an encounter: the encounter's fixed partner, else the one picked in the menu.
 static u32 BtlMgr_GetPartner(u16 encounterId) {
     u32 partner;
 
@@ -400,20 +357,20 @@ static u32 BtlMgr_GetPartner(u16 encounterId) {
     return partner;
 }
 
-/// Resets the level-up gauge for the battle that is about to start. When `isContinuation` is set the
-/// gauge carried over from the previous chained battle is restored (the player heals back to full
-/// between battles).
-static void func_ov003_0208aa1c(s32 isContinuation) {
+/// Sets up the team for the battle: sync, movement speed, drop rate and HP. A chained battle restores the HP carried
+/// over from the previous one (healing what the maximum grew by); a fresh battle starts at full HP, less the halves
+/// ability 9 costs.
+static void BtlMgr_InitTeam(s32 isContinuation) {
     s32 partner;
 
-    switch (g_CombatGlobal->unk3D88D) {
-        case 0:
+    switch (gBattle->partnerId) {
+        case PARTNER_SHIKI:
             partner = 0;
             break;
-        case 1:
+        case PARTNER_JOSHUA:
             partner = 1;
             break;
-        case 2:
+        case PARTNER_BEAT:
             partner = 2;
             break;
         default:
@@ -421,71 +378,71 @@ static void func_ov003_0208aa1c(s32 isContinuation) {
             break;
     }
 
-    g_CombatGlobal->unk3D896 = (partner == 0xff) ? 0 : gSaveData.friendStats[partner].sync;
-    g_CombatGlobal->unk3D894 = (CombatAbility_IsActive(0x12) != 0) ? 30 : 100;
+    gBattle->partnerSync = (partner == 0xff) ? 0 : gSaveData.friendStats[partner].sync;
+    gBattle->moveSpeed   = (CombatAbility_IsActive(0x12) != 0) ? 30 : 100;
 
     if (CombatAbility_IsActive(0x40) != 0) {
         gSaveData.unk_3140 |= 2;
     }
 
-    g_CombatGlobal->unk3D892 = gSaveData.battleDropRate;
+    gBattle->dropRate = gSaveData.battleDropRate;
     if (CombatAbility_IsActive(0) != 0) {
-        g_CombatGlobal->unk3D892 += (s16)CombatAbility_GetValue(0);
+        gBattle->dropRate += (s16)CombatAbility_GetValue(0);
     }
 
-    g_CombatGlobal->unk3D8D2 = BtlMgr_CalcMaxHp();
+    gBattle->teamMaxHp = BtlMgr_CalcMaxHp();
 
     if (isContinuation != 0) {
         s32 merged;
 
-        g_CombatGlobal->unk3D8D0 = gSaveData.battleHpGauge;
-        g_CombatGlobal->unk3D8D6 = gSaveData.battleHpGaugeSub0;
-        g_CombatGlobal->unk3D8D4 = gSaveData.battleHpGaugeSub1;
+        gBattle->teamHp        = gSaveData.battleHpGauge;
+        gBattle->playerDamage  = gSaveData.battleHpGaugeSub0;
+        gBattle->partnerDamage = gSaveData.battleHpGaugeSub1;
 
-        merged = g_CombatGlobal->unk3D8D2 - (g_CombatGlobal->unk3D8D0 + g_CombatGlobal->unk3D8D6 + g_CombatGlobal->unk3D8D4);
+        merged = gBattle->teamMaxHp - (gBattle->teamHp + gBattle->playerDamage + gBattle->partnerDamage);
         if (merged > 0) {
-            g_CombatGlobal->unk3D8D0 += (s16)(merged * 0x10000 >> 16);
+            gBattle->teamHp += (s16)(merged * 0x10000 >> 16);
         }
         if (merged >= 0) {
             return;
         }
 
-        g_CombatGlobal->unk3D8D4 += (s16)(merged * 0x10000 >> 16);
-        if (g_CombatGlobal->unk3D8D4 < 0) {
-            g_CombatGlobal->unk3D8D6 += g_CombatGlobal->unk3D8D4;
-            g_CombatGlobal->unk3D8D4 = 0;
+        gBattle->partnerDamage += (s16)(merged * 0x10000 >> 16);
+        if (gBattle->partnerDamage < 0) {
+            gBattle->playerDamage += gBattle->partnerDamage;
+            gBattle->partnerDamage = 0;
         }
-        if (g_CombatGlobal->unk3D8D6 < 0) {
-            g_CombatGlobal->unk3D8D0 += g_CombatGlobal->unk3D8D6;
-            g_CombatGlobal->unk3D8D6 = 0;
+        if (gBattle->playerDamage < 0) {
+            gBattle->teamHp += gBattle->playerDamage;
+            gBattle->playerDamage = 0;
         }
         return;
     }
 
-    g_CombatGlobal->unk3D8D0 = g_CombatGlobal->unk3D8D2;
-    g_CombatGlobal->unk3D8D6 = 0;
-    g_CombatGlobal->unk3D8D4 = 0;
+    gBattle->teamHp        = gBattle->teamMaxHp;
+    gBattle->playerDamage  = 0;
+    gBattle->partnerDamage = 0;
 
     if (CombatAbility_IsActiveForPlayer(9) != 0) {
-        s32 half = (g_CombatGlobal->unk3D8D2 + (g_CombatGlobal->unk3D8D2 >> 31)) * 0x8000 >> 16;
+        s32 half = (gBattle->teamMaxHp + (gBattle->teamMaxHp >> 31)) * 0x8000 >> 16;
 
-        g_CombatGlobal->unk3D8D0 -= (s16)half;
-        g_CombatGlobal->unk3D8D6 = (s16)half;
+        gBattle->teamHp -= (s16)half;
+        gBattle->playerDamage = (s16)half;
     }
     if (CombatAbility_IsActiveForPartner(9) != 0) {
-        s32 half = (g_CombatGlobal->unk3D8D2 + (g_CombatGlobal->unk3D8D2 >> 31)) * 0x8000 >> 16;
+        s32 half = (gBattle->teamMaxHp + (gBattle->teamMaxHp >> 31)) * 0x8000 >> 16;
 
-        g_CombatGlobal->unk3D8D0 -= (s16)half;
-        g_CombatGlobal->unk3D8D4 = (s16)half;
+        gBattle->teamHp -= (s16)half;
+        gBattle->partnerDamage = (s16)half;
     }
 
-    if (g_CombatGlobal->unk3D8D0 < 1) {
-        g_CombatGlobal->unk3D8D0 = 1;
-        g_CombatGlobal->unk3D8D4--;
+    if (gBattle->teamHp < 1) {
+        gBattle->teamHp = 1;
+        gBattle->partnerDamage--;
     }
 }
-/// Selects the battle music for the given encounter id.
-static void func_ov003_0208ad34(u16 encounterId) {
+/// Picks the encounter's badge set and spawns its badges.
+static void BtlMgr_InitBadges(u16 encounterId) {
     u8 music = 0xD;
 
     BtlBadgeMgr_Clear();
@@ -529,13 +486,13 @@ static void func_ov003_0208ad34(u16 encounterId) {
             break;
     }
 
-    g_CombatGlobal->unk3D890 = music;
+    gBattle->musicId = music;
     BtlBadgeMgr_QueueAbilities(music);
     BtlBadgeMgr_SpawnBadges(music);
 }
 
-/// Points the thread/equipment system at the player's and partner's equipped threads.
-static void func_ov003_0208ae24(s32 partner) {
+/// Applies the player's and the partner's equipped threads.
+static void BtlMgr_InitThreads(s32 partner) {
     s32 slot;
 
     func_ov003_020a300c();
@@ -556,14 +513,13 @@ static void func_ov003_0208ae24(s32 partner) {
             break;
     }
 
-    if (slot == 0xff) {
-        return;
+    if (slot != 0xFF) {
+        func_ov003_020a303c(&gSaveData.friendStats[slot].equippedThreads[0], slot);
     }
-    func_ov003_020a303c(&gSaveData.friendStats[slot].equippedThreads[0], slot);
 }
 
-/// Stops a level-up gauge actor and parks it.
-static void func_ov003_0208ae98(BattleActor* actor) {
+/// Stops a player character and starts its level-up animation.
+static void BtlMgr_StartLevelUp(BattleActor* actor) {
     actor->flags &= ~(ACTOR_FLAG_STAGGERED | ACTOR_FLAG_LAUNCHED);
     actor->flags &= ~ACTOR_FLAG_GUARDING;
     actor->xVelocity = 0;
@@ -572,19 +528,19 @@ static void func_ov003_0208ae98(BattleActor* actor) {
     BtlActor_SetPendingCommand(actor, ACTOR_CMD_LEVEL_UP);
 }
 
-/// Checks that both unit lists only contain idle, on-screen units.
-static BOOL func_ov003_0208aed8(void) {
+/// Whether every enemy on both screens is defeated.
+static BOOL BtlMgr_AreEnemiesDefeated(void) {
     Ov003EnemyActor* unit;
     BOOL             result = TRUE;
 
-    for (unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&gBattle->enemiesMain); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & ACTOR_FLAG_DEFEATED) == 0) {
             result = FALSE;
             break;
         }
     }
 
-    for (unit = BtlList_GetHead(&g_CombatGlobal->unk3D8AC); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&gBattle->enemiesSub); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         if (unit->flags196.bits.b8 == 1 || (unit->actor.flags & ACTOR_FLAG_DEFEATED) == 0) {
             result = FALSE;
             break;
@@ -593,7 +549,6 @@ static BOOL func_ov003_0208aed8(void) {
     return result;
 }
 
-/// Adds to the battle clear time and the "damage taken" counter.
 void func_ov003_0208af9c(s32 time, s32 amount) {
     gSaveData.battleParTime += time;
 
@@ -612,10 +567,7 @@ void BtlMgr_AddExp(s32 exp) {
     s32 remaining = gSaveData.battleExpToNextLevel - exp;
 
     gSaveData.battleExpToNextLevel = remaining;
-    if (g_CombatGlobal->unk3D878 & 0x80000) {
-        return;
-    }
-    if (remaining > 0) {
+    if (gBattle->flags & BATTLE_FLAG_NO_LEVEL_UP || remaining > 0) {
         return;
     }
 
@@ -623,33 +575,32 @@ void BtlMgr_AddExp(s32 exp) {
     gSaveData.battleMaxLevel++;
     gSaveData.battleExpToNextLevel = gSaveData.battleMaxLevel * 100;
 
-    g_CombatGlobal->unk3D8D2 = BtlMgr_CalcMaxHp();
-    g_CombatGlobal->unk3D8D0 = g_CombatGlobal->unk3D8D2;
-    g_CombatGlobal->unk3D8D4 = 0;
-    g_CombatGlobal->unk3D8D6 = 0;
+    gBattle->teamMaxHp     = BtlMgr_CalcMaxHp();
+    gBattle->teamHp        = gBattle->teamMaxHp;
+    gBattle->partnerDamage = 0;
+    gBattle->playerDamage  = 0;
 
-    g_CombatGlobal->player->maxHp      = g_CombatGlobal->unk3D8D2;
-    g_CombatGlobal->player->currentHp  = g_CombatGlobal->player->maxHp;
-    g_CombatGlobal->partner->maxHp     = g_CombatGlobal->unk3D8D2;
-    g_CombatGlobal->partner->currentHp = g_CombatGlobal->partner->maxHp;
+    gBattle->player->maxHp      = gBattle->teamMaxHp;
+    gBattle->player->currentHp  = gBattle->player->maxHp;
+    gBattle->partner->maxHp     = gBattle->teamMaxHp;
+    gBattle->partner->currentHp = gBattle->partner->maxHp;
 
-    g_CombatGlobal->unk3D904 = 0;
-    g_CombatGlobal->unk3D906 = 0;
-    func_ov003_0208ae98(g_CombatGlobal->player);
+    gBattle->hitStopMain     = 0;
+    gBattle->hitStopMainNext = 0;
+    BtlMgr_StartLevelUp(gBattle->player);
 
-    g_CombatGlobal->unk3D908 = 0;
-    g_CombatGlobal->unk3D90A = 0;
-    func_ov003_0208ae98(g_CombatGlobal->partner);
+    gBattle->hitStopSub     = 0;
+    gBattle->hitStopSubNext = 0;
+    BtlMgr_StartLevelUp(gBattle->partner);
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff_LvUp, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlEff_LvUp, NULL, 0, NULL, NULL);
 }
 
-/// Awards experience, scaled by the battle difficulty.
+/// Awards experience, scaled by the difficulty. Nothing is awarded in retried battles.
 static void BtlMgr_AwardExp(s16 exp) {
-    if (gSaveData.unk_3130 == 1) {
-        return;
+    if (gSaveData.unk_3130 != 1) {
+        BtlMgr_AddExp((s16)((exp * BtlMgr_ExpPercents[gSaveData.battleDifficulty]) / 100));
     }
-    BtlMgr_AddExp((s16)((exp * data_ov003_020d77d0[gSaveData.battleDifficulty]) / 100));
 }
 
 /// Adds to the PP earned this battle.
@@ -657,7 +608,6 @@ static void BtlMgr_AddPP(s16 amount) {
     gSaveData.battleBasePP += amount;
 }
 
-/// Adds an item to the battle drop list, stacking with an existing entry.
 BOOL BtlMgr_AddDrop(u32 itemId) {
     BOOL result = FALSE;
     s32  i;
@@ -681,34 +631,29 @@ BOOL BtlMgr_AddDrop(u32 itemId) {
     return result;
 }
 
-/// Bumps the battle state, gated on the state we are leaving.
 void BtlMgr_SetState(u32 state) {
-    // The original reloads the global on every use; keeping a pointer in a local changes the
-    // register allocation of the whole function.
-
     switch (state) {
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-            if (g_CombatGlobal->unk3D874 == 2) {
-                g_CombatGlobal->unk3D874 = state;
+        case BATTLE_STATE_WIN:
+        case BATTLE_STATE_LOSE:
+        case BATTLE_STATE_QUIT:
+        case BATTLE_STATE_SCRIPTED_END:
+            if (gBattle->state == BATTLE_STATE_FIGHT) {
+                gBattle->state = state;
             }
             break;
 
-        case 7:
-            if (g_CombatGlobal->unk3D874 == 3 || g_CombatGlobal->unk3D874 == 4) {
-                g_CombatGlobal->unk3D874 = state;
+        case BATTLE_STATE_RESULTS_DONE:
+            if (gBattle->state == BATTLE_STATE_WIN || gBattle->state == BATTLE_STATE_LOSE) {
+                gBattle->state = state;
             }
             break;
 
         default:
-            g_CombatGlobal->unk3D874 = state;
+            gBattle->state = state;
             break;
     }
 }
 
-/// Rotates a position by `angle` and adds it.
 void BtlMgr_MoveByAngle(s32* x, s32* y, s32 angle, s32 scale) {
     s32 index = (angle & 0xFFFF) >> 4;
     s32 sin   = FX_SinCosTable_[index * 2 + 1];
@@ -718,60 +663,51 @@ void BtlMgr_MoveByAngle(s32* x, s32* y, s32 angle, s32 scale) {
     *y += FX_Mul(cos, scale);
 }
 
-/// Projects a world position onto the screen.
 void BtlMgr_WorldToScreen(s16* screenX, s16* screenY, s32 x, s32 y, s32 z) {
-    BattleStage* camera = &g_CombatGlobal->stages[0];
+    BattleStage* camera = &gBattle->stages[0];
 
     *screenX = (s16)((camera->left + (x - camera->viewX) + 0x80000) >> 12);
     *screenY = (s16)((camera->top + ((y + z) - camera->viewY) + 0x60000) >> 12);
 }
 
-/// Adds (or removes) HP on the shared player/partner gauge. `bank` selects which of the two banked gauges the
-/// delta is taken from when the gauge overflows.
-void BtlMgr_AddTeamHp(s32 bank, s16 delta) {
+void BtlMgr_AddTeamHp(s32 side, s16 delta) {
     if (gSaveData.unk_3130 == 1) {
         return;
     }
-
     if (delta > 0) {
-        s32 room = g_CombatGlobal->unk3D8D2 - g_CombatGlobal->unk3D8D0;
+        s32 room = gBattle->teamMaxHp - gBattle->teamHp;
 
         if (room < delta) {
             delta = (s16)room;
         }
     } else {
-        if (g_CombatGlobal->unk3D8D0 < -delta) {
-            delta = (s16)-g_CombatGlobal->unk3D8D0;
+        if (gBattle->teamHp < -delta) {
+            delta = (s16)-gBattle->teamHp;
         }
     }
 
-    g_CombatGlobal->unk3D8D0 += delta;
+    gBattle->teamHp += delta;
 
-    if (bank == 0) {
-        g_CombatGlobal->unk3D8D6 -= delta;
-        if (g_CombatGlobal->unk3D8D6 < 0) {
-            g_CombatGlobal->unk3D8D4 += g_CombatGlobal->unk3D8D6;
-            g_CombatGlobal->unk3D8D6 = 0;
+    if (side == 0) {
+        gBattle->playerDamage -= delta;
+        if (gBattle->playerDamage < 0) {
+            gBattle->partnerDamage += gBattle->playerDamage;
+            gBattle->playerDamage = 0;
         }
     } else {
-        g_CombatGlobal->unk3D8D4 -= delta;
-        if (g_CombatGlobal->unk3D8D4 < 0) {
-            g_CombatGlobal->unk3D8D6 += g_CombatGlobal->unk3D8D4;
-            g_CombatGlobal->unk3D8D4 = 0;
+        gBattle->partnerDamage -= delta;
+        if (gBattle->partnerDamage < 0) {
+            gBattle->playerDamage += gBattle->partnerDamage;
+            gBattle->partnerDamage = 0;
         }
     }
 
-    g_CombatGlobal->player->currentHp  = g_CombatGlobal->unk3D8D0;
-    g_CombatGlobal->partner->currentHp = g_CombatGlobal->unk3D8D0;
+    gBattle->player->currentHp  = gBattle->teamHp;
+    gBattle->partner->currentHp = gBattle->teamHp;
 }
 
-/// Adds (or removes) HP on a unit. Units flagged ACTOR_FLAG_BOSS_GAUGE_HP use the boss gauge instead of their own
-/// HP field.
-void BtlMgr_AddUnitHp(s32 bank, BattleActor* actor, s16 delta) {
-    // The original reloads the global on every use; keeping a pointer in a local changes the
-    // register allocation of the whole function.
-
-    if ((actor->flags & ACTOR_FLAG_BOSS_GAUGE_HP) == 0) {
+void BtlMgr_AddUnitHp(s32 side, BattleActor* actor, s16 delta) {
+    if (!(actor->flags & ACTOR_FLAG_BOSS_GAUGE_HP)) {
         if (delta > 0) {
             s32 room = actor->maxHp - actor->currentHp;
 
@@ -787,89 +723,89 @@ void BtlMgr_AddUnitHp(s32 bank, BattleActor* actor, s16 delta) {
     }
 
     if (delta > 0) {
-        s32 room = g_CombatGlobal->unk3D8DA - g_CombatGlobal->unk3D8D8;
+        s32 room = gBattle->bossMaxHp - gBattle->bossHp;
 
         if (room < delta) {
             delta = (s16)room;
         }
     } else {
-        if (g_CombatGlobal->unk3D8D8 < -delta) {
-            delta = (s16)-g_CombatGlobal->unk3D8D8;
+        if (gBattle->bossHp < -delta) {
+            delta = (s16)-gBattle->bossHp;
         }
     }
 
-    g_CombatGlobal->unk3D8D8 += delta;
+    gBattle->bossHp += delta;
 
-    if (bank == 0) {
-        g_CombatGlobal->unk3D8DE -= delta;
-        if (g_CombatGlobal->unk3D8DE < 0) {
-            g_CombatGlobal->unk3D8DC += g_CombatGlobal->unk3D8DE;
-            g_CombatGlobal->unk3D8DE = 0;
+    if (side == 0) {
+        gBattle->bossDamageByPlayer -= delta;
+        if (gBattle->bossDamageByPlayer < 0) {
+            gBattle->bossDamageByPartner += gBattle->bossDamageByPlayer;
+            gBattle->bossDamageByPlayer = 0;
         }
     } else {
-        g_CombatGlobal->unk3D8DC -= delta;
-        if (g_CombatGlobal->unk3D8DC < 0) {
-            g_CombatGlobal->unk3D8DE += g_CombatGlobal->unk3D8DC;
-            g_CombatGlobal->unk3D8DC = 0;
+        gBattle->bossDamageByPartner -= delta;
+        if (gBattle->bossDamageByPartner < 0) {
+            gBattle->bossDamageByPlayer += gBattle->bossDamageByPartner;
+            gBattle->bossDamageByPartner = 0;
         }
     }
 
-    actor->currentHp = g_CombatGlobal->unk3D8D8;
+    actor->currentHp = gBattle->bossHp;
     if (actor->linkedActor != NULL) {
         actor->linkedActor->currentHp = actor->currentHp;
     }
 }
 
-/// True for the two encounters that are allowed to take damage while the battle is paused.
-BOOL func_ov003_0208b690(u16 encounterId) {
-    if ((u16)(encounterId + 0xFFFF) <= 1U) {
-        return (g_CombatGlobal->unk3D878 & 6) != 0;
+BOOL BtlMgr_IsStageFrozen(u16 stage) {
+    if ((u16)(stage + 0xFFFF) <= 1U) {
+        return (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) != 0;
     }
     return FALSE;
 }
 
-static void func_ov003_0208b6d4(void) {
-    BtlMgr_SetState(1);
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlReady, NULL, 0, NULL, NULL);
+/// Enters the ready state and starts the "Ready" intro.
+static void BtlMgr_StartReady(void) {
+    BtlMgr_SetState(BATTLE_STATE_READY);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlReady, NULL, 0, NULL, NULL);
 }
 
-/// Advances the battle state machine. Runs every frame from the battle task; decides when the battle
-/// is won and switches to the result screen.
-static void func_ov003_0208b71c(void) {
+/// Checks whether the battle's goal is met (enemies, boss HP or a scripted flag, per `goal`). Once it is, makes
+/// the characters intangible and starts the victory (or the scripted end).
+static void BtlMgr_CheckVictory(void) {
     BOOL             finished = FALSE;
     Ov003EnemyActor* unit;
 
-    if (g_CombatGlobal->unk3D874 != 2) {
+    if (gBattle->state != BATTLE_STATE_FIGHT) {
         return;
     }
 
-    switch (g_CombatGlobal->unk3D875) {
-        case 0:
-            unit = BtlList_GetHead(&g_CombatGlobal->unk3D8A4);
-            if (unit == NULL && BtlList_GetHead(&g_CombatGlobal->unk3D8AC) == NULL) {
+    switch (gBattle->goal) {
+        case BATTLE_GOAL_DEFEAT_ALL:
+            unit = BtlList_GetHead(&gBattle->enemiesMain);
+            if (unit == NULL && BtlList_GetHead(&gBattle->enemiesSub) == NULL) {
                 finished = TRUE;
             }
             break;
 
-        case 1:
-            if (g_CombatGlobal->unk3D8DA > 0) {
-                finished = g_CombatGlobal->unk3D8D8 <= 0;
+        case BATTLE_GOAL_BOSS_HP:
+            if (gBattle->bossMaxHp > 0) {
+                finished = gBattle->bossHp <= 0;
             }
             break;
 
-        case 2:
-            if (g_CombatGlobal->unk3D878 & 0x20000000) {
+        case BATTLE_GOAL_SCRIPTED:
+            if (gBattle->flags & BATTLE_FLAG_SCRIPTED_GOAL_MET) {
                 finished = TRUE;
             }
             break;
     }
 
-    if (finished || func_ov003_0208aed8()) {
-        g_CombatGlobal->unk3D878 |= 0x30000;
-        g_CombatGlobal->unk3D878 |= 0x4000;
-        g_CombatGlobal->unk3D878 |= 0x8000;
-        g_CombatGlobal->player->flags |= ACTOR_FLAG_INTANGIBLE;
-        g_CombatGlobal->partner->flags |= ACTOR_FLAG_INTANGIBLE;
+    if (finished || BtlMgr_AreEnemiesDefeated()) {
+        gBattle->flags |= (BATTLE_FLAG_NO_PAUSE | BATTLE_FLAG_SPECIAL_LOCKED);
+        gBattle->flags |= BATTLE_FLAG_UNK_14;
+        gBattle->flags |= BATTLE_FLAG_UNK_15;
+        gBattle->player->flags |= ACTOR_FLAG_INTANGIBLE;
+        gBattle->partner->flags |= ACTOR_FLAG_INTANGIBLE;
     }
 
     if (func_ov003_020bb47c() != 0) {
@@ -879,332 +815,319 @@ static void func_ov003_0208b71c(void) {
         return;
     }
 
-    if (g_CombatGlobal->unk3D878 & 0x200000) {
-        g_CombatGlobal->unk3D878 |= 0x20;
-        BtlMgr_SetState(6);
-        g_CombatGlobal->player->flags &= ~ACTOR_FLAG_INTANGIBLE;
-        g_CombatGlobal->partner->flags &= ~ACTOR_FLAG_INTANGIBLE;
+    if (gBattle->flags & BATTLE_FLAG_SCRIPTED_END) {
+        gBattle->flags |= BATTLE_FLAG_SE_MUTED;
+        BtlMgr_SetState(BATTLE_STATE_SCRIPTED_END);
+        gBattle->player->flags &= ~ACTOR_FLAG_INTANGIBLE;
+        gBattle->partner->flags &= ~ACTOR_FLAG_INTANGIBLE;
         return;
     }
 
-    if (EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlWin, NULL, 0, NULL, NULL) != -1) {
-        BtlMgr_SetState(3);
-        g_CombatGlobal->player->flags &= ~ACTOR_FLAG_INTANGIBLE;
-        g_CombatGlobal->partner->flags &= ~ACTOR_FLAG_INTANGIBLE;
+    if (EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlWin, NULL, 0, NULL, NULL) != -1) {
+        BtlMgr_SetState(BATTLE_STATE_WIN);
+        gBattle->player->flags &= ~ACTOR_FLAG_INTANGIBLE;
+        gBattle->partner->flags &= ~ACTOR_FLAG_INTANGIBLE;
     }
 }
 
-/// Allocates and initialises the battle globals, loads the battle graphics and spawns every battle
-/// task.
-static void func_ov003_0208b944(u16 encounterId, s32 isContinuation) {
+/// Allocates and sets up the battle's shared state, loads the battle graphics and spawns every battle task.
+static void BtlMgr_StartBattle(u16 encounterId, s32 isContinuation) {
     void* paletteSrc;
     void* alloc;
 
-    alloc = Mem_AllocHeapTail(&gDebugHeap, 0x3D910);
-    Mem_SetSequence(&gDebugHeap, alloc, data_ov003_020e3aa4);
-    g_CombatGlobal = alloc;
-    MI_CpuSet(alloc, 0, 0x3D910);
+    alloc = Mem_AllocHeapTail(&gDebugHeap, sizeof(Battle));
+    Mem_SetSequence(&gDebugHeap, alloc, BtlMgr_HeapTag);
+    gBattle = alloc;
+    MI_CpuSet(alloc, 0, sizeof(Battle));
 
-    g_CombatGlobal->unk3D350 = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier*)&data_ov003_020d7800);
-    g_CombatGlobal->unk3D354 = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier*)&data_ov003_020d77f8);
+    gBattle->menuData   = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier*)&Iden_BtlMenu);
+    gBattle->effectData = DatMgr_LoadRawData(1, NULL, 0, (BinIdentifier*)&Iden_BtlEffect);
 
-    paletteSrc                  = Data_GetPackEntryData(g_CombatGlobal->unk3D350, 65);
-    g_CombatGlobal->unk3D348[0] = PaletteMgr_AcquireContiguous(g_PaletteManagers[0], paletteSrc, 5, TRUE);
-    g_CombatGlobal->unk3D348[1] = PaletteMgr_AcquireContiguous(g_PaletteManagers[1], paletteSrc, 5, TRUE);
+    paletteSrc               = Data_GetPackEntryData(gBattle->menuData, 65);
+    gBattle->menuPalettes[0] = PaletteMgr_AcquireContiguous(g_PaletteManagers[0], paletteSrc, 5, TRUE);
+    gBattle->menuPalettes[1] = PaletteMgr_AcquireContiguous(g_PaletteManagers[1], paletteSrc, 5, TRUE);
 
-    Mem_InitializeHeap(&g_CombatGlobal->heap_00080, g_CombatGlobal->heapData_00080, 0x8000);
-    Mem_InitializeHeap(&g_CombatGlobal->heap_0810C, g_CombatGlobal->heapData_0810C, 0x8000);
-    Mem_InitializeHeap(&g_CombatGlobal->heap_10198, g_CombatGlobal->heapData_10198, 0x10000);
-    Mem_InitializeHeap(&g_CombatGlobal->heap_20224, g_CombatGlobal->heapData_20224, 0x14000);
-    Mem_InitializeHeap(&g_CombatGlobal->heap_342B0, g_CombatGlobal->heapData_342B0, 0x8000);
-    Mem_InitializeHeap(&g_CombatGlobal->heap_3C33C, g_CombatGlobal->heapData_3C33C, 0x1000);
+    Mem_InitializeHeap(&gBattle->mainHeap, gBattle->mainHeapData, 0x8000);
+    Mem_InitializeHeap(&gBattle->subHeap, gBattle->subHeapData, 0x8000);
+    Mem_InitializeHeap(&gBattle->commonHeap, gBattle->commonHeapData, 0x10000);
+    Mem_InitializeHeap(&gBattle->psychHeap, gBattle->psychHeapData, 0x14000);
+    Mem_InitializeHeap(&gBattle->specialHeap, gBattle->specialHeapData, 0x8000);
+    Mem_InitializeHeap(&gBattle->controlHeap, gBattle->controlHeapData, 0x1000);
 
-    EasyTask_InitializePool(&g_CombatGlobal->unk_00000, &g_CombatGlobal->heap_00080, 0x80, NULL, NULL);
-    EasyTask_InitializePool(&g_CombatGlobal->taskPool, &g_CombatGlobal->heap_0810C, 0x80, NULL, NULL);
-    EasyTask_InitializePool(&g_CombatGlobal->unk_10118, &g_CombatGlobal->heap_10198, 0x80, NULL, NULL);
-    EasyTask_InitializePool(&g_CombatGlobal->unk_201A4, &g_CombatGlobal->heap_20224, 0x100, NULL, NULL);
-    EasyTask_InitializePool(&g_CombatGlobal->unk_34230, &g_CombatGlobal->heap_342B0, 0x80, NULL, NULL);
-    EasyTask_InitializePool(&g_CombatGlobal->unk_3C2BC, &g_CombatGlobal->heap_3C33C, 0x10, NULL, NULL);
+    EasyTask_InitializePool(&gBattle->mainPool, &gBattle->mainHeap, 0x80, NULL, NULL);
+    EasyTask_InitializePool(&gBattle->subPool, &gBattle->subHeap, 0x80, NULL, NULL);
+    EasyTask_InitializePool(&gBattle->commonPool, &gBattle->commonHeap, 0x80, NULL, NULL);
+    EasyTask_InitializePool(&gBattle->psychPool, &gBattle->psychHeap, 0x100, NULL, NULL);
+    EasyTask_InitializePool(&gBattle->specialPool, &gBattle->specialHeap, 0x80, NULL, NULL);
+    EasyTask_InitializePool(&gBattle->controlPool, &gBattle->controlHeap, 0x10, NULL, NULL);
 
-    g_CombatGlobal->unk3D90C       = 0;
-    g_CombatGlobal->unk3D875       = 0;
-    g_CombatGlobal->unk3D878       = 0;
-    g_CombatGlobal->unk3D87C       = 0;
-    g_CombatGlobal->unk3D880       = 0;
-    g_CombatGlobal->unk3D884       = 0;
-    g_CombatGlobal->unk3D888       = 0;
-    g_CombatGlobal->unk3D8D8       = 0;
-    g_CombatGlobal->unk3D8DA       = 0;
-    g_CombatGlobal->unk3D8DC       = 0;
-    g_CombatGlobal->unk3D8DE       = 0;
-    g_CombatGlobal->unk3D8F8       = 0;
-    g_CombatGlobal->unk3D8FA       = 0;
-    g_CombatGlobal->popupCountMain = 0;
-    g_CombatGlobal->popupCountSub  = 0;
-    g_CombatGlobal->unk3D8FE       = 0;
-    g_CombatGlobal->unk3D8FF       = 0;
-    g_CombatGlobal->unk3D900       = 0;
-    g_CombatGlobal->unk3D902       = 0;
-    g_CombatGlobal->unk3D8A0       = NULL;
-    g_CombatGlobal->unk3D88C       = gSaveData.unk_3142 - 1;
+    gBattle->unk3D90C            = 0;
+    gBattle->goal                = BATTLE_GOAL_DEFEAT_ALL;
+    gBattle->flags               = 0;
+    gBattle->paused              = 0;
+    gBattle->lrHeld              = 0;
+    gBattle->specialFreeze       = 0;
+    gBattle->unk3D888            = 0;
+    gBattle->bossHp              = 0;
+    gBattle->bossMaxHp           = 0;
+    gBattle->bossDamageByPartner = 0;
+    gBattle->bossDamageByPlayer  = 0;
+    gBattle->comboCount          = 0;
+    gBattle->techBonus           = 0;
+    gBattle->popupCountMain      = 0;
+    gBattle->popupCountSub       = 0;
+    gBattle->unk3D8FE            = 0;
+    gBattle->unk3D8FF            = 0;
+    gBattle->unk3D900            = 0;
+    gBattle->unk3D902            = 0;
+    gBattle->lockOnTarget        = NULL;
+    gBattle->chainIndex          = gSaveData.unk_3142 - 1;
 
-    g_CombatGlobal->unk3D88D = BtlMgr_GetPartner(encounterId);
-    g_CombatGlobal->unk3D88E = encounterId;
-    g_CombatGlobal->unk3D870 = gSaveData.unk_313C;
+    gBattle->partnerId   = BtlMgr_GetPartner(encounterId);
+    gBattle->encounterId = encounterId;
+    gBattle->bgmHandle   = gSaveData.unk_313C;
 
     if (gSaveData.battleCount > 1) {
-        g_CombatGlobal->unk3D878 |= 0x80000000;
+        gBattle->flags |= BATTLE_FLAG_CHAIN;
     }
 
-    BtlMgr_LoadOverlays(g_CombatGlobal->unk3D88D, g_CombatGlobal->unk3D88E);
+    BtlMgr_LoadOverlays(gBattle->partnerId, gBattle->encounterId);
 
     BtlTouch_Init();
     BtlMic_Init();
     BtlStage_Init();
     BtlCollision_Init();
-    func_ov003_02087378();
+    BtlAttackQueue_Init();
     BtlObsMgr_ResetList();
 
-    g_CombatGlobal->cmdQueue = NULL;
+    gBattle->cmdQueue = NULL;
 
-    func_ov003_0208ae24(g_CombatGlobal->unk3D88D);
-    func_ov003_0208ad34(g_CombatGlobal->unk3D88E);
-    func_ov003_0208aa1c(isContinuation);
+    BtlMgr_InitThreads(gBattle->partnerId);
+    BtlMgr_InitBadges(gBattle->encounterId);
+    BtlMgr_InitTeam(isContinuation);
 
-    BtlList_Init(&g_CombatGlobal->unk3D8A4);
-    BtlList_Init(&g_CombatGlobal->unk3D8AC);
+    BtlList_Init(&gBattle->enemiesMain);
+    BtlList_Init(&gBattle->enemiesSub);
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_00000, &Tsk_BtlPlayer00, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->mainPool, &Tsk_BtlPlayer00, NULL, 0, NULL, NULL);
 
-    switch (g_CombatGlobal->unk3D88D) {
-        case 0:
-            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlPlayer01, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlCard_Esp, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
+    switch (gBattle->partnerId) {
+        case PARTNER_SHIKI:
+            EasyTask_CreateTask(&gBattle->subPool, &Tsk_BtlPlayer01, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlCard_Esp, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
-        case 1:
-            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &data_ov004_020f0120, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov005_020f0394, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
+        case PARTNER_JOSHUA:
+            EasyTask_CreateTask(&gBattle->subPool, &data_ov004_020f0120, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov005_020f0394, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
-        case 2:
-            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &data_ov005_020f07a0, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov005_020f0a94, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAura, NULL, 0, NULL, NULL);
+        case PARTNER_BEAT:
+            EasyTask_CreateTask(&gBattle->subPool, &data_ov005_020f07a0, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->commonPool, &data_ov005_020f0a94, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlAura, NULL, 0, NULL, NULL);
             break;
 
         case 4:
-            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlPlayerLast, NULL, 0, NULL, NULL);
-            EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlAuraLast, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->subPool, &Tsk_BtlPlayerLast, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlAuraLast, NULL, 0, NULL, NULL);
             break;
 
         default:
-            EasyTask_CreateTask(&g_CombatGlobal->taskPool, &Tsk_BtlPlayerNone, NULL, 0, NULL, NULL);
+            EasyTask_CreateTask(&gBattle->subPool, &Tsk_BtlPlayerNone, NULL, 0, NULL, NULL);
             break;
     }
 
-    func_ov003_020c2a34(g_CombatGlobal->unk3D88E);
+    func_ov003_020c2a34(gBattle->encounterId);
     BtlStage_StartFieldTasks(0);
     BtlObsMgr_RollDrop();
     BtlMic_CreateTask();
 
-    if (g_CombatGlobal->unk3D88D < 3) {
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlCmd, NULL, 0, NULL, NULL);
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlInf_Star, NULL, 0, NULL, NULL);
+    if (gBattle->partnerId < 3) {
+        EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlCmd, NULL, 0, NULL, NULL);
+        EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlInf_Star, NULL, 0, NULL, NULL);
     }
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlBarHP, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlTarget, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlPop_Combo, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlInf_Exp, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlInf_Auto, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &data_ov003_020dc614, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlBarHP, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlTarget, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlPop_Combo, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlInf_Exp, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlInf_Auto, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->commonPool, &data_ov003_020dc614, NULL, 0, NULL, NULL);
 
     if (CombatAbility_IsActive(4) != 0) {
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlInf_Timer, NULL, 0, NULL, NULL);
+        EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlInf_Timer, NULL, 0, NULL, NULL);
     }
 
-    EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Task_BtlTch, NULL, 0, NULL, NULL);
-    EasyTask_CreateTask(&g_CombatGlobal->unk_3C2BC, &Tsk_BtlPause, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->controlPool, &Task_BtlTch, NULL, 0, NULL, NULL);
+    EasyTask_CreateTask(&gBattle->controlPool, &Tsk_BtlPause, NULL, 0, NULL, NULL);
 
     BtlStage_StartSandstorm();
     BtlDbg_CreateTask();
     BtlDebug_ShowSyncValues();
 }
 
-/// Per-frame battle update: input, combo tracking, task pools.
-static void func_ov003_0208c2a8(void) {
-    // The original reloads the global on every use; keeping a pointer in a local changes the
-    // register allocation of the whole function.
+/// Per-frame battle logic: touch input, the clear timer, hit stop, and adding/removing tasks in every pool.
+static void BtlMgr_Tick(void) {
     s32 pressed;
 
     BtlTouch_Update();
-    func_ov003_020873e0();
-    EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_3C2BC);
+    BtlAttackQueue_DropInvalid();
+    EasyTask_ProcessPendingTasks(&gBattle->controlPool);
 
     if (BtlBadgeMgr_AnyActive() != 0) {
         pressed = (InputStatus.buttonState.currButtons & (INPUT_BUTTON_L | INPUT_BUTTON_R)) != 0;
-        if (g_CombatGlobal->unk3D880 != pressed) {
+        if (gBattle->lrHeld != pressed) {
             BtlSe_Play(SEIDX_SE_WEAPON_SWITCH);
-            g_CombatGlobal->unk3D880 = pressed;
+            gBattle->lrHeld = pressed;
         }
     }
 
-    if (g_CombatGlobal->unk3D87C != 0) {
+    if (gBattle->paused != 0) {
         BtlBadgeMgr_DebugDrag();
         return;
     }
 
     BtlBadgeActor_SeparateAll();
 
-    if (g_CombatGlobal->unk3D874 == 2 && (g_CombatGlobal->unk3D878 & 6) == 0) {
+    if (gBattle->state == BATTLE_STATE_FIGHT && (gBattle->flags & (BATTLE_FLAG_SPECIAL | BATTLE_FLAG_FEAT)) == 0) {
         gSaveData.battleClearTime++;
         if (gSaveData.battleClearTime > 0x57E40) {
             gSaveData.battleClearTime = 0x57E40;
         }
     }
 
-    EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_34230);
+    EasyTask_ProcessPendingTasks(&gBattle->specialPool);
 
-    if (g_CombatGlobal->unk3D884 != 0) {
+    if (gBattle->specialFreeze != 0) {
         return;
     }
 
-    if (g_CombatGlobal->unk3D888 == 0) {
-        EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_10118);
-        if ((g_CombatGlobal->unk3D878 & 0x40) == 0) {
-            EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_201A4);
+    if (gBattle->unk3D888 == 0) {
+        EasyTask_ProcessPendingTasks(&gBattle->commonPool);
+        if ((gBattle->flags & BATTLE_FLAG_ACTORS_FROZEN) == 0) {
+            EasyTask_ProcessPendingTasks(&gBattle->psychPool);
         }
     }
 
     if (BtlDebug_GetSetting(BTL_DEBUG_SETTING_MODE) == BTL_DEBUG_MODE_NO_FRAME_DELAY) {
-        EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_00000);
-        EasyTask_ProcessPendingTasks(&g_CombatGlobal->taskPool);
+        EasyTask_ProcessPendingTasks(&gBattle->mainPool);
+        EasyTask_ProcessPendingTasks(&gBattle->subPool);
         BtlCollision_Update();
         return;
     }
 
-    if (g_CombatGlobal->unk3D904 > 0) {
-        g_CombatGlobal->unk3D904--;
+    if (gBattle->hitStopMain > 0) {
+        gBattle->hitStopMain--;
     } else {
-        g_CombatGlobal->unk3D904 = g_CombatGlobal->unk3D906;
-        g_CombatGlobal->unk3D906 = 0;
-        EasyTask_ProcessPendingTasks(&g_CombatGlobal->unk_00000);
+        gBattle->hitStopMain     = gBattle->hitStopMainNext;
+        gBattle->hitStopMainNext = 0;
+        EasyTask_ProcessPendingTasks(&gBattle->mainPool);
         BtlCollision_Update();
     }
 
-    if (g_CombatGlobal->unk3D908 > 0) {
-        g_CombatGlobal->unk3D908--;
-        return;
+    if (gBattle->hitStopSub > 0) {
+        gBattle->hitStopSub--;
+    } else {
+        gBattle->hitStopSub     = gBattle->hitStopSubNext;
+        gBattle->hitStopSubNext = 0;
+        EasyTask_ProcessPendingTasks(&gBattle->subPool);
     }
-    g_CombatGlobal->unk3D908 = g_CombatGlobal->unk3D90A;
-    g_CombatGlobal->unk3D90A = 0;
-    EasyTask_ProcessPendingTasks(&g_CombatGlobal->taskPool);
 }
 
-/// Per-frame task ticking.
-static void func_ov003_0208c4bc(void) {
-    // The original reloads the global on every use; keeping a pointer in a local changes the
-    // register allocation of the whole function.
+/// Runs every task pool's tasks for the frame.
+static void BtlMgr_RunTasks(void) {
+    EasyTask_UpdateActiveTasks(&gBattle->controlPool);
+    EasyTask_UpdateActiveTasks(&gBattle->specialPool);
 
-    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_3C2BC);
-    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_34230);
-
-    if (g_CombatGlobal->unk3D884 != 0) {
-        return;
+    if (gBattle->specialFreeze == 0) {
+        EasyTask_UpdateActiveTasks(&gBattle->commonPool);
+        EasyTask_UpdateActiveTasks(&gBattle->psychPool);
+        EasyTask_UpdateActiveTasks(&gBattle->mainPool);
+        EasyTask_UpdateActiveTasks(&gBattle->subPool);
+        BtlDebug_DrawCollision();
     }
-
-    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_10118);
-    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_201A4);
-    EasyTask_UpdateActiveTasks(&g_CombatGlobal->unk_00000);
-    EasyTask_UpdateActiveTasks(&g_CombatGlobal->taskPool);
-    BtlDebug_DrawCollision();
 }
 
-/// Tears down the battle globals.
-static void func_ov003_0208c54c(s32 keepResources) {
-    // The original reloads the global on every use; keeping a pointer in a local changes the
-    // register allocation of the whole function.
-
-    gSaveData.battleHpGauge     = g_CombatGlobal->unk3D8D0;
-    gSaveData.battleHpGaugeSub0 = g_CombatGlobal->unk3D8D6;
-    gSaveData.battleHpGaugeSub1 = g_CombatGlobal->unk3D8D4;
+/// Saves the team's HP, destroys every task pool and frees the battle's shared state; unloads the battle overlays
+/// unless the next battle of the chain reuses them.
+static void BtlMgr_EndBattle(s32 keepOverlays) {
+    gSaveData.battleHpGauge     = gBattle->teamHp;
+    gSaveData.battleHpGaugeSub0 = gBattle->playerDamage;
+    gSaveData.battleHpGaugeSub1 = gBattle->partnerDamage;
 
     BtlBadgeMgr_PublishSlots();
 
-    EasyTask_DestroyPool(&g_CombatGlobal->unk_00000);
-    EasyTask_DestroyPool(&g_CombatGlobal->taskPool);
-    EasyTask_DestroyPool(&g_CombatGlobal->unk_10118);
-    EasyTask_DestroyPool(&g_CombatGlobal->unk_201A4);
-    EasyTask_DestroyPool(&g_CombatGlobal->unk_34230);
-    EasyTask_DestroyPool(&g_CombatGlobal->unk_3C2BC);
+    EasyTask_DestroyPool(&gBattle->mainPool);
+    EasyTask_DestroyPool(&gBattle->subPool);
+    EasyTask_DestroyPool(&gBattle->commonPool);
+    EasyTask_DestroyPool(&gBattle->psychPool);
+    EasyTask_DestroyPool(&gBattle->specialPool);
+    EasyTask_DestroyPool(&gBattle->controlPool);
 
-    if (keepResources == 0) {
+    if (keepOverlays == 0) {
         OvlMgr_UnloadOverlay(3);
         OvlMgr_UnloadOverlay(4);
         OvlMgr_UnloadOverlay(5);
     }
 
-    PaletteMgr_ReleaseResource(g_PaletteManagers[0], g_CombatGlobal->unk3D348[0]);
-    PaletteMgr_ReleaseResource(g_PaletteManagers[1], g_CombatGlobal->unk3D348[1]);
-    DatMgr_ReleaseData(g_CombatGlobal->unk3D350);
-    DatMgr_ReleaseData(g_CombatGlobal->unk3D354);
-    Mem_Free(&gDebugHeap, g_CombatGlobal);
+    PaletteMgr_ReleaseResource(g_PaletteManagers[0], gBattle->menuPalettes[0]);
+    PaletteMgr_ReleaseResource(g_PaletteManagers[1], gBattle->menuPalettes[1]);
+    DatMgr_ReleaseData(gBattle->menuData);
+    DatMgr_ReleaseData(gBattle->effectData);
+    Mem_Free(&gDebugHeap, gBattle);
 }
 
-/// Number of the player's first stat pin owned.
-static s32 func_ov003_0208c694(void) {
-    switch (g_CombatGlobal->unk3D88D) {
-        case 0:
+/// Attack Boost stickers owned for the active partner.
+static s32 BtlMgr_GetAttackBoost(void) {
+    switch (gBattle->partnerId) {
+        case PARTNER_SHIKI:
             return (s16)Inventory_GetOwnedCount(0x2B2);
-        case 1:
+        case PARTNER_JOSHUA:
             return (s16)Inventory_GetOwnedCount(0x2BA);
-        case 2:
+        case PARTNER_BEAT:
             return (s16)Inventory_GetOwnedCount(0x2C2);
         default:
             return 0;
     }
 }
 
-/// Number of the player's second stat pin owned.
-static s32 func_ov003_0208c718(void) {
-    switch (g_CombatGlobal->unk3D88D) {
-        case 0:
+/// Defense Boost stickers owned for the active partner.
+static s32 BtlMgr_GetDefenseBoost(void) {
+    switch (gBattle->partnerId) {
+        case PARTNER_SHIKI:
             return (s16)Inventory_GetOwnedCount(0x2B3);
-        case 1:
+        case PARTNER_JOSHUA:
             return (s16)Inventory_GetOwnedCount(0x2BB);
-        case 2:
+        case PARTNER_BEAT:
             return (s16)Inventory_GetOwnedCount(0x2C3);
         default:
             return 0;
     }
 }
 
-/// True when `unit` is a valid target sitting on the requested side of the screen.
 BOOL BtlMgr_IsTargetOnSide(Ov003EnemyActor* unit, s32 side) {
     if ((unit->actor.flags & ACTOR_FLAG_DEFEATED) || (unit->actor.flags & ACTOR_FLAG_INTANGIBLE)) {
         return FALSE;
     }
     if (side != 0) {
-        if (g_CombatGlobal->stages[1].centerX <= unit->actor.position.x) {
+        if (gBattle->stages[1].centerX <= unit->actor.position.x) {
             return FALSE;
         }
         return TRUE;
     }
-    return unit->actor.position.x > g_CombatGlobal->stages[1].centerX;
+    return unit->actor.position.x > gBattle->stages[1].centerX;
 }
 
-/// Finds the closest valid target to `x` on the given side, preferring airborne or grounded units as
-/// requested.
 Ov003EnemyActor* BtlMgr_FindNearestTarget(s32 x, s32 side, s32 airborne) {
-    Ov003Global*     g        = g_CombatGlobal;
+    Battle*          g        = gBattle;
     Ov003EnemyActor* best     = NULL;
     s32              bestDist = 0x100000;
     Ov003EnemyActor* unit;
 
-    for (unit = BtlList_GetHead(&g->unk3D8AC); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&g->enemiesSub); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         s32 dist;
         s32 absDist;
 
@@ -1225,14 +1148,13 @@ Ov003EnemyActor* BtlMgr_FindNearestTarget(s32 x, s32 side, s32 airborne) {
     return best;
 }
 
-/// Finds the farthest valid target to `x` on the given side.
 Ov003EnemyActor* BtlMgr_FindFarthestTarget(s32 x, s32 side, s32 airborne) {
-    Ov003Global*     g        = g_CombatGlobal;
+    Battle*          g        = gBattle;
     Ov003EnemyActor* best     = NULL;
     s32              bestDist = 0;
     Ov003EnemyActor* unit;
 
-    for (unit = BtlList_GetHead(&g->unk3D8AC); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
+    for (unit = BtlList_GetHead(&g->enemiesSub); unit != NULL; unit = BtlList_GetNext(&unit->node)) {
         s32 dist;
         s32 absDist;
 
@@ -1253,53 +1175,50 @@ Ov003EnemyActor* BtlMgr_FindFarthestTarget(s32 x, s32 side, s32 airborne) {
     return best;
 }
 
-/// Awards experience; the "stat pin" bonus increases the amount.
-void BtlMgr_GainExp(s32 mode, s16 exp) {
+void BtlMgr_GainExp(s32 side, s16 exp) {
     if (CombatAbility_IsActive(0x1F) != 0) {
         return;
     }
-    if (BtlMgr_HasAbility(mode, 0x1C) != 0) {
-        s16 bonus = BtlMgr_GetAbilityValue(mode, 0x1C);
+    if (BtlMgr_HasAbility(side, 0x1C) != 0) {
+        s16 bonus = BtlMgr_GetAbilityValue(side, 0x1C);
 
         exp += (s16)((exp * bonus) / 100);
     }
     BtlMgr_AwardExp(exp);
 }
 
-/// Awards PP; the "stat pin" bonus increases the amount.
-void BtlMgr_GainPP(s32 mode, s16 pp) {
+void BtlMgr_GainPP(s32 side, s16 pp) {
     if (CombatAbility_IsActive(0x1E) != 0) {
         return;
     }
     BtlMgr_AddPP(pp);
 }
 
-BOOL BtlMgr_HasAbility(s32 mode, u32 effect) {
-    if (mode != 1) {
+BOOL BtlMgr_HasAbility(s32 side, u32 effect) {
+    if (side != 1) {
         return CombatAbility_IsActiveForPlayer(effect);
     }
     return CombatAbility_IsActiveForPartner(effect);
 }
 
-s16 BtlMgr_GetAbilityValue(s32 mode, u32 effect) {
-    if (mode != 1) {
+s16 BtlMgr_GetAbilityValue(s32 side, u32 effect) {
+    if (side != 1) {
         return (s16)CombatAbility_GetPlayerValue(effect);
     }
     return (s16)CombatAbility_GetPartnerValue(effect);
 }
 
-/// Attack value used by the battle HUD, including the pin bonus when requested.
-s32 func_ov003_0208ca54(s32 includePins) {
+s32 BtlMgr_GetAttack(s32 side) {
     u32 partner;
 
-    switch (g_CombatGlobal->unk3D88D) {
-        case 0:
+    switch (gBattle->partnerId) {
+        case PARTNER_SHIKI:
             partner = 0;
             break;
-        case 1:
+        case PARTNER_JOSHUA:
             partner = 1;
             break;
-        case 2:
+        case PARTNER_BEAT:
             partner = 2;
             break;
         default:
@@ -1307,24 +1226,23 @@ s32 func_ov003_0208ca54(s32 includePins) {
             break;
     }
 
-    if (includePins != 1) {
+    if (side != 1) {
         return Stats_GetEffectiveValue(partner, 0);
     }
-    return (s16)(func_ov003_0208c694() + Stats_GetEffectiveFriendValue(partner, 0));
+    return (s16)(BtlMgr_GetAttackBoost() + Stats_GetEffectiveFriendValue(partner, 0));
 }
 
-/// Defense value used by the battle HUD, including the pin bonus when requested.
-s32 func_ov003_0208cae0(s32 includePins) {
+s32 BtlMgr_GetDefense(s32 side) {
     u32 partner;
 
-    switch (g_CombatGlobal->unk3D88D) {
-        case 0:
+    switch (gBattle->partnerId) {
+        case PARTNER_SHIKI:
             partner = 0;
             break;
-        case 1:
+        case PARTNER_JOSHUA:
             partner = 1;
             break;
-        case 2:
+        case PARTNER_BEAT:
             partner = 2;
             break;
         default:
@@ -1332,15 +1250,14 @@ s32 func_ov003_0208cae0(s32 includePins) {
             break;
     }
 
-    if (includePins != 1) {
+    if (side != 1) {
         return Stats_GetEffectiveValue(partner, 1);
     }
-    return (s16)(func_ov003_0208c718() + Stats_GetEffectiveFriendValue(partner, 1));
+    return (s16)(BtlMgr_GetDefenseBoost() + Stats_GetEffectiveFriendValue(partner, 1));
 }
 
-/// Records that the battle saw a hit of the given kind and remembers the largest one.
-void func_ov003_0208cb6c(s32 kind, s32 damage) {
-    if (kind == 1) {
+void BtlMgr_RecordDamageDealt(s32 side, s32 damage) {
+    if (side == 1) {
         gSaveData.unk_317D |= 2;
     } else {
         gSaveData.unk_317D |= 1;
@@ -1351,27 +1268,22 @@ void func_ov003_0208cb6c(s32 kind, s32 damage) {
     }
 }
 
-/// Bumps the battle's combo-length counter.
-void func_ov003_0208cbac(void) {
+void BtlMgr_CountTeamHit(void) {
     if (gSaveData.unk_318F != 0xFF) {
         gSaveData.unk_318F++;
     }
 }
 
-/// Extends the battle's longest combo.
-void func_ov003_0208cbc8(void) {
-    // The original reloads the global on every use; keeping a pointer in a local changes the
-    // register allocation of the whole function.
-
-    g_CombatGlobal->unk3D8ED++;
-    if (gSaveData.unk_317C < g_CombatGlobal->unk3D8ED) {
-        gSaveData.unk_317C = g_CombatGlobal->unk3D8ED;
+void BtlMgr_CountAuraPass(void) {
+    gBattle->auraPasses++;
+    if (gSaveData.unk_317C < gBattle->auraPasses) {
+        gSaveData.unk_317C = gBattle->auraPasses;
     }
 }
 
-/// Fills in the battle bonus flags from the damage/combo records.
-static void func_ov003_0208cc14(void) {
-    Ov003Global* g = g_CombatGlobal;
+/// Applies ability 0x4B to the PP earned, then sets the battle's bonus flags from its records.
+static void BtlMgr_CalcBonuses(void) {
+    Battle* g = gBattle;
 
     if (CombatAbility_IsActive(0x4B) != 0) {
         s32 pp = gSaveData.battleBasePP * CombatAbility_GetValue(0x4B);
@@ -1379,7 +1291,7 @@ static void func_ov003_0208cc14(void) {
         gSaveData.battleBasePP = (s16)((pp / 100) - (pp >> 31));
     }
 
-    if (g->unk3D880 == 0) {
+    if (g->lrHeld == 0) {
         return;
     }
 
@@ -1433,14 +1345,14 @@ static void func_ov003_0208cc14(void) {
 
     u32 partner;
 
-    switch (g->unk3D88D) {
-        case 0:
+    switch (g->partnerId) {
+        case PARTNER_SHIKI:
             partner = 0;
             break;
-        case 1:
+        case PARTNER_JOSHUA:
             partner = 1;
             break;
-        case 2:
+        case PARTNER_BEAT:
             partner = 2;
             break;
         default:
@@ -1471,8 +1383,8 @@ static void func_ov003_0208cc14(void) {
     }
 }
 
-/// Saves progress when the battle was won normally.
-static void func_ov003_0208cf94(u32 unused) {
+/// Records a hard-mode clear time of a scripted battle.
+static void BtlMgr_RecordClearTime(u32 unused) {
     if (gSaveData.unk_3130 != 2) {
         return;
     }
@@ -1491,8 +1403,8 @@ static void func_ov003_0208cf94(u32 unused) {
     func_ov003_020bb190(unused, gSaveData.battleClearTime, gSaveData.unk_3134);
 }
 
-/// Initialises the battle's graphics hardware and display settings.
-static void func_ov003_0208d010(void) {
+/// Initialises the graphics hardware.
+static void BtlMgr_InitHardware(void) {
     Interrupts_Init();
     HBlank_Init();
     GX_Init();
@@ -1538,8 +1450,8 @@ static void func_ov003_0208d010(void) {
     Color_CopyRange(g_PaletteBuffers[DISPLAY_SUB].bg, data_0205a128, 0, 0x200, TRUE);
 }
 
-/// Configures the battle's background layers and blend settings.
-static void func_ov003_0208d1d0(void) {
+/// Configures both screens' display modes, layers and blending.
+static void BtlMgr_InitDisplay(void) {
     DisplayBGSettings*      bg;
     DisplayControlSettings* main = Display_GetMainControls();
     DisplayControlSettings* sub  = Display_GetSubControls();
@@ -1661,47 +1573,45 @@ static void func_ov003_0208d1d0(void) {
     g_DisplaySettings.engineState[DISPLAY_SUB].windowOutsideEffects = 0;
 }
 
-/// VBlank callback: flushes the display lists and uploads OAM/palettes.
-static void func_ov003_0208d49c(void) {
-    if (SystemStatusFlags.vblank == 0) {
-        return;
+/// VBlank callback: commits the display settings, DMA, OAM and palettes.
+static void BtlMgr_VBlank(void) {
+    if (SystemStatusFlags.vblank != 0) {
+        Display_Commit();
+        DMA_Flush();
+        OamMgr_Commit();
+        DC_PurgeRange(g_PaletteBuffers[DISPLAY_MAIN].bg, 0x400);
+        GX_LoadBgPltt(g_PaletteBuffers[DISPLAY_MAIN].bg, 0, 0x200);
+        GX_LoadObjPltt(g_PaletteBuffers[DISPLAY_MAIN].obj, 0, 0x200);
+        DC_PurgeRange(g_PaletteBuffers[DISPLAY_SUB].bg, 0x400);
+        GXs_LoadBgPltt(g_PaletteBuffers[DISPLAY_SUB].bg, 0, 0x200);
+        GXs_LoadObjPltt(g_PaletteBuffers[DISPLAY_SUB].obj, 0, 0x200);
     }
-
-    Display_Commit();
-    DMA_Flush();
-
-    OamMgr_Commit();
-
-    DC_PurgeRange(g_PaletteBuffers[DISPLAY_MAIN].bg, 0x400);
-    GX_LoadBgPltt(g_PaletteBuffers[DISPLAY_MAIN].bg, 0, 0x200);
-    GX_LoadObjPltt(g_PaletteBuffers[DISPLAY_MAIN].obj, 0, 0x200);
-    DC_PurgeRange(g_PaletteBuffers[DISPLAY_SUB].bg, 0x400);
-    GXs_LoadBgPltt(g_PaletteBuffers[DISPLAY_SUB].bg, 0, 0x200);
-    GXs_LoadObjPltt(g_PaletteBuffers[DISPLAY_SUB].obj, 0, 0x200);
 }
 
-static void func_ov003_0208d56c(void) {
-    func_ov003_0208d010();
-    func_ov003_0208d1d0();
-    Interrupts_RegisterVBlankCallback(func_ov003_0208d49c, 1);
+/// Sets up the graphics hardware and the VBlank callback.
+static void BtlMgr_InitGraphics(void) {
+    BtlMgr_InitHardware();
+    BtlMgr_InitDisplay();
+    Interrupts_RegisterVBlankCallback(BtlMgr_VBlank, 1);
 }
 
-static void func_ov003_0208d58c(void) {
+/// Removes the VBlank callback.
+static void BtlMgr_ExitGraphics(void) {
     Interrupts_ForceVBlank();
     Interrupts_RegisterVBlankCallback(NULL, 1);
 }
 
-/// Starts a battle (or a chain of battles) with the given encounter id.
-static void func_ov003_0208d5a4(u16 encounterId, s32 duration) {
+/// Sets up a single-battle chain fighting `encounterId`, on field `fieldId` unless it is 0.
+static void BtlMgr_SetEncounter(u16 encounterId, s32 fieldId) {
     gSaveData.battleCount         = 1;
     gSaveData.battleEncounters[0] = encounterId;
-    if (duration != 0) {
-        gSaveData.unk_3138 = duration;
+    if (fieldId != 0) {
+        gSaveData.unk_3138 = fieldId;
     }
 }
 
-/// Number of chapter characters that may still join the current battle.
-static s32 func_ov003_0208d5cc(u32 mask) {
+/// Number of tracks in `mask` not played yet.
+static s32 BtlMgr_CountUnplayedTracks(u32 mask) {
     s32 i;
     s32 count     = 0;
     u32 available = gSaveData.unk_3234;
@@ -1714,16 +1624,16 @@ static s32 func_ov003_0208d5cc(u32 mask) {
     return count;
 }
 
-/// Picks the character that joins the battle for this chapter and tracks that it was used.
-static u16 func_ov003_0208d608(void) {
-    u32 mask  = data_ov003_020d7898[gSaveData.chapter];
-    s32 count = func_ov003_0208d5cc(mask);
+/// Picks a random track of the chapter not played yet, starting over once all were played.
+static u16 BtlMgr_PickTrack(void) {
+    u32 mask  = BtlMgr_ChapterTracks[gSaveData.chapter];
+    s32 count = BtlMgr_CountUnplayedTracks(mask);
     s32 rng;
     s32 i;
 
     if (count <= 0) {
         gSaveData.unk_3234 = 0;
-        count              = func_ov003_0208d5cc(mask);
+        count              = BtlMgr_CountUnplayedTracks(mask);
     }
 
     rng = RNG_Next(count);
@@ -1743,153 +1653,153 @@ static u16 func_ov003_0208d608(void) {
     return 0;
 }
 
-/// Configures the encounter chain and background track for a battle selector.
-static void func_ov003_0208d698(u32 selector) {
+/// Sets up the encounter chain and field of a scripted battle.
+static void BtlMgr_SetupScriptedBattle(u32 selector) {
     switch (selector) {
         case 0:
         case 1:
             return;
 
         case 2:
-            func_ov003_0208d5a4(0x32, 1);
+            BtlMgr_SetEncounter(0x32, 1);
             return;
         case 3:
-            func_ov003_0208d5a4(0x33, 4);
+            BtlMgr_SetEncounter(0x33, 4);
             return;
         case 4:
-            func_ov003_0208d5a4(0x35, 2);
+            BtlMgr_SetEncounter(0x35, 2);
             return;
         case 5:
-            func_ov003_0208d5a4(0x36, 2);
+            BtlMgr_SetEncounter(0x36, 2);
             return;
         case 6:
-            func_ov003_0208d5a4(0x37, 2);
+            BtlMgr_SetEncounter(0x37, 2);
             return;
         case 7:
-            func_ov003_0208d5a4(0x7C, 4);
+            BtlMgr_SetEncounter(0x7C, 4);
             return;
         case 8:
-            func_ov003_0208d5a4(0x7D, 4);
+            BtlMgr_SetEncounter(0x7D, 4);
             return;
         case 9:
-            func_ov003_0208d5a4(0x3B, 0x16);
+            BtlMgr_SetEncounter(0x3B, 0x16);
             return;
         case 10:
-            func_ov003_0208d5a4(7, 0x2A);
+            BtlMgr_SetEncounter(7, 0x2A);
             return;
         case 11:
-            func_ov003_0208d5a4(0x81, 0xE);
+            BtlMgr_SetEncounter(0x81, 0xE);
             return;
         case 12:
-            func_ov003_0208d5a4(0x82, 0xE);
+            BtlMgr_SetEncounter(0x82, 0xE);
             return;
         case 13:
-            func_ov003_0208d5a4(0x84, 7);
+            BtlMgr_SetEncounter(0x84, 7);
             return;
         case 14:
-            func_ov003_0208d5a4(0x13, 0x2A);
+            BtlMgr_SetEncounter(0x13, 0x2A);
             return;
         case 15:
-            func_ov003_0208d5a4(9, 0x1A);
+            BtlMgr_SetEncounter(9, 0x1A);
             return;
         case 16:
-            func_ov003_0208d5a4(0x88, 4);
+            BtlMgr_SetEncounter(0x88, 4);
             return;
         case 17:
-            func_ov003_0208d5a4(0x89, 2);
+            BtlMgr_SetEncounter(0x89, 2);
             return;
         case 18:
-            func_ov003_0208d5a4(0x3C, 1);
+            BtlMgr_SetEncounter(0x3C, 1);
             return;
         case 19:
-            func_ov003_0208d5a4(0x8A, 0xD);
+            BtlMgr_SetEncounter(0x8A, 0xD);
             return;
         case 20:
-            func_ov003_0208d5a4(0x17, 0xE);
+            BtlMgr_SetEncounter(0x17, 0xE);
             return;
         case 21:
-            func_ov003_0208d5a4(0x18, 8);
+            BtlMgr_SetEncounter(0x18, 8);
             return;
         case 22:
-            func_ov003_0208d5a4(0x19, 0x10);
+            BtlMgr_SetEncounter(0x19, 0x10);
             return;
         case 23:
-            func_ov003_0208d5a4(0x90, 0x13);
+            BtlMgr_SetEncounter(0x90, 0x13);
             return;
         case 24:
-            func_ov003_0208d5a4(0x96, 0);
+            BtlMgr_SetEncounter(0x96, 0);
             return;
         case 25:
-            func_ov003_0208d5a4(0x91, 1);
+            BtlMgr_SetEncounter(0x91, 1);
             return;
         case 26:
-            func_ov003_0208d5a4(0x92, 6);
+            BtlMgr_SetEncounter(0x92, 6);
             return;
         case 27:
-            func_ov003_0208d5a4(0x93, 10);
+            BtlMgr_SetEncounter(0x93, 10);
             return;
         case 28:
-            func_ov003_0208d5a4(0x94, 5);
+            BtlMgr_SetEncounter(0x94, 5);
             return;
         case 29:
-            func_ov003_0208d5a4(0x95, 8);
+            BtlMgr_SetEncounter(0x95, 8);
             return;
         case 30:
-            func_ov003_0208d5a4(0xF, 0x28);
+            BtlMgr_SetEncounter(0xF, 0x28);
             return;
         case 31:
-            func_ov003_0208d5a4(0x97, 4);
+            BtlMgr_SetEncounter(0x97, 4);
             return;
         case 32:
-            func_ov003_0208d5a4(0x98, 4);
+            BtlMgr_SetEncounter(0x98, 4);
             return;
         case 33:
-            func_ov003_0208d5a4(0x3D, 1);
+            BtlMgr_SetEncounter(0x3D, 1);
             return;
         case 34:
-            func_ov003_0208d5a4(0x99, 0x14);
+            BtlMgr_SetEncounter(0x99, 0x14);
             return;
         case 35:
-            func_ov003_0208d5a4(0x9A, 0x16);
+            BtlMgr_SetEncounter(0x9A, 0x16);
             return;
         case 36:
-            func_ov003_0208d5a4(8, 0x2A);
+            BtlMgr_SetEncounter(8, 0x2A);
             return;
         case 37:
-            func_ov003_0208d5a4(0x1D, 6);
+            BtlMgr_SetEncounter(0x1D, 6);
             return;
         case 38:
-            func_ov003_0208d5a4(0x1E, 0xE);
+            BtlMgr_SetEncounter(0x1E, 0xE);
             return;
         case 39:
-            func_ov003_0208d5a4(0x1C, 0xE);
+            BtlMgr_SetEncounter(0x1C, 0xE);
             return;
         case 40:
-            func_ov003_0208d5a4(0x1F, 10);
+            BtlMgr_SetEncounter(0x1F, 10);
             return;
         case 41:
-            func_ov003_0208d5a4(0x9B, 6);
+            BtlMgr_SetEncounter(0x9B, 6);
             return;
         case 42:
-            func_ov003_0208d5a4(0x9C, 8);
+            BtlMgr_SetEncounter(0x9C, 8);
             return;
         case 43:
-            func_ov003_0208d5a4(0x21, 0xD);
+            BtlMgr_SetEncounter(0x21, 0xD);
             return;
         case 44:
-            func_ov003_0208d5a4(10, 0x2A);
+            BtlMgr_SetEncounter(10, 0x2A);
             return;
         case 45:
-            func_ov003_0208d5a4(0x1B, 0x2A);
+            BtlMgr_SetEncounter(0x1B, 0x2A);
             return;
         case 46:
-            func_ov003_0208d5a4(0x14, 0x2A);
+            BtlMgr_SetEncounter(0x14, 0x2A);
             return;
         case 47:
-            func_ov003_0208d5a4(0x16, 0x2A);
+            BtlMgr_SetEncounter(0x16, 0x2A);
             return;
         case 48:
-            func_ov003_0208d5a4(0x20, 0x28);
+            BtlMgr_SetEncounter(0x20, 0x28);
             return;
         case 49:
             gSaveData.battleCount          = 11;
@@ -1907,47 +1817,47 @@ static void func_ov003_0208d698(u32 selector) {
             gSaveData.unk_3138             = 0x2A;
             return;
         case 50:
-            func_ov003_0208d5a4(0x38, 0x13);
+            BtlMgr_SetEncounter(0x38, 0x13);
             return;
         case 51:
-            func_ov003_0208d5a4(0x39, 0x13);
+            BtlMgr_SetEncounter(0x39, 0x13);
             return;
         case 52:
-            func_ov003_0208d5a4(0x3A, 0x13);
+            BtlMgr_SetEncounter(0x3A, 0x13);
             return;
     }
 }
 
-/// Chooses the encounter that the battle actually fights and how long it lasts.
-static void func_ov003_0208db18(BattleMgrWork* work) {
+/// Picks the encounter of the chain's current battle, stepping through the phases of multi-phase encounters.
+static void BtlMgr_PickEncounter(BattleMgrWork* work) {
     u16 encounter = gSaveData.battleEncounters[gSaveData.unk_3142 - 1];
 
     switch (encounter) {
         case 10:
-            work->encounterId    = data_ov003_020d7838[gSaveData.battleTimer];
-            work->battleDuration = 4;
+            work->encounterId = BtlMgr_Encounter10Phases[gSaveData.battleTimer];
+            work->phaseCount  = 4;
             break;
 
         case 0x14:
-            work->encounterId    = data_ov003_020d7834[gSaveData.battleTimer];
-            work->battleDuration = 1;
+            work->encounterId = BtlMgr_Encounter20Phases[gSaveData.battleTimer];
+            work->phaseCount  = 1;
             break;
 
         case 0x33:
-            work->encounterId    = data_ov003_020d7830[gSaveData.battleTimer];
-            work->battleDuration = 1;
+            work->encounterId = BtlMgr_Encounter51Phases[gSaveData.battleTimer];
+            work->phaseCount  = 1;
             break;
 
         default:
-            work->encounterId    = encounter;
-            work->battleDuration = 0;
+            work->encounterId = encounter;
+            work->phaseCount  = 0;
             break;
     }
 }
 
-/// Sets the battle track and remembers that it was played.
-static void func_ov003_0208dbf4(BattleMgrWork* work, u32 track) {
-    gSaveData.unk_313C = data_ov003_020d7850[track];
+/// Plays a battle track (unless the chain is already playing it) and marks it played.
+static void BtlMgr_PlayTrack(BattleMgrWork* work, u32 track) {
+    gSaveData.unk_313C = BtlMgr_TrackFiles[track];
 
     if (gSaveData.battleTimer == 0 || gSaveData.unk_3130 == 1) {
         CriSndMgr_PlayFile(gSaveData.unk_313C);
@@ -1957,9 +1867,8 @@ static void func_ov003_0208dbf4(BattleMgrWork* work, u32 track) {
     work->musicId = track;
 }
 
-/// Selects the battle music. Note that the field at 0x11E14 is reused as the music index once the
-/// encounter id has been consumed.
-static void func_ov003_0208dc64(BattleMgrWork* work, s32 isContinuation) {
+/// Resets the sound heap and picks the battle track: fixed for scripted and boss encounters, random otherwise.
+static void BtlMgr_PickMusic(BattleMgrWork* work, s32 isContinuation) {
     u16 music;
 
     if (isContinuation != 0) {
@@ -1969,17 +1878,17 @@ static void func_ov003_0208dc64(BattleMgrWork* work, s32 isContinuation) {
     }
 
     if (gSaveData.unk_3134 == 0x31) {
-        func_ov003_0208dbf4(work, 9);
+        BtlMgr_PlayTrack(work, 9);
         return;
     }
 
     if (work->encounterId >= 0x9D && work->encounterId <= 0xCE) {
-        func_ov003_0208dbf4(work, 0xE);
+        BtlMgr_PlayTrack(work, 0xE);
         return;
     }
 
     if (gSaveData.unk_3130 == 2 && work->encounterId != 0x16 && work->encounterId != 0x20) {
-        func_ov003_0208dbf4(work, 0xF);
+        BtlMgr_PlayTrack(work, 0xF);
         return;
     }
 
@@ -2072,39 +1981,39 @@ static void func_ov003_0208dc64(BattleMgrWork* work, s32 isContinuation) {
             break;
 
         default:
-            music = func_ov003_0208d608();
-            if (gSaveData.unk_313C == data_ov003_020d7850[music] &&
-                func_ov003_0208d5cc(data_ov003_020d7898[gSaveData.chapter] > 1) != 0)
+            music = BtlMgr_PickTrack();
+            if (gSaveData.unk_313C == BtlMgr_TrackFiles[music] &&
+                BtlMgr_CountUnplayedTracks(BtlMgr_ChapterTracks[gSaveData.chapter] > 1) != 0)
             {
                 gSaveData.unk_3234 |= 1 << music;
-                music = func_ov003_0208d608();
+                music = BtlMgr_PickTrack();
                 gSaveData.unk_3234 &= ~(1 << music);
             }
             break;
     }
 
-    func_ov003_0208dbf4(work, music);
+    BtlMgr_PlayTrack(work, music);
 }
 
-/// Advances the chained-battle timer. Returns TRUE once all battles of the chain are done.
-static BOOL func_ov003_0208e008(BattleMgrWork* work) {
+/// Advances to the next phase or battle of the chain. Returns TRUE once the chain is over.
+static BOOL BtlMgr_AdvanceChain(BattleMgrWork* work) {
     gSaveData.battleTimer++;
-    if (gSaveData.battleTimer > work->battleDuration) {
+    if (gSaveData.battleTimer > work->phaseCount) {
         gSaveData.unk_3142++;
         gSaveData.battleTimer = 0;
     }
     return gSaveData.unk_3142 > gSaveData.battleCount;
 }
 
-/// Copies the battle level/experience back into the save data.
-static void func_ov003_0208e064(void) {
+/// Copies the battle's level and experience back to the player's stats.
+static void BtlMgr_SaveLevel(void) {
     gSaveData.playerStats.currentLevel   = gSaveData.battleLevel;
     gSaveData.playerStats.maxLevel       = gSaveData.battleMaxLevel;
     gSaveData.playerStats.expToNextLevel = gSaveData.battleExpToNextLevel;
 }
 
-/// Battle result/continue state machine.
-static void func_ov003_0208e098(BattleMgrWork* work) {
+/// Leaves the battle for the scene its outcome (`work->step`) leads to.
+static void BtlMgr_LeaveBattle(BattleMgrWork* work) {
     BOOL isTrueEnd = gSaveData.unk_3130 == 3;
 
     switch (work->step) {
@@ -2112,7 +2021,7 @@ static void func_ov003_0208e098(BattleMgrWork* work) {
             OverlayTag tag;
             OverlayTag tag2;
 
-            func_ov003_0208e064();
+            BtlMgr_SaveLevel();
             CriSndMgr_Stop(gSaveData.unk_313C);
 
             if (isTrueEnd) {
@@ -2149,9 +2058,9 @@ static void func_ov003_0208e098(BattleMgrWork* work) {
             OverlayTag tag2;
             s32        i;
 
-            func_ov003_0208e064();
-            func_ov003_0208cc14();
-            func_ov003_0208cf94(work->encounterId);
+            BtlMgr_SaveLevel();
+            BtlMgr_CalcBonuses();
+            BtlMgr_RecordClearTime(work->encounterId);
             for (i = 0; i < 96; i++) {
                 gSaveData.unk_1FCC[i] = gSaveData.unk_326A[i];
             }
@@ -2172,9 +2081,9 @@ static void func_ov003_0208e098(BattleMgrWork* work) {
             OverlayTag tag2;
             s32        i;
 
-            func_ov003_0208e064();
-            func_ov003_0208cc14();
-            func_ov003_0208cf94(work->encounterId);
+            BtlMgr_SaveLevel();
+            BtlMgr_CalcBonuses();
+            BtlMgr_RecordClearTime(work->encounterId);
             for (i = 0; i < 96; i++) {
                 gSaveData.unk_1FCC[i] = gSaveData.unk_326A[i];
             }
@@ -2194,7 +2103,7 @@ static void func_ov003_0208e098(BattleMgrWork* work) {
             if (gSaveData.battleTimer == 0) {
                 CriSndMgr_Stop(gSaveData.unk_313C);
             }
-            work->keepBattleState = 1;
+            work->keepOverlays = 1;
             MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, ProcessOverlay_Battle, NULL, 0);
             return;
         }
@@ -2212,8 +2121,8 @@ static void func_ov003_0208e098(BattleMgrWork* work) {
     }
 }
 
-/// State machine used by the "continue" battle overlay.
-static void func_ov003_0208e3f0(BattleMgrWork* work) {
+/// Leaves a retried battle for the scene its outcome (`work->step`) leads to.
+static void BtlMgr_LeaveRetry(BattleMgrWork* work) {
     switch (work->step) {
         case 0: {
             OverlayTag tag;
@@ -2237,7 +2146,7 @@ static void func_ov003_0208e3f0(BattleMgrWork* work) {
             OverlayTag tag;
 
             CriSndMgr_Stop(gSaveData.unk_313C);
-            work->keepBattleState = 1;
+            work->keepOverlays = 1;
             MainOvlDisp_ReplaceTop(&tag, &OVERLAY_3_ID, ProcessOverlay_Battle, NULL, 0);
             return;
         }
@@ -2256,78 +2165,75 @@ static void func_ov003_0208e3f0(BattleMgrWork* work) {
     }
 }
 
-/// Fades the battle in, then switches to the battle update callback.
-static void func_ov003_0208e520(BattleMgrWork* work) {
+/// Fades the battle in, then waits for the intro.
+static void BtlMgr_FadeIn(BattleMgrWork* work) {
     if (work->fadeCounter == 0) {
         EasyFade_FadeBothDisplays(0, 0, 0x1000);
         work->active = 1;
         work->fadeCounter++;
     }
-    if (EasyFade_IsFading() != 0) {
-        return;
+    if (!EasyFade_IsFading()) {
+        work->fadeCounter = 0;
+        work->unk_11E1A   = 0;
+        DebugOvlDisp_ReplaceTop((OverlayCB)BtlMgr_WaitReady, work, 0);
     }
-    work->fadeCounter = 0;
-    work->unk_11E1A   = 0;
-    DebugOvlDisp_ReplaceTop((OverlayCB)func_ov003_0208e5f8, work, 0);
 }
 
-/// Fades the battle out, then pops the battle callback.
-static void func_ov003_0208e59c(BattleMgrWork* work) {
+/// Fades the battle out, then ends the battle callbacks.
+static void BtlMgr_FadeOut(BattleMgrWork* work) {
     if (work->fadeCounter == 0) {
         EasyFade_FadeBothDisplays(0, 0x10, 0x1000);
         work->active = 1;
         work->fadeCounter++;
     }
-    if (EasyFade_IsFading() != 0) {
-        return;
+    if (!EasyFade_IsFading()) {
+        DebugOvlDisp_Pop();
     }
-    DebugOvlDisp_Pop();
 }
 
-/// Battle update callback: switches to the fade-out callback once the battle is over.
-static void func_ov003_0208e5f8(BattleMgrWork* work) {
-    work->active = g_CombatGlobal->unk3D87C == 0;
+/// Waits for the intro to end, then runs the battle.
+static void BtlMgr_WaitReady(BattleMgrWork* work) {
+    work->active = gBattle->paused == 0;
 
-    if (g_CombatGlobal->unk3D874 == 1) {
-        return;
+    if (gBattle->state != BATTLE_STATE_READY) {
+        work->fadeCounter = 0;
+        work->unk_11E1A   = 0;
+        DebugOvlDisp_ReplaceTop((OverlayCB)BtlMgr_RunBattle, work, 0);
     }
-    work->fadeCounter = 0;
-    work->unk_11E1A   = 0;
-    DebugOvlDisp_ReplaceTop((OverlayCB)func_ov003_0208e668, work, 0);
 }
 
-/// Battle update callback for the "battle is over" path.
-static void func_ov003_0208e668(BattleMgrWork* work) {
-    work->active = g_CombatGlobal->unk3D87C == 0;
-    func_ov003_0208b71c();
+/// Runs the battle until it is won, lost or ended, then picks where it leads.
+static void BtlMgr_RunBattle(BattleMgrWork* work) {
+    work->active = gBattle->paused == 0;
+    BtlMgr_CheckVictory();
 
-    switch (g_CombatGlobal->unk3D874) {
-        case 5:
+    switch (gBattle->state) {
+        case BATTLE_STATE_QUIT:
             work->step        = 3;
             work->fadeCounter = 0;
             work->unk_11E1A   = 0;
-            DebugOvlDisp_ReplaceTop((OverlayCB)func_ov003_0208e59c, work, 0);
+            DebugOvlDisp_ReplaceTop((OverlayCB)BtlMgr_FadeOut, work, 0);
             return;
 
-        case 3:
-            work->step        = func_ov003_0208e008(work) ? 0 : 2;
+        case BATTLE_STATE_WIN:
+            work->step        = BtlMgr_AdvanceChain(work) ? 0 : 2;
             work->fadeCounter = 0;
             work->unk_11E1A   = 0;
-            DebugOvlDisp_ReplaceTop((OverlayCB)func_ov003_0208e7c0, work, 0);
+            DebugOvlDisp_ReplaceTop((OverlayCB)BtlMgr_WaitResults, work, 0);
             return;
 
-        case 4:
+        case BATTLE_STATE_LOSE:
             work->step        = 1;
             work->fadeCounter = 0;
             work->unk_11E1A   = 0;
-            DebugOvlDisp_ReplaceTop((OverlayCB)func_ov003_0208e7c0, work, 0);
+            DebugOvlDisp_ReplaceTop((OverlayCB)BtlMgr_WaitResults, work, 0);
             return;
 
-        case 6:
-            work->step        = func_ov003_0208e008(work) ? 4 : 2;
+        case BATTLE_STATE_SCRIPTED_END:
+            work->step        = BtlMgr_AdvanceChain(work) ? 4 : 2;
             work->fadeCounter = 0;
             work->unk_11E1A   = 0;
-            DebugOvlDisp_ReplaceTop((OverlayCB)func_ov003_0208e59c, work, 0);
+            DebugOvlDisp_ReplaceTop((OverlayCB)BtlMgr_FadeOut, work, 0);
             return;
 
         default:
@@ -2335,23 +2241,23 @@ static void func_ov003_0208e668(BattleMgrWork* work) {
     }
 }
 
-static void func_ov003_0208e7c0(BattleMgrWork* work) {
-    work->active = g_CombatGlobal->unk3D87C == 0;
+/// Waits for the result screens to finish, then fades out.
+static void BtlMgr_WaitResults(BattleMgrWork* work) {
+    work->active = gBattle->paused == 0;
 
-    if (g_CombatGlobal->unk3D874 != 7) {
-        return;
+    if (gBattle->state == BATTLE_STATE_RESULTS_DONE) {
+        work->fadeCounter = 0;
+        work->unk_11E1A   = 0;
+        DebugOvlDisp_ReplaceTop((OverlayCB)BtlMgr_FadeOut, work, 0);
     }
-    work->fadeCounter = 0;
-    work->unk_11E1A   = 0;
-    DebugOvlDisp_ReplaceTop((OverlayCB)func_ov003_0208e59c, work, 0);
 }
 
-/// Overlay init stage: allocate the work area and bring up the battle scene.
+/// Overlay init stage: allocates the work area and starts the chain's next battle.
 static void BtlMgr_Init(BattleMgrWork* work) {
     if (work == NULL) {
-        char* sequence = data_ov003_020e3ac0;
+        char* sequence = BtlMgr_SequenceName;
 
-        work = Mem_AllocHeapTail(&gDebugHeap, 0x11E20);
+        work = Mem_AllocHeapTail(&gDebugHeap, sizeof(BattleMgrWork));
         Mem_SetSequence(&gDebugHeap, work, sequence);
         MainOvlDisp_SetCbArg(work);
     }
@@ -2365,7 +2271,7 @@ static void BtlMgr_Init(BattleMgrWork* work) {
         BtlDebug_InitSettings();
     }
 
-    func_ov003_0208d56c();
+    BtlMgr_InitGraphics();
     ResourceMgr_ReinitManagers(&work->resources);
 
     g_PaletteBuffers[DISPLAY_MAIN].bg[0] = 0;
@@ -2409,30 +2315,30 @@ static void BtlMgr_Init(BattleMgrWork* work) {
         gSaveData.battleTimer = 0;
         gSaveData.unk_3232    = 0;
 
-        func_ov003_0208d698(gSaveData.unk_3134);
-        func_ov003_0208db18(work);
-        func_ov003_0208dc64(work, 0);
-        func_ov003_0208b944(work->encounterId, 0);
+        BtlMgr_SetupScriptedBattle(gSaveData.unk_3134);
+        BtlMgr_PickEncounter(work);
+        BtlMgr_PickMusic(work, 0);
+        BtlMgr_StartBattle(work->encounterId, 0);
     } else {
-        func_ov003_0208db18(work);
-        func_ov003_0208dc64(work, 1);
-        func_ov003_0208b944(work->encounterId, 1);
+        BtlMgr_PickEncounter(work);
+        BtlMgr_PickMusic(work, 1);
+        BtlMgr_StartBattle(work->encounterId, 1);
     }
 
-    work->fadeCounter     = 0;
-    work->unk_11E1A       = 0;
-    work->active          = 1;
-    work->step            = 5;
-    work->keepBattleState = 0;
+    work->fadeCounter  = 0;
+    work->unk_11E1A    = 0;
+    work->active       = 1;
+    work->step         = 5;
+    work->keepOverlays = 0;
 
-    func_ov003_0208b6d4();
+    BtlMgr_StartReady();
     DebugOvlDisp_Init();
-    DebugOvlDisp_Push((OverlayCB)func_ov003_0208e520, work, 0);
+    DebugOvlDisp_Push((OverlayCB)BtlMgr_FadeIn, work, 0);
     MainOvlDisp_NextProcessStage();
     MainOvlDisp_Run();
 }
 
-/// Overlay main stage.
+/// Overlay main stage: runs one frame of the battle.
 static void BtlMgr_Main(BattleMgrWork* work) {
     TouchInput_Update();
     OamMgr_Reset3DState();
@@ -2442,15 +2348,15 @@ static void BtlMgr_Main(BattleMgrWork* work) {
     OamMgr_ResetCommandQueues(&g_OamMgr[DISPLAY_MAIN]);
     OamMgr_ResetCommandQueues(&g_OamMgr[DISPLAY_SUB]);
 
-    func_ov003_0208c2a8();
-    func_ov003_0208c4bc();
+    BtlMgr_Tick();
+    BtlMgr_RunTasks();
     DebugOvlDisp_Run();
 
     if (DebugOvlDisp_IsStackAtBase() != 0) {
         if (gSaveData.unk_3130 == 1) {
-            func_ov003_0208e3f0(work);
+            BtlMgr_LeaveRetry(work);
         } else {
-            func_ov003_0208e098(work);
+            BtlMgr_LeaveBattle(work);
         }
         return;
     }
@@ -2469,27 +2375,24 @@ static void BtlMgr_Main(BattleMgrWork* work) {
     func_0200d90c();
 }
 
-/// Overlay exit stage.
+/// Overlay exit stage: ends the battle and frees the work area.
 static void BtlMgr_Exit(BattleMgrWork* work) {
-    if (work == NULL) {
-        return;
+    if (work != NULL) {
+        BtlMgr_EndBattle(work->keepOverlays);
+        Input_Init(&InputStatus, 8, 1, 2);
+        BtlMgr_ExitGraphics();
+        EasyTask_DestroyPool(&work->taskPool);
+        Mem_Free(&gDebugHeap, work);
+        MainOvlDisp_SetCbArg(NULL);
     }
-
-    func_ov003_0208c54c(work->keepBattleState);
-    Input_Init(&InputStatus, 8, 1, 2);
-    func_ov003_0208d58c();
-    EasyTask_DestroyPool(&work->taskPool);
-    Mem_Free(&gDebugHeap, work);
-    MainOvlDisp_SetCbArg(NULL);
 }
 
-/// Overlay callback dispatcher.
 void ProcessOverlay_Battle(BattleMgrWork* work) {
     s32 stage = MainOvlDisp_GetProcessStage();
 
     if (stage == PROCESS_STAGE_EXIT) {
         BtlMgr_Exit(work);
-        return;
+    } else {
+        BtlMgr_ProcessStages[stage](work);
     }
-    BtlMgr_ProcessStages[stage](work);
 }

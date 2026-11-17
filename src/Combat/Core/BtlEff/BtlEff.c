@@ -26,7 +26,6 @@ typedef struct BtlEffArgs {
 } BtlEffArgs; // Size: 0x18
 
 /// Named battle sprite-page identifiers.
-extern const BinIdentifier data_ov003_020d77d8, data_ov003_020d77f8;
 
 static s32 BtlEff_RunTask(TaskPool* pool, Task* task, void* args, s32 stage);
 
@@ -53,8 +52,8 @@ static s32 BtlEff_Init(TaskPool* pool, Task* task, void* args) {
     eff->position.z = p->z;
     eff->active     = 1;
 
-    BtlSprite_LoadFromTable(p->mode, &eff->sprite, (def->pack == 4 ? &data_ov003_020d77f8 : &data_ov003_020d77d8), &def->anim,
-                            0, def->paletteEntry, def->charTiles);
+    BtlSprite_LoadFromTable(p->mode, &eff->sprite, (def->pack == 4 ? &Iden_BtlEffect : &Iden_BtlPly00), &def->anim, 0,
+                            def->paletteEntry, def->charTiles);
     if (eff->sprite.flags & BTL_SPRITE_FLAG_LOAD_FAILED) {
         return 0;
     }
@@ -63,9 +62,9 @@ static s32 BtlEff_Init(TaskPool* pool, Task* task, void* args) {
     BtlSprite_SetFlip(&eff->sprite, p->flip);
 
     if (p->mode != 1) {
-        g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE + 1;
+        gBattle->unk3D8FE = (s8)gBattle->unk3D8FE + 1;
     } else {
-        g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF + 1;
+        gBattle->unk3D8FF = (s8)gBattle->unk3D8FF + 1;
     }
     return 1;
 }
@@ -109,9 +108,9 @@ static s32 BtlEff_Release(TaskPool* pool, Task* task, void* args) {
     CombatEffect* eff = task->data;
 
     if (eff->sprite.sprite.bits_0_1 != 1) {
-        g_CombatGlobal->unk3D8FE = (s8)g_CombatGlobal->unk3D8FE - 1;
+        gBattle->unk3D8FE = (s8)gBattle->unk3D8FE - 1;
     } else {
-        g_CombatGlobal->unk3D8FF = (s8)g_CombatGlobal->unk3D8FF - 1;
+        gBattle->unk3D8FF = (s8)gBattle->unk3D8FF - 1;
     }
     BtlSprite_Release(&eff->sprite);
     return 1;
@@ -125,7 +124,7 @@ static s32 BtlEff_RunTask(TaskPool* pool, Task* task, void* args, s32 stage) {
         .cleanup    = BtlEff_Release,
     };
 
-    if (func_ov003_0208b690(stage) != 0) {
+    if (BtlMgr_IsStageFrozen(stage) != 0) {
         return 1;
     } else {
         return stages.iter[stage](pool, task, args);
@@ -137,9 +136,9 @@ void func_ov003_0209e9f8(s32 mode, s32 id, s32 x, s32 y, s32 z, s32 flip) {
     s32        live;
 
     if (mode != 1) {
-        live = (s8)g_CombatGlobal->unk3D8FE;
+        live = (s8)gBattle->unk3D8FE;
     } else {
-        live = (s8)g_CombatGlobal->unk3D8FF;
+        live = (s8)gBattle->unk3D8FF;
     }
     // The retail code folds the room test back into the same variable.
     live = live < 10;
@@ -151,6 +150,6 @@ void func_ov003_0209e9f8(s32 mode, s32 id, s32 x, s32 y, s32 z, s32 flip) {
         args.z    = z;
         args.flip = flip;
 
-        EasyTask_CreateTask(&g_CombatGlobal->unk_10118, &Tsk_BtlEff, NULL, 0, NULL, &args);
+        EasyTask_CreateTask(&gBattle->commonPool, &Tsk_BtlEff, NULL, 0, NULL, &args);
     }
 }

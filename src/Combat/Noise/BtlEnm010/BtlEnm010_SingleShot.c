@@ -60,9 +60,9 @@ s32 func_ov011_021282b8(Ov003EnemyActor* owner, s32 arg1, s32 arg2, s32 arg3, u1
     TaskPool*               pool;
 
     if (func_ov003_020c37f8(&owner->sprite) == 0) {
-        pool = &g_CombatGlobal->unk_00000;
+        pool = &gBattle->mainPool;
     } else {
-        pool = &g_CombatGlobal->taskPool;
+        pool = &gBattle->subPool;
     }
     t.field_00 = owner;
     t.field_04 = arg1;
@@ -167,7 +167,7 @@ static s32 func_ov011_021284bc(BtlEnm010SingleShot* p) {
         func_ov003_020cbc50(&oa, &ob, p->unk_0AA, rec->unk_00);
         rec->unk_0C = (oa + (va << 12)) >> 12;
         rec->unk_0E = (ob + (vb << 12)) >> 12;
-        if (BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(id), &p->args, rec->unk_0C, rec->unk_0E) == 1) {
+        if (BtlHit_AttackAtScreen(BtlHit_GetAttackInfo(id), &p->args, rec->unk_0C, rec->unk_0E) == BTL_HIT_RESULT_LANDED) {
             BtlSe_PlayPanned(SEIDX_SE_010_BUBBLEATTACK_HIT, rec->unk_0C);
         }
         {
